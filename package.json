@@ -1,0 +1,13 @@
+{
+  "name": "Larvitar",
+  "version": "0.1.0",
+  "description": "javascript library for loading dicom images",
+  "license": "MIT",
+  "dependencies": {
+    "cornerstone-core": "^2.3.0",
+    "dicom-parser": "^1.8.4",
+    "lodash": "^4.17.15",
+    "nrrd-js": "^0.2.1",
+    "pako": "^1.0.10"
+  }
+}
