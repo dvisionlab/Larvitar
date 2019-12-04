@@ -94,10 +94,12 @@ let parseNextFile = function(callback) {
 // -----------------------------------------------
 let dumpFiles = function(fileList, callback) {
   forEach(fileList, function(file) {
-    parsingQueue.push(file);
-    // enable parsing on first available path
-    if (parsingQueueFlag === null) {
-      parsingQueueFlag = true;
+    if (!file.name.startsWith(".")) {
+      parsingQueue.push(file);
+      // enable parsing on first available path
+      if (parsingQueueFlag === null) {
+        parsingQueueFlag = true;
+      }
     }
   });
   parseNextFile(callback);
