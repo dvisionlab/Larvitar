@@ -24,7 +24,19 @@ var allSeriesStack = {};
 /*
  * This module provides the following functions to be exported:
  * readFiles(entries, callback)
+ * resetImageParsing()
  */
+
+// -------------------------------------------------
+// Reset Image Parsing
+// -------------------------------------------------
+export const resetImageParsing = function() {
+  parsingQueueFlag = null;
+  parsingQueue = [];
+  totalFileSize = 0;
+  allSeriesStack = {};
+  clearFileSystem(filesystem ? filesystem.root : null);
+};
 
 // -------------------------------------------------
 // Read dicom files and return allSeriesStack object
@@ -72,19 +84,18 @@ let parseNextFile = function(callback) {
       }
 
       if (err) {
-        console.log("err: ", err);
         callback(null, err);
       } else {
         // update the total parsed file size
         totalFileSize += file.size;
         // add file to cornerstoneWADOImageLoader file manager
-        // console.log("updateLoadedStack")
         updateLoadedStack(seriesData, allSeriesStack);
         // console.log('updateLoadedStack')
+
+        // proceed with the next file to parse
+        parsingQueueFlag = true;
+        parseNextFile(callback);
       }
-      // proceed with the next file to parse
-      parsingQueueFlag = true;
-      parseNextFile(callback);
     });
   }
 };

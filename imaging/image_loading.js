@@ -1,6 +1,7 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import dicomParser from "dicom-parser";
+import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { forEach } from "lodash";
 
 // internal libraries
@@ -11,6 +12,7 @@ import { loadNrrdImage } from "./nrrdLoader.js";
 const globalConfig = {
   maxWebWorkers: navigator.hardwareConcurrency || 1,
   webWorkerPath: "/cornerstoneWADOImageLoaderWebWorker.js",
+  startWebWorkersOnDemand: true,
   taskConfiguration: {
     decodeTask: {
       loadCodecsOnStartup: true,
@@ -33,11 +35,9 @@ const globalConfig = {
 // ------------------------------------
 export const initializeImageLoader = function(config) {
   let imageLoaderConfig = config ? config : globalConfig;
-  window.cornerstoneWADOImageLoader.webWorkerManager.initialize(
-    imageLoaderConfig
-  );
-  window.cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-  window.cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+  cornerstoneWADOImageLoader.webWorkerManager.initialize(imageLoaderConfig);
+  cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+  cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 };
 
 // --------------------------------
@@ -67,7 +67,7 @@ export const updateLoadedStack = function(seriesData, allSeriesStack) {
     // generate an imageId for the file and store it
     // in allSeriesStack imageIds array, used by
     // cornerstoneWADOImageLoader to display the stack of images
-    let imageId = window.cornerstoneWADOImageLoader.wadouri.fileManager.add(
+    let imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(
       seriesData.file
     );
     allSeriesStack[sid].imageIds.push(imageId);

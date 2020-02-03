@@ -1,10 +1,9 @@
 // external libraries
-import cornerstone from "cornerstone";
+import cornerstone from "cornerstone-core";
 import { each } from "lodash";
 
 // internal libraries
 import { buildData, buildHeader } from "./image_io";
-import { getMainLayer } from "./image_layers.js";
 
 // global module variables
 
@@ -14,7 +13,7 @@ import { getMainLayer } from "./image_layers.js";
  * cacheAndSaveSeries(series)
  * loadImage(series, elementId)
  * updateImage(series, elementId, imageIndex)
- * enableMouseHandlers(element)
+ * resetViewports([elementIds])
  */
 
 // -----------------------------------
@@ -50,6 +49,31 @@ export const cacheAndSaveSeries = async function(series) {
   return { data, header };
 };
 
+// ----------------------------------------------------------------
+// Reload an image on a html div using cornerstone
+// -----------------------------------------------------------------
+export const reloadImage = function(series, elementId, sliceId) {
+  let element = document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let windowWidth = cornerstone.getViewport(element).voi.windowWidth;
+  let windowCenter = cornerstone.getViewport(element).voi.windowCenter;
+  cornerstone.enable(element);
+  each(series.imageIds, function(imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function(image) {
+      if (sliceId == imageId) {
+        cornerstone.displayImage(element, image);
+        let viewport = cornerstone.getViewport(element);
+        viewport.voi.windowWidth = windowWidth;
+        viewport.voi.windowCenter = windowCenter;
+        cornerstone.fitToWindow(element);
+      }
+    });
+  });
+};
+
 // -----------------------------------------------------------------
 // Load an cache image and render it in a html div using cornerstone
 // -----------------------------------------------------------------
@@ -60,17 +84,19 @@ export const loadImage = function(series, elementId) {
     return;
   }
   cornerstone.enable(element);
+
   let imageIndex = Math.floor(series.imageIds.length / 2);
   let currentImageId = series.imageIds[imageIndex];
   cornerstone.imageCache.purgeCache();
+
   each(series.imageIds, function(imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function(image) {
       if (currentImageId == imageId) {
         cornerstone.displayImage(element, image);
         let viewport = cornerstone.getViewport(element);
-        viewport.voi.windowWidth = image.windowWidth;
-        viewport.voi.windowCenter = image.windowCenter;
-        enableMouseHandlers(element);
+        viewport.voi.windowWidth = 400.0;
+        viewport.voi.windowCenter = 60.0;
+        cornerstone.fitToWindow(element);
       }
     });
   });
@@ -80,61 +106,32 @@ export const loadImage = function(series, elementId) {
 // update the cornerstone image with new imageIndex
 // ------------------------------------------------
 export const updateImage = function(series, element, imageIndex) {
+  if (!element) {
+    return;
+  }
   cornerstone.loadImage(series.imageIds[imageIndex]).then(function(image) {
     cornerstone.displayImage(element, image);
   });
 };
 
-// ------------------------------------------------
-// add event handlers to mouse move to adjust WW/WL
-// ------------------------------------------------
-export const enableMouseHandlers = function(element) {
-  let viewport = cornerstone.getViewport(element);
-  // reset previous handler
-  element.removeEventListener("mousedown", mouseDownHandler);
-
-  function mouseDownHandler(e) {
-    let layers = cornerstone.getLayers(element);
-    if (layers) {
-      each(layers, function(layer) {
-        if (layer.options.name == getMainLayer()) {
-          cornerstone.setActiveLayer(element, layer.layerId);
-        }
-      });
+// ---------------------------------------------------
+// Reset viewport values (scale, translation and wwwc)
+// ---------------------------------------------------
+export const resetViewports = function(elementIds, defaultSettings) {
+  each(elementIds, function(elementId) {
+    let element = document.getElementById(elementId);
+    if (!element) {
+      console.error("invalid html element: " + elementId);
+      return;
     }
-
-    let lastX = e.pageX;
-    let lastY = e.pageY;
-    function mouseMoveHandler(e) {
-      const deltaX = e.pageX - lastX;
-      const deltaY = e.pageY - lastY;
-      lastX = e.pageX;
-      lastY = e.pageY;
-
-      viewport.voi.windowWidth += deltaX / viewport.scale;
-      viewport.voi.windowCenter += deltaY / viewport.scale;
-      cornerstone.setViewport(element, viewport);
-
-      //Update canvas gui
-      document.getElementById("ww-wc").textContent =
-        "WW/WC: " +
-        Math.round(viewport.voi.windowWidth) +
-        "/" +
-        Math.round(viewport.voi.windowCenter);
-    }
-    function mouseUpHandler() {
-      document.removeEventListener("mousemove", mouseMoveHandler);
-      document.removeEventListener("mouseup", mouseUpHandler);
-    }
-    document.addEventListener("mousemove", mouseMoveHandler);
-    document.addEventListener("mouseup", mouseUpHandler);
-  }
-  element.addEventListener("mousedown", mouseDownHandler);
-
-  //Update canvas gui
-  document.getElementById("ww-wc").textContent =
-    "WW/WC: " +
-    Math.round(viewport.voi.windowWidth) +
-    "/" +
-    Math.round(viewport.voi.windowCenter);
+    let viewport = cornerstone.getViewport(element);
+    viewport.scale = defaultSettings.scale;
+    viewport.translation.x = defaultSettings.translation.x;
+    viewport.translation.y = defaultSettings.translation.y;
+    viewport.voi.windowWidth = defaultSettings.windowWidth;
+    viewport.voi.windowCenter = defaultSettings.windowCenter;
+    cornerstone.setViewport(element, viewport);
+    cornerstone.fitToWindow(element);
+    cornerstone.updateImage(element);
+  });
 };

@@ -4,17 +4,22 @@ import nrrd
 # write the .nrrd file from numpy array and metadata
 def write_nrrd(outputFilePath, data, metadata):
 
-    origin = metadata['volume']['imagePosition']
-    z_orientation = np.cross(metadata['volume']['imageOrientation'][:3], metadata['volume']['imageOrientation'][3:]);
+    origin = [int(np.ceil(metadata['volume']['rows']/2)), int(np.ceil(metadata['volume']
+                                                                      ['cols']/2)), int(np.ceil(metadata['volume']['numberOfSlices']/2))]
+    z_orientation = np.cross(
+        metadata['volume']['imageOrientation'][:3], metadata['volume']['imageOrientation'][3:])
     orientation = np.array([
                            [metadata['volume']['pixelSpacing'][0] * metadata['volume']['imageOrientation'][0],
-                            metadata['volume']['pixelSpacing'][1] * metadata['volume']['imageOrientation'][1],
+                            metadata['volume']['pixelSpacing'][1] *
+                            metadata['volume']['imageOrientation'][1],
                             metadata['volume']['sliceThickness'] * metadata['volume']['imageOrientation'][2]],
                            [metadata['volume']['pixelSpacing'][0] * metadata['volume']['imageOrientation'][3],
-                            metadata['volume']['pixelSpacing'][1] * metadata['volume']['imageOrientation'][4],
+                            metadata['volume']['pixelSpacing'][1] *
+                            metadata['volume']['imageOrientation'][4],
                             metadata['volume']['sliceThickness'] * metadata['volume']['imageOrientation'][5]],
                            [metadata['volume']['pixelSpacing'][0] * z_orientation[0],
-                            metadata['volume']['pixelSpacing'][1] * z_orientation[1],
+                            metadata['volume']['pixelSpacing'][1] *
+                            z_orientation[1],
                             metadata['volume']['sliceThickness'] * z_orientation[2]]])
 
     header = {
@@ -25,9 +30,11 @@ def write_nrrd(outputFilePath, data, metadata):
         'space directions': orientation,
         'encoding': 'raw'
     }
-    nrrd.write(outputFilePath, data, header, index_order='C');
+    nrrd.write(outputFilePath, data, header, index_order='C')
 
 # read the .nrrd file and return the numpy array
+
+
 def read_nrrd(outputFilePath):
-    data, header = nrrd.read(outputFilePath)
+    data, header = nrrd.read(outputFilePath, index_order='C')
     return data

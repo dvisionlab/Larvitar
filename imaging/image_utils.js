@@ -14,10 +14,15 @@ import uuid from "uuid";
 
 // internal libraries
 const TAG_DICT = require("./dataDictionary.json");
+import {
+  getCustomImageId,
+  getSeriesData,
+  getSerieDimensions,
+  getImageIdFromSlice
+} from "./nrrdLoader";
 
 // global module variables
-let customImageLoaderCounter = 0;
-// letiables used to manage the reslice functionality
+// variables used to manage the reslice functionality
 const resliceTable = {
   sagittal: { coronal: [-2, 1, 0], axial: [-2, 0, -1] },
   coronal: { sagittal: [2, 1, -0], axial: [0, 2, -1] },
@@ -37,7 +42,9 @@ const resliceTable = {
  * getMeanValue(series, tag, isArray)
  * getReslicedMetadata(reslicedSeriesId, fromOrientation, toOrientation, seriesData, imageLoaderName)
  * getReslicedPixeldata(imageId, originalData, reslicedData)
- * getCustomImageId(customLoaderName)
+ * parseImageId(imageId)
+ * getDistanceBetweenSlices(seriesData, sliceIndex1, sliceIndex2)
+ * remapVoxel([i,j,k], fromOrientation, toOrientation)
  */
 
 // ---------------------------------------------
@@ -421,6 +428,87 @@ export const getReslicedMetadata = function(
   };
 };
 
+// ------------------------------------------
+// Compute cmpr metadata from pyCmpr data ---
+// ------------------------------------------
+export const getCmprMetadata = function(
+  reslicedSeriesId,
+  imageLoaderName,
+  header
+) {
+  let reslicedImageIds = [];
+  let reslicedInstances = {};
+
+  // DEV
+  // let reslicedIOP = [1, 0, 0, 0, 1, 0];
+  // let reslicedIPP = [-211, -75, -184];
+
+  for (let f = 0; f < header.frames_number; f++) {
+    let reslicedImageId = getCustomImageId(imageLoaderName);
+    reslicedImageIds.push(reslicedImageId);
+
+    let instanceId = uuid.v4();
+
+    let metadata = {
+      // pixel representation
+      x00280100: header.repr,
+      // Bits Allocated
+      x00280103: header.repr,
+      // resliced series sizes
+      x00280010: header.rows, // rows
+      x00280011: header.cols, // cols
+      // resliced series spacing
+      x00280030: [header.spacing[1], header.spacing[0]],
+      x00180050: [header.distance_btw_slices],
+      // remove min and max pixelvalue from metadata before calling the createCustomImage function:
+      // need to recalculate the min and max pixel values on the new instance pixeldata
+      x00280106: undefined,
+      x00280107: undefined,
+      // resliced series data
+      // x0020000d: sampleMetadata.x0020000d, //Study Instance UID
+      x0020000e: reslicedSeriesId,
+      x00200011: random(10000),
+      x00080018: instanceId,
+      x00020003: instanceId,
+      x00200013: f + 1,
+      // TODO
+      // x00201041: getReslicedSliceLocation(reslicedIOP, reslicedIPP), // Slice Location
+      // x00100010: sampleMetadata.x00100010,
+      // x00081030: sampleMetadata.x00081030,
+      // x00080020: sampleMetadata.x00080020,
+      // x00080030: sampleMetadata.x00080030,
+      // x00080061: sampleMetadata.x00080061,
+      // x0008103e: sampleMetadata.x0008103e,
+      // x00080021: sampleMetadata.x00080021,
+      // x00080031: sampleMetadata.x00080031,
+      // x00080060: sampleMetadata.x00080060,
+      // x00280008: sampleMetadata.x00280008,
+      // x00101010: sampleMetadata.x00101010,
+      // x00020010: sampleMetadata.x00020010,
+      // x00200052: sampleMetadata.x00200052,
+      // data needed to obtain a good rendering
+      x00281050: [header.wwwl[1] / 2], // [wl]
+      x00281051: [header.wwwl[0]], // [ww]
+      x00281052: [header.intercept],
+      x00281053: [header.slope],
+      // new image orientation (IOP)
+      x00200037: header.iop ? header.iop.slice(f * 6, (f + 1) * 6) : null,
+      // new image position (IPP)
+      x00200032: header.ipp ? header.ipp.slice(f * 3, (f + 1) * 3) : null
+    };
+
+    reslicedInstances[reslicedImageId] = {
+      instanceId: instanceId,
+      metadata: metadata
+    };
+  }
+
+  return {
+    imageIds: reslicedImageIds,
+    instances: reslicedInstances
+  };
+};
+
 // ---------------------------------------------------------------------------
 // Get pixel data for a single resliced slice, from cornerstone data structure
 // ---------------------------------------------------------------------------
@@ -493,13 +581,49 @@ export const getReslicedPixeldata = function(
   return reslicedSlice;
 };
 
-// -----------------------------------------
-// Get the custom imageId from custom loader
-// -----------------------------------------
-export const getCustomImageId = function(customLoaderName) {
-  let imageId = customLoaderName + "://" + customImageLoaderCounter;
-  customImageLoaderCounter++;
-  return imageId;
+// ---------------------------------
+// Get distance between slices value
+// ---------------------------------
+export const getDistanceBetweenSlices = function(
+  seriesData,
+  sliceIndex1,
+  sliceIndex2
+) {
+  if (seriesData.imageIds.length <= 1) {
+    return 0;
+  }
+
+  let imageId1 = seriesData.imageIds[sliceIndex1];
+  let instance1 = seriesData.instances[imageId1];
+  let metadata1 = instance1.metadata;
+  let imageOrientation = metadata1.imageOrientation
+    ? metadata1.imageOrientation
+    : metadata1.x00200037;
+  let imagePosition = metadata1.imagePosition
+    ? metadata1.imagePosition
+    : metadata1.x00200032;
+
+  if (imageOrientation && imagePosition) {
+    let normal = getNormalOrientation(imageOrientation);
+    let d1 =
+      normal[0] * imagePosition[0] +
+      normal[1] * imagePosition[1] +
+      normal[2] * imagePosition[2];
+
+    let imageId2 = seriesData.imageIds[sliceIndex2];
+    let instance2 = seriesData.instances[imageId2];
+    let metadata2 = instance2.metadata;
+    let imagePosition2 = metadata2.imagePosition
+      ? metadata2.imagePosition
+      : metadata2.x00200032;
+
+    let d2 =
+      normal[0] * imagePosition2[0] +
+      normal[1] * imagePosition2[1] +
+      normal[2] * imagePosition2[2];
+
+    return Math.abs(d1 - d2);
+  }
 };
 
 /* Internal module functions */
@@ -636,7 +760,6 @@ let rand = function() {
 // --------------------------------------------
 let permuteValues = function(convertArray, sourceArray) {
   let outputArray = new Array(convertArray.length);
-
   for (let i = 0; i < convertArray.length; i++) {
     outputArray[i] = sourceArray[convertArray[i]];
   }
@@ -816,49 +939,15 @@ let spacingArray = function(seriesData) {
   // [2]: distance between slices, given the series imageOrientationPatient and
   //      imagePositionPatient of the first two slices
 
+  let distanceBetweenSlices = sampleMetadata.x00180050
+    ? sampleMetadata.x00180050
+    : getDistanceBetweenSlices(seriesData, 0, 1);
+
   return [
     sampleMetadata.x00280030[1],
     sampleMetadata.x00280030[0],
-    getDistanceBetweenSlices(seriesData, 0, 1)
+    distanceBetweenSlices
   ];
-};
-
-// ---------------------------------
-// Get distance between slices value
-// ---------------------------------
-let getDistanceBetweenSlices = function(seriesData, sliceIndex1, sliceIndex2) {
-  if (seriesData.imageIds.length <= 1) {
-    return 0;
-  }
-
-  let imageId1 = seriesData.imageIds[sliceIndex1];
-  let instance1 = seriesData.instances[imageId1];
-  let metadata1 = instance1.metadata;
-
-  // not always correct, compute it anyway
-  // if (metadata1.x00180088) {
-  //   return metadata1.x00180088[0];
-  // }
-
-  if (metadata1.x00200037 && metadata1.x00200032) {
-    let normal = getNormalOrientation(metadata1.x00200037);
-
-    let d1 =
-      normal[0] * metadata1.x00200032[0] +
-      normal[1] * metadata1.x00200032[1] +
-      normal[2] * metadata1.x00200032[2];
-
-    let imageId2 = seriesData.imageIds[sliceIndex2];
-    let instance2 = seriesData.instances[imageId2];
-    let metadata2 = instance2.metadata;
-
-    let d2 =
-      normal[0] * metadata2.x00200032[0] +
-      normal[1] * metadata2.x00200032[1] +
-      normal[2] * metadata2.x00200032[2];
-
-    return Math.abs(d1 - d2);
-  }
 };
 
 // -------------------------------------------
@@ -879,3 +968,88 @@ let permuteSignedArrays = function(convertArray, sourceArray) {
 
   return outputArray;
 };
+
+// -------------------------------
+// Parse an imageId string to int
+// -------------------------------
+export function parseImageId(imageId) {
+  let sliceNumber = imageId.split("//").pop();
+  return parseInt(sliceNumber);
+}
+
+// --------------------------------------------------
+// Remap a voxel cohordinates in a target orientation
+// --------------------------------------------------
+export function remapVoxel([i, j, k], fromOrientation, toOrientation) {
+  if (fromOrientation == toOrientation) {
+    return [i, j, k];
+  }
+
+  let permuteTable = resliceTable[toOrientation][fromOrientation];
+  let permuteAbsTable = permuteTable.map(function(v) {
+    return Math.abs(v);
+  });
+
+  // if permuteTable value is negative, count slices from the end
+  var dims = getSerieDimensions();
+
+  let i_ = isNegativeSign(permuteTable[0]) ? dims[fromOrientation][0] - i : i;
+  let j_ = isNegativeSign(permuteTable[1]) ? dims[fromOrientation][1] - j : j;
+  let k_ = isNegativeSign(permuteTable[2]) ? dims[fromOrientation][2] - k : k;
+
+  let ijk = [0, 0, 0];
+  ijk[permuteAbsTable[0]] = i_;
+  ijk[permuteAbsTable[1]] = j_;
+  ijk[permuteAbsTable[2]] = k_;
+
+  return ijk;
+}
+
+// ---------------------------------------------
+// Compute ijk from xyz for cmpr axial serie ---
+// ---------------------------------------------
+export function getCmprAxialIJK([x, y, z], s, seriesId) {
+  let seriesData = getSeriesData(seriesId);
+  let cmprAxialSeriesData = seriesData["cmprAxial"];
+
+  let k =
+    cmprAxialSeriesData.imageIds.length -
+    Math.floor(s * cmprAxialSeriesData.imageIds.length);
+  let imageId = getImageIdFromSlice(k, "cmprAxial", seriesId);
+
+  // let iop = cmprAxialSeriesData.instances[imageId].metadata.x00200037;
+  let ipp = cmprAxialSeriesData.instances[imageId].metadata.x00200032;
+  let spacing = cmprAxialSeriesData.instances[imageId].metadata.x00280030;
+
+  // let v0 = [x - -ipp[0], y - -ipp[1], z - ipp[2]];
+  // let projection_v0v1 = v0[0] * -iop[0] + v0[1] * -iop[1] + v0[2] * iop[2];
+  // let projection_v0v2 = v0[0] * -iop[3] + v0[1] * -iop[4] + v0[2] * iop[5];
+
+  let ipp_x = -ipp[0];
+  let ipp_y = -ipp[1];
+  let ipp_z = ipp[2];
+  // let iop_xx = -iop[0];
+  // let iop_xy = -iop[1];
+  // let iop_xz = iop[2];
+  // let iop_yx = -iop[3];
+  // let iop_yy = -iop[4];
+  // let iop_yz = iop[5];
+
+  let v0 = [x - ipp_x, y - ipp_y, z - ipp_z];
+  // console.log("v0", v0);
+  // let projection_v0v1 = v0[0] * iop_xx + v0[1] * iop_xy + v0[2] * iop_xz;
+  // let projection_v0v2 = v0[0] * iop_yx + v0[1] * iop_yy + v0[2] * iop_yz;
+
+  // could be this ...
+  // let i = Math.floor(projection_v0v1 / spacing[0]);
+  // let j = Math.floor(projection_v0v2 / spacing[1]);
+
+  // ...or this
+  let i = Math.floor(v0[0] / spacing[0]);
+  let j = Math.floor(v0[1] / spacing[1]);
+  // console.log("resulting ijk ", i, j, k);
+
+  return [i, j, k].map(Math.abs);
+}
+
+// window.debug.add(getCmprAxialIJK);

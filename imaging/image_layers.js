@@ -1,11 +1,9 @@
 // external libraries
-import cornerstone from "cornerstone";
+import cornerstone from "cornerstone-core";
 import { each } from "lodash";
 
-// internal libraries
-import { enableMouseHandlers } from "./image_rendering.js";
-
 // global module variables
+var mainLayer;
 
 /*
  * This module provides the following functions to be exported:
@@ -128,7 +126,15 @@ let buildLayers = function(
       }
     }
   ];
+  mainLayer = mainSeriesName;
   return layers;
+};
+
+// ----------------------
+// Export main layer name
+// ----------------------
+export const getMainLayer = function() {
+  return mainLayer;
 };
 
 // ----------------------------------
@@ -148,7 +154,6 @@ let loadLayers = function(element, layers) {
           if (layer.options.name == "MRI") {
             viewport.voi.windowWidth = image.windowWidth;
             viewport.voi.windowCenter = image.windowCenter;
-            enableMouseHandlers(element);
           }
         }
       });

@@ -4,7 +4,7 @@ import { forEach } from "lodash";
 import { parse } from "nrrd-js";
 
 // internal libraries
-import { getMeanValue } from "./image_utils.js";
+import { getMeanValue, getDistanceBetweenSlices } from "./image_utils.js";
 import { populateNrrdManager } from "./nrrdLoader.js";
 
 /*
@@ -20,7 +20,7 @@ import { populateNrrdManager } from "./nrrdLoader.js";
 // Save image: build header and data
 // ---------------------------------
 export const cacheAndSaveSerie = async function(series) {
-  // Purge da cache
+  // Purge the cache
   cornerstone.imageCache.purgeCache();
 
   // Ensure all image of series to be cached
@@ -63,7 +63,7 @@ export const buildHeader = function(series) {
   header.volume.pixelSpacing = getMeanValue(series, "pixelSpacing", true);
   header.volume.maxPixelValue = getMeanValue(series, "maxPixelValue", false);
   header.volume.minPixelValue = getMeanValue(series, "minPixelValue", false);
-  header.volume.sliceThickness = getMeanValue(series, "sliceThickness", false);
+  header.volume.sliceThickness = getDistanceBetweenSlices(series, 0, 1);
 
   forEach(series.imageIds, function(imageId) {
     header[imageId] = series.instances[imageId].metadata;
