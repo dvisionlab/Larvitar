@@ -74,7 +74,8 @@ export const updateLoadedStack = function(seriesData, allSeriesStack) {
     // store needed instance tags
     allSeriesStack[sid].instances[imageId] = {
       pixelData: seriesData.pixelData,
-      metadata: seriesData.metadata
+      metadata: seriesData.metadata,
+      file: seriesData.file
     };
     // order images in stack
     allSeriesStack[sid].imageIds = getSortedStack(
