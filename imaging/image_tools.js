@@ -1,65 +1,54 @@
+/*
+ This file provides functionalities for
+interacting with cornerstone tools
+*/
+
 // external libraries
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import cornerstoneMath from "cornerstone-math";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import { each, extend, remove, cloneDeep, toArray, find } from "lodash";
-
-// UNCOMMENT FOR DEBUG ONLY
-// window.cornerstone = cornerstone;
-// window.cornerstoneTools = cornerstoneTools;
+import { each, extend, remove, cloneDeep } from "lodash";
 
 // internal libraries
+import { DEFAULT_TOOLS } from "./tools/tools.default";
 import { SeedsTool } from "./tools/seedTool";
 import { ContoursTool } from "./tools/contourTool";
 import { EditMaskTool } from "./tools/editMaskTool";
 import { DiameterTool } from "./tools/diameterTool";
-import { getImageIdFromSlice, getSeriesData } from "./nrrdLoader";
+import { getImageIdFromSlice, getSeriesData } from "./loaders/nrrdLoader";
+import { dicomManager } from "./loaders/dicomLoader";
 import { parseContours } from "./image_contours";
 
 /*
  * This module provides the following functions to be exported:
  * initializeCSTools()
- * addLengthTool()
- * addAngleTool()
- * addContoursTool()
- * addSeedsTool()
- * setToolActive(toolName)
- * setToolDisabled(toolName)
- * setToolEnabled(toolName)
- * setToolPassive(toolName)
- * getToolState(toolName)
- * clearToolStateCustom(toolName, options)
+ * csToolsCreateStack(element)
+ * addDefaultTools()
  * clearMeasurements()
- * addToolStateCustom(element, toolType, data, slice)
+ * addContoursTool(rawContours, maskName)
+ * addMaskEditingTool(seriesId,mask,setConfig,callback, targetViewport = "axial")
+ * getCurrentMaskData(viewportId)
+ * addStackStateToElement(seriesId, element)
+ * addSeedsTool(preLoadSeeds, initViewport)
+ * addDiameterTool(targetElementId, diameters, seriesId)
+ * setToolActive(toolName, options, activeViewport, viewports)
+ * setToolDisabled(toolName, options, activeViewport, viewports)
+ * setToolEnabled(toolName, options, activeViewport, viewports)
+ * setToolPassive(toolName, options, activeViewport, viewports)
+ * getToolState(toolName)
+ * updateDiameterTool(diameterId, value, seriesId)
+ * addToolStateCustom(element, toolType, data, slice, seriesId)
+ * clearToolStateCustom(toolName, options)
  * clearCornerstoneElements()
- * configureCornerstoneToolsSettings()
+ * stackToolSync(srcSliceNumber, toolName, viewport, seriesId)
+ * updateStackToolState(element, imageIndex)
  */
 
-// INTERNAL METHODS
-
-// -------------------------------------
-// check if tool has already been added
-// -------------------------------------
-const isToolMissing = function(toolName) {
-  let elements = cornerstone.getEnabledElements();
-  let isToolMissing = false;
-  // TODO check only target viewports
-  each(elements, function(element) {
-    let added = cornerstoneTools.getToolForElement(element, toolName);
-    if (added === undefined) {
-      isToolMissing = true;
-    }
-  });
-  return isToolMissing;
-};
-
-// EXPORTED METHODS
-
-// ---------------------------
-// initialize cornerstoneTools
-// ---------------------------
-const initializeCSTools = function() {
+// ==============================
+// Initialize cornerstoneTools ==
+// ==============================
+export const initializeCSTools = function() {
   cornerstoneTools.external.cornerstone = cornerstone;
   cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
   cornerstoneTools.init({
@@ -68,22 +57,86 @@ const initializeCSTools = function() {
     showSVGCursors: true
   });
   cornerstoneWADOImageLoader.external.cornerstoneTools = cornerstoneTools;
+  configureCornerstoneToolsSettings();
 };
 
-// ---------------
-// Add Length tool
-// ---------------
-const addLengthTool = function() {
-  if (isToolMissing("Length")) {
-    const LengthTool = cornerstoneTools.LengthTool;
-    cornerstoneTools.addTool(LengthTool);
-  }
+// ==========================================
+// Create stack object to sync stack tools ==
+// ==========================================
+export const csToolsCreateStack = function(element) {
+  let viewer = store.get("viewer");
+  let seriesId = store.get("seriesId");
+  let stack = {
+    currentImageIdIndex: store.get(viewer, elementId, sliceId),
+    imageIds: dicomManager[seriesId]
+  };
+  cornerstoneTools.addStackStateManager(element, ["stack"]);
+  cornerstoneTools.addToolState(element, "stack", stack);
 };
 
-// ------------------
-// Add Diameter tool
-// ------------------
-const addDiameterTool = function(targetElementId, diameters, seriesId) {
+// ========================
+// Add all default tools ==
+// ========================
+export const addDefaultTools = function() {
+  // for each default tool
+  each(DEFAULT_TOOLS, tool => {
+    // check if already added
+    if (!isToolMissing(tool.name)) {
+      return;
+    }
+
+    let configuration = tool.configuration;
+    let toolClass = cornerstoneTools[tool.class];
+
+    // check target viewports and call add tool with options
+    if (tool.viewports == "all") {
+      cornerstoneTools.addTool(toolClass, { configuration });
+    } else {
+      // call add tool for element for each element
+      each(tool.viewports, targetElement => {
+        cornerstoneTools.addToolForElement(
+          targetElement,
+          toolClass,
+          configuration
+        );
+      });
+    }
+
+    let elements = cornerstone.getEnabledElements();
+
+    // if sync tool, enable
+    if (tool.sync) {
+      const synchronizer = new cornerstoneTools.Synchronizer(
+        "cornerstoneimagerendered",
+        cornerstoneTools[tool.sync]
+      );
+      elements.forEach(element => {
+        synchronizer.add(element.element);
+      });
+
+      synchronizer.enabled = true;
+    }
+
+    if (tool.defaultActive) {
+      setToolActive(tool.name, tool.options);
+    }
+  });
+
+  // set first tool as active if first is not enabled
+  setToolActive(store.get("leftMouseHandler"));
+
+  // set wheel scroll active
+  setToolActive("StackScrollMouseWheel", {
+    loop: false, // default false
+    allowSkipping: false, // default true
+    invert: false
+  });
+};
+
+// =====================
+// Add Diameter tool ==
+// ====================
+export const addDiameterTool = function(targetElementId, diameters, seriesId) {
   if (isToolMissing("Diameter")) {
     let element = document.getElementById(targetElementId);
     cornerstoneTools.addToolForElement(element, DiameterTool, {
@@ -94,95 +147,10 @@ const addDiameterTool = function(targetElementId, diameters, seriesId) {
   }
 };
 
-// ---------------
-// Add Angle tool
-// ---------------
-const addAngleTool = function() {
-  if (isToolMissing("Angle")) {
-    const AngleTool = cornerstoneTools.AngleTool;
-    cornerstoneTools.addTool(AngleTool);
-  }
-};
-
-// -------------------------------------------------
-// Add WWWC tool synchronized on all active elements
-// -------------------------------------------------
-const addWwwcTool = function() {
-  if (isToolMissing("Wwwc")) {
-    const WwwcTool = cornerstoneTools.WwwcTool;
-    cornerstoneTools.addTool(WwwcTool);
-
-    let elements = cornerstone.getEnabledElements();
-    const wwwc_synchronizer = new cornerstoneTools.Synchronizer(
-      "cornerstoneimagerendered",
-      cornerstoneTools.wwwcSynchronizer
-    );
-    elements.forEach(element => {
-      wwwc_synchronizer.add(element.element);
-    });
-    wwwc_synchronizer.enabled = true;
-  }
-};
-
-// ------------
-// Add Pan tool
-// ------------
-const addPanTool = function() {
-  if (isToolMissing("Pan")) {
-    const panTool = cornerstoneTools.PanTool;
-    cornerstoneTools.addTool(panTool);
-  }
-};
-
-// -------------
-// Add Zoom tool
-// -------------
-const addZoomTool = function() {
-  if (isToolMissing("Zoom")) {
-    const zoomTool = cornerstoneTools.ZoomTool;
-    cornerstoneTools.addTool(zoomTool);
-  }
-};
-
-// ---------------------------
-// Add Stack Scroll Wheel tool
-// ---------------------------
-const addStackScrollWheelTool = function() {
-  // TODO CHECK THIS NOT WORKING
-  // cornerstoneTools.addTool(cornerstoneTools.StackScrollMouseWheelTool);
-  // cornerstoneTools.setToolActive("StackScrollMouseWheel", {
-  //   mouseButtonMask: 4
-  // });
-};
-
-// ---------------
-// Clear measurements
-// ---------------
-const clearMeasurements = function() {
-  let enabledElements = cornerstone.getEnabledElements();
-  each(enabledElements, el => {
-    const toolStateManager = el.toolStateManager;
-    let imageIds = Object.keys(toolStateManager.toolState);
-
-    each(imageIds, imageId => {
-      let toolData = toolStateManager.toolState[imageId];
-      if (toolData["Length"]) {
-        remove(toolData["Length"].data);
-      }
-      if (toolData["Angle"]) {
-        remove(toolData["Angle"].data);
-      }
-    });
-  });
-  each(enabledElements, el => {
-    cornerstone.updateImage(el.element);
-  });
-};
-
-// -----------------
-// Add Contour tool
-// -----------------
-const addContoursTool = function(rawContours, maskName) {
+// ===================
+// Add Contour tool ==
+// ===================
+export const addContoursTool = function(rawContours, maskName) {
   var pointBatchSize = 2;
   console.time("...parsing contours");
   var contoursParsedData = parseContours(rawContours, pointBatchSize, maskName);
@@ -193,10 +161,10 @@ const addContoursTool = function(rawContours, maskName) {
   });
 };
 
-// ----------------------
-// Add mask editing tool
-// ----------------------
-const addMaskEditingTool = function(
+// ========================
+// Add mask editing tool ==
+// ========================
+export const addMaskEditingTool = function(
   seriesId,
   mask,
   setConfig,
@@ -226,10 +194,10 @@ const addMaskEditingTool = function(
   setConfig(defaultConfig);
 };
 
-// ------------------------------------
-// Add mask editing tool current state
-// ------------------------------------
-const getCurrentMaskData = function(viewportId) {
+// ======================================
+// Add mask editing tool current state ==
+// ======================================
+export const getCurrentMaskData = function(viewportId) {
   const { getters } = cornerstoneTools.getModule("segmentation");
   let enabledElement = cornerstone
     .getEnabledElements()
@@ -240,10 +208,10 @@ const getCurrentMaskData = function(viewportId) {
   return labelmap3D;
 };
 
-// ------------------------------------
-// Add Stack State to a single element
-// ------------------------------------
-const addStackStateToElement = function(seriesId, element) {
+// ======================================
+// Add Stack State to a single element ==
+// ======================================
+export const addStackStateToElement = function(seriesId, element) {
   // Define the Stack object
   const stack = getSeriesData(seriesId)[element.id];
   // Add the stack tool state to the enabled element
@@ -251,10 +219,10 @@ const addStackStateToElement = function(seriesId, element) {
   cornerstoneTools.addToolState(element, "stack", stack);
 };
 
-// ---------------
-// Add Seed tool
-// ---------------
-const addSeedsTool = function(preLoadSeeds, _initViewport) {
+// ================
+// Add Seed tool ==
+// ================
+export const addSeedsTool = function(preLoadSeeds, _initViewport) {
   if (isToolMissing("Seeds")) {
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, el => {
@@ -270,74 +238,127 @@ const addSeedsTool = function(preLoadSeeds, _initViewport) {
   }
 };
 
-// -----------------------------------------------------------
-// Set Tool active on all elements (rendered and manipulable)
-// -----------------------------------------------------------
-const setToolActive = function(toolName, options, activeViewport, _viewports) {
-  let defaultOpt = {
-    mouseButtonMask: 1
-  };
+// =====================
+// Clear measurements ==
+// =====================
+export const clearMeasurements = function() {
+  let enabledElements = cornerstone.getEnabledElements();
+  let tools = [
+    "Length",
+    "Angle",
+    "Bidirectional",
+    "EllipticalRoi",
+    "RectangleRoi",
+    "FreehandRoi",
+    "Probe",
+    "ArrowAnnotate",
+    "TextMarker"
+  ];
+  each(enabledElements, el => {
+    each(tools, function(toolType) {
+      cornerstoneTools.clearToolState(el.element, toolType);
+    });
+  });
+  each(enabledElements, el => {
+    cornerstone.updateImage(el.element);
+  });
+};
+
+// =============================================================
+// Set Tool active on all elements (rendered and manipulable) ==
+// =============================================================
+export const setToolActive = function(
+  toolName,
+  options,
+  activeViewport,
+  _viewports
+) {
   let viewports = _viewports ? _viewports : ["axial", "sagittal", "coronal"];
+  let defaultOpt = DEFAULT_TOOLS[toolName].options;
   extend(defaultOpt, options);
   cornerstoneTools.setToolActive(toolName, defaultOpt);
   if (activeViewport == "all") {
     each(viewports, function(elementId) {
-      cornerstone.updateImage(document.getElementById(elementId));
+      let el = document.getElementById(elementId);
+      if (el) {
+        cornerstone.updateImage(el);
+      }
     });
   } else {
-    cornerstone.updateImage(document.getElementById(activeViewport));
+    let el = document.getElementById(activeViewport);
+    if (el) {
+      cornerstone.updateImage(el);
+    }
   }
 };
 
-// -------------------------------------------------
-// Set Tool disabled on all elements (not rendered)
-// -------------------------------------------------
-const setToolDisabled = function(toolName, activeViewport, _viewports) {
+// ===================================================
+// Set Tool disabled on all elements (not rendered) ==
+// ===================================================
+export const setToolDisabled = function(toolName, activeViewport, _viewports) {
   cornerstoneTools.setToolDisabled(toolName);
   let viewports = _viewports ? _viewports : ["axial", "sagittal", "coronal"];
   if (activeViewport == "all") {
     each(viewports, function(elementId) {
-      cornerstone.updateImage(document.getElementById(elementId));
+      let el = document.getElementById(elementId);
+      if (el) {
+        cornerstone.updateImage(el);
+      }
     });
   } else {
-    cornerstone.updateImage(document.getElementById(activeViewport));
+    let el = document.getElementById(activeViewport);
+    if (el) {
+      cornerstone.updateImage(el);
+    }
   }
 };
 
-// -----------------------------------------------------------------
-// Set Tool enabled on all elements (rendered but not manipulable)
-// -----------------------------------------------------------------
-const setToolEnabled = function(toolName, activeViewport, _viewports) {
+// ==================================================================
+// Set Tool enabled on all elements (rendered but not manipulable) ==
+// ==================================================================
+export const setToolEnabled = function(toolName, activeViewport, _viewports) {
   cornerstoneTools.setToolEnabled(toolName);
   let viewports = _viewports ? _viewports : ["axial", "sagittal", "coronal"];
   if (activeViewport == "all") {
     each(viewports, function(elementId) {
-      cornerstone.updateImage(document.getElementById(elementId));
+      let el = document.getElementById(elementId);
+      if (el) {
+        cornerstone.updateImage(el);
+      }
     });
   } else {
-    cornerstone.updateImage(document.getElementById(activeViewport));
+    let el = document.getElementById(activeViewport);
+    if (el) {
+      cornerstone.updateImage(el);
+    }
   }
 };
 
-// -------------------------------------------------------------------
-// Set Tool passive on all elements (rendered, manipulable passively)
-// -------------------------------------------------------------------
-const setToolPassive = function(toolName, activeViewport, _viewports) {
+// =====================================================================
+// Set Tool passive on all elements (rendered, manipulable passively) ==
+// =====================================================================
+export const setToolPassive = function(toolName, activeViewport, _viewports) {
   cornerstoneTools.setToolPassive(toolName);
   let viewports = _viewports ? _viewports : ["axial", "sagittal", "coronal"];
   if (activeViewport == "all") {
     each(viewports, function(elementId) {
-      cornerstone.updateImage(document.getElementById(elementId));
+      let el = document.getElementById(elementId);
+      if (el) {
+        cornerstone.updateImage(el);
+      }
     });
   } else {
-    cornerstone.updateImage(document.getElementById(activeViewport));
+    let el = document.getElementById(activeViewport);
+    if (el) {
+      cornerstone.updateImage(el);
+    }
   }
 };
 
-// ---------------------------------------
-// Get tool data for all enabled elements
-// ---------------------------------------
-const getToolState = function(toolName) {
+// =========================================
+// Get tool data for all enabled elements ==
+// =========================================
+export const getToolState = function(toolName) {
   let enabledElements = cornerstone.getEnabledElements();
   let toolData = {};
   each(enabledElements, el => {
@@ -349,17 +370,14 @@ const getToolState = function(toolName) {
   return toolData;
 };
 
-// --------------------------------------
-// Clear tool data for a subset of seeds
-// --------------------------------------
-const clearToolStateCustom = function(toolName, options) {
+// ========================================
+// Clear tool data for a subset of seeds ==
+// ========================================
+export const clearToolStateCustom = function(toolName, options) {
   let enabledElements = cornerstone.getEnabledElements();
   each(enabledElements, el => {
-    // cornerstoneTools.clearToolState(el.element, toolName, options); // this reset all seeds
     const toolStateManager = el.toolStateManager;
-
     let imageIds = Object.keys(toolStateManager.toolState);
-
     each(imageIds, imageId => {
       let toolData = toolStateManager.toolState[imageId];
       if (toolData[toolName]) {
@@ -369,16 +387,15 @@ const clearToolStateCustom = function(toolName, options) {
       }
     });
   });
-
   each(enabledElements, el => {
     cornerstone.updateImage(el.element);
   });
 };
 
-// ------------------------------------
-// Update diameter tool with new values
-// ------------------------------------
-function updateDiameterTool(diameterId, value, seriesId) {
+// =======================================
+// Update diameter tool with new values ==
+// =======================================
+export const updateDiameterTool = function(diameterId, value, seriesId) {
   // clear target diameter
   if (!diameterId) {
     console.warn("no diameterId, return");
@@ -471,12 +488,18 @@ function updateDiameterTool(diameterId, value, seriesId) {
     sliceNumber,
     seriesId
   );
-}
+};
 
-// ---------------------------------------
-// Add tool data for a given target slice
-// ---------------------------------------
-function addToolStateCustom(element, toolType, data, slice, seriesId) {
+// =========================================
+// Add tool data for a given target slice ==
+// =========================================
+export const addToolStateCustom = function(
+  element,
+  toolType,
+  data,
+  slice,
+  seriesId
+) {
   const enabledElement = cornerstone.getEnabledElement(element);
 
   if (!enabledElement.image) {
@@ -493,7 +516,6 @@ function addToolStateCustom(element, toolType, data, slice, seriesId) {
   let toolState = enabledElement.toolStateManager.toolState;
 
   if (toolState.hasOwnProperty(targetImageId) === false) {
-    // console.info("creating", targetImageId, "for", element.id);
     toolState[targetImageId] = {};
   }
 
@@ -514,25 +536,34 @@ function addToolStateCustom(element, toolType, data, slice, seriesId) {
   } else {
     toolData.data.push(data);
   }
-}
+};
 
-// ---------------------------------
-// Disable all cornerstone elements
-// ---------------------------------
-const clearCornerstoneElements = function() {
+// ===================================
+// Disable all cornerstone elements ==
+// ===================================
+export const clearCornerstoneElements = function() {
   var enabledElements = cornerstone.getEnabledElements();
   var inMemElements = cloneDeep(enabledElements); // copy before modifying
-
   each(inMemElements, el => {
     cornerstoneTools.clearToolState(el.element, "Seeds"); // this reset all seeds
+    each(DEFAULT_TOOLS, function(tool) {
+      if (tool.cleanable) {
+        cornerstoneTools.clearToolState(el.element, tool.name);
+      }
+    });
     cornerstone.disable(el.element);
   });
 };
 
-// --------------
-// Sync the stack
-// --------------
-const stackToolSync = function(srcSliceNumber, toolName, viewport, seriesId) {
+// =================
+// Sync the stack ==
+// =================
+export const stackToolSync = function(
+  srcSliceNumber,
+  toolName,
+  viewport,
+  seriesId
+) {
   let seriesData = getSeriesData(seriesId);
   let stack = seriesData[viewport];
 
@@ -553,65 +584,55 @@ const stackToolSync = function(srcSliceNumber, toolName, viewport, seriesId) {
   });
 };
 
-// ---------------------------------------------------
-// Update slice index in cornerstone tools stack state
-// ---------------------------------------------------
-const updateStackToolState = function(element, imageIndex) {
+// ======================================================
+// Update slice index in cornerstone tools stack state ==
+// ======================================================
+export const updateStackToolState = function(element, imageIndex) {
   let enabledElement = cornerstone.getEnabledElement(element);
   if (!enabledElement.toolStateManager) {
-    // console.log("return");
     return;
   }
   let stackState = enabledElement.toolStateManager.toolState["stack"];
   if (!stackState) {
-    // console.log("RETURN");
     return;
   }
-
   // READY for different segmentations data (data[segmentation_label_id])
   stackState.data[0].currentImageIdIndex = imageIndex;
 };
 
-// ------------------------------
-// cornerstoneTools configuration
-// ------------------------------
+/* Internal module functions */
+
+// =================================
+// CornerstoneTools configuration ==
+// =================================
 const configureCornerstoneToolsSettings = function() {
+  // Font families :
+  // Work Sans, Roboto, OpenSans, HelveticaNeue-Light,
+  // Helvetica Neue Light, Helvetica Neue, Helvetica,
+  // Arial, Lucida Grande, sans-serif;
+  let fontFamily = "Roboto";
+  let fontSize = 18;
+
   cornerstoneTools.toolStyle.setToolWidth(1);
   cornerstoneTools.toolColors.setToolColor("#FF0000");
   cornerstoneTools.toolColors.setActiveColor("#00FF00");
   cornerstoneTools.toolColors.setFillColor("#0000FF");
-  cornerstoneTools.textStyle.setFont("Noto Sans");
-  cornerstoneTools.textStyle.setFontSize(16);
-  cornerstoneTools.textStyle.setBackgroundColor("rgba(1, 1, 1, 0.3)");
+  cornerstoneTools.textStyle.setFont(`${fontSize}px ${fontFamily}`);
+  cornerstoneTools.textStyle.setBackgroundColor("rgba(1, 1, 1, 0.0)");
 };
 
-configureCornerstoneToolsSettings();
-
-export {
-  initializeCSTools,
-  addLengthTool,
-  addAngleTool,
-  addWwwcTool,
-  addPanTool,
-  addZoomTool,
-  addStackScrollWheelTool,
-  clearMeasurements,
-  addContoursTool,
-  addMaskEditingTool,
-  getCurrentMaskData,
-  addStackStateToElement,
-  addSeedsTool,
-  addDiameterTool,
-  setToolActive,
-  setToolDisabled,
-  setToolEnabled,
-  setToolPassive,
-  getToolState,
-  updateDiameterTool,
-  addToolStateCustom,
-  clearToolStateCustom,
-  clearCornerstoneElements,
-  stackToolSync,
-  updateStackToolState,
-  configureCornerstoneToolsSettings
+// =======================================
+// check if tool has already been added ==
+// =======================================
+const isToolMissing = function(toolName) {
+  let elements = cornerstone.getEnabledElements();
+  let isToolMissing = false;
+  // TODO check only target viewports
+  each(elements, function(element) {
+    let added = cornerstoneTools.getToolForElement(element, toolName);
+    if (added === undefined) {
+      isToolMissing = true;
+    }
+  });
+  return isToolMissing;
 };

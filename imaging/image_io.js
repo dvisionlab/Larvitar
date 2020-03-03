@@ -1,3 +1,7 @@
+/*
+ This file provides i/o functionalities on DICOM series
+*/
+
 // external libraries
 import cornerstone from "cornerstone-core";
 import { forEach } from "lodash";
@@ -5,7 +9,6 @@ import { parse } from "nrrd-js";
 
 // internal libraries
 import { getMeanValue, getDistanceBetweenSlices } from "./image_utils.js";
-import { populateNrrdManager } from "./nrrdLoader.js";
 
 /*
  * This module provides the following functions to be exported:
@@ -13,16 +16,14 @@ import { populateNrrdManager } from "./nrrdLoader.js";
  * buildHeader(series)
  * buildData(series)
  * importNRRDImage(bufferArray)
- * loadImageWithOrientation(header, volume, seriesId, orientation)
  */
 
-// ---------------------------------
-// Save image: build header and data
-// ---------------------------------
+// ====================================
+// Save image: build header and data ==
+// ====================================
 export const cacheAndSaveSerie = async function(series) {
   // Purge the cache
   cornerstone.imageCache.purgeCache();
-
   // Ensure all image of series to be cached
   await Promise.all(
     series.imageIds.map(imageId => {
@@ -36,9 +37,9 @@ export const cacheAndSaveSerie = async function(series) {
   return { data, header };
 };
 
-// --------------------------------------------
-// Build the image header from slices' metadata
-// --------------------------------------------
+// ===============================================
+// Build the image header from slices' metadata ==
+// ===============================================
 export const buildHeader = function(series) {
   let header = {};
   header.volume = {};
@@ -71,11 +72,11 @@ export const buildHeader = function(series) {
   return header;
 };
 
-// --------------------------------------------------
-// build the contiguous typed array from slices
-// cachedArray is cornerstone.imageCache.cachedImages
-// --------------------------------------------------
-export const buildData = function(series) {
+// =====================================================
+// build the contiguous typed array from slices ========
+// cachedArray is cornerstone.imageCache.cachedImages ==
+// =====================================================
+export const buildData = function(series, useSeriesData) {
   let repr = series.instances[series.imageIds[0]].metadata.repr;
   let rows = series.instances[series.imageIds[0]].metadata.rows;
   let cols = series.instances[series.imageIds[0]].metadata.cols;
@@ -106,32 +107,30 @@ export const buildData = function(series) {
       break;
   }
   let offsetData = 0;
-  forEach(cornerstone.imageCache.cachedImages, function(cachedImage) {
-    const sliceData = cachedImage.image.getPixelData();
-    data.set(sliceData, offsetData);
-    offsetData += sliceData.length;
-  });
+
+  // use input data or cached data
+  if (useSeriesData) {
+    forEach(series.imageIds, function(imageId) {
+      const sliceData = series.instances[imageId].pixelData;
+      data.set(sliceData, offsetData);
+      offsetData += sliceData.length;
+    });
+  } else {
+    forEach(cornerstone.imageCache.cachedImages, function(cachedImage) {
+      const sliceData = cachedImage.image.getPixelData();
+      data.set(sliceData, offsetData);
+      offsetData += sliceData.length;
+    });
+  }
+
   return data;
 };
 
-// ----------------------------------------------
-// import NRRD image from header and bufferArray
-// ----------------------------------------------
+// =====================================
+// import NRRD image from bufferArray ==
+// =====================================
 export const importNRRDImage = function(bufferArray) {
   // get the data
   let volume = parse(bufferArray);
   return volume;
-};
-
-// -----------------------------------------------------------
-// Build the data structure for the provided image orientation
-// -----------------------------------------------------------
-export const loadImageWithOrientation = function(
-  header,
-  volume,
-  seriesId,
-  orientation
-) {
-  let seriesData = populateNrrdManager(header, volume, seriesId, orientation);
-  return seriesData;
 };

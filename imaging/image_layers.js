@@ -1,3 +1,8 @@
+/*
+ This file provides functionalities for
+ rendering image layers using cornerstone stack
+*/
+
 // external libraries
 import cornerstone from "cornerstone-core";
 import { each } from "lodash";
@@ -10,11 +15,12 @@ var mainLayer;
  * loadImageLayers(mainSeries, mainSeriesName, maskSeries, maskSeriesName, elementId)
  * changeOpacityLayer(elementId, layerName, opacity)
  * updateImageLayer(mainSeries, mainSeriesName, maskSeries, element, imageIndexß)
+ * getMainLayer()
  */
 
-// ------------------------------------------------------------------------
-// Load an cache image layers and render it in a html div using cornerstone
-// ------------------------------------------------------------------------
+// ===========================================================================
+// Load an cache image layers and render it in a html div using cornerstone ==
+// ===========================================================================
 export const loadImageLayers = function(
   mainSeries,
   mainSeriesName,
@@ -45,9 +51,9 @@ export const loadImageLayers = function(
   }, 0);
 };
 
-// -----------------------------
-// Change the opacity of a layer
-// -----------------------------
+// ================================
+// Change the opacity of a layer ==
+// ================================
 export const changeOpacityLayer = function(elementId, layerName, opacity) {
   let element = document.getElementById(elementId);
   if (!element) {
@@ -71,9 +77,9 @@ export const changeOpacityLayer = function(elementId, layerName, opacity) {
   cornerstone.setActiveLayer(element, activeLayerId);
 };
 
-// ------------------------------------------------
-// Update the cornerstone image with new imageIndex
-// ------------------------------------------------
+// ===================================================
+// Update the cornerstone image with new imageIndex ==
+// ===================================================
 export const updateImageLayer = function(
   mainSeries,
   mainSeriesName,
@@ -95,11 +101,18 @@ export const updateImageLayer = function(
   });
 };
 
+// =========================
+// Export main layer name ==
+// =========================
+export const getMainLayer = function() {
+  return mainLayer;
+};
+
 /* Internal module functions */
 
-// -----------------------------
-// Build the image layers object
-// -----------------------------
+// ================================
+// Build the image layers object ==
+// ================================
 let buildLayers = function(
   mainSeries,
   mainSeriesName,
@@ -130,16 +143,9 @@ let buildLayers = function(
   return layers;
 };
 
-// ----------------------
-// Export main layer name
-// ----------------------
-export const getMainLayer = function() {
-  return mainLayer;
-};
-
-// ----------------------------------
-// Load cache and render image layers
-// ----------------------------------
+// =====================================
+// Load cache and render image layers ==
+// =====================================
 let loadLayers = function(element, layers) {
   cornerstone.imageCache.purgeCache();
   each(layers, function(layer) {
