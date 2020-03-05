@@ -98,6 +98,8 @@ import {
   getDicomImageId
 } from "./loaders/dicomLoader";
 
+import { enableVuex, set, get, storeViewportData } from "./loaders/image_store";
+
 export {
   getNormalOrientation,
   getMinPixelValue,
@@ -170,5 +172,9 @@ export {
   resetDicomManager,
   removeSeriesFromDicomManager,
   populateDicomManager,
-  getDicomImageId
+  getDicomImageId,
+  enableVuex,
+  set,
+  get,
+  storeViewportData
 };
