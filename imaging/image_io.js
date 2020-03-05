@@ -1,6 +1,7 @@
-/*
- This file provides i/o functionalities on DICOM series
-*/
+/** @module imaging/io
+ *  @desc This file provides i/o functionalities on DICOM series
+ *  @todo Document
+ */
 
 // external libraries
 import cornerstone from "cornerstone-core";

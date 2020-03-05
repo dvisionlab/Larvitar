@@ -70,7 +70,7 @@ const state = {
 
 /**
  * @public
- * @class Contours Tool
+ * @class ContoursTool
  * @memberof Tools.Annotation
  * @classdesc Tool for drawing a set of contours
  * @extends Tools.Base.BaseAnnotationTool

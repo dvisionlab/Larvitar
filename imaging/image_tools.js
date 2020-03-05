@@ -1,8 +1,11 @@
-/** @module imaging/tools */
+/** @module imaging/tools
+ *  @desc This file provides functionalities for
+ *        interacting with cornerstone tools
+ *  @todo Document
+ */
 
 /*
- This file provides functionalities for
-interacting with cornerstone tools
+
 */
 
 // external libraries
