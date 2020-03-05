@@ -4,7 +4,7 @@ import csTools from "cornerstone-tools";
 import { each, map } from "lodash";
 
 // internal libraries
-import { addToolStateCustom } from "../image_tools";
+import { addToolStateSingleSlice } from "../image_tools";
 
 // cornerstone tools imports
 const external = csTools.external;
@@ -138,7 +138,7 @@ export class ContoursTool extends BaseAnnotationTool {
           return dataToInject;
         });
 
-        addToolStateCustom(el.element, "ContoursTool", lines, slice);
+        addToolStateSingleSlice(el.element, "ContoursTool", lines, slice);
       }
     });
   }

@@ -2,7 +2,7 @@ import csTools from "cornerstone-tools";
 
 const BidirectionalTool = csTools.BidirectionalTool;
 
-import { addToolStateCustom } from "../image_tools";
+import { addToolStateSingleSlice } from "../image_tools";
 import { each } from "lodash";
 
 /**
@@ -106,7 +106,7 @@ export class DiameterTool extends BidirectionalTool {
       let sliceNumber = singleData.slice;
 
       // add to master viewport
-      addToolStateCustom(element, this.name, data, sliceNumber, seriesId);
+      addToolStateSingleSlice(element, this.name, data, sliceNumber, seriesId);
     });
 
     csTools.external.cornerstone.updateImage(element);
