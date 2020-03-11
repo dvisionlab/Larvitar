@@ -10,7 +10,8 @@ import { each } from "lodash";
 
 // internal libraries
 import { csToolsCreateStack } from "./image_tools";
-import { store, storeViewportData } from "./image_store";
+import { larvitar_store } from "./index";
+let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 /*
  * This module provides the following functions to be exported:
@@ -38,7 +39,7 @@ export const reloadImage = function(series, elementId) {
   }
   let viewer = store.get("viewer");
   cornerstone.enable(element);
-  let sliceId = store.get(viewer, elementId, sliceId);
+  let sliceId = store.get(viewer, elementId, "sliceId");
   let currentImageId = series.imageIds[sliceId];
 
   each(series.imageIds, function(imageId) {
@@ -217,7 +218,7 @@ export const enableMouseHandlers = function(elementId, element) {
       each(viewportNames, function(viewportName) {
         // sync ww and wc values in store
         store.set(viewer, "contrast", [
-          elementId,
+          viewportName,
           viewport.voi.windowWidth,
           viewport.voi.windowCenter
         ]);
@@ -244,10 +245,57 @@ export const enableMouseHandlers = function(elementId, element) {
 
   // cornerstoneTools wheel tool listener (update sliceId)
   element.addEventListener("cornerstonetoolsmousewheel", evt => {
+    let viewer = store.get("viewer");
     let enabledElement = cornerstone.getEnabledElement(element);
     let cix =
       enabledElement.toolStateManager.toolState.stack.data[0]
         .currentImageIdIndex;
     store.set(viewer, "currentSliceNumber", [evt.target.id, cix]);
   });
+};
+
+// ================================================
+// Store the viewport data into internal storage ==
+// ================================================
+export const storeViewportData = function(
+  image,
+  elementId,
+  imageIndex,
+  numberOfSlices,
+  rows,
+  cols,
+  spacing_x,
+  spacing_y,
+  thickness,
+  viewport
+) {
+  let viewer = store.get("viewer");
+  store.set(viewer, "dimensions", [elementId, rows, cols]);
+  store.set(viewer, "spacing", [elementId, spacing_x, spacing_y]);
+  store.set(viewer, "thickness", [elementId, thickness]);
+  store.set(viewer, "minPixelValue", [elementId, image.minPixelValue]);
+  store.set(viewer, "maxPixelValue", [elementId, image.maxPixelValue]);
+  store.set(viewer, "loadingStatus", [elementId, true]);
+  store.set(viewer, "minSliceNumber", [elementId, 0]);
+  store.set(viewer, "currentSliceNumber", [elementId, imageIndex]);
+  store.set(viewer, "maxSliceNumber", [elementId, numberOfSlices]);
+  store.set(viewer, "defaultViewport", [
+    elementId,
+    viewport.scale,
+    viewport.translation.x,
+    viewport.translation.y,
+    viewport.voi.windowWidth,
+    viewport.voi.windowCenter
+  ]);
+  store.set(viewer, "scale", [elementId, viewport.scale]);
+  store.set(viewer, "translation", [
+    elementId,
+    viewport.translation.x,
+    viewport.translation.y
+  ]);
+  store.set(viewer, "contrast", [
+    elementId,
+    viewport.voi.windowWidth,
+    viewport.voi.windowCenter
+  ]);
 };

@@ -13,7 +13,7 @@ import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import cornerstoneMath from "cornerstone-math";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import { each, extend, remove, cloneDeep } from "lodash";
+import { each, extend, filter, remove, cloneDeep } from "lodash";
 
 // internal libraries
 import { DEFAULT_TOOLS } from "./tools/tools.default";
@@ -24,6 +24,9 @@ import { DiameterTool } from "./tools/diameterTool";
 import { getImageIdFromSlice, getSeriesData } from "./loaders/nrrdLoader";
 import { dicomManager } from "./loaders/dicomLoader";
 import { parseContours } from "./image_contours";
+
+import { larvitar_store } from "./index";
+let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 /*
  * This module provides the following functions to be exported:
@@ -75,8 +78,8 @@ export const csToolsCreateStack = function(element) {
   let viewer = store.get("viewer");
   let seriesId = store.get("seriesId");
   let stack = {
-    currentImageIdIndex: store.get(viewer, elementId, sliceId),
-    imageIds: dicomManager[seriesId]
+    currentImageIdIndex: store.get(viewer, element.id, "sliceId"),
+    imageIds: dicomManager[seriesId][element.id].imageIds
   };
   cornerstoneTools.addStackStateManager(element, ["stack"]);
   cornerstoneTools.addToolState(element, "stack", stack);
@@ -646,7 +649,7 @@ export const addToolStateSingleSlice = function(
   // This implementation works better
   let singledata = typeof data.pop == "function" ? data.pop() : data;
   // remove old data for this id (avoid doubling contours) // TODO generalize
-  if (toolType == "ContoursTool") {
+  if (toolName == "ContoursTool") {
     remove(toolData.data, entry => entry && entry.id == singledata.id);
   }
   toolData.data.push(singledata);

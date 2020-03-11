@@ -922,3 +922,7 @@ let permuteSignedArrays = function(convertArray, sourceArray) {
 
   return outputArray;
 };
+
+export const getCmprMetadata = function() {
+  return null; //DEV
+};
