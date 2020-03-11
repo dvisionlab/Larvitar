@@ -70,7 +70,7 @@ export const registerNRRDImageLoader = function() {
 /**
  * Register custom Reslice ImageLoader
  * @instance
- * @function loadImageLayers
+ * @function registerResliceLoader
  */
 export const registerResliceLoader = function() {
   cornerstone.registerImageLoader("resliceLoader", loadReslicedImage);

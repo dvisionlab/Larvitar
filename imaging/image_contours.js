@@ -82,7 +82,7 @@ const populateContoursObject = function(
 /**
  * Extract each slice points from raw data array
  * @instance
- * @function populateContoursObject
+ * @function extractSlicePoints
  * @param {Object} contours - Main contour tool object dict (to be filled)
  * @param {Number} pointBatchSize - Number of points that defines a contour segment (default to 2)
  * @param {Number} slicePoints - Number of contour points on a slice

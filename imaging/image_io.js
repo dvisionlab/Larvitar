@@ -81,7 +81,7 @@ export const buildHeader = function(series) {
 
 /**
  * Build the contiguous typed array from slices
- * @function buildHeader
+ * @function buildData
  * @param {Object} series - Cornerstone series object
  * @param {Bool} useSeriesData - Flag to force using "series" data instead of cached ones
  * @returns {Array} Contiguous pixel array
