@@ -32,9 +32,11 @@ var allSeriesStack = {};
  * resetImageParsing()
  */
 
-// ======================
-// Reset Image Parsing ==
-// ======================
+/**
+ * Reset Image Parsing (clear the parser before loading other data)
+ * @instance
+ * @function resetImageParsing
+ */
 export const resetImageParsing = function() {
   parsingQueueFlag = null;
   parsingQueue = [];
@@ -43,9 +45,13 @@ export const resetImageParsing = function() {
   clearFileSystem(filesystem ? filesystem.root : null);
 };
 
-// ====================================================
-// Read dicom files and return allSeriesStack object ==
-// ====================================================
+/**
+ * Read dicom files and return allSeriesStack object
+ * @instance
+ * @function readFiles
+ * @param {Array} entries - List of file paths
+ * @param {Function} callback - Will receive (imageObject, errorString) as args
+ */
 export const readFiles = function(entries, callback) {
   allSeriesStack = {};
   dumpFiles(entries, callback);
@@ -53,10 +59,12 @@ export const readFiles = function(entries, callback) {
 
 /* Internal module functions */
 
-// =======================================================
-// Manage the parsing process waiting for the parsed =====
-// object before proceeding with the next parse request ==
-// =======================================================
+/**
+ * Manage the parsing process waiting for the parsed object before proceeding with the next parse request
+ * @inner
+ * @function parseNextFile
+ * @param {Function} callback - Passed through
+ */
 let parseNextFile = function(callback) {
   if (!parsingQueueFlag || parsingQueue.length === 0) {
     if (parsingQueue.length === 0) {
@@ -107,9 +115,13 @@ let parseNextFile = function(callback) {
   }
 };
 
-// ==================================================
-// Push files in queue and start parsing next file ==
-// ==================================================
+/**
+ * Push files in queue and start parsing next file
+ * @inner
+ * @function dumpFiles
+ * @param {Array} fileList - Array of file objects
+ * @param {Function} callback - Passed through
+ */
 let dumpFiles = function(fileList, callback) {
   forEach(fileList, function(file) {
     if (!file.name.startsWith(".") && !file.name.startsWith("DICOMDIR")) {
@@ -123,9 +135,13 @@ let dumpFiles = function(fileList, callback) {
   parseNextFile(callback);
 };
 
-// ====================================================
-// Dump a single DICOM File (metaData and pixelData) ==
-// ====================================================
+/**
+ * Dump a single DICOM File (metaData and pixelData)
+ * @inner
+ * @function dumpFile
+ * @param {File} file - File object to be dumped
+ * @param {Function} callback - called with (imageObject, errorString)
+ */
 let dumpFile = function(file, callback) {
   let reader = new FileReader();
   reader.onload = function() {
@@ -360,9 +376,11 @@ let dumpFile = function(file, callback) {
   reader.readAsArrayBuffer(file);
 };
 
-// =========================
-// Error handler function ==
-// =========================
+/**
+ * Error handler function: reset parsing queue and clear file system if needed
+ * @inner
+ * @function errorHandler
+ */
 let errorHandler = function() {
   // empty and initialize queue
   parsingQueue = [];
@@ -372,9 +390,11 @@ let errorHandler = function() {
   clearFileSystem(filesystem ? filesystem.root : null);
 };
 
-// ====================
-// Clear file system ==
-// ====================
+/**
+ * Clear file system
+ * @inner
+ * @function clearFileSystem
+ */
 let clearFileSystem = function(dirEntry) {
   if (!dirEntry) {
     return;
