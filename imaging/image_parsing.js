@@ -1,6 +1,6 @@
 /** @module imaging/parsing
  *  @desc  This file provides functionalities for parsing DICOM image files
- *  @todo Document
+ *  @todo Document usage
  */
 
 // external libraries

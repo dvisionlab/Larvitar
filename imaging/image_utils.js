@@ -49,10 +49,11 @@ const resliceTable = {
  * remapVoxel([i,j,k], fromOrientation, toOrientation)
  */
 
-// ================================================
-// Return computed 3D normal from two 3D vectors ==
-// el is the image_orientation dicom tag ==========
-// ================================================
+/**
+ * Return computed 3D normal from two 3D vectors
+ * @function getNormalOrientation
+ * @param {Array} el - The image_orientation dicom tag
+ */
 export const getNormalOrientation = function(el) {
   let a = [el[0], el[1], el[2]];
   let b = [el[3], el[4], el[5]];
