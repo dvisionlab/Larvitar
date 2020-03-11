@@ -1,3 +1,5 @@
+/** @module tools/default */
+
 /* DEFINE DEFAULT TOOLS
  * example
  *

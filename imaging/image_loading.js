@@ -1,7 +1,8 @@
-/*
- This file provides functionalities for
- initialize, configure and update WadoImageLoader
-*/
+/** @module imaging/loading
+ *  @desc This file provides functionalities for
+ *        initialize, configure and update WadoImageLoader
+ *  @todo Document
+ */
 
 // external libraries
 import cornerstone from "cornerstone-core";

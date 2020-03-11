@@ -65,11 +65,11 @@ import {
   setToolEnabled,
   setToolPassive,
   getToolState,
-  clearToolStateCustom,
+  clearToolStateByName,
   updateDiameterTool,
-  addToolStateCustom,
+  addToolStateSingleSlice,
   clearCornerstoneElements,
-  stackToolSync,
+  syncToolStack,
   updateStackToolState
 } from "./image_tools";
 
@@ -97,6 +97,8 @@ import {
   populateDicomManager,
   getDicomImageId
 } from "./loaders/dicomLoader";
+
+import { enableVuex, set, get, storeViewportData } from "./loaders/image_store";
 
 export {
   getNormalOrientation,
@@ -149,11 +151,11 @@ export {
   setToolEnabled,
   setToolPassive,
   getToolState,
-  clearToolStateCustom,
+  clearToolStateByName,
   updateDiameterTool,
-  addToolStateCustom,
+  addToolStateSingleSlice,
   clearCornerstoneElements,
-  stackToolSync,
+  syncToolStack,
   updateStackToolState,
   getCustomImageId,
   getSerieDimensions,
@@ -170,5 +172,9 @@ export {
   resetDicomManager,
   removeSeriesFromDicomManager,
   populateDicomManager,
-  getDicomImageId
+  getDicomImageId,
+  enableVuex,
+  set,
+  get,
+  storeViewportData
 };

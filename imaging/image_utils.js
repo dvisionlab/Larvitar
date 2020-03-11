@@ -1,7 +1,8 @@
-/*
- This file provides utility functions for 
- manipulating image pixels and image metadata
-*/
+/** @module imaging/utils
+ *  @desc This file provides utility functions for
+ *        manipulating image pixels and image metadata
+ *  @todo Document
+ */
 
 // external libraries
 import {

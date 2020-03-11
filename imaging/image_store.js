@@ -1,7 +1,8 @@
-/*
- This file provides functionalities
-  for data config store.
-*/
+/** @module imaging/store
+ *  @desc This file provides functionalities
+ *        for data config store.
+ *  @todo Document
+ */
 
 // external libraries
 import { get as _get } from "lodash";

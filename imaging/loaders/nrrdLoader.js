@@ -39,7 +39,7 @@ const orientations = store.get("viewports");
 /*
  * This module provides the following functions to be exported:
  * loadImageWithOrientation(header, volume, seriesId, orientation)
- * getCustomImageId(customLoaderName)
+ * getNrrdImageId(customLoaderName)
  * removeSeriesFromNrrdManager(seriesId)
  * getSeriesData(seriesId)
  * populateNrrdManager(header, volume, seriesId, orientation)
@@ -74,7 +74,7 @@ export const resetNrrdLoader = function() {
 // ============================================
 // Get the custom imageId from custom loader ==
 // ============================================
-export const getCustomImageId = function(customLoaderName) {
+export const getNrrdImageId = function(customLoaderName) {
   let imageId = customLoaderName + "://" + customImageLoaderCounter;
   customImageLoaderCounter++;
   return imageId;
@@ -297,7 +297,7 @@ let initializeMainViewport = function(header, volume, seriesId) {
     metadata.x00281050 = [wl];
     metadata.x00281051 = [ww];
 
-    let imageId = getCustomImageId("nrrdLoader");
+    let imageId = getNrrdImageId("nrrdLoader");
     nrrdImageTracker[imageId] = [seriesId, "axial"];
 
     // store file references

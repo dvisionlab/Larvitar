@@ -1,7 +1,8 @@
-/*
-This file provides functionalities to render a set of points on a canvas.
-Use this in order to render image contours (e.g. from binary masks).
-*/
+/** @module imaging/contours
+ *  @desc This file provides functionalities to render a set of points on a canvas.
+ *        Use this in order to render image contours (e.g. from binary masks).
+ *  @todo Document
+ */
 
 // external libraries
 import { each, range } from "lodash";

@@ -1,7 +1,8 @@
-/*
- This file provides functionalities for
-rendering images in html canvas using cornerstone
-*/
+/** @module imaging/rendering
+ *  @desc  This file provides functionalities for
+ *         rendering images in html canvas using cornerstone
+ *  @todo Document
+ */
 
 // external libraries
 import cornerstone from "cornerstone-core";

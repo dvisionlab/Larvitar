@@ -7,10 +7,15 @@
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 
 // internal libraries
-import { getCustomImageId, getSerieDimensions } from "./nrrdLoader";
-import { getDicomImageId } from "./dicomLoader";
-import { getSeriesData as getSeriesDataFromNrrdLoader } from "./nrrdLoader";
-import { getSeriesData as getSeriesDataFromDicomLoader } from "./dicomLoader";
+import {
+  getNrrdImageId,
+  getSerieDimensions as getNrrdSerieDimensions,
+  getSeriesData as getSeriesDataFromNrrdLoader
+} from "./nrrdLoader";
+import {
+  getDicomImageId,
+  getSeriesData as getSeriesDataFromDicomLoader
+} from "./dicomLoader";
 /*
  * This module provides the following functions to be exported:
  * getCustomImageId(loaderName)
@@ -36,7 +41,7 @@ export const getSeriesData = function(seriesId, loaderName) {
 // ============================================
 export const getCustomImageId = function(loaderName) {
   if (loaderName == "nrrdLoader") {
-    return getCustomImageId(loaderName);
+    return getNrrdImageId(loaderName);
   } else {
     return getDicomImageId(loaderName);
   }
@@ -47,7 +52,7 @@ export const getCustomImageId = function(loaderName) {
 // ==========================
 export const getSerieDimensions = function() {
   // TODO FOR DICOM LOADER
-  return getSerieDimensions();
+  return getNrrdSerieDimensions();
 };
 
 // =================================
