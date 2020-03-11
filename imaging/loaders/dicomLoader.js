@@ -10,7 +10,8 @@ import { omit, each } from "lodash";
 // internal libraries
 import { getReslicedMetadata, getReslicedPixeldata } from "../image_utils";
 import { clearImageCache } from "../image_rendering";
-import { store } from "../image_store";
+import { larvitar_store } from "../index";
+let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 // global variables
 export var dicomManager = {};
@@ -30,8 +31,8 @@ let imageLoaderCounter = 0;
 // Reset the Custom Image Loader ==
 // ================================
 export const resetImageLoader = function(elementId) {
-  store.set("series", []);
-  store.set("seriesId", null);
+  store.set(null, "series", []);
+  store.set(null, "seriesId", null);
   let element = document.getElementById(elementId);
   if (element) {
     cornerstone.disable(element);

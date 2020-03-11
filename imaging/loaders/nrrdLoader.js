@@ -28,7 +28,9 @@ import {
 } from "../image_utils";
 
 import { getImageFrame } from "./commonLoader";
-import { store } from "../image_store";
+
+import { larvitar_store } from "../index";
+let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 // global module variables
 let customImageLoaderCounter = 0;

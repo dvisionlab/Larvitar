@@ -1,3 +1,5 @@
+import { default as larvitar_store } from "./image_store";
+
 import { parseContours } from "./image_contours";
 
 import {
@@ -81,6 +83,8 @@ import {
 } from "./loaders/commonLoader";
 
 import {
+  nrrdManager,
+  nrrdImageTracker,
   loadImageWithOrientation,
   resetNrrdLoader,
   removeSeriesFromNrrdManager,
@@ -91,14 +95,13 @@ import {
 } from "./loaders/nrrdLoader";
 
 import {
+  dicomManager,
   resetImageLoader,
   resetDicomManager,
   removeSeriesFromDicomManager,
   populateDicomManager,
   getDicomImageId
 } from "./loaders/dicomLoader";
-
-import { enableVuex, set, get, storeViewportData } from "./loaders/image_store";
 
 export {
   getNormalOrientation,
@@ -162,19 +165,19 @@ export {
   getImageFrame,
   getSeriesData,
   loadImageWithOrientation,
+  nrrdManager,
+  nrrdImageTracker,
   resetNrrdLoader,
   removeSeriesFromNrrdManager,
   populateNrrdManager,
   loadNrrdImage,
   getImageIdFromSlice,
   getSliceNumberFromImageId,
+  dicomManager,
   resetImageLoader,
   resetDicomManager,
   removeSeriesFromDicomManager,
   populateDicomManager,
   getDicomImageId,
-  enableVuex,
-  set,
-  get,
-  storeViewportData
+  larvitar_store
 };
