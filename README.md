@@ -48,9 +48,9 @@ This library provides common dicom functionalities to be used in web-application
 
 # Build docs
 Install JsDoc
-`npm install -g jsdoc`
+`yarn global add jsdoc`
 
-Compile (from root folder)
+Compile (from root folder) into ./docs/ folder
 `jsdoc imaging -r -d docs`
 
 
