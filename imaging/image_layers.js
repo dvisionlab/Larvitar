@@ -9,6 +9,10 @@ import cornerstone from "cornerstone-core";
 import { each } from "lodash";
 
 // global module variables
+/**
+ * Main layer name
+ * @var {String} mainLayer
+ */
 var mainLayer;
 
 /*
@@ -21,13 +25,13 @@ var mainLayer;
 
 /**
  * Load an cache image layers and render it in a html div using cornerstone
+ * @instance
  * @function loadImageLayers
  * @param {Object} mainSeries - Cornerstone series object
  * @param {String} mainSeriesName - Tag for main series
  * @param {Object} maskSeries - Cornerstone series object
  * @param {String} mainSeriesName - Tag for mask series
  * @param {String} elementId - target HTML element id
- * @returns {Array} Parsed pixel data array
  */
 export const loadImageLayers = function(
   mainSeries,
@@ -59,9 +63,14 @@ export const loadImageLayers = function(
   }, 0);
 };
 
-// ================================
-// Change the opacity of a layer ==
-// ================================
+/**
+ * Change the opacity of a layer
+ * @instance
+ * @function changeOpacityLayer
+ * @param {String} elementId - Target HTML element id
+ * @param {String} layerName - Target layer name
+ * @param {Number} opacity - New opacity value [0-1]
+ */
 export const changeOpacityLayer = function(elementId, layerName, opacity) {
   let element = document.getElementById(elementId);
   if (!element) {
@@ -85,9 +94,16 @@ export const changeOpacityLayer = function(elementId, layerName, opacity) {
   cornerstone.setActiveLayer(element, activeLayerId);
 };
 
-// ===================================================
-// Update the cornerstone image with new imageIndex ==
-// ===================================================
+/**
+ * Update the cornerstone image with new imageIndex
+ * @instance
+ * @function updateImageLayer
+ * @param {Object} mainSeries - Cornerstone series object
+ * @param {String} mainSeriesName - Tag for main series
+ * @param {Object} maskSeries - Cornerstone series object
+ * @param {HTMLElement} element - Target html element
+ * @param {Number} imageIndex - index of the image to load
+ */
 export const updateImageLayer = function(
   mainSeries,
   mainSeriesName,
@@ -109,18 +125,28 @@ export const updateImageLayer = function(
   });
 };
 
-// =========================
-// Export main layer name ==
-// =========================
+/**
+ * Export main layer name
+ * @instance
+ * @function getMainLayer
+ * @returns {String} Name of the main layer
+ */
 export const getMainLayer = function() {
   return mainLayer;
 };
 
 /* Internal module functions */
 
-// ================================
-// Build the image layers object ==
-// ================================
+/**
+ * Build the image layers object
+ * @inner
+ * @function buildLayers
+ * @param {Object} mainSeries - Cornerstone series object
+ * @param {String} mainSeriesName - Name of the main layer
+ * @param {Object} maskSeries - Cornerstone series object
+ * @param {String} maskSeriesName - Name of the mask layer
+ * @returns {Object} Cornerstone layers object
+ */
 let buildLayers = function(
   mainSeries,
   mainSeriesName,
@@ -151,9 +177,13 @@ let buildLayers = function(
   return layers;
 };
 
-// =====================================
-// Load cache and render image layers ==
-// =====================================
+/**
+ * Load cache and render image layers
+ * @inner
+ * @function loadLayers
+ * @param {HTMLElement} element - Target HTML element
+ * @param {Object} layers - Cornerstone layers object
+ */
 let loadLayers = function(element, layers) {
   cornerstone.imageCache.purgeCache();
   each(layers, function(layer) {
