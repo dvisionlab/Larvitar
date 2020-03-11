@@ -1,7 +1,7 @@
 /** @module imaging/loading
  *  @desc This file provides functionalities for
  *        initialize, configure and update WadoImageLoader
- *  @todo Document
+ *  @todo Document global config obj
  */
 
 // external libraries
@@ -15,7 +15,14 @@ import { getSortedStack } from "./image_utils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
 
-// global standard configuration
+/**
+ * Global standard configuration
+ * @inner
+ * @var {Object} globalConfig
+ * @property {Number} maxWebWorkers - ...
+ * @property {String} webWorkerPath - ...
+ * @property {} ... -...
+ */
 const globalConfig = {
   maxWebWorkers: navigator.hardwareConcurrency || 1,
   webWorkerPath: "/cornerstoneWADOImageLoaderWebWorker.js",
@@ -38,9 +45,12 @@ const globalConfig = {
  * updateLoadedStack(seriesData, allSeriesStack)
  */
 
-// =======================================
-// Configure cornerstoneWADOImageLoader ==
-// =======================================
+/**
+ * Configure cornerstoneWADOImageLoader
+ * @instance
+ * @function initializeImageLoader
+ * @param {Object} config - Custom config @default globalConfig
+ */
 export const initializeImageLoader = function(config) {
   let imageLoaderConfig = config ? config : globalConfig;
   cornerstoneWADOImageLoader.webWorkerManager.initialize(imageLoaderConfig);
@@ -48,23 +58,31 @@ export const initializeImageLoader = function(config) {
   cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 };
 
-// ===================================
-// Register custom NRRD ImageLoader ==
-// ===================================
+/**
+ * Register custom NRRD ImageLoader
+ * @instance
+ * @function registerNRRDImageLoader
+ */
 export const registerNRRDImageLoader = function() {
   cornerstone.registerImageLoader("nrrdLoader", loadNrrdImage);
 };
 
-// ======================================
-// Register custom Reslice ImageLoader ==
-// ======================================
+/**
+ * Register custom Reslice ImageLoader
+ * @instance
+ * @function loadImageLayers
+ */
 export const registerResliceLoader = function() {
   cornerstone.registerImageLoader("resliceLoader", loadReslicedImage);
 };
 
-// =====================================================================
-// Update the allSeriesStack object using wadoImageLoader fileManager ==
-// =====================================================================
+/**
+ * Update the allSeriesStack object using wadoImageLoader fileManager
+ * @instance
+ * @function updateLoadedStack
+ * @param {Object} seriesData - Cornerstone series object
+ * @param {String} allSeriesStack - Dict containing all series objects
+ */
 export const updateLoadedStack = function(seriesData, allSeriesStack) {
   let sid = seriesData.metadata.seriesUID;
   let iid = seriesData.metadata.instanceUID;
@@ -109,9 +127,14 @@ export const updateLoadedStack = function(seriesData, allSeriesStack) {
 
 /* Internal module functions */
 
-// ======================================
-// Check if the instance is new or not ==
-// ======================================
+/**
+ * Check if the instance is new or not
+ * @inner
+ * @function isNewInstance
+ * @param {Object} instances - instances already loaded
+ * @param {String} iid - instance uid to check
+ * @return {Bool} True if is new instance, false if already present
+ */
 let isNewInstance = function(instances, iid) {
   let isNewInstance = true;
   forEach(instances, function(instance) {
