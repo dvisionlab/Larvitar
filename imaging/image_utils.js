@@ -430,6 +430,87 @@ export const getReslicedMetadata = function(
   };
 };
 
+// ------------------------------------------
+// Compute cmpr metadata from pyCmpr data ---
+// ------------------------------------------
+export const getCmprMetadata = function(
+  reslicedSeriesId,
+  imageLoaderName,
+  header
+) {
+  let reslicedImageIds = [];
+  let reslicedInstances = {};
+
+  // DEV
+  // let reslicedIOP = [1, 0, 0, 0, 1, 0];
+  // let reslicedIPP = [-211, -75, -184];
+
+  for (let f = 0; f < header.frames_number; f++) {
+    let reslicedImageId = getCustomImageId(imageLoaderName);
+    reslicedImageIds.push(reslicedImageId);
+
+    let instanceId = uuid.v4();
+
+    let metadata = {
+      // pixel representation
+      x00280100: header.repr,
+      // Bits Allocated
+      x00280103: header.repr,
+      // resliced series sizes
+      x00280010: header.rows, // rows
+      x00280011: header.cols, // cols
+      // resliced series spacing
+      x00280030: [header.spacing[1], header.spacing[0]],
+      x00180050: [header.distance_btw_slices],
+      // remove min and max pixelvalue from metadata before calling the createCustomImage function:
+      // need to recalculate the min and max pixel values on the new instance pixeldata
+      x00280106: undefined,
+      x00280107: undefined,
+      // resliced series data
+      // x0020000d: sampleMetadata.x0020000d, //Study Instance UID
+      x0020000e: reslicedSeriesId,
+      x00200011: random(10000),
+      x00080018: instanceId,
+      x00020003: instanceId,
+      x00200013: f + 1,
+      // TODO
+      // x00201041: getReslicedSliceLocation(reslicedIOP, reslicedIPP), // Slice Location
+      // x00100010: sampleMetadata.x00100010,
+      // x00081030: sampleMetadata.x00081030,
+      // x00080020: sampleMetadata.x00080020,
+      // x00080030: sampleMetadata.x00080030,
+      // x00080061: sampleMetadata.x00080061,
+      // x0008103e: sampleMetadata.x0008103e,
+      // x00080021: sampleMetadata.x00080021,
+      // x00080031: sampleMetadata.x00080031,
+      // x00080060: sampleMetadata.x00080060,
+      // x00280008: sampleMetadata.x00280008,
+      // x00101010: sampleMetadata.x00101010,
+      // x00020010: sampleMetadata.x00020010,
+      // x00200052: sampleMetadata.x00200052,
+      // data needed to obtain a good rendering
+      x00281050: [header.wwwl[1] / 2], // [wl]
+      x00281051: [header.wwwl[0]], // [ww]
+      x00281052: [header.intercept],
+      x00281053: [header.slope],
+      // new image orientation (IOP)
+      x00200037: header.iop ? header.iop.slice(f * 6, (f + 1) * 6) : null,
+      // new image position (IPP)
+      x00200032: header.ipp ? header.ipp.slice(f * 3, (f + 1) * 3) : null
+    };
+
+    reslicedInstances[reslicedImageId] = {
+      instanceId: instanceId,
+      metadata: metadata
+    };
+  }
+
+  return {
+    imageIds: reslicedImageIds,
+    instances: reslicedInstances
+  };
+};
+
 // ==============================================================================
 // Get pixel data for a single resliced slice, from cornerstone data structure ==
 // ==============================================================================

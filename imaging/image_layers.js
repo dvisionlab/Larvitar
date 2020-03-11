@@ -19,9 +19,16 @@ var mainLayer;
  * getMainLayer()
  */
 
-// ===========================================================================
-// Load an cache image layers and render it in a html div using cornerstone ==
-// ===========================================================================
+/**
+ * Load an cache image layers and render it in a html div using cornerstone
+ * @function loadImageLayers
+ * @param {Object} mainSeries - Cornerstone series object
+ * @param {String} mainSeriesName - Tag for main series
+ * @param {Object} maskSeries - Cornerstone series object
+ * @param {String} mainSeriesName - Tag for mask series
+ * @param {String} elementId - target HTML element id
+ * @returns {Array} Parsed pixel data array
+ */
 export const loadImageLayers = function(
   mainSeries,
   mainSeriesName,

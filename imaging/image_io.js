@@ -19,9 +19,12 @@ import { getMeanValue, getDistanceBetweenSlices } from "./image_utils.js";
  * importNRRDImage(bufferArray)
  */
 
-// ====================================
-// Save image: build header and data ==
-// ====================================
+/**
+ * Save image as volume: build header and data (use the cache to extract original pixel arrays)
+ * @function cacheAndSaveSerie
+ * @param {Object} series - Cornerstone series object
+ * @returns {Object} {data: pixeldata, header: image metadata}
+ */
 export const cacheAndSaveSerie = async function(series) {
   // Purge the cache
   cornerstone.imageCache.purgeCache();
@@ -38,9 +41,12 @@ export const cacheAndSaveSerie = async function(series) {
   return { data, header };
 };
 
-// ===============================================
-// Build the image header from slices' metadata ==
-// ===============================================
+/**
+ * Build the image header from slices' metadata
+ * @function buildHeader
+ * @param {Object} series - Cornerstone series object
+ * @returns {Object} header: image metadata
+ */
 export const buildHeader = function(series) {
   let header = {};
   header.volume = {};
@@ -73,10 +79,13 @@ export const buildHeader = function(series) {
   return header;
 };
 
-// =====================================================
-// build the contiguous typed array from slices ========
-// cachedArray is cornerstone.imageCache.cachedImages ==
-// =====================================================
+/**
+ * Build the contiguous typed array from slices
+ * @function buildHeader
+ * @param {Object} series - Cornerstone series object
+ * @param {Bool} useSeriesData - Flag to force using "series" data instead of cached ones
+ * @returns {Array} Contiguous pixel array
+ */
 export const buildData = function(series, useSeriesData) {
   let repr = series.instances[series.imageIds[0]].metadata.repr;
   let rows = series.instances[series.imageIds[0]].metadata.rows;
@@ -127,9 +136,12 @@ export const buildData = function(series, useSeriesData) {
   return data;
 };
 
-// =====================================
-// import NRRD image from bufferArray ==
-// =====================================
+/**
+ * Import NRRD image from bufferArray (use nrrdjs @link https://github.com/jonathanlurie/nrrdjs)
+ * @function importNRRDImage
+ * @param {ArrayBuffer} bufferArray - buffer array from nrrd file
+ * @returns {Array} Parsed pixel data array
+ */
 export const importNRRDImage = function(bufferArray) {
   // get the data
   let volume = parse(bufferArray);
