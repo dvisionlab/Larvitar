@@ -696,9 +696,13 @@ export const getDistanceBetweenSlices = function(
   }
 };
 
-// =================================
-// Parse an imageId string to int ==
-// =================================
+/**
+ * Parse an imageId string to int
+ * @instance
+ * @function parseImageId
+ * @param {String} imageId - Theimage id to convert
+ * @return {Number} - The number contained in the imageId
+ */
 export function parseImageId(imageId) {
   let sliceNumber = imageId.split("//").pop();
   return parseInt(sliceNumber);
