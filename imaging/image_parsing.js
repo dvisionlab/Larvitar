@@ -1,3 +1,8 @@
+/** @module imaging/parsing
+ *  @desc  This file provides functionalities for parsing DICOM image files
+ *  @todo Document usage
+ */
+
 // external libraries
 import { parseDicom } from "dicom-parser";
 import { forEach, size } from "lodash";
@@ -27,9 +32,11 @@ var allSeriesStack = {};
  * resetImageParsing()
  */
 
-// -------------------------------------------------
-// Reset Image Parsing
-// -------------------------------------------------
+/**
+ * Reset Image Parsing (clear the parser before loading other data)
+ * @instance
+ * @function resetImageParsing
+ */
 export const resetImageParsing = function() {
   parsingQueueFlag = null;
   parsingQueue = [];
@@ -38,9 +45,13 @@ export const resetImageParsing = function() {
   clearFileSystem(filesystem ? filesystem.root : null);
 };
 
-// -------------------------------------------------
-// Read dicom files and return allSeriesStack object
-// -------------------------------------------------
+/**
+ * Read dicom files and return allSeriesStack object
+ * @instance
+ * @function readFiles
+ * @param {Array} entries - List of file paths
+ * @param {Function} callback - Will receive (imageObject, errorString) as args
+ */
 export const readFiles = function(entries, callback) {
   allSeriesStack = {};
   dumpFiles(entries, callback);
@@ -48,10 +59,12 @@ export const readFiles = function(entries, callback) {
 
 /* Internal module functions */
 
-// ---------------------------------------------------------------
-// Manage the parsing process waiting for the parsed object before
-// proceeding with the next parse request
-// ---------------------------------------------------------------
+/**
+ * Manage the parsing process waiting for the parsed object before proceeding with the next parse request
+ * @inner
+ * @function parseNextFile
+ * @param {Function} callback - Passed through
+ */
 let parseNextFile = function(callback) {
   if (!parsingQueueFlag || parsingQueue.length === 0) {
     if (parsingQueue.length === 0) {
@@ -85,6 +98,8 @@ let parseNextFile = function(callback) {
 
       if (err) {
         callback(null, err);
+        // parsingQueueFlag = true;
+        // parseNextFile(callback);
       } else {
         // update the total parsed file size
         totalFileSize += file.size;
@@ -100,12 +115,16 @@ let parseNextFile = function(callback) {
   }
 };
 
-// -----------------------------------------------
-// Push files in queue and start parsing next file
-// -----------------------------------------------
+/**
+ * Push files in queue and start parsing next file
+ * @inner
+ * @function dumpFiles
+ * @param {Array} fileList - Array of file objects
+ * @param {Function} callback - Passed through
+ */
 let dumpFiles = function(fileList, callback) {
   forEach(fileList, function(file) {
-    if (!file.name.startsWith(".")) {
+    if (!file.name.startsWith(".") && !file.name.startsWith("DICOMDIR")) {
       parsingQueue.push(file);
       // enable parsing on first available path
       if (parsingQueueFlag === null) {
@@ -116,9 +135,13 @@ let dumpFiles = function(fileList, callback) {
   parseNextFile(callback);
 };
 
-// -------------------------------------------------
-// Dump a single DICOM File (metaData and pixelData)
-// -------------------------------------------------
+/**
+ * Dump a single DICOM File (metaData and pixelData)
+ * @inner
+ * @function dumpFile
+ * @param {File} file - File object to be dumped
+ * @param {Function} callback - called with (imageObject, errorString)
+ */
 let dumpFile = function(file, callback) {
   let reader = new FileReader();
   reader.onload = function() {
@@ -169,19 +192,12 @@ let dumpFile = function(file, callback) {
           null,
           "Image acquired does not meet quality standards: DICOM tag 0018,0050 (SliceThickness) not found."
         );
-      } else if (parseFloat(sliceThickness) > 4.0) {
-        // slice thickness not valid
-        callback(
-          null,
-          "Image acquired does not meet quality standards: DICOM tag 0018,0050 (SliceThickness) is not adequate to perform the measurements."
-        );
       } else {
         let pixelDataElement = dataSet.elements.x7fe00010;
         if (pixelDataElement) {
-          // done, pixeldata found
+          // done, pixelData found
           let pixelData = getPixelTypedArray(dataSet, pixelDataElement);
           let instanceUID = getTagValue(dataSet, "x00080018") || randomId();
-
           let imageObject = {
             // metadata
             metadata: {
@@ -212,6 +228,7 @@ let dumpFile = function(file, callback) {
               imagePosition: imagePosition,
               rows: getTagValue(dataSet, "x00280010"),
               cols: getTagValue(dataSet, "x00280011"),
+              numberOfSlices: getTagValue(dataSet, "x00540081"),
               windowCenter: getTagValue(dataSet, "x00281050"),
               windowWidth: getTagValue(dataSet, "x00281051"),
               minPixelValue: getMinPixelValue(
@@ -222,8 +239,123 @@ let dumpFile = function(file, callback) {
                 getTagValue(dataSet, "x00280107"),
                 pixelData
               ),
-              repr: getPixelRepresentation(dataSet),
-              length: pixelData.length
+              length: pixelData.length,
+
+              x00020000: getTagValue(dataSet, "x00020000"),
+              x00020001: getTagValue(dataSet, "x00020001"),
+              x00020002: getTagValue(dataSet, "x00020002"),
+              x00020003: getTagValue(dataSet, "x00020003"),
+              x00020010: getTagValue(dataSet, "x00020010"),
+              x00020012: getTagValue(dataSet, "x00020012"),
+              x00020013: getTagValue(dataSet, "x00020013"),
+              x00020016: getTagValue(dataSet, "x00020016"),
+              x00080005: getTagValue(dataSet, "x00080005"),
+              x00080008: getTagValue(dataSet, "x00080008"),
+              x00080012: getTagValue(dataSet, "x00080012"),
+              x00080013: getTagValue(dataSet, "x00080013"),
+              x00080016: getTagValue(dataSet, "x00080016"),
+              x00080018: getTagValue(dataSet, "x00080018") || randomId(),
+              x00080020: getTagValue(dataSet, "x00080020"),
+              x00080021: getTagValue(dataSet, "x00080021"),
+              x00080022: getTagValue(dataSet, "x00080022"),
+              x00080023: getTagValue(dataSet, "x00080023"),
+              // x0008002A: getTagValue(dataSet, "x0008002A"),
+              x00080030: getTagValue(dataSet, "x00080030"),
+              x00080031: getTagValue(dataSet, "x00080031"),
+              x00080032: getTagValue(dataSet, "x00080032"),
+              x00080033: getTagValue(dataSet, "x00080033"),
+              x00080050: getTagValue(dataSet, "x00080050"),
+              x00080060: getTagValue(dataSet, "x00080060").toLowerCase(),
+              x00080070: getTagValue(dataSet, "x00080070"),
+              x00080080: getTagValue(dataSet, "x00080080"),
+              x00080090: getTagValue(dataSet, "x00080090"),
+              x00081010: getTagValue(dataSet, "x00081010"),
+              x00081030: getTagValue(dataSet, "x00081030"),
+              x0008103E: getTagValue(dataSet, "x0008103E"),
+              x00081060: getTagValue(dataSet, "x00081060"),
+              x00081070: getTagValue(dataSet, "x00081070"),
+              x00081090: getTagValue(dataSet, "x00081090"),
+              x00082111: getTagValue(dataSet, "x00082111"),
+              x00100010: getTagValue(dataSet, "x00100010"),
+              x00100020: getTagValue(dataSet, "x00100020"),
+              x00100030: getTagValue(dataSet, "x00100030"),
+              x00101010: getTagValue(dataSet, "x00101010"),
+              x00101030: getTagValue(dataSet, "x00101030"),
+              x00180020: getTagValue(dataSet, "x00180020"),
+              x00180021: getTagValue(dataSet, "x00180021"),
+              x00180022: getTagValue(dataSet, "x00180022"),
+              x00180023: getTagValue(dataSet, "x00180023"),
+              x00180025: getTagValue(dataSet, "x00180025"),
+              x00180050: getTagValue(dataSet, "x00180050"),
+              x00180080: getTagValue(dataSet, "x00180080"),
+              x00180081: getTagValue(dataSet, "x00180081"),
+              x00180082: getTagValue(dataSet, "x00180082"),
+              x00180083: getTagValue(dataSet, "x00180083"),
+              x00180084: getTagValue(dataSet, "x00180084"),
+              x00180085: getTagValue(dataSet, "x00180085"),
+              x00180086: getTagValue(dataSet, "x00180086"),
+              x00180087: getTagValue(dataSet, "x00180087"),
+              x00180088: getTagValue(dataSet, "x00180088"),
+              x00180091: getTagValue(dataSet, "x00180091"),
+              x00180093: getTagValue(dataSet, "x00180093"),
+              x00180094: getTagValue(dataSet, "x00180094"),
+              x00180095: getTagValue(dataSet, "x00180095"),
+              x00181000: getTagValue(dataSet, "x00181000"),
+              x00181020: getTagValue(dataSet, "x00181020"),
+              x00181088: getTagValue(dataSet, "x00181088"),
+              x00181090: getTagValue(dataSet, "x00181094"),
+              x00181100: getTagValue(dataSet, "x00181100"),
+              x00181250: getTagValue(dataSet, "x00181250"),
+              x00181310: getTagValue(dataSet, "x00181310"),
+              x00181312: getTagValue(dataSet, "x00181312"),
+              x00181314: getTagValue(dataSet, "x00181314"),
+              x00181315: getTagValue(dataSet, "x00181315"),
+              x00181316: getTagValue(dataSet, "x00181316"),
+              x00185100: getTagValue(dataSet, "x00185100"),
+              x0020000D: getTagValue(dataSet, "x0020000D"),
+              x0020000E: getTagValue(dataSet, "x0020000E"),
+              x00200010: getTagValue(dataSet, "x00200010"),
+              x00200011: getTagValue(dataSet, "x00200011"),
+              x00200012: getTagValue(dataSet, "x00200012"),
+              x00200013: getTagValue(dataSet, "x00200013"),
+              x00200032: getTagValue(dataSet, "x00200032"),
+              x00200037: getTagValue(dataSet, "x00200037"),
+              x00201002: getTagValue(dataSet, "x00201002"),
+              x00201041: getTagValue(dataSet, "x00201041"),
+              x00280002: getTagValue(dataSet, "x00280002"),
+              x00280004: getTagValue(dataSet, "x00280004"),
+              x00280010: getTagValue(dataSet, "x00280010"),
+              x00280011: getTagValue(dataSet, "x00280011"),
+              x00280030: getTagValue(dataSet, "x00280030"),
+              x00280100: getTagValue(dataSet, "x00280100"),
+              x00280101: getTagValue(dataSet, "x00280101"),
+              x00280102: getTagValue(dataSet, "x00280102"),
+              x00280103: getTagValue(dataSet, "x00280103"),
+              x00280106: getMinPixelValue(
+                getTagValue(dataSet, "x00280106"),
+                pixelData
+              ),
+              x00280107: getMaxPixelValue(
+                getTagValue(dataSet, "x00280107"),
+                pixelData
+              ),
+              x00280120: getTagValue(dataSet, "x00280120"),
+              x00281050: getTagValue(dataSet, "x00281050"),
+              x00281051: getTagValue(dataSet, "x00281051"),
+              x00281052: getTagValue(dataSet, "x00281052"),
+              x00281053: getTagValue(dataSet, "x00281053"),
+              x00080061: getTagValue(dataSet, "x00080061"),
+              x00280008: getTagValue(dataSet, "x00280008"),
+              x00200052: getTagValue(dataSet, "x00200052"),
+              x00280006: getTagValue(dataSet, "x00280006"),
+              x00281101: getTagValue(dataSet, "x00281101"),
+              x00281102: getTagValue(dataSet, "x00281102"),
+              x00281103: getTagValue(dataSet, "x00281103"),
+              x00281201: getTagValue(dataSet, "x00281201"),
+              x00281202: getTagValue(dataSet, "x00281202"),
+              x00281203: getTagValue(dataSet, "x00281203"),
+              x00540081: getTagValue(dataSet, "x00540081"),
+              repr: getPixelRepresentation(dataSet)
             },
             pixelData: pixelData,
 
@@ -232,8 +364,8 @@ let dumpFile = function(file, callback) {
           };
           callback(imageObject);
         } else {
-          // done, no pixeldata
-          callback(null, "no pixeldata.");
+          // done, no pixelData
+          callback(null, "no pixelData.");
         }
       }
     } catch (err) {
@@ -244,9 +376,11 @@ let dumpFile = function(file, callback) {
   reader.readAsArrayBuffer(file);
 };
 
-// -----------------------
-// Error handler function
-// -----------------------
+/**
+ * Error handler function: reset parsing queue and clear file system if needed
+ * @inner
+ * @function errorHandler
+ */
 let errorHandler = function() {
   // empty and initialize queue
   parsingQueue = [];
@@ -256,9 +390,11 @@ let errorHandler = function() {
   clearFileSystem(filesystem ? filesystem.root : null);
 };
 
-// -----------------
-// Clear file system
-// -----------------
+/**
+ * Clear file system
+ * @inner
+ * @function clearFileSystem
+ */
 let clearFileSystem = function(dirEntry) {
   if (!dirEntry) {
     return;

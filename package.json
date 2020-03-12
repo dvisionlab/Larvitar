@@ -1,7 +1,24 @@
 {
-  "name": "Larvitar",
-  "version": "0.2.1",
-  "description": "javascript library for loading dicom images",
+  "name": "larvitar",
+  "keywords": [
+    "dicom",
+    "imaging"
+  ],
+  "version": "0.3.0",
+  "description": "javascript library for loading, rendering and interact with DICOM images",
+  "main": "index.js",
+  "repository": {
+    "url": "https://github.com/dvisionlab/Larvitar.git",
+    "type": "git"
+  },
+  "scripts": {
+    "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json"
+  },
+  "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
+  "contributors": [
+    "Mattia Ronzoni <mattia.ronzoni@dvisionlab.com> (https://www.dvisionlab.com)",
+    "Sara Zanchi <sara.pbji@gmail.com>"
+  ],
   "license": "MIT",
   "dependencies": {
     "cornerstone-core": "^2.3.0",
@@ -12,5 +29,8 @@
     "lodash": "^4.17.15",
     "nrrd-js": "^0.2.1",
     "pako": "^1.0.10"
+  },
+  "devDependencies": {
+    "jsdoc": "^3.6.3"
   }
 }

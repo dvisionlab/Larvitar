@@ -4,8 +4,8 @@ import { each, cloneDeep } from "lodash";
 
 // internal libraries
 import { remapVoxel } from "../image_utils";
-import { addToolStateCustom, setToolEnabled } from "../image_tools";
-import { getSliceNumberFromImageId } from "../nrrdLoader";
+import { addToolStateSingleSlice, setToolEnabled } from "../image_tools";
+import { getSliceNumberFromImageId } from "../loaders/nrrdLoader";
 
 // cornerstone tools imports
 const BaseAnnotationTool = csTools.importInternal("base/BaseAnnotationTool");
@@ -81,7 +81,7 @@ export class SeedsTool extends BaseAnnotationTool {
       let sliceNumber = seed.native_k;
 
       // add to master viewport
-      addToolStateCustom(element, this.name, change, sliceNumber);
+      addToolStateSingleSlice(element, this.name, change, sliceNumber);
 
       // sync remaining viewports
       this.syncViewports(elementId, change, sliceNumber);
@@ -311,7 +311,7 @@ export class SeedsTool extends BaseAnnotationTool {
         el.element.id
       );
 
-      addToolStateCustom(
+      addToolStateSingleSlice(
         el.element,
         this.name,
         remapped.change,

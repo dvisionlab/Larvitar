@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>image_contours.js - Larvitar</title>
+    
+    <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
+    
+        <meta name="keywords" content="imaging, dataviz, medical, cornerstone" />
+        <meta name="keyword" content="imaging, dataviz, medical, cornerstone" />
+    
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/dvisionlab/Larvitar" target="_blank" class="menu-item" id="repository" >Github repo</a></h2><h3>Classes</h3><ul><li><a href="module-imaging_store.html">imaging/store</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="Tools.Annotation.ContoursTool.html">Tools.Annotation.ContoursTool</a></li><li><a href="Tools.Annotation.DiameterTool.html">Tools.Annotation.DiameterTool</a></li><li><a href="Tools.Annotation.SeedsTool.html">Tools.Annotation.SeedsTool</a></li><li><a href="Tools.Brush.BrushTool.html">Tools.Brush.BrushTool</a></li></ul><h3>Modules</h3><ul><li><a href="module-imaging_contours.html">imaging/contours</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#extractSlicePoints">extractSlicePoints</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#populateContoursObject">populateContoursObject</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#~parseContours">parseContours</a></li></ul></li><li><a href="module-imaging_io.html">imaging/io</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildData">buildData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildHeader">buildHeader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~cacheAndSaveSerie">cacheAndSaveSerie</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~importNRRDImage">importNRRDImage</a></li></ul></li><li><a href="module-imaging_layers.html">imaging/layers</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#changeOpacityLayer">changeOpacityLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#getMainLayer">getMainLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#loadImageLayers">loadImageLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#updateImageLayer">updateImageLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~buildLayers">buildLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~loadLayers">loadLayers</a></li></ul></li><li><a href="module-imaging_loading.html">imaging/loading</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeImageLoader">initializeImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerNRRDImageLoader">registerNRRDImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerResliceLoader">registerResliceLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#updateLoadedStack">updateLoadedStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#~isNewInstance">isNewInstance</a></li></ul></li><li><a href="module-imaging_parsing.html">imaging/parsing</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#readFiles">readFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#resetImageParsing">resetImageParsing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~clearFileSystem">clearFileSystem</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFile">dumpFile</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFiles">dumpFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~errorHandler">errorHandler</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~parseNextFile">parseNextFile</a></li></ul></li><li><a href="module-imaging_rendering.html">imaging/rendering</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#clearImageCache">clearImageCache</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#enableMouseHandlers">enableMouseHandlers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadImage">loadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#reloadImage">reloadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#resetViewports">resetViewports</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#storeViewportData">storeViewportData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#updateImage">updateImage</a></li></ul></li><li><a href="module-imaging_store.html">imaging/store</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="module-imaging_tools.html">imaging/tools</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addContoursTool">addContoursTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDefaultTools">addDefaultTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDiameterTool">addDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addMaskEditingTool">addMaskEditingTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addSeedsTool">addSeedsTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addStackStateToElement">addStackStateToElement</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addToolStateSingleSlice">addToolStateSingleSlice</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearCornerstoneElements">clearCornerstoneElements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearMeasurements">clearMeasurements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearToolStateByName">clearToolStateByName</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~configureCornerstoneToolsSettings">configureCornerstoneToolsSettings</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~csToolsCreateStack">csToolsCreateStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getCurrentMaskData">getCurrentMaskData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getToolState">getToolState</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~initializeCSTools">initializeCSTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~isToolMissing">isToolMissing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setSegmentationConfig">setSegmentationConfig</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolEnabled">setToolEnabled</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolPassive">setToolPassive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~syncToolStack">syncToolStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateDiameterTool">updateDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateStackToolState">updateStackToolState</a></li></ul></li><li><a href="module-imaging_utils.html">imaging/utils</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDate">formatDate</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDateTime">formatDateTime</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getCmprMetadata">getCmprMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTag">getDICOMTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTagCode">getDICOMTagCode</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDistanceBetweenSlices">getDistanceBetweenSlices</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMaxPixelValue">getMaxPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMeanValue">getMeanValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMinPixelValue">getMinPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getNormalOrientation">getNormalOrientation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelRepresentation">getPixelRepresentation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIOP">getReslicedIOP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIPP">getReslicedIPP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedMetadata">getReslicedMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedPixeldata">getReslicedPixeldata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedSliceLocation">getReslicedSliceLocation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTagValue">getTagValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTypedArray">getTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#isNegativeSign">isNegativeSign</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#parseImageId">parseImageId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteSignedArrays">permuteSignedArrays</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteValues">permuteValues</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#rand">rand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#randomId">randomId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#remapVoxel">remapVoxel</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#sortStackCallback">sortStackCallback</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#spacingArray">spacingArray</a></li></ul></li><li><a href="module-tools_default.html">tools/default</a></li></ul><h3>Events</h3><ul><li><a href="ContoursTool.html#event:_drawingDoubleTapClickCallback">ContoursTool#_drawingDoubleTapClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDoubleClickCallback">ContoursTool#_drawingMouseDoubleClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDownCallback">ContoursTool#_drawingMouseDownCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDragCallback">ContoursTool#_drawingMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseMoveCallback">ContoursTool#_drawingMouseMoveCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseUpCallback">ContoursTool#_drawingMouseUpCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchDragCallback">ContoursTool#_drawingTouchDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchStartCallback">ContoursTool#_drawingTouchStartCallback</a></li><li><a href="ContoursTool.html#event:_editMouseDragCallback">ContoursTool#_editMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_editTouchDragCallback">ContoursTool#_editTouchDragCallback</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">image_contours.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module imaging/contours
+ *  @desc This file provides functionalities to render a set of points on a canvas.
+ *        Use this in order to render image contours (e.g. from binary masks).
+ *  @todo Document "contours" object (raw and parsed)
+ */
+
+// external libraries
+import { each, range } from "lodash";
+
+/*
+ * This module provides the following functions to be exported:
+ * parseContours(contoursData,pointBatchSize,segmentationName, viewports)
+ */
+
+/**
+ * From raw data, fill cornerstone tool data structure for ContoursTool for a single slice
+ * @instance
+ * @function populateContoursObject
+ * @param {Number} pointBatchSize - Number of points that defines a contour segment
+ * @param {Object} contours - Main contour tool object dict (to be filled)
+ * @param {Number} lineNumber - Number of line to be rendered (a contour is made of n lines)
+ * @param {Number} sliceNumber - Number of the slice in which the contour should be rendered
+ * @param {String} segmentationName - Mask object name
+ * @param {String} orientation - Viewport id (e.g. axial, coronal, sagittal)
+ * @param {Array} data - Raw data (array of pixel values)
+ */
+const populateContoursObject = function(
+  pointBatchSize,
+  contours,
+  lineNumber,
+  sliceNumber,
+  segmentationName,
+  orientation,
+  data
+) {
+  let coords = [];
+
+  for (let i = 0; i &lt; data.length; i += pointBatchSize) {
+    let xy = data.slice(i, pointBatchSize + i);
+
+    // always add the first item
+    if (!coords.length) {
+      coords.push({
+        x: xy[0],
+        y: xy[1],
+        lines: []
+      });
+    }
+
+    // add new items if different from the previous one
+    else {
+      //if (coords[coords.length - 1].x !== xy[0] &amp;&amp;
+      //   coords[coords.length - 1].y !== xy[1]) {
+      coords.push({
+        x: xy[0],
+        y: xy[1],
+        lines: [
+          {
+            x: coords[coords.length - 1].x,
+            y: coords[coords.length - 1].y
+          }
+        ]
+      });
+    }
+  }
+
+  // add line element to the first item
+  if (coords[0]) {
+    coords[0].lines = [
+      {
+        x: coords[coords.length - 1].x,
+        y: coords[coords.length - 1].y
+      }
+    ];
+  }
+
+  contours[orientation][segmentationName][sliceNumber].lines[
+    lineNumber
+  ] = coords;
+};
+
+/**
+ * Extract each slice points from raw data array
+ * @instance
+ * @function extractSlicePoints
+ * @param {Object} contours - Main contour tool object dict (to be filled)
+ * @param {Number} pointBatchSize - Number of points that defines a contour segment (default to 2)
+ * @param {Number} slicePoints - Number of contour points on a slice
+ * @param {String} segmentationName - Mask object name
+ * @param {String} orientation - Viewport id (e.g. axial, coronal, sagittal)
+ * @returns {Number} Number of array elements consumed
+ */
+const extractSlicePoints = function(
+  contours,
+  pointBatchSize,
+  slicePoints,
+  segmentationName,
+  orientation
+) {
+  // read slice number and number of lines for current slice, then remove from array
+  let sliceNumber = slicePoints[0];
+  let numberOfLines = slicePoints[1];
+
+  try {
+    slicePoints = slicePoints.subarray(2);
+  } catch (err) {
+    slicePoints = slicePoints.slice(2);
+  }
+
+  let numberOfPoints = 0;
+  contours[orientation][segmentationName][sliceNumber] = {
+    lines: []
+  };
+
+  if (numberOfLines) {
+    // for each line
+    each(range(numberOfLines), function(l) {
+      // get number of points for current line
+      let numberOfPointsPerLine = slicePoints[0];
+      // compute coordinates size
+      let lineCoordSize = numberOfPointsPerLine * pointBatchSize;
+
+      // remove numberOfPointsPerLine and the coordinates for this line
+      let subCoords;
+      try {
+        subCoords = slicePoints.subarray(1, lineCoordSize + 1);
+      } catch (err) {
+        subCoords = slicePoints.slice(1, lineCoordSize + 1);
+      }
+      populateContoursObject(
+        pointBatchSize,
+        contours,
+        l,
+        sliceNumber,
+        segmentationName,
+        orientation,
+        subCoords
+      );
+
+      let lineSize = 1 + lineCoordSize;
+      numberOfPoints += lineSize;
+      try {
+        slicePoints = slicePoints.subarray(lineSize);
+      } catch (err) {
+        slicePoints = slicePoints.slice(lineSize);
+      }
+    });
+  }
+
+  return 2 + numberOfPoints;
+};
+
+/**
+ * Parse raw data to contours object for each viewport
+ * @export
+ * @function parseContours
+ * @param {Array} contoursData - Raw data
+ * @param {Number} pointBatchSize - Number of points that defines a contour segment (default to 2)
+ * @param {String} segmentationName - Mask object name
+ * @param {Array} viewports - Viewport id @default ["axial","coronal","sagittal"]
+ * @returns {Number} Number of array elements consumed
+ */
+
+export const parseContours = function(
+  contoursData,
+  pointBatchSize,
+  segmentationName,
+  viewports = ["axial", "sagittal", "coronal"]
+) {
+  let contours = {
+    axial: {
+      aorta: []
+    },
+    sagittal: {
+      aorta: []
+    },
+    coronal: {
+      aorta: []
+    }
+  };
+
+  each(viewports, orientation => {
+    let points = contoursData[orientation];
+
+    if (!points) {
+      return;
+    }
+
+    let numberOfSlices = points[0];
+    points = points.slice(1);
+
+    each(range(numberOfSlices), function() {
+      let sliceSize = extractSlicePoints(
+        contours,
+        pointBatchSize,
+        points,
+        segmentationName,
+        orientation
+      );
+      points = points.slice(sliceSize);
+    });
+  });
+
+  return contours;
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+</body>
+</html>

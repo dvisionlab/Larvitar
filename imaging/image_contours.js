@@ -1,10 +1,30 @@
-// external libraries
-import { each, range } from "lodash"; // TODO import just what needed
+/** @module imaging/contours
+ *  @desc This file provides functionalities to render a set of points on a canvas.
+ *        Use this in order to render image contours (e.g. from binary masks).
+ *  @todo Document "contours" object (raw and parsed)
+ */
 
-// -------------------------------------
-// Populate the contour object with data
-// -------------------------------------
-function populateContoursObject(
+// external libraries
+import { each, range } from "lodash";
+
+/*
+ * This module provides the following functions to be exported:
+ * parseContours(contoursData,pointBatchSize,segmentationName, viewports)
+ */
+
+/**
+ * From raw data, fill cornerstone tool data structure for ContoursTool for a single slice
+ * @instance
+ * @function populateContoursObject
+ * @param {Number} pointBatchSize - Number of points that defines a contour segment
+ * @param {Object} contours - Main contour tool object dict (to be filled)
+ * @param {Number} lineNumber - Number of line to be rendered (a contour is made of n lines)
+ * @param {Number} sliceNumber - Number of the slice in which the contour should be rendered
+ * @param {String} segmentationName - Mask object name
+ * @param {String} orientation - Viewport id (e.g. axial, coronal, sagittal)
+ * @param {Array} data - Raw data (array of pixel values)
+ */
+const populateContoursObject = function(
   pointBatchSize,
   contours,
   lineNumber,
@@ -13,10 +33,10 @@ function populateContoursObject(
   orientation,
   data
 ) {
-  var coords = [];
+  let coords = [];
 
-  for (var i = 0; i < data.length; i += pointBatchSize) {
-    var xy = data.slice(i, pointBatchSize + i);
+  for (let i = 0; i < data.length; i += pointBatchSize) {
+    let xy = data.slice(i, pointBatchSize + i);
 
     // always add the first item
     if (!coords.length) {
@@ -57,12 +77,20 @@ function populateContoursObject(
   contours[orientation][segmentationName][sliceNumber].lines[
     lineNumber
   ] = coords;
-}
+};
 
-// ------------------------------------------------
-// Extract each slice points from global data array
-// ------------------------------------------------
-function extractSlicePoints(
+/**
+ * Extract each slice points from raw data array
+ * @instance
+ * @function extractSlicePoints
+ * @param {Object} contours - Main contour tool object dict (to be filled)
+ * @param {Number} pointBatchSize - Number of points that defines a contour segment (default to 2)
+ * @param {Number} slicePoints - Number of contour points on a slice
+ * @param {String} segmentationName - Mask object name
+ * @param {String} orientation - Viewport id (e.g. axial, coronal, sagittal)
+ * @returns {Number} Number of array elements consumed
+ */
+const extractSlicePoints = function(
   contours,
   pointBatchSize,
   slicePoints,
@@ -70,8 +98,8 @@ function extractSlicePoints(
   orientation
 ) {
   // read slice number and number of lines for current slice, then remove from array
-  var sliceNumber = slicePoints[0];
-  var numberOfLines = slicePoints[1];
+  let sliceNumber = slicePoints[0];
+  let numberOfLines = slicePoints[1];
 
   try {
     slicePoints = slicePoints.subarray(2);
@@ -79,7 +107,7 @@ function extractSlicePoints(
     slicePoints = slicePoints.slice(2);
   }
 
-  var numberOfPoints = 0;
+  let numberOfPoints = 0;
   contours[orientation][segmentationName][sliceNumber] = {
     lines: []
   };
@@ -88,12 +116,12 @@ function extractSlicePoints(
     // for each line
     each(range(numberOfLines), function(l) {
       // get number of points for current line
-      var numberOfPointsPerLine = slicePoints[0];
+      let numberOfPointsPerLine = slicePoints[0];
       // compute coordinates size
-      var lineCoordSize = numberOfPointsPerLine * pointBatchSize;
+      let lineCoordSize = numberOfPointsPerLine * pointBatchSize;
 
       // remove numberOfPointsPerLine and the coordinates for this line
-      var subCoords;
+      let subCoords;
       try {
         subCoords = slicePoints.subarray(1, lineCoordSize + 1);
       } catch (err) {
@@ -109,7 +137,7 @@ function extractSlicePoints(
         subCoords
       );
 
-      var lineSize = 1 + lineCoordSize;
+      let lineSize = 1 + lineCoordSize;
       numberOfPoints += lineSize;
       try {
         slicePoints = slicePoints.subarray(lineSize);
@@ -120,20 +148,26 @@ function extractSlicePoints(
   }
 
   return 2 + numberOfPoints;
-}
+};
 
-// --------------------------------------
-// Parse contour object for each viewport
-// --------------------------------------
-export function parseContours(
+/**
+ * Parse raw data to contours object for each viewport
+ * @export
+ * @function parseContours
+ * @param {Array} contoursData - Raw data
+ * @param {Number} pointBatchSize - Number of points that defines a contour segment (default to 2)
+ * @param {String} segmentationName - Mask object name
+ * @param {Array} viewports - Viewport id @default ["axial","coronal","sagittal"]
+ * @returns {Number} Number of array elements consumed
+ */
+
+export const parseContours = function(
   contoursData,
   pointBatchSize,
   segmentationName,
-  _viewports
+  viewports = ["axial", "sagittal", "coronal"]
 ) {
-  let viewports = _viewports ? _viewports : ["axial", "sagittal", "coronal"];
-
-  var contours = {
+  let contours = {
     axial: {
       aorta: []
     },
@@ -146,17 +180,17 @@ export function parseContours(
   };
 
   each(viewports, orientation => {
-    var points = contoursData[orientation];
+    let points = contoursData[orientation];
 
     if (!points) {
       return;
     }
 
-    var numberOfSlices = points[0];
+    let numberOfSlices = points[0];
     points = points.slice(1);
 
     each(range(numberOfSlices), function() {
-      var sliceSize = extractSlicePoints(
+      let sliceSize = extractSlicePoints(
         contours,
         pointBatchSize,
         points,
@@ -168,4 +202,4 @@ export function parseContours(
   });
 
   return contours;
-}
+};

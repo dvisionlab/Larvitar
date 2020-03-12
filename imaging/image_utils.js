@@ -1,3 +1,9 @@
+/** @module imaging/utils
+ *  @desc This file provides utility functions for
+ *        manipulating image pixels and image metadata
+ *  @todo Document
+ */
+
 // external libraries
 import {
   isEmpty,
@@ -13,13 +19,9 @@ import {
 import uuid from "uuid";
 
 // internal libraries
+import { getCustomImageId, getSerieDimensions } from "./loaders/commonLoader";
+
 const TAG_DICT = require("./dataDictionary.json");
-import {
-  getCustomImageId,
-  getSeriesData,
-  getSerieDimensions,
-  getImageIdFromSlice
-} from "./nrrdLoader";
 
 // global module variables
 // variables used to manage the reslice functionality
@@ -47,10 +49,19 @@ const resliceTable = {
  * remapVoxel([i,j,k], fromOrientation, toOrientation)
  */
 
-// ---------------------------------------------
-// Return computed 3D normal from two 3D vectors
-// el is the image_orientation dicom tag
-// ---------------------------------------------
+/**
+ * @typedef {Object} CornerstoneSeries
+ * @property {Array} imageIds Array of the instances imageIds
+ * @property {Array} instances Array of instances
+ * @property {Number} currentImageIndex Currently loaded image id index in the imageIds array
+ */
+
+/**
+ * Return computed 3D normal from two 3D vectors
+ * @instance
+ * @function getNormalOrientation
+ * @param {Array} el - The image_orientation dicom tag
+ */
 export const getNormalOrientation = function(el) {
   let a = [el[0], el[1], el[2]];
   let b = [el[3], el[4], el[5]];
@@ -64,9 +75,13 @@ export const getNormalOrientation = function(el) {
   return n;
 };
 
-// ----------------------------------------------------
-// Get the min pixel value from series if not specified
-// ----------------------------------------------------
+/**
+ * If a value is provided, returns it, otherwise get the min pixel value from pixelData
+ * @instance
+ * @function getMinPixelValue
+ * @param {Number} value - The min value
+ * @param {Array} pixelData - Pixel data array
+ */
 export const getMinPixelValue = function(value, pixelData) {
   if (value !== undefined) {
     return value;
@@ -80,9 +95,13 @@ export const getMinPixelValue = function(value, pixelData) {
   return min;
 };
 
-// ----------------------------------------------------
-// Get the max pixel value from series if not specified
-// ----------------------------------------------------
+/**
+ * If a value is provided, returns it, otherwise get the max pixel value from pixelData
+ * @instance
+ * @function getMaxPixelValue
+ * @param {Number} value - The max value
+ * @param {Array} pixelData - Pixel data array
+ */
 export const getMaxPixelValue = function(value, pixelData) {
   if (value !== undefined) {
     return value;
@@ -97,9 +116,13 @@ export const getMaxPixelValue = function(value, pixelData) {
   return max;
 };
 
-// -----------------------------------------------------------------
-// Create the pixel representation (type and length) from dicom tags
-// -----------------------------------------------------------------
+/**
+ * Create the pixel representation string (type and length) from dicom tags
+ * @instance
+ * @function getPixelRepresentation
+ * @param {Object} dataSet - The dataset
+ * @returns {String} The pixel representation in the form Sint / Uint + bytelength
+ */
 export const getPixelRepresentation = function(dataSet) {
   if (dataSet.repr) {
     return dataSet.repr;
@@ -118,9 +141,14 @@ export const getPixelRepresentation = function(dataSet) {
   }
 };
 
-// ---------------------------------------------------
-// Create and return a typed array from the pixel data
-// ---------------------------------------------------
+/**
+ * Create and return a typed array from the pixel data
+ * @instance
+ * @function getPixelTypedArray
+ * @param {Object} dataSet - The cornerstone serie object
+ * @param {Object} pixelDataElement - The dataset metadata (dataSet.elements.x7fe00010)
+ * @returns {TypedArray} The pixel array as proper typed array
+ */
 export const getPixelTypedArray = function(dataSet, pixelDataElement) {
   let pixels;
   let buffer = dataSet.byteArray.buffer;
@@ -155,13 +183,19 @@ export const getPixelTypedArray = function(dataSet, pixelDataElement) {
   return pixels;
 };
 
-// ---------------------------------------------------------------------
-// Sort the array of images ids of a series trying with:
-// - content time order, if the series has cardiacNumberOfImages tag > 1
-// - position order, if series has needed patient position tags
-// - instance order, if series has instance numbers tags
-// The priority of the method depends on the instanceSortPriority value.
-// ---------------------------------------------------------------------
+/**
+ * Sort the array of images ids of a series trying with:
+ * - content time order, if the series has cardiacNumberOfImages tag > 1
+ * - position order, if series has needed patient position tags
+ * - instance order, if series has instance numbers tags
+ * The priority of the method depends on the instanceSortPriority value
+ * @instance
+ * @function getPixelTypedArray
+ * @param {Object} seriesData - The dataset
+ * @param {Array} sortPriorities - TODO
+ * @param {Bool} returnSuccessMethod - TODO ask @SZ
+ * @return {Object} The sorted stack
+ */
 export const getSortedStack = function(
   seriesData,
   sortPriorities,
@@ -196,10 +230,15 @@ export const getSortedStack = function(
   return tryToSort(seriesData, clonedList);
 };
 
-// -------------------------------------------------------------------------
-// Extract tag value according to its value rapresentation
-// see http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_6.2.html
-// -------------------------------------------------------------------------
+/**
+ * Extract tag value according to its value rapresentation, see
+ * {@link http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_6.2.html}
+ * @instance
+ * @function getTagValue
+ * @param {Object} dataSet - the dataset
+ * @param {String} tag - the desired tag key
+ * @return {Number | Array | String} - the desired tag value
+ */
 export const getTagValue = function(dataSet, tag) {
   // tag value rapresentation
   let vr = getDICOMTag(tag).vr;
@@ -277,16 +316,25 @@ export const getTagValue = function(dataSet, tag) {
   return vrParsingMap[vr] ? vrParsingMap[vr]() : dataSet.string(tag);
 };
 
-// ---------------------
-// Generate a randomUUID
-// ---------------------
+/**
+ * Generate a randomUUID in the form 'uy0x2qz9jk9co642cjfus'
+ * @instance
+ * @function randomId
+ * @return {String} - Random uid
+ */
 export const randomId = function() {
   return rand() + rand();
 };
 
-// -------------------------------------------
-// get the mean value of a specified dicom tag
-// -------------------------------------------
+/**
+ * Get the mean value of a specified dicom tag in a serie
+ * @instance
+ * @function getMeanValue
+ * @param {Object} series - The cornerstone series object
+ * @param {Object} tag - The target tag key
+ * @param {Bool} isArray - True if tag value is an array
+ * @return {Number} - Tag mean value
+ */
 export const getMeanValue = function(series, tag, isArray) {
   let meanValue = isArray ? [] : 0;
 
@@ -321,9 +369,17 @@ export const getMeanValue = function(series, tag, isArray) {
   return meanValue;
 };
 
-// -----------------------------------------------------------
-// Compute resliced metadata from a cornerstone data structure
-// -----------------------------------------------------------
+/**
+ * Compute resliced metadata from a cornerstone data structure
+ * @instance
+ * @function getReslicedMetadata
+ * @param {String} reslicedSeriesId - The id of the resliced serie
+ * @param {String} fromOrientation - Source orientation (eg axial, coronal or sagittal)
+ * @param {String} toOrientation - Target orientation (eg axial, coronal or sagittal)
+ * @param {Object} seriesData - The original series data
+ * @param {String} imageLoaderName - The registered loader name
+ * @return {Object} - Cornerstone series object, filled only with metadata
+ */
 export const getReslicedMetadata = function(
   reslicedSeriesId,
   fromOrientation,
@@ -342,16 +398,15 @@ export const getReslicedMetadata = function(
   let reslicedInstances = {};
 
   let sampleMetadata = seriesData.instances[seriesData.imageIds[0]].metadata;
+
   let fromSize = [
     sampleMetadata.x00280011,
     sampleMetadata.x00280010,
     seriesData.imageIds.length
   ];
   let toSize = permuteValues(permuteAbsTable, fromSize);
-
-  let fromSpacing = spacingArray(seriesData);
+  let fromSpacing = spacingArray(seriesData, sampleMetadata);
   let toSpacing = permuteValues(permuteAbsTable, fromSpacing);
-
   let reslicedIOP = getReslicedIOP(sampleMetadata.x00200037, permuteTable);
 
   for (let f = 0; f < toSize[2]; f++) {
@@ -380,7 +435,7 @@ export const getReslicedMetadata = function(
       x00280030: [toSpacing[1], toSpacing[0]],
       x00180050: [toSpacing[2]],
       // remove min and max pixelvalue from metadata before calling the createCustomImage function:
-      // need to recalculate the min and max pixel values on the new instance pixeldata
+      // need to recalculate the min and max pixel values on the new instance pixelData
       x00280106: undefined,
       x00280107: undefined,
       // resliced series data
@@ -424,13 +479,20 @@ export const getReslicedMetadata = function(
 
   return {
     imageIds: reslicedImageIds,
-    instances: reslicedInstances
+    instances: reslicedInstances,
+    currentImageIdIndex: 0
   };
 };
 
-// ------------------------------------------
-// Compute cmpr metadata from pyCmpr data ---
-// ------------------------------------------
+/**
+ * Compute cmpr metadata from pyCmpr data (generated using Scyther {@link https://github.com/dvisionlab/Scyther})
+ * @instance
+ * @function getCmprMetadata
+ * @param {String} reslicedSeriesId - The id of the resliced serie
+ * @param {String} imageLoaderName - The registered loader name
+ * @param {Object} header - The header of the resliced serie from Scyther
+ * @return {Object} - Cornerstone series object, filled only with metadata
+ */
 export const getCmprMetadata = function(
   reslicedSeriesId,
   imageLoaderName,
@@ -438,10 +500,6 @@ export const getCmprMetadata = function(
 ) {
   let reslicedImageIds = [];
   let reslicedInstances = {};
-
-  // DEV
-  // let reslicedIOP = [1, 0, 0, 0, 1, 0];
-  // let reslicedIPP = [-211, -75, -184];
 
   for (let f = 0; f < header.frames_number; f++) {
     let reslicedImageId = getCustomImageId(imageLoaderName);
@@ -509,9 +567,15 @@ export const getCmprMetadata = function(
   };
 };
 
-// ---------------------------------------------------------------------------
-// Get pixel data for a single resliced slice, from cornerstone data structure
-// ---------------------------------------------------------------------------
+/**
+ * Get pixel data for a single resliced slice, from cornerstone data structure
+ * @instance
+ * @function getReslicedPixeldata
+ * @param {String} imageId - The id of the resulting image
+ * @param {Object} originalData - The original series data (source)
+ * @param {Object} reslicedData - The resliced series data (target)
+ * @return {Object} - A single resliced slice pixel array
+ */
 export const getReslicedPixeldata = function(
   imageId,
   originalData,
@@ -524,12 +588,12 @@ export const getReslicedPixeldata = function(
     return Math.abs(v);
   });
 
-  // compute resliced series pixeldata, use the correct typedarray
+  // compute resliced series pixelData, use the correct typedarray
   let rows = reslicedMetadata.x00280010;
   let cols = reslicedMetadata.x00280011;
   let reslicedSlice = getTypedArray(reslicedMetadata, rows * cols);
-  let frame = indexOf(reslicedData.imageIds, imageId);
 
+  let frame = indexOf(reslicedData.imageIds, imageId);
   let originalInstance = originalData.instances[originalData.imageIds[0]];
   let fromCols = originalInstance.metadata.x00280011;
 
@@ -540,15 +604,15 @@ export const getReslicedPixeldata = function(
 
     let targetInstance = originalData.instances[originalData.imageIds[f]];
     if (!targetInstance) {
+      console.log("ERROR");
       // TODO interpolate missing pixels when using an oversample reslice strategy
       // let f_padded = Math.floor(f / originalSampleMetadata.x00180050 * originalSampleMetadata.x00280030[0]);
       // targetInstance = originalSeries.instances[originalSeries.imageIds[f_padded]];
       return;
     }
 
-    let targetPixeldata = targetInstance.pixeldata;
+    let targetPixeldata = targetInstance.pixelData;
     let index = j * fromCols + i;
-
     return targetPixeldata[index];
   }
 
@@ -581,9 +645,15 @@ export const getReslicedPixeldata = function(
   return reslicedSlice;
 };
 
-// ---------------------------------
-// Get distance between slices value
-// ---------------------------------
+/**
+ * Get distance between two slices
+ * @instance
+ * @function getDistanceBetweenSlices
+ * @param {Object} seriesData - The series data
+ * @param {Number} sliceIndex1 - The first slice index
+ * @param {Number} sliceIndex2 - The second slice index
+ * @return {Number} - The distance value
+ */
 export const getDistanceBetweenSlices = function(
   seriesData,
   sliceIndex1,
@@ -626,12 +696,64 @@ export const getDistanceBetweenSlices = function(
   }
 };
 
+/**
+ * Parse an imageId string to int
+ * @instance
+ * @function parseImageId
+ * @param {String} imageId - Theimage id to convert
+ * @return {Number} - The number contained in the imageId
+ */
+export function parseImageId(imageId) {
+  let sliceNumber = imageId.split("//").pop();
+  return parseInt(sliceNumber);
+}
+
+/**
+ * Remap a voxel cooordinates in a target orientation
+ * @instance
+ * @function remapVoxel
+ * @param {Array} ijk - Voxel coordinates to convert
+ * @param {fromOrientation} orientationName - Orientation source
+ * @param {toOrientation} orientationName - Orientation target
+ * @return {Array} - Voxel coordinates in target orientation
+ */
+export function remapVoxel([i, j, k], fromOrientation, toOrientation) {
+  if (fromOrientation == toOrientation) {
+    return [i, j, k];
+  }
+
+  let permuteTable = resliceTable[toOrientation][fromOrientation];
+  let permuteAbsTable = permuteTable.map(function(v) {
+    return Math.abs(v);
+  });
+
+  // if permuteTable value is negative, count slices from the end
+  var dims = getSerieDimensions();
+
+  let i_ = isNegativeSign(permuteTable[0]) ? dims[fromOrientation][0] - i : i;
+  let j_ = isNegativeSign(permuteTable[1]) ? dims[fromOrientation][1] - j : j;
+  let k_ = isNegativeSign(permuteTable[2]) ? dims[fromOrientation][2] - k : k;
+
+  let ijk = [0, 0, 0];
+  ijk[permuteAbsTable[0]] = i_;
+  ijk[permuteAbsTable[1]] = j_;
+  ijk[permuteAbsTable[2]] = k_;
+
+  return ijk;
+}
+
 /* Internal module functions */
 
-// -------------------------------------------------------------------
-// Returns the sorting value of the image id in the array of image ids
-// of the series according with the chosen sorting method.
-// -------------------------------------------------------------------
+/**
+ * Returns the sorting value of the image id in the array of image ids
+ * of the series according with the chosen sorting method
+ * @instance
+ * @function sortStackCallback
+ * @param {Object} seriesData - The original series data
+ * @param {String} imageId - The id of the target image
+ * @param {String} method - Orientation target
+ * @return {Number} - The sorting value (float)
+ */
 let sortStackCallback = function(seriesData, imageId, method) {
   switch (method) {
     case "instanceNumber":
@@ -682,9 +804,13 @@ let sortStackCallback = function(seriesData, imageId, method) {
   }
 };
 
-// ---------------------------------------
-// Get the dicom tag code from dicom image
-// ---------------------------------------
+/**
+ * Get the dicom tag code from dicom image
+ * @instance
+ * @function getDICOMTagCode
+ * @param {String} dicomTag - The original DICOM tag code
+ * @return {String} - The human readable DICOM tag code
+ */
 let getDICOMTagCode = function(code) {
   let re = /x(\w{4})(\w{4})/;
   let result = re.exec(code);
@@ -699,18 +825,26 @@ let getDICOMTagCode = function(code) {
   return newCode;
 };
 
-// ----------------------------------
-// Get the dicom tag from dicom image
-// ----------------------------------
+/**
+ * Get the dicom tag from dicom tag code
+ * @instance
+ * @function getDICOMTag
+ * @param {String} dicomTagCode - The original DICOM tag code
+ * @return {String} - The human readable DICOM tag
+ */
 let getDICOMTag = function(code) {
   let newCode = getDICOMTagCode(code);
   let tag = TAG_DICT[newCode];
   return tag;
 };
 
-// ---------------------------
-// convert date from dicom tag
-// ---------------------------
+/**
+ * Convert date from dicom tag
+ * @instance
+ * @function formatDate
+ * @param {Date} dicomDate - A date from a DICOM tag
+ * @return {String} - The human readable date
+ */
 let formatDate = function(date) {
   let yyyy = date.slice(0, 4);
   let mm = date.slice(4, 6);
@@ -720,9 +854,13 @@ let formatDate = function(date) {
   );
 };
 
-// -------------------------------
-// convert datetime from dicom tag
-// -------------------------------
+/**
+ * Convert datetime from dicom tag
+ * @instance
+ * @function formatDateTime
+ * @param {Date} dicomDateTime - A dateTime from a DICOM tag
+ * @return {String} - The human readable dateTime
+ */
 let formatDateTime = function(date) {
   let yyyy = date.slice(0, 4);
   let mm = date.slice(4, 6);
@@ -746,18 +884,26 @@ let formatDateTime = function(date) {
   );
 };
 
-// -----------------------------------------------------------
-// Generate a random number and convert it to base 36 (0-9a-z)
-// -----------------------------------------------------------
+/**
+ * Generate a random number and convert it to base 36 (0-9a-z)
+ * @instance
+ * @function rand
+ * @return {Number} - base36 random number
+ */
 let rand = function() {
   return Math.random()
     .toString(36)
     .substr(2);
 };
 
-// --------------------------------------------
-// Permute array values using orientation array
-// --------------------------------------------
+/**
+ * Permute array values using orientation array
+ * @instance
+ * @function permuteValues
+ * @param {Array} convertArray - The orientation array
+ * @param {Array} sourceArray - The source array
+ * @return {Array} - The converted array
+ */
 let permuteValues = function(convertArray, sourceArray) {
   let outputArray = new Array(convertArray.length);
   for (let i = 0; i < convertArray.length; i++) {
@@ -767,16 +913,25 @@ let permuteValues = function(convertArray, sourceArray) {
   return outputArray;
 };
 
-// -----------------------------------------------
-// Check negative sign, considering also 0+ and 0-
-// -----------------------------------------------
+/**
+ * Check negative sign, considering also 0+ and 0-
+ * @instance
+ * @function isNegativeSign
+ * @param {Number} x - The number to check
+ * @return {Boolean} - Is negative boolean response
+ */
 let isNegativeSign = function(x) {
   return 1 / x !== 1 / Math.abs(x);
 };
 
-// ---------------------------------------------------
-// Get typed array from tag and size of original array
-// ---------------------------------------------------
+/**
+ * Get typed array from tag and size of original array
+ * @instance
+ * @function getTypedArray
+ * @param {String} tag - The DICOM tag used for pixel representation
+ * @param {Number} size - The size of the array
+ * @return {Array} - The typed array
+ */
 let getTypedArray = function(tags, size) {
   let r = getPixelRepresentation(tags);
 
@@ -805,9 +960,14 @@ let getTypedArray = function(tags, size) {
   return array;
 };
 
-// ----------------------------------------------------
-// Get resliced image orientation tag from permuteTable
-// ----------------------------------------------------
+/**
+ * Get resliced image orientation tag from permuteTable
+ * @instance
+ * @function getReslicedIOP
+ * @param {Array} iop - The image orientation array
+ * @param {Array} permuteTable - The matrix transformation
+ * @return {Array} - The resliced image orientation array
+ */
 let getReslicedIOP = function(iop, permuteTable) {
   if (!iop) {
     return null;
@@ -828,9 +988,20 @@ let getReslicedIOP = function(iop, permuteTable) {
   return shuffledIop[0].concat(shuffledIop[1]);
 };
 
-// ------------------------------
-// Get resliced image positon tag
-// ------------------------------
+/**
+ * Get resliced image position tag from permuteTable
+ * @instance
+ * @function getReslicedIPP
+ * @param {Array} iop - The image position array
+ * @param {Array} iop - The image orientation array
+ * @param {Array} reslicedIOP - The resliced image orientation array
+ * @param {Array} permuteTable - The matrix transformation
+ * @param {Number} imageIndex - The index of the image
+ * @param {Array} fromSize - The array of source image dimension
+ * @param {Array} toSize - The array of target image dimension
+ * @param {Array} fromSpacing - The spacing array
+ * @return {Array} - The resliced image position array
+ */
 let getReslicedIPP = function(
   ipp,
   iop,
@@ -913,9 +1084,14 @@ let getReslicedIPP = function(
   return reslicedIPP;
 };
 
-// --------------------------------------
-// Get resliced normal orientation vector
-// --------------------------------------
+/**
+ * Get resliced normal orientation vector
+ * @instance
+ * @function getReslicedSliceLocation
+ * @param {Array} reslicedIOP - The resliced image orientation array
+ * @param {Array} reslicedIPP - The resliced image position array
+ * @return {Array} - The slice location as normal orientation vector
+ */
 let getReslicedSliceLocation = function(reslicedIOP, reslicedIPP) {
   let normalReslicedIop = getNormalOrientation(reslicedIOP);
   normalReslicedIop = map(normalReslicedIop, function(v) {
@@ -926,13 +1102,15 @@ let getReslicedSliceLocation = function(reslicedIOP, reslicedIPP) {
   return reslicedIPP[majorIndex];
 };
 
-// ---------------------------------
-// Get spacing array from seriesData
-// ---------------------------------
-let spacingArray = function(seriesData) {
-  let imageIds = seriesData.imageIds;
-  let sampleMetadata = seriesData.instances[imageIds[0]].metadata;
-
+/**
+ * Get spacing array from seriesData
+ * @instance
+ * @function spacingArray
+ * @param {Object} seriesData - The original series data
+ * @param {Object} sampleMetadata - The medatata object
+ * @return {Array} - The spacing array
+ */
+let spacingArray = function(seriesData, sampleMetadata) {
   // the spacingArray is as follows:
   // [0]: column pixelSpacing value (x00280030[1])
   // [1]: row pixelSpacing value (x00280030[0])
@@ -950,9 +1128,14 @@ let spacingArray = function(seriesData) {
   ];
 };
 
-// -------------------------------------------
-// Permute a signed array using original array
-// -------------------------------------------
+/**
+ * Permute a signed array using original array
+ * @instance
+ * @function permuteSignedArrays
+ * @param {Array} convertArray - The original array
+ * @param {Array} sourceArray - The array to convert
+ * @return {Array} - The converted array
+ */
 let permuteSignedArrays = function(convertArray, sourceArray) {
   let outputArray = new Array(convertArray.length);
   for (let i = 0; i < convertArray.length; i++) {
@@ -968,88 +1151,3 @@ let permuteSignedArrays = function(convertArray, sourceArray) {
 
   return outputArray;
 };
-
-// -------------------------------
-// Parse an imageId string to int
-// -------------------------------
-export function parseImageId(imageId) {
-  let sliceNumber = imageId.split("//").pop();
-  return parseInt(sliceNumber);
-}
-
-// --------------------------------------------------
-// Remap a voxel cohordinates in a target orientation
-// --------------------------------------------------
-export function remapVoxel([i, j, k], fromOrientation, toOrientation) {
-  if (fromOrientation == toOrientation) {
-    return [i, j, k];
-  }
-
-  let permuteTable = resliceTable[toOrientation][fromOrientation];
-  let permuteAbsTable = permuteTable.map(function(v) {
-    return Math.abs(v);
-  });
-
-  // if permuteTable value is negative, count slices from the end
-  var dims = getSerieDimensions();
-
-  let i_ = isNegativeSign(permuteTable[0]) ? dims[fromOrientation][0] - i : i;
-  let j_ = isNegativeSign(permuteTable[1]) ? dims[fromOrientation][1] - j : j;
-  let k_ = isNegativeSign(permuteTable[2]) ? dims[fromOrientation][2] - k : k;
-
-  let ijk = [0, 0, 0];
-  ijk[permuteAbsTable[0]] = i_;
-  ijk[permuteAbsTable[1]] = j_;
-  ijk[permuteAbsTable[2]] = k_;
-
-  return ijk;
-}
-
-// ---------------------------------------------
-// Compute ijk from xyz for cmpr axial serie ---
-// ---------------------------------------------
-export function getCmprAxialIJK([x, y, z], s, seriesId) {
-  let seriesData = getSeriesData(seriesId);
-  let cmprAxialSeriesData = seriesData["cmprAxial"];
-
-  let k =
-    cmprAxialSeriesData.imageIds.length -
-    Math.floor(s * cmprAxialSeriesData.imageIds.length);
-  let imageId = getImageIdFromSlice(k, "cmprAxial", seriesId);
-
-  // let iop = cmprAxialSeriesData.instances[imageId].metadata.x00200037;
-  let ipp = cmprAxialSeriesData.instances[imageId].metadata.x00200032;
-  let spacing = cmprAxialSeriesData.instances[imageId].metadata.x00280030;
-
-  // let v0 = [x - -ipp[0], y - -ipp[1], z - ipp[2]];
-  // let projection_v0v1 = v0[0] * -iop[0] + v0[1] * -iop[1] + v0[2] * iop[2];
-  // let projection_v0v2 = v0[0] * -iop[3] + v0[1] * -iop[4] + v0[2] * iop[5];
-
-  let ipp_x = -ipp[0];
-  let ipp_y = -ipp[1];
-  let ipp_z = ipp[2];
-  // let iop_xx = -iop[0];
-  // let iop_xy = -iop[1];
-  // let iop_xz = iop[2];
-  // let iop_yx = -iop[3];
-  // let iop_yy = -iop[4];
-  // let iop_yz = iop[5];
-
-  let v0 = [x - ipp_x, y - ipp_y, z - ipp_z];
-  // console.log("v0", v0);
-  // let projection_v0v1 = v0[0] * iop_xx + v0[1] * iop_xy + v0[2] * iop_xz;
-  // let projection_v0v2 = v0[0] * iop_yx + v0[1] * iop_yy + v0[2] * iop_yz;
-
-  // could be this ...
-  // let i = Math.floor(projection_v0v1 / spacing[0]);
-  // let j = Math.floor(projection_v0v2 / spacing[1]);
-
-  // ...or this
-  let i = Math.floor(v0[0] / spacing[0]);
-  let j = Math.floor(v0[1] / spacing[1]);
-  // console.log("resulting ijk ", i, j, k);
-
-  return [i, j, k].map(Math.abs);
-}
-
-// window.debug.add(getCmprAxialIJK);

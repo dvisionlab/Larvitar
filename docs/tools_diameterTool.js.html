@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>tools/diameterTool.js - Larvitar</title>
+    
+    <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
+    
+        <meta name="keywords" content="imaging, dataviz, medical, cornerstone" />
+        <meta name="keyword" content="imaging, dataviz, medical, cornerstone" />
+    
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/dvisionlab/Larvitar" target="_blank" class="menu-item" id="repository" >Github repo</a></h2><h3>Classes</h3><ul><li><a href="module-imaging_store.html">imaging/store</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="Tools.Annotation.ContoursTool.html">Tools.Annotation.ContoursTool</a></li><li><a href="Tools.Annotation.DiameterTool.html">Tools.Annotation.DiameterTool</a></li><li><a href="Tools.Annotation.SeedsTool.html">Tools.Annotation.SeedsTool</a></li><li><a href="Tools.Brush.BrushTool.html">Tools.Brush.BrushTool</a></li></ul><h3>Modules</h3><ul><li><a href="module-imaging_contours.html">imaging/contours</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#extractSlicePoints">extractSlicePoints</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#populateContoursObject">populateContoursObject</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#~parseContours">parseContours</a></li></ul></li><li><a href="module-imaging_io.html">imaging/io</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildData">buildData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildHeader">buildHeader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~cacheAndSaveSerie">cacheAndSaveSerie</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~importNRRDImage">importNRRDImage</a></li></ul></li><li><a href="module-imaging_layers.html">imaging/layers</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#changeOpacityLayer">changeOpacityLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#getMainLayer">getMainLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#loadImageLayers">loadImageLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#updateImageLayer">updateImageLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~buildLayers">buildLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~loadLayers">loadLayers</a></li></ul></li><li><a href="module-imaging_loading.html">imaging/loading</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeImageLoader">initializeImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerNRRDImageLoader">registerNRRDImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerResliceLoader">registerResliceLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#updateLoadedStack">updateLoadedStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#~isNewInstance">isNewInstance</a></li></ul></li><li><a href="module-imaging_parsing.html">imaging/parsing</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#readFiles">readFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#resetImageParsing">resetImageParsing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~clearFileSystem">clearFileSystem</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFile">dumpFile</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFiles">dumpFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~errorHandler">errorHandler</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~parseNextFile">parseNextFile</a></li></ul></li><li><a href="module-imaging_rendering.html">imaging/rendering</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#clearImageCache">clearImageCache</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#enableMouseHandlers">enableMouseHandlers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadImage">loadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#reloadImage">reloadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#resetViewports">resetViewports</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#storeViewportData">storeViewportData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#updateImage">updateImage</a></li></ul></li><li><a href="module-imaging_store.html">imaging/store</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="module-imaging_tools.html">imaging/tools</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addContoursTool">addContoursTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDefaultTools">addDefaultTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDiameterTool">addDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addMaskEditingTool">addMaskEditingTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addSeedsTool">addSeedsTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addStackStateToElement">addStackStateToElement</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addToolStateSingleSlice">addToolStateSingleSlice</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearCornerstoneElements">clearCornerstoneElements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearMeasurements">clearMeasurements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearToolStateByName">clearToolStateByName</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~configureCornerstoneToolsSettings">configureCornerstoneToolsSettings</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~csToolsCreateStack">csToolsCreateStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getCurrentMaskData">getCurrentMaskData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getToolState">getToolState</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~initializeCSTools">initializeCSTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~isToolMissing">isToolMissing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setSegmentationConfig">setSegmentationConfig</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolEnabled">setToolEnabled</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolPassive">setToolPassive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~syncToolStack">syncToolStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateDiameterTool">updateDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateStackToolState">updateStackToolState</a></li></ul></li><li><a href="module-imaging_utils.html">imaging/utils</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDate">formatDate</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDateTime">formatDateTime</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getCmprMetadata">getCmprMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTag">getDICOMTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTagCode">getDICOMTagCode</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDistanceBetweenSlices">getDistanceBetweenSlices</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMaxPixelValue">getMaxPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMeanValue">getMeanValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMinPixelValue">getMinPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getNormalOrientation">getNormalOrientation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelRepresentation">getPixelRepresentation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIOP">getReslicedIOP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIPP">getReslicedIPP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedMetadata">getReslicedMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedPixeldata">getReslicedPixeldata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedSliceLocation">getReslicedSliceLocation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTagValue">getTagValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTypedArray">getTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#isNegativeSign">isNegativeSign</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#parseImageId">parseImageId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteSignedArrays">permuteSignedArrays</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteValues">permuteValues</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#rand">rand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#randomId">randomId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#remapVoxel">remapVoxel</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#sortStackCallback">sortStackCallback</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#spacingArray">spacingArray</a></li></ul></li><li><a href="module-tools_default.html">tools/default</a></li></ul><h3>Events</h3><ul><li><a href="ContoursTool.html#event:_drawingDoubleTapClickCallback">ContoursTool#_drawingDoubleTapClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDoubleClickCallback">ContoursTool#_drawingMouseDoubleClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDownCallback">ContoursTool#_drawingMouseDownCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDragCallback">ContoursTool#_drawingMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseMoveCallback">ContoursTool#_drawingMouseMoveCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseUpCallback">ContoursTool#_drawingMouseUpCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchDragCallback">ContoursTool#_drawingTouchDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchStartCallback">ContoursTool#_drawingTouchStartCallback</a></li><li><a href="ContoursTool.html#event:_editMouseDragCallback">ContoursTool#_editMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_editTouchDragCallback">ContoursTool#_editTouchDragCallback</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">tools/diameterTool.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import csTools from "cornerstone-tools";
+
+const BidirectionalTool = csTools.BidirectionalTool;
+
+import { addToolStateSingleSlice } from "../image_tools";
+import { each } from "lodash";
+
+/**
+ * @public
+ * @class DiameterTool
+ * @memberof Tools.Annotation
+ * @classdesc Create and position an annotation that measures the
+ * length and width of a region.
+ * @extends Tools.Base.BaseAnnotationTool
+ */
+
+export class DiameterTool extends BidirectionalTool {
+  constructor(props) {
+    const defaultProps = {
+      name: "Diameter",
+      isBeenModified: false,
+      lastData: null
+    };
+
+    super(props, defaultProps);
+
+    this.name = "Diameter";
+
+    this.initializeTool(props.dataArray, "cmprAxial", props.seriesId);
+
+    console.log(this);
+  }
+
+  initializeTool(dataArray, elementId, seriesId) {
+    let element = document.getElementById(elementId);
+
+    each(dataArray, singleData => {
+      let data = {
+        toolType: "Diameter",
+        name: singleData.id.toString(),
+        isCreating: true,
+        visible: true,
+        active: false,
+        invalidated: false,
+        handles: {
+          start: {
+            x: singleData.x1,
+            y: singleData.y1,
+            index: 0,
+            drawnIndependently: false,
+            allowedOutsideImage: false,
+            highlight: true,
+            active: false
+          },
+          end: {
+            x: singleData.x2,
+            y: singleData.y2,
+            index: 1,
+            drawnIndependently: false,
+            allowedOutsideImage: false,
+            highlight: true,
+            active: false
+          },
+          perpendicularStart: {
+            x: singleData.x3,
+            y: singleData.y3,
+            index: 2,
+            drawnIndependently: false,
+            allowedOutsideImage: false,
+            highlight: true,
+            active: false,
+            locked: false
+          },
+          perpendicularEnd: {
+            x: singleData.x4,
+            y: singleData.y4,
+            index: 3,
+            drawnIndependently: false,
+            allowedOutsideImage: false,
+            highlight: true,
+            active: false
+          },
+          textBox: {
+            x: singleData.value_max,
+            y: singleData.value_min,
+            index: null,
+            drawnIndependently: true,
+            allowedOutsideImage: true,
+            highlight: false,
+            active: false,
+            hasMoved: true,
+            movesIndependently: false,
+            hasBoundingBox: true,
+            boundingBox: {
+              width: 59.6484375,
+              height: 47,
+              left: 165.02487562189057,
+              top: 240.53482587064684
+            }
+          }
+        },
+        longestDiameter: singleData.value_max.toString(),
+        shortestDiameter: singleData.value_min.toString()
+      };
+
+      let sliceNumber = singleData.slice;
+
+      // add to master viewport
+      addToolStateSingleSlice(element, this.name, data, sliceNumber, seriesId);
+    });
+
+    csTools.external.cornerstone.updateImage(element);
+  }
+
+  passiveCallback(element) {
+    console.log("passive callback");
+    element.addEventListener(
+      "cornerstonetoolsmeasurementmodified",
+      this.measureOnGoingCallback
+    );
+  }
+
+  measureOnGoingCallback(event) {
+    console.log("on going", event, this, this.isBeenModified);
+    if (!this.isBeenModified) {
+      console.log("add mouseup listener");
+      event.target.addEventListener("mouseup", function(evt) {
+        console.log("MOUSEUP");
+        this.__proto__.measureEndCallback(evt);
+      });
+    }
+
+    this.isBeenModified = true;
+    this.lastData = event.detail.measurementData;
+  }
+
+  measureEndCallback(event) {
+    console.log("end modified!", this.isBeenModified, this.lastData, event);
+    // compute ?
+    // update in store (update map values)
+    // update in db
+    // remove listener
+    console.log("remove mouseup listener");
+    event.element.removeEventListener("mouseup", this.measureEndCallback);
+    this.isBeenModified = false;
+    this.lastData = null;
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+</body>
+</html>
