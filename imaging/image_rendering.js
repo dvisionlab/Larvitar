@@ -21,16 +21,22 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
  * resetViewports([elementIds])
  */
 
-// ======================================
-// Purge the cornestone internal cache ==
-// ======================================
+/**
+ * Purge the cornestone internal cache
+ * @instance
+ * @function clearImageCache
+ */
 export const clearImageCache = function() {
   cornerstone.imageCache.purgeCache();
 };
 
-// ==================================================
-// Reload an image on a html div using cornerstone ==
-// ==================================================
+/**
+ * Reload an image on a html div using cornerstone
+ * @instance
+ * @function reloadImage
+ * @param {Object} series - The original series data object
+ * @param {String} elementId - The html div id used for rendering
+ */
 export const reloadImage = function(series, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
@@ -62,7 +68,7 @@ export const reloadImage = function(series, elementId) {
           "windowCenter"
         );
         csToolsCreateStack(element);
-        enableMouseHandlers(elementId, element);
+        enableMouseHandlers(elementId);
         cornerstone.fitToWindow(element);
         store.set(viewer, "loadingStatus", [elementId, true]);
       }
@@ -70,9 +76,13 @@ export const reloadImage = function(series, elementId) {
   });
 };
 
-// ====================================================================
-// Load an cache image and render it in a html div using cornerstone ==
-// ====================================================================
+/**
+ * Load an cache image and render it in a html div using cornerstone
+ * @instance
+ * @function loadImage
+ * @param {Object} series - The original series data object
+ * @param {String} elementId - The html div id used for rendering
+ */
 export const loadImage = function(series, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
@@ -106,7 +116,7 @@ export const loadImage = function(series, elementId) {
         cornerstone.fitToWindow(element);
 
         csToolsCreateStack(element);
-        enableMouseHandlers(elementId, element);
+        enableMouseHandlers(elementId);
 
         storeViewportData(
           image,
@@ -125,9 +135,14 @@ export const loadImage = function(series, elementId) {
   });
 };
 
-// ===================================================
-// update the cornerstone image with new imageIndex ==
-// ===================================================
+/**
+ * Update the cornerstone image with new imageIndex
+ * @instance
+ * @function updateImage
+ * @param {Object} series - The original series data object
+ * @param {String} elementId - The html div id used for rendering
+ * @param {Number} imageIndex - The index of the image to be rendered
+ */
 export const updateImage = function(series, element, imageIndex) {
   if (!element) {
     return;
@@ -137,9 +152,12 @@ export const updateImage = function(series, element, imageIndex) {
   });
 };
 
-// ======================================================
-// Reset viewport values (scale, translation and wwwc) ==
-// ======================================================
+/**
+ * Reset viewport values (scale, translation and wwwc)
+ * @instance
+ * @function resetViewports
+ * @param {Array} elementIds - The array of hmtl div ids
+ */
 export const resetViewports = function(elementIds) {
   each(elementIds, function(elementId) {
     let element = document.getElementById(elementId);
@@ -199,10 +217,18 @@ export const resetViewports = function(elementIds) {
   });
 };
 
-// ===================================================
-// add event handlers to mouse move to adjust WW/WL ==
-// ===================================================
-export const enableMouseHandlers = function(elementId, element) {
+/**
+ * Add event handlers to mouse move
+ * @instance
+ * @function enableMouseHandlers
+ * @param {String} elementId - The html div id used for rendering
+ */
+export const enableMouseHandlers = function(elementId) {
+  let element = document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
   element.removeEventListener("mousedown", mouseDownHandler);
   function mouseDownHandler(e) {
     const mouseButton = e.which;
@@ -254,9 +280,21 @@ export const enableMouseHandlers = function(elementId, element) {
   });
 };
 
-// ================================================
-// Store the viewport data into internal storage ==
-// ================================================
+/**
+ * Store the viewport data into internal storage
+ * @instance
+ * @function storeViewportData
+ * @param {Object} image - The cornerstone image frame
+ * @param {String} elementId - The html div id used for rendering
+ * @param {Number} imageIndex - The index of the image
+ * @param {Number} numberOfSlices - The number of slices of the series
+ * @param {Number} rows - The number of rows of the image
+ * @param {Number} cols - The number of columns of the image
+ * @param {Number} spacing_x - The spacing value for x axis
+ * @param {Number} spacing_y - The spacing value for y direction
+ * @param {Number} thickness - The thickness value between slices
+ * @param {String} viewport - The viewport tag name
+ */
 export const storeViewportData = function(
   image,
   elementId,

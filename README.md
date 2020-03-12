@@ -47,10 +47,17 @@ This library provides common dicom functionalities to be used in web-application
 `yarn install larvitar`
 
 # Build docs
+
 Install JsDoc
 `yarn global add jsdoc`
 
 Compile (from root folder) into ./docs/ folder
-`jsdoc imaging -r -d docs`
+`jsdoc imaging -r -d docs --verbose --readme ./README.md`
+
+You can use custom template such as docdash (clone the repo)
+`cd template/docdash`
+`yarn global add docdash`
+
+`jsdoc imaging -r -d docs --verbose --readme ./README.md -t templates/docdash`
 
 

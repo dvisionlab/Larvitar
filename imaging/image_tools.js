@@ -751,7 +751,7 @@ const configureCornerstoneToolsSettings = function() {
 
 /**
  * Check if a tool has already been added
- * @function setToolPassive
+ * @function isToolMissing
  * @param {String} toolName - The tool name.
  * @param {Array} _viewports - The viewports to check.
  */
