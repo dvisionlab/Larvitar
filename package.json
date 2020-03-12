@@ -11,6 +11,9 @@
     "url": "https://github.com/dvisionlab/Larvitar.git",
     "type": "git"
   },
+  "scripts": {
+    "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json"
+  },
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
   "contributors": [
     "Mattia Ronzoni <mattia.ronzoni@dvisionlab.com> (https://www.dvisionlab.com)",
@@ -26,5 +29,8 @@
     "lodash": "^4.17.15",
     "nrrd-js": "^0.2.1",
     "pako": "^1.0.10"
+  },
+  "devDependencies": {
+    "jsdoc": "^3.6.3"
   }
 }
