@@ -44,7 +44,7 @@ This library provides common dicom functionalities to be used in web-application
 
 # Installation
 
-`yarn install larvitar`
+`yarn add larvitar`
 
 # Build docs
 
