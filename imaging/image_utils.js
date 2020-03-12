@@ -708,9 +708,15 @@ export function parseImageId(imageId) {
   return parseInt(sliceNumber);
 }
 
-// =====================================================
-// Remap a voxel cooordinates in a target orientation ==
-// =====================================================
+/**
+ * Remap a voxel cooordinates in a target orientation
+ * @instance
+ * @function remapVoxel
+ * @param {Array} ijk - Voxel coordinates to convert
+ * @param {fromOrientation} orientationName - Orientation source
+ * @param {toOrientation} orientationName - Orientation target
+ * @return {Array} - Voxel coordinates in target orientation
+ */
 export function remapVoxel([i, j, k], fromOrientation, toOrientation) {
   if (fromOrientation == toOrientation) {
     return [i, j, k];
@@ -738,10 +744,16 @@ export function remapVoxel([i, j, k], fromOrientation, toOrientation) {
 
 /* Internal module functions */
 
-// ======================================================================
-// Returns the sorting value of the image id in the array of image ids ==
-// of the series according with the chosen sorting method ===============
-// ======================================================================
+/**
+ * Returns the sorting value of the image id in the array of image ids
+ * of the series according with the chosen sorting method
+ * @instance
+ * @function sortStackCallback
+ * @param {Object} seriesData - The original series data
+ * @param {String} imageId - The id of the target image
+ * @param {String} method - Orientation target
+ * @return {Number} - The sorting value (float)
+ */
 let sortStackCallback = function(seriesData, imageId, method) {
   switch (method) {
     case "instanceNumber":
@@ -792,9 +804,13 @@ let sortStackCallback = function(seriesData, imageId, method) {
   }
 };
 
-// ==========================================
-// Get the dicom tag code from dicom image ==
-// ==========================================
+/**
+ * Get the dicom tag code from dicom image
+ * @instance
+ * @function getDICOMTagCode
+ * @param {String} dicomTag - The original DICOM tag code
+ * @return {String} - The human readable DICOM tag code
+ */
 let getDICOMTagCode = function(code) {
   let re = /x(\w{4})(\w{4})/;
   let result = re.exec(code);
@@ -809,18 +825,26 @@ let getDICOMTagCode = function(code) {
   return newCode;
 };
 
-// =====================================
-// Get the dicom tag from dicom image ==
-// =====================================
+/**
+ * Get the dicom tag from dicom tag code
+ * @instance
+ * @function getDICOMTag
+ * @param {String} dicomTagCode - The original DICOM tag code
+ * @return {String} - The human readable DICOM tag
+ */
 let getDICOMTag = function(code) {
   let newCode = getDICOMTagCode(code);
   let tag = TAG_DICT[newCode];
   return tag;
 };
 
-// ==============================
-// Convert date from dicom tag ==
-// ==============================
+/**
+ * Convert date from dicom tag
+ * @instance
+ * @function formatDate
+ * @param {Date} dicomDate - A date from a DICOM tag
+ * @return {String} - The human readable date
+ */
 let formatDate = function(date) {
   let yyyy = date.slice(0, 4);
   let mm = date.slice(4, 6);
@@ -830,9 +854,13 @@ let formatDate = function(date) {
   );
 };
 
-// ==================================
-// Convert datetime from dicom tag ==
-// ==================================
+/**
+ * Convert datetime from dicom tag
+ * @instance
+ * @function formatDateTime
+ * @param {Date} dicomDateTime - A dateTime from a DICOM tag
+ * @return {String} - The human readable dateTime
+ */
 let formatDateTime = function(date) {
   let yyyy = date.slice(0, 4);
   let mm = date.slice(4, 6);
@@ -856,18 +884,26 @@ let formatDateTime = function(date) {
   );
 };
 
-// ==============================================================
-// Generate a random number and convert it to base 36 (0-9a-z) ==
-// ==============================================================
+/**
+ * Generate a random number and convert it to base 36 (0-9a-z)
+ * @instance
+ * @function rand
+ * @return {Number} - base36 random number
+ */
 let rand = function() {
   return Math.random()
     .toString(36)
     .substr(2);
 };
 
-// ===============================================
-// Permute array values using orientation array ==
-// ===============================================
+/**
+ * Permute array values using orientation array
+ * @instance
+ * @function permuteValues
+ * @param {Array} convertArray - The orientation array
+ * @param {Array} sourceArray - The source array
+ * @return {Array} - The converted array
+ */
 let permuteValues = function(convertArray, sourceArray) {
   let outputArray = new Array(convertArray.length);
   for (let i = 0; i < convertArray.length; i++) {
@@ -877,16 +913,25 @@ let permuteValues = function(convertArray, sourceArray) {
   return outputArray;
 };
 
-// ==================================================
-// Check negative sign, considering also 0+ and 0- ==
-// ==================================================
+/**
+ * Check negative sign, considering also 0+ and 0-
+ * @instance
+ * @function isNegativeSign
+ * @param {Number} x - The number to check
+ * @return {Boolean} - Is negative boolean response
+ */
 let isNegativeSign = function(x) {
   return 1 / x !== 1 / Math.abs(x);
 };
 
-// ======================================================
-// Get typed array from tag and size of original array ==
-// ======================================================
+/**
+ * Get typed array from tag and size of original array
+ * @instance
+ * @function getTypedArray
+ * @param {String} tag - The DICOM tag used for pixel representation
+ * @param {Number} size - The size of the array
+ * @return {Array} - The typed array
+ */
 let getTypedArray = function(tags, size) {
   let r = getPixelRepresentation(tags);
 
@@ -915,9 +960,14 @@ let getTypedArray = function(tags, size) {
   return array;
 };
 
-// =======================================================
-// Get resliced image orientation tag from permuteTable ==
-// =======================================================
+/**
+ * Get resliced image orientation tag from permuteTable
+ * @instance
+ * @function getReslicedIOP
+ * @param {Array} iop - The image orientation array
+ * @param {Array} permuteTable - The matrix transformation
+ * @return {Array} - The resliced image orientation array
+ */
 let getReslicedIOP = function(iop, permuteTable) {
   if (!iop) {
     return null;
@@ -938,9 +988,20 @@ let getReslicedIOP = function(iop, permuteTable) {
   return shuffledIop[0].concat(shuffledIop[1]);
 };
 
-// ==================================
-// Get resliced image position tag ==
-// ==================================
+/**
+ * Get resliced image position tag from permuteTable
+ * @instance
+ * @function getReslicedIPP
+ * @param {Array} iop - The image position array
+ * @param {Array} iop - The image orientation array
+ * @param {Array} reslicedIOP - The resliced image orientation array
+ * @param {Array} permuteTable - The matrix transformation
+ * @param {Number} imageIndex - The index of the image
+ * @param {Array} fromSize - The array of source image dimension
+ * @param {Array} toSize - The array of target image dimension
+ * @param {Array} fromSpacing - The spacing array
+ * @return {Array} - The resliced image position array
+ */
 let getReslicedIPP = function(
   ipp,
   iop,
@@ -1023,9 +1084,14 @@ let getReslicedIPP = function(
   return reslicedIPP;
 };
 
-// =========================================
-// Get resliced normal orientation vector ==
-// =========================================
+/**
+ * Get resliced normal orientation vector
+ * @instance
+ * @function getReslicedSliceLocation
+ * @param {Array} reslicedIOP - The resliced image orientation array
+ * @param {Array} reslicedIPP - The resliced image position array
+ * @return {Array} - The slice location as normal orientation vector
+ */
 let getReslicedSliceLocation = function(reslicedIOP, reslicedIPP) {
   let normalReslicedIop = getNormalOrientation(reslicedIOP);
   normalReslicedIop = map(normalReslicedIop, function(v) {
@@ -1036,9 +1102,14 @@ let getReslicedSliceLocation = function(reslicedIOP, reslicedIPP) {
   return reslicedIPP[majorIndex];
 };
 
-// ====================================
-// Get spacing array from seriesData ==
-// ====================================
+/**
+ * Get spacing array from seriesData
+ * @instance
+ * @function spacingArray
+ * @param {Object} seriesData - The original series data
+ * @param {Object} sampleMetadata - The medatata object
+ * @return {Array} - The spacing array
+ */
 let spacingArray = function(seriesData, sampleMetadata) {
   // the spacingArray is as follows:
   // [0]: column pixelSpacing value (x00280030[1])
@@ -1057,9 +1128,14 @@ let spacingArray = function(seriesData, sampleMetadata) {
   ];
 };
 
-// ==============================================
-// Permute a signed array using original array ==
-// ==============================================
+/**
+ * Permute a signed array using original array
+ * @instance
+ * @function permuteSignedArrays
+ * @param {Array} convertArray - The original array
+ * @param {Array} sourceArray - The array to convert
+ * @return {Array} - The converted array
+ */
 let permuteSignedArrays = function(convertArray, sourceArray) {
   let outputArray = new Array(convertArray.length);
   for (let i = 0; i < convertArray.length; i++) {
