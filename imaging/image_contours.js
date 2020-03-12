@@ -1,7 +1,7 @@
 /** @module imaging/contours
  *  @desc This file provides functionalities to render a set of points on a canvas.
  *        Use this in order to render image contours (e.g. from binary masks).
- *  @todo Document
+ *  @todo Document "contours" object (raw and parsed)
  */
 
 // external libraries
@@ -12,16 +12,18 @@ import { each, range } from "lodash";
  * parseContours(contoursData,pointBatchSize,segmentationName, viewports)
  */
 
-// =================================================================================
-// Populate the contour object with data ===========================================
-// pointBatchSize is default to 2 (how many points to render a segment) ============
-// contours is the main contour tool object dict ===================================
-// lineNumber is the number of line to be rendered (a contour is made of n lines) ==
-// sliceNumber is the number of the slice in which the contour should be rendered ==
-// segmentationName is the mask object name ========================================
-// orientation represent the viewport (e.g. axial, coronal, sagittal) ==============
-// data contains the array of pixel values =========================================
-// =================================================================================
+/**
+ * From raw data, fill cornerstone tool data structure for ContoursTool for a single slice
+ * @instance
+ * @function populateContoursObject
+ * @param {Number} pointBatchSize - Number of points that defines a contour segment
+ * @param {Object} contours - Main contour tool object dict (to be filled)
+ * @param {Number} lineNumber - Number of line to be rendered (a contour is made of n lines)
+ * @param {Number} sliceNumber - Number of the slice in which the contour should be rendered
+ * @param {String} segmentationName - Mask object name
+ * @param {String} orientation - Viewport id (e.g. axial, coronal, sagittal)
+ * @param {Array} data - Raw data (array of pixel values)
+ */
 const populateContoursObject = function(
   pointBatchSize,
   contours,
@@ -77,14 +79,17 @@ const populateContoursObject = function(
   ] = coords;
 };
 
-// ========================================================================
-// Extract each slice points from global data array =======================
-// contours is the main contour tool object dict ==========================
-// pointBatchSize is default to 2 (how many points to render a segment) ===
-// slicePoint is the number of contour points on a slice ==================
-// segmentationName is the mask object name ===============================
-// orientation represent the viewport (e.g. axial, coronal, sagittal) =====
-// ========================================================================
+/**
+ * Extract each slice points from raw data array
+ * @instance
+ * @function extractSlicePoints
+ * @param {Object} contours - Main contour tool object dict (to be filled)
+ * @param {Number} pointBatchSize - Number of points that defines a contour segment (default to 2)
+ * @param {Number} slicePoints - Number of contour points on a slice
+ * @param {String} segmentationName - Mask object name
+ * @param {String} orientation - Viewport id (e.g. axial, coronal, sagittal)
+ * @returns {Number} Number of array elements consumed
+ */
 const extractSlicePoints = function(
   contours,
   pointBatchSize,
@@ -145,21 +150,23 @@ const extractSlicePoints = function(
   return 2 + numberOfPoints;
 };
 
-// ===============================================================================
-// Parse contour object for each viewport ========================================
-// contoursData is the data array of the mask contour ============================
-// pointBatchSize is default to 2 (how many points to render a segment) ==========
-// segmentationName is the mask object name ======================================
-// _viewports (optional) represent the viewport (e.g. axial, coronal, sagittal) ==
-// ===============================================================================
+/**
+ * Parse raw data to contours object for each viewport
+ * @export
+ * @function parseContours
+ * @param {Array} contoursData - Raw data
+ * @param {Number} pointBatchSize - Number of points that defines a contour segment (default to 2)
+ * @param {String} segmentationName - Mask object name
+ * @param {Array} viewports - Viewport id @default ["axial","coronal","sagittal"]
+ * @returns {Number} Number of array elements consumed
+ */
+
 export const parseContours = function(
   contoursData,
   pointBatchSize,
   segmentationName,
-  _viewports
+  viewports = ["axial", "sagittal", "coronal"]
 ) {
-  let viewports = _viewports ? _viewports : ["axial", "sagittal", "coronal"];
-
   let contours = {
     axial: {
       aorta: []

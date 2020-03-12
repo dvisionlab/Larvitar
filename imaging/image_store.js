@@ -6,10 +6,13 @@
 
 // external libraries
 import { get as _get } from "lodash";
-
 import { default as vuex_store } from "@/store/index";
 
+/** Class representing the Larvitar Store. */
 export default class Larvitar_Store {
+  /**
+   * Create the Larvitar Store
+   */
   constructor() {
     this.VUEX_STORE = true;
     this.state = {
@@ -134,14 +137,31 @@ export default class Larvitar_Store {
     };
   }
 
+  /**
+   * Enable the VUEX storage method
+   * @function enableVuex
+   */
   enableVuex() {
-    this.VUEX_STORE = true;
+    // VUEX IS ENABLED BY DEFAULT
+    // this.VUEX_STORE = true;
   }
 
+  /**
+   * Disable the VUEX storage method
+   * @function disableVuex
+   */
   disableVuex() {
-    this.VUEX_STORE = false;
+    // VUEX IS ENABLED BY DEFAULT
+    // this.VUEX_STORE = false;
   }
 
+  /**
+   * Set a value into store
+   * @function set
+   * @param {String} viewer - The name of the viewer, can be null
+   * @param {field} field - The name of the field to be updated
+   * @param {Object} data - The data object
+   */
   set(viewer, field, data) {
     if (this.VUEX_STORE) {
       let dispatch = "set" + field[0].toUpperCase() + field.slice(1);
@@ -174,6 +194,12 @@ export default class Larvitar_Store {
     }
   }
 
+  /**
+   * Get a value from the store
+   * @function get
+   * @param {Array} args - The array of arguments
+   * @return {Object} - The stored value
+   */
   get(...args) {
     if (this.VUEX_STORE) {
       return _get(vuex_store.state, args, "error");
