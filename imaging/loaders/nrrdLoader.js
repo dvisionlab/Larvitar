@@ -29,7 +29,7 @@ import {
 
 import { getImageFrame } from "./commonLoader";
 
-import { larvitar_store } from "./image_store";
+import { larvitar_store } from "../image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 // global module variables
