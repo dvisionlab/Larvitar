@@ -68,7 +68,7 @@ export const reloadImage = function (series, elementId) {
           "windowCenter"
         );
         csToolsCreateStack(element);
-        enableMouseHandlers(elementId);
+        enableMouseHandlers(elementId, element);
         cornerstone.fitToWindow(element);
         store.set(viewer, "loadingStatus", [elementId, true]);
       }
@@ -124,7 +124,7 @@ export const loadImage = function (series, elementId) {
         cornerstone.fitToWindow(element);
 
         csToolsCreateStack(element);
-        enableMouseHandlers(elementId);
+        enableMouseHandlers(elementId, element);
 
         storeViewportData(
           image,

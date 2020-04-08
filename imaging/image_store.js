@@ -39,26 +39,26 @@ export default class Larvitar_Store {
           scale: 0.0,
           translation: {
             x: 0.0,
-            y: 0.0
+            y: 0.0,
           },
           rotation: 0.0,
           voi: {
             windowCenter: 0.0,
-            windowWidth: 0.0
-          }
+            windowWidth: 0.0,
+          },
         },
         default: {
           scale: 0.0,
           translation: {
             x: 0.0,
-            y: 0.0
+            y: 0.0,
           },
           rotation: 0.0,
           voi: {
             windowCenter: 0.0,
-            windowWidth: 0.0
-          }
-        }
+            windowWidth: 0.0,
+          },
+        },
       },
       sagittal: {
         ready: false,
@@ -76,26 +76,26 @@ export default class Larvitar_Store {
           scale: 1.0,
           translation: {
             x: 0.0,
-            y: 0.0
+            y: 0.0,
           },
           rotation: 0.0,
           voi: {
             windowCenter: 0.0,
-            windowWidth: 0.0
-          }
+            windowWidth: 0.0,
+          },
         },
         default: {
           scale: 1.0,
           translation: {
             x: 0.0,
-            y: 0.0
+            y: 0.0,
           },
           rotation: 0.0,
           voi: {
             windowCenter: 0.0,
-            windowWidth: 0.0
-          }
-        }
+            windowWidth: 0.0,
+          },
+        },
       },
       coronal: {
         ready: false,
@@ -113,27 +113,27 @@ export default class Larvitar_Store {
           scale: 1.0,
           translation: {
             x: 0.0,
-            y: 0.0
+            y: 0.0,
           },
           rotation: 0.0,
           voi: {
             windowCenter: 0.0,
-            windowWidth: 0.0
-          }
+            windowWidth: 0.0,
+          },
         },
         default: {
           scale: 1.0,
           translation: {
             x: 0.0,
-            y: 0.0
+            y: 0.0,
           },
           rotation: 0.0,
           voi: {
             windowCenter: 0.0,
-            windowWidth: 0.0
-          }
-        }
-      }
+            windowWidth: 0.0,
+          },
+        },
+      },
     };
   }
 
@@ -143,7 +143,7 @@ export default class Larvitar_Store {
    */
   enableVuex() {
     // VUEX IS ENABLED BY DEFAULT
-    // this.VUEX_STORE = true;
+    this.VUEX_STORE = true;
   }
 
   /**
@@ -152,7 +152,7 @@ export default class Larvitar_Store {
    */
   disableVuex() {
     // VUEX IS ENABLED BY DEFAULT
-    // this.VUEX_STORE = false;
+    this.VUEX_STORE = false;
   }
 
   /**

@@ -24,7 +24,7 @@ import { each, range } from "lodash";
  * @param {String} orientation - Viewport id (e.g. axial, coronal, sagittal)
  * @param {Array} data - Raw data (array of pixel values)
  */
-const populateContoursObject = function(
+const populateContoursObject = function (
   pointBatchSize,
   contours,
   lineNumber,
@@ -43,7 +43,7 @@ const populateContoursObject = function(
       coords.push({
         x: xy[0],
         y: xy[1],
-        lines: []
+        lines: [],
       });
     }
 
@@ -57,9 +57,9 @@ const populateContoursObject = function(
         lines: [
           {
             x: coords[coords.length - 1].x,
-            y: coords[coords.length - 1].y
-          }
-        ]
+            y: coords[coords.length - 1].y,
+          },
+        ],
       });
     }
   }
@@ -69,8 +69,8 @@ const populateContoursObject = function(
     coords[0].lines = [
       {
         x: coords[coords.length - 1].x,
-        y: coords[coords.length - 1].y
-      }
+        y: coords[coords.length - 1].y,
+      },
     ];
   }
 
@@ -90,7 +90,7 @@ const populateContoursObject = function(
  * @param {String} orientation - Viewport id (e.g. axial, coronal, sagittal)
  * @returns {Number} Number of array elements consumed
  */
-const extractSlicePoints = function(
+const extractSlicePoints = function (
   contours,
   pointBatchSize,
   slicePoints,
@@ -109,12 +109,12 @@ const extractSlicePoints = function(
 
   let numberOfPoints = 0;
   contours[orientation][segmentationName][sliceNumber] = {
-    lines: []
+    lines: [],
   };
 
   if (numberOfLines) {
     // for each line
-    each(range(numberOfLines), function(l) {
+    each(range(numberOfLines), function (l) {
       // get number of points for current line
       let numberOfPointsPerLine = slicePoints[0];
       // compute coordinates size
@@ -161,25 +161,26 @@ const extractSlicePoints = function(
  * @returns {Number} Number of array elements consumed
  */
 
-export const parseContours = function(
+export const parseContours = function (
   contoursData,
   pointBatchSize,
   segmentationName,
-  viewports = ["axial", "sagittal", "coronal"]
+  _viewports
 ) {
+  let viewports = _viewports ? _viewports : ["axial", "sagittal", "coronal"];
   let contours = {
     axial: {
-      aorta: []
+      aorta: [],
     },
     sagittal: {
-      aorta: []
+      aorta: [],
     },
     coronal: {
-      aorta: []
-    }
+      aorta: [],
+    },
   };
 
-  each(viewports, orientation => {
+  each(viewports, (orientation) => {
     let points = contoursData[orientation];
 
     if (!points) {
@@ -189,7 +190,7 @@ export const parseContours = function(
     let numberOfSlices = points[0];
     points = points.slice(1);
 
-    each(range(numberOfSlices), function() {
+    each(range(numberOfSlices), function () {
       let sliceSize = extractSlicePoints(
         contours,
         pointBatchSize,
