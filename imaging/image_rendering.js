@@ -10,7 +10,7 @@ import { each } from "lodash";
 
 // internal libraries
 import { csToolsCreateStack } from "./image_tools";
-import { larvitar_store } from "./image_store";
+import { default as larvitar_store } from "./image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 /*

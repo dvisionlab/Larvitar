@@ -10,7 +10,7 @@ import { omit, each } from "lodash";
 // internal libraries
 import { getReslicedMetadata, getReslicedPixeldata } from "../image_utils";
 import { clearImageCache } from "../image_rendering";
-import { larvitar_store } from "../image_store";
+import { default as larvitar_store } from "../image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 // global variables

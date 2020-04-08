@@ -25,7 +25,7 @@ import { getImageIdFromSlice, getSeriesData } from "./loaders/nrrdLoader";
 import { dicomManager } from "./loaders/dicomLoader";
 import { parseContours } from "./image_contours";
 
-import { larvitar_store } from "./image_store";
+import { default as larvitar_store } from "./image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 /*
