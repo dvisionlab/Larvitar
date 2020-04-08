@@ -10,7 +10,7 @@ import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 // internal libraries
 import { getImageFrame } from "./commonLoader";
 import { dicomManager } from "./dicomLoader";
-import { larvitar_store } from "./image_store";
+import { larvitar_store } from "../image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 /*
