@@ -1,6 +1,6 @@
-import { default as larvitar_store } from "./image_store";
+import { default as larvitar_store } from "./imaging/image_store";
 
-import { parseContours } from "./image_contours";
+import { parseContours } from "./imaging/image_contours";
 
 import {
   getNormalOrientation,
@@ -16,31 +16,31 @@ import {
   getReslicedPixeldata,
   getDistanceBetweenSlices,
   parseImageId,
-  remapVoxel
-} from "./image_utils";
+  remapVoxel,
+} from "./imaging/image_utils";
 
 import {
   cacheAndSaveSerie,
   buildHeader,
   buildData,
-  importNRRDImage
-} from "./image_io";
+  importNRRDImage,
+} from "./imaging/image_io";
 
 import {
   getMainLayer,
   loadImageLayers,
   changeOpacityLayer,
-  updateImageLayer
-} from "./image_layers";
+  updateImageLayer,
+} from "./imaging/image_layers";
 
 import {
   initializeImageLoader,
   registerNRRDImageLoader,
   registerResliceLoader,
-  updateLoadedStack
-} from "./image_loading";
+  updateLoadedStack,
+} from "./imaging/image_loading";
 
-import { resetImageParsing, readFiles } from "./image_parsing";
+import { resetImageParsing, readFiles } from "./imaging/image_parsing";
 
 import {
   clearImageCache,
@@ -48,8 +48,8 @@ import {
   reloadImage,
   updateImage,
   resetViewports,
-  enableMouseHandlers
-} from "./image_rendering";
+  enableMouseHandlers,
+} from "./imaging/image_rendering";
 
 import {
   initializeCSTools,
@@ -72,15 +72,15 @@ import {
   addToolStateSingleSlice,
   clearCornerstoneElements,
   syncToolStack,
-  updateStackToolState
-} from "./image_tools";
+  updateStackToolState,
+} from "./imaging/image_tools";
 
 import {
   getCustomImageId,
   getSerieDimensions,
   getImageFrame,
-  getSeriesData
-} from "./loaders/commonLoader";
+  getSeriesData,
+} from "./imaging/loaders/commonLoader";
 
 import {
   nrrdManager,
@@ -91,8 +91,8 @@ import {
   populateNrrdManager,
   loadNrrdImage,
   getImageIdFromSlice,
-  getSliceNumberFromImageId
-} from "./loaders/nrrdLoader";
+  getSliceNumberFromImageId,
+} from "./imaging/loaders/nrrdLoader";
 
 import {
   dicomManager,
@@ -100,8 +100,8 @@ import {
   resetDicomManager,
   removeSeriesFromDicomManager,
   populateDicomManager,
-  getDicomImageId
-} from "./loaders/dicomLoader";
+  getDicomImageId,
+} from "./imaging/loaders/dicomLoader";
 
 export {
   getNormalOrientation,
@@ -179,5 +179,5 @@ export {
   removeSeriesFromDicomManager,
   populateDicomManager,
   getDicomImageId,
-  larvitar_store
+  larvitar_store,
 };

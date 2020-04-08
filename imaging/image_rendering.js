@@ -26,7 +26,7 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
  * @instance
  * @function clearImageCache
  */
-export const clearImageCache = function() {
+export const clearImageCache = function () {
   cornerstone.imageCache.purgeCache();
 };
 
@@ -37,7 +37,7 @@ export const clearImageCache = function() {
  * @param {Object} series - The original series data object
  * @param {String} elementId - The html div id used for rendering
  */
-export const reloadImage = function(series, elementId) {
+export const reloadImage = function (series, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -48,8 +48,8 @@ export const reloadImage = function(series, elementId) {
   let sliceId = store.get(viewer, elementId, "sliceId");
   let currentImageId = series.imageIds[sliceId];
 
-  each(series.imageIds, function(imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function(image) {
+  each(series.imageIds, function (imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
       if (currentImageId == imageId) {
         cornerstone.displayImage(element, image);
         let viewport = cornerstone.getViewport(element);
@@ -83,7 +83,7 @@ export const reloadImage = function(series, elementId) {
  * @param {Object} series - The original series data object
  * @param {String} elementId - The html div id used for rendering
  */
-export const loadImage = function(series, elementId) {
+export const loadImage = function (series, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -106,8 +106,16 @@ export const loadImage = function(series, elementId) {
     series.instances[series.imageIds[0]].metadata["x00281051"][0] ||
     series.instances[series.imageIds[0]].metadata["x00281051"];
 
-  each(series.imageIds, function(imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function(image) {
+  if (rows == null || cols == null) {
+    console.error("invalid image metadata");
+    store.set(null, "errorLog", "Invalid Image Metadata");
+    return;
+  } else {
+    store.set(null, "errorLog", "");
+  }
+
+  each(series.imageIds, function (imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
       if (currentImageId == imageId) {
         cornerstone.displayImage(element, image);
         let viewport = cornerstone.getViewport(element);
@@ -143,11 +151,11 @@ export const loadImage = function(series, elementId) {
  * @param {String} elementId - The html div id used for rendering
  * @param {Number} imageIndex - The index of the image to be rendered
  */
-export const updateImage = function(series, element, imageIndex) {
+export const updateImage = function (series, element, imageIndex) {
   if (!element) {
     return;
   }
-  cornerstone.loadImage(series.imageIds[imageIndex]).then(function(image) {
+  cornerstone.loadImage(series.imageIds[imageIndex]).then(function (image) {
     cornerstone.displayImage(element, image);
   });
 };
@@ -158,8 +166,8 @@ export const updateImage = function(series, element, imageIndex) {
  * @function resetViewports
  * @param {Array} elementIds - The array of hmtl div ids
  */
-export const resetViewports = function(elementIds) {
-  each(elementIds, function(elementId) {
+export const resetViewports = function (elementIds) {
+  each(elementIds, function (elementId) {
     let element = document.getElementById(elementId);
     if (!element) {
       console.error("invalid html element: " + elementId);
@@ -207,12 +215,12 @@ export const resetViewports = function(elementIds) {
     store.set(viewer, "translation", [
       elementId,
       viewport.translation.x,
-      viewport.translation.y
+      viewport.translation.y,
     ]);
     store.set(viewer, "contrast", [
       elementId,
       viewport.voi.windowWidth,
-      viewport.voi.windowCenter
+      viewport.voi.windowCenter,
     ]);
   });
 };
@@ -223,7 +231,7 @@ export const resetViewports = function(elementIds) {
  * @function enableMouseHandlers
  * @param {String} elementId - The html div id used for rendering
  */
-export const enableMouseHandlers = function(elementId) {
+export const enableMouseHandlers = function (elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -241,19 +249,19 @@ export const enableMouseHandlers = function(elementId) {
       let viewport = cornerstone.getViewport(element);
       let viewportNames = store.get("viewports");
       let viewer = store.get("viewer");
-      each(viewportNames, function(viewportName) {
+      each(viewportNames, function (viewportName) {
         // sync ww and wc values in store
         store.set(viewer, "contrast", [
           viewportName,
           viewport.voi.windowWidth,
-          viewport.voi.windowCenter
+          viewport.voi.windowCenter,
         ]);
       });
       // sync translation values in store
       store.set(viewer, "translation", [
         elementId,
         viewport.translation.x,
-        viewport.translation.y
+        viewport.translation.y,
       ]);
       // sync scale values in store
       store.set(viewer, "scale", [elementId, viewport.scale]);
@@ -270,7 +278,7 @@ export const enableMouseHandlers = function(elementId) {
   element.addEventListener("mousedown", mouseDownHandler);
 
   // cornerstoneTools wheel tool listener (update sliceId)
-  element.addEventListener("cornerstonetoolsmousewheel", evt => {
+  element.addEventListener("cornerstonetoolsmousewheel", (evt) => {
     let viewer = store.get("viewer");
     let enabledElement = cornerstone.getEnabledElement(element);
     let cix =
@@ -295,7 +303,7 @@ export const enableMouseHandlers = function(elementId) {
  * @param {Number} thickness - The thickness value between slices
  * @param {String} viewport - The viewport tag name
  */
-export const storeViewportData = function(
+export const storeViewportData = function (
   image,
   elementId,
   imageIndex,
@@ -323,17 +331,17 @@ export const storeViewportData = function(
     viewport.translation.x,
     viewport.translation.y,
     viewport.voi.windowWidth,
-    viewport.voi.windowCenter
+    viewport.voi.windowCenter,
   ]);
   store.set(viewer, "scale", [elementId, viewport.scale]);
   store.set(viewer, "translation", [
     elementId,
     viewport.translation.x,
-    viewport.translation.y
+    viewport.translation.y,
   ]);
   store.set(viewer, "contrast", [
     elementId,
     viewport.voi.windowWidth,
-    viewport.voi.windowCenter
+    viewport.voi.windowCenter,
   ]);
 };
