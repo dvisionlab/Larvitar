@@ -10,7 +10,7 @@ import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 // internal libraries
 import { getImageFrame } from "./commonLoader";
 import { dicomManager } from "./dicomLoader";
-import { larvitar_store } from "../index";
+import { larvitar_store } from "./image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 /*
@@ -21,7 +21,7 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 // ====================================
 // Custom Loader for WadoImageLoader ==
 // ================================
-export const loadReslicedImage = function(imageId) {
+export const loadReslicedImage = function (imageId) {
   let seriesId = store.get("seriesId");
   let orientation = store.get("orientation");
   let instance = dicomManager[seriesId][orientation].instances[imageId];
@@ -34,7 +34,7 @@ export const loadReslicedImage = function(imageId) {
 // ===================================================================
 // create the custom image object for cornerstone from custom image ==
 // ===================================================================
-let createCustomImage = function(imageId, metadata, pixelData, dataSet) {
+let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
   let canvas = window.document.createElement("canvas");
   let lastImageIdDrawn = "";
 
@@ -82,11 +82,11 @@ let createCustomImage = function(imageId, metadata, pixelData, dataSet) {
     windowCenter: windowCenter ? windowCenter[0] : undefined,
     windowWidth: windowWidth ? windowWidth[0] : undefined,
     decodeTimeInMS: undefined,
-    webWorkerTimeInMS: undefined
+    webWorkerTimeInMS: undefined,
   };
 
   // add function to return pixel data
-  image.getPixelData = function() {
+  image.getPixelData = function () {
     return imageFrame.pixelData;
   };
 
@@ -110,7 +110,7 @@ let createCustomImage = function(imageId, metadata, pixelData, dataSet) {
   // Setup the renderer
   if (image.color) {
     image.render = cornerstone.renderColorImage;
-    image.getCanvas = function() {
+    image.getCanvas = function () {
       if (lastImageIdDrawn === imageId) {
         return canvas;
       }
@@ -151,13 +151,13 @@ let createCustomImage = function(imageId, metadata, pixelData, dataSet) {
   // function to store custom image pixelData and metadata.
   image.metadata = metadata;
 
-  let promise = new Promise(function(resolve) {
+  let promise = new Promise(function (resolve) {
     resolve(image);
   });
 
   // Return an object containing the Promise to cornerstone so it can setup callbacks to be
   // invoked asynchronously for the success/resolve and failure/reject scenarios.
   return {
-    promise
+    promise,
   };
 };

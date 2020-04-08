@@ -10,7 +10,7 @@ import { omit, each } from "lodash";
 // internal libraries
 import { getReslicedMetadata, getReslicedPixeldata } from "../image_utils";
 import { clearImageCache } from "../image_rendering";
-import { larvitar_store } from "../index";
+import { larvitar_store } from "./image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 // global variables
@@ -30,7 +30,7 @@ let imageLoaderCounter = 0;
 // ================================
 // Reset the Custom Image Loader ==
 // ================================
-export const resetImageLoader = function(elementId) {
+export const resetImageLoader = function (elementId) {
   store.set(null, "series", []);
   store.set(null, "seriesId", null);
   let element = document.getElementById(elementId);
@@ -44,7 +44,7 @@ export const resetImageLoader = function(elementId) {
 // ================================
 // Reset the DICOM Manager store
 // ================================
-export const resetDicomManager = function() {
+export const resetDicomManager = function () {
   dicomManager = {};
   imageLoaderCounter = 0;
 };
@@ -52,7 +52,7 @@ export const resetDicomManager = function() {
 // ==================================================
 // Remove a stored seriesId from the DICOM Manager ==
 // ==================================================
-export const removeSeriesFromDicomManager = function(seriesId) {
+export const removeSeriesFromDicomManager = function (seriesId) {
   if (dicomManager[seriesId]) {
     dicomManager = omit(dicomManager, seriesId);
   }
@@ -61,7 +61,7 @@ export const removeSeriesFromDicomManager = function(seriesId) {
 // =====================================================================
 // Return the data of a specific seriesId stored in the DICOM Manager ==
 // =====================================================================
-export const getSeriesData = function(seriesId) {
+export const getSeriesData = function (seriesId) {
   return dicomManager[seriesId];
 };
 
@@ -69,7 +69,7 @@ export const getSeriesData = function(seriesId) {
 // This function can be called in order to populate ==
 // the DICOM manager for a provided orientation ======
 // ===================================================
-export const populateDicomManager = function(
+export const populateDicomManager = function (
   seriesId,
   seriesData,
   orientation,
@@ -85,7 +85,7 @@ export const populateDicomManager = function(
   store.set(viewer, "loadingStatus", [orientation, false]);
 
   if (orientation == "axial") {
-    initializeMainViewport(seriesData, function(data) {
+    initializeMainViewport(seriesData, function (data) {
       dicomManager[seriesId]["axial"] = data;
       imageLoaderCounter += seriesData.imageIds.length;
       callback();
@@ -102,7 +102,7 @@ export const populateDicomManager = function(
 // ==========================================
 // Get the dicom imageId from dicom loader ==
 // ==========================================
-export const getDicomImageId = function(dicomLoaderName) {
+export const getDicomImageId = function (dicomLoaderName) {
   let imageId = dicomLoaderName + ":" + imageLoaderCounter;
   imageLoaderCounter++;
   return imageId;
@@ -116,8 +116,8 @@ export const getDicomImageId = function(dicomLoaderName) {
 function initializeMainViewport(series, callback) {
   cornerstone.imageCache.purgeCache();
   let counter = 0;
-  each(series.imageIds, function(imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function(image) {
+  each(series.imageIds, function (imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
       series.instances[imageId].pixelData = image.getPixelData();
       counter++;
       if (counter == series.imageIds.length) {
@@ -155,7 +155,7 @@ function initializeReslicedViewport(seriesId, orientation) {
   dicomManager[seriesId][orientation].instances = reslicedData.instances;
 
   // populate nrrdManager with the pixelData information
-  each(dicomManager[seriesId][orientation].imageIds, function(imageId) {
+  each(dicomManager[seriesId][orientation].imageIds, function (imageId) {
     let data = getReslicedPixeldata(
       imageId,
       seriesData,
