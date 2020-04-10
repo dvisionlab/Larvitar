@@ -97,9 +97,8 @@ let parseNextFile = function (callback) {
       }
 
       if (err) {
-        callback(null, err);
-        // parsingQueueFlag = true;
-        // parseNextFile(callback);
+        parsingQueueFlag = true;
+        parseNextFile(callback);
       } else {
         // update the total parsed file size
         totalFileSize += file.size;
@@ -339,7 +338,6 @@ let dumpFile = function (file, callback) {
         }
       }
     } catch (err) {
-      console.log(err);
       callback(null, "can not read this file.");
     }
   };
