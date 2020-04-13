@@ -97,8 +97,12 @@ export const loadImage = function (series, elementId) {
   let rows = series.instances[series.imageIds[0]].metadata["x00280010"];
   let cols = series.instances[series.imageIds[0]].metadata["x00280011"];
   let thickness = series.instances[series.imageIds[0]].metadata["x00180050"];
-  let spacing_x = series.instances[series.imageIds[0]].metadata["x00280030"][0];
-  let spacing_y = series.instances[series.imageIds[0]].metadata["x00280030"][1];
+  let spacing_x = series.instances[series.imageIds[0]].metadata["x00280030"]
+    ? series.instances[series.imageIds[0]].metadata["x00280030"][0]
+    : null;
+  let spacing_y = series.instances[series.imageIds[0]].metadata["x00280030"]
+    ? series.instances[series.imageIds[0]].metadata["x00280030"][1]
+    : null;
   let wc =
     series.instances[series.imageIds[0]].metadata["x00281050"][0] ||
     series.instances[series.imageIds[0]].metadata["x00281050"];
