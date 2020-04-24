@@ -1,3 +1,5 @@
+import cornerstone from "cornerstone-core";
+
 import { default as larvitar_store } from "./imaging/image_store";
 
 import { parseContours } from "./imaging/image_contours";
@@ -16,28 +18,28 @@ import {
   getReslicedPixeldata,
   getDistanceBetweenSlices,
   parseImageId,
-  remapVoxel,
+  remapVoxel
 } from "./imaging/image_utils";
 
 import {
   cacheAndSaveSerie,
   buildHeader,
   buildData,
-  importNRRDImage,
+  importNRRDImage
 } from "./imaging/image_io";
 
 import {
   getMainLayer,
   loadImageLayers,
   changeOpacityLayer,
-  updateImageLayer,
+  updateImageLayer
 } from "./imaging/image_layers";
 
 import {
   initializeImageLoader,
   registerNRRDImageLoader,
   registerResliceLoader,
-  updateLoadedStack,
+  updateLoadedStack
 } from "./imaging/image_loading";
 
 import { resetImageParsing, readFiles } from "./imaging/image_parsing";
@@ -48,7 +50,7 @@ import {
   reloadImage,
   updateImage,
   resetViewports,
-  enableMouseHandlers,
+  enableMouseHandlers
 } from "./imaging/image_rendering";
 
 import {
@@ -72,14 +74,14 @@ import {
   addToolStateSingleSlice,
   clearCornerstoneElements,
   syncToolStack,
-  updateStackToolState,
+  updateStackToolState
 } from "./imaging/image_tools";
 
 import {
   getCustomImageId,
   getSerieDimensions,
   getImageFrame,
-  getSeriesData,
+  getSeriesData
 } from "./imaging/loaders/commonLoader";
 
 import {
@@ -91,7 +93,7 @@ import {
   populateNrrdManager,
   loadNrrdImage,
   getImageIdFromSlice,
-  getSliceNumberFromImageId,
+  getSliceNumberFromImageId
 } from "./imaging/loaders/nrrdLoader";
 
 import {
@@ -100,8 +102,16 @@ import {
   resetDicomManager,
   removeSeriesFromDicomManager,
   populateDicomManager,
-  getDicomImageId,
+  getDicomImageId
 } from "./imaging/loaders/dicomLoader";
+
+import {
+  getColormapsList,
+  applyColorMap,
+  addColorMap,
+  fillPixelData,
+  HSVToRGB
+} from "./imaging/image_colormaps";
 
 export {
   getNormalOrientation,
@@ -180,4 +190,10 @@ export {
   populateDicomManager,
   getDicomImageId,
   larvitar_store,
+  cornerstone,
+  getColormapsList,
+  applyColorMap,
+  addColorMap,
+  fillPixelData,
+  HSVToRGB
 };

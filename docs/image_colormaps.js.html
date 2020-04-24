@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>image_contours.js - Larvitar</title>
+    <title>image_colormaps.js - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,7 +40,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">image_contours.js</h1>
+    <h1 class="page-title">image_colormaps.js</h1>
     
 
     
@@ -50,212 +50,187 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** @module imaging/contours
- *  @desc This file provides functionalities to render a set of points on a canvas.
- *        Use this in order to render image contours (e.g. from binary masks).
- *  @todo Document "contours" object (raw and parsed)
+            <pre class="prettyprint source linenums"><code>/** @module imaging/rendering
+ *  @desc  This file provides functionalities for
+ *         rendering images in html canvas using cornerstone
+ *  @todo Document
  */
 
-// external libraries
-import { each, range } from "lodash";
+import cornerstone from "cornerstone-core";
+import { each } from "lodash";
 
 /*
  * This module provides the following functions to be exported:
- * parseContours(contoursData,pointBatchSize,segmentationName, viewports)
+ * getColormapsList()
+ * applyColorMap(colormapId)
+ * addColorMap(colormapId, colormapName, colors)
+ * fillPixelData(canvas, colormapId)
+ * HSVToRGB(hue, sat, val)
  */
 
 /**
- * From raw data, fill cornerstone tool data structure for ContoursTool for a single slice
+ * Fill a canvas with pixelData representing the colormap
  * @instance
- * @function populateContoursObject
- * @param {Number} pointBatchSize - Number of points that defines a contour segment
- * @param {Object} contours - Main contour tool object dict (to be filled)
- * @param {Number} lineNumber - Number of line to be rendered (a contour is made of n lines)
- * @param {Number} sliceNumber - Number of the slice in which the contour should be rendered
- * @param {String} segmentationName - Mask object name
- * @param {String} orientation - Viewport id (e.g. axial, coronal, sagittal)
- * @param {Array} data - Raw data (array of pixel values)
+ * @function getColormapsList
+ * @returns {Array} A list of cornerstone colormaps
  */
-const populateContoursObject = function (
-  pointBatchSize,
-  contours,
-  lineNumber,
-  sliceNumber,
-  segmentationName,
-  orientation,
-  data
-) {
-  let coords = [];
-
-  for (let i = 0; i &lt; data.length; i += pointBatchSize) {
-    let xy = data.slice(i, pointBatchSize + i);
-
-    // always add the first item
-    if (!coords.length) {
-      coords.push({
-        x: xy[0],
-        y: xy[1],
-        lines: [],
-      });
-    }
-
-    // add new items if different from the previous one
-    else {
-      //if (coords[coords.length - 1].x !== xy[0] &amp;&amp;
-      //   coords[coords.length - 1].y !== xy[1]) {
-      coords.push({
-        x: xy[0],
-        y: xy[1],
-        lines: [
-          {
-            x: coords[coords.length - 1].x,
-            y: coords[coords.length - 1].y,
-          },
-        ],
-      });
-    }
-  }
-
-  // add line element to the first item
-  if (coords[0]) {
-    coords[0].lines = [
-      {
-        x: coords[coords.length - 1].x,
-        y: coords[coords.length - 1].y,
-      },
-    ];
-  }
-
-  contours[orientation][segmentationName][sliceNumber].lines[
-    lineNumber
-  ] = coords;
-};
+export function getColormapsList() {
+  return cornerstone.colors.getColormapsList();
+}
 
 /**
- * Extract each slice points from raw data array
+ * Add a custom color map to cornerstone list
  * @instance
- * @function extractSlicePoints
- * @param {Object} contours - Main contour tool object dict (to be filled)
- * @param {Number} pointBatchSize - Number of points that defines a contour segment (default to 2)
- * @param {Number} slicePoints - Number of contour points on a slice
- * @param {String} segmentationName - Mask object name
- * @param {String} orientation - Viewport id (e.g. axial, coronal, sagittal)
- * @returns {Number} Number of array elements consumed
+ * @function addColorMap
+ * @param {String} colormapId - the new colormap id
+ * @param {String} colormapName - the new colormap name
+ * @param {Array} colors - array containing 255 rgb colors (ie [[r,g,b], [r,g,b], ...])
  */
-const extractSlicePoints = function (
-  contours,
-  pointBatchSize,
-  slicePoints,
-  segmentationName,
-  orientation
-) {
-  // read slice number and number of lines for current slice, then remove from array
-  let sliceNumber = slicePoints[0];
-  let numberOfLines = slicePoints[1];
+export function addColorMap(colormapId, colormapName, colors) {
+  const colormap = cornerstone.colors.getColormap(colormapId);
+  colormap.setColorSchemeName(colormapName);
+  let noc = colors.length;
+  colormap.setNumberOfColors(noc);
 
-  try {
-    slicePoints = slicePoints.subarray(2);
-  } catch (err) {
-    slicePoints = slicePoints.slice(2);
+  for (let i = 0; i &lt; noc; i++) {
+    let rgb = colors[i];
+    colormap.insertColor(i, rgb);
   }
 
-  let numberOfPoints = 0;
-  contours[orientation][segmentationName][sliceNumber] = {
-    lines: [],
-  };
-
-  if (numberOfLines) {
-    // for each line
-    each(range(numberOfLines), function (l) {
-      // get number of points for current line
-      let numberOfPointsPerLine = slicePoints[0];
-      // compute coordinates size
-      let lineCoordSize = numberOfPointsPerLine * pointBatchSize;
-
-      // remove numberOfPointsPerLine and the coordinates for this line
-      let subCoords;
-      try {
-        subCoords = slicePoints.subarray(1, lineCoordSize + 1);
-      } catch (err) {
-        subCoords = slicePoints.slice(1, lineCoordSize + 1);
-      }
-      populateContoursObject(
-        pointBatchSize,
-        contours,
-        l,
-        sliceNumber,
-        segmentationName,
-        orientation,
-        subCoords
-      );
-
-      let lineSize = 1 + lineCoordSize;
-      numberOfPoints += lineSize;
-      try {
-        slicePoints = slicePoints.subarray(lineSize);
-      } catch (err) {
-        slicePoints = slicePoints.slice(lineSize);
-      }
-    });
-  }
-
-  return 2 + numberOfPoints;
-};
+  return colormap;
+}
 
 /**
- * Parse raw data to contours object for each viewport
- * @export
- * @function parseContours
- * @param {Array} contoursData - Raw data
- * @param {Number} pointBatchSize - Number of points that defines a contour segment (default to 2)
- * @param {String} segmentationName - Mask object name
- * @param {Array} viewports - Viewport id @default ["axial","coronal","sagittal"]
- * @returns {Number} Number of array elements consumed
+ * Fill a canvas with pixelData representing the colormap
+ * @instance
+ * @function fillPixelData
+ * @param {HTMLCanvasElement} canvas - target canvas
+ * @param {String} colormapId - the colormap name
  */
+export function fillPixelData(canvas, colormapId) {
+  const ctx = canvas.getContext("2d");
+  const height = canvas.height;
+  const width = canvas.width;
+  const colorbar = ctx.createImageData(width, height);
 
-export const parseContours = function (
-  contoursData,
-  pointBatchSize,
-  segmentationName,
-  _viewports
-) {
-  let viewports = _viewports ? _viewports : ["axial", "sagittal", "coronal"];
-  let contours = {
-    axial: {
-      aorta: [],
-    },
-    sagittal: {
-      aorta: [],
-    },
-    coronal: {
-      aorta: [],
-    },
-  };
+  const colormap = cornerstone.colors.getColormap(colormapId);
+  const lookupTable = colormap.createLookupTable();
+  // Set the min and max values then the lookup table
+  // will be able to return the right color for this range
+  lookupTable.setTableRange(0, width);
 
-  each(viewports, (orientation) => {
-    let points = contoursData[orientation];
+  // Update the colorbar pixel by pixel
+  for (let col = 0; col &lt; width; col++) {
+    const color = lookupTable.mapValue(col);
 
-    if (!points) {
-      return;
+    for (let row = 0; row &lt; height; row++) {
+      const pixel = (col + row * width) * 4;
+      colorbar.data[pixel] = color[0];
+      colorbar.data[pixel + 1] = color[1];
+      colorbar.data[pixel + 2] = color[2];
+      colorbar.data[pixel + 3] = color[3];
     }
+  }
+  ctx.putImageData(colorbar, 0, 0);
+}
 
-    let numberOfSlices = points[0];
-    points = points.slice(1);
+/**
+ * Apply a color map on a viewport
+ * @instance
+ * @function applyColorMap
+ * @param {} todo - todo
+ */
+export function applyColorMap(colormapId) {
+  let enabledElements = cornerstone.getEnabledElements();
+  let colormap = cornerstone.colors.getColormap(colormapId);
 
-    each(range(numberOfSlices), function () {
-      let sliceSize = extractSlicePoints(
-        contours,
-        pointBatchSize,
-        points,
-        segmentationName,
-        orientation
-      );
-      points = points.slice(sliceSize);
-    });
+  each(enabledElements, el => {
+    // HACK to bypass cornerstone bug
+    el.options = {};
+    const viewport = cornerstone.getViewport(el.element);
+    viewport.colormap = colormap;
+    cornerstone.setViewport(el.element, viewport);
+    cornerstone.updateImage(el.element, true);
   });
 
-  return contours;
-};
+  return colormap;
+}
+
+/**
+ * Converts an HSV  (Hue, Saturation, Value) color to RGB (Red, Green, Blue) color value
+ * @param {Number} hue A number representing the hue color value
+ * @param {any} sat A number representing the saturation color value
+ * @param {any} val A number representing the value color value
+ * @returns {Numberp[]} An RGB color array
+ */
+export function HSVToRGB(hue, sat, val) {
+  if (hue > 1) {
+    throw new Error("HSVToRGB expects hue &lt; 1");
+  }
+
+  const rgb = [];
+
+  if (sat === 0) {
+    rgb[0] = val;
+    rgb[1] = val;
+    rgb[2] = val;
+
+    return rgb;
+  }
+
+  const hueCase = Math.floor(hue * 6);
+  const frac = 6 * hue - hueCase;
+  const lx = val * (1 - sat);
+  const ly = val * (1 - sat * frac);
+  const lz = val * (1 - sat * (1 - frac));
+
+  switch (hueCase) {
+    /* 0&lt;hue&lt;1/6 */
+    case 0:
+    case 6:
+      rgb[0] = val;
+      rgb[1] = lz;
+      rgb[2] = lx;
+      break;
+
+    /* 1/6&lt;hue&lt;2/6 */
+    case 1:
+      rgb[0] = ly;
+      rgb[1] = val;
+      rgb[2] = lx;
+      break;
+
+    /* 2/6&lt;hue&lt;3/6 */
+    case 2:
+      rgb[0] = lx;
+      rgb[1] = val;
+      rgb[2] = lz;
+      break;
+
+    /* 3/6&lt;hue/4/6 */
+    case 3:
+      rgb[0] = lx;
+      rgb[1] = ly;
+      rgb[2] = val;
+      break;
+
+    /* 4/6&lt;hue&lt;5/6 */
+    case 4:
+      rgb[0] = lz;
+      rgb[1] = lx;
+      rgb[2] = val;
+      break;
+
+    /* 5/6&lt;hue&lt;1 */
+    case 5:
+      rgb[0] = val;
+      rgb[1] = lx;
+      rgb[2] = ly;
+      break;
+  }
+
+  return rgb;
+}
 </code></pre>
         </article>
     </section>
