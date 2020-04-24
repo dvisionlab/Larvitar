@@ -120,6 +120,9 @@ export const loadImage = function (series, elementId) {
 
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
+      // HACK to force render re-evaluation (otherwise it remains stuck on GrayScaleRenderer)
+      image.render = null;
+
       if (currentImageId == imageId) {
         cornerstone.displayImage(element, image);
         let viewport = cornerstone.getViewport(element);
@@ -219,12 +222,12 @@ export const resetViewports = function (elementIds) {
     store.set(viewer, "translation", [
       elementId,
       viewport.translation.x,
-      viewport.translation.y,
+      viewport.translation.y
     ]);
     store.set(viewer, "contrast", [
       elementId,
       viewport.voi.windowWidth,
-      viewport.voi.windowCenter,
+      viewport.voi.windowCenter
     ]);
   });
 };
@@ -258,14 +261,14 @@ export const enableMouseHandlers = function (elementId) {
         store.set(viewer, "contrast", [
           viewportName,
           viewport.voi.windowWidth,
-          viewport.voi.windowCenter,
+          viewport.voi.windowCenter
         ]);
       });
       // sync translation values in store
       store.set(viewer, "translation", [
         elementId,
         viewport.translation.x,
-        viewport.translation.y,
+        viewport.translation.y
       ]);
       // sync scale values in store
       store.set(viewer, "scale", [elementId, viewport.scale]);
@@ -282,7 +285,7 @@ export const enableMouseHandlers = function (elementId) {
   element.addEventListener("mousedown", mouseDownHandler);
 
   // cornerstoneTools wheel tool listener (update sliceId)
-  element.addEventListener("cornerstonetoolsmousewheel", (evt) => {
+  element.addEventListener("cornerstonetoolsmousewheel", evt => {
     let viewer = store.get("viewer");
     let enabledElement = cornerstone.getEnabledElement(element);
     let cix =
@@ -335,17 +338,17 @@ export const storeViewportData = function (
     viewport.translation.x,
     viewport.translation.y,
     viewport.voi.windowWidth,
-    viewport.voi.windowCenter,
+    viewport.voi.windowCenter
   ]);
   store.set(viewer, "scale", [elementId, viewport.scale]);
   store.set(viewer, "translation", [
     elementId,
     viewport.translation.x,
-    viewport.translation.y,
+    viewport.translation.y
   ]);
   store.set(viewer, "contrast", [
     elementId,
     viewport.voi.windowWidth,
-    viewport.voi.windowCenter,
+    viewport.voi.windowCenter
   ]);
 };

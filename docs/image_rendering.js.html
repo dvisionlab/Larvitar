@@ -1,591 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
+<head>
+    
+    <meta charset="utf-8">
     <title>image_rendering.js - Larvitar</title>
-
+    
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
-
-    <meta name="keywords" content="imaging, dataviz, medical, cornerstone" />
-    <meta name="keyword" content="imaging, dataviz, medical, cornerstone" />
-
+    
+        <meta name="keywords" content="imaging, dataviz, medical, cornerstone" />
+        <meta name="keyword" content="imaging, dataviz, medical, cornerstone" />
+    
+    
+    
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify.css" />
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css" />
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
     <script src="scripts/nav.js" defer></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  </head>
-  <body>
-    <input type="checkbox" id="nav-trigger" class="nav-trigger" />
-    <label for="nav-trigger" class="navicon-button x">
-      <div class="navicon"></div>
-    </label>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
 
-    <label for="nav-trigger" class="overlay"></label>
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
 
-    <nav>
-      <input type="text" id="nav-search" placeholder="Search" />
+<label for="nav-trigger" class="overlay"></label>
 
-      <h2><a href="index.html">Home</a></h2>
-      <h2>
-        <a
-          href="https://github.com/dvisionlab/Larvitar"
-          target="_blank"
-          class="menu-item"
-          id="repository"
-          >Github repo</a
-        >
-      </h2>
-      <h3>Classes</h3>
-      <ul>
-        <li>
-          <a href="module-imaging_store.html">imaging/store</a>
-          <ul class="methods">
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_store.html#~disableVuex">disableVuex</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_store.html#~enableVuex">enableVuex</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_store.html#~get">get</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_store.html#~set">set</a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="Tools.Annotation.ContoursTool.html"
-            >Tools.Annotation.ContoursTool</a
-          >
-        </li>
-        <li>
-          <a href="Tools.Annotation.DiameterTool.html"
-            >Tools.Annotation.DiameterTool</a
-          >
-        </li>
-        <li>
-          <a href="Tools.Annotation.SeedsTool.html"
-            >Tools.Annotation.SeedsTool</a
-          >
-        </li>
-        <li><a href="Tools.Brush.BrushTool.html">Tools.Brush.BrushTool</a></li>
-      </ul>
-      <h3>Modules</h3>
-      <ul>
-        <li>
-          <a href="module-imaging_contours.html">imaging/contours</a>
-          <ul class="methods">
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_contours.html#extractSlicePoints"
-                >extractSlicePoints</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_contours.html#populateContoursObject"
-                >populateContoursObject</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_contours.html#~parseContours"
-                >parseContours</a
-              >
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="module-imaging_io.html">imaging/io</a>
-          <ul class="methods">
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_io.html#~buildData">buildData</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_io.html#~buildHeader">buildHeader</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_io.html#~cacheAndSaveSerie"
-                >cacheAndSaveSerie</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_io.html#~importNRRDImage"
-                >importNRRDImage</a
-              >
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="module-imaging_layers.html">imaging/layers</a>
-          <ul class="methods">
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_layers.html#changeOpacityLayer"
-                >changeOpacityLayer</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_layers.html#getMainLayer">getMainLayer</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_layers.html#loadImageLayers"
-                >loadImageLayers</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_layers.html#updateImageLayer"
-                >updateImageLayer</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_layers.html#~buildLayers">buildLayers</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_layers.html#~loadLayers">loadLayers</a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="module-imaging_loading.html">imaging/loading</a>
-          <ul class="methods">
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_loading.html#initializeImageLoader"
-                >initializeImageLoader</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_loading.html#registerNRRDImageLoader"
-                >registerNRRDImageLoader</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_loading.html#registerResliceLoader"
-                >registerResliceLoader</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_loading.html#updateLoadedStack"
-                >updateLoadedStack</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_loading.html#~isNewInstance"
-                >isNewInstance</a
-              >
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="module-imaging_parsing.html">imaging/parsing</a>
-          <ul class="methods">
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_parsing.html#readFiles">readFiles</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_parsing.html#resetImageParsing"
-                >resetImageParsing</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_parsing.html#~clearFileSystem"
-                >clearFileSystem</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_parsing.html#~dumpFile">dumpFile</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_parsing.html#~dumpFiles">dumpFiles</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_parsing.html#~errorHandler"
-                >errorHandler</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_parsing.html#~parseNextFile"
-                >parseNextFile</a
-              >
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="module-imaging_rendering.html">imaging/rendering</a>
-          <ul class="methods">
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_rendering.html#clearImageCache"
-                >clearImageCache</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_rendering.html#enableMouseHandlers"
-                >enableMouseHandlers</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_rendering.html#loadImage">loadImage</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_rendering.html#reloadImage"
-                >reloadImage</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_rendering.html#resetViewports"
-                >resetViewports</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_rendering.html#storeViewportData"
-                >storeViewportData</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_rendering.html#updateImage"
-                >updateImage</a
-              >
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="module-imaging_store.html">imaging/store</a>
-          <ul class="methods">
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_store.html#~disableVuex">disableVuex</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_store.html#~enableVuex">enableVuex</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_store.html#~get">get</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_store.html#~set">set</a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="module-imaging_tools.html">imaging/tools</a>
-          <ul class="methods">
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~addContoursTool"
-                >addContoursTool</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~addDefaultTools"
-                >addDefaultTools</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~addDiameterTool"
-                >addDiameterTool</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~addMaskEditingTool"
-                >addMaskEditingTool</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~addSeedsTool">addSeedsTool</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~addStackStateToElement"
-                >addStackStateToElement</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~addToolStateSingleSlice"
-                >addToolStateSingleSlice</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~clearCornerstoneElements"
-                >clearCornerstoneElements</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~clearMeasurements"
-                >clearMeasurements</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~clearToolStateByName"
-                >clearToolStateByName</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a
-                href="module-imaging_tools.html#~configureCornerstoneToolsSettings"
-                >configureCornerstoneToolsSettings</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~csToolsCreateStack"
-                >csToolsCreateStack</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~getCurrentMaskData"
-                >getCurrentMaskData</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~getToolState">getToolState</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~initializeCSTools"
-                >initializeCSTools</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~isToolMissing"
-                >isToolMissing</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~setSegmentationConfig"
-                >setSegmentationConfig</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~setToolActive"
-                >setToolActive</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~setToolActive"
-                >setToolActive</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~setToolEnabled"
-                >setToolEnabled</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~setToolPassive"
-                >setToolPassive</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~syncToolStack"
-                >syncToolStack</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~updateDiameterTool"
-                >updateDiameterTool</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_tools.html#~updateStackToolState"
-                >updateStackToolState</a
-              >
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="module-imaging_utils.html">imaging/utils</a>
-          <ul class="methods">
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#formatDate">formatDate</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#formatDateTime"
-                >formatDateTime</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getCmprMetadata"
-                >getCmprMetadata</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getDICOMTag">getDICOMTag</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getDICOMTagCode"
-                >getDICOMTagCode</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getDistanceBetweenSlices"
-                >getDistanceBetweenSlices</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getMaxPixelValue"
-                >getMaxPixelValue</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getMeanValue">getMeanValue</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getMinPixelValue"
-                >getMinPixelValue</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getNormalOrientation"
-                >getNormalOrientation</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getPixelRepresentation"
-                >getPixelRepresentation</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getPixelTypedArray"
-                >getPixelTypedArray</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getPixelTypedArray"
-                >getPixelTypedArray</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getReslicedIOP"
-                >getReslicedIOP</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getReslicedIPP"
-                >getReslicedIPP</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getReslicedMetadata"
-                >getReslicedMetadata</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getReslicedPixeldata"
-                >getReslicedPixeldata</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getReslicedSliceLocation"
-                >getReslicedSliceLocation</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getTagValue">getTagValue</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#getTypedArray"
-                >getTypedArray</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#isNegativeSign"
-                >isNegativeSign</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#parseImageId">parseImageId</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#permuteSignedArrays"
-                >permuteSignedArrays</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#permuteValues"
-                >permuteValues</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#rand">rand</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#randomId">randomId</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#remapVoxel">remapVoxel</a>
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#sortStackCallback"
-                >sortStackCallback</a
-              >
-            </li>
-            <li data-type="method" style="display: none;">
-              <a href="module-imaging_utils.html#spacingArray">spacingArray</a>
-            </li>
-          </ul>
-        </li>
-        <li><a href="module-tools_default.html">tools/default</a></li>
-      </ul>
-      <h3>Events</h3>
-      <ul>
-        <li>
-          <a href="ContoursTool.html#event:_drawingDoubleTapClickCallback"
-            >ContoursTool#_drawingDoubleTapClickCallback</a
-          >
-        </li>
-        <li>
-          <a href="ContoursTool.html#event:_drawingMouseDoubleClickCallback"
-            >ContoursTool#_drawingMouseDoubleClickCallback</a
-          >
-        </li>
-        <li>
-          <a href="ContoursTool.html#event:_drawingMouseDownCallback"
-            >ContoursTool#_drawingMouseDownCallback</a
-          >
-        </li>
-        <li>
-          <a href="ContoursTool.html#event:_drawingMouseDragCallback"
-            >ContoursTool#_drawingMouseDragCallback</a
-          >
-        </li>
-        <li>
-          <a href="ContoursTool.html#event:_drawingMouseMoveCallback"
-            >ContoursTool#_drawingMouseMoveCallback</a
-          >
-        </li>
-        <li>
-          <a href="ContoursTool.html#event:_drawingMouseUpCallback"
-            >ContoursTool#_drawingMouseUpCallback</a
-          >
-        </li>
-        <li>
-          <a href="ContoursTool.html#event:_drawingTouchDragCallback"
-            >ContoursTool#_drawingTouchDragCallback</a
-          >
-        </li>
-        <li>
-          <a href="ContoursTool.html#event:_drawingTouchStartCallback"
-            >ContoursTool#_drawingTouchStartCallback</a
-          >
-        </li>
-        <li>
-          <a href="ContoursTool.html#event:_editMouseDragCallback"
-            >ContoursTool#_editMouseDragCallback</a
-          >
-        </li>
-        <li>
-          <a href="ContoursTool.html#event:_editTouchDragCallback"
-            >ContoursTool#_editTouchDragCallback</a
-          >
-        </li>
-      </ul>
-    </nav>
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/dvisionlab/Larvitar" target="_blank" class="menu-item" id="repository" >Github repo</a></h2><h3>Classes</h3><ul><li><a href="module-imaging_store.html">imaging/store</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="Tools.Annotation.ContoursTool.html">Tools.Annotation.ContoursTool</a></li><li><a href="Tools.Annotation.DiameterTool.html">Tools.Annotation.DiameterTool</a></li><li><a href="Tools.Annotation.SeedsTool.html">Tools.Annotation.SeedsTool</a></li><li><a href="Tools.Brush.BrushTool.html">Tools.Brush.BrushTool</a></li></ul><h3>Modules</h3><ul><li><a href="module-imaging_contours.html">imaging/contours</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#extractSlicePoints">extractSlicePoints</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#populateContoursObject">populateContoursObject</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#~parseContours">parseContours</a></li></ul></li><li><a href="module-imaging_io.html">imaging/io</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildData">buildData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildHeader">buildHeader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~cacheAndSaveSerie">cacheAndSaveSerie</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~importNRRDImage">importNRRDImage</a></li></ul></li><li><a href="module-imaging_layers.html">imaging/layers</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#changeOpacityLayer">changeOpacityLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#getMainLayer">getMainLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#loadImageLayers">loadImageLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#updateImageLayer">updateImageLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~buildLayers">buildLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~loadLayers">loadLayers</a></li></ul></li><li><a href="module-imaging_loading.html">imaging/loading</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeImageLoader">initializeImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerNRRDImageLoader">registerNRRDImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerResliceLoader">registerResliceLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#updateLoadedStack">updateLoadedStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#~isNewInstance">isNewInstance</a></li></ul></li><li><a href="module-imaging_parsing.html">imaging/parsing</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#readFiles">readFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#resetImageParsing">resetImageParsing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~clearFileSystem">clearFileSystem</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFile">dumpFile</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFiles">dumpFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~errorHandler">errorHandler</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~parseNextFile">parseNextFile</a></li></ul></li><li><a href="module-imaging_rendering.html">imaging/rendering</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#.HSVToRGB">HSVToRGB</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#addColorMap">addColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#applyColorMap">applyColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#applyColorMap">applyColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#changeColorMap">changeColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#clearImageCache">clearImageCache</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#enableMouseHandlers">enableMouseHandlers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#fillPixelData">fillPixelData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#getColormapsList">getColormapsList</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#HSVToRGB">HSVToRGB</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadImage">loadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#reloadImage">reloadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#resetViewports">resetViewports</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#storeViewportData">storeViewportData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#updateImage">updateImage</a></li></ul></li><li></li><li></li><li><a href="module-imaging_store.html">imaging/store</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="module-imaging_tools.html">imaging/tools</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addContoursTool">addContoursTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDefaultTools">addDefaultTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDiameterTool">addDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addMaskEditingTool">addMaskEditingTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addSeedsTool">addSeedsTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addStackStateToElement">addStackStateToElement</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addToolStateSingleSlice">addToolStateSingleSlice</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearCornerstoneElements">clearCornerstoneElements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearMeasurements">clearMeasurements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearToolStateByName">clearToolStateByName</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~configureCornerstoneToolsSettings">configureCornerstoneToolsSettings</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~csToolsCreateStack">csToolsCreateStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getCurrentMaskData">getCurrentMaskData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getToolState">getToolState</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~initializeCSTools">initializeCSTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~isToolMissing">isToolMissing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setSegmentationConfig">setSegmentationConfig</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolEnabled">setToolEnabled</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolPassive">setToolPassive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~syncToolStack">syncToolStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateDiameterTool">updateDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateStackToolState">updateStackToolState</a></li></ul></li><li><a href="module-imaging_utils.html">imaging/utils</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDate">formatDate</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDateTime">formatDateTime</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getCmprMetadata">getCmprMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTag">getDICOMTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTagCode">getDICOMTagCode</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDistanceBetweenSlices">getDistanceBetweenSlices</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMaxPixelValue">getMaxPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMeanValue">getMeanValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMinPixelValue">getMinPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getNormalOrientation">getNormalOrientation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelRepresentation">getPixelRepresentation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIOP">getReslicedIOP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIPP">getReslicedIPP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedMetadata">getReslicedMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedPixeldata">getReslicedPixeldata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedSliceLocation">getReslicedSliceLocation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTagValue">getTagValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTypedArray">getTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#isNegativeSign">isNegativeSign</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#parseImageId">parseImageId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteSignedArrays">permuteSignedArrays</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteValues">permuteValues</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#rand">rand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#randomId">randomId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#remapVoxel">remapVoxel</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#sortStackCallback">sortStackCallback</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#spacingArray">spacingArray</a></li></ul></li><li><a href="module-tools_default.html">tools/default</a></li></ul><h3>Events</h3><ul><li><a href="ContoursTool.html#event:_drawingDoubleTapClickCallback">ContoursTool#_drawingDoubleTapClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDoubleClickCallback">ContoursTool#_drawingMouseDoubleClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDownCallback">ContoursTool#_drawingMouseDownCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDragCallback">ContoursTool#_drawingMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseMoveCallback">ContoursTool#_drawingMouseMoveCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseUpCallback">ContoursTool#_drawingMouseUpCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchDragCallback">ContoursTool#_drawingTouchDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchStartCallback">ContoursTool#_drawingTouchStartCallback</a></li><li><a href="ContoursTool.html#event:_editMouseDragCallback">ContoursTool#_editMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_editTouchDragCallback">ContoursTool#_editTouchDragCallback</a></li></ul>
+</nav>
 
-    <div id="main">
-      <h1 class="page-title">image_rendering.js</h1>
+<div id="main">
+    
+    <h1 class="page-title">image_rendering.js</h1>
+    
 
-      <section>
+    
+
+
+
+    
+    <section>
         <article>
-          <pre
-            class="prettyprint source linenums"
-          ><code>/** @module imaging/rendering
+            <pre class="prettyprint source linenums"><code>/** @module imaging/rendering
  *  @desc  This file provides functionalities for
  *         rendering images in html canvas using cornerstone
  *  @todo Document
@@ -613,7 +78,7 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
  * @instance
  * @function clearImageCache
  */
-export const clearImageCache = function() {
+export const clearImageCache = function () {
   cornerstone.imageCache.purgeCache();
 };
 
@@ -624,7 +89,7 @@ export const clearImageCache = function() {
  * @param {Object} series - The original series data object
  * @param {String} elementId - The html div id used for rendering
  */
-export const reloadImage = function(series, elementId) {
+export const reloadImage = function (series, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -635,8 +100,8 @@ export const reloadImage = function(series, elementId) {
   let sliceId = store.get(viewer, elementId, "sliceId");
   let currentImageId = series.imageIds[sliceId];
 
-  each(series.imageIds, function(imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function(image) {
+  each(series.imageIds, function (imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
       if (currentImageId == imageId) {
         cornerstone.displayImage(element, image);
         let viewport = cornerstone.getViewport(element);
@@ -655,7 +120,7 @@ export const reloadImage = function(series, elementId) {
           "windowCenter"
         );
         csToolsCreateStack(element);
-        enableMouseHandlers(elementId);
+        enableMouseHandlers(elementId, element);
         cornerstone.fitToWindow(element);
         store.set(viewer, "loadingStatus", [elementId, true]);
       }
@@ -670,7 +135,7 @@ export const reloadImage = function(series, elementId) {
  * @param {Object} series - The original series data object
  * @param {String} elementId - The html div id used for rendering
  */
-export const loadImage = function(series, elementId) {
+export const loadImage = function (series, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -684,8 +149,12 @@ export const loadImage = function(series, elementId) {
   let rows = series.instances[series.imageIds[0]].metadata["x00280010"];
   let cols = series.instances[series.imageIds[0]].metadata["x00280011"];
   let thickness = series.instances[series.imageIds[0]].metadata["x00180050"];
-  let spacing_x = series.instances[series.imageIds[0]].metadata["x00280030"][0];
-  let spacing_y = series.instances[series.imageIds[0]].metadata["x00280030"][1];
+  let spacing_x = series.instances[series.imageIds[0]].metadata["x00280030"]
+    ? series.instances[series.imageIds[0]].metadata["x00280030"][0]
+    : null;
+  let spacing_y = series.instances[series.imageIds[0]].metadata["x00280030"]
+    ? series.instances[series.imageIds[0]].metadata["x00280030"][1]
+    : null;
   let wc =
     series.instances[series.imageIds[0]].metadata["x00281050"][0] ||
     series.instances[series.imageIds[0]].metadata["x00281050"];
@@ -693,8 +162,19 @@ export const loadImage = function(series, elementId) {
     series.instances[series.imageIds[0]].metadata["x00281051"][0] ||
     series.instances[series.imageIds[0]].metadata["x00281051"];
 
-  each(series.imageIds, function(imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function(image) {
+  if (rows == null || cols == null) {
+    console.error("invalid image metadata");
+    store.set(null, "errorLog", "Invalid Image Metadata");
+    return;
+  } else {
+    store.set(null, "errorLog", "");
+  }
+
+  each(series.imageIds, function (imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
+      // HACK to force render re-evaluation (otherwise it remains stuck on GrayScaleRenderer)
+      image.render = null;
+
       if (currentImageId == imageId) {
         cornerstone.displayImage(element, image);
         let viewport = cornerstone.getViewport(element);
@@ -703,7 +183,7 @@ export const loadImage = function(series, elementId) {
         cornerstone.fitToWindow(element);
 
         csToolsCreateStack(element);
-        enableMouseHandlers(elementId);
+        enableMouseHandlers(elementId, element);
 
         storeViewportData(
           image,
@@ -730,11 +210,11 @@ export const loadImage = function(series, elementId) {
  * @param {String} elementId - The html div id used for rendering
  * @param {Number} imageIndex - The index of the image to be rendered
  */
-export const updateImage = function(series, element, imageIndex) {
+export const updateImage = function (series, element, imageIndex) {
   if (!element) {
     return;
   }
-  cornerstone.loadImage(series.imageIds[imageIndex]).then(function(image) {
+  cornerstone.loadImage(series.imageIds[imageIndex]).then(function (image) {
     cornerstone.displayImage(element, image);
   });
 };
@@ -745,8 +225,8 @@ export const updateImage = function(series, element, imageIndex) {
  * @function resetViewports
  * @param {Array} elementIds - The array of hmtl div ids
  */
-export const resetViewports = function(elementIds) {
-  each(elementIds, function(elementId) {
+export const resetViewports = function (elementIds) {
+  each(elementIds, function (elementId) {
     let element = document.getElementById(elementId);
     if (!element) {
       console.error("invalid html element: " + elementId);
@@ -810,7 +290,7 @@ export const resetViewports = function(elementIds) {
  * @function enableMouseHandlers
  * @param {String} elementId - The html div id used for rendering
  */
-export const enableMouseHandlers = function(elementId) {
+export const enableMouseHandlers = function (elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -828,7 +308,7 @@ export const enableMouseHandlers = function(elementId) {
       let viewport = cornerstone.getViewport(element);
       let viewportNames = store.get("viewports");
       let viewer = store.get("viewer");
-      each(viewportNames, function(viewportName) {
+      each(viewportNames, function (viewportName) {
         // sync ww and wc values in store
         store.set(viewer, "contrast", [
           viewportName,
@@ -882,7 +362,7 @@ export const enableMouseHandlers = function(elementId) {
  * @param {Number} thickness - The thickness value between slices
  * @param {String} viewport - The viewport tag name
  */
-export const storeViewportData = function(
+export const storeViewportData = function (
   image,
   elementId,
   imageIndex,
@@ -926,25 +406,30 @@ export const storeViewportData = function(
 };
 </code></pre>
         </article>
-      </section>
-    </div>
+    </section>
 
-    <br class="clear" />
 
-    <footer>
-      Documentation generated by
-      <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> using the
-      <a href="https://github.com/clenemt/docdash">docdash</a> theme.
-    </footer>
 
-    <script>
-      prettyPrint();
-    </script>
-    <script src="scripts/polyfill.js"></script>
-    <script src="scripts/linenumber.js"></script>
 
-    <script src="scripts/search.js" defer></script>
+    
+    
+</div>
 
-    <script src="scripts/collapse.js" defer></script>
-  </body>
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+</body>
 </html>
