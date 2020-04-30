@@ -1,3 +1,5 @@
+/* eslint-disable no-empty */
+
 /*
  This file provides functionalities for
  custom WadoImageLoaders
