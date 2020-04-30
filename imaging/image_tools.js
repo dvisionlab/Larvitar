@@ -1,12 +1,10 @@
+/* eslint-disable no-prototype-builtins */ // for dev
+
 /** @module imaging/tools
  *  @desc This file provides functionalities for
  *        interacting with cornerstone tools
  *  @todo Document
  */
-
-/*
-
-*/
 
 // external libraries
 import cornerstone from "cornerstone-core";
