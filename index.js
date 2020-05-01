@@ -37,6 +37,8 @@ import {
 
 import {
   initializeImageLoader,
+  initializeFileImageLoader,
+  initializeWebImageLoader,
   registerNRRDImageLoader,
   registerResliceLoader,
   updateLoadedStack
@@ -46,6 +48,9 @@ import { resetImageParsing, readFiles } from "./imaging/image_parsing";
 
 import {
   clearImageCache,
+  disableImage,
+  loadWebImage,
+  loadFileImage,
   loadImage,
   reloadImage,
   updateImage,
@@ -138,12 +143,17 @@ export {
   changeOpacityLayer,
   updateImageLayer,
   initializeImageLoader,
+  initializeWebImageLoader,
+  initializeFileImageLoader,
   registerNRRDImageLoader,
   registerResliceLoader,
   updateLoadedStack,
   resetImageParsing,
   readFiles,
   clearImageCache,
+  disableImage,
+  loadFileImage,
+  loadWebImage,
   loadImage,
   reloadImage,
   updateImage,

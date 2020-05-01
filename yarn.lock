@@ -38,6 +38,13 @@ cornerstone-core@^2.3.0:
   resolved "https://registry.yarnpkg.com/cornerstone-core/-/cornerstone-core-2.3.0.tgz#b16430b0dc3883c795fbbd5f64d0f6357f91c889"
   integrity sha512-1LiCfRIlQvR1j8OhF7/3pvvQvvnTYZUywEkuoEo5K5mMrlKdrQMS75uW1uXb/nXShQDJyyjtTCQSVGgv2yHA+w==
 
+cornerstone-file-image-loader@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/cornerstone-file-image-loader/-/cornerstone-file-image-loader-0.3.0.tgz#de61c40b70529cd72bb58dbb3c8ad80cc5a87fc4"
+  integrity sha512-q6Qd1TvXT3JiXQaU9Yy0LsfKZFBlrHCLdzqC82yn+qfrwws/OYXSeTZDUfhpmb4B3T9QSq8YQGDHM1IlgJ14jg==
+  dependencies:
+    serialize-javascript "^2.1.2"
+
 cornerstone-math@0.1.7:
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/cornerstone-math/-/cornerstone-math-0.1.7.tgz#7c55536f02e7221b05fc49a4c780bb82c234ce39"
@@ -192,6 +199,11 @@ requizzle@^0.2.3:
   integrity sha512-YanoyJjykPxGHii0fZP0uUPEXpvqfBDxWV7s6GKAiiOsiqhX6vHNyW3Qzdmqp/iq/ExbhaGbVrjB4ruEVSM4GQ==
   dependencies:
     lodash "^4.17.14"
+
+serialize-javascript@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-2.1.2.tgz#ecec53b0e0317bdc95ef76ab7074b7384785fa61"
+  integrity sha512-rs9OggEUF0V4jUSecXazOYsLfu7OGK2qIn3c7IPBiffz32XniEp/TX9Xmc9LQfK2nQ2QKHvZ2oygKUGU0lG4jQ==
 
 sprintf-js@~1.0.2:
   version "1.0.3"

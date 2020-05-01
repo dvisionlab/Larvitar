@@ -6,6 +6,7 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
+import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { each } from "lodash";
 
 // internal libraries
@@ -26,53 +27,64 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
  * @instance
  * @function clearImageCache
  */
-export const clearImageCache = function () {
+export const clearImageCache = function() {
   cornerstone.imageCache.purgeCache();
 };
 
 /**
- * Reload an image on a html div using cornerstone
+ * Disable cornerstone loaded image
  * @instance
- * @function reloadImage
- * @param {Object} series - The original series data object
+ * @function disableImage
  * @param {String} elementId - The html div id used for rendering
  */
-export const reloadImage = function (series, elementId) {
+export const disableImage = function(elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
   }
-  let viewer = store.get("viewer");
-  cornerstone.enable(element);
-  let sliceId = store.get(viewer, elementId, "sliceId");
-  let currentImageId = series.imageIds[sliceId];
+  cornerstone.disable(element);
+};
 
-  each(series.imageIds, function (imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function (image) {
-      if (currentImageId == imageId) {
-        cornerstone.displayImage(element, image);
-        let viewport = cornerstone.getViewport(element);
-        viewport.voi.windowWidth = store.get(
-          viewer,
-          elementId,
-          "viewport",
-          "voi",
-          "windowWidth"
-        );
-        viewport.voi.windowCenter = store.get(
-          viewer,
-          elementId,
-          "viewport",
-          "voi",
-          "windowCenter"
-        );
-        csToolsCreateStack(element);
-        enableMouseHandlers(elementId, element);
-        cornerstone.fitToWindow(element);
-        store.set(viewer, "loadingStatus", [elementId, true]);
-      }
-    });
+/**
+ * Load an image (png or jpg) from File on a html div using cornerstone
+ * @instance
+ * @function loadWebImage
+ * @param {Object} file - The image File object
+ * @param {String} elementId - The html div id used for rendering
+ */
+export const loadFileImage = function(file, elementId) {
+  let element = document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  cornerstone.disable(element);
+  cornerstone.enable(element);
+  const imageId = cornerstoneFileImageLoader.fileManager.add(file);
+  cornerstone.loadImage(imageId).then(function(image) {
+    cornerstone.displayImage(element, image);
+    cornerstone.fitToWindow(element);
+  });
+};
+
+/**
+ * Load an image (png or jpg) from web url on a html div using cornerstone
+ * @instance
+ * @function loadWebImage
+ * @param {String} url - The image data url
+ * @param {String} elementId - The html div id used for rendering
+ */
+export const loadWebImage = function(url, elementId) {
+  let element = document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+
+  cornerstone.enable(element);
+  cornerstone.loadImage(url).then(function(image) {
+    cornerstone.displayImage(element, image);
   });
 };
 
@@ -83,7 +95,7 @@ export const reloadImage = function (series, elementId) {
  * @param {Object} series - The original series data object
  * @param {String} elementId - The html div id used for rendering
  */
-export const loadImage = function (series, elementId) {
+export const loadImage = function(series, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -118,8 +130,8 @@ export const loadImage = function (series, elementId) {
     store.set(null, "errorLog", "");
   }
 
-  each(series.imageIds, function (imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function (image) {
+  each(series.imageIds, function(imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function(image) {
       // HACK to force render re-evaluation (otherwise it remains stuck on GrayScaleRenderer)
       image.render = null;
 
@@ -151,6 +163,52 @@ export const loadImage = function (series, elementId) {
 };
 
 /**
+ * Reload an image on a html div using cornerstone
+ * @instance
+ * @function reloadImage
+ * @param {Object} series - The original series data object
+ * @param {String} elementId - The html div id used for rendering
+ */
+export const reloadImage = function(series, elementId) {
+  let element = document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let viewer = store.get("viewer");
+  cornerstone.enable(element);
+  let sliceId = store.get(viewer, elementId, "sliceId");
+  let currentImageId = series.imageIds[sliceId];
+
+  each(series.imageIds, function(imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function(image) {
+      if (currentImageId == imageId) {
+        cornerstone.displayImage(element, image);
+        let viewport = cornerstone.getViewport(element);
+        viewport.voi.windowWidth = store.get(
+          viewer,
+          elementId,
+          "viewport",
+          "voi",
+          "windowWidth"
+        );
+        viewport.voi.windowCenter = store.get(
+          viewer,
+          elementId,
+          "viewport",
+          "voi",
+          "windowCenter"
+        );
+        csToolsCreateStack(element);
+        enableMouseHandlers(elementId, element);
+        cornerstone.fitToWindow(element);
+        store.set(viewer, "loadingStatus", [elementId, true]);
+      }
+    });
+  });
+};
+
+/**
  * Update the cornerstone image with new imageIndex
  * @instance
  * @function updateImage
@@ -158,11 +216,11 @@ export const loadImage = function (series, elementId) {
  * @param {String} elementId - The html div id used for rendering
  * @param {Number} imageIndex - The index of the image to be rendered
  */
-export const updateImage = function (series, element, imageIndex) {
+export const updateImage = function(series, element, imageIndex) {
   if (!element) {
     return;
   }
-  cornerstone.loadImage(series.imageIds[imageIndex]).then(function (image) {
+  cornerstone.loadImage(series.imageIds[imageIndex]).then(function(image) {
     cornerstone.displayImage(element, image);
   });
 };
@@ -173,8 +231,8 @@ export const updateImage = function (series, element, imageIndex) {
  * @function resetViewports
  * @param {Array} elementIds - The array of hmtl div ids
  */
-export const resetViewports = function (elementIds) {
-  each(elementIds, function (elementId) {
+export const resetViewports = function(elementIds) {
+  each(elementIds, function(elementId) {
     let element = document.getElementById(elementId);
     if (!element) {
       console.error("invalid html element: " + elementId);
@@ -238,7 +296,7 @@ export const resetViewports = function (elementIds) {
  * @function enableMouseHandlers
  * @param {String} elementId - The html div id used for rendering
  */
-export const enableMouseHandlers = function (elementId) {
+export const enableMouseHandlers = function(elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -256,7 +314,7 @@ export const enableMouseHandlers = function (elementId) {
       let viewport = cornerstone.getViewport(element);
       let viewportNames = store.get("viewports");
       let viewer = store.get("viewer");
-      each(viewportNames, function (viewportName) {
+      each(viewportNames, function(viewportName) {
         // sync ww and wc values in store
         store.set(viewer, "contrast", [
           viewportName,
@@ -310,7 +368,7 @@ export const enableMouseHandlers = function (elementId) {
  * @param {Number} thickness - The thickness value between slices
  * @param {String} viewport - The viewport tag name
  */
-export const storeViewportData = function (
+export const storeViewportData = function(
   image,
   elementId,
   imageIndex,
