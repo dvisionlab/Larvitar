@@ -31,6 +31,48 @@ export const clearImageCache = function () {
 };
 
 /**
+ * Load an image (png or jpg) from File on a html div using cornerstone
+ * @instance
+ * @function loadWebImage
+ * @param {Object} file - The image File object
+ * @param {String} elementId - The html div id used for rendering
+ */
+export const loadFileImage = function(file, elementId) {
+  let element = document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  cornerstone.disable(element);
+  cornerstone.enable(element);
+  const imageId = cornerstoneFileImageLoader.fileManager.add(file);
+  cornerstone.loadImage(imageId).then(function(image) {
+    cornerstone.displayImage(element, image);
+    cornerstone.fitToWindow(element);
+  });
+};
+
+/**
+ * Load an image (png or jpg) from web url on a html div using cornerstone
+ * @instance
+ * @function loadWebImage
+ * @param {String} url - The image data url
+ * @param {String} elementId - The html div id used for rendering
+ */
+export const loadWebImage = function(url, elementId) {
+  let element = document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+
+  cornerstone.enable(element);
+  cornerstone.loadImage(url).then(function(image) {
+    cornerstone.displayImage(element, image);
+  });
+};
+
+/**
  * Reload an image on a html div using cornerstone
  * @instance
  * @function reloadImage
