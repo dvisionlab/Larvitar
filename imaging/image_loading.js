@@ -8,6 +8,7 @@
 import cornerstone from "cornerstone-core";
 import dicomParser from "dicom-parser";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import { forEach } from "lodash";
 
 // internal libraries
@@ -56,6 +57,22 @@ export const initializeImageLoader = function(config) {
   cornerstoneWADOImageLoader.webWorkerManager.initialize(imageLoaderConfig);
   cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
   cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+};
+
+/**
+ * Configure cornerstoneWebImageLoader
+ * @instance
+ * @function initializeWebImageLoader
+ */
+export const initializeWebImageLoader = function() {
+  cornerstoneWebImageLoader.external.cornerstone = cornerstone;
+  cornerstoneWebImageLoader.configure({
+    beforeSend: function() {
+      // add xhr as function arg
+      // Add custom headers here (e.g. auth tokens)
+      // xhr.setRequestHeader('x-auth-token', 'my auth token');
+    }
+  });
 };
 
 /**
