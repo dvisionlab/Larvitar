@@ -43,8 +43,11 @@ export const loadFileImage = function(file, elementId) {
     console.error("invalid html element: " + elementId);
     return;
   }
-  cornerstone.disable(element);
-  cornerstone.enable(element);
+
+  if (cornerstone.getEnabledElements().length == 0) {
+    cornerstone.enable(element);
+  }
+
   const imageId = cornerstoneFileImageLoader.fileManager.add(file);
   cornerstone.loadImage(imageId).then(function(image) {
     cornerstone.displayImage(element, image);
