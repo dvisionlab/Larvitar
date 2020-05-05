@@ -60,9 +60,6 @@ import {
 } from "./imaging/image_rendering";
 
 import {
-  initializeCSTools,
-  csToolsCreateStack,
-  addDefaultTools,
   addDiameterTool,
   addContoursTool,
   addMaskEditingTool,
@@ -70,10 +67,6 @@ import {
   addStackStateToElement,
   addSeedsTool,
   clearMeasurements,
-  setToolActive,
-  setToolDisabled,
-  setToolEnabled,
-  setToolPassive,
   getToolState,
   clearToolStateByName,
   updateDiameterTool,
@@ -82,6 +75,22 @@ import {
   syncToolStack,
   updateStackToolState
 } from "./imaging/image_tools";
+
+import {
+  csToolsCreateStack,
+  initializeCSTools,
+  addDefaultTools,
+  addTool,
+  setToolActive,
+  setToolDisabled,
+  setToolEnabled,
+  setToolPassive
+} from "./imaging/tools/tools.main";
+
+import {
+  DEFAULT_TOOLS,
+  getDefaultToolsByType
+} from "./imaging/tools/tools.default";
 
 import {
   getCustomImageId,
@@ -124,6 +133,8 @@ import { saveAnnotations, loadAnnotations } from "./imaging/tools/tools.io";
 
 export {
   cornerstoneTools,
+  DEFAULT_TOOLS,
+  getDefaultToolsByType,
   getNormalOrientation,
   getMinPixelValue,
   getMaxPixelValue,
@@ -165,6 +176,7 @@ export {
   resetViewports,
   enableMouseHandlers,
   initializeCSTools,
+  addTool,
   csToolsCreateStack,
   addDefaultTools,
   addDiameterTool,
