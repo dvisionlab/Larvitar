@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>image_layers.js - Larvitar</title>
+    <title>loaders/dicomLoader.js - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,7 +40,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">image_layers.js</h1>
+    <h1 class="page-title">loaders/dicomLoader.js</h1>
     
 
     
@@ -50,212 +50,212 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** @module imaging/layers
+            <pre class="prettyprint source linenums"><code>/** @module loaders/dicomLoader
  *  @desc This file provides functionalities for
- *        rendering image layers using cornerstone stack
+ *        custom DICOM Loader
  *  @todo Document
  */
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import { each } from "lodash";
+import { omit, each } from "lodash";
 
-// global module variables
-/**
- * Main layer name
- * @var {String} mainLayer
- */
-var mainLayer;
+// internal libraries
+import { getReslicedMetadata, getReslicedPixeldata } from "../image_utils";
+import { clearImageCache } from "../image_rendering";
+import { default as larvitar_store } from "../image_store";
+let store = larvitar_store.state ? larvitar_store : new larvitar_store();
+
+// global variables
+export var dicomManager = {};
+let imageLoaderCounter = 0;
 
 /*
  * This module provides the following functions to be exported:
- * loadImageLayers(mainSeries, mainSeriesName, maskSeries, maskSeriesName, elementId)
- * changeOpacityLayer(elementId, layerName, opacity)
- * updateImageLayer(mainSeries, mainSeriesName, maskSeries, element, imageIndexß)
- * getMainLayer()
+ * cacheAndSaveSerie(series)
+ * removeSeriesFromDicomManager(seriesId)
+ * getSeriesData(seriesId)
+ * resetDicomManager()
+ * resetImageLoader(elementId)
+ * getDicomImageId(dicomLoaderName)
  */
 
 /**
- * Load an cache image layers and render it in a html div using cornerstone
+ * Reset the Custom Image Loader
  * @instance
- * @function loadImageLayers
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for main series
- * @param {Object} maskSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for mask series
- * @param {String} elementId - target HTML element id
+ * @function resetImageLoader
+ * @param {String} elementId The Id of the html element
  */
-export const loadImageLayers = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  maskSeriesName,
-  elementId
-) {
+export const resetImageLoader = function(elementId) {
+  store.set(null, "series", []);
+  store.set(null, "seriesId", null);
   let element = document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
+  if (element) {
+    cornerstone.disable(element);
   }
-  cornerstone.enable(element);
-  const layers = buildLayers(
-    mainSeries,
-    mainSeriesName,
-    maskSeries,
-    maskSeriesName
-  );
-  loadLayers(element, layers);
-  setTimeout(function() {
-    updateImageLayer(
-      mainSeries,
-      maskSeries,
-      element,
-      Math.floor(mainSeries.imageIds.length / 2)
-    );
-  }, 0);
+  resetDicomManager();
+  clearImageCache();
 };
 
 /**
- * Change the opacity of a layer
+ * Reset the DICOM Manager store
  * @instance
- * @function changeOpacityLayer
- * @param {String} elementId - Target HTML element id
- * @param {String} layerName - Target layer name
- * @param {Number} opacity - New opacity value [0-1]
+ * @function resetDicomManager
  */
-export const changeOpacityLayer = function(elementId, layerName, opacity) {
-  let element = document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
-  let layers = cornerstone.getLayers(element);
-  if (!layers) {
-    console.error("Invalid layers in active element: " + elementId);
-    return;
-  }
-  let activeLayerId;
-  each(layers, function(layer) {
-    if (layer.options.name == layerName) {
-      layer.options.opacity = opacity;
-    } else {
-      activeLayerId = layer.layerId;
-    }
-  });
-  cornerstone.updateImage(element);
-  cornerstone.setActiveLayer(element, activeLayerId);
+export const resetDicomManager = function() {
+  dicomManager = {};
+  imageLoaderCounter = 0;
 };
 
 /**
- * Update the cornerstone image with new imageIndex
+ * Remove a stored seriesId from the DICOM Manager
  * @instance
- * @function updateImageLayer
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for main series
- * @param {Object} maskSeries - Cornerstone series object
- * @param {HTMLElement} element - Target html element
- * @param {Number} imageIndex - index of the image to load
+ * @function removeSeriesFromDicomManager
+ * @param {String} seriesId The Id of the series
  */
-export const updateImageLayer = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  element,
-  imageIndex
-) {
-  let layers = cornerstone.getLayers(element);
-  if (!layers) {
-    console.error("Invalid layers in active element");
-    return;
+export const removeSeriesFromDicomManager = function(seriesId) {
+  if (dicomManager[seriesId]) {
+    dicomManager = omit(dicomManager, seriesId);
   }
-  each(layers, function(layer) {
-    let series = layer.options.name == mainSeriesName ? mainSeries : maskSeries;
-    cornerstone.loadImage(series.imageIds[imageIndex]).then(function(image) {
-      cornerstone.setActiveLayer(element, layer.layerId);
-      cornerstone.displayImage(element, image);
+};
+
+/**
+ * Return the data of a specific seriesId stored in the DICOM Manager
+ * @instance
+ * @function getSeriesData
+ * @param {String} seriesId The Id of the series
+ * @return {Object} dicom manager data
+ */
+export const getSeriesData = function(seriesId) {
+  return dicomManager[seriesId];
+};
+
+/**
+ * This function can be called in order to populate the DICOM manager for a provided orientation
+ * @instance
+ * @function populateDicomManager
+ * @param {String} seriesId The Id of the series
+ * @param {Object} seriesData The series data
+ * @param {String} orientation The orientation string
+ * @param {Function} callback A callback function
+ */
+export const populateDicomManager = function(
+  seriesId,
+  seriesData,
+  orientation,
+  callback
+) {
+  // set dicomManager as active manager
+  store.set(null, "manager", "dicomManager");
+
+  // check if DICOM Manager exists for this seriesId
+  if (!dicomManager[seriesId]) {
+    dicomManager[seriesId] = {};
+  }
+  dicomManager[seriesId][orientation] = {};
+
+  let viewer = store.get("viewer");
+  store.set(viewer, "loadingStatus", [orientation, false]);
+
+  if (orientation == "axial") {
+    initializeMainViewport(seriesData, function(data) {
+      dicomManager[seriesId]["axial"] = data;
+      imageLoaderCounter += seriesData.imageIds.length;
+      callback();
     });
-  });
+  } else {
+    dicomManager[seriesId][orientation] = initializeReslicedViewport(
+      seriesId,
+      orientation
+    );
+    callback();
+  }
 };
 
 /**
- * Export main layer name
+ * Get the dicom imageId from dicom loader
  * @instance
- * @function getMainLayer
- * @returns {String} Name of the main layer
+ * @function populateDicomManager
+ * @param {String} dicomLoaderName dicom loader name
+ * @return {String} current dicom image id
  */
-export const getMainLayer = function() {
-  return mainLayer;
+export const getDicomImageId = function(dicomLoaderName) {
+  let imageId = dicomLoaderName + ":" + imageLoaderCounter;
+  imageLoaderCounter++;
+  return imageId;
 };
 
 /* Internal module functions */
 
 /**
- * Build the image layers object
- * @inner
- * @function buildLayers
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Name of the main layer
- * @param {Object} maskSeries - Cornerstone series object
- * @param {String} maskSeriesName - Name of the mask layer
- * @returns {Object} Cornerstone layers object
+ * Initialize the native viewport with pixel data
+ * @instance
+ * @function initializeMainViewport
+ * @param {Object} series the series data
+ * @param {Function} callback a callback function
  */
-let buildLayers = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  maskSeriesName
-) {
-  const layers = [
-    {
-      imageIds: mainSeries.imageIds,
-      currentImageIdIndex: Math.floor(mainSeries.imageIds.length / 2),
-      options: {
-        name: mainSeriesName
-      }
-    },
-    {
-      imageIds: maskSeries.imageIds,
-      currentImageIdIndex: Math.floor(maskSeries.imageIds.length / 2),
-      options: {
-        name: maskSeriesName,
-        opacity: 0.2,
-        viewport: {
-          colormap: "copper"
-        }
-      }
-    }
-  ];
-  mainLayer = mainSeriesName;
-  return layers;
-};
-
-/**
- * Load cache and render image layers
- * @inner
- * @function loadLayers
- * @param {HTMLElement} element - Target HTML element
- * @param {Object} layers - Cornerstone layers object
- */
-let loadLayers = function(element, layers) {
+function initializeMainViewport(series, callback) {
   cornerstone.imageCache.purgeCache();
-  each(layers, function(layer) {
-    let imageIndex = Math.floor(layer.imageIds.length / 2);
-    let currentImageId = layer.imageIds[imageIndex];
-    each(layer.imageIds, function(imageId) {
-      cornerstone.loadAndCacheImage(imageId).then(function(image) {
-        if (currentImageId == imageId) {
-          cornerstone.displayImage(element, image);
-          cornerstone.addLayer(element, image, layer.options);
-          let viewport = cornerstone.getViewport(element);
-          if (layer.options.name == "MRI") {
-            viewport.voi.windowWidth = image.windowWidth;
-            viewport.voi.windowCenter = image.windowCenter;
-          }
-        }
-      });
+  let counter = 0;
+  each(series.imageIds, function(imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function(image) {
+      series.instances[imageId].pixelData = image.getPixelData();
+      counter++;
+      if (counter == series.imageIds.length) {
+        callback(series);
+      }
     });
   });
-};
+}
+
+/**
+ * Build the cornerstone data structure into the DICOM manager
+ * from data (file) for a resliced viewport (orientation)
+ * using the native one (axial) as starting data
+ * @instance
+ * @function initializeReslicedViewport
+ * @param {String} seriesId the series id
+ * @param {String} orientation the orientation tag
+ * @return {Object} cornerstone data
+ */
+function initializeReslicedViewport(seriesId, orientation) {
+  let seriesData = dicomManager[seriesId]["axial"];
+  if (!seriesData) {
+    console.error("Main viewport data is missing!");
+    return null;
+  }
+  // build the DICOM Manager instance for this orientation
+  dicomManager[seriesId][orientation] = {};
+  let reslicedSeriesId = seriesId + "_" + orientation;
+
+  // get the resliced metadata from native one
+  let reslicedData = getReslicedMetadata(
+    reslicedSeriesId,
+    "axial",
+    orientation,
+    seriesData,
+    "resliceLoader"
+  );
+
+  dicomManager[seriesId][orientation].imageIds = reslicedData.imageIds;
+  dicomManager[seriesId][orientation].instances = reslicedData.instances;
+
+  // populate nrrdManager with the pixelData information
+  each(dicomManager[seriesId][orientation].imageIds, function(imageId) {
+    let data = getReslicedPixeldata(
+      imageId,
+      seriesData,
+      dicomManager[seriesId][orientation]
+    );
+    dicomManager[seriesId][orientation].instances[imageId].pixelData = data;
+  });
+
+  // set currentImageIdIndex to the middle slice
+  let imageIds = dicomManager[seriesId][orientation].imageIds;
+  let middleSlice = Math.floor(imageIds.length / 2);
+  dicomManager[seriesId][orientation].currentImageIdIndex = middleSlice;
+  return dicomManager[seriesId][orientation];
+}
 </code></pre>
         </article>
     </section>

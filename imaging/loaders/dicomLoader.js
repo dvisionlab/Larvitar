@@ -1,7 +1,8 @@
-/*
- This file provides functionalities for
- custom DICOM Loader
-*/
+/** @module loaders/dicomLoader
+ *  @desc This file provides functionalities for
+ *        custom DICOM Loader
+ *  @todo Document
+ */
 
 // external libraries
 import cornerstone from "cornerstone-core";
@@ -27,10 +28,13 @@ let imageLoaderCounter = 0;
  * getDicomImageId(dicomLoaderName)
  */
 
-// ================================
-// Reset the Custom Image Loader ==
-// ================================
-export const resetImageLoader = function (elementId) {
+/**
+ * Reset the Custom Image Loader
+ * @instance
+ * @function resetImageLoader
+ * @param {String} elementId The Id of the html element
+ */
+export const resetImageLoader = function(elementId) {
   store.set(null, "series", []);
   store.set(null, "seriesId", null);
   let element = document.getElementById(elementId);
@@ -41,40 +45,57 @@ export const resetImageLoader = function (elementId) {
   clearImageCache();
 };
 
-// ================================
-// Reset the DICOM Manager store
-// ================================
-export const resetDicomManager = function () {
+/**
+ * Reset the DICOM Manager store
+ * @instance
+ * @function resetDicomManager
+ */
+export const resetDicomManager = function() {
   dicomManager = {};
   imageLoaderCounter = 0;
 };
 
-// ==================================================
-// Remove a stored seriesId from the DICOM Manager ==
-// ==================================================
-export const removeSeriesFromDicomManager = function (seriesId) {
+/**
+ * Remove a stored seriesId from the DICOM Manager
+ * @instance
+ * @function removeSeriesFromDicomManager
+ * @param {String} seriesId The Id of the series
+ */
+export const removeSeriesFromDicomManager = function(seriesId) {
   if (dicomManager[seriesId]) {
     dicomManager = omit(dicomManager, seriesId);
   }
 };
 
-// =====================================================================
-// Return the data of a specific seriesId stored in the DICOM Manager ==
-// =====================================================================
-export const getSeriesData = function (seriesId) {
+/**
+ * Return the data of a specific seriesId stored in the DICOM Manager
+ * @instance
+ * @function getSeriesData
+ * @param {String} seriesId The Id of the series
+ * @return {Object} dicom manager data
+ */
+export const getSeriesData = function(seriesId) {
   return dicomManager[seriesId];
 };
 
-// ===================================================
-// This function can be called in order to populate ==
-// the DICOM manager for a provided orientation ======
-// ===================================================
-export const populateDicomManager = function (
+/**
+ * This function can be called in order to populate the DICOM manager for a provided orientation
+ * @instance
+ * @function populateDicomManager
+ * @param {String} seriesId The Id of the series
+ * @param {Object} seriesData The series data
+ * @param {String} orientation The orientation string
+ * @param {Function} callback A callback function
+ */
+export const populateDicomManager = function(
   seriesId,
   seriesData,
   orientation,
   callback
 ) {
+  // set dicomManager as active manager
+  store.set(null, "manager", "dicomManager");
+
   // check if DICOM Manager exists for this seriesId
   if (!dicomManager[seriesId]) {
     dicomManager[seriesId] = {};
@@ -85,7 +106,7 @@ export const populateDicomManager = function (
   store.set(viewer, "loadingStatus", [orientation, false]);
 
   if (orientation == "axial") {
-    initializeMainViewport(seriesData, function (data) {
+    initializeMainViewport(seriesData, function(data) {
       dicomManager[seriesId]["axial"] = data;
       imageLoaderCounter += seriesData.imageIds.length;
       callback();
@@ -99,10 +120,14 @@ export const populateDicomManager = function (
   }
 };
 
-// ==========================================
-// Get the dicom imageId from dicom loader ==
-// ==========================================
-export const getDicomImageId = function (dicomLoaderName) {
+/**
+ * Get the dicom imageId from dicom loader
+ * @instance
+ * @function populateDicomManager
+ * @param {String} dicomLoaderName dicom loader name
+ * @return {String} current dicom image id
+ */
+export const getDicomImageId = function(dicomLoaderName) {
   let imageId = dicomLoaderName + ":" + imageLoaderCounter;
   imageLoaderCounter++;
   return imageId;
@@ -110,14 +135,18 @@ export const getDicomImageId = function (dicomLoaderName) {
 
 /* Internal module functions */
 
-// =================================================
-// Initialize the native viewport with pixel data ==
-// =================================================
+/**
+ * Initialize the native viewport with pixel data
+ * @instance
+ * @function initializeMainViewport
+ * @param {Object} series the series data
+ * @param {Function} callback a callback function
+ */
 function initializeMainViewport(series, callback) {
   cornerstone.imageCache.purgeCache();
   let counter = 0;
-  each(series.imageIds, function (imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function (image) {
+  each(series.imageIds, function(imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function(image) {
       series.instances[imageId].pixelData = image.getPixelData();
       counter++;
       if (counter == series.imageIds.length) {
@@ -127,11 +156,16 @@ function initializeMainViewport(series, callback) {
   });
 }
 
-// ==============================================================
-// Build the cornerstone data structure into the DICOM manager ==
-// from data (file) for a resliced viewport (orientation) =======
-// using the native one (axial) as starting data ================
-// ==============================================================
+/**
+ * Build the cornerstone data structure into the DICOM manager
+ * from data (file) for a resliced viewport (orientation)
+ * using the native one (axial) as starting data
+ * @instance
+ * @function initializeReslicedViewport
+ * @param {String} seriesId the series id
+ * @param {String} orientation the orientation tag
+ * @return {Object} cornerstone data
+ */
 function initializeReslicedViewport(seriesId, orientation) {
   let seriesData = dicomManager[seriesId]["axial"];
   if (!seriesData) {
@@ -155,7 +189,7 @@ function initializeReslicedViewport(seriesId, orientation) {
   dicomManager[seriesId][orientation].instances = reslicedData.instances;
 
   // populate nrrdManager with the pixelData information
-  each(dicomManager[seriesId][orientation].imageIds, function (imageId) {
+  each(dicomManager[seriesId][orientation].imageIds, function(imageId) {
     let data = getReslicedPixeldata(
       imageId,
       seriesData,

@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>image_layers.js - Larvitar</title>
+    <title>loaders/resliceLoader.js - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,7 +40,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">image_layers.js</h1>
+    <h1 class="page-title">loaders/resliceLoader.js</h1>
     
 
     
@@ -50,211 +50,180 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** @module imaging/layers
+            <pre class="prettyprint source linenums"><code>/** @module loaders/resliceLoader
  *  @desc This file provides functionalities for
- *        rendering image layers using cornerstone stack
+ *        custom Reslice Loader
  *  @todo Document
  */
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import { each } from "lodash";
+import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 
-// global module variables
-/**
- * Main layer name
- * @var {String} mainLayer
- */
-var mainLayer;
+// internal libraries
+import { getImageFrame } from "./commonLoader";
+import { dicomManager } from "./dicomLoader";
+import { default as larvitar_store } from "../image_store";
+let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 /*
  * This module provides the following functions to be exported:
- * loadImageLayers(mainSeries, mainSeriesName, maskSeries, maskSeriesName, elementId)
- * changeOpacityLayer(elementId, layerName, opacity)
- * updateImageLayer(mainSeries, mainSeriesName, maskSeries, element, imageIndexß)
- * getMainLayer()
+ * loadReslicedImage(imageId)
  */
 
 /**
- * Load an cache image layers and render it in a html div using cornerstone
+ * Custom Loader for WadoImageLoader
  * @instance
- * @function loadImageLayers
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for main series
- * @param {Object} maskSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for mask series
- * @param {String} elementId - target HTML element id
+ * @function loadReslicedImage
+ * @param {String} imageId The Id of the image
+ * @returns {Object} custom image object
  */
-export const loadImageLayers = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  maskSeriesName,
-  elementId
-) {
-  let element = document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
-  cornerstone.enable(element);
-  const layers = buildLayers(
-    mainSeries,
-    mainSeriesName,
-    maskSeries,
-    maskSeriesName
-  );
-  loadLayers(element, layers);
-  setTimeout(function() {
-    updateImageLayer(
-      mainSeries,
-      maskSeries,
-      element,
-      Math.floor(mainSeries.imageIds.length / 2)
-    );
-  }, 0);
-};
-
-/**
- * Change the opacity of a layer
- * @instance
- * @function changeOpacityLayer
- * @param {String} elementId - Target HTML element id
- * @param {String} layerName - Target layer name
- * @param {Number} opacity - New opacity value [0-1]
- */
-export const changeOpacityLayer = function(elementId, layerName, opacity) {
-  let element = document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
-  let layers = cornerstone.getLayers(element);
-  if (!layers) {
-    console.error("Invalid layers in active element: " + elementId);
-    return;
-  }
-  let activeLayerId;
-  each(layers, function(layer) {
-    if (layer.options.name == layerName) {
-      layer.options.opacity = opacity;
-    } else {
-      activeLayerId = layer.layerId;
-    }
-  });
-  cornerstone.updateImage(element);
-  cornerstone.setActiveLayer(element, activeLayerId);
-};
-
-/**
- * Update the cornerstone image with new imageIndex
- * @instance
- * @function updateImageLayer
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for main series
- * @param {Object} maskSeries - Cornerstone series object
- * @param {HTMLElement} element - Target html element
- * @param {Number} imageIndex - index of the image to load
- */
-export const updateImageLayer = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  element,
-  imageIndex
-) {
-  let layers = cornerstone.getLayers(element);
-  if (!layers) {
-    console.error("Invalid layers in active element");
-    return;
-  }
-  each(layers, function(layer) {
-    let series = layer.options.name == mainSeriesName ? mainSeries : maskSeries;
-    cornerstone.loadImage(series.imageIds[imageIndex]).then(function(image) {
-      cornerstone.setActiveLayer(element, layer.layerId);
-      cornerstone.displayImage(element, image);
-    });
-  });
-};
-
-/**
- * Export main layer name
- * @instance
- * @function getMainLayer
- * @returns {String} Name of the main layer
- */
-export const getMainLayer = function() {
-  return mainLayer;
+export const loadReslicedImage = function(imageId) {
+  let seriesId = store.get("seriesId");
+  let orientation = store.get("orientation");
+  let instance = dicomManager[seriesId][orientation].instances[imageId];
+  var reslicedPixeldata = instance.pixelData;
+  return createCustomImage(imageId, instance.metadata, reslicedPixeldata);
 };
 
 /* Internal module functions */
 
 /**
- * Build the image layers object
- * @inner
- * @function buildLayers
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Name of the main layer
- * @param {Object} maskSeries - Cornerstone series object
- * @param {String} maskSeriesName - Name of the mask layer
- * @returns {Object} Cornerstone layers object
+ * Create the custom image object for cornerstone from custom image
+ * @instance
+ * @function createCustomImage
+ * @param {String} imageId The Id of the image
+ * @param {Object} metadata the metadata object
+ * @param {Object} pixelData pixel data object
+ * @param {Object} dataSet dataset object
+ * @returns {Object} custom image object
  */
-let buildLayers = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  maskSeriesName
-) {
-  const layers = [
-    {
-      imageIds: mainSeries.imageIds,
-      currentImageIdIndex: Math.floor(mainSeries.imageIds.length / 2),
-      options: {
-        name: mainSeriesName
-      }
-    },
-    {
-      imageIds: maskSeries.imageIds,
-      currentImageIdIndex: Math.floor(maskSeries.imageIds.length / 2),
-      options: {
-        name: maskSeriesName,
-        opacity: 0.2,
-        viewport: {
-          colormap: "copper"
-        }
-      }
-    }
-  ];
-  mainLayer = mainSeriesName;
-  return layers;
-};
+let createCustomImage = function(imageId, metadata, pixelData, dataSet) {
+  let canvas = window.document.createElement("canvas");
+  let lastImageIdDrawn = "";
 
-/**
- * Load cache and render image layers
- * @inner
- * @function loadLayers
- * @param {HTMLElement} element - Target HTML element
- * @param {Object} layers - Cornerstone layers object
- */
-let loadLayers = function(element, layers) {
-  cornerstone.imageCache.purgeCache();
-  each(layers, function(layer) {
-    let imageIndex = Math.floor(layer.imageIds.length / 2);
-    let currentImageId = layer.imageIds[imageIndex];
-    each(layer.imageIds, function(imageId) {
-      cornerstone.loadAndCacheImage(imageId).then(function(image) {
-        if (currentImageId == imageId) {
-          cornerstone.displayImage(element, image);
-          cornerstone.addLayer(element, image, layer.options);
-          let viewport = cornerstone.getViewport(element);
-          if (layer.options.name == "MRI") {
-            viewport.voi.windowWidth = image.windowWidth;
-            viewport.voi.windowCenter = image.windowCenter;
-          }
-        }
-      });
-    });
+  let imageFrame = getImageFrame(metadata, dataSet);
+
+  // This function uses the pixelData received as argument without manipulating
+  // them: if the image is compressed, the decompress function should be called
+  // before creating the custom image object (like the multiframe case).
+  imageFrame.pixelData = pixelData;
+
+  let pixelSpacing = metadata.x00280030;
+  let rescaleIntercept = metadata.x00281052;
+  let rescaleSlope = metadata.x00281053;
+  let windowCenter = metadata.x00281050;
+  let windowWidth = metadata.x00281051;
+
+  function getSizeInBytes() {
+    let bytesPerPixel = Math.round(imageFrame.bitsAllocated / 8);
+    return (
+      imageFrame.rows *
+      imageFrame.columns *
+      bytesPerPixel *
+      imageFrame.samplesPerPixel
+    );
+  }
+
+  let image = {
+    imageId: imageId,
+    color: cornerstoneWADOImageLoader.isColorImage(
+      imageFrame.photometricInterpretation
+    ),
+    columnPixelSpacing: pixelSpacing ? pixelSpacing[1] : undefined,
+    columns: imageFrame.columns,
+    height: imageFrame.rows,
+    intercept: rescaleIntercept ? rescaleIntercept : 0,
+    invert: imageFrame.photometricInterpretation === "MONOCHROME1",
+    minPixelValue: imageFrame.smallestPixelValue,
+    maxPixelValue: imageFrame.largestPixelValue,
+    render: undefined, // set below
+    rowPixelSpacing: pixelSpacing ? pixelSpacing[0] : undefined,
+    rows: imageFrame.rows,
+    sizeInBytes: getSizeInBytes(),
+    slope: rescaleSlope ? rescaleSlope : 1,
+    width: imageFrame.columns,
+    windowCenter: windowCenter ? windowCenter[0] : undefined,
+    windowWidth: windowWidth ? windowWidth[0] : undefined,
+    decodeTimeInMS: undefined,
+    webWorkerTimeInMS: undefined
+  };
+
+  // add function to return pixel data
+  image.getPixelData = function() {
+    return imageFrame.pixelData;
+  };
+
+  // convert color space
+  if (image.color) {
+    // setup the canvas context
+    canvas.height = imageFrame.rows;
+    canvas.width = imageFrame.columns;
+
+    let context = canvas.getContext("2d");
+    let imageData = context.createImageData(
+      imageFrame.columns,
+      imageFrame.rows
+    );
+    cornerstoneWADOImageLoader.convertColorSpace(imageFrame, imageData);
+
+    imageFrame.imageData = imageData;
+    imageFrame.pixelData = imageData.data;
+  }
+
+  // Setup the renderer
+  if (image.color) {
+    image.render = cornerstone.renderColorImage;
+    image.getCanvas = function() {
+      if (lastImageIdDrawn === imageId) {
+        return canvas;
+      }
+
+      canvas.height = image.rows;
+      canvas.width = image.columns;
+      let context = canvas.getContext("2d");
+      context.putImageData(imageFrame.imageData, 0, 0);
+      lastImageIdDrawn = imageId;
+      return canvas;
+    };
+  } else {
+    image.render = cornerstone.renderGrayscaleImage;
+  }
+
+  // calculate min/max if not supplied
+  if (image.minPixelValue === undefined || image.maxPixelValue === undefined) {
+    let minMax = cornerstoneWADOImageLoader.getMinMax(pixelData);
+    image.minPixelValue = minMax.min;
+    image.maxPixelValue = minMax.max;
+  }
+
+  // set the ww/wc to cover the dynamic range of the image if no values are supplied
+  if (image.windowCenter === undefined || image.windowWidth === undefined) {
+    if (image.color) {
+      image.windowWidth = 255;
+      image.windowCenter = 128;
+    } else {
+      let maxVoi = image.maxPixelValue * image.slope + image.intercept;
+      let minVoi = image.minPixelValue * image.slope + image.intercept;
+      image.windowWidth = maxVoi - minVoi;
+      image.windowCenter = (maxVoi + minVoi) / 2;
+    }
+  }
+
+  // Custom images does not have the "data" attribute becaouse their dataset is
+  // not available. The "metadata" attribute is used by the storeImageData
+  // function to store custom image pixelData and metadata.
+  image.metadata = metadata;
+
+  let promise = new Promise(function(resolve) {
+    resolve(image);
   });
+
+  // Return an object containing the Promise to cornerstone so it can setup callbacks to be
+  // invoked asynchronously for the success/resolve and failure/reject scenarios.
+  return {
+    promise
+  };
 };
 </code></pre>
         </article>
