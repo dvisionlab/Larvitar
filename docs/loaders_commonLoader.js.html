@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>image_layers.js - Larvitar</title>
+    <title>loaders/commonLoader.js - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,7 +40,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">image_layers.js</h1>
+    <h1 class="page-title">loaders/commonLoader.js</h1>
     
 
     
@@ -50,211 +50,148 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** @module imaging/layers
+            <pre class="prettyprint source linenums"><code>/** @module loaders/commonLoader
  *  @desc This file provides functionalities for
- *        rendering image layers using cornerstone stack
+ *        custom WadoImageLoaders
  *  @todo Document
  */
 
 // external libraries
-import cornerstone from "cornerstone-core";
-import { each } from "lodash";
+import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 
-// global module variables
-/**
- * Main layer name
- * @var {String} mainLayer
- */
-var mainLayer;
+// internal libraries
+import {
+  getNrrdImageId,
+  getSerieDimensions as getNrrdSerieDimensions,
+  getSeriesData as getSeriesDataFromNrrdLoader,
+  nrrdManager
+} from "./nrrdLoader";
+import {
+  getDicomImageId,
+  getSeriesData as getSeriesDataFromDicomLoader,
+  dicomManager
+} from "./dicomLoader";
+
+import { default as larvitar_store } from "../image_store";
+let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 /*
  * This module provides the following functions to be exported:
- * loadImageLayers(mainSeries, mainSeriesName, maskSeries, maskSeriesName, elementId)
- * changeOpacityLayer(elementId, layerName, opacity)
- * updateImageLayer(mainSeries, mainSeriesName, maskSeries, element, imageIndexß)
- * getMainLayer()
+ * getLarvitarManager()
+ * getCustomImageId(loaderName)
+ * getSerieDimensions()
+ * getImageFrame(metadata, dataSet)
+ * getSeriesData(loaderName, seriesId)
  */
 
 /**
- * Load an cache image layers and render it in a html div using cornerstone
+ * Return the common data loader manager
  * @instance
- * @function loadImageLayers
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for main series
- * @param {Object} maskSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for mask series
- * @param {String} elementId - target HTML element id
+ * @function getLarvitarManager
+ * @returns {Object} the loader manager
  */
-export const loadImageLayers = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  maskSeriesName,
-  elementId
-) {
-  let element = document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
-  cornerstone.enable(element);
-  const layers = buildLayers(
-    mainSeries,
-    mainSeriesName,
-    maskSeries,
-    maskSeriesName
-  );
-  loadLayers(element, layers);
-  setTimeout(function() {
-    updateImageLayer(
-      mainSeries,
-      maskSeries,
-      element,
-      Math.floor(mainSeries.imageIds.length / 2)
+export const getLarvitarManager = function() {
+  let manager = store.get(["manager"]);
+  return manager == "dicomManager" ? dicomManager : nrrdManager;
+};
+
+/**
+ * Return the data of a specific seriesId stored in a custom Loader Manager
+ * @instance
+ * @function getSeriesData
+ * @param {String} seriesId The Id of the series
+ * @param {String} loaderName The name of the current loader
+ * @returns {Object} series data of a specific seriesId
+ */
+export const getSeriesData = function(seriesId, loaderName) {
+  return loaderName == "nrrdLoader"
+    ? getSeriesDataFromNrrdLoader(seriesId)
+    : getSeriesDataFromDicomLoader(seriesId);
+};
+
+/**
+ * Generate a custom ImageId from loader name
+ * @instance
+ * @function getCustomImageId
+ * @param {String} loaderName The name of the current loader
+ * @returns {String} custom Image Id
+ */
+export const getCustomImageId = function(loaderName) {
+  return loaderName == "nrrdLoader"
+    ? getNrrdImageId(loaderName)
+    : getDicomImageId(loaderName);
+};
+
+/**
+ * Return series dimension
+ * @instance
+ * @function getSerieDimensions
+ * @returns {Array} dimensions for series
+ */
+export const getSerieDimensions = function() {
+  // TODO FOR DICOM LOADER
+  return getNrrdSerieDimensions();
+};
+
+/**
+ * Compute and return image frame
+ * @instance
+ * @function getImageFrame
+ * @param {Object} metadata metadata object
+ * @param {Object} dataSet dicom dataset
+ * @returns {Object} specific image frame
+ */
+export const getImageFrame = function(metadata, dataSet) {
+  let imagePixelModule;
+
+  if (dataSet) {
+    imagePixelModule = cornerstoneWADOImageLoader.wadouri.getImagePixelModule(
+      dataSet
     );
-  }, 0);
-};
-
-/**
- * Change the opacity of a layer
- * @instance
- * @function changeOpacityLayer
- * @param {String} elementId - Target HTML element id
- * @param {String} layerName - Target layer name
- * @param {Number} opacity - New opacity value [0-1]
- */
-export const changeOpacityLayer = function(elementId, layerName, opacity) {
-  let element = document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
+  } else {
+    imagePixelModule = {
+      samplesPerPixel: metadata.x00280002,
+      photometricInterpretation: metadata.x00280004,
+      planarConfiguration: metadata.x00280006,
+      rows: metadata.x00280010,
+      columns: metadata.x00280011,
+      bitsAllocated: metadata.x00280100,
+      pixelRepresentation: metadata.x00280103,
+      smallestPixelValue: metadata.x00280106,
+      largestPixelValue: metadata.x00280107,
+      redPaletteColorLookupTableDescriptor: metadata.x00281101,
+      greenPaletteColorLookupTableDescriptor: metadata.x00281102,
+      bluePaletteColorLookupTableDescriptor: metadata.x00281103,
+      redPaletteColorLookupTableData: metadata.x00281201,
+      greenPaletteColorLookupTableData: metadata.x00281202,
+      bluePaletteColorLookupTableData: metadata.x00281203
+    };
   }
-  let layers = cornerstone.getLayers(element);
-  if (!layers) {
-    console.error("Invalid layers in active element: " + elementId);
-    return;
-  }
-  let activeLayerId;
-  each(layers, function(layer) {
-    if (layer.options.name == layerName) {
-      layer.options.opacity = opacity;
-    } else {
-      activeLayerId = layer.layerId;
-    }
-  });
-  cornerstone.updateImage(element);
-  cornerstone.setActiveLayer(element, activeLayerId);
-};
 
-/**
- * Update the cornerstone image with new imageIndex
- * @instance
- * @function updateImageLayer
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for main series
- * @param {Object} maskSeries - Cornerstone series object
- * @param {HTMLElement} element - Target html element
- * @param {Number} imageIndex - index of the image to load
- */
-export const updateImageLayer = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  element,
-  imageIndex
-) {
-  let layers = cornerstone.getLayers(element);
-  if (!layers) {
-    console.error("Invalid layers in active element");
-    return;
-  }
-  each(layers, function(layer) {
-    let series = layer.options.name == mainSeriesName ? mainSeries : maskSeries;
-    cornerstone.loadImage(series.imageIds[imageIndex]).then(function(image) {
-      cornerstone.setActiveLayer(element, layer.layerId);
-      cornerstone.displayImage(element, image);
-    });
-  });
-};
-
-/**
- * Export main layer name
- * @instance
- * @function getMainLayer
- * @returns {String} Name of the main layer
- */
-export const getMainLayer = function() {
-  return mainLayer;
-};
-
-/* Internal module functions */
-
-/**
- * Build the image layers object
- * @inner
- * @function buildLayers
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Name of the main layer
- * @param {Object} maskSeries - Cornerstone series object
- * @param {String} maskSeriesName - Name of the mask layer
- * @returns {Object} Cornerstone layers object
- */
-let buildLayers = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  maskSeriesName
-) {
-  const layers = [
-    {
-      imageIds: mainSeries.imageIds,
-      currentImageIdIndex: Math.floor(mainSeries.imageIds.length / 2),
-      options: {
-        name: mainSeriesName
-      }
-    },
-    {
-      imageIds: maskSeries.imageIds,
-      currentImageIdIndex: Math.floor(maskSeries.imageIds.length / 2),
-      options: {
-        name: maskSeriesName,
-        opacity: 0.2,
-        viewport: {
-          colormap: "copper"
-        }
-      }
-    }
-  ];
-  mainLayer = mainSeriesName;
-  return layers;
-};
-
-/**
- * Load cache and render image layers
- * @inner
- * @function loadLayers
- * @param {HTMLElement} element - Target HTML element
- * @param {Object} layers - Cornerstone layers object
- */
-let loadLayers = function(element, layers) {
-  cornerstone.imageCache.purgeCache();
-  each(layers, function(layer) {
-    let imageIndex = Math.floor(layer.imageIds.length / 2);
-    let currentImageId = layer.imageIds[imageIndex];
-    each(layer.imageIds, function(imageId) {
-      cornerstone.loadAndCacheImage(imageId).then(function(image) {
-        if (currentImageId == imageId) {
-          cornerstone.displayImage(element, image);
-          cornerstone.addLayer(element, image, layer.options);
-          let viewport = cornerstone.getViewport(element);
-          if (layer.options.name == "MRI") {
-            viewport.voi.windowWidth = image.windowWidth;
-            viewport.voi.windowCenter = image.windowCenter;
-          }
-        }
-      });
-    });
-  });
+  return {
+    samplesPerPixel: imagePixelModule.samplesPerPixel,
+    photometricInterpretation: imagePixelModule.photometricInterpretation,
+    planarConfiguration: imagePixelModule.planarConfiguration,
+    rows: imagePixelModule.rows,
+    columns: imagePixelModule.columns,
+    bitsAllocated: imagePixelModule.bitsAllocated,
+    pixelRepresentation: imagePixelModule.pixelRepresentation, // 0 = unsigned,
+    smallestPixelValue: imagePixelModule.smallestPixelValue,
+    largestPixelValue: imagePixelModule.largestPixelValue,
+    redPaletteColorLookupTableDescriptor:
+      imagePixelModule.redPaletteColorLookupTableDescriptor,
+    greenPaletteColorLookupTableDescriptor:
+      imagePixelModule.greenPaletteColorLookupTableDescriptor,
+    bluePaletteColorLookupTableDescriptor:
+      imagePixelModule.bluePaletteColorLookupTableDescriptor,
+    redPaletteColorLookupTableData:
+      imagePixelModule.redPaletteColorLookupTableData,
+    greenPaletteColorLookupTableData:
+      imagePixelModule.greenPaletteColorLookupTableData,
+    bluePaletteColorLookupTableData:
+      imagePixelModule.bluePaletteColorLookupTableData,
+    pixelData: undefined // populated later after decoding
+  };
 };
 </code></pre>
         </article>

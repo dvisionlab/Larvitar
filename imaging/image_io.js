@@ -53,8 +53,12 @@ export const buildHeader = function(series) {
   header.volume.imageIds = series.imageIds;
   header.volume.seriesId =
     series.instances[series.imageIds[0]].metadata.seriesUID;
-  header.volume.rows = series.instances[series.imageIds[0]].metadata.rows;
-  header.volume.cols = series.instances[series.imageIds[0]].metadata.cols;
+  header.volume.rows =
+    series.instances[series.imageIds[0]].metadata.rows ||
+    series.instances[series.imageIds[0]].metadata.x00280010;
+  header.volume.cols =
+    series.instances[series.imageIds[0]].metadata.cols ||
+    series.instances[series.imageIds[0]].metadata.x00280011;
   header.volume.slope = series.instances[series.imageIds[0]].metadata.slope;
   header.volume.repr = series.instances[series.imageIds[0]].metadata.repr;
   header.volume.intercept =
@@ -68,6 +72,7 @@ export const buildHeader = function(series) {
     "imageOrientation",
     true
   );
+
   header.volume.pixelSpacing = getMeanValue(series, "pixelSpacing", true);
   header.volume.maxPixelValue = getMeanValue(series, "maxPixelValue", false);
   header.volume.minPixelValue = getMeanValue(series, "minPixelValue", false);
@@ -88,8 +93,12 @@ export const buildHeader = function(series) {
  */
 export const buildData = function(series, useSeriesData) {
   let repr = series.instances[series.imageIds[0]].metadata.repr;
-  let rows = series.instances[series.imageIds[0]].metadata.rows;
-  let cols = series.instances[series.imageIds[0]].metadata.cols;
+  let rows =
+    series.instances[series.imageIds[0]].metadata.rows ||
+    series.instances[series.imageIds[0]].metadata.x00280010;
+  let cols =
+    series.instances[series.imageIds[0]].metadata.cols ||
+    series.instances[series.imageIds[0]].metadata.x00280011;
   let len = rows * cols * series.imageIds.length;
 
   let data;

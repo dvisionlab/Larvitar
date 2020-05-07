@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>image_layers.js - Larvitar</title>
+    <title>loaders/commonLoader - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,225 +40,886 @@
 
 <div id="main">
     
-    <h1 class="page-title">image_layers.js</h1>
+    <h1 class="page-title">loaders/commonLoader</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/** @module imaging/layers
- *  @desc This file provides functionalities for
- *        rendering image layers using cornerstone stack
- *  @todo Document
- */
+        
+            
+        
+    
+</header>
 
-// external libraries
-import cornerstone from "cornerstone-core";
-import { each } from "lodash";
+<article>
+    
+        <div class="container-overview">
+        
+            
+                <div class="description usertext"><p>This file provides functionalities for<br>
+custom WadoImageLoaders</p></div>
+            
 
-// global module variables
-/**
- * Main layer name
- * @var {String} mainLayer
- */
-var mainLayer;
+            
+                
 
-/*
- * This module provides the following functions to be exported:
- * loadImageLayers(mainSeries, mainSeriesName, maskSeries, maskSeriesName, elementId)
- * changeOpacityLayer(elementId, layerName, opacity)
- * updateImageLayer(mainSeries, mainSeriesName, maskSeries, element, imageIndexß)
- * getMainLayer()
- */
 
-/**
- * Load an cache image layers and render it in a html div using cornerstone
- * @instance
- * @function loadImageLayers
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for main series
- * @param {Object} maskSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for mask series
- * @param {String} elementId - target HTML element id
- */
-export const loadImageLayers = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  maskSeriesName,
-  elementId
-) {
-  let element = document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
-  cornerstone.enable(element);
-  const layers = buildLayers(
-    mainSeries,
-    mainSeriesName,
-    maskSeries,
-    maskSeriesName
-  );
-  loadLayers(element, layers);
-  setTimeout(function() {
-    updateImageLayer(
-      mainSeries,
-      maskSeries,
-      element,
-      Math.floor(mainSeries.imageIds.length / 2)
-    );
-  }, 0);
-};
 
-/**
- * Change the opacity of a layer
- * @instance
- * @function changeOpacityLayer
- * @param {String} elementId - Target HTML element id
- * @param {String} layerName - Target layer name
- * @param {Number} opacity - New opacity value [0-1]
- */
-export const changeOpacityLayer = function(elementId, layerName, opacity) {
-  let element = document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
-  let layers = cornerstone.getLayers(element);
-  if (!layers) {
-    console.error("Invalid layers in active element: " + elementId);
-    return;
-  }
-  let activeLayerId;
-  each(layers, function(layer) {
-    if (layer.options.name == layerName) {
-      layer.options.opacity = opacity;
-    } else {
-      activeLayerId = layer.layerId;
-    }
-  });
-  cornerstone.updateImage(element);
-  cornerstone.setActiveLayer(element, activeLayerId);
-};
 
-/**
- * Update the cornerstone image with new imageIndex
- * @instance
- * @function updateImageLayer
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for main series
- * @param {Object} maskSeries - Cornerstone series object
- * @param {HTMLElement} element - Target html element
- * @param {Number} imageIndex - index of the image to load
- */
-export const updateImageLayer = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  element,
-  imageIndex
-) {
-  let layers = cornerstone.getLayers(element);
-  if (!layers) {
-    console.error("Invalid layers in active element");
-    return;
-  }
-  each(layers, function(layer) {
-    let series = layer.options.name == mainSeriesName ? mainSeries : maskSeries;
-    cornerstone.loadImage(series.imageIds[imageIndex]).then(function(image) {
-      cornerstone.setActiveLayer(element, layer.layerId);
-      cornerstone.displayImage(element, image);
-    });
-  });
-};
+<dl class="details">
 
-/**
- * Export main layer name
- * @instance
- * @function getMainLayer
- * @returns {String} Name of the main layer
- */
-export const getMainLayer = function() {
-  return mainLayer;
-};
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_commonLoader.js.html">loaders/commonLoader.js</a>, <a href="loaders_commonLoader.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
 
-/* Internal module functions */
+    
 
-/**
- * Build the image layers object
- * @inner
- * @function buildLayers
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Name of the main layer
- * @param {Object} maskSeries - Cornerstone series object
- * @param {String} maskSeriesName - Name of the mask layer
- * @returns {Object} Cornerstone layers object
- */
-let buildLayers = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  maskSeriesName
-) {
-  const layers = [
-    {
-      imageIds: mainSeries.imageIds,
-      currentImageIdIndex: Math.floor(mainSeries.imageIds.length / 2),
-      options: {
-        name: mainSeriesName
-      }
-    },
-    {
-      imageIds: maskSeries.imageIds,
-      currentImageIdIndex: Math.floor(maskSeries.imageIds.length / 2),
-      options: {
-        name: maskSeriesName,
-        opacity: 0.2,
-        viewport: {
-          colormap: "copper"
-        }
-      }
-    }
-  ];
-  mainLayer = mainSeriesName;
-  return layers;
-};
+    
 
-/**
- * Load cache and render image layers
- * @inner
- * @function loadLayers
- * @param {HTMLElement} element - Target HTML element
- * @param {Object} layers - Cornerstone layers object
- */
-let loadLayers = function(element, layers) {
-  cornerstone.imageCache.purgeCache();
-  each(layers, function(layer) {
-    let imageIndex = Math.floor(layer.imageIds.length / 2);
-    let currentImageId = layer.imageIds[imageIndex];
-    each(layer.imageIds, function(imageId) {
-      cornerstone.loadAndCacheImage(imageId).then(function(image) {
-        if (currentImageId == imageId) {
-          cornerstone.displayImage(element, image);
-          cornerstone.addLayer(element, image, layer.options);
-          let viewport = cornerstone.getViewport(element);
-          if (layer.options.name == "MRI") {
-            viewport.voi.windowWidth = image.windowWidth;
-            viewport.voi.windowCenter = image.windowCenter;
-          }
-        }
-      });
-    });
-  });
-};
-</code></pre>
-        </article>
-    </section>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-todo">To Do:</dt>
+    <dd class="tag-todo">
+        <ul>
+            <li>Document</li>
+        </ul>
+    </dd>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="getCustomImageId"><span class="type-signature"></span>getCustomImageId<span class="signature">(loaderName)</span><span class="type-signature"> &rarr; {String}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_commonLoader.js.html">loaders/commonLoader.js</a>, <a href="loaders_commonLoader.js.html#line60">line 60</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Generate a custom ImageId from loader name</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>loaderName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The name of the current loader</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>custom Image Id</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">String</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getImageFrame"><span class="type-signature"></span>getImageFrame<span class="signature">(metadata, dataSet)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_commonLoader.js.html">loaders/commonLoader.js</a>, <a href="loaders_commonLoader.js.html#line84">line 84</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Compute and return image frame</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>metadata</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>metadata object</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dataSet</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>dicom dataset</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>specific image frame</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getLarvitarManager"><span class="type-signature"></span>getLarvitarManager<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_commonLoader.js.html">loaders/commonLoader.js</a>, <a href="loaders_commonLoader.js.html#line35">line 35</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Return the common data loader manager</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>the loader manager</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getSerieDimensions"><span class="type-signature"></span>getSerieDimensions<span class="signature">()</span><span class="type-signature"> &rarr; {Array}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_commonLoader.js.html">loaders/commonLoader.js</a>, <a href="loaders_commonLoader.js.html#line73">line 73</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Return series dimension</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>dimensions for series</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getSeriesData"><span class="type-signature"></span>getSeriesData<span class="signature">(seriesId, loaderName)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_commonLoader.js.html">loaders/commonLoader.js</a>, <a href="loaders_commonLoader.js.html#line46">line 46</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Return the data of a specific seriesId stored in a custom Loader Manager</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>seriesId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Id of the series</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>loaderName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The name of the current loader</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>series data of a specific seriesId</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

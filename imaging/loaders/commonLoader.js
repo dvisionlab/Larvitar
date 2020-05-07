@@ -1,7 +1,8 @@
-/*
- This file provides functionalities for
- custom WadoImageLoaders
-*/
+/** @module loaders/commonLoader
+ *  @desc This file provides functionalities for
+ *        custom WadoImageLoaders
+ *  @todo Document
+ */
 
 // external libraries
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
@@ -10,54 +11,84 @@ import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import {
   getNrrdImageId,
   getSerieDimensions as getNrrdSerieDimensions,
-  getSeriesData as getSeriesDataFromNrrdLoader
+  getSeriesData as getSeriesDataFromNrrdLoader,
+  nrrdManager
 } from "./nrrdLoader";
 import {
   getDicomImageId,
-  getSeriesData as getSeriesDataFromDicomLoader
+  getSeriesData as getSeriesDataFromDicomLoader,
+  dicomManager
 } from "./dicomLoader";
+
+import { default as larvitar_store } from "../image_store";
+let store = larvitar_store.state ? larvitar_store : new larvitar_store();
+
 /*
  * This module provides the following functions to be exported:
+ * getLarvitarManager()
  * getCustomImageId(loaderName)
  * getSerieDimensions()
  * getImageFrame(metadata, dataSet)
  * getSeriesData(loaderName, seriesId)
  */
 
-// ===========================================================================
-// Return the data of a specific seriesId stored in a custom Loader Manager ==
-// ===========================================================================
+/**
+ * Return the common data loader manager
+ * @instance
+ * @function getLarvitarManager
+ * @returns {Object} the loader manager
+ */
+export const getLarvitarManager = function() {
+  let manager = store.get(["manager"]);
+  return manager == "dicomManager" ? dicomManager : nrrdManager;
+};
+
+/**
+ * Return the data of a specific seriesId stored in a custom Loader Manager
+ * @instance
+ * @function getSeriesData
+ * @param {String} seriesId The Id of the series
+ * @param {String} loaderName The name of the current loader
+ * @returns {Object} series data of a specific seriesId
+ */
 export const getSeriesData = function(seriesId, loaderName) {
-  if (loaderName == "nrrdLoader") {
-  } else {
-  }
   return loaderName == "nrrdLoader"
     ? getSeriesDataFromNrrdLoader(seriesId)
     : getSeriesDataFromDicomLoader(seriesId);
 };
 
-// ============================================
-// Generate a custom ImageId from loader name ==
-// ============================================
+/**
+ * Generate a custom ImageId from loader name
+ * @instance
+ * @function getCustomImageId
+ * @param {String} loaderName The name of the current loader
+ * @returns {String} custom Image Id
+ */
 export const getCustomImageId = function(loaderName) {
-  if (loaderName == "nrrdLoader") {
-    return getNrrdImageId(loaderName);
-  } else {
-    return getDicomImageId(loaderName);
-  }
+  return loaderName == "nrrdLoader"
+    ? getNrrdImageId(loaderName)
+    : getDicomImageId(loaderName);
 };
 
-// ==========================
-// Return series dimension ==
-// ==========================
+/**
+ * Return series dimension
+ * @instance
+ * @function getSerieDimensions
+ * @returns {Array} dimensions for series
+ */
 export const getSerieDimensions = function() {
   // TODO FOR DICOM LOADER
   return getNrrdSerieDimensions();
 };
 
-// =================================
-// Compute and return image frame ==
-// =================================
+/**
+ * Compute and return image frame
+ * @instance
+ * @function getImageFrame
+ * @param {Object} metadata metadata object
+ * @param {Object} dataSet dicom dataset
+ * @returns {Object} specific image frame
+ */
 export const getImageFrame = function(metadata, dataSet) {
   let imagePixelModule;
 

@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>image_layers.js - Larvitar</title>
+    <title>loaders/dicomLoader - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,225 +40,1370 @@
 
 <div id="main">
     
-    <h1 class="page-title">image_layers.js</h1>
+    <h1 class="page-title">loaders/dicomLoader</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/** @module imaging/layers
- *  @desc This file provides functionalities for
- *        rendering image layers using cornerstone stack
- *  @todo Document
- */
+        
+            
+        
+    
+</header>
 
-// external libraries
-import cornerstone from "cornerstone-core";
-import { each } from "lodash";
+<article>
+    
+        <div class="container-overview">
+        
+            
+                <div class="description usertext"><p>This file provides functionalities for<br>
+custom DICOM Loader</p></div>
+            
 
-// global module variables
-/**
- * Main layer name
- * @var {String} mainLayer
- */
-var mainLayer;
+            
+                
 
-/*
- * This module provides the following functions to be exported:
- * loadImageLayers(mainSeries, mainSeriesName, maskSeries, maskSeriesName, elementId)
- * changeOpacityLayer(elementId, layerName, opacity)
- * updateImageLayer(mainSeries, mainSeriesName, maskSeries, element, imageIndexß)
- * getMainLayer()
- */
 
-/**
- * Load an cache image layers and render it in a html div using cornerstone
- * @instance
- * @function loadImageLayers
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for main series
- * @param {Object} maskSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for mask series
- * @param {String} elementId - target HTML element id
- */
-export const loadImageLayers = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  maskSeriesName,
-  elementId
-) {
-  let element = document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
-  cornerstone.enable(element);
-  const layers = buildLayers(
-    mainSeries,
-    mainSeriesName,
-    maskSeries,
-    maskSeriesName
-  );
-  loadLayers(element, layers);
-  setTimeout(function() {
-    updateImageLayer(
-      mainSeries,
-      maskSeries,
-      element,
-      Math.floor(mainSeries.imageIds.length / 2)
-    );
-  }, 0);
-};
 
-/**
- * Change the opacity of a layer
- * @instance
- * @function changeOpacityLayer
- * @param {String} elementId - Target HTML element id
- * @param {String} layerName - Target layer name
- * @param {Number} opacity - New opacity value [0-1]
- */
-export const changeOpacityLayer = function(elementId, layerName, opacity) {
-  let element = document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
-  let layers = cornerstone.getLayers(element);
-  if (!layers) {
-    console.error("Invalid layers in active element: " + elementId);
-    return;
-  }
-  let activeLayerId;
-  each(layers, function(layer) {
-    if (layer.options.name == layerName) {
-      layer.options.opacity = opacity;
-    } else {
-      activeLayerId = layer.layerId;
-    }
-  });
-  cornerstone.updateImage(element);
-  cornerstone.setActiveLayer(element, activeLayerId);
-};
 
-/**
- * Update the cornerstone image with new imageIndex
- * @instance
- * @function updateImageLayer
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Tag for main series
- * @param {Object} maskSeries - Cornerstone series object
- * @param {HTMLElement} element - Target html element
- * @param {Number} imageIndex - index of the image to load
- */
-export const updateImageLayer = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  element,
-  imageIndex
-) {
-  let layers = cornerstone.getLayers(element);
-  if (!layers) {
-    console.error("Invalid layers in active element");
-    return;
-  }
-  each(layers, function(layer) {
-    let series = layer.options.name == mainSeriesName ? mainSeries : maskSeries;
-    cornerstone.loadImage(series.imageIds[imageIndex]).then(function(image) {
-      cornerstone.setActiveLayer(element, layer.layerId);
-      cornerstone.displayImage(element, image);
-    });
-  });
-};
+<dl class="details">
 
-/**
- * Export main layer name
- * @instance
- * @function getMainLayer
- * @returns {String} Name of the main layer
- */
-export const getMainLayer = function() {
-  return mainLayer;
-};
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_dicomLoader.js.html">loaders/dicomLoader.js</a>, <a href="loaders_dicomLoader.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
 
-/* Internal module functions */
+    
 
-/**
- * Build the image layers object
- * @inner
- * @function buildLayers
- * @param {Object} mainSeries - Cornerstone series object
- * @param {String} mainSeriesName - Name of the main layer
- * @param {Object} maskSeries - Cornerstone series object
- * @param {String} maskSeriesName - Name of the mask layer
- * @returns {Object} Cornerstone layers object
- */
-let buildLayers = function(
-  mainSeries,
-  mainSeriesName,
-  maskSeries,
-  maskSeriesName
-) {
-  const layers = [
-    {
-      imageIds: mainSeries.imageIds,
-      currentImageIdIndex: Math.floor(mainSeries.imageIds.length / 2),
-      options: {
-        name: mainSeriesName
-      }
-    },
-    {
-      imageIds: maskSeries.imageIds,
-      currentImageIdIndex: Math.floor(maskSeries.imageIds.length / 2),
-      options: {
-        name: maskSeriesName,
-        opacity: 0.2,
-        viewport: {
-          colormap: "copper"
-        }
-      }
-    }
-  ];
-  mainLayer = mainSeriesName;
-  return layers;
-};
+    
 
-/**
- * Load cache and render image layers
- * @inner
- * @function loadLayers
- * @param {HTMLElement} element - Target HTML element
- * @param {Object} layers - Cornerstone layers object
- */
-let loadLayers = function(element, layers) {
-  cornerstone.imageCache.purgeCache();
-  each(layers, function(layer) {
-    let imageIndex = Math.floor(layer.imageIds.length / 2);
-    let currentImageId = layer.imageIds[imageIndex];
-    each(layer.imageIds, function(imageId) {
-      cornerstone.loadAndCacheImage(imageId).then(function(image) {
-        if (currentImageId == imageId) {
-          cornerstone.displayImage(element, image);
-          cornerstone.addLayer(element, image, layer.options);
-          let viewport = cornerstone.getViewport(element);
-          if (layer.options.name == "MRI") {
-            viewport.voi.windowWidth = image.windowWidth;
-            viewport.voi.windowCenter = image.windowCenter;
-          }
-        }
-      });
-    });
-  });
-};
-</code></pre>
-        </article>
-    </section>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-todo">To Do:</dt>
+    <dd class="tag-todo">
+        <ul>
+            <li>Document</li>
+        </ul>
+    </dd>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="getSeriesData"><span class="type-signature"></span>getSeriesData<span class="signature">(seriesId)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_dicomLoader.js.html">loaders/dicomLoader.js</a>, <a href="loaders_dicomLoader.js.html#line70">line 70</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Return the data of a specific seriesId stored in the DICOM Manager</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>seriesId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Id of the series</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>dicom manager data</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="initializeMainViewport"><span class="type-signature"></span>initializeMainViewport<span class="signature">(series, callback)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_dicomLoader.js.html">loaders/dicomLoader.js</a>, <a href="loaders_dicomLoader.js.html#line138">line 138</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Initialize the native viewport with pixel data</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>series</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the series data</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>a callback function</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="initializeReslicedViewport"><span class="type-signature"></span>initializeReslicedViewport<span class="signature">(seriesId, orientation)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_dicomLoader.js.html">loaders/dicomLoader.js</a>, <a href="loaders_dicomLoader.js.html#line159">line 159</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Build the cornerstone data structure into the DICOM manager<br>
+from data (file) for a resliced viewport (orientation)<br>
+using the native one (axial) as starting data</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>seriesId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the series id</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>orientation</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the orientation tag</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>cornerstone data</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="populateDicomManager"><span class="type-signature"></span>populateDicomManager<span class="signature">(seriesId, seriesData, orientation, callback)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_dicomLoader.js.html">loaders/dicomLoader.js</a>, <a href="loaders_dicomLoader.js.html#line81">line 81</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>This function can be called in order to populate the DICOM manager for a provided orientation</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>seriesId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Id of the series</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>seriesData</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The series data</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>orientation</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The orientation string</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>A callback function</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="populateDicomManager"><span class="type-signature"></span>populateDicomManager<span class="signature">(dicomLoaderName)</span><span class="type-signature"> &rarr; {String}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_dicomLoader.js.html">loaders/dicomLoader.js</a>, <a href="loaders_dicomLoader.js.html#line123">line 123</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Get the dicom imageId from dicom loader</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dicomLoaderName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>dicom loader name</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>current dicom image id</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">String</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="removeSeriesFromDicomManager"><span class="type-signature"></span>removeSeriesFromDicomManager<span class="signature">(seriesId)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_dicomLoader.js.html">loaders/dicomLoader.js</a>, <a href="loaders_dicomLoader.js.html#line58">line 58</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Remove a stored seriesId from the DICOM Manager</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>seriesId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Id of the series</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="resetDicomManager"><span class="type-signature"></span>resetDicomManager<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_dicomLoader.js.html">loaders/dicomLoader.js</a>, <a href="loaders_dicomLoader.js.html#line48">line 48</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Reset the DICOM Manager store</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="resetImageLoader"><span class="type-signature"></span>resetImageLoader<span class="signature">(elementId)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_dicomLoader.js.html">loaders/dicomLoader.js</a>, <a href="loaders_dicomLoader.js.html#line31">line 31</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Reset the Custom Image Loader</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>elementId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Id of the html element</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

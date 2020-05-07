@@ -1,7 +1,8 @@
-/*
- This file provides functionalities for
- custom NRRD Loader
-*/
+/** @module loaders/nrrdLoader
+ *  @desc This file provides functionalities for
+ *        custom NRRD Loader
+ *  @todo Document
+ */
 
 // external libraries
 import cornerstone from "cornerstone-core";
@@ -14,7 +15,7 @@ import {
   includes,
   findKey,
   filter,
-  pickBy,
+  pickBy
 } from "lodash";
 import uuid from "uuid";
 
@@ -24,11 +25,11 @@ import {
   getReslicedMetadata,
   getCmprMetadata,
   getReslicedPixeldata,
-  getPixelRepresentation,
+  getPixelRepresentation
 } from "../image_utils";
 
 import { getImageFrame } from "./commonLoader";
-
+import { clearImageCache } from "../image_rendering";
 import { default as larvitar_store } from "../image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
@@ -51,10 +52,17 @@ const orientations = store.get("viewports");
  * getSerieDimensions()
  */
 
-// ==============================================================
-// Build the data structure for the provided image orientation ==
-// ==============================================================
-export const loadImageWithOrientation = function (
+/**
+ * Build the data structure for the provided image orientation
+ * @instance
+ * @function loadImageWithOrientation
+ * @param {Object} header The header object
+ * @param {Object} volume The volume object
+ * @param {String} seriesId The Id of the series
+ * @param {String} orientation The orientation tag
+ * @return {Object} series data
+ */
+export const loadImageWithOrientation = function(
   header,
   volume,
   seriesId,
@@ -64,50 +72,79 @@ export const loadImageWithOrientation = function (
   return seriesData;
 };
 
-// =========================================
-// Reset the NRRD Loader global variables ==
-// =========================================
-export const resetNrrdLoader = function () {
+/**
+ * Reset the NRRD Loader global variables
+ * @instance
+ * @function resetNrrdLoader
+ * @param {String} elementId The html id
+ */
+export const resetNrrdLoader = function(elementId) {
   customImageLoaderCounter = 0;
   nrrdManager = {};
   nrrdImageTracker = {};
+  let element = document.getElementById(elementId);
+  if (element) {
+    cornerstone.disable(element);
+  }
+  clearImageCache();
 };
 
-// ============================================
-// Get the custom imageId from custom loader ==
-// ============================================
-export const getNrrdImageId = function (customLoaderName) {
+/**
+ * Get the custom imageId from custom loader
+ * @instance
+ * @function getNrrdImageId
+ * @param {String} customLoaderName The custom loader name
+ * @return {String} the custom image id
+ */
+export const getNrrdImageId = function(customLoaderName) {
   let imageId = customLoaderName + "://" + customImageLoaderCounter;
   customImageLoaderCounter++;
   return imageId;
 };
 
-// ================================================
-// Remove a stored seriesId from the nnrdManager ==
-// ================================================
-export const removeSeriesFromNrrdManager = function (seriesId) {
+/**
+ * Remove a stored seriesId from the nnrdManager
+ * @instance
+ * @function removeSeriesFromNrrdManager
+ * @param {String} seriesId The stored series id to remove
+ */
+export const removeSeriesFromNrrdManager = function(seriesId) {
   if (nrrdManager[seriesId]) {
     nrrdManager = omit(nrrdManager, seriesId);
   }
 };
 
-// ===================================================================
-// Return the data of a specific seriesId stored in the nnrdManager ==
-// ===================================================================
-export const getSeriesData = function (seriesId) {
+/**
+ * Return the data of a specific seriesId stored in the nnrdManager
+ * @instance
+ * @function getSeriesData
+ * @param {String} seriesId The stored series id to remove
+ * @return {Object} series data
+ */
+export const getSeriesData = function(seriesId) {
   return nrrdManager[seriesId];
 };
 
-// ===================================================
-// this function can be called in order to populate ==
-// the nrrd manager for a provided orientation =======
-// ===================================================
-export const populateNrrdManager = function (
+/**
+ * This function can be called in order to populate
+ * the nrrd manager for a provided orientation
+ * @instance
+ * @function populateNrrdManager
+ * @param {Object} header The header object of the image
+ * @param {Object} volume The volume object of the image
+ * @param {String} seriesId The series id
+ * @param {String} orientation The orientation tag
+ * @return {Object} series data
+ */
+export const populateNrrdManager = function(
   header,
   volume,
   seriesId,
   orientation
 ) {
+  // set nrrdManager as active manager
+  store.set(null, "manager", "nrrdManager");
+
   // orientation can be: axial, coronal, sagittal, mprAxial, mprCoronal
   if (!includes(orientations, orientation)) {
     console.error(
@@ -126,6 +163,8 @@ export const populateNrrdManager = function (
   nrrdManager[seriesId][orientation].currentImageIdIndex = 0;
   nrrdManager[seriesId][orientation].imageIds = [];
   nrrdManager[seriesId][orientation].instances = {};
+  nrrdManager[seriesId][orientation].header = header;
+  nrrdManager[seriesId][orientation].volume = volume;
 
   // build the data according to orientation
   let data;
@@ -149,32 +188,42 @@ export const populateNrrdManager = function (
   return data;
 };
 
-// =================================================
-// Custom cornerstone image loader for nrrd files ==
-// =================================================
-export const loadNrrdImage = function (imageId) {
+/**
+ * Custom cornerstone image loader for nrrd files
+ * @instance
+ * @function loadNrrdImage
+ * @param {String} imageId The image id
+ * @return {Object} custom image object
+ */
+export const loadNrrdImage = function(imageId) {
   let seriesId = nrrdImageTracker[imageId][0];
   let orientation = nrrdImageTracker[imageId][1];
   let instance = nrrdManager[seriesId][orientation].instances[imageId];
   return createCustomImage(imageId, instance.metadata, instance.pixelData);
 };
 
-// ========================================================
-// Retrieve imageId for a slice in the given orientation ==
-// ========================================================
+/**
+ * Retrieve imageId for a slice in the given orientation
+ * @instance
+ * @function getImageIdFromSlice
+ * @param {Integer} sliceNumber The image slice number
+ * @param {String} orientation The orientation tag
+ * @param {String} seriesId The series id
+ * @return {String} image id
+ */
 export function getImageIdFromSlice(sliceNumber, orientation, seriesId) {
   var prefix = "nrrdLoader://";
   var serieImageTracker;
 
   if (seriesId) {
-    serieImageTracker = pickBy(nrrdImageTracker, (image) => {
+    serieImageTracker = pickBy(nrrdImageTracker, image => {
       return image[0] == seriesId;
     });
   } else {
     serieImageTracker = nrrdImageTracker;
   }
 
-  var firstImageId = findKey(serieImageTracker, (entry) => {
+  var firstImageId = findKey(serieImageTracker, entry => {
     return entry[1] == orientation;
   });
 
@@ -186,11 +235,17 @@ export function getImageIdFromSlice(sliceNumber, orientation, seriesId) {
   return imageId;
 }
 
-// ========================================================
-// Retrieve imageId for a slice in the given orientation ==
-// ========================================================
+/**
+ * Retrieve slice number for a the given orientation
+ * @instance
+ * @function getSliceNumberFromImageId
+ * @param {String} imageId The image slice id
+ * @param {String} orientation The orientation tag
+ * @param {String} seriesId The series id
+ * @return {Integer} The image slice number
+ */
 export function getSliceNumberFromImageId(imageId, orientation) {
-  var firstImageId = findKey(nrrdImageTracker, (entry) => {
+  var firstImageId = findKey(nrrdImageTracker, entry => {
     return entry[1] == orientation;
   });
 
@@ -202,34 +257,43 @@ export function getSliceNumberFromImageId(imageId, orientation) {
   return imageIndex;
 }
 
-// ====================================
-// Get serie dimension for each view ==
-// ====================================
+/**
+ * Get series dimension for each view
+ * @instance
+ * @function getSerieDimensions
+ * @return {Object} Series dimension for each view
+ */
 export function getSerieDimensions() {
-  var dim_axial = filter(nrrdImageTracker, (img) => {
+  var dim_axial = filter(nrrdImageTracker, img => {
     return img[1] == "axial";
   });
-  var dim_coronal = filter(nrrdImageTracker, (img) => {
+  var dim_coronal = filter(nrrdImageTracker, img => {
     return img[1] == "coronal";
   });
-  var dim_sagittal = filter(nrrdImageTracker, (img) => {
+  var dim_sagittal = filter(nrrdImageTracker, img => {
     return img[1] == "sagittal";
   });
 
   return {
     axial: [dim_coronal.length, dim_sagittal.length, dim_axial.length],
     coronal: [dim_sagittal.length, dim_axial.length, dim_coronal.length],
-    sagittal: [dim_coronal.length, dim_axial.length, dim_sagittal.length],
+    sagittal: [dim_coronal.length, dim_axial.length, dim_sagittal.length]
   };
 }
 
 /* Internal functions */
 
-// =============================================================
-// Build the cornerstone data structure into the nrrd manager ==
-// from data (nrdd file) for the main viewport (axial) =========
-// =============================================================
-let initializeMainViewport = function (header, volume, seriesId) {
+/**
+ * Build the cornerstone data structure into the nrrd manager
+ * from data (nrdd file) for the main viewport (axial)
+ * @instance
+ * @function initializeMainViewport
+ * @param {Object} header The header of the image
+ * @param {Object} volume The volume of the image
+ * @param {String} seriesId The series id
+ * @return {Object} The cornerstone data
+ */
+let initializeMainViewport = function(header, volume, seriesId) {
   // get metadata from original volume and header
   let rows = volume.sizes[0];
   let cols = volume.sizes[1];
@@ -247,16 +311,28 @@ let initializeMainViewport = function (header, volume, seriesId) {
     x00280011: cols, // Columns
     x00200037: iop, // ImageOrientationPatient
     x00280030: ps, // PixelSpacing
-    x00180050: [thickness], // SliceThickness
+    x00180050: [thickness][0], // SliceThickness
     x00281052: intercept ? [intercept] : [0],
     x00281053: slope ? [slope] : [1],
-    x00200052: header[header.volume.imageIds[0]].instanceUID,
-    x0008103e: header[header.volume.imageIds[0]].seriesDescription,
-    x00080060: header[header.volume.imageIds[0]].seriesModality,
-    x00100010: header[header.volume.imageIds[0]].patientName,
-    x00280100: header[header.volume.imageIds[0]].bitsAllocated,
-    x00280103: header[header.volume.imageIds[0]].pixelRepresentation,
-    repr: header.volume.repr,
+    x00200052: header.volume.imageIds
+      ? header[header.volume.imageIds[0]].instanceUID
+      : null,
+    x0008103e: header.volume.imageIds
+      ? header[header.volume.imageIds[0]].seriesDescription
+      : null,
+    x00080060: header.volume.imageIds
+      ? header[header.volume.imageIds[0]].seriesModality
+      : null,
+    x00100010: header.volume.imageIds
+      ? header[header.volume.imageIds[0]].patientName
+      : null,
+    x00280100: header.volume.imageIds
+      ? header[header.volume.imageIds[0]].bitsAllocated
+      : null,
+    x00280103: header.volume.imageIds
+      ? header[header.volume.imageIds[0]].pixelRepresentation
+      : null,
+    repr: header.volume.repr || null
   };
 
   // compute default ww/wl values here to use them also for resliced images
@@ -267,7 +343,7 @@ let initializeMainViewport = function (header, volume, seriesId) {
   let wl = (maxVoi + minVoi) / 2;
 
   // extract the pixelData of each frame, store the data into the nrrdManager
-  each(range(frames), function (sliceIndex) {
+  each(range(frames), function(sliceIndex) {
     let sliceSize = rows * cols;
     let sliceBuffer = volume.data.subarray(
       sliceSize * sliceIndex,
@@ -306,12 +382,12 @@ let initializeMainViewport = function (header, volume, seriesId) {
     nrrdManager[seriesId]["axial"].imageIds.push(imageId);
     nrrdManager[seriesId]["axial"].instances[imageId] = {
       instanceId: uuid.v4(),
-      frame: sliceIndex,
+      frame: sliceIndex
     };
 
     let frameMetadata = clone(metadata);
 
-    frameMetadata.x00200032 = firstIpp.map(function (val, i) {
+    frameMetadata.x00200032 = firstIpp.map(function(val, i) {
       return val + thickness * sliceIndex * w[i];
     });
     nrrdManager[seriesId]["axial"].instances[imageId].metadata = frameMetadata;
@@ -320,17 +396,23 @@ let initializeMainViewport = function (header, volume, seriesId) {
   let imageIds = nrrdManager[seriesId]["axial"].imageIds;
   let middleSlice = Math.floor(imageIds.length / 2);
   nrrdManager[seriesId]["axial"].currentImageIdIndex = middleSlice;
-
   return nrrdManager[seriesId]["axial"];
 };
 
-// ===================================================================
-// Build the cornerstone data structure into the nrrd manager ========
-// from data (computed by vtk algorithm) for a resliced viewport =====
-// (cmpr-orientation) using the native one (axial) as starting data ==
-// ===================================================================
-let initializeCmprViewport = function (header, volume, seriesId, orientation) {
-  const someIsNotZero = volume.some((item) => item !== 0);
+/**
+ * Build the cornerstone data structure into the nrrd manager
+ * from data (computed by vtk algorithm) for a resliced viewport
+ * (cmpr-orientation) using the native one (axial) as starting data
+ * @instance
+ * @function initializeCmprViewport
+ * @param {Object} header The header of the image
+ * @param {Object} volume The volume of the image
+ * @param {String} seriesId The series id
+ * @param {String} orientation The orientation tag
+ * @return {Object} The cornerstone data
+ */
+let initializeCmprViewport = function(header, volume, seriesId, orientation) {
+  const someIsNotZero = volume.some(item => item !== 0);
   if (!someIsNotZero) {
     console.warn("serie is empty", orientation);
   }
@@ -346,10 +428,7 @@ let initializeCmprViewport = function (header, volume, seriesId, orientation) {
   nrrdManager[seriesId][orientation].instances = reslicedData.instances;
 
   // populate nrrdManager with the pixelData information
-  each(nrrdManager[seriesId][orientation].imageIds, function (
-    imageId,
-    slice_n
-  ) {
+  each(nrrdManager[seriesId][orientation].imageIds, function(imageId, slice_n) {
     let i = header.rows;
     let j = header.cols;
 
@@ -369,11 +448,16 @@ let initializeCmprViewport = function (header, volume, seriesId, orientation) {
   return nrrdManager[seriesId][orientation];
 };
 
-// ==============================================================
-// Build the cornerstone data structure into the nrrd manager ===
-// from data (nrdd file) for a resliced viewport (orientation) ==
-// using the native one (axial) as starting data ================
-// ==============================================================
+/**
+ * Build the cornerstone data structure into the nrrd manager
+ * from data (nrdd file) for a resliced viewport (orientation)
+ * using the native one (axial) as starting data
+ * @instance
+ * @function initializeReslicedViewport
+ * @param {String} seriesId The series id
+ * @param {String} orientation The orientation tag
+ * @return {Object} The cornerstone data
+ */
 function initializeReslicedViewport(seriesId, orientation) {
   let seriesData = nrrdManager[seriesId]["axial"];
   if (!seriesData) {
@@ -397,7 +481,7 @@ function initializeReslicedViewport(seriesId, orientation) {
   nrrdManager[seriesId][orientation].instances = reslicedData.instances;
 
   // populate nrrdManager with the pixelData information
-  each(nrrdManager[seriesId][orientation].imageIds, function (imageId) {
+  each(nrrdManager[seriesId][orientation].imageIds, function(imageId) {
     let data = getReslicedPixeldata(
       imageId,
       seriesData,
@@ -417,10 +501,17 @@ function initializeReslicedViewport(seriesId, orientation) {
   return nrrdManager[seriesId][orientation];
 }
 
-// ================================================================
-// create the custom image object for conrnestone from nrrd file ==
-// ================================================================
-let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
+/**
+ * Create the custom image object for conrnestone from nrrd file
+ * @instance
+ * @function createCustomImage
+ * @param {String} imageId The series id
+ * @param {Object} metadata The metadata object
+ * @param {Object} pixelData The pixeldata object
+ * @param {Object} dataSet The dataset
+ * @return {String} The image id
+ */
+let createCustomImage = function(imageId, metadata, pixelData, dataSet) {
   let canvas = window.document.createElement("canvas");
   let lastImageIdDrawn = "";
 
@@ -455,7 +546,7 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
     columnPixelSpacing: pixelSpacing ? pixelSpacing[1] : undefined,
     columns: imageFrame.columns,
     height: imageFrame.rows,
-    intercept: rescaleIntercept ? rescaleIntercept : 0,
+    intercept: rescaleIntercept ? rescaleIntercept[0] : 0,
     invert: imageFrame.photometricInterpretation === "MONOCHROME1",
     minPixelValue: imageFrame.smallestPixelValue,
     maxPixelValue: imageFrame.largestPixelValue,
@@ -463,16 +554,16 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
     rowPixelSpacing: pixelSpacing ? pixelSpacing[0] : undefined,
     rows: imageFrame.rows,
     sizeInBytes: getSizeInBytes(),
-    slope: rescaleSlope ? rescaleSlope : 1,
+    slope: rescaleSlope ? rescaleSlope[0] : 1,
     width: imageFrame.columns,
     windowCenter: windowCenter ? windowCenter[0] : undefined,
     windowWidth: windowWidth ? windowWidth[0] : undefined,
     decodeTimeInMS: undefined,
-    webWorkerTimeInMS: undefined,
+    webWorkerTimeInMS: undefined
   };
 
   // add function to return pixel data
-  image.getPixelData = function () {
+  image.getPixelData = function() {
     return imageFrame.pixelData;
   };
 
@@ -496,7 +587,7 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
   // Setup the renderer
   if (image.color) {
     image.render = cornerstone.renderColorImage;
-    image.getCanvas = function () {
+    image.getCanvas = function() {
       if (lastImageIdDrawn === imageId) {
         return canvas;
       }
@@ -509,7 +600,6 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
       return canvas;
     };
   } else {
-    console.log("render grayscaleimage");
     image.render = cornerstone.renderGrayscaleImage;
   }
 
@@ -538,13 +628,13 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
   // function to store custom image pixelData and metadata.
   image.metadata = metadata;
 
-  let promise = new Promise(function (resolve) {
+  let promise = new Promise(function(resolve) {
     resolve(image);
   });
 
   // Return an object containing the Promise to cornerstone so it can setup callbacks to be
   // invoked asynchronously for the success/resolve and failure/reject scenarios.
   return {
-    promise,
+    promise
   };
 };

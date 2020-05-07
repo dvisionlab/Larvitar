@@ -81,7 +81,8 @@ import {
   getCustomImageId,
   getSerieDimensions,
   getImageFrame,
-  getSeriesData
+  getSeriesData,
+  getLarvitarManager
 } from "./imaging/loaders/commonLoader";
 
 import {
@@ -186,6 +187,7 @@ export {
   dicomManager,
   resetImageLoader,
   resetDicomManager,
+  getLarvitarManager,
   removeSeriesFromDicomManager,
   populateDicomManager,
   getDicomImageId,
