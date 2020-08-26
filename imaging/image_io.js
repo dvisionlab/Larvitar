@@ -6,7 +6,7 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import { forEach } from "lodash";
-import { parse } from "nrrd-js";
+import nrrdjs from "@jonathanlurie/nrrdjs";
 
 // internal libraries
 import { getMeanValue, getDistanceBetweenSlices } from "./image_utils.js";
@@ -25,7 +25,7 @@ import { getMeanValue, getDistanceBetweenSlices } from "./image_utils.js";
  * @param {Object} series - Cornerstone series object
  * @returns {Object} {data: pixeldata, header: image metadata}
  */
-export const cacheAndSaveSerie = async function(series) {
+export const cacheAndSaveSerie = async function (series) {
   // Purge the cache
   cornerstone.imageCache.purgeCache();
   // Ensure all image of series to be cached
@@ -47,7 +47,7 @@ export const cacheAndSaveSerie = async function(series) {
  * @param {Object} series - Cornerstone series object
  * @returns {Object} header: image metadata
  */
-export const buildHeader = function(series) {
+export const buildHeader = function (series) {
   let header = {};
   header.volume = {};
   header.volume.imageIds = series.imageIds;
@@ -78,7 +78,7 @@ export const buildHeader = function(series) {
   header.volume.minPixelValue = getMeanValue(series, "minPixelValue", false);
   header.volume.sliceThickness = getDistanceBetweenSlices(series, 0, 1);
 
-  forEach(series.imageIds, function(imageId) {
+  forEach(series.imageIds, function (imageId) {
     header[imageId] = series.instances[imageId].metadata;
   });
   return header;
@@ -91,7 +91,7 @@ export const buildHeader = function(series) {
  * @param {Bool} useSeriesData - Flag to force using "series" data instead of cached ones
  * @returns {Array} Contiguous pixel array
  */
-export const buildData = function(series, useSeriesData) {
+export const buildData = function (series, useSeriesData) {
   let repr = series.instances[series.imageIds[0]].metadata.repr;
   let rows =
     series.instances[series.imageIds[0]].metadata.rows ||
@@ -129,13 +129,13 @@ export const buildData = function(series, useSeriesData) {
 
   // use input data or cached data
   if (useSeriesData) {
-    forEach(series.imageIds, function(imageId) {
+    forEach(series.imageIds, function (imageId) {
       const sliceData = series.instances[imageId].pixelData;
       data.set(sliceData, offsetData);
       offsetData += sliceData.length;
     });
   } else {
-    forEach(cornerstone.imageCache.cachedImages, function(cachedImage) {
+    forEach(cornerstone.imageCache.cachedImages, function (cachedImage) {
       const sliceData = cachedImage.image.getPixelData();
       data.set(sliceData, offsetData);
       offsetData += sliceData.length;
@@ -151,8 +151,8 @@ export const buildData = function(series, useSeriesData) {
  * @param {ArrayBuffer} bufferArray - buffer array from nrrd file
  * @returns {Array} Parsed pixel data array
  */
-export const importNRRDImage = function(bufferArray) {
+export const importNRRDImage = function (bufferArray) {
   // get the data
-  let volume = parse(bufferArray);
+  let volume = nrrdjs.parse(bufferArray, {});
   return volume;
 };

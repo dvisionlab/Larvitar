@@ -165,6 +165,7 @@ export const populateNrrdManager = function (
   nrrdManager[seriesId][orientation].instances = {};
   nrrdManager[seriesId][orientation].header = header;
   nrrdManager[seriesId][orientation].volume = volume;
+  nrrdManager[seriesId][orientation].seriesUID = seriesId;
 
   // build the data according to orientation
   let data;
@@ -295,10 +296,12 @@ export function getSerieDimensions() {
  */
 let initializeMainViewport = function (header, volume, seriesId) {
   // get metadata from original volume and header
-  let rows = volume.sizes[0];
-  let cols = volume.sizes[1];
-  let frames = volume.sizes[2];
-  let iop = volume.spaceDirections[0].concat(volume.spaceDirections[1]);
+  let rows = volume.header.sizes[0];
+  let cols = volume.header.sizes[1];
+  let frames = volume.header.sizes[2];
+  let iop = volume.header["space directions"][0].concat(
+    volume.header["space directions"][1]
+  );
   let firstIpp = header.volume.imagePosition;
   let w = getNormalOrientation(iop);
   let ps = header.volume.pixelSpacing;
