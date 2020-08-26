@@ -422,6 +422,9 @@ let initializeMainViewport = function (header, volume, seriesId) {
       case "Int16":
         pixelData = new Int16Array(sliceBuffer);
         break;
+      case "Short":
+        pixelData = new Int16Array(sliceBuffer);
+        break;
       case "Uint32":
         pixelData = new Uint32Array(sliceBuffer);
         break;
