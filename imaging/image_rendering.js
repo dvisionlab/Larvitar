@@ -9,7 +9,7 @@ import cornerstone from "cornerstone-core";
 import { each } from "lodash";
 
 // internal libraries
-import { getFileImageId } from "./loaders/imageLoader";
+import { getFileImageId } from "./loaders/fileLoader";
 import { csToolsCreateStack } from "./image_tools";
 import { default as larvitar_store } from "./image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
@@ -18,6 +18,7 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
  * This module provides the following functions to be exported:
  * clearImageCache()
  * loadImage(series, elementId)
+ * disableImage(elementId)
  * loadFileImage(file, elementId)
  * loadWebImage(url, elementId)
  * updateImage(series, elementId, imageIndex)
@@ -31,6 +32,18 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
  */
 export const clearImageCache = function() {
   cornerstone.imageCache.purgeCache();
+};
+
+/**
+ * Disable current rendered image
+ * @instance
+ * @function disableImage
+ */
+export const disableImage = function(elementId) {
+  let element = document.getElementById(elementId);
+  if (element) {
+    cornerstone.disable(element);
+  }
 };
 
 /**

@@ -1,16 +1,16 @@
-/** @module loaders/imageLoader
+/** @module loaders/fileLoader
  *  @desc This file provides functionalities for
- *        custom Image Loader
+ *        custom File Loader
  *  @todo Document
  */
 
 // external libraries
-import cornerstone from "cornerstone-core";
 import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { has } from "lodash";
 
 // internal libraries
 import { clearImageCache } from "../image_rendering";
+import { clearCornerstoneElements } from "../image_tools";
 
 // global variables
 export var fileManager = {};
@@ -27,11 +27,8 @@ export var fileManager = {};
  * @function resetFileLoader
  * @param {String} elementId The Id of the html element
  */
-export const resetFileLoader = function(elementId) {
-  let element = document.getElementById(elementId);
-  if (element) {
-    cornerstone.disable(element);
-  }
+export const resetFileLoader = function() {
+  clearCornerstoneElements();
   resetFileManager();
   clearImageCache();
 };
@@ -52,10 +49,10 @@ export const resetFileManager = function() {
  * @return {String} current file image id
  */
 export const getFileImageId = function(file) {
-  const imageId = has(fileManager, file.name)
-    ? fileManager[file.name]
+  const imageId = has(fileManager, file.webkitRelativePath)
+    ? fileManager[file.webkitRelativePath]
     : cornerstoneFileImageLoader.fileManager.add(file);
-  fileManager[file.name] = imageId;
+  fileManager[file.webkitRelativePath] = imageId;
   return imageId;
 };
 

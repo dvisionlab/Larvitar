@@ -48,6 +48,7 @@ import { resetImageParsing, readFiles } from "./imaging/image_parsing";
 
 import {
   clearImageCache,
+  disableImage,
   loadWebImage,
   loadFileImage,
   loadImage,
@@ -124,7 +125,7 @@ import {
   resetFileLoader,
   resetFileManager,
   getFileImageId
-} from "./imaging/loaders/imageLoader";
+} from "./imaging/loaders/fileLoader";
 
 import {
   getColormapsList,
@@ -169,6 +170,7 @@ export {
   resetImageParsing,
   readFiles,
   clearImageCache,
+  disableImage,
   loadFileImage,
   loadWebImage,
   loadImage,
