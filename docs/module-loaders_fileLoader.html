@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>tools/tools.default.js - Larvitar</title>
+    <title>loaders/fileLoader - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,315 +40,480 @@
 
 <div id="main">
     
-    <h1 class="page-title">tools/tools.default.js</h1>
+    <h1 class="page-title">loaders/fileLoader</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/** @module tools/default */
+        
+            
+        
+    
+</header>
 
-/* DEFINE DEFAULT TOOLS
- * example
- *
- * toolName : {
- *      name : toolName (string),
- *      viewports : "all" or [array of target viewports],
- *      configuration : configuration {object},
- *      options : options {object},
- *      class : cornerstone tool library class name (ie "LengthTool" for Length tool)
- *      sync : cornerstone synchronizer name (ie "wwwcSynchronizer" for Wwwc sync tool)
- * }
- *
- */
+<article>
+    
+        <div class="container-overview">
+        
+            
+                <div class="description usertext"><p>This file provides functionalities for<br>
+custom File Loader</p></div>
+            
 
-import { filter } from "lodash";
+            
+                
 
-const DEFAULT_TOOLS = {
-  Wwwc: {
-    name: "Wwwc",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    defaultActive: false,
-    class: "WwwcTool",
-    sync: "wwwcSynchronizer",
-    description: "Change ww / wl",
-    shortcut: "ctrl-m",
-    type: "utils"
-  },
-  StackScrollMouseWheel: {
-    name: "StackScrollMouseWheel",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: false,
-    class: "StackScrollMouseWheelTool"
-  },
-  Pan: {
-    name: "Pan",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "PanTool",
-    description: "Move image xy",
-    shortcut: "ctrl-p",
-    type: "utils"
-  },
-  Zoom: {
-    name: "Zoom",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "ZoomTool",
-    defaultActive: false,
-    description: "Zoom image at mouse position",
-    shortcut: "ctrl-z",
-    type: "utils"
-  },
-  Magnify: {
-    name: "Magnify",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "MagnifyTool",
-    defaultActive: false,
-    description: "Magnify image at mouse position",
-    shortcut: "ctrl-m",
-    type: "utils"
-  },
-  DragProbe: {
-    name: "DragProbe",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "DragProbeTool",
-    description: "Probe image at mouse position",
-    shortcut: "ctrl-p",
-    type: "utils"
-  },
-  Magnify: {
-    name: "Magnify",
-    viewports: "all",
-    configuration: {
-      magnifySize: 200
-    },
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "MagnifyTool"
-  },
-  Rotate: {
-    name: "Rotate",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "RotateTool"
-  },
-  Length: {
-    name: "Length",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: true,
-    class: "LengthTool"
-  },
-  Angle: {
-    name: "Angle",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: true,
-    class: "AngleTool"
-  },
-  Bidirectional: {
-    name: "Bidirectional",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "BidirectionalTool"
-  },
-  EllipticalRoi: {
-    name: "EllipticalRoi",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "EllipticalRoiTool",
-    description: "Draw an ellipse",
-    shortcut: "ctrl-f",
-    type: "annotation"
-  },
-  RectangleRoi: {
-    name: "RectangleRoi",
-    viewports: "all",
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    defaultActive: false,
-    class: "RectangleRoiTool",
-    description: "Draw a rectangle",
-    shortcut: "ctrl-a",
-    type: "annotation"
-  },
-  FreehandRoi: {
-    name: "FreehandRoi",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "FreehandRoiTool",
-    description: "Draw a polyline / freehand form",
-    shortcut: "ctrl-s",
-    type: "annotation"
-  },
-  Probe: {
-    name: "Probe",
-    viewports: "all",
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "ProbeTool"
-  },
-  ArrowAnnotate: {
-    name: "ArrowAnnotate",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "ArrowAnnotateTool",
-    description: "Draw an arrow",
-    shortcut: "ctrl-d",
-    type: "annotation"
-  },
-  TextMarker: {
-    name: "TextMarker",
-    viewports: "all",
-    configuration: {
-      markers: Object.keys(new Array(100).fill(0)),
-      current: "0",
-      ascending: true,
-      loop: true
-    },
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "TextMarkerTool"
-  },
-  ZoomTouchPinch: {
-    name: "ZoomTouchPinch",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["TouchPinch"]
-    },
-    cleanable: false,
-    class: "ZoomTouchPinchTool",
-    defaultActive: true
-  },
-  PanMultiTouch: {
-    name: "PanMultiTouch",
-    viewports: "all",
-    configuration: {
-      touchPointers: 2
-    },
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["MultiTouch"]
-    },
-    cleanable: false,
-    class: "PanMultiTouchTool",
-    defaultActive: true
-  },
-  Brush: {
-    name: "Brush",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "BrushTool",
-    description: "A simple brush",
-    shortcut: "ctrl-q",
-    type: "segmentation"
-  },
-  RectangleScissors: {
-    name: "RectangleScissors",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "RectangleScissorsTool",
-    description: "A simple brush",
-    shortcut: "ctrl-w",
-    type: "segmentation"
-  },
-  FreehandScissors: {
-    name: "FreehandScissors",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "FreehandScissorsTool",
-    description: "A simple brush",
-    shortcut: "ctrl-e",
-    type: "segmentation"
-  },
-  CircleScissors: {
-    name: "CircleScissors",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "CircleScissorsTool",
-    description: "A simple brush",
-    shortcut: "ctrl-r",
-    type: "segmentation"
-  }
-};
 
-const getDefaultToolsByType = function(type) {
-  return filter(DEFAULT_TOOLS, ["type", type]);
-};
 
-export { DEFAULT_TOOLS, getDefaultToolsByType };
-</code></pre>
-        </article>
-    </section>
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_fileLoader.js.html">loaders/fileLoader.js</a>, <a href="loaders_fileLoader.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-todo">To Do:</dt>
+    <dd class="tag-todo">
+        <ul>
+            <li>Document</li>
+        </ul>
+    </dd>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="getFileImageId"><span class="type-signature"></span>getFileImageId<span class="signature">()</span><span class="type-signature"> &rarr; {String}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_fileLoader.js.html">loaders/fileLoader.js</a>, <a href="loaders_fileLoader.js.html#line45">line 45</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Get the file imageId from file loader</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>current file image id</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">String</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="resetFileLoader"><span class="type-signature"></span>resetFileLoader<span class="signature">(elementId)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_fileLoader.js.html">loaders/fileLoader.js</a>, <a href="loaders_fileLoader.js.html#line24">line 24</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Reset the Custom File Loader</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>elementId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Id of the html element</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="resetFileManager"><span class="type-signature"></span>resetFileManager<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_fileLoader.js.html">loaders/fileLoader.js</a>, <a href="loaders_fileLoader.js.html#line36">line 36</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Reset the File Manager store</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
