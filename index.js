@@ -48,7 +48,6 @@ import { resetImageParsing, readFiles } from "./imaging/image_parsing";
 
 import {
   clearImageCache,
-  disableImage,
   loadWebImage,
   loadFileImage,
   loadImage,
@@ -163,7 +162,6 @@ export {
   resetImageParsing,
   readFiles,
   clearImageCache,
-  disableImage,
   loadFileImage,
   loadWebImage,
   loadImage,

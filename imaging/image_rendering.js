@@ -6,6 +6,7 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
+import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { each } from "lodash";
 
 // internal libraries
