@@ -14,6 +14,14 @@
   dependencies:
     regenerator-runtime "^0.12.0"
 
+"@jonathanlurie/nrrdjs@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@jonathanlurie/nrrdjs/-/nrrdjs-0.1.1.tgz#cd4a056a601d23643e3e9e41a13d1bbbb99866ac"
+  integrity sha512-UKsEmJtQdXs2YIrVyQkXcFxrV2yKC/rgYaeiBZiolTqGkcn481+2fTWHLoG0t9FHX05TUB9zyq0wpgIh/xSqoQ==
+  dependencies:
+    gl-matrix "^3.0.0"
+    pako "^1.0.10"
+
 argparse@^1.0.7:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/argparse/-/argparse-1.0.10.tgz#bcd6791ea5ae09725e17e5ad988134cd40b3d911"
@@ -90,6 +98,11 @@ escape-string-regexp@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-2.0.0.tgz#a30304e99daa32e23b2fd20f51babd07cffca344"
   integrity sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w==
+
+gl-matrix@^3.0.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/gl-matrix/-/gl-matrix-3.3.0.tgz#232eef60b1c8b30a28cbbe75b2caf6c48fd6358b"
+  integrity sha512-COb7LDz+SXaHtl/h4LeaFcNdJdAQSDeVqjiIihSXNrkWObZLhDI4hIkZC11Aeqp7bcE72clzB0BnDXr2SmslRA==
 
 graceful-fs@^4.1.9:
   version "4.2.3"
@@ -177,11 +190,6 @@ mkdirp@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
-
-nrrd-js@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/nrrd-js/-/nrrd-js-0.2.1.tgz#b477cf782f2cd5c58a85339b255c8016785a8045"
-  integrity sha1-tHfPeC8s1cWKhTObJVyAFnhagEU=
 
 pako@^1.0.10:
   version "1.0.11"
