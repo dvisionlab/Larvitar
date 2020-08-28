@@ -17,6 +17,8 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
  * This module provides the following functions to be exported:
  * clearImageCache()
  * loadImage(series, elementId)
+ * loadFileImage(file, elementId)
+ * loadWebImage(url, elementId)
  * updateImage(series, elementId, imageIndex)
  * resetViewports([elementIds])
  */
@@ -33,7 +35,7 @@ export const clearImageCache = function() {
 /**
  * Load an image (png or jpg) from File on a html div using cornerstone
  * @instance
- * @function loadWebImage
+ * @function loadFileImage
  * @param {Object} file - The image File object
  * @param {String} elementId - The html div id used for rendering
  */
