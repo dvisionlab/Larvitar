@@ -120,6 +120,13 @@ import {
 } from "./imaging/loaders/dicomLoader";
 
 import {
+  fileManager,
+  resetFileLoader,
+  resetFileManager,
+  getFileImageId
+} from "./imaging/loaders/imageLoader";
+
+import {
   getColormapsList,
   applyColorMap,
   addColorMap,
@@ -217,5 +224,9 @@ export {
   applyColorMap,
   addColorMap,
   fillPixelData,
-  HSVToRGB
+  HSVToRGB,
+  fileManager,
+  resetFileLoader,
+  resetFileManager,
+  getFileImageId
 };

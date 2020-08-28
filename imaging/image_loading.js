@@ -17,6 +17,8 @@ import { getSortedStack } from "./image_utils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
 
+window.cornerstoneFileImageLoader = cornerstoneFileImageLoader;
+
 /**
  * Global standard configuration
  * @inner

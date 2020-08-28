@@ -6,10 +6,10 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { each } from "lodash";
 
 // internal libraries
+import { getFileImageId } from "./loaders/imageLoader";
 import { csToolsCreateStack } from "./image_tools";
 import { default as larvitar_store } from "./image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
@@ -51,7 +51,8 @@ export const loadFileImage = function(file, elementId) {
     cornerstone.enable(element);
   }
 
-  const imageId = cornerstoneFileImageLoader.fileManager.add(file);
+  // check if imageId is already stored in fileManager
+  const imageId = getFileImageId(file);
   cornerstone.loadImage(imageId).then(function(image) {
     cornerstone.displayImage(element, image);
     cornerstone.fitToWindow(element);
