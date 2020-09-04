@@ -1,6 +1,9 @@
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
+<<<<<<< HEAD
 
+=======
+>>>>>>> f8cc584... fix(csTools): export tools
 import { default as larvitar_store } from "./imaging/image_store";
 
 import { parseContours } from "./imaging/image_contours";
@@ -139,6 +142,7 @@ import {
 import { saveAnnotations, loadAnnotations } from "./imaging/tools/tools.io";
 
 export {
+  cornerstone,
   cornerstoneTools,
   DEFAULT_TOOLS,
   getDefaultToolsByType,
@@ -225,7 +229,6 @@ export {
   populateDicomManager,
   getDicomImageId,
   larvitar_store,
-  cornerstone,
   getColormapsList,
   applyColorMap,
   addColorMap,
