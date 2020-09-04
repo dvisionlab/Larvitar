@@ -3,6 +3,7 @@ import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 
 import { each } from "lodash";
+import { state_example } from "./cstools_state_example.js";
 
 /**
  *
@@ -39,22 +40,30 @@ const restoreToolState = function(elementId, allToolState) {
 
 // EXAMPLE OF CORRECT USE OF TOOL STATE MANAGER
 
-const example = function() {
+export const example = function() {
   // Declare state manager
-  const stateManager = newImageIdSpecificToolStateManager();
+  const stateManager = cornerstoneTools.newImageIdSpecificToolStateManager();
 
   // Get enabled element (cornerstone.getEnabledElement)
-  const imageId = "abc123";
-  const testElement = {
-    image: {
-      imageId
-    }
-  };
+  const imageId = "imagefile:0";
+  const testElement = cornerstone
+    .getEnabledElements()
+    .slice()
+    .pop();
+  testElement.image = { imageId };
+  // const testElement = {
+  //   image: {
+  //     imageId
+  //   }
+  // };
 
   // Setup with some initial data
-  const toolType = "TestTool";
+  const toolType = "EllipticalRoi";
+  // stateManager.restoreImageIdToolState(imageId, {
+  //   [toolType]: { data: ["initialData"] }
+  // });
   stateManager.restoreImageIdToolState(imageId, {
-    [toolType]: { data: ["initialData"] }
+    [toolType]: { data: state_example[imageId] }
   });
 
   // Add more data
@@ -62,6 +71,7 @@ const example = function() {
 
   // Check the results
   const allToolState = stateManager.saveToolState();
+  console.log(allToolState);
 };
 
 export { saveToolState, restoreToolState };
