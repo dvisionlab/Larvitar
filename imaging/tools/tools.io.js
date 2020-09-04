@@ -1,7 +1,12 @@
-// import cornerstone from "cornerstone-core";
+import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { each, map } from "lodash";
 // import { parse, unparse } from "papaparse";
+
+import { setToolPassive } from "./tools.main";
+
+// DEV
+import { saved_state_2 } from "./cstools_state_example.js";
 
 // NOTE : we need to flatten the state object before converting in csv
 // and select a subset of properties as columns
@@ -10,8 +15,34 @@ import { each, map } from "lodash";
  * Load annotation from json object
  * @param {Object} jsonData - The previously saved tools state
  */
-export const loadAnnotations = function() {
-  // TODO
+export const loadAnnotations = function(jsonData) {
+  // DEV
+  if (!jsonData) {
+    jsonData = saved_state_2;
+  }
+  console.log(jsonData);
+
+  // restore saved tool state
+  cornerstoneTools.globalImageIdSpecificToolStateManager.restoreToolState(
+    jsonData
+  );
+
+  // set all found tools to passive
+  let toolsInState = new Set();
+  for (let imageId in jsonData) {
+    for (let toolName in jsonData[imageId]) {
+      toolsInState.add(toolName);
+    }
+  }
+
+  console.log(toolsInState);
+
+  toolsInState.forEach(toolName => {
+    console.log(toolName);
+    setToolPassive(toolName);
+  });
+
+  cornerstone.updateImage(document.getElementById("viewer"));
 };
 
 /**
