@@ -13,12 +13,8 @@ import {
 import { DEFAULT_TOOLS } from "./tools.default";
 
 // DEV
-import { state_example } from "./cstools_state_example.js";
-// import { example } from "./tools.state";
-
 window.cornerstone = cornerstone;
 window.cornerstoneTools = cornerstoneTools;
-window.state_example = state_example;
 
 /**
  *
@@ -141,12 +137,6 @@ export const addDefaultTools = function(elementId) {
 
   // add cs tools stack
   csToolsCreateStack(document.getElementById(elementId));
-
-  // restore saved tool state
-  cornerstoneTools.globalImageIdSpecificToolStateManager.restoreToolState(
-    window.state_example
-  );
-  setToolEnabled("EllipticalRoi");
 
   // // set first tool as active if first is not enabled
   // setToolActive(store.get("leftMouseHandler"));

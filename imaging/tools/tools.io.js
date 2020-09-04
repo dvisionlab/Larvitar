@@ -88,50 +88,6 @@ export const exportAnnotations = function() {
 };
 
 /**
- * Load annotation from json object
- * @param {Object} jsonData - The previously saved tools state
- */
-export const loadAnnotations = function() {
-  // TODO
-};
-
-/**
- * Save annotations from current stack, download as json file
- */
-export const saveAnnotations = function() {
-  let currentToolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
-  console.log(currentToolState);
-  // Convert JSON Array to string.
-  var json = JSON.stringify(currentToolState);
-  // Convert JSON string to BLOB.
-  json = [json];
-  var blob = new Blob(json, { type: "text/plain;charset=utf-8" });
-  let filename = "annotate.vision.state.json";
-  //Check the Browser.
-  var isIE = false || !!document.documentMode;
-  if (isIE) {
-    window.navigator.msSaveBlob(blob, filename);
-  } else {
-    var url = window.URL || window.webkitURL;
-    let link = url.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.download = filename;
-    a.href = link;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
-};
-
-/**
- * Save annotation from current stack, download as csv file
- * containing only useful informations for user
- */
-export const exportAnnotations = function() {
-  // TODO
-};
-
-/**
  *
  * @param {*} allToolState
  */
