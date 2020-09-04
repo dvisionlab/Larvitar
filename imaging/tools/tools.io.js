@@ -6,10 +6,7 @@ import { each, map } from "lodash";
 import { setToolPassive } from "./tools.main";
 
 // DEV
-import { saved_state_2 } from "./cstools_state_example.js";
-
-// NOTE : we need to flatten the state object before converting in csv
-// and select a subset of properties as columns
+// import { saved_state_2 } from "./cstools_state_example.js";
 
 /**
  * Load annotation from json object
@@ -17,10 +14,9 @@ import { saved_state_2 } from "./cstools_state_example.js";
  */
 export const loadAnnotations = function(jsonData) {
   // DEV
-  if (!jsonData) {
-    jsonData = saved_state_2;
-  }
-  console.log(jsonData);
+  // if (!jsonData) {
+  //   jsonData = saved_state_2;
+  // }
 
   // restore saved tool state
   cornerstoneTools.globalImageIdSpecificToolStateManager.restoreToolState(
@@ -42,6 +38,7 @@ export const loadAnnotations = function(jsonData) {
     setToolPassive(toolName);
   });
 
+  // FIXME error if called when image is not loaded
   cornerstone.updateImage(document.getElementById("viewer"));
 };
 
@@ -79,6 +76,8 @@ export const saveAnnotations = function() {
  */
 export const exportAnnotations = function() {
   // TODO
+  // NOTE : we need to flatten the state object before converting in csv
+  // and select a subset of properties as columns
 };
 
 /**
