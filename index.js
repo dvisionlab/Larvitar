@@ -83,7 +83,10 @@ import {
   setToolActive,
   setToolDisabled,
   setToolEnabled,
-  setToolPassive
+  setToolPassive,
+  saveAnnotations,
+  loadAnnotations,
+  exportAnnotations
 } from "./imaging/tools/tools.main";
 
 import {
@@ -231,5 +234,8 @@ export {
   fileManager,
   resetFileLoader,
   resetFileManager,
-  getFileImageId
+  getFileImageId,
+  saveAnnotations,
+  loadAnnotations,
+  exportAnnotations
 };

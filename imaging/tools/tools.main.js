@@ -5,7 +5,16 @@ import cornerstoneMath from "cornerstone-math";
 
 import { each, extend } from "lodash";
 
+import {
+  saveAnnotations,
+  loadAnnotations,
+  exportAnnotations
+} from "./tools.io";
 import { DEFAULT_TOOLS } from "./tools.default";
+
+// DEV
+// window.cornerstone = cornerstone;
+// window.cornerstoneTools = cornerstoneTools;
 
 /**
  *
@@ -126,6 +135,7 @@ export const addDefaultTools = function(elementId) {
     }
   });
 
+  // add cs tools stack
   csToolsCreateStack(document.getElementById(elementId));
 
   // // set first tool as active if first is not enabled
@@ -279,5 +289,8 @@ export {
   setToolActive,
   setToolEnabled,
   setToolDisabled,
-  setToolPassive
+  setToolPassive,
+  saveAnnotations,
+  loadAnnotations,
+  exportAnnotations
 };
