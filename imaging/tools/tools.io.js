@@ -31,10 +31,7 @@ export const loadAnnotations = function(jsonData) {
     }
   }
 
-  console.log(toolsInState);
-
   toolsInState.forEach(toolName => {
-    console.log(toolName);
     setToolPassive(toolName);
   });
 
@@ -47,7 +44,6 @@ export const loadAnnotations = function(jsonData) {
  */
 export const saveAnnotations = function() {
   let currentToolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
-  console.log(currentToolState);
   // Convert JSON Array to string.
   var json = JSON.stringify(currentToolState);
   // Convert JSON string to BLOB.
@@ -120,8 +116,3 @@ function extractToolInfo(toolData) {
 
   return dataArray;
 }
-
-// DEV
-window.loadAnnotations = loadAnnotations;
-window.saveAnnotations = saveAnnotations;
-window.exportAnnotations = exportAnnotations;

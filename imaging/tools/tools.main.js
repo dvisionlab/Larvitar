@@ -13,8 +13,8 @@ import {
 import { DEFAULT_TOOLS } from "./tools.default";
 
 // DEV
-window.cornerstone = cornerstone;
-window.cornerstoneTools = cornerstoneTools;
+// window.cornerstone = cornerstone;
+// window.cornerstoneTools = cornerstoneTools;
 
 /**
  *
