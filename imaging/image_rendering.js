@@ -6,7 +6,7 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import { each } from "lodash";
+import { each, has } from "lodash";
 
 // internal libraries
 import { csToolsCreateStack } from "./image_tools";
@@ -16,7 +16,7 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 /*
  * This module provides the following functions to be exported:
  * clearImageCache()
- * loadImage(series, elementId, defaultImageIndex)
+ * loadImage(series, elementId, defaultProps)
  * updateImage(series, elementId, imageIndex)
  * resetViewports([elementIds])
  */
@@ -82,8 +82,9 @@ export const reloadImage = function (series, elementId) {
  * @function loadImage
  * @param {Object} series - The original series data object
  * @param {String} elementId - The html div id used for rendering
+ * @param {Object} defaultProps - Optional default props
  */
-export const loadImage = function (series, elementId, defaultImageIndex) {
+export const loadImage = function (series, elementId, defaultProps) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -93,8 +94,10 @@ export const loadImage = function (series, elementId, defaultImageIndex) {
 
   let numberOfSlices = series.imageIds.length;
   let imageIndex =
-    defaultImageIndex && defaultImageIndex <= series.imageIds.length
-      ? defaultImageIndex
+    defaultProps &&
+    has(defaultProps, "sliceNumber") &&
+    defaultProps["sliceNumber"] <= series.imageIds.length
+      ? defaultProps["sliceNumber"]
       : Math.floor(series.imageIds.length / 2);
   let currentImageId = series.imageIds[imageIndex - 1];
   let rows = series.instances[series.imageIds[0]].metadata["x00280010"];
@@ -107,11 +110,24 @@ export const loadImage = function (series, elementId, defaultImageIndex) {
     ? series.instances[series.imageIds[0]].metadata["x00280030"][1]
     : null;
   let wc =
-    series.instances[series.imageIds[0]].metadata["x00281050"][0] ||
-    series.instances[series.imageIds[0]].metadata["x00281050"];
-  let wl =
-    series.instances[series.imageIds[0]].metadata["x00281051"][0] ||
-    series.instances[series.imageIds[0]].metadata["x00281051"];
+    defaultProps && has(defaultProps, "wc")
+      ? defaultProps["wc"]
+      : series.instances[series.imageIds[0]].metadata["x00281050"][0] ||
+        series.instances[series.imageIds[0]].metadata["x00281050"];
+  let ww =
+    defaultProps && has(defaultProps, "ww")
+      ? defaultProps["ww"]
+      : series.instances[series.imageIds[0]].metadata["x00281051"][0] ||
+        series.instances[series.imageIds[0]].metadata["x00281051"];
+
+  let defaultWW =
+    defaultProps && has(defaultProps, "defaultWW")
+      ? defaultProps["defaultWW"]
+      : ww;
+  let defaultWC =
+    defaultProps && has(defaultProps, "defaultWC")
+      ? defaultProps["defaultWC"]
+      : wc;
 
   if (rows == null || cols == null) {
     console.error("invalid image metadata");
@@ -129,7 +145,7 @@ export const loadImage = function (series, elementId, defaultImageIndex) {
       if (currentImageId == imageId) {
         cornerstone.displayImage(element, image);
         let viewport = cornerstone.getViewport(element);
-        viewport.voi.windowWidth = wl;
+        viewport.voi.windowWidth = ww;
         viewport.voi.windowCenter = wc;
         cornerstone.fitToWindow(element);
 
@@ -146,7 +162,9 @@ export const loadImage = function (series, elementId, defaultImageIndex) {
           spacing_x,
           spacing_y,
           thickness,
-          viewport
+          viewport,
+          defaultWW,
+          defaultWC
         );
       }
     });
@@ -316,6 +334,8 @@ export const enableMouseHandlers = function (elementId) {
  * @param {Number} spacing_y - The spacing value for y direction
  * @param {Number} thickness - The thickness value between slices
  * @param {String} viewport - The viewport tag name
+ * @param {Number} defaultWW - The default WW value
+ * @param {Number} defaultWC - The default WC value
  */
 export const storeViewportData = function (
   image,
@@ -327,7 +347,9 @@ export const storeViewportData = function (
   spacing_x,
   spacing_y,
   thickness,
-  viewport
+  viewport,
+  defaultWW,
+  defaultWC
 ) {
   let viewer = store.get("viewer");
   store.set(viewer, "dimensions", [elementId, rows, cols]);
@@ -344,8 +366,8 @@ export const storeViewportData = function (
     viewport.scale,
     viewport.translation.x,
     viewport.translation.y,
-    viewport.voi.windowWidth,
-    viewport.voi.windowCenter
+    defaultWW,
+    defaultWC
   ]);
   store.set(viewer, "scale", [elementId, viewport.scale]);
   store.set(viewer, "translation", [
