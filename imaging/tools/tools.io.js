@@ -46,30 +46,34 @@ export const loadAnnotations = function (jsonData) {
 };
 
 /**
- * Save annotations from current stack, download as json file
+ * Save annotations from current stack, download as json file if requested
  */
-export const saveAnnotations = function () {
+export const saveAnnotations = function (download) {
   let currentToolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
-  // Convert JSON Array to string.
-  var json = JSON.stringify(currentToolState);
-  // Convert JSON string to BLOB.
-  json = [json];
-  var blob = new Blob(json, { type: "text/plain;charset=utf-8" });
-  let filename = "annotate.vision.state.json";
-  //Check the Browser.
-  var isIE = false || !!document.documentMode;
-  if (isIE) {
-    window.navigator.msSaveBlob(blob, filename);
-  } else {
-    var url = window.URL || window.webkitURL;
-    let link = url.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.download = filename;
-    a.href = link;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  if (download) {
+    // Convert JSON Array to string.
+    var json = JSON.stringify(currentToolState);
+    // Convert JSON string to BLOB.
+    json = [json];
+    var blob = new Blob(json, { type: "text/plain;charset=utf-8" });
+    let filename = "annotate.vision.state.json";
+    //Check the Browser.
+    var isIE = false || !!document.documentMode;
+    if (isIE) {
+      window.navigator.msSaveBlob(blob, filename);
+    } else {
+      var url = window.URL || window.webkitURL;
+      let link = url.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.download = filename;
+      a.href = link;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   }
+
+  return currentToolState;
 };
 
 /**

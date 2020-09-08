@@ -90,7 +90,7 @@ export const csToolsCreateStack = function (element) {
  * Add all default tools, as listed in tools.default.js
  * @function addDefaultTools
  */
-export const addDefaultTools = function (toolToActivate) {
+export const addDefaultTools = function (toolToActivate, cb) {
   // for each default tool
   each(DEFAULT_TOOLS, tool => {
     // check if already added
@@ -141,6 +141,10 @@ export const addDefaultTools = function (toolToActivate) {
     allowSkipping: false, // default true
     invert: false
   });
+
+  if (cb) {
+    cb();
+  }
 };
 
 /**
