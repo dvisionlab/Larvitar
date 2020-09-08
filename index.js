@@ -1,4 +1,5 @@
 import cornerstone from "cornerstone-core";
+import cornerstoneTools from "cornerstone-tools";
 
 import { default as larvitar_store } from "./imaging/image_store";
 
@@ -115,6 +116,7 @@ import {
 } from "./imaging/image_colormaps";
 
 export {
+  cornerstoneTools,
   getNormalOrientation,
   getMinPixelValue,
   getMaxPixelValue,
