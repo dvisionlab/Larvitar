@@ -115,6 +115,8 @@ import {
   HSVToRGB
 } from "./imaging/image_colormaps";
 
+import { saveAnnotations, loadAnnotations } from "./imaging/tools/tools.io";
+
 export {
   cornerstoneTools,
   getNormalOrientation,
@@ -199,5 +201,7 @@ export {
   applyColorMap,
   addColorMap,
   fillPixelData,
-  HSVToRGB
+  HSVToRGB,
+  saveAnnotations,
+  loadAnnotations
 };
