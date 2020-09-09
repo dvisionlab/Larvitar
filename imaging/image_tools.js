@@ -751,10 +751,6 @@ const configureCornerstoneToolsSettings = function () {
   cornerstoneTools.textStyle.setBackgroundColor("rgba(1, 1, 1, 0.0)");
 };
 
-// DEV
-window.cornerstone = cornerstone;
-window.cornerstoneTools = cornerstoneTools;
-
 /**
  * Check if a tool has already been added
  * @function isToolMissing

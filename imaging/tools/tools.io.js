@@ -47,8 +47,10 @@ export const loadAnnotations = function (jsonData) {
 
 /**
  * Save annotations from current stack, download as json file if requested
+ * @param {bool} download - True to download json
+ * @param {string} filename - The json file name, @default state.json
  */
-export const saveAnnotations = function (download) {
+export const saveAnnotations = function (download, filename = "state.json") {
   let currentToolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
   if (download) {
     // Convert JSON Array to string.
@@ -56,7 +58,6 @@ export const saveAnnotations = function (download) {
     // Convert JSON string to BLOB.
     json = [json];
     var blob = new Blob(json, { type: "text/plain;charset=utf-8" });
-    let filename = "annotate.vision.state.json";
     //Check the Browser.
     var isIE = false || !!document.documentMode;
     if (isIE) {
