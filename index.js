@@ -1,9 +1,5 @@
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
-<<<<<<< HEAD
-
-=======
->>>>>>> f8cc584... fix(csTools): export tools
 import { default as larvitar_store } from "./imaging/image_store";
 
 import { parseContours } from "./imaging/image_contours";
@@ -88,8 +84,6 @@ import {
   setToolDisabled,
   setToolEnabled,
   setToolPassive,
-  saveAnnotations,
-  loadAnnotations,
   exportAnnotations
 } from "./imaging/tools/tools.main";
 
@@ -237,8 +231,6 @@ export {
   addColorMap,
   fillPixelData,
   HSVToRGB,
-  saveAnnotations,
-  loadAnnotations,
   fileManager,
   resetFileLoader,
   resetFileManager,

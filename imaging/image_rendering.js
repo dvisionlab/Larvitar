@@ -7,7 +7,6 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import { each, has } from "lodash";
-import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 
 // internal libraries
 import { getFileImageId } from "./loaders/fileLoader";
@@ -33,18 +32,6 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
  */
 export const clearImageCache = function() {
   cornerstone.imageCache.purgeCache();
-};
-
-/**
- * Disable current rendered image
- * @instance
- * @function disableImage
- */
-export const disableImage = function(elementId) {
-  let element = document.getElementById(elementId);
-  if (element) {
-    cornerstone.disable(element);
-  }
 };
 
 /**

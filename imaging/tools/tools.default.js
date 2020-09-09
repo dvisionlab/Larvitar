@@ -99,19 +99,6 @@ const DEFAULT_TOOLS = {
     shortcut: "ctrl-p",
     type: "utils"
   },
-  Magnify: {
-    name: "Magnify",
-    viewports: "all",
-    configuration: {
-      magnifySize: 200
-    },
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "MagnifyTool"
-  },
   Rotate: {
     name: "Rotate",
     viewports: "all",
