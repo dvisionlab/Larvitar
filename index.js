@@ -1,4 +1,5 @@
 import cornerstone from "cornerstone-core";
+import cornerstoneTools from "cornerstone-tools";
 
 import { default as larvitar_store } from "./imaging/image_store";
 
@@ -114,7 +115,10 @@ import {
   HSVToRGB
 } from "./imaging/image_colormaps";
 
+import { saveAnnotations, loadAnnotations } from "./imaging/tools/tools.io";
+
 export {
+  cornerstoneTools,
   getNormalOrientation,
   getMinPixelValue,
   getMaxPixelValue,
@@ -197,5 +201,7 @@ export {
   applyColorMap,
   addColorMap,
   fillPixelData,
-  HSVToRGB
+  HSVToRGB,
+  saveAnnotations,
+  loadAnnotations
 };

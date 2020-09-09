@@ -57,7 +57,7 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
  * Initialize cornerstone tools with default configuration
  * @function initializeCSTools
  */
-export const initializeCSTools = function() {
+export const initializeCSTools = function () {
   cornerstoneTools.external.cornerstone = cornerstone;
   cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
   cornerstoneWADOImageLoader.external.cornerstoneTools = cornerstoneTools;
@@ -74,7 +74,7 @@ export const initializeCSTools = function() {
  * @function csToolsCreateStack
  * @param {HTMLElement} element - The target hmtl element.
  */
-export const csToolsCreateStack = function(element) {
+export const csToolsCreateStack = function (element) {
   let viewer = store.get("viewer");
   let seriesId = store.get("seriesId");
   let manager = getLarvitarManager();
@@ -90,7 +90,7 @@ export const csToolsCreateStack = function(element) {
  * Add all default tools, as listed in tools.default.js
  * @function addDefaultTools
  */
-export const addDefaultTools = function() {
+export const addDefaultTools = function (toolToActivate, cb) {
   // for each default tool
   each(DEFAULT_TOOLS, tool => {
     // check if already added
@@ -130,13 +130,10 @@ export const addDefaultTools = function() {
       synchronizer.enabled = true;
     }
 
-    if (tool.defaultActive) {
+    if (tool.defaultActive || tool.name == toolToActivate) {
       setToolActive(tool.name, tool.options);
     }
   });
-
-  // set first tool as active if first is not enabled
-  setToolActive(store.get("leftMouseHandler"));
 
   // set wheel scroll active
   setToolActive("StackScrollMouseWheel", {
@@ -144,6 +141,10 @@ export const addDefaultTools = function() {
     allowSkipping: false, // default true
     invert: false
   });
+
+  if (cb) {
+    cb();
+  }
 };
 
 /**
@@ -153,7 +154,7 @@ export const addDefaultTools = function() {
  * @param {Array} diameters - The array of diameter objects.
  * @param {String} seriesId - The id of the target serie.
  */
-export const addDiameterTool = function(targetElementId, diameters, seriesId) {
+export const addDiameterTool = function (targetElementId, diameters, seriesId) {
   if (isToolMissing("Diameter")) {
     let element = document.getElementById(targetElementId);
     cornerstoneTools.addToolForElement(element, DiameterTool, {
@@ -170,7 +171,7 @@ export const addDiameterTool = function(targetElementId, diameters, seriesId) {
  * @param {Object} rawContours - The contours object (generated from a segmentation mask).
  * @param {String} maskName - The name tag that identify the mask
  */
-export const addContoursTool = function(rawContours, maskName) {
+export const addContoursTool = function (rawContours, maskName) {
   var pointBatchSize = 2;
   console.time("...parsing contours");
   var contoursParsedData = parseContours(rawContours, pointBatchSize, maskName);
@@ -188,7 +189,7 @@ export const addContoursTool = function(rawContours, maskName) {
  * @param {String} targetViewport - The target hmtl element id. @default axial
  * @param {Function} callback - The tool initialization callback
  */
-export const addMaskEditingTool = function(
+export const addMaskEditingTool = function (
   mask,
   callback,
   targetViewport = "axial"
@@ -238,7 +239,7 @@ export const addMaskEditingTool = function(
       storeHistory: true
     };
  */
-const setSegmentationConfig = function(config) {
+const setSegmentationConfig = function (config) {
   let { configuration } = cornerstoneTools.getModule("segmentation");
 
   extend(configuration, config);
@@ -269,7 +270,7 @@ const setSegmentationConfig = function(config) {
  * @param {String} viewportId - The target hmtl element id.
  * @return {Array} labelmap3D - The mask array
  */
-export const getCurrentMaskData = function(viewportId) {
+export const getCurrentMaskData = function (viewportId) {
   const { getters } = cornerstoneTools.getModule("segmentation");
   let enabledElement = cornerstone
     .getEnabledElements()
@@ -286,7 +287,7 @@ export const getCurrentMaskData = function(viewportId) {
  * @param {String} seriesId - The id of the target serie.
  * @param {HTMLElement} element - The target hmtl element.
  */
-export const addStackStateToElement = function(seriesId, element) {
+export const addStackStateToElement = function (seriesId, element) {
   // Define the Stack object
   const stack = getSeriesData(seriesId)[element.id];
   // Add the stack tool state to the enabled element
@@ -300,7 +301,7 @@ export const addStackStateToElement = function(seriesId, element) {
  * @param {Array} preLoadSeeds - The array of seeds to load as initialization.
  * @param {String} initViewport - The hmtl element id to be used for tool initialization. @default "axial"
  */
-export const addSeedsTool = function(preLoadSeeds, initViewport = "axial") {
+export const addSeedsTool = function (preLoadSeeds, initViewport = "axial") {
   if (isToolMissing("Seeds")) {
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, el => {
@@ -319,12 +320,12 @@ export const addSeedsTool = function(preLoadSeeds, initViewport = "axial") {
  * Delete all measurements from tools state, for tools that have the "cleaneable" prop set to true in tools.default.js
  * @function clearMeasurements
  */
-export const clearMeasurements = function() {
+export const clearMeasurements = function () {
   let enabledElements = cornerstone.getEnabledElements();
   let clenableTools = filter(DEFAULT_TOOLS, "cleanable");
 
   each(enabledElements, el => {
-    each(clenableTools, function(tool) {
+    each(clenableTools, function (tool) {
       cornerstoneTools.clearToolState(el.element, tool.name);
     });
   });
@@ -341,7 +342,7 @@ export const clearMeasurements = function() {
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} _viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
  */
-export const setToolActive = function(
+export const setToolActive = function (
   toolName,
   options,
   activeViewport,
@@ -351,7 +352,7 @@ export const setToolActive = function(
   extend(defaultOpt, options);
   cornerstoneTools.setToolActive(toolName, defaultOpt);
   if (activeViewport == "all") {
-    each(viewports, function(elementId) {
+    each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (el) {
         cornerstone.updateImage(el);
@@ -372,14 +373,14 @@ export const setToolActive = function(
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} _viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
  */
-export const setToolDisabled = function(
+export const setToolDisabled = function (
   toolName,
   activeViewport,
   viewports = ["axial", "sagittal", "coronal"]
 ) {
   cornerstoneTools.setToolDisabled(toolName);
   if (activeViewport == "all") {
-    each(viewports, function(elementId) {
+    each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (el) {
         cornerstone.updateImage(el);
@@ -400,14 +401,14 @@ export const setToolDisabled = function(
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
  */
-export const setToolEnabled = function(
+export const setToolEnabled = function (
   toolName,
   activeViewport,
   viewports = ["axial", "sagittal", "coronal"]
 ) {
   cornerstoneTools.setToolEnabled(toolName);
   if (activeViewport == "all") {
-    each(viewports, function(elementId) {
+    each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (el) {
         cornerstone.updateImage(el);
@@ -428,14 +429,14 @@ export const setToolEnabled = function(
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
  */
-export const setToolPassive = function(
+export const setToolPassive = function (
   toolName,
   activeViewport,
   viewports = ["axial", "sagittal", "coronal"]
 ) {
   cornerstoneTools.setToolPassive(toolName);
   if (activeViewport == "all") {
-    each(viewports, function(elementId) {
+    each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (el) {
         cornerstone.updateImage(el);
@@ -455,7 +456,7 @@ export const setToolPassive = function(
  * @param {String} toolName - The tool name.
  * @return {Object} - Tool data grouped by element id
  */
-export const getToolState = function(toolName) {
+export const getToolState = function (toolName) {
   let enabledElements = cornerstone.getEnabledElements();
   let toolData = {};
   each(enabledElements, el => {
@@ -473,7 +474,7 @@ export const getToolState = function(toolName) {
  * @param {String} toolName - The tool name.
  * @param {Object} options - Props used to select the data to delete (at the moment only {name : "targetName"} is implemented)
  */
-export const clearToolStateByName = function(toolName, options) {
+export const clearToolStateByName = function (toolName, options) {
   let enabledElements = cornerstone.getEnabledElements();
   each(enabledElements, el => {
     const toolStateManager = el.toolStateManager;
@@ -499,7 +500,7 @@ export const clearToolStateByName = function(toolName, options) {
  * @param {Object} value - The object representing the new diameter data
  * @param {String} seriesId - The target serie id.
  */
-export const updateDiameterTool = function(diameterId, value, seriesId) {
+export const updateDiameterTool = function (diameterId, value, seriesId) {
   // clear target diameter
   if (!diameterId) {
     console.warn("no diameterId, return");
@@ -603,7 +604,7 @@ export const updateDiameterTool = function(diameterId, value, seriesId) {
  * @param {Number} slice - The target slice to put the data in.
  * @param {String} seriesId - The target serie id.
  */
-export const addToolStateSingleSlice = function(
+export const addToolStateSingleSlice = function (
   element,
   toolName,
   data,
@@ -660,12 +661,12 @@ export const addToolStateSingleSlice = function(
  * Clear tool state and disable all cornerstone elements
  * @function clearCornerstoneElements
  */
-export const clearCornerstoneElements = function() {
+export const clearCornerstoneElements = function () {
   var enabledElements = cornerstone.getEnabledElements();
   var inMemElements = cloneDeep(enabledElements); // copy before modifying
   each(inMemElements, el => {
     // cornerstoneTools.clearToolState(el.element, "Seeds"); // this reset all seeds TODO remove ?
-    each(DEFAULT_TOOLS, function(tool) {
+    each(DEFAULT_TOOLS, function (tool) {
       if (tool.cleanable) {
         cornerstoneTools.clearToolState(el.element, tool.name);
       }
@@ -682,7 +683,7 @@ export const clearCornerstoneElements = function() {
  * @param {String} viewport - The target viewport id.
  * @param {String} seriesId - The target serie id.
  */
-export const syncToolStack = function(
+export const syncToolStack = function (
   srcSliceNumber,
   toolName,
   viewport,
@@ -715,7 +716,7 @@ export const syncToolStack = function(
  * @param {HTMLElement} element - The target hmtl element.
  * @param {Number} imageIndex - The new imageIndex value.
  */
-export const updateStackToolState = function(element, imageIndex) {
+export const updateStackToolState = function (element, imageIndex) {
   let enabledElement = cornerstone.getEnabledElement(element);
   if (!enabledElement.toolStateManager) {
     return;
@@ -734,7 +735,7 @@ export const updateStackToolState = function(element, imageIndex) {
  * Set cornerstone tools configuration
  * @function configureCornerstoneToolsSettings
  */
-const configureCornerstoneToolsSettings = function() {
+const configureCornerstoneToolsSettings = function () {
   // Font families :
   // Work Sans, Roboto, OpenSans, HelveticaNeue-Light,
   // Helvetica Neue Light, Helvetica Neue, Helvetica,
@@ -756,11 +757,11 @@ const configureCornerstoneToolsSettings = function() {
  * @param {String} toolName - The tool name.
  * @param {Array} _viewports - The viewports to check.
  */
-const isToolMissing = function(toolName, _viewports) {
+const isToolMissing = function (toolName, _viewports) {
   let isToolMissing = false;
 
   if (_viewports) {
-    each(_viewports, function(viewport) {
+    each(_viewports, function (viewport) {
       let element = cornerstone.getEnabledElement(
         document.getElementById(viewport)
       );
@@ -771,7 +772,7 @@ const isToolMissing = function(toolName, _viewports) {
     });
   } else {
     let elements = cornerstone.getEnabledElements();
-    each(elements, function(element) {
+    each(elements, function (element) {
       let added = cornerstoneTools.getToolForElement(element, toolName);
       if (added === undefined) {
         isToolMissing = true;
