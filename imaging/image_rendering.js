@@ -54,10 +54,12 @@ export const loadFileImage = function(file, elementId) {
 
   // check if imageId is already stored in fileManager
   const imageId = getFileImageId(file);
-  cornerstone.loadImage(imageId).then(function(image) {
-    cornerstone.displayImage(element, image);
-    cornerstone.fitToWindow(element);
-  });
+  if (imageId) {
+    cornerstone.loadImage(imageId).then(function(image) {
+      cornerstone.displayImage(element, image);
+      cornerstone.fitToWindow(element);
+    });
+  }
 };
 
 /**

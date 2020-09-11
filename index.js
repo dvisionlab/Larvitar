@@ -125,7 +125,8 @@ import {
   fileManager,
   resetFileLoader,
   resetFileManager,
-  getFileImageId
+  getFileImageId,
+  populateFileManager
 } from "./imaging/loaders/fileLoader";
 
 import {
@@ -234,6 +235,7 @@ export {
   fileManager,
   resetFileLoader,
   resetFileManager,
+  populateFileManager,
   getFileImageId,
   saveAnnotations,
   loadAnnotations,

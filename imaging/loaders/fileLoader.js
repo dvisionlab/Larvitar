@@ -18,7 +18,8 @@ export var fileManager = {};
 /*
  * This module provides the following functions to be exported:
  * resetFileManager()
- * getFileImageId()
+ * populateFileManager(file)
+ * getFileImageId(file)
  */
 
 /**
@@ -43,6 +44,19 @@ export const resetFileManager = function() {
 };
 
 /**
+ * Populate File Manager
+ * @instance
+ * @function populateFileManager
+ * @return {String} current file image id
+ */
+export const populateFileManager = function(file) {
+  if (!has(fileManager, file.webkitRelativePath)) {
+    const imageId = cornerstoneFileImageLoader.fileManager.add(file);
+    fileManager[file.webkitRelativePath] = imageId;
+  }
+};
+
+/**
  * Get the file imageId from file loader
  * @instance
  * @function getFileImageId
@@ -51,8 +65,7 @@ export const resetFileManager = function() {
 export const getFileImageId = function(file) {
   const imageId = has(fileManager, file.webkitRelativePath)
     ? fileManager[file.webkitRelativePath]
-    : cornerstoneFileImageLoader.fileManager.add(file);
-  fileManager[file.webkitRelativePath] = imageId;
+    : null;
   return imageId;
 };
 
