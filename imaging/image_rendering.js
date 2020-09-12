@@ -314,7 +314,7 @@ export const enableMouseHandlers = function (elementId) {
     let cix =
       enabledElement.toolStateManager.toolState.stack.data[0]
         .currentImageIdIndex;
-    store.set(viewer, "currentSliceNumber", [evt.target.id, cix]);
+    store.set(viewer, "currentSliceNumber", [evt.target.id, cix + 1]);
   }
   element.removeEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
   element.addEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
@@ -358,7 +358,7 @@ export const storeViewportData = function (
   store.set(viewer, "minPixelValue", [elementId, image.minPixelValue]);
   store.set(viewer, "maxPixelValue", [elementId, image.maxPixelValue]);
   store.set(viewer, "loadingStatus", [elementId, true]);
-  store.set(viewer, "minSliceNumber", [elementId, 0]);
+  store.set(viewer, "minSliceNumber", [elementId, 1]);
   store.set(viewer, "currentSliceNumber", [elementId, imageIndex]);
   store.set(viewer, "maxSliceNumber", [elementId, numberOfSlices]);
   store.set(viewer, "defaultViewport", [
