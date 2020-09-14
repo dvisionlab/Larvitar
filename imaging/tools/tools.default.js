@@ -172,6 +172,13 @@ const DEFAULT_TOOLS = {
     cleanable: true,
     class: "TextMarkerTool"
   },
+  Eraser: {
+    name: "Eraser",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    class: "EraserTool"
+  },
   ZoomTouchPinch: {
     name: "ZoomTouchPinch",
     viewports: "all",

@@ -17,7 +17,6 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 // global variables
 export var dicomManager = {};
 let imageLoaderCounter = 0;
-
 /*
  * This module provides the following functions to be exported:
  * cacheAndSaveSerie(series)
@@ -34,7 +33,7 @@ let imageLoaderCounter = 0;
  * @function resetImageLoader
  * @param {String} elementId The Id of the html element
  */
-export const resetImageLoader = function(elementId) {
+export const resetImageLoader = function (elementId) {
   store.set(null, "series", []);
   store.set(null, "seriesId", null);
   let element = document.getElementById(elementId);
@@ -50,7 +49,7 @@ export const resetImageLoader = function(elementId) {
  * @instance
  * @function resetDicomManager
  */
-export const resetDicomManager = function() {
+export const resetDicomManager = function () {
   dicomManager = {};
   imageLoaderCounter = 0;
 };
@@ -61,7 +60,7 @@ export const resetDicomManager = function() {
  * @function removeSeriesFromDicomManager
  * @param {String} seriesId The Id of the series
  */
-export const removeSeriesFromDicomManager = function(seriesId) {
+export const removeSeriesFromDicomManager = function (seriesId) {
   if (dicomManager[seriesId]) {
     dicomManager = omit(dicomManager, seriesId);
   }
@@ -74,7 +73,7 @@ export const removeSeriesFromDicomManager = function(seriesId) {
  * @param {String} seriesId The Id of the series
  * @return {Object} dicom manager data
  */
-export const getSeriesData = function(seriesId) {
+export const getSeriesData = function (seriesId) {
   return dicomManager[seriesId];
 };
 
@@ -87,7 +86,7 @@ export const getSeriesData = function(seriesId) {
  * @param {String} orientation The orientation string
  * @param {Function} callback A callback function
  */
-export const populateDicomManager = function(
+export const populateDicomManager = function (
   seriesId,
   seriesData,
   orientation,
@@ -106,7 +105,7 @@ export const populateDicomManager = function(
   store.set(viewer, "loadingStatus", [orientation, false]);
 
   if (orientation == "axial") {
-    initializeMainViewport(seriesData, function(data) {
+    initializeMainViewport(seriesData, function (data) {
       dicomManager[seriesId]["axial"] = data;
       imageLoaderCounter += seriesData.imageIds.length;
       callback();
@@ -127,7 +126,7 @@ export const populateDicomManager = function(
  * @param {String} dicomLoaderName dicom loader name
  * @return {String} current dicom image id
  */
-export const getDicomImageId = function(dicomLoaderName) {
+export const getDicomImageId = function (dicomLoaderName) {
   let imageId = dicomLoaderName + ":" + imageLoaderCounter;
   imageLoaderCounter++;
   return imageId;
@@ -145,8 +144,8 @@ export const getDicomImageId = function(dicomLoaderName) {
 function initializeMainViewport(series, callback) {
   cornerstone.imageCache.purgeCache();
   let counter = 0;
-  each(series.imageIds, function(imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function(image) {
+  each(series.imageIds, function (imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
       series.instances[imageId].pixelData = image.getPixelData();
       counter++;
       if (counter == series.imageIds.length) {
@@ -189,7 +188,7 @@ function initializeReslicedViewport(seriesId, orientation) {
   dicomManager[seriesId][orientation].instances = reslicedData.instances;
 
   // populate nrrdManager with the pixelData information
-  each(dicomManager[seriesId][orientation].imageIds, function(imageId) {
+  each(dicomManager[seriesId][orientation].imageIds, function (imageId) {
     let data = getReslicedPixeldata(
       imageId,
       seriesData,
