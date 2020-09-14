@@ -1,6 +1,5 @@
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
-
 import { default as larvitar_store } from "./imaging/image_store";
 
 import { parseContours } from "./imaging/image_contours";
@@ -38,6 +37,8 @@ import {
 
 import {
   initializeImageLoader,
+  initializeFileImageLoader,
+  initializeWebImageLoader,
   registerNRRDImageLoader,
   registerResliceLoader,
   updateLoadedStack
@@ -47,6 +48,9 @@ import { resetImageParsing, readFiles } from "./imaging/image_parsing";
 
 import {
   clearImageCache,
+  disableImage,
+  loadWebImage,
+  loadFileImage,
   loadImage,
   reloadImage,
   updateImage,
@@ -55,9 +59,6 @@ import {
 } from "./imaging/image_rendering";
 
 import {
-  initializeCSTools,
-  csToolsCreateStack,
-  addDefaultTools,
   addDiameterTool,
   addContoursTool,
   addMaskEditingTool,
@@ -65,10 +66,6 @@ import {
   addStackStateToElement,
   addSeedsTool,
   clearMeasurements,
-  setToolActive,
-  setToolDisabled,
-  setToolEnabled,
-  setToolPassive,
   getToolState,
   clearToolStateByName,
   updateDiameterTool,
@@ -77,6 +74,23 @@ import {
   syncToolStack,
   updateStackToolState
 } from "./imaging/image_tools";
+
+import {
+  csToolsCreateStack,
+  initializeCSTools,
+  addDefaultTools,
+  addTool,
+  setToolActive,
+  setToolDisabled,
+  setToolEnabled,
+  setToolPassive,
+  exportAnnotations
+} from "./imaging/tools/tools.main";
+
+import {
+  DEFAULT_TOOLS,
+  getDefaultToolsByType
+} from "./imaging/tools/tools.default";
 
 import {
   getCustomImageId,
@@ -108,6 +122,14 @@ import {
 } from "./imaging/loaders/dicomLoader";
 
 import {
+  fileManager,
+  resetFileLoader,
+  resetFileManager,
+  getFileImageId,
+  populateFileManager
+} from "./imaging/loaders/fileLoader";
+
+import {
   getColormapsList,
   applyColorMap,
   addColorMap,
@@ -118,7 +140,10 @@ import {
 import { saveAnnotations, loadAnnotations } from "./imaging/tools/tools.io";
 
 export {
+  cornerstone,
   cornerstoneTools,
+  DEFAULT_TOOLS,
+  getDefaultToolsByType,
   getNormalOrientation,
   getMinPixelValue,
   getMaxPixelValue,
@@ -143,18 +168,24 @@ export {
   changeOpacityLayer,
   updateImageLayer,
   initializeImageLoader,
+  initializeWebImageLoader,
+  initializeFileImageLoader,
   registerNRRDImageLoader,
   registerResliceLoader,
   updateLoadedStack,
   resetImageParsing,
   readFiles,
   clearImageCache,
+  disableImage,
+  loadFileImage,
+  loadWebImage,
   loadImage,
   reloadImage,
   updateImage,
   resetViewports,
   enableMouseHandlers,
   initializeCSTools,
+  addTool,
   csToolsCreateStack,
   addDefaultTools,
   addDiameterTool,
@@ -196,12 +227,17 @@ export {
   populateDicomManager,
   getDicomImageId,
   larvitar_store,
-  cornerstone,
   getColormapsList,
   applyColorMap,
   addColorMap,
   fillPixelData,
   HSVToRGB,
+  fileManager,
+  resetFileLoader,
+  resetFileManager,
+  populateFileManager,
+  getFileImageId,
   saveAnnotations,
-  loadAnnotations
+  loadAnnotations,
+  exportAnnotations
 };

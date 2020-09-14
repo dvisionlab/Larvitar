@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>tools/tools.io.js - Larvitar</title>
+    <title>loaders/fileLoader - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,148 +40,589 @@
 
 <div id="main">
     
-    <h1 class="page-title">tools/tools.io.js</h1>
+    <h1 class="page-title">loaders/fileLoader</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import cornerstone from "cornerstone-core";
-import cornerstoneTools from "cornerstone-tools";
-import { each, map } from "lodash";
+        
+            
+        
+    
+</header>
 
-import { setToolPassive } from "../image_tools";
+<article>
+    
+        <div class="container-overview">
+        
+            
+                <div class="description usertext"><p>This file provides functionalities for<br>
+custom File Loader</p></div>
+            
 
-// DEV
-// import { saved_state_2 } from "./cstools_state_example.js";
+            
+                
 
-/**
- * Load annotation from json object
- * @param {Object} jsonData - The previously saved tools state
- */
-export const loadAnnotations = function(jsonData) {
-  // DEV
-  // if (!jsonData) {
-  //   jsonData = saved_state_2;
-  // }
 
-  // restore saved tool state
-  cornerstoneTools.globalImageIdSpecificToolStateManager.restoreToolState(
-    jsonData
-  );
 
-  // set all found tools to passive
-  let toolsInState = new Set();
-  for (let imageId in jsonData) {
-    for (let toolName in jsonData[imageId]) {
-      toolsInState.add(toolName);
-    }
-  }
 
-  toolsInState.forEach(toolName => {
-    setToolPassive(toolName);
-  });
+<dl class="details">
 
-  let enabledElementIds = map(
-    cornerstone.getEnabledElements(),
-    e => e.element.id
-  );
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_fileLoader.js.html">loaders/fileLoader.js</a>, <a href="loaders_fileLoader.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
 
-  // FIXME error if called when image is not loaded
-  for (let elementId of enabledElementIds) {
-    cornerstone.updateImage(document.getElementById(elementId));
-  }
-};
+    
 
-/**
- * Save annotations from current stack, download as json file if requested
- * @param {bool} download - True to download json
- * @param {string} filename - The json file name, @default state.json
- */
-export const saveAnnotations = function(download, filename = "state.json") {
-  let currentToolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
-  if (download) {
-    // Convert JSON Array to string.
-    var json = JSON.stringify(currentToolState);
-    // Convert JSON string to BLOB.
-    json = [json];
-    var blob = new Blob(json, { type: "text/plain;charset=utf-8" });
-    //Check the Browser.
-    var isIE = false || !!document.documentMode;
-    if (isIE) {
-      window.navigator.msSaveBlob(blob, filename);
-    } else {
-      var url = window.URL || window.webkitURL;
-      let link = url.createObjectURL(blob);
-      var a = document.createElement("a");
-      a.download = filename;
-      a.href = link;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-  }
+    
 
-  return currentToolState;
-};
+    
 
-/**
- * Save annotation from current stack, download as csv file
- * containing only useful informations for user
- */
-export const exportAnnotations = function() {
-  // TODO
-  // NOTE : we need to flatten the state object before converting in csv
-  // and select a subset of properties as columns
-};
+    
 
-/**
- *
- * @param {*} allToolState
- */
-export function generateCSV(allToolState) {
-  each(allToolState, (imageToolState, imageId) => {
-    each(imageToolState, (toolState, toolName) => {
-      // extract useful information from tool state
-      let data = extractToolInfo(toolState.data);
-      console.log(imageId, toolName, data);
-    });
-  });
-}
+    
 
-/**
- *
- * @param {*} toolData
- */
-function extractToolInfo(toolData) {
-  // This is an example for "length" tool, needs to be generalised
-  let dataArray = map(toolData, data => {
-    return {
-      color: data.color,
-      x1: data.handles.start.x,
-      y1: data.handles.start.y,
-      x2: data.handles.end.x,
-      y2: data.handles.end.y,
-      length: data.length,
-      unit: data.unit,
-      textBox_x: data.textBox ? data.textBox.x : null,
-      textBox_y: data.textBox ? data.textBox.y : null,
-      boundingBox_w: data.textBox ? data.textBox.boundingBox.width : null,
-      boundingBox_h: data.textBox ? data.textBox.boundingBox.height : null,
-      boundingBox_l: data.textBox ? data.textBox.boundingBox.left : null,
-      boundingBox_t: data.textBox ? data.textBox.boundingBox.top : null
-    };
-  });
+    
 
-  return dataArray;
-}
-</code></pre>
-        </article>
-    </section>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-todo">To Do:</dt>
+    <dd class="tag-todo">
+        <ul>
+            <li>Document</li>
+        </ul>
+    </dd>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="getFileImageId"><span class="type-signature"></span>getFileImageId<span class="signature">()</span><span class="type-signature"> &rarr; {String}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_fileLoader.js.html">loaders/fileLoader.js</a>, <a href="loaders_fileLoader.js.html#line59">line 59</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Get the file imageId from file loader</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>current file image id</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">String</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="populateFileManager"><span class="type-signature"></span>populateFileManager<span class="signature">()</span><span class="type-signature"> &rarr; {String}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_fileLoader.js.html">loaders/fileLoader.js</a>, <a href="loaders_fileLoader.js.html#line46">line 46</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Populate File Manager</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>current file image id</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">String</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="resetFileLoader"><span class="type-signature"></span>resetFileLoader<span class="signature">(elementId)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_fileLoader.js.html">loaders/fileLoader.js</a>, <a href="loaders_fileLoader.js.html#line25">line 25</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Reset the Custom File Loader</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>elementId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Id of the html element</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="resetFileManager"><span class="type-signature"></span>resetFileManager<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="loaders_fileLoader.js.html">loaders/fileLoader.js</a>, <a href="loaders_fileLoader.js.html#line37">line 37</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Reset the File Manager store</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

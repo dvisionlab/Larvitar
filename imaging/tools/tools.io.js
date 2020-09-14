@@ -11,7 +11,7 @@ import { setToolPassive } from "../image_tools";
  * Load annotation from json object
  * @param {Object} jsonData - The previously saved tools state
  */
-export const loadAnnotations = function (jsonData) {
+export const loadAnnotations = function(jsonData) {
   // DEV
   // if (!jsonData) {
   //   jsonData = saved_state_2;
@@ -50,7 +50,7 @@ export const loadAnnotations = function (jsonData) {
  * @param {bool} download - True to download json
  * @param {string} filename - The json file name, @default state.json
  */
-export const saveAnnotations = function (download, filename = "state.json") {
+export const saveAnnotations = function(download, filename = "state.json") {
   let currentToolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
   if (download) {
     // Convert JSON Array to string.
@@ -81,7 +81,7 @@ export const saveAnnotations = function (download, filename = "state.json") {
  * Save annotation from current stack, download as csv file
  * containing only useful informations for user
  */
-export const exportAnnotations = function () {
+export const exportAnnotations = function() {
   // TODO
   // NOTE : we need to flatten the state object before converting in csv
   // and select a subset of properties as columns

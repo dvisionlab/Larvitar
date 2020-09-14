@@ -62,7 +62,7 @@ const orientations = store.get("viewports");
  * @param {String} orientation The orientation tag
  * @return {Object} series data
  */
-export const loadImageWithOrientation = function (
+export const loadImageWithOrientation = function(
   header,
   volume,
   seriesId,
@@ -78,7 +78,7 @@ export const loadImageWithOrientation = function (
  * @function resetNrrdLoader
  * @param {String} elementId The html id
  */
-export const resetNrrdLoader = function (elementId) {
+export const resetNrrdLoader = function(elementId) {
   customImageLoaderCounter = 0;
   nrrdManager = {};
   nrrdImageTracker = {};
@@ -96,7 +96,7 @@ export const resetNrrdLoader = function (elementId) {
  * @param {String} customLoaderName The custom loader name
  * @return {String} the custom image id
  */
-export const getNrrdImageId = function (customLoaderName) {
+export const getNrrdImageId = function(customLoaderName) {
   let imageId = customLoaderName + "://" + customImageLoaderCounter;
   customImageLoaderCounter++;
   return imageId;
@@ -108,7 +108,7 @@ export const getNrrdImageId = function (customLoaderName) {
  * @function removeSeriesFromNrrdManager
  * @param {String} seriesId The stored series id to remove
  */
-export const removeSeriesFromNrrdManager = function (seriesId) {
+export const removeSeriesFromNrrdManager = function(seriesId) {
   if (nrrdManager[seriesId]) {
     nrrdManager = omit(nrrdManager, seriesId);
   }
@@ -121,7 +121,7 @@ export const removeSeriesFromNrrdManager = function (seriesId) {
  * @param {String} seriesId The stored series id to remove
  * @return {Object} series data
  */
-export const getSeriesData = function (seriesId) {
+export const getSeriesData = function(seriesId) {
   return nrrdManager[seriesId];
 };
 
@@ -136,7 +136,7 @@ export const getSeriesData = function (seriesId) {
  * @param {String} orientation The orientation tag
  * @return {Object} series data
  */
-export const populateNrrdManager = function (
+export const populateNrrdManager = function(
   header,
   volume,
   seriesId,
@@ -196,7 +196,7 @@ export const populateNrrdManager = function (
  * @param {String} imageId The image id
  * @return {Object} custom image object
  */
-export const loadNrrdImage = function (imageId) {
+export const loadNrrdImage = function(imageId) {
   let seriesId = nrrdImageTracker[imageId][0];
   let orientation = nrrdImageTracker[imageId][1];
   let instance = nrrdManager[seriesId][orientation].instances[imageId];
@@ -294,7 +294,7 @@ export function getSerieDimensions() {
  * @param {String} seriesId The series id
  * @return {Object} The cornerstone data
  */
-let initializeMainViewport = function (header, volume, seriesId) {
+let initializeMainViewport = function(header, volume, seriesId) {
   // get metadata from original volume and header
   let rows = volume.header.sizes[0];
   let cols = volume.header.sizes[1];
@@ -346,7 +346,7 @@ let initializeMainViewport = function (header, volume, seriesId) {
   let wl = (maxVoi + minVoi) / 2;
 
   // extract the pixelData of each frame, store the data into the nrrdManager
-  each(range(frames), function (sliceIndex) {
+  each(range(frames), function(sliceIndex) {
     let sliceSize = rows * cols;
     let sliceBuffer = volume.data.subarray(
       sliceSize * sliceIndex,
@@ -396,7 +396,7 @@ let initializeMainViewport = function (header, volume, seriesId) {
 
     let frameMetadata = clone(metadata);
 
-    frameMetadata.x00200032 = firstIpp.map(function (val, i) {
+    frameMetadata.x00200032 = firstIpp.map(function(val, i) {
       return val + thickness * sliceIndex * w[i];
     });
     nrrdManager[seriesId]["axial"].instances[imageId].metadata = frameMetadata;
@@ -420,7 +420,7 @@ let initializeMainViewport = function (header, volume, seriesId) {
  * @param {String} orientation The orientation tag
  * @return {Object} The cornerstone data
  */
-let initializeCmprViewport = function (header, volume, seriesId, orientation) {
+let initializeCmprViewport = function(header, volume, seriesId, orientation) {
   const someIsNotZero = volume.some(item => item !== 0);
   if (!someIsNotZero) {
     console.warn("serie is empty", orientation);
@@ -437,10 +437,7 @@ let initializeCmprViewport = function (header, volume, seriesId, orientation) {
   nrrdManager[seriesId][orientation].instances = reslicedData.instances;
 
   // populate nrrdManager with the pixelData information
-  each(nrrdManager[seriesId][orientation].imageIds, function (
-    imageId,
-    slice_n
-  ) {
+  each(nrrdManager[seriesId][orientation].imageIds, function(imageId, slice_n) {
     let i = header.rows;
     let j = header.cols;
 
@@ -493,7 +490,7 @@ function initializeReslicedViewport(seriesId, orientation) {
   nrrdManager[seriesId][orientation].instances = reslicedData.instances;
 
   // populate nrrdManager with the pixelData information
-  each(nrrdManager[seriesId][orientation].imageIds, function (imageId) {
+  each(nrrdManager[seriesId][orientation].imageIds, function(imageId) {
     let data = getReslicedPixeldata(
       imageId,
       seriesData,
@@ -523,7 +520,7 @@ function initializeReslicedViewport(seriesId, orientation) {
  * @param {Object} dataSet The dataset
  * @return {String} The image id
  */
-let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
+let createCustomImage = function(imageId, metadata, pixelData, dataSet) {
   let canvas = window.document.createElement("canvas");
   let lastImageIdDrawn = "";
 
@@ -575,7 +572,7 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
   };
 
   // add function to return pixel data
-  image.getPixelData = function () {
+  image.getPixelData = function() {
     return imageFrame.pixelData;
   };
 
@@ -599,7 +596,7 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
   // Setup the renderer
   if (image.color) {
     image.render = cornerstone.renderColorImage;
-    image.getCanvas = function () {
+    image.getCanvas = function() {
       if (lastImageIdDrawn === imageId) {
         return canvas;
       }
@@ -640,7 +637,7 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
   // function to store custom image pixelData and metadata.
   image.metadata = metadata;
 
-  let promise = new Promise(function (resolve) {
+  let promise = new Promise(function(resolve) {
     resolve(image);
   });
 

@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>tools/tools.io.js - Larvitar</title>
+    <title>tools/tools.main.js - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,7 +40,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">tools/tools.io.js</h1>
+    <h1 class="page-title">tools/tools.main.js</h1>
     
 
     
@@ -50,135 +50,302 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import cornerstone from "cornerstone-core";
+            <pre class="prettyprint source linenums"><code>// external libraries
+import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
-import { each, map } from "lodash";
+import cornerstoneMath from "cornerstone-math";
 
-import { setToolPassive } from "../image_tools";
+import { each, extend } from "lodash";
+
+import {
+  saveAnnotations,
+  loadAnnotations,
+  exportAnnotations
+} from "./tools.io";
+import { DEFAULT_TOOLS } from "./tools.default";
 
 // DEV
-// import { saved_state_2 } from "./cstools_state_example.js";
+// window.cornerstone = cornerstone;
+// window.cornerstoneTools = cornerstoneTools;
 
 /**
- * Load annotation from json object
- * @param {Object} jsonData - The previously saved tools state
+ *
  */
-export const loadAnnotations = function(jsonData) {
-  // DEV
-  // if (!jsonData) {
-  //   jsonData = saved_state_2;
-  // }
-
-  // restore saved tool state
-  cornerstoneTools.globalImageIdSpecificToolStateManager.restoreToolState(
-    jsonData
-  );
-
-  // set all found tools to passive
-  let toolsInState = new Set();
-  for (let imageId in jsonData) {
-    for (let toolName in jsonData[imageId]) {
-      toolsInState.add(toolName);
-    }
-  }
-
-  toolsInState.forEach(toolName => {
-    setToolPassive(toolName);
+const initializeCSTools = function() {
+  cornerstoneTools.external.cornerstone = cornerstone;
+  cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
+  // cornerstoneTools.external.Hammer = Hammer;
+  cornerstoneTools.init({
+    mouseEnabled: true,
+    touchEnabled: false,
+    showSVGCursors: true
   });
-
-  let enabledElementIds = map(
-    cornerstone.getEnabledElements(),
-    e => e.element.id
-  );
-
-  // FIXME error if called when image is not loaded
-  for (let elementId of enabledElementIds) {
-    cornerstone.updateImage(document.getElementById(elementId));
-  }
+  configureCornerstoneToolsSettings();
 };
 
 /**
- * Save annotations from current stack, download as json file if requested
- * @param {bool} download - True to download json
- * @param {string} filename - The json file name, @default state.json
+ * Create stack object to sync stack tools
+ * @function csToolsCreateStack
+ * @param {HTMLElement} element - The target hmtl element.
  */
-export const saveAnnotations = function(download, filename = "state.json") {
-  let currentToolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
-  if (download) {
-    // Convert JSON Array to string.
-    var json = JSON.stringify(currentToolState);
-    // Convert JSON string to BLOB.
-    json = [json];
-    var blob = new Blob(json, { type: "text/plain;charset=utf-8" });
-    //Check the Browser.
-    var isIE = false || !!document.documentMode;
-    if (isIE) {
-      window.navigator.msSaveBlob(blob, filename);
-    } else {
-      var url = window.URL || window.webkitURL;
-      let link = url.createObjectURL(blob);
-      var a = document.createElement("a");
-      a.download = filename;
-      a.href = link;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-  }
-
-  return currentToolState;
-};
-
-/**
- * Save annotation from current stack, download as csv file
- * containing only useful informations for user
- */
-export const exportAnnotations = function() {
+const csToolsCreateStack = function(element) {
   // TODO
-  // NOTE : we need to flatten the state object before converting in csv
-  // and select a subset of properties as columns
+  // let viewer = store.get("viewer");
+  // let seriesId = store.get("seriesId");
+  let stack = {
+    currentImageIdIndex: 0,
+    imageIds: "imageLoader://0"
+  };
+  if (cornerstone.getEnabledElements().length == 0) {
+    cornerstone.enable(element);
+  }
+  cornerstoneTools.addStackStateManager(element, ["stack"]);
+  cornerstoneTools.addToolState(element, "stack", stack);
 };
 
 /**
  *
- * @param {*} allToolState
+ * @param {*} toolName
  */
-export function generateCSV(allToolState) {
-  each(allToolState, (imageToolState, imageId) => {
-    each(imageToolState, (toolState, toolName) => {
-      // extract useful information from tool state
-      let data = extractToolInfo(toolState.data);
-      console.log(imageId, toolName, data);
-    });
+const isToolMissing = function(toolName) {
+  let elements = cornerstone.getEnabledElements();
+  let isToolMissing = false;
+  // TODO check only target viewports
+  each(elements, function(el) {
+    let added = cornerstoneTools.getToolForElement(el.element, toolName);
+    if (added === undefined) {
+      isToolMissing = true;
+    }
   });
-}
+
+  return isToolMissing;
+};
 
 /**
  *
- * @param {*} toolData
+ * @param {*} toolName
+ * @param {*} targetElementId
  */
-function extractToolInfo(toolData) {
-  // This is an example for "length" tool, needs to be generalised
-  let dataArray = map(toolData, data => {
-    return {
-      color: data.color,
-      x1: data.handles.start.x,
-      y1: data.handles.start.y,
-      x2: data.handles.end.x,
-      y2: data.handles.end.y,
-      length: data.length,
-      unit: data.unit,
-      textBox_x: data.textBox ? data.textBox.x : null,
-      textBox_y: data.textBox ? data.textBox.y : null,
-      boundingBox_w: data.textBox ? data.textBox.boundingBox.width : null,
-      boundingBox_h: data.textBox ? data.textBox.boundingBox.height : null,
-      boundingBox_l: data.textBox ? data.textBox.boundingBox.left : null,
-      boundingBox_t: data.textBox ? data.textBox.boundingBox.top : null
-    };
+const addTool = function(toolName, configuration, targetElementId) {
+  if (isToolMissing(toolName)) {
+    // const toolClassName = toolName + "Tool"; // eg 'LengthTool'
+    const toolClassName = DEFAULT_TOOLS[toolName].class;
+    const toolClass = cornerstoneTools[toolClassName];
+    if (targetElementId) {
+      let element = document.getElementById(targetElementId);
+      cornerstoneTools.addToolForElement(element, toolClass, configuration);
+    } else {
+      cornerstoneTools.addTool(toolClass, configuration);
+    }
+  }
+};
+
+/**
+ * Add all default tools, as listed in tools.default.js
+ * @function addDefaultTools
+ */
+export const addDefaultTools = function(elementId) {
+  let elements = cornerstone.getEnabledElements();
+
+  if (elements.length == 0) {
+    let element = document.getElementById(elementId);
+    cornerstone.enable(element);
+  }
+
+  // for each default tool
+  each(DEFAULT_TOOLS, tool => {
+    // check if already added
+    if (!isToolMissing(tool.name)) {
+      return;
+    }
+
+    // check target viewports and call add tool with options
+    if (tool.viewports == "all") {
+      addTool(tool.name, tool.configuration);
+    } else {
+      // call add tool for element for each element
+      each(tool.viewports, targetElementId => {
+        addTool(tool.name, tool.configuration, targetElementId);
+      });
+    }
+
+    // if sync tool, enable
+    if (tool.sync) {
+      const synchronizer = new cornerstoneTools.Synchronizer(
+        "cornerstoneimagerendered",
+        cornerstoneTools[tool.sync]
+      );
+      elements.forEach(element => {
+        synchronizer.add(element.element);
+      });
+
+      synchronizer.enabled = true;
+    }
+
+    if (tool.defaultActive) {
+      setToolActive(tool.name, tool.options);
+    }
   });
 
-  return dataArray;
-}
+  // add cs tools stack
+  csToolsCreateStack(document.getElementById(elementId));
+
+  // // set first tool as active if first is not enabled
+  // setToolActive(store.get("leftMouseHandler"));
+
+  // // set wheel scroll active
+  // setToolActive("StackScrollMouseWheel", {
+  //   loop: false, // default false
+  //   allowSkipping: false, // default true
+  //   invert: false
+  // });
+};
+
+/**
+ * Set Tool "active" on all elements (ie, rendered and manipulable) &amp; refresh cornerstone elements
+ * @function setToolActive
+ * @param {String} toolName - The tool name.
+ * @param {Object} options - The custom options. @default from tools.default.js
+ * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
+ * @param {Array} viewports - The hmtl element id to be used for tool initialization. TODO default viewports ?
+ */
+const setToolActive = function(toolName, options, activeViewport, viewports) {
+  let defaultOpt = DEFAULT_TOOLS[toolName].options;
+  extend(defaultOpt, options);
+  cornerstoneTools.setToolActive(toolName, defaultOpt);
+  if (activeViewport == "all") {
+    each(viewports, function(elementId) {
+      let el = document.getElementById(elementId);
+      if (el) {
+        cornerstone.updateImage(el);
+      }
+    });
+  } else {
+    let el = document.getElementById(activeViewport);
+    if (el) {
+      cornerstone.updateImage(el);
+    }
+  }
+};
+
+/**
+ * Set Tool "disabled" on all elements (ie, not rendered) &amp; refresh cornerstone elements
+ * @function setToolActive
+ * @param {String} toolName - The tool name.
+ * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
+ * @param {Array} _viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
+ */
+const setToolDisabled = function(
+  toolName,
+  activeViewport,
+  viewports = ["axial", "sagittal", "coronal"]
+) {
+  cornerstoneTools.setToolDisabled(toolName);
+  if (activeViewport == "all") {
+    each(viewports, function(elementId) {
+      let el = document.getElementById(elementId);
+      if (el) {
+        cornerstone.updateImage(el);
+      }
+    });
+  } else {
+    let el = document.getElementById(activeViewport);
+    if (el) {
+      cornerstone.updateImage(el);
+    }
+  }
+};
+
+/**
+ * Set Tool "enabled" on all elements (ie, rendered but not manipulable) &amp; refresh cornerstone elements
+ * @function setToolEnabled
+ * @param {String} toolName - The tool name.
+ * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
+ * @param {Array} viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
+ */
+const setToolEnabled = function(
+  toolName,
+  activeViewport,
+  viewports = ["axial", "sagittal", "coronal"]
+) {
+  cornerstoneTools.setToolEnabled(toolName);
+  if (activeViewport == "all") {
+    each(viewports, function(elementId) {
+      let el = document.getElementById(elementId);
+      if (el) {
+        cornerstone.updateImage(el);
+      }
+    });
+  } else {
+    let el = document.getElementById(activeViewport);
+    if (el) {
+      cornerstone.updateImage(el);
+    }
+  }
+};
+
+/**
+ * Set Tool "enabled" on all elements (ie, rendered and manipulable passively) &amp; refresh cornerstone elements
+ * @function setToolPassive
+ * @param {String} toolName - The tool name.
+ * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
+ * @param {Array} viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
+ */
+const setToolPassive = function(
+  toolName,
+  activeViewport,
+  viewports = ["axial", "sagittal", "coronal"]
+) {
+  cornerstoneTools.setToolPassive(toolName);
+  if (activeViewport == "all") {
+    each(viewports, function(elementId) {
+      let el = document.getElementById(elementId);
+      if (el) {
+        cornerstone.updateImage(el);
+      }
+    });
+  } else {
+    let el = document.getElementById(activeViewport);
+    if (el) {
+      cornerstone.updateImage(el);
+    }
+  }
+};
+
+/** @inner Internal module functions */
+
+/**
+ * Set cornerstone tools configuration
+ * @function configureCornerstoneToolsSettings
+ */
+const configureCornerstoneToolsSettings = function() {
+  // Font families :
+  // Work Sans, Roboto, OpenSans, HelveticaNeue-Light,
+  // Helvetica Neue Light, Helvetica Neue, Helvetica,
+  // Arial, Lucida Grande, sans-serif;
+  let fontFamily = "Roboto";
+  let fontSize = 18;
+
+  cornerstoneTools.toolStyle.setToolWidth(1);
+  cornerstoneTools.toolColors.setToolColor("#FF0000");
+  cornerstoneTools.toolColors.setActiveColor("#00FF00");
+  cornerstoneTools.toolColors.setFillColor("#0000FF");
+  cornerstoneTools.textStyle.setFont(`${fontSize}px ${fontFamily}`);
+  cornerstoneTools.textStyle.setBackgroundColor("rgba(1, 1, 1, 0.0)");
+};
+
+export {
+  initializeCSTools,
+  csToolsCreateStack,
+  addTool,
+  setToolActive,
+  setToolEnabled,
+  setToolDisabled,
+  setToolPassive,
+  saveAnnotations,
+  loadAnnotations,
+  exportAnnotations
+};
 </code></pre>
         </article>
     </section>
