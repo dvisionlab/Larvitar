@@ -320,7 +320,7 @@ export const addSeedsTool = function (preLoadSeeds, initViewport = "axial") {
  * Delete all measurements from tools state, for tools that have the "cleaneable" prop set to true in tools.default.js
  * @function clearMeasurements
  */
-export const clearMeasurements = function () {
+export const clearMeasurements = function (cb) {
   let enabledElements = cornerstone.getEnabledElements();
   let clenableTools = filter(DEFAULT_TOOLS, "cleanable");
 
@@ -332,6 +332,10 @@ export const clearMeasurements = function () {
   each(enabledElements, el => {
     cornerstone.updateImage(el.element);
   });
+
+  if (cb) {
+    cb();
+  }
 };
 
 /**
