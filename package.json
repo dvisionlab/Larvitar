@@ -4,7 +4,7 @@
     "dicom",
     "imaging"
   ],
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "javascript library for loading, rendering and interact with DICOM images",
   "main": "index.js",
   "repository": {
@@ -28,7 +28,6 @@
     "docdash": "^1.2.0",
     "hammerjs": "^2.0.8",
     "lodash": "^4.17.15",
-    "@jonathanlurie/nrrdjs": "^0.1.1",
     "pako": "^1.0.10"
   },
   "devDependencies": {
