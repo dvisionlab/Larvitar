@@ -5,7 +5,7 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import { forEach } from "lodash";
+import { forEach, find } from "lodash";
 
 // internal libraries
 import { getMeanValue, getDistanceBetweenSlices } from "./image_utils.js";
@@ -135,7 +135,11 @@ export const buildData = function (series, useSeriesData) {
       offsetData += sliceData.length;
     });
   } else {
-    forEach(cornerstone.imageCache.cachedImages, function (cachedImage) {
+    forEach(series.imageIds, function (imageId) {
+      let cachedImage = find(cornerstone.imageCache.cachedImages, [
+        "imageId",
+        imageId
+      ]);
       const sliceData = cachedImage.image.getPixelData();
       data.set(sliceData, offsetData);
       offsetData += sliceData.length;
