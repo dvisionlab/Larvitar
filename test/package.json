@@ -1,0 +1,13 @@
+{
+  "name": "larvitar_test_suite",
+  "keywords": [
+    "dicom",
+    "imaging"
+  ],
+  "version": "0.1.0",
+  "description": "javascript library for loading, rendering and interact with DICOM images",
+  "dependencies": {
+    "lodash": "^4.17.20",
+    "uuid": "^8.3.0"
+  }
+}
