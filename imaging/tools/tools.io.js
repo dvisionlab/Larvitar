@@ -7,7 +7,7 @@ import { setToolPassive } from "../image_tools";
 
 // DEV
 // import { saved_state_2 } from "./cstools_state_example.js";
-import { devState } from "./devState.js";
+// import { devState } from "./devState.js";
 
 /**
  * Load annotation from json object
@@ -71,10 +71,7 @@ export const exportAnnotations = function(
   fileManager,
   filename = "annotations.csv"
 ) {
-  // let currentToolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
-  let currentToolState = devState;
-
-  // TODO for each imageId > get image path
+  let currentToolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
   let csvdata = generateCSV(fileManager, currentToolState);
   let csvstring = unparse(csvdata);
   download(csvstring, filename);
