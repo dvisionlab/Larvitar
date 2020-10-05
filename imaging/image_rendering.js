@@ -149,6 +149,23 @@ export const loadImage = function (series, elementId, defaultProps) {
         viewport.voi.windowCenter = wc;
         cornerstone.fitToWindow(element);
 
+        if (defaultProps && has(defaultProps, "scale")) {
+          let viewport = cornerstone.getViewport(element);
+          viewport.scale = defaultProps["scale"];
+          cornerstone.setViewport(element, viewport);
+        }
+
+        if (
+          defaultProps &&
+          has(defaultProps, "tr_x") &&
+          has(defaultProps, "tr_y")
+        ) {
+          let viewport = cornerstone.getViewport(element);
+          viewport.translation.x = defaultProps["tr_x"];
+          viewport.translation.y = defaultProps["tr_y"];
+          cornerstone.setViewport(element, viewport);
+        }
+
         csToolsCreateStack(element);
         enableMouseHandlers(elementId, element);
 
