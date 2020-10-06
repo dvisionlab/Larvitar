@@ -29,6 +29,8 @@ This library provides common dicom functionalities to be used in web-application
 - `tools/seedTool` is a custom cornerstone tool for 2D interactive seeding with custom colors and labels
 - `tools/default` default tools map and configuration
 
+Full documentation is available at http://www.dvisionlab.com/Larvitar/.
+
 # Contributors
 
 - Simone Manini, D/Vision Lab
@@ -50,4 +52,4 @@ This library provides common dicom functionalities to be used in web-application
 # Build docs
 
 Clone docdash repo into template folder
-`yarn run generate-docs`
+`yarn run generate-docs` 
