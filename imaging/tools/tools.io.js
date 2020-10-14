@@ -31,7 +31,7 @@ export const loadAnnotations = function (jsonData) {
   }
 
   toolsInState.forEach(toolName => {
-    setToolPassive(toolName);
+    setToolEnabled(toolName);
   });
 
   let enabledElementIds = map(
