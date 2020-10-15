@@ -54,7 +54,7 @@
 import cornerstoneTools from "cornerstone-tools";
 import { each, map } from "lodash";
 
-import { setToolPassive } from "../image_tools";
+import { setToolEnabled } from "../image_tools";
 
 // DEV
 // import { saved_state_2 } from "./cstools_state_example.js";
@@ -83,7 +83,7 @@ export const loadAnnotations = function (jsonData) {
   }
 
   toolsInState.forEach(toolName => {
-    setToolPassive(toolName);
+    setToolEnabled(toolName);
   });
 
   let enabledElementIds = map(

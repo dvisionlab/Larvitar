@@ -2,7 +2,7 @@ import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { each, map } from "lodash";
 
-import { setToolPassive } from "../image_tools";
+import { setToolEnabled } from "../image_tools";
 
 // DEV
 // import { saved_state_2 } from "./cstools_state_example.js";
