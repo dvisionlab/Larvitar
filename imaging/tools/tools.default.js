@@ -29,7 +29,7 @@ const DEFAULT_TOOLS = {
     defaultActive: false,
     class: "WwwcTool",
     sync: "wwwcSynchronizer",
-    description: "Change ww / wl",
+    description: "Change image contrast",
     shortcut: "ctrl-m",
     type: "utils"
   },
@@ -108,7 +108,8 @@ const DEFAULT_TOOLS = {
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: false,
-    class: "RotateTool"
+    class: "RotateTool",
+    description: "Rotate image"
   },
   Length: {
     name: "Length",
@@ -255,7 +256,7 @@ const DEFAULT_TOOLS = {
     options: { mouseButtonMask: 1 },
     cleanable: true,
     class: "RectangleScissorsTool",
-    description: "A simple brush",
+    description: "A rectangular segmentation tool",
     shortcut: "ctrl-w",
     type: "segmentation"
   },
@@ -266,7 +267,7 @@ const DEFAULT_TOOLS = {
     options: { mouseButtonMask: 1 },
     cleanable: true,
     class: "FreehandScissorsTool",
-    description: "A simple brush",
+    description: "A free-hand segmentation tool",
     shortcut: "ctrl-e",
     type: "segmentation"
   },
@@ -277,7 +278,7 @@ const DEFAULT_TOOLS = {
     options: { mouseButtonMask: 1 },
     cleanable: true,
     class: "CircleScissorsTool",
-    description: "A simple brush",
+    description: "A circular segmentation tool",
     shortcut: "ctrl-r",
     type: "segmentation"
   }
