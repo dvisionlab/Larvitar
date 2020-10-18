@@ -104,9 +104,9 @@ export const loadAnnotations = function(jsonData) {
  * @param {bool} download - True to download json
  * @param {string} filename - The json file name, @default state.json
  */
-export const saveAnnotations = function(download, filename = "state.json") {
+export const saveAnnotations = function(toDownload, filename = "state.json") {
   let currentToolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
-  if (download) {
+  if (toDownload) {
     // Convert JSON Array to string.
     var json_string = JSON.stringify(currentToolState);
     download(json_string, filename);
