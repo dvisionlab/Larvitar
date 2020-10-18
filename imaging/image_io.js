@@ -5,11 +5,11 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import { forEach } from "lodash";
-import nrrdjs from "@jonathanlurie/nrrdjs";
+import { forEach, find } from "lodash";
 
 // internal libraries
 import { getMeanValue, getDistanceBetweenSlices } from "./image_utils.js";
+import { parse } from "./parsers/nrrd";
 
 /*
  * This module provides the following functions to be exported:
@@ -135,7 +135,11 @@ export const buildData = function(series, useSeriesData) {
       offsetData += sliceData.length;
     });
   } else {
-    forEach(cornerstone.imageCache.cachedImages, function(cachedImage) {
+    forEach(series.imageIds, function(imageId) {
+      let cachedImage = find(cornerstone.imageCache.cachedImages, [
+        "imageId",
+        imageId
+      ]);
       const sliceData = cachedImage.image.getPixelData();
       data.set(sliceData, offsetData);
       offsetData += sliceData.length;
@@ -153,6 +157,6 @@ export const buildData = function(series, useSeriesData) {
  */
 export const importNRRDImage = function(bufferArray) {
   // get the data
-  let volume = nrrdjs.parse(bufferArray, {});
+  let volume = parse(bufferArray, {});
   return volume;
 };

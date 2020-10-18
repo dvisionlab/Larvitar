@@ -2,7 +2,7 @@
 
 ## Dicom Image Toolkit for CornestoneJS
 
-### Current version: 0.7.0
+### Current version: 0.7.6
 
 This library provides common dicom functionalities to be used in web-applications. Multiplanar reformat on axial, sagittal and coronal viewports is included as well as custom loader/exporter for nrrd files and orthogonal reslice.
 
@@ -28,6 +28,8 @@ This library provides common dicom functionalities to be used in web-application
 - `tools/editMaskTool` is a custom cornerstone tool for 2D visualization of segmentation masks with brush functionalities
 - `tools/seedTool` is a custom cornerstone tool for 2D interactive seeding with custom colors and labels
 - `tools/default` default tools map and configuration
+
+Full documentation is available at http://www.dvisionlab.com/Larvitar/.
 
 # Contributors
 

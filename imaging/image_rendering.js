@@ -6,7 +6,7 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import { each, has } from "lodash";
+import { each, has, throttle } from "lodash";
 
 // internal libraries
 import { getFileImageId } from "./loaders/fileLoader";
@@ -170,6 +170,23 @@ export const loadImage = function(series, elementId, defaultProps) {
         viewport.voi.windowCenter = wc;
         cornerstone.fitToWindow(element);
 
+        if (defaultProps && has(defaultProps, "scale")) {
+          let viewport = cornerstone.getViewport(element);
+          viewport.scale = defaultProps["scale"];
+          cornerstone.setViewport(element, viewport);
+        }
+
+        if (
+          defaultProps &&
+          has(defaultProps, "tr_x") &&
+          has(defaultProps, "tr_y")
+        ) {
+          let viewport = cornerstone.getViewport(element);
+          viewport.translation.x = defaultProps["tr_x"];
+          viewport.translation.y = defaultProps["tr_y"];
+          cornerstone.setViewport(element, viewport);
+        }
+
         csToolsCreateStack(element);
         enableMouseHandlers(elementId, element);
 
@@ -321,6 +338,51 @@ export const resetViewports = function(elementIds) {
 };
 
 /**
+ * Update viewport data in store
+ * @instance
+ * @function updateViewportData
+ * @param {String} activeTool - The name of the activetool
+ * @param {String} elementId - The html div id used for rendering
+ */
+export const updateViewportData = function(activeTool, elementId) {
+  let element = document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let viewport = cornerstone.getViewport(element);
+  let viewportNames = store.get("viewports");
+  let viewer = store.get("viewer");
+  switch (activeTool) {
+    case "Wwwc":
+      each(viewportNames, function(viewportName) {
+        // sync ww and wc values in store
+        store.set(viewer, "contrast", [
+          viewportName,
+          viewport.voi.windowWidth,
+          viewport.voi.windowCenter
+        ]);
+      });
+      break;
+    case "Pan":
+      store.set(viewer, "translation", [
+        elementId,
+        viewport.translation.x,
+        viewport.translation.y
+      ]);
+      break;
+    case "Zoom":
+      store.set(viewer, "scale", [elementId, viewport.scale]);
+      break;
+    case "Rotate":
+      store.set(viewer, "rotation", [elementId, viewport.rotation]);
+      break;
+    default:
+      break;
+  }
+};
+
+/**
  * Add event handlers to mouse move
  * @instance
  * @function enableMouseHandlers
@@ -332,49 +394,39 @@ export const enableMouseHandlers = function(elementId) {
     console.error("invalid html element: " + elementId);
     return;
   }
-  element.removeEventListener("mousedown", mouseDownHandler);
-  function mouseDownHandler(e) {
-    const mouseButton = e.which;
-    // get action from global store
-    if (mouseButton != 1 || e.target.localName != "canvas") {
-      // console.warn("not left mouse or wrong target, return");
-      return;
-    }
-    function mouseMoveHandler() {
-      let viewport = cornerstone.getViewport(element);
-      let viewportNames = store.get("viewports");
-      let viewer = store.get("viewer");
-      each(viewportNames, function(viewportName) {
-        // sync ww and wc values in store
-        store.set(viewer, "contrast", [
-          viewportName,
-          viewport.voi.windowWidth,
-          viewport.voi.windowCenter
-        ]);
-      });
-      // sync translation values in store
-      store.set(viewer, "translation", [
-        elementId,
-        viewport.translation.x,
-        viewport.translation.y
-      ]);
-      // sync scale values in store
-      store.set(viewer, "scale", [elementId, viewport.scale]);
-      // sync rotation values in store
-      store.set(viewer, "rotation", [elementId, viewport.rotation]);
-    }
-    function mouseUpHandler() {
-      document.removeEventListener("mousemove", mouseMoveHandler);
-      document.removeEventListener("mouseup", mouseUpHandler);
-    }
-    document.removeEventListener("mousemove", mouseMoveHandler);
-    document.removeEventListener("mouseup", mouseUpHandler);
-    document.addEventListener("mousemove", mouseMoveHandler);
-    document.addEventListener("mouseup", mouseUpHandler);
-  }
-  element.addEventListener("mousedown", mouseDownHandler);
 
-  // cornerstoneTools wheel tool listener (update sliceId)
+  // remove and add mousedown
+  element.removeEventListener("cornerstonetoolsmousedown", mouseDownHandler);
+  element.addEventListener("cornerstonetoolsmousedown", mouseDownHandler);
+
+  function mouseDownHandler() {
+    let activeTool = store.get("leftMouseHandler");
+
+    let throttledSave = throttle(function() {
+      updateViewportData(activeTool, elementId);
+    }, 350);
+
+    function mouseMoveHandler() {
+      throttledSave();
+    }
+
+    // remove and add mousedrag
+    element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+    element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+
+    function mouseUpHandler() {
+      element.removeEventListener(
+        "cornerstonetoolsmousemove",
+        mouseMoveHandler
+      );
+      element.removeEventListener("cornerstonetoolsmouseup", mouseUpHandler);
+      updateViewportData(activeTool, elementId);
+    }
+    // remove and add mouseup
+    element.removeEventListener("cornerstonetoolsmouseup", mouseUpHandler);
+    element.addEventListener("cornerstonetoolsmouseup", mouseUpHandler);
+  }
+
   function mouseWheelHandler(evt) {
     let viewer = store.get("viewer");
     let enabledElement = cornerstone.getEnabledElement(element);
@@ -383,6 +435,7 @@ export const enableMouseHandlers = function(elementId) {
         .currentImageIdIndex;
     store.set(viewer, "currentSliceNumber", [evt.target.id, cix + 1]);
   }
+
   element.removeEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
   element.addEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
 };

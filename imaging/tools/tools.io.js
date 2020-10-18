@@ -3,7 +3,7 @@ import cornerstoneTools from "cornerstone-tools";
 import { each, map, assign, invert } from "lodash";
 import { unparse } from "papaparse";
 
-import { setToolPassive } from "../image_tools";
+import { setToolEnabled } from "../image_tools";
 
 // DEV
 // import { saved_state_2 } from "./cstools_state_example.js";
@@ -33,7 +33,7 @@ export const loadAnnotations = function(jsonData) {
   }
 
   toolsInState.forEach(toolName => {
-    setToolPassive(toolName);
+    setToolEnabled(toolName);
   });
 
   let enabledElementIds = map(
@@ -52,9 +52,9 @@ export const loadAnnotations = function(jsonData) {
  * @param {bool} download - True to download json
  * @param {string} filename - The json file name, @default state.json
  */
-export const saveAnnotations = function(download, filename = "state.json") {
+export const saveAnnotations = function(toDownload, filename = "state.json") {
   let currentToolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
-  if (download) {
+  if (toDownload) {
     // Convert JSON Array to string.
     var json_string = JSON.stringify(currentToolState);
     download(json_string, filename);

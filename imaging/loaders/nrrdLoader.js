@@ -361,6 +361,9 @@ let initializeMainViewport = function(header, volume, seriesId) {
       case "Sint8":
         pixelData = new Int8Array(sliceBuffer);
         break;
+      case "Unsigned short":
+        pixelData = new Uint16Array(sliceBuffer);
+        break;
       case "Uint16":
         pixelData = new Uint16Array(sliceBuffer);
         break;
