@@ -13,6 +13,9 @@
  * }
  *
  */
+
+import { filter } from "lodash";
+
 const DEFAULT_TOOLS = {
   Wwwc: {
     name: "Wwwc",
@@ -23,8 +26,12 @@ const DEFAULT_TOOLS = {
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: false,
+    defaultActive: false,
     class: "WwwcTool",
-    sync: "wwwcSynchronizer"
+    sync: "wwwcSynchronizer",
+    description: "Change image contrast",
+    shortcut: "ctrl-m",
+    type: "utils"
   },
   StackScrollMouseWheel: {
     name: "StackScrollMouseWheel",
@@ -43,7 +50,10 @@ const DEFAULT_TOOLS = {
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: false,
-    class: "PanTool"
+    class: "PanTool",
+    description: "Move image xy",
+    shortcut: "ctrl-p",
+    type: "utils"
   },
   Zoom: {
     name: "Zoom",
@@ -54,7 +64,26 @@ const DEFAULT_TOOLS = {
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: false,
-    class: "ZoomTool"
+    class: "ZoomTool",
+    defaultActive: false,
+    description: "Zoom image at mouse position",
+    shortcut: "ctrl-z",
+    type: "utils"
+  },
+  Magnify: {
+    name: "Magnify",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: false,
+    class: "MagnifyTool",
+    defaultActive: false,
+    description: "Magnify image at mouse position",
+    shortcut: "ctrl-m",
+    type: "utils"
   },
   DragProbe: {
     name: "DragProbe",
@@ -65,20 +94,10 @@ const DEFAULT_TOOLS = {
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: false,
-    class: "DragProbeTool"
-  },
-  Magnify: {
-    name: "Magnify",
-    viewports: "all",
-    configuration: {
-      magnifySize: 200
-    },
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "MagnifyTool"
+    class: "DragProbeTool",
+    description: "Probe image at mouse position",
+    shortcut: "ctrl-p",
+    type: "utils"
   },
   Rotate: {
     name: "Rotate",
@@ -89,7 +108,8 @@ const DEFAULT_TOOLS = {
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: false,
-    class: "RotateTool"
+    class: "RotateTool",
+    description: "Rotate image"
   },
   Length: {
     name: "Length",
@@ -127,14 +147,21 @@ const DEFAULT_TOOLS = {
     configuration: {},
     options: { mouseButtonMask: 1 },
     cleanable: true,
-    class: "EllipticalRoiTool"
+    class: "EllipticalRoiTool",
+    description: "Draw an ellipse",
+    shortcut: "ctrl-f",
+    type: "annotation"
   },
   RectangleRoi: {
     name: "RectangleRoi",
     viewports: "all",
     options: { mouseButtonMask: 1 },
     cleanable: true,
-    class: "RectangleRoiTool"
+    defaultActive: false,
+    class: "RectangleRoiTool",
+    description: "Draw a rectangle",
+    shortcut: "ctrl-a",
+    type: "annotation"
   },
   FreehandRoi: {
     name: "FreehandRoi",
@@ -142,7 +169,10 @@ const DEFAULT_TOOLS = {
     configuration: {},
     options: { mouseButtonMask: 1 },
     cleanable: true,
-    class: "FreehandRoiTool"
+    class: "FreehandRoiTool",
+    description: "Draw a polyline / freehand form",
+    shortcut: "ctrl-s",
+    type: "annotation"
   },
   Probe: {
     name: "Probe",
@@ -157,7 +187,10 @@ const DEFAULT_TOOLS = {
     configuration: {},
     options: { mouseButtonMask: 1 },
     cleanable: true,
-    class: "ArrowAnnotateTool"
+    class: "ArrowAnnotateTool",
+    description: "Draw an arrow",
+    shortcut: "ctrl-d",
+    type: "annotation"
   },
   TextMarker: {
     name: "TextMarker",
@@ -204,7 +237,55 @@ const DEFAULT_TOOLS = {
     cleanable: false,
     class: "PanMultiTouchTool",
     defaultActive: true
+  },
+  Brush: {
+    name: "Brush",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "BrushTool",
+    description: "A simple brush",
+    shortcut: "ctrl-q",
+    type: "segmentation"
+  },
+  RectangleScissors: {
+    name: "RectangleScissors",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "RectangleScissorsTool",
+    description: "A rectangular segmentation tool",
+    shortcut: "ctrl-w",
+    type: "segmentation"
+  },
+  FreehandScissors: {
+    name: "FreehandScissors",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "FreehandScissorsTool",
+    description: "A free-hand segmentation tool",
+    shortcut: "ctrl-e",
+    type: "segmentation"
+  },
+  CircleScissors: {
+    name: "CircleScissors",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "CircleScissorsTool",
+    description: "A circular segmentation tool",
+    shortcut: "ctrl-r",
+    type: "segmentation"
   }
 };
 
-export { DEFAULT_TOOLS };
+const getDefaultToolsByType = function(type) {
+  return filter(DEFAULT_TOOLS, ["type", type]);
+};
+
+export { DEFAULT_TOOLS, getDefaultToolsByType };

@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>DiameterTool - Larvitar</title>
+    <title>tools/tools.state.js - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,153 +40,96 @@
 
 <div id="main">
     
-    <h1 class="page-title">DiameterTool</h1>
+    <h1 class="page-title">tools/tools.state.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-        DiameterTool
-        </h2>
-        
-            <div class="class-description usertext"><p>Create and position an annotation that measures the<br>
-length and width of a region.</p></div>
-        
-    
-</header>
-
-<article>
-    
-        <div class="container-overview">
-        
-            
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="DiameterTool"><span class="type-signature"></span>new DiameterTool<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tools_diameterTool.js.html">tools/diameterTool.js</a>, <a href="tools_diameterTool.js.html#line8">line 8</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-        </div>
-    
-
-    
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li>Tools.Base.BaseAnnotationTool</li>
-    </ul>
-
-
-    
-
-    
-
-    
-    
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// external libraries
+import cornerstone from "cornerstone-core";
+import cornerstoneTools from "cornerstone-tools";
+
+import { each } from "lodash";
+import { state_example } from "./cstools_state_example.js";
+
+/**
+ *
+ * @param {*} elementId
+ */
+const saveToolState = function(elementId) {
+  const elementToolStateManager = cornerstoneTools.getElementToolStateManager(
+    document.getElementById(elementId)
+  );
+
+  const currentState = elementToolStateManager.saveToolState();
+
+  return currentState;
+};
+
+/**
+ *
+ * @param {*} elementId
+ * @param {*} allToolState
+ */
+const restoreToolState = function(elementId, allToolState) {
+  const elementToolStateManager = cornerstoneTools.getElementToolStateManager(
+    document.getElementById(elementId)
+  );
+
+  each(allToolState, (imageState, imageId) => {
+    each(imageState, (toolState, toolName) => {
+      elementToolStateManager.restoreImageIdToolState(imageId, {
+        [toolName]: toolState
+      });
+    });
+  });
+};
+
+// EXAMPLE OF CORRECT USE OF TOOL STATE MANAGER
+
+export const example = function() {
+  // Declare state manager
+  const stateManager = cornerstoneTools.newImageIdSpecificToolStateManager();
+
+  // Get enabled element (cornerstone.getEnabledElement)
+  const imageId = "imagefile:0";
+  const testElement = cornerstone
+    .getEnabledElements()
+    .slice()
+    .pop();
+  testElement.image = { imageId };
+  // const testElement = {
+  //   image: {
+  //     imageId
+  //   }
+  // };
+
+  // Setup with some initial data
+  const toolType = "EllipticalRoi";
+  // stateManager.restoreImageIdToolState(imageId, {
+  //   [toolType]: { data: ["initialData"] }
+  // });
+  stateManager.restoreImageIdToolState(imageId, {
+    [toolType]: { data: state_example[imageId] }
+  });
+
+  // Add more data
+  stateManager.add(testElement, toolType, "addedData");
+
+  // Check the results
+  const allToolState = stateManager.saveToolState();
+  console.log(allToolState);
+};
+
+export { saveToolState, restoreToolState };
+</code></pre>
+        </article>
+    </section>
 
 
 
