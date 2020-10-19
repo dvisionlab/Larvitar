@@ -284,7 +284,7 @@ const DEFAULT_TOOLS = {
   }
 };
 
-const getDefaultToolsByType = function(type) {
+const getDefaultToolsByType = function (type) {
   return filter(DEFAULT_TOOLS, ["type", type]);
 };
 
