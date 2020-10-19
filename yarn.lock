@@ -14,14 +14,6 @@
   dependencies:
     regenerator-runtime "^0.12.0"
 
-"@jonathanlurie/nrrdjs@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@jonathanlurie/nrrdjs/-/nrrdjs-0.1.1.tgz#cd4a056a601d23643e3e9e41a13d1bbbb99866ac"
-  integrity sha512-UKsEmJtQdXs2YIrVyQkXcFxrV2yKC/rgYaeiBZiolTqGkcn481+2fTWHLoG0t9FHX05TUB9zyq0wpgIh/xSqoQ==
-  dependencies:
-    gl-matrix "^3.0.0"
-    pako "^1.0.10"
-
 argparse@^1.0.7:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/argparse/-/argparse-1.0.10.tgz#bcd6791ea5ae09725e17e5ad988134cd40b3d911"
@@ -51,7 +43,7 @@ cornerstone-file-image-loader@^0.3.0:
   resolved "https://registry.yarnpkg.com/cornerstone-file-image-loader/-/cornerstone-file-image-loader-0.3.0.tgz#de61c40b70529cd72bb58dbb3c8ad80cc5a87fc4"
   integrity sha512-q6Qd1TvXT3JiXQaU9Yy0LsfKZFBlrHCLdzqC82yn+qfrwws/OYXSeTZDUfhpmb4B3T9QSq8YQGDHM1IlgJ14jg==
   dependencies:
-    serialize-javascript "^2.1.2"
+    serialize-javascript "^3.1.0"
 
 cornerstone-math@0.1.7:
   version "0.1.7"
@@ -98,11 +90,6 @@ escape-string-regexp@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-2.0.0.tgz#a30304e99daa32e23b2fd20f51babd07cffca344"
   integrity sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w==
-
-gl-matrix@^3.0.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/gl-matrix/-/gl-matrix-3.3.0.tgz#232eef60b1c8b30a28cbbe75b2caf6c48fd6358b"
-  integrity sha512-COb7LDz+SXaHtl/h4LeaFcNdJdAQSDeVqjiIihSXNrkWObZLhDI4hIkZC11Aeqp7bcE72clzB0BnDXr2SmslRA==
 
 graceful-fs@^4.1.9:
   version "4.2.3"
@@ -196,6 +183,13 @@ pako@^1.0.10:
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
   integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
 
+randombytes@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/randombytes/-/randombytes-2.1.0.tgz#df6f84372f0270dc65cdf6291349ab7a473d4f2a"
+  integrity sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==
+  dependencies:
+    safe-buffer "^5.1.0"
+
 regenerator-runtime@^0.12.0:
   version "0.12.1"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.12.1.tgz#fa1a71544764c036f8c49b13a08b2594c9f8a0de"
@@ -208,10 +202,17 @@ requizzle@^0.2.3:
   dependencies:
     lodash "^4.17.14"
 
-serialize-javascript@^2.1.2:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-2.1.2.tgz#ecec53b0e0317bdc95ef76ab7074b7384785fa61"
-  integrity sha512-rs9OggEUF0V4jUSecXazOYsLfu7OGK2qIn3c7IPBiffz32XniEp/TX9Xmc9LQfK2nQ2QKHvZ2oygKUGU0lG4jQ==
+safe-buffer@^5.1.0:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.2.1.tgz#1eaf9fa9bdb1fdd4ec75f58f9cdb4e6b7827eec6"
+  integrity sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==
+
+serialize-javascript@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-3.1.0.tgz#8bf3a9170712664ef2561b44b691eafe399214ea"
+  integrity sha512-JIJT1DGiWmIKhzRsG91aS6Ze4sFUrYbltlkg2onR5OrnNM02Kl/hnY/T4FN2omvyeBbQmMJv+K4cPOpGzOTFBg==
+  dependencies:
+    randombytes "^2.1.0"
 
 sprintf-js@~1.0.2:
   version "1.0.3"
