@@ -19,6 +19,7 @@ import {
   getSeriesData as getSeriesDataFromDicomLoader,
   dicomManager
 } from "./dicomLoader";
+import { fileManager } from "./fileLoader";
 
 import { default as larvitar_store } from "../image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
@@ -38,9 +39,26 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
  * @function getLarvitarManager
  * @returns {Object} the loader manager
  */
-export const getLarvitarManager = function() {
-  let manager = store.get(["manager"]);
-  return manager == "dicomManager" ? dicomManager : nrrdManager;
+export const getLarvitarManager = function () {
+  let managerType = store.get(["manager"]);
+  let manager;
+
+  switch (managerType) {
+    case "dicomManager":
+      manager = dicomManager;
+      break;
+    case "nrrdManager":
+      manager = nrrdManager;
+      break;
+    case "fileManager":
+      manager = fileManager;
+      break;
+    default:
+      console.warn("no matching manager");
+      manager = {};
+  }
+
+  return manager;
 };
 
 /**
@@ -51,7 +69,7 @@ export const getLarvitarManager = function() {
  * @param {String} loaderName The name of the current loader
  * @returns {Object} series data of a specific seriesId
  */
-export const getSeriesData = function(seriesId, loaderName) {
+export const getSeriesData = function (seriesId, loaderName) {
   return loaderName == "nrrdLoader"
     ? getSeriesDataFromNrrdLoader(seriesId)
     : getSeriesDataFromDicomLoader(seriesId);
@@ -64,7 +82,7 @@ export const getSeriesData = function(seriesId, loaderName) {
  * @param {String} loaderName The name of the current loader
  * @returns {String} custom Image Id
  */
-export const getCustomImageId = function(loaderName) {
+export const getCustomImageId = function (loaderName) {
   return loaderName == "nrrdLoader"
     ? getNrrdImageId(loaderName)
     : getDicomImageId(loaderName);
@@ -76,7 +94,7 @@ export const getCustomImageId = function(loaderName) {
  * @function getSerieDimensions
  * @returns {Array} dimensions for series
  */
-export const getSerieDimensions = function() {
+export const getSerieDimensions = function () {
   // TODO FOR DICOM LOADER
   return getNrrdSerieDimensions();
 };
@@ -89,7 +107,7 @@ export const getSerieDimensions = function() {
  * @param {Object} dataSet dicom dataset
  * @returns {Object} specific image frame
  */
-export const getImageFrame = function(metadata, dataSet) {
+export const getImageFrame = function (metadata, dataSet) {
   let imagePixelModule;
 
   if (dataSet) {

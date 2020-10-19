@@ -30,7 +30,7 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
  * @instance
  * @function clearImageCache
  */
-export const clearImageCache = function() {
+export const clearImageCache = function () {
   cornerstone.imageCache.purgeCache();
 };
 
@@ -41,7 +41,7 @@ export const clearImageCache = function() {
  * @param {Object} file - The image File object
  * @param {String} elementId - The html div id used for rendering
  */
-export const loadFileImage = function(file, elementId) {
+export const loadFileImage = function (file, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -55,7 +55,7 @@ export const loadFileImage = function(file, elementId) {
   // check if imageId is already stored in fileManager
   const imageId = getFileImageId(file);
   if (imageId) {
-    cornerstone.loadImage(imageId).then(function(image) {
+    cornerstone.loadImage(imageId).then(function (image) {
       cornerstone.displayImage(element, image);
       cornerstone.fitToWindow(element);
     });
@@ -69,7 +69,7 @@ export const loadFileImage = function(file, elementId) {
  * @param {String} url - The image data url
  * @param {String} elementId - The html div id used for rendering
  */
-export const loadWebImage = function(url, elementId) {
+export const loadWebImage = function (url, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -77,7 +77,7 @@ export const loadWebImage = function(url, elementId) {
   }
 
   cornerstone.enable(element);
-  cornerstone.loadImage(url).then(function(image) {
+  cornerstone.loadImage(url).then(function (image) {
     cornerstone.displayImage(element, image);
   });
 };
@@ -88,7 +88,7 @@ export const loadWebImage = function(url, elementId) {
  * @function disableImage
  * @param {String} elementId - The html div id used for rendering
  */
-export const disableImage = function(elementId) {
+export const disableImage = function (elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -105,7 +105,7 @@ export const disableImage = function(elementId) {
  * @param {String} elementId - The html div id used for rendering
  * @param {Object} defaultProps - Optional default props
  */
-export const loadImage = function(series, elementId, defaultProps) {
+export const loadImage = function (series, elementId, defaultProps) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -158,8 +158,8 @@ export const loadImage = function(series, elementId, defaultProps) {
     store.set(null, "errorLog", "");
   }
 
-  each(series.imageIds, function(imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function(image) {
+  each(series.imageIds, function (imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
       // HACK to force render re-evaluation (otherwise it remains stuck on GrayScaleRenderer)
       image.render = null;
 
@@ -216,7 +216,7 @@ export const loadImage = function(series, elementId, defaultProps) {
  * @param {Object} series - The original series data object
  * @param {String} elementId - The html div id used for rendering
  */
-export const reloadImage = function(series, elementId) {
+export const reloadImage = function (series, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -227,8 +227,8 @@ export const reloadImage = function(series, elementId) {
   let sliceId = store.get(viewer, elementId, "sliceId");
   let currentImageId = series.imageIds[sliceId];
 
-  each(series.imageIds, function(imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function(image) {
+  each(series.imageIds, function (imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
       if (currentImageId == imageId) {
         cornerstone.displayImage(element, image);
         let viewport = cornerstone.getViewport(element);
@@ -263,11 +263,11 @@ export const reloadImage = function(series, elementId) {
  * @param {String} elementId - The html div id used for rendering
  * @param {Number} imageIndex - The index of the image to be rendered
  */
-export const updateImage = function(series, element, imageIndex) {
+export const updateImage = function (series, element, imageIndex) {
   if (!element) {
     return;
   }
-  cornerstone.loadImage(series.imageIds[imageIndex - 1]).then(function(image) {
+  cornerstone.loadImage(series.imageIds[imageIndex - 1]).then(function (image) {
     cornerstone.displayImage(element, image);
   });
 };
@@ -278,8 +278,8 @@ export const updateImage = function(series, element, imageIndex) {
  * @function resetViewports
  * @param {Array} elementIds - The array of hmtl div ids
  */
-export const resetViewports = function(elementIds) {
-  each(elementIds, function(elementId) {
+export const resetViewports = function (elementIds) {
+  each(elementIds, function (elementId) {
     let element = document.getElementById(elementId);
     if (!element) {
       console.error("invalid html element: " + elementId);
@@ -344,7 +344,7 @@ export const resetViewports = function(elementIds) {
  * @param {String} activeTool - The name of the activetool
  * @param {String} elementId - The html div id used for rendering
  */
-export const updateViewportData = function(activeTool, elementId) {
+export const updateViewportData = function (activeTool, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -355,7 +355,7 @@ export const updateViewportData = function(activeTool, elementId) {
   let viewer = store.get("viewer");
   switch (activeTool) {
     case "Wwwc":
-      each(viewportNames, function(viewportName) {
+      each(viewportNames, function (viewportName) {
         // sync ww and wc values in store
         store.set(viewer, "contrast", [
           viewportName,
@@ -388,7 +388,7 @@ export const updateViewportData = function(activeTool, elementId) {
  * @function enableMouseHandlers
  * @param {String} elementId - The html div id used for rendering
  */
-export const enableMouseHandlers = function(elementId) {
+export const enableMouseHandlers = function (elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -402,7 +402,7 @@ export const enableMouseHandlers = function(elementId) {
   function mouseDownHandler() {
     let activeTool = store.get("leftMouseHandler");
 
-    let throttledSave = throttle(function() {
+    let throttledSave = throttle(function () {
       updateViewportData(activeTool, elementId);
     }, 350);
 
@@ -457,7 +457,7 @@ export const enableMouseHandlers = function(elementId) {
  * @param {Number} defaultWW - The default WW value
  * @param {Number} defaultWC - The default WC value
  */
-export const storeViewportData = function(
+export const storeViewportData = function (
   image,
   elementId,
   imageIndex,

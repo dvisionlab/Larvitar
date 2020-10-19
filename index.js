@@ -78,6 +78,7 @@ import {
 
 import {
   csToolsCreateStack,
+  csToolsUpdateImageIndex,
   initializeCSTools,
   addDefaultTools,
   addTool,
@@ -241,7 +242,6 @@ export {
   saveAnnotations,
   loadAnnotations,
   exportAnnotations,
-  setSegmentationConfig
+  setSegmentationConfig,
+  csToolsUpdateImageIndex
 };
-
-console.warn("Larvitar dev mode");

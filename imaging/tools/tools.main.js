@@ -19,7 +19,7 @@ import { DEFAULT_TOOLS } from "./tools.default";
 /**
  *
  */
-const initializeCSTools = function() {
+const initializeCSTools = function () {
   cornerstoneTools.external.cornerstone = cornerstone;
   cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
   // cornerstoneTools.external.Hammer = Hammer;
@@ -36,7 +36,7 @@ const initializeCSTools = function() {
  * @function csToolsCreateStack
  * @param {HTMLElement} element - The target hmtl element.
  */
-const csToolsCreateStack = function(element) {
+const csToolsCreateStack = function (element) {
   // TODO
   // let viewer = store.get("viewer");
   // let seriesId = store.get("seriesId");
@@ -52,14 +52,27 @@ const csToolsCreateStack = function(element) {
 };
 
 /**
+ * Update currentImageIdIndex in cs tools stack
+ * @param {String} elementId - The target html element id
+ * @param {String} imageId - The imageId in the form xxxxxx//:imageIndex
+ */
+export function csToolsUpdateImageIndex(elementId, imageId) {
+  let currentImageIdIndex = parseInt(imageId.split(":")[1]);
+  const element = document.getElementById(elementId);
+  const stackState = cornerstoneTools.getToolState(element, "stack");
+  const stackData = stackState.data[0];
+  stackData.currentImageIdIndex = currentImageIdIndex;
+}
+
+/**
  *
  * @param {*} toolName
  */
-const isToolMissing = function(toolName) {
+const isToolMissing = function (toolName) {
   let elements = cornerstone.getEnabledElements();
   let isToolMissing = false;
   // TODO check only target viewports
-  each(elements, function(el) {
+  each(elements, function (el) {
     let added = cornerstoneTools.getToolForElement(el.element, toolName);
     if (added === undefined) {
       isToolMissing = true;
@@ -74,7 +87,7 @@ const isToolMissing = function(toolName) {
  * @param {*} toolName
  * @param {*} targetElementId
  */
-const addTool = function(toolName, configuration, targetElementId) {
+const addTool = function (toolName, configuration, targetElementId) {
   if (isToolMissing(toolName)) {
     // const toolClassName = toolName + "Tool"; // eg 'LengthTool'
     const toolClassName = DEFAULT_TOOLS[toolName].class;
@@ -92,7 +105,7 @@ const addTool = function(toolName, configuration, targetElementId) {
  * Add all default tools, as listed in tools.default.js
  * @function addDefaultTools
  */
-export const addDefaultTools = function(elementId) {
+export const addDefaultTools = function (elementId) {
   let elements = cornerstone.getEnabledElements();
 
   if (elements.length == 0) {
@@ -157,12 +170,12 @@ export const addDefaultTools = function(elementId) {
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization. TODO default viewports ?
  */
-const setToolActive = function(toolName, options, activeViewport, viewports) {
+const setToolActive = function (toolName, options, activeViewport, viewports) {
   let defaultOpt = DEFAULT_TOOLS[toolName].options;
   extend(defaultOpt, options);
   cornerstoneTools.setToolActive(toolName, defaultOpt);
   if (activeViewport == "all") {
-    each(viewports, function(elementId) {
+    each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (el) {
         cornerstone.updateImage(el);
@@ -183,14 +196,14 @@ const setToolActive = function(toolName, options, activeViewport, viewports) {
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} _viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
  */
-const setToolDisabled = function(
+const setToolDisabled = function (
   toolName,
   activeViewport,
   viewports = ["axial", "sagittal", "coronal"]
 ) {
   cornerstoneTools.setToolDisabled(toolName);
   if (activeViewport == "all") {
-    each(viewports, function(elementId) {
+    each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (el) {
         cornerstone.updateImage(el);
@@ -211,14 +224,14 @@ const setToolDisabled = function(
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
  */
-const setToolEnabled = function(
+const setToolEnabled = function (
   toolName,
   activeViewport,
   viewports = ["axial", "sagittal", "coronal"]
 ) {
   cornerstoneTools.setToolEnabled(toolName);
   if (activeViewport == "all") {
-    each(viewports, function(elementId) {
+    each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (el) {
         cornerstone.updateImage(el);
@@ -239,14 +252,14 @@ const setToolEnabled = function(
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
  */
-const setToolPassive = function(
+const setToolPassive = function (
   toolName,
   activeViewport,
   viewports = ["axial", "sagittal", "coronal"]
 ) {
   cornerstoneTools.setToolPassive(toolName);
   if (activeViewport == "all") {
-    each(viewports, function(elementId) {
+    each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (el) {
         cornerstone.updateImage(el);
@@ -266,7 +279,7 @@ const setToolPassive = function(
  * Set cornerstone tools configuration
  * @function configureCornerstoneToolsSettings
  */
-const configureCornerstoneToolsSettings = function() {
+const configureCornerstoneToolsSettings = function () {
   // Font families :
   // Work Sans, Roboto, OpenSans, HelveticaNeue-Light,
   // Helvetica Neue Light, Helvetica Neue, Helvetica,
