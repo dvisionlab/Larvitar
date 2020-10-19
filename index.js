@@ -72,7 +72,8 @@ import {
   addToolStateSingleSlice,
   clearCornerstoneElements,
   syncToolStack,
-  updateStackToolState
+  updateStackToolState,
+  setSegmentationConfig
 } from "./imaging/image_tools";
 
 import {
@@ -239,5 +240,8 @@ export {
   getFileImageId,
   saveAnnotations,
   loadAnnotations,
-  exportAnnotations
+  exportAnnotations,
+  setSegmentationConfig
 };
+
+console.warn("Larvitar dev mode");
