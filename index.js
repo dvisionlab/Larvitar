@@ -72,11 +72,13 @@ import {
   addToolStateSingleSlice,
   clearCornerstoneElements,
   syncToolStack,
-  updateStackToolState
+  updateStackToolState,
+  setSegmentationConfig
 } from "./imaging/image_tools";
 
 import {
   csToolsCreateStack,
+  csToolsUpdateImageIndex,
   initializeCSTools,
   addDefaultTools,
   addTool,
@@ -239,5 +241,7 @@ export {
   getFileImageId,
   saveAnnotations,
   loadAnnotations,
-  exportAnnotations
+  exportAnnotations,
+  setSegmentationConfig,
+  csToolsUpdateImageIndex
 };
