@@ -20,11 +20,7 @@ import { ContoursTool } from "./tools/contourTool";
 import { EditMaskTool } from "./tools/editMaskTool";
 import { DiameterTool } from "./tools/diameterTool";
 import { getImageIdFromSlice, getSeriesData } from "./loaders/nrrdLoader";
-import { getLarvitarManager } from "./loaders/commonLoader";
 import { parseContours } from "./image_contours";
-
-import { default as larvitar_store } from "./image_store";
-let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 /*
  * This module provides the following functions to be exported:
@@ -65,23 +61,6 @@ export const initializeCSTools = function () {
     showSVGCursors: true
   });
   configureCornerstoneToolsSettings();
-};
-
-/**
- * Create stack object to sync stack tools
- * @function csToolsCreateStack
- * @param {HTMLElement} element - The target hmtl element.
- */
-export const csToolsCreateStack = function (element) {
-  let viewer = store.get("viewer");
-  let seriesId = store.get("seriesId");
-  let manager = getLarvitarManager();
-  let stack = {
-    currentImageIdIndex: store.get(viewer, element.id, "sliceId"),
-    imageIds: manager[seriesId][element.id].imageIds
-  };
-  cornerstoneTools.addStackStateManager(element, ["stack"]);
-  cornerstoneTools.addToolState(element, "stack", stack);
 };
 
 /**

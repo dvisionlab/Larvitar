@@ -10,7 +10,7 @@ import { each, has, throttle } from "lodash";
 
 // internal libraries
 import { getFileImageId } from "./loaders/fileLoader";
-import { csToolsCreateStack } from "./image_tools";
+import { csToolsCreateStack } from "./tools/tools.main";
 import { default as larvitar_store } from "./image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
@@ -58,6 +58,7 @@ export const loadFileImage = function (file, elementId) {
     cornerstone.loadImage(imageId).then(function (image) {
       cornerstone.displayImage(element, image);
       cornerstone.fitToWindow(element);
+      csToolsCreateStack(element);
     });
   }
 };
@@ -79,6 +80,7 @@ export const loadWebImage = function (url, elementId) {
   cornerstone.enable(element);
   cornerstone.loadImage(url).then(function (image) {
     cornerstone.displayImage(element, image);
+    csToolsCreateStack(element);
   });
 };
 

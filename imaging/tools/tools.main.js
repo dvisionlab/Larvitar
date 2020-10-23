@@ -11,10 +11,10 @@ import {
   exportAnnotations
 } from "./tools.io";
 import { DEFAULT_TOOLS } from "./tools.default";
+import { getLarvitarManager } from "../loaders/commonLoader";
 
-// DEV
-// window.cornerstone = cornerstone;
-// window.cornerstoneTools = cornerstoneTools;
+import { default as larvitar_store } from "../image_store";
+let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 /**
  *
@@ -37,15 +37,23 @@ const initializeCSTools = function () {
  * @param {HTMLElement} element - The target hmtl element.
  */
 const csToolsCreateStack = function (element) {
-  // TODO
-  // let viewer = store.get("viewer");
-  // let seriesId = store.get("seriesId");
-  let stack = {
-    currentImageIdIndex: 0,
-    imageIds: "imageLoader://0"
-  };
-  if (cornerstone.getEnabledElements().length == 0) {
-    cornerstone.enable(element);
+  let viewer = store.get("viewer");
+  let seriesId = store.get("seriesId");
+  let manager = getLarvitarManager();
+  let stack;
+  if (seriesId && seriesId != "error") {
+    stack = {
+      currentImageIdIndex: store.get(viewer, element.id, "sliceId"),
+      imageIds: manager[seriesId][element.id].imageIds
+    };
+  } else {
+    stack = {
+      currentImageIdIndex: 0,
+      imageIds: "imageLoader://0"
+    };
+    if (cornerstone.getEnabledElements().length == 0) {
+      cornerstone.enable(element);
+    }
   }
   cornerstoneTools.addStackStateManager(element, ["stack"]);
   cornerstoneTools.addToolState(element, "stack", stack);
@@ -148,18 +156,11 @@ export const addDefaultTools = function (elementId) {
     }
   });
 
-  // add cs tools stack
-  csToolsCreateStack(document.getElementById(elementId));
-
-  // // set first tool as active if first is not enabled
-  // setToolActive(store.get("leftMouseHandler"));
-
-  // // set wheel scroll active
-  // setToolActive("StackScrollMouseWheel", {
-  //   loop: false, // default false
-  //   allowSkipping: false, // default true
-  //   invert: false
-  // });
+  setToolActive("StackScrollMouseWheel", {
+    loop: false, // default false
+    allowSkipping: false, // default true
+    invert: false
+  });
 };
 
 /**
