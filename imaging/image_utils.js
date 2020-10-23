@@ -62,7 +62,7 @@ const resliceTable = {
  * @function getNormalOrientation
  * @param {Array} el - The image_orientation dicom tag
  */
-export const getNormalOrientation = function(el) {
+export const getNormalOrientation = function (el) {
   let a = [el[0], el[1], el[2]];
   let b = [el[3], el[4], el[5]];
 
@@ -82,7 +82,7 @@ export const getNormalOrientation = function(el) {
  * @param {Number} value - The min value
  * @param {Array} pixelData - Pixel data array
  */
-export const getMinPixelValue = function(value, pixelData) {
+export const getMinPixelValue = function (value, pixelData) {
   if (value !== undefined) {
     return value;
   }
@@ -102,7 +102,7 @@ export const getMinPixelValue = function(value, pixelData) {
  * @param {Number} value - The max value
  * @param {Array} pixelData - Pixel data array
  */
-export const getMaxPixelValue = function(value, pixelData) {
+export const getMaxPixelValue = function (value, pixelData) {
   if (value !== undefined) {
     return value;
   }
@@ -123,7 +123,7 @@ export const getMaxPixelValue = function(value, pixelData) {
  * @param {Object} dataSet - The dataset
  * @returns {String} The pixel representation in the form Sint / Uint + bytelength
  */
-export const getPixelRepresentation = function(dataSet) {
+export const getPixelRepresentation = function (dataSet) {
   if (dataSet.repr) {
     return dataSet.repr;
   } else {
@@ -149,7 +149,7 @@ export const getPixelRepresentation = function(dataSet) {
  * @param {Object} pixelDataElement - The dataset metadata (dataSet.elements.x7fe00010)
  * @returns {TypedArray} The pixel array as proper typed array
  */
-export const getPixelTypedArray = function(dataSet, pixelDataElement) {
+export const getPixelTypedArray = function (dataSet, pixelDataElement) {
   let pixels;
   let buffer = dataSet.byteArray.buffer;
   let offset = pixelDataElement.dataOffset;
@@ -196,12 +196,12 @@ export const getPixelTypedArray = function(dataSet, pixelDataElement) {
  * @param {Bool} returnSuccessMethod - TODO ask @SZ
  * @return {Object} The sorted stack
  */
-export const getSortedStack = function(
+export const getSortedStack = function (
   seriesData,
   sortPriorities,
   returnSuccessMethod
 ) {
-  let tryToSort = function(data, methods) {
+  let tryToSort = function (data, methods) {
     if (isEmpty(methods)) {
       if (returnSuccessMethod === true) {
         return sorted;
@@ -212,7 +212,7 @@ export const getSortedStack = function(
 
     let sortMethod = methods.shift();
     try {
-      var sorted = sortBy(data.imageIds, function(imageId) {
+      var sorted = sortBy(data.imageIds, function (imageId) {
         return sortStackCallback(data, imageId, sortMethod);
       });
       if (returnSuccessMethod === true) {
@@ -239,7 +239,7 @@ export const getSortedStack = function(
  * @param {String} tag - the desired tag key
  * @return {Number | Array | String} - the desired tag value
  */
-export const getTagValue = function(dataSet, tag) {
+export const getTagValue = function (dataSet, tag) {
   // tag value rapresentation
   let vr = getDICOMTag(tag).vr;
 
@@ -249,19 +249,16 @@ export const getTagValue = function(dataSet, tag) {
     // string of characters of the format YYYYMMDD; where YYYY shall contain year,
     // MM shall contain the month, and DD shall contain the day,
     // interpreted as a date of the Gregorian calendar system.
-    DA: function() {
+    DA: function () {
       let dateString = dataSet.string(tag);
       return dateString ? formatDate(dateString) : "";
     },
     // Decimal String
     // A string of characters representing either a fixed point number
     // or a floating point number.
-    DS: function() {
+    DS: function () {
       let array = dataSet.string(tag)
-        ? dataSet
-            .string(tag)
-            .split("\\")
-            .map(Number)
+        ? dataSet.string(tag).split("\\").map(Number)
         : null;
       if (!array) {
         return null;
@@ -271,7 +268,7 @@ export const getTagValue = function(dataSet, tag) {
     // Date Time
     // A concatenated date-time character string in the format:
     // YYYYMMDDHHMMSS.FFFFFF&ZZXX
-    DT: function() {
+    DT: function () {
       let dateString = dataSet.string(tag);
       return formatDateTime(dateString);
     },
@@ -283,7 +280,7 @@ export const getTagValue = function(dataSet, tag) {
     // with trailing spaces. For human use, the five components
     // in their order of occurrence are: family name complex,
     // given name complex, middle name, name prefix, name suffix.
-    PN: function() {
+    PN: function () {
       let pn = dataSet.string(tag) ? dataSet.string(tag).split("^") : null;
       if (!pn) {
         return null;
@@ -294,22 +291,22 @@ export const getTagValue = function(dataSet, tag) {
     },
     // Signed Short
     // Signed binary integer 16 bits long in 2's complement form
-    SS: function() {
+    SS: function () {
       return dataSet.uint16(tag);
     },
     // Unique Identifier
     // A character string containing a UID that is used to uniquely
     // identify a wide letiety of items. The UID is a series of numeric
     // components separated by the period "." character.
-    UI: function() {
+    UI: function () {
       return dataSet.string(tag);
     },
     // Unsigned Short
     // Unsigned binary integer 16 bits long.
-    US: function() {
+    US: function () {
       return dataSet.uint16(tag);
     },
-    "US|SS": function() {
+    "US|SS": function () {
       return dataSet.uint16(tag);
     }
   };
@@ -322,7 +319,7 @@ export const getTagValue = function(dataSet, tag) {
  * @function randomId
  * @return {String} - Random uid
  */
-export const randomId = function() {
+export const randomId = function () {
   return rand() + rand();
 };
 
@@ -335,10 +332,10 @@ export const randomId = function() {
  * @param {Bool} isArray - True if tag value is an array
  * @return {Number} - Tag mean value
  */
-export const getMeanValue = function(series, tag, isArray) {
+export const getMeanValue = function (series, tag, isArray) {
   let meanValue = isArray ? [] : 0;
 
-  forEach(series.imageIds, function(imageId) {
+  forEach(series.imageIds, function (imageId) {
     const tagValue = series.instances[imageId].metadata[tag];
     if (tagValue.length === 2) {
       meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
@@ -380,7 +377,7 @@ export const getMeanValue = function(series, tag, isArray) {
  * @param {String} imageLoaderName - The registered loader name
  * @return {Object} - Cornerstone series object, filled only with metadata
  */
-export const getReslicedMetadata = function(
+export const getReslicedMetadata = function (
   reslicedSeriesId,
   fromOrientation,
   toOrientation,
@@ -389,7 +386,7 @@ export const getReslicedMetadata = function(
 ) {
   // get reslice metadata and apply the reslice algorithm
   let permuteTable = resliceTable[fromOrientation][toOrientation];
-  let permuteAbsTable = permuteTable.map(function(v) {
+  let permuteAbsTable = permuteTable.map(function (v) {
     return Math.abs(v);
   });
 
@@ -493,7 +490,7 @@ export const getReslicedMetadata = function(
  * @param {Object} header - The header of the resliced serie from Scyther
  * @return {Object} - Cornerstone series object, filled only with metadata
  */
-export const getCmprMetadata = function(
+export const getCmprMetadata = function (
   reslicedSeriesId,
   imageLoaderName,
   header
@@ -576,7 +573,7 @@ export const getCmprMetadata = function(
  * @param {Object} reslicedData - The resliced series data (target)
  * @return {Object} - A single resliced slice pixel array
  */
-export const getReslicedPixeldata = function(
+export const getReslicedPixeldata = function (
   imageId,
   originalData,
   reslicedData
@@ -584,7 +581,7 @@ export const getReslicedPixeldata = function(
   // resliced metadata must be already available
   let reslicedInstance = reslicedData.instances[imageId];
   let reslicedMetadata = reslicedInstance.metadata;
-  let permuteAbsTable = reslicedInstance.permuteTable.map(function(v) {
+  let permuteAbsTable = reslicedInstance.permuteTable.map(function (v) {
     return Math.abs(v);
   });
 
@@ -654,7 +651,7 @@ export const getReslicedPixeldata = function(
  * @param {Number} sliceIndex2 - The second slice index
  * @return {Number} - The distance value
  */
-export const getDistanceBetweenSlices = function(
+export const getDistanceBetweenSlices = function (
   seriesData,
   sliceIndex1,
   sliceIndex2
@@ -723,7 +720,7 @@ export function remapVoxel([i, j, k], fromOrientation, toOrientation) {
   }
 
   let permuteTable = resliceTable[toOrientation][fromOrientation];
-  let permuteAbsTable = permuteTable.map(function(v) {
+  let permuteAbsTable = permuteTable.map(function (v) {
     return Math.abs(v);
   });
 
@@ -754,7 +751,7 @@ export function remapVoxel([i, j, k], fromOrientation, toOrientation) {
  * @param {String} method - Orientation target
  * @return {Number} - The sorting value (float)
  */
-let sortStackCallback = function(seriesData, imageId, method) {
+let sortStackCallback = function (seriesData, imageId, method) {
   switch (method) {
     case "instanceNumber":
       var instanceNumber = seriesData.instances[imageId].metadata.x00200013;
@@ -774,12 +771,12 @@ let sortStackCallback = function(seriesData, imageId, method) {
     case "imagePosition":
       var p = seriesData.instances[imageId].metadata.imagePosition;
 
-      p = map(p, function(value) {
+      p = map(p, function (value) {
         return parseFloat(value);
       });
 
       var o = seriesData.instances[imageId].metadata.imageOrientation;
-      o = map(o, function(value) {
+      o = map(o, function (value) {
         return parseFloat(value);
       });
 
@@ -811,7 +808,7 @@ let sortStackCallback = function(seriesData, imageId, method) {
  * @param {String} dicomTag - The original DICOM tag code
  * @return {String} - The human readable DICOM tag code
  */
-let getDICOMTagCode = function(code) {
+let getDICOMTagCode = function (code) {
   let re = /x(\w{4})(\w{4})/;
   let result = re.exec(code);
 
@@ -832,7 +829,7 @@ let getDICOMTagCode = function(code) {
  * @param {String} dicomTagCode - The original DICOM tag code
  * @return {String} - The human readable DICOM tag
  */
-let getDICOMTag = function(code) {
+let getDICOMTag = function (code) {
   let newCode = getDICOMTagCode(code);
   let tag = TAG_DICT[newCode];
   return tag;
@@ -845,7 +842,7 @@ let getDICOMTag = function(code) {
  * @param {Date} dicomDate - A date from a DICOM tag
  * @return {String} - The human readable date
  */
-let formatDate = function(date) {
+let formatDate = function (date) {
   let yyyy = date.slice(0, 4);
   let mm = date.slice(4, 6);
   let dd = date.slice(6, 8);
@@ -861,7 +858,7 @@ let formatDate = function(date) {
  * @param {Date} dicomDateTime - A dateTime from a DICOM tag
  * @return {String} - The human readable dateTime
  */
-let formatDateTime = function(date) {
+let formatDateTime = function (date) {
   let yyyy = date.slice(0, 4);
   let mm = date.slice(4, 6);
   let dd = date.slice(6, 8);
@@ -890,10 +887,8 @@ let formatDateTime = function(date) {
  * @function rand
  * @return {Number} - base36 random number
  */
-let rand = function() {
-  return Math.random()
-    .toString(36)
-    .substr(2);
+let rand = function () {
+  return Math.random().toString(36).substr(2);
 };
 
 /**
@@ -904,7 +899,7 @@ let rand = function() {
  * @param {Array} sourceArray - The source array
  * @return {Array} - The converted array
  */
-let permuteValues = function(convertArray, sourceArray) {
+let permuteValues = function (convertArray, sourceArray) {
   let outputArray = new Array(convertArray.length);
   for (let i = 0; i < convertArray.length; i++) {
     outputArray[i] = sourceArray[convertArray[i]];
@@ -920,7 +915,7 @@ let permuteValues = function(convertArray, sourceArray) {
  * @param {Number} x - The number to check
  * @return {Boolean} - Is negative boolean response
  */
-let isNegativeSign = function(x) {
+let isNegativeSign = function (x) {
   return 1 / x !== 1 / Math.abs(x);
 };
 
@@ -932,7 +927,7 @@ let isNegativeSign = function(x) {
  * @param {Number} size - The size of the array
  * @return {Array} - The typed array
  */
-let getTypedArray = function(tags, size) {
+let getTypedArray = function (tags, size) {
   let r = getPixelRepresentation(tags);
 
   let array;
@@ -949,11 +944,17 @@ let getTypedArray = function(tags, size) {
     case "Sint16":
       array = new Int16Array(size);
       break;
+    case "Short":
+      array = new Int16Array(size);
+      break;
     case "Uint32":
       array = new Uint32Array(size);
       break;
     case "Sint32":
       array = new Int32Array(size);
+      break;
+    default:
+      array = new Int16Array(size);
       break;
   }
 
@@ -968,7 +969,7 @@ let getTypedArray = function(tags, size) {
  * @param {Array} permuteTable - The matrix transformation
  * @return {Array} - The resliced image orientation array
  */
-let getReslicedIOP = function(iop, permuteTable) {
+let getReslicedIOP = function (iop, permuteTable) {
   if (!iop) {
     return null;
   }
@@ -1002,7 +1003,7 @@ let getReslicedIOP = function(iop, permuteTable) {
  * @param {Array} fromSpacing - The spacing array
  * @return {Array} - The resliced image position array
  */
-let getReslicedIPP = function(
+let getReslicedIPP = function (
   ipp,
   iop,
   reslicedIOP,
@@ -1020,13 +1021,13 @@ let getReslicedIPP = function(
   let u = iop.slice(0, 3);
   let v = iop.slice(3, 6);
   let w = getNormalOrientation(iop);
-  let absW = map(w, function(v) {
+  let absW = map(w, function (v) {
     return Math.abs(v);
   });
   let majorOriginalIndex = indexOf(absW, max(absW));
 
   let normalReslicedIop = getNormalOrientation(reslicedIOP);
-  normalReslicedIop = map(normalReslicedIop, function(v) {
+  normalReslicedIop = map(normalReslicedIop, function (v) {
     return Math.abs(v);
   });
 
@@ -1037,7 +1038,7 @@ let getReslicedIPP = function(
 
   // flip z value on original slice
   if (isNegativeSign(permuteTable[1])) {
-    ipp = ipp.map(function(val, i) {
+    ipp = ipp.map(function (val, i) {
       return val + fromSize[2] * fromSpacing[2] * w[i];
     });
   }
@@ -1077,7 +1078,7 @@ let getReslicedIPP = function(
     versor = v;
   }
 
-  reslicedIPP = ipp.map(function(val, i) {
+  reslicedIPP = ipp.map(function (val, i) {
     return val + index * spacing * versor[i];
   });
 
@@ -1092,9 +1093,9 @@ let getReslicedIPP = function(
  * @param {Array} reslicedIPP - The resliced image position array
  * @return {Array} - The slice location as normal orientation vector
  */
-let getReslicedSliceLocation = function(reslicedIOP, reslicedIPP) {
+let getReslicedSliceLocation = function (reslicedIOP, reslicedIPP) {
   let normalReslicedIop = getNormalOrientation(reslicedIOP);
-  normalReslicedIop = map(normalReslicedIop, function(v) {
+  normalReslicedIop = map(normalReslicedIop, function (v) {
     return Math.abs(v);
   });
 
@@ -1110,7 +1111,7 @@ let getReslicedSliceLocation = function(reslicedIOP, reslicedIPP) {
  * @param {Object} sampleMetadata - The medatata object
  * @return {Array} - The spacing array
  */
-let spacingArray = function(seriesData, sampleMetadata) {
+let spacingArray = function (seriesData, sampleMetadata) {
   // the spacingArray is as follows:
   // [0]: column pixelSpacing value (x00280030[1])
   // [1]: row pixelSpacing value (x00280030[0])
@@ -1136,12 +1137,12 @@ let spacingArray = function(seriesData, sampleMetadata) {
  * @param {Array} sourceArray - The array to convert
  * @return {Array} - The converted array
  */
-let permuteSignedArrays = function(convertArray, sourceArray) {
+let permuteSignedArrays = function (convertArray, sourceArray) {
   let outputArray = new Array(convertArray.length);
   for (let i = 0; i < convertArray.length; i++) {
     let sourceIndex = Math.abs(convertArray[i]);
     if (isNegativeSign(convertArray[i])) {
-      outputArray[i] = sourceArray[sourceIndex].map(function(v) {
+      outputArray[i] = sourceArray[sourceIndex].map(function (v) {
         return -v;
       });
     } else {
