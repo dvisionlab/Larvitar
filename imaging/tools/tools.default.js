@@ -15,7 +15,11 @@
  */
 
 import { filter } from "lodash";
+import ThresholdsBrushTool from "./thresholdsBrushTool";
 
+/**
+ * These tools are added with `addDefaultTools()`
+ */
 const DEFAULT_TOOLS = {
   Wwwc: {
     name: "Wwwc",
@@ -249,6 +253,17 @@ const DEFAULT_TOOLS = {
     shortcut: "ctrl-q",
     type: "segmentation"
   },
+  ThresholdsBrush: {
+    name: "ThresholdsBrush",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "ThresholdsBrushTool",
+    description: "Brush only values inside thresholds",
+    shortcut: "ctrl-t",
+    type: "segmentation"
+  },
   RectangleScissors: {
     name: "RectangleScissors",
     viewports: "all",
@@ -284,8 +299,19 @@ const DEFAULT_TOOLS = {
   }
 };
 
+/**
+ * D/Vision Lab custom tools
+ */
+const dvTools = {
+  ThresholdsBrushTool: ThresholdsBrushTool
+};
+
+/**
+ * Get available tools by type (useful to populate menus)
+ * @param {String} type
+ */
 const getDefaultToolsByType = function (type) {
   return filter(DEFAULT_TOOLS, ["type", type]);
 };
 
-export { DEFAULT_TOOLS, getDefaultToolsByType };
+export { DEFAULT_TOOLS, getDefaultToolsByType, dvTools };

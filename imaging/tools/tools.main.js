@@ -10,14 +10,15 @@ import {
   loadAnnotations,
   exportAnnotations
 } from "./tools.io";
-import { DEFAULT_TOOLS } from "./tools.default";
+import { DEFAULT_TOOLS, dvTools } from "./tools.default";
 import { getLarvitarManager } from "../loaders/commonLoader";
 
 import { default as larvitar_store } from "../image_store";
 let store = larvitar_store.state ? larvitar_store : new larvitar_store();
 
 /**
- *
+ * Initialize cornerstone tools with default configuration
+ * @function initializeCSTools
  */
 const initializeCSTools = function () {
   cornerstoneTools.external.cornerstone = cornerstone;
@@ -91,15 +92,14 @@ const isToolMissing = function (toolName) {
 };
 
 /**
- *
+ * Add a cornerstone tool (grab it from original library or dvision custom tools)
  * @param {*} toolName
  * @param {*} targetElementId
  */
 const addTool = function (toolName, configuration, targetElementId) {
   if (isToolMissing(toolName)) {
-    // const toolClassName = toolName + "Tool"; // eg 'LengthTool'
     const toolClassName = DEFAULT_TOOLS[toolName].class;
-    const toolClass = cornerstoneTools[toolClassName];
+    const toolClass = cornerstoneTools[toolClassName] || dvTools[toolClassName];
     if (targetElementId) {
       let element = document.getElementById(targetElementId);
       cornerstoneTools.addToolForElement(element, toolClass, configuration);
