@@ -8,9 +8,6 @@ const segmentationUtils = cornerstoneTools.importInternal(
 const drawBrushPixels = segmentationUtils.drawBrushPixels;
 const segmentationModule = cornerstoneTools.getModule("segmentation");
 
-const logger = getLogger("tools:ThresholdsBrushTool");
-window.logger = logger;
-
 /**
  * @public
  * @class ThresholdsBrushTool
@@ -21,7 +18,7 @@ window.logger = logger;
 export default class ThresholdsBrushTool extends BaseBrushTool {
   constructor(props = {}) {
     const defaultProps = {
-      name: "ThresholdsBrushTool",
+      name: "ThresholdsBrush",
       supportedInteractionTypes: ["Mouse", "Touch"],
       configuration: {},
       mixins: ["renderBrushMixin"]
@@ -75,7 +72,8 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
 }
 
 /**
- * Gets the pixels within the circle.
+ * Gets the pixels within the circle if inside thresholds (included)
+ * NOTE: thresholds values must consider slope and intercept (MO value)
  * @method
  * @name getCircleWithThreshold
  *
@@ -99,13 +97,19 @@ function getCircleWithThreshold(
   const y0 = Math.floor(yCoord);
   const circleArray = [];
 
+  // if no thresholds, set all pixels range
+  if (!thresholds) {
+    thresholds = [image.minPixelValue, image.maxPixelValue];
+  }
+
   function isInsideThresholds(v, t) {
-    return v > t[0] && v < t[1];
+    return v >= t[0] && v <= t[1];
   }
 
   if (radius === 1) {
     let value = pixelData[y0 * rows + x0];
-    if (isInsideThresholds(value, thresholds)) {
+    let moValue = value * image.slope + image.intercept;
+    if (isInsideThresholds(moValue, thresholds)) {
       circleArray = [[x0, y0]];
     }
     return circleArray;
@@ -128,10 +132,11 @@ function getCircleWithThreshold(
       }
 
       let value = pixelData[yCoord * rows + xCoord];
+      let moValue = value * image.slope + image.intercept;
 
       if (
         x * x + y * y < radius * radius &&
-        isInsideThresholds(value, thresholds)
+        isInsideThresholds(moValue, thresholds)
       ) {
         circleArray[index++] = [x0 + x, y0 + y];
       }
