@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>image_colormaps.js - Larvitar</title>
+    <title>tools/thresholdsBrushTool.js - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,7 +40,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">image_colormaps.js</h1>
+    <h1 class="page-title">tools/thresholdsBrushTool.js</h1>
     
 
     
@@ -50,186 +50,152 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** @module imaging/rendering
- *  @desc  This file provides functionalities for
- *         rendering images in html canvas using cornerstone
- *  @todo Document
- */
+            <pre class="prettyprint source linenums"><code>import { cornerstoneTools } from "larvitar";
 
-import cornerstone from "cornerstone-core";
-import { each } from "lodash";
-
-/*
- * This module provides the following functions to be exported:
- * getColormapsList()
- * applyColorMap(colormapId)
- * addColorMap(colormapId, colormapName, colors)
- * fillPixelData(canvas, colormapId)
- * HSVToRGB(hue, sat, val)
- */
+const external = cornerstoneTools.external;
+const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
+const segmentationUtils = cornerstoneTools.importInternal(
+  "util/segmentationUtils"
+);
+const drawBrushPixels = segmentationUtils.drawBrushPixels;
+const segmentationModule = cornerstoneTools.getModule("segmentation");
 
 /**
- * Fill a canvas with pixelData representing the colormap
- * @instance
- * @function getColormapsList
- * @returns {Array} A list of cornerstone colormaps
+ * @public
+ * @class ThresholdsBrushTool
+ * @memberof Tools.Brush
+ * @classdesc Tool for drawing segmentations on an image (only pixels inside thresholds)
+ * @extends Tools.Base.BaseBrushTool
  */
-export function getColormapsList() {
-  return cornerstone.colors.getColormapsList();
-}
+export default class ThresholdsBrushTool extends BaseBrushTool {
+  constructor(props = {}) {
+    const defaultProps = {
+      name: "ThresholdsBrush",
+      supportedInteractionTypes: ["Mouse", "Touch"],
+      configuration: {},
+      mixins: ["renderBrushMixin"]
+    };
 
-/**
- * Add a custom color map to cornerstone list
- * @instance
- * @function addColorMap
- * @param {String} colormapId - the new colormap id
- * @param {String} colormapName - the new colormap name
- * @param {Array} colors - array containing 255 rgb colors (ie [[r,g,b], [r,g,b], ...])
- */
-export function addColorMap(colormapId, colormapName, colors) {
-  const colormap = cornerstone.colors.getColormap(colormapId);
-  colormap.setColorSchemeName(colormapName);
-  let noc = colors.length;
-  colormap.setNumberOfColors(noc);
+    super(props, defaultProps);
 
-  for (let i = 0; i &lt; noc; i++) {
-    let rgb = colors[i];
-    colormap.insertColor(i, rgb);
+    this.touchDragCallback = this._paint.bind(this);
   }
 
-  return colormap;
+  /**
+   * Paints the data to the labelmap.
+   *
+   * @protected
+   * @param  {Object} evt The data object associated with the event.
+   * @returns {void}
+   */
+  _paint(evt) {
+    const { configuration } = segmentationModule;
+    const eventData = evt.detail;
+    const { rows, columns } = eventData.image;
+    const { x, y } = eventData.currentPoints.image;
+
+    if (x &lt; 0 || x > columns || y &lt; 0 || y > rows) {
+      return;
+    }
+
+    const radius = configuration.radius;
+    const thresholds = configuration.thresholds;
+    const pointerArray = getCircleWithThreshold(
+      eventData.image,
+      radius,
+      thresholds,
+      x,
+      y
+    );
+
+    const { labelmap2D, labelmap3D, shouldErase } = this.paintEventData;
+
+    // Draw / Erase the active color.
+    drawBrushPixels(
+      pointerArray,
+      labelmap2D.pixelData,
+      labelmap3D.activeSegmentIndex,
+      columns,
+      shouldErase
+    );
+
+    external.cornerstone.updateImage(evt.detail.element);
+  }
 }
 
 /**
- * Fill a canvas with pixelData representing the colormap
- * @instance
- * @function fillPixelData
- * @param {HTMLCanvasElement} canvas - target canvas
- * @param {String} colormapId - the colormap name
+ * Gets the pixels within the circle if inside thresholds (included)
+ * NOTE: thresholds values must consider slope and intercept (MO value)
+ * @method
+ * @name getCircleWithThreshold
+ *
+ * @param  {Object} image         The target image.
+ * @param  {number} radius        The radius of the circle.
+ * @param  {Array} thresholds     The thresholds array [min, max].
+ * @param  {number} [xCoord = 0]  The x-location of the center of the circle.
+ * @param  {number} [yCoord = 0]  The y-location of the center of the circle.
+ * @returns {Array.number[]}      Array of pixels contained within the circle.
  */
-export function fillPixelData(canvas, colormapId) {
-  const ctx = canvas.getContext("2d");
-  const height = canvas.height;
-  const width = canvas.width;
-  const colorbar = ctx.createImageData(width, height);
+function getCircleWithThreshold(
+  image,
+  radius,
+  thresholds,
+  xCoord = 0,
+  yCoord = 0
+) {
+  const pixelData = image.getPixelData();
+  const { rows, columns } = image;
+  const x0 = Math.floor(xCoord);
+  const y0 = Math.floor(yCoord);
+  const circleArray = [];
 
-  const colormap = cornerstone.colors.getColormap(colormapId);
-  const lookupTable = colormap.createLookupTable();
-  // Set the min and max values then the lookup table
-  // will be able to return the right color for this range
-  lookupTable.setTableRange(0, width);
+  // if no thresholds, set all pixels range
+  if (!thresholds) {
+    thresholds = [image.minPixelValue, image.maxPixelValue];
+  }
 
-  // Update the colorbar pixel by pixel
-  for (let col = 0; col &lt; width; col++) {
-    const color = lookupTable.mapValue(col);
+  function isInsideThresholds(v, t) {
+    return v >= t[0] &amp;&amp; v &lt;= t[1];
+  }
 
-    for (let row = 0; row &lt; height; row++) {
-      const pixel = (col + row * width) * 4;
-      colorbar.data[pixel] = color[0];
-      colorbar.data[pixel + 1] = color[1];
-      colorbar.data[pixel + 2] = color[2];
-      colorbar.data[pixel + 3] = color[3];
+  if (radius === 1) {
+    let value = pixelData[y0 * rows + x0];
+    let moValue = value * image.slope + image.intercept;
+    if (isInsideThresholds(moValue, thresholds)) {
+      circleArray = [[x0, y0]];
+    }
+    return circleArray;
+  }
+
+  let index = 0;
+
+  for (let y = -radius; y &lt;= radius; y++) {
+    const yCoord = y0 + y;
+
+    if (yCoord > rows || yCoord &lt; 0) {
+      continue;
+    }
+
+    for (let x = -radius; x &lt;= radius; x++) {
+      const xCoord = x0 + x;
+
+      if (xCoord >= columns || xCoord &lt; 0) {
+        continue;
+      }
+
+      let value = pixelData[yCoord * rows + xCoord];
+      let moValue = value * image.slope + image.intercept;
+
+      if (
+        x * x + y * y &lt; radius * radius &amp;&amp;
+        isInsideThresholds(moValue, thresholds)
+      ) {
+        circleArray[index++] = [x0 + x, y0 + y];
+      }
     }
   }
-  ctx.putImageData(colorbar, 0, 0);
-}
 
-/**
- * Apply a color map on a viewport
- * @instance
- * @function applyColorMap
- * @param {} todo - todo
- */
-export function applyColorMap(colormapId) {
-  let enabledElements = cornerstone.getEnabledElements();
-  let colormap = cornerstone.colors.getColormap(colormapId);
-
-  each(enabledElements, el => {
-    // HACK to bypass cornerstone bug
-    el.options = {};
-    const viewport = cornerstone.getViewport(el.element);
-    viewport.colormap = colormap;
-    cornerstone.setViewport(el.element, viewport);
-    cornerstone.updateImage(el.element, true);
-  });
-
-  return colormap;
-}
-
-/**
- * Converts an HSV  (Hue, Saturation, Value) color to RGB (Red, Green, Blue) color value
- * @param {Number} hue A number representing the hue color value
- * @param {any} sat A number representing the saturation color value
- * @param {any} val A number representing the value color value
- * @returns {Numberp[]} An RGB color array
- */
-export function HSVToRGB(hue, sat, val) {
-  if (hue > 1) {
-    throw new Error("HSVToRGB expects hue &lt; 1");
-  }
-
-  const rgb = [];
-
-  if (sat === 0) {
-    rgb[0] = val;
-    rgb[1] = val;
-    rgb[2] = val;
-
-    return rgb;
-  }
-
-  const hueCase = Math.floor(hue * 6);
-  const frac = 6 * hue - hueCase;
-  const lx = val * (1 - sat);
-  const ly = val * (1 - sat * frac);
-  const lz = val * (1 - sat * (1 - frac));
-
-  switch (hueCase) {
-    /* 0&lt;hue&lt;1/6 */
-    case 0:
-    case 6:
-      rgb[0] = val;
-      rgb[1] = lz;
-      rgb[2] = lx;
-      break;
-
-    /* 1/6&lt;hue&lt;2/6 */
-    case 1:
-      rgb[0] = ly;
-      rgb[1] = val;
-      rgb[2] = lx;
-      break;
-
-    /* 2/6&lt;hue&lt;3/6 */
-    case 2:
-      rgb[0] = lx;
-      rgb[1] = val;
-      rgb[2] = lz;
-      break;
-
-    /* 3/6&lt;hue/4/6 */
-    case 3:
-      rgb[0] = lx;
-      rgb[1] = ly;
-      rgb[2] = val;
-      break;
-
-    /* 4/6&lt;hue&lt;5/6 */
-    case 4:
-      rgb[0] = lz;
-      rgb[1] = lx;
-      rgb[2] = val;
-      break;
-
-    /* 5/6&lt;hue&lt;1 */
-    case 5:
-      rgb[0] = val;
-      rgb[1] = lx;
-      rgb[2] = ly;
-      break;
-  }
-
-  return rgb;
+  return circleArray;
 }
 </code></pre>
         </article>
