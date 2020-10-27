@@ -24,7 +24,6 @@ import { parseContours } from "./image_contours";
 
 /*
  * This module provides the following functions to be exported:
- * initializeCSTools()
  * csToolsCreateStack(element)
  * addDefaultTools()
  * clearMeasurements()
@@ -48,24 +47,9 @@ import { parseContours } from "./image_contours";
  */
 
 /**
- * Initialize cornerstone tools with default configuration
- * @function initializeCSTools
- */
-export const initializeCSTools = function () {
-  cornerstoneTools.external.cornerstone = cornerstone;
-  cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
-  cornerstoneWADOImageLoader.external.cornerstoneTools = cornerstoneTools;
-  cornerstoneTools.init({
-    mouseEnabled: true,
-    touchEnabled: false,
-    showSVGCursors: true
-  });
-  configureCornerstoneToolsSettings();
-};
-
-/**
  * Add all default tools, as listed in tools.default.js
  * @function addDefaultTools
+ * @deprecated (OBSOLETE)
  */
 export const addDefaultTools = function (toolToActivate, cb) {
   // for each default tool
@@ -711,26 +695,6 @@ export const updateStackToolState = function (element, imageIndex) {
 };
 
 /** @inner Internal module functions */
-
-/**
- * Set cornerstone tools configuration
- * @function configureCornerstoneToolsSettings
- */
-const configureCornerstoneToolsSettings = function () {
-  // Font families :
-  // Work Sans, Roboto, OpenSans, HelveticaNeue-Light,
-  // Helvetica Neue Light, Helvetica Neue, Helvetica,
-  // Arial, Lucida Grande, sans-serif;
-  let fontFamily = "Roboto";
-  let fontSize = 18;
-
-  cornerstoneTools.toolStyle.setToolWidth(1);
-  cornerstoneTools.toolColors.setToolColor("#FF0000");
-  cornerstoneTools.toolColors.setActiveColor("#00FF00");
-  cornerstoneTools.toolColors.setFillColor("#0000FF");
-  cornerstoneTools.textStyle.setFont(`${fontSize}px ${fontFamily}`);
-  cornerstoneTools.textStyle.setBackgroundColor("rgba(1, 1, 1, 0.0)");
-};
 
 /**
  * Check if a tool has already been added
