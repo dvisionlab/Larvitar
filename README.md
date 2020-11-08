@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" width="100" title="hover text" alt="accessibility text">
+</p> 
+
 # Larvitar
 
 ## Dicom Image Toolkit for CornestoneJS
@@ -36,6 +40,8 @@ Full documentation is available at http://www.dvisionlab.com/Larvitar/.
 - Simone Manini, D/Vision Lab
 - Mattia Ronzoni, D/Vision Lab
 - Sara Zanchi
+
+![dvisionlab logo](https://www.dvisionlab.com/images/logo_dv.png)
 
 # Dependencies
 
