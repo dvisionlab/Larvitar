@@ -148,6 +148,7 @@ export const disableImage = function (elementId) {
     console.error("invalid html element: " + elementId);
     return;
   }
+  enableMouseHandlers(elementId, true); // flagged true to disable handlers
   cornerstone.disable(element);
 };
 
@@ -242,7 +243,7 @@ export const loadImage = function (series, elementId, defaultProps) {
         }
 
         csToolsCreateStack(element);
-        enableMouseHandlers(elementId, element);
+        enableMouseHandlers(elementId);
 
         storeViewportData(
           image,
@@ -301,7 +302,7 @@ export const reloadImage = function (series, elementId) {
           "windowCenter"
         );
         csToolsCreateStack(element);
-        enableMouseHandlers(elementId, element);
+        enableMouseHandlers(elementId);
         cornerstone.fitToWindow(element);
         store.set(viewer, "loadingStatus", [elementId, true]);
       }
@@ -401,7 +402,7 @@ export const resetViewports = function (elementIds) {
 export const updateViewportData = function (activeTool, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    // console.error("invalid html element: " + elementId);
     return;
   }
   let viewport = cornerstone.getViewport(element);
@@ -442,11 +443,37 @@ export const updateViewportData = function (activeTool, elementId) {
  * @function enableMouseHandlers
  * @param {String} elementId - The html div id used for rendering
  */
-export const enableMouseHandlers = function (elementId) {
+export const enableMouseHandlers = function (elementId, disable) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
+  }
+
+  if (disable) {
+    element.removeEventListener("cornerstonetoolsmousedown", mouseDownHandler);
+    element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+    element.removeEventListener("cornerstonetoolsmouseup", mouseUpHandler);
+    element.removeEventListener(
+      "cornerstonetoolsmousewheel",
+      mouseWheelHandler
+    );
+    return;
+  }
+
+  let activeTool = store.get("leftMouseHandler");
+  let throttledSave = throttle(function () {
+    updateViewportData(activeTool, elementId);
+  }, 350);
+
+  function mouseMoveHandler() {
+    throttledSave();
+  }
+
+  function mouseUpHandler() {
+    element.removeEventListener("cornerstonetoolsmousemove", mouseMoveHandler);
+    element.removeEventListener("cornerstonetoolsmouseup", mouseUpHandler);
+    updateViewportData(activeTool, elementId);
   }
 
   // remove and add mousedown
@@ -454,28 +481,10 @@ export const enableMouseHandlers = function (elementId) {
   element.addEventListener("cornerstonetoolsmousedown", mouseDownHandler);
 
   function mouseDownHandler() {
-    let activeTool = store.get("leftMouseHandler");
-
-    let throttledSave = throttle(function () {
-      updateViewportData(activeTool, elementId);
-    }, 350);
-
-    function mouseMoveHandler() {
-      throttledSave();
-    }
-
     // remove and add mousedrag
     element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
     element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
 
-    function mouseUpHandler() {
-      element.removeEventListener(
-        "cornerstonetoolsmousemove",
-        mouseMoveHandler
-      );
-      element.removeEventListener("cornerstonetoolsmouseup", mouseUpHandler);
-      updateViewportData(activeTool, elementId);
-    }
     // remove and add mouseup
     element.removeEventListener("cornerstonetoolsmouseup", mouseUpHandler);
     element.addEventListener("cornerstonetoolsmouseup", mouseUpHandler);
