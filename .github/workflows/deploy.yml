@@ -22,7 +22,7 @@ jobs:
 
       # Setup node environment
       - name: Setup Node.js environment
-        uses: actions/setup-node@v1.4.2
+        uses: actions/setup-node@v1.4.4
 
       # Install npm-cli-login
       - name: Install npm-cli-login
