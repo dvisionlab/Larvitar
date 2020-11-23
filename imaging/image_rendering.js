@@ -196,6 +196,8 @@ export const loadImage = function (series, elementId, defaultProps) {
         csToolsCreateStack(element);
         enableMouseHandlers(elementId);
 
+        let storedViewport = cornerstone.getViewport(element);
+
         storeViewportData(
           image,
           elementId,
@@ -206,7 +208,7 @@ export const loadImage = function (series, elementId, defaultProps) {
           spacing_x,
           spacing_y,
           thickness,
-          viewport,
+          storedViewport,
           defaultWW,
           defaultWC
         );
@@ -347,10 +349,9 @@ export const resetViewports = function (elementIds) {
  * Update viewport data in store
  * @instance
  * @function updateViewportData
- * @param {String} activeTool - The name of the activetool
  * @param {String} elementId - The html div id used for rendering
  */
-export const updateViewportData = function (activeTool, elementId) {
+export const updateViewportData = function (elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     // console.error("invalid html element: " + elementId);
@@ -359,6 +360,7 @@ export const updateViewportData = function (activeTool, elementId) {
   let viewport = cornerstone.getViewport(element);
   let viewportNames = store.get("viewports");
   let viewer = store.get("viewer");
+  let activeTool = store.get("leftMouseHandler");
   switch (activeTool) {
     case "Wwwc":
       each(viewportNames, function (viewportName) {
@@ -412,10 +414,9 @@ export const enableMouseHandlers = function (elementId, disable) {
     return;
   }
 
-  let activeTool = store.get("leftMouseHandler");
   let throttledSave = throttle(function () {
-    updateViewportData(activeTool, elementId);
-  }, 350);
+    updateViewportData(elementId);
+  }, 500);
 
   function mouseMoveHandler() {
     throttledSave();
@@ -424,7 +425,7 @@ export const enableMouseHandlers = function (elementId, disable) {
   function mouseUpHandler() {
     element.removeEventListener("cornerstonetoolsmousemove", mouseMoveHandler);
     element.removeEventListener("cornerstonetoolsmouseup", mouseUpHandler);
-    updateViewportData(activeTool, elementId);
+    updateViewportData(elementId);
   }
 
   // remove and add mousedown
