@@ -95,7 +95,7 @@ function getCircleWithThreshold(
   const { rows, columns } = image;
   const x0 = Math.floor(xCoord);
   const y0 = Math.floor(yCoord);
-  const circleArray = [];
+  let circleArray = [];
 
   // if no thresholds, set all pixels range
   if (!thresholds) {

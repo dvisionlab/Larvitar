@@ -4,7 +4,7 @@
     "dicom",
     "imaging"
   ],
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "javascript library for loading, rendering and interact with DICOM images",
   "main": "index.js",
   "repository": {
