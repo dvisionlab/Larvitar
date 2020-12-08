@@ -136,16 +136,28 @@ export const loadImage = function (series, elementId, defaultProps) {
   let spacing_y = series.instances[series.imageIds[0]].metadata["x00280030"]
     ? series.instances[series.imageIds[0]].metadata["x00280030"][1]
     : null;
-  let wc =
-    defaultProps && has(defaultProps, "wc")
-      ? defaultProps["wc"]
-      : series.instances[series.imageIds[0]].metadata["x00281050"][0] ||
+
+  let wc,
+    ww = null;
+  if (defaultProps && has(defaultProps, "wc")) {
+    wc = defaultProps["wc"];
+  } else {
+    if (series.instances[series.imageIds[0]].metadata["x00281050"]) {
+      wc =
+        series.instances[series.imageIds[0]].metadata["x00281050"][0] ||
         series.instances[series.imageIds[0]].metadata["x00281050"];
-  let ww =
-    defaultProps && has(defaultProps, "ww")
-      ? defaultProps["ww"]
-      : series.instances[series.imageIds[0]].metadata["x00281051"][0] ||
+    }
+  }
+
+  if (defaultProps && has(defaultProps, "ww")) {
+    ww = defaultProps["ww"];
+  } else {
+    if (series.instances[series.imageIds[0]].metadata["x00281051"]) {
+      ww =
+        series.instances[series.imageIds[0]].metadata["x00281051"][0] ||
         series.instances[series.imageIds[0]].metadata["x00281051"];
+    }
+  }
 
   let defaultWW =
     defaultProps && has(defaultProps, "defaultWW")
@@ -166,14 +178,13 @@ export const loadImage = function (series, elementId, defaultProps) {
 
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
-      // HACK to force render re-evaluation (otherwise it remains stuck on GrayScaleRenderer)
-      image.render = null;
-
       if (currentImageId == imageId) {
         cornerstone.displayImage(element, image);
         let viewport = cornerstone.getViewport(element);
-        viewport.voi.windowWidth = ww;
-        viewport.voi.windowCenter = wc;
+        if (ww || wc) {
+          viewport.voi.windowWidth = ww ? ww : Math.abs(wc) * 2;
+          viewport.voi.windowCenter = wc ? wc : parseInt(ww / 2);
+        }
         cornerstone.fitToWindow(element);
 
         if (defaultProps && has(defaultProps, "scale")) {
@@ -275,7 +286,8 @@ export const updateImage = function (series, element, imageIndex) {
   if (!element) {
     return;
   }
-  cornerstone.loadImage(series.imageIds[imageIndex - 1]).then(function (image) {
+  let index = imageIndex == 0 ? imageIndex : imageIndex - 1;
+  cornerstone.loadImage(series.imageIds[index]).then(function (image) {
     cornerstone.displayImage(element, image);
   });
 };
