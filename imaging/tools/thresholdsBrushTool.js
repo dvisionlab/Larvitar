@@ -6,6 +6,7 @@ const segmentationUtils = cornerstoneTools.importInternal(
   "util/segmentationUtils"
 );
 const drawBrushPixels = segmentationUtils.drawBrushPixels;
+const getCircle = segmentationUtils.getCircle;
 const segmentationModule = cornerstoneTools.getModule("segmentation");
 
 /**
@@ -48,15 +49,22 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
 
     const radius = configuration.radius;
     const thresholds = configuration.thresholds;
-    const pointerArray = getCircleWithThreshold(
-      eventData.image,
-      radius,
-      thresholds,
-      x,
-      y
-    );
-
     const { labelmap2D, labelmap3D, shouldErase } = this.paintEventData;
+
+    let pointerArray = [];
+
+    // threshold should be applied only if painting, not erasing
+    if (shouldErase) {
+      pointerArray = getCircle(radius, rows, columns, x, y);
+    } else {
+      pointerArray = getCircleWithThreshold(
+        eventData.image,
+        radius,
+        thresholds,
+        x,
+        y
+      );
+    }
 
     // Draw / Erase the active color.
     drawBrushPixels(
