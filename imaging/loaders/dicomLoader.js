@@ -122,7 +122,7 @@ export const populateDicomManager = function(
 /**
  * Get the dicom imageId from dicom loader
  * @instance
- * @function populateDicomManager
+ * @function getDicomImageId
  * @param {String} dicomLoaderName dicom loader name
  * @return {String} current dicom image id
  */

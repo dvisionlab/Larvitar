@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" width="100" title="hover text" alt="accessibility text">
-</p> 
+</p>
 
 # Larvitar
 
@@ -38,14 +38,13 @@ This library provides common dicom functionalities to be used in web-application
 - `tools/tools.main` tools main functionalities
 - `tools/tools.state` tools state management
 
-
 Full documentation is available at http://www.dvisionlab.com/Larvitar/.
 
 # Contributors
 
 - Simone Manini, D/Vision Lab
 - Mattia Ronzoni, D/Vision Lab
-- Sara Zanchi
+- Sara Zanchi, D/Vision Lab
 
 ![dvisionlab logo](https://www.dvisionlab.com/images/logo_dv.png)
 
