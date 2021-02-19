@@ -40,8 +40,9 @@ export const clearImageCache = function () {
  * @function loadWebImage
  * @param {Object} file - The image File object
  * @param {String} elementId - The html div id used for rendering
+ * @param {Function} callback - Optional callback function
  */
-export const loadFileImage = function (file, elementId) {
+export const loadFileImage = function (file, elementId, callback) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -57,8 +58,16 @@ export const loadFileImage = function (file, elementId) {
   if (imageId) {
     cornerstone.loadImage(imageId).then(function (image) {
       cornerstone.displayImage(element, image);
+      let viewport = cornerstone.getViewport(element);
+      viewport.displayedArea.brhc.x = image.width;
+      viewport.displayedArea.brhc.y = image.height;
+      cornerstone.setViewport(element, viewport);
       cornerstone.fitToWindow(element);
+
       csToolsCreateStack(element);
+      if (callback) {
+        callback();
+      }
     });
   }
 };
