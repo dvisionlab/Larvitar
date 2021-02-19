@@ -21,3 +21,6 @@ yarn-error.log*
 
 # JsDocs templates directory
 /template/*
+
+# Boundles
+/dist
