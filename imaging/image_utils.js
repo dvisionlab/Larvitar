@@ -21,7 +21,7 @@ import { v4 as uuidv4 } from "uuid";
 // internal libraries
 import { getCustomImageId, getSerieDimensions } from "./loaders/commonLoader";
 
-const TAG_DICT = require("./dataDictionary.json");
+import TAG_DICT from "./dataDictionary.json";
 
 // global module variables
 // variables used to manage the reslice functionality

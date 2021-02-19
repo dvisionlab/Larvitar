@@ -1,4 +1,5 @@
 import resolve from "@rollup/plugin-node-resolve";
+import json from "@rollup/plugin-json";
 import commonjs from "@rollup/plugin-commonjs";
 import pkg from "./package.json";
 
@@ -23,7 +24,8 @@ export default [
         extensions: [".js", ".json"],
         preferBuiltins: true
       }), // so Rollup can find node_modules
-      commonjs() // so Rollup can convert node_modules to an ES module,
+      commonjs(), // so Rollup can convert node_modules to an ES module,
+      json()
     ]
   }
 

@@ -36,7 +36,6 @@ import { larvitar_store } from "../image_store";
 let customImageLoaderCounter = 0;
 export var nrrdManager = {};
 export var nrrdImageTracker = {};
-const orientations = larvitar_store.get("viewports");
 
 /*
  * This module provides the following functions to be exported:
@@ -141,6 +140,9 @@ export const populateNrrdManager = function (
   seriesId,
   orientation
 ) {
+  // get orientations from store
+  const orientations = larvitar_store.get("viewports");
+
   // set nrrdManager as active manager
   larvitar_store.set(null, "manager", "nrrdManager");
 
