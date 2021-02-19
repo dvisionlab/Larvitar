@@ -223,8 +223,8 @@ class Larvitar_Store {
 
 export function initLarvitarStore(vuex_store) {
   if (vuex_store) {
-    internal_store = new Larvitar_Store(vuex_store);
+    larvitar_store = new Larvitar_Store(vuex_store);
   } else {
-    internal_store = new Larvitar_Store();
+    larvitar_store = new Larvitar_Store();
   }
 }

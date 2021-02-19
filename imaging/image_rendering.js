@@ -251,7 +251,7 @@ export const reloadImage = function (series, elementId) {
   }
   let viewer = larvitar_store.get("viewer");
   cornerstone.enable(element);
-  let sliceId = store.get(viewer, elementId, "sliceId");
+  let sliceId = larvitar_store.get(viewer, elementId, "sliceId");
   let currentImageId = series.imageIds[sliceId];
 
   each(series.imageIds, function (imageId) {
