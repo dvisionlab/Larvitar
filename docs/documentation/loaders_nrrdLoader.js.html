@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>loaders/nrrdLoader.js - Larvitar</title>
+    
+    <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
+    
+        <meta name="keywords" content="imaging, dataviz, medical, cornerstone" />
+        <meta name="keyword" content="imaging, dataviz, medical, cornerstone" />
+    
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/dvisionlab/Larvitar" target="_blank" class="menu-item" id="repository" >Github repo</a></h2><h3>Classes</h3><ul><li><a href="module-imaging_store.html">imaging/store</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="Tools.Annotation.ContoursTool.html">Tools.Annotation.ContoursTool</a></li><li><a href="Tools.Annotation.DiameterTool.html">Tools.Annotation.DiameterTool</a></li><li><a href="Tools.Annotation.SeedsTool.html">Tools.Annotation.SeedsTool</a></li><li><a href="Tools.Brush.BrushTool.html">Tools.Brush.BrushTool</a></li><li><a href="Tools.Brush.ThresholdsBrushTool.html">Tools.Brush.ThresholdsBrushTool</a></li></ul><h3>Modules</h3><ul><li><a href="module-imaging_contours.html">imaging/contours</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#extractSlicePoints">extractSlicePoints</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#populateContoursObject">populateContoursObject</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#~parseContours">parseContours</a></li></ul></li><li><a href="module-imaging_io.html">imaging/io</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildData">buildData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildHeader">buildHeader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~cacheAndSaveSerie">cacheAndSaveSerie</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~importNRRDImage">importNRRDImage</a></li></ul></li><li><a href="module-imaging_layers.html">imaging/layers</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#changeOpacityLayer">changeOpacityLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#getMainLayer">getMainLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#loadImageLayers">loadImageLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#updateImageLayer">updateImageLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~buildLayers">buildLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~loadLayers">loadLayers</a></li></ul></li><li><a href="module-imaging_loading.html">imaging/loading</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeFileImageLoader">initializeFileImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeImageLoader">initializeImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeWebImageLoader">initializeWebImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerNRRDImageLoader">registerNRRDImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerResliceLoader">registerResliceLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#updateLoadedStack">updateLoadedStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#~isNewInstance">isNewInstance</a></li></ul></li><li><a href="module-imaging_parsing.html">imaging/parsing</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#readFiles">readFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#resetImageParsing">resetImageParsing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~clearFileSystem">clearFileSystem</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFile">dumpFile</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFiles">dumpFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~errorHandler">errorHandler</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~parseNextFile">parseNextFile</a></li></ul></li><li><a href="module-imaging_rendering.html">imaging/rendering</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#.HSVToRGB">HSVToRGB</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#addColorMap">addColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#applyColorMap">applyColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#clearImageCache">clearImageCache</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#disableImage">disableImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#enableMouseHandlers">enableMouseHandlers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#fillPixelData">fillPixelData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#getColormapsList">getColormapsList</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadImage">loadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadWebImage">loadWebImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadWebImage">loadWebImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#reloadImage">reloadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#resetViewports">resetViewports</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#storeViewportData">storeViewportData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#updateImage">updateImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#updateViewportData">updateViewportData</a></li></ul></li><li></li><li><a href="module-imaging_store.html">imaging/store</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="module-imaging_tools.html">imaging/tools</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addContoursTool">addContoursTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDefaultTools">addDefaultTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDiameterTool">addDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addMaskEditingTool">addMaskEditingTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addSeedsTool">addSeedsTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addStackStateToElement">addStackStateToElement</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addToolStateSingleSlice">addToolStateSingleSlice</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearCornerstoneElements">clearCornerstoneElements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearMeasurements">clearMeasurements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearToolStateByName">clearToolStateByName</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getCurrentMaskData">getCurrentMaskData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getToolState">getToolState</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~isToolMissing">isToolMissing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setSegmentationConfig">setSegmentationConfig</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolEnabled">setToolEnabled</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolPassive">setToolPassive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~syncToolStack">syncToolStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateDiameterTool">updateDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateStackToolState">updateStackToolState</a></li></ul></li><li><a href="module-imaging_utils.html">imaging/utils</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDate">formatDate</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDateTime">formatDateTime</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getCmprMetadata">getCmprMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTag">getDICOMTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTagCode">getDICOMTagCode</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDistanceBetweenSlices">getDistanceBetweenSlices</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMaxPixelValue">getMaxPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMeanValue">getMeanValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMinPixelValue">getMinPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getNormalOrientation">getNormalOrientation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelRepresentation">getPixelRepresentation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIOP">getReslicedIOP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIPP">getReslicedIPP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedMetadata">getReslicedMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedPixeldata">getReslicedPixeldata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedSliceLocation">getReslicedSliceLocation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTagValue">getTagValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTypedArray">getTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#isNegativeSign">isNegativeSign</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#parseImageId">parseImageId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteSignedArrays">permuteSignedArrays</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteValues">permuteValues</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#rand">rand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#randomId">randomId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#remapVoxel">remapVoxel</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#sortStackCallback">sortStackCallback</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#spacingArray">spacingArray</a></li></ul></li><li><a href="module-loaders_commonLoader.html">loaders/commonLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getCustomImageId">getCustomImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getImageFrame">getImageFrame</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getLarvitarManager">getLarvitarManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getSerieDimensions">getSerieDimensions</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getSeriesData">getSeriesData</a></li></ul></li><li><a href="module-loaders_dicomLoader.html">loaders/dicomLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#getSeriesData">getSeriesData</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#initializeMainViewport">initializeMainViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#initializeReslicedViewport">initializeReslicedViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#populateDicomManager">populateDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#populateDicomManager">populateDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#removeSeriesFromDicomManager">removeSeriesFromDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#resetDicomManager">resetDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#resetImageLoader">resetImageLoader</a></li></ul></li><li><a href="module-loaders_fileLoader.html">loaders/fileLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#getFileImageId">getFileImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#populateFileManager">populateFileManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#resetFileLoader">resetFileLoader</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#resetFileManager">resetFileManager</a></li></ul></li><li><a href="module-loaders_nrrdLoader.html">loaders/nrrdLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#createCustomImage">createCustomImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getImageIdFromSlice">getImageIdFromSlice</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getNrrdImageId">getNrrdImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSerieDimensions">getSerieDimensions</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSeriesData">getSeriesData</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSliceNumberFromImageId">getSliceNumberFromImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#initializeCmprViewport">initializeCmprViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#initializeMainViewport">initializeMainViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#initializeReslicedViewport">initializeReslicedViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#loadImageWithOrientation">loadImageWithOrientation</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#loadNrrdImage">loadNrrdImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#populateNrrdManager">populateNrrdManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#removeSeriesFromNrrdManager">removeSeriesFromNrrdManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#resetNrrdLoader">resetNrrdLoader</a></li></ul></li><li><a href="module-loaders_resliceLoader.html">loaders/resliceLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_resliceLoader.html#createCustomImage">createCustomImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_resliceLoader.html#loadReslicedImage">loadReslicedImage</a></li></ul></li><li><a href="module-tools_default.html">tools/default</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-tools_default.html#~getDefaultToolsByType">getDefaultToolsByType</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="ContoursTool.html#event:_drawingDoubleTapClickCallback">ContoursTool#_drawingDoubleTapClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDoubleClickCallback">ContoursTool#_drawingMouseDoubleClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDownCallback">ContoursTool#_drawingMouseDownCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDragCallback">ContoursTool#_drawingMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseMoveCallback">ContoursTool#_drawingMouseMoveCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseUpCallback">ContoursTool#_drawingMouseUpCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchDragCallback">ContoursTool#_drawingTouchDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchStartCallback">ContoursTool#_drawingTouchStartCallback</a></li><li><a href="ContoursTool.html#event:_editMouseDragCallback">ContoursTool#_editMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_editTouchDragCallback">ContoursTool#_editTouchDragCallback</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_paint">_paint</a></li><li><a href="global.html#addDefaultTools">addDefaultTools</a></li><li><a href="global.html#addTool">addTool</a></li><li><a href="global.html#configureCornerstoneToolsSettings">configureCornerstoneToolsSettings</a></li><li><a href="global.html#csToolsCreateStack">csToolsCreateStack</a></li><li><a href="global.html#csToolsUpdateImageIndex">csToolsUpdateImageIndex</a></li><li><a href="global.html#download">download</a></li><li><a href="global.html#exportAnnotations">exportAnnotations</a></li><li><a href="global.html#extractToolInfo">extractToolInfo</a></li><li><a href="global.html#generateCSV">generateCSV</a></li><li><a href="global.html#getCircleWithThreshold">getCircleWithThreshold</a></li><li><a href="global.html#initializeCSTools">initializeCSTools</a></li><li><a href="global.html#isToolMissing">isToolMissing</a></li><li><a href="global.html#loadAnnotations">loadAnnotations</a></li><li><a href="global.html#NRRD_TYPES_TO_TYPEDARRAY">NRRD_TYPES_TO_TYPEDARRAY</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#restoreToolState">restoreToolState</a></li><li><a href="global.html#saveAnnotations">saveAnnotations</a></li><li><a href="global.html#saveToolState">saveToolState</a></li><li><a href="global.html#setToolActive">setToolActive</a></li><li><a href="global.html#setToolEnabled">setToolEnabled</a></li><li><a href="global.html#setToolPassive">setToolPassive</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">loaders/nrrdLoader.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module loaders/nrrdLoader
+ *  @desc This file provides functionalities for
+ *        custom NRRD Loader
+ *  @todo Document
+ */
+
+// external libraries
+import cornerstone from "cornerstone-core";
+import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import {
+  each,
+  clone,
+  omit,
+  range,
+  includes,
+  findKey,
+  filter,
+  pickBy
+} from "lodash";
+import uuid from "uuid";
+
+// internal libraries
+import {
+  getNormalOrientation,
+  getReslicedMetadata,
+  getCmprMetadata,
+  getReslicedPixeldata,
+  getPixelRepresentation
+} from "../image_utils";
+
+import { getImageFrame } from "./commonLoader";
+import { clearImageCache } from "../image_rendering";
+import { default as larvitar_store } from "../image_store";
+let store = larvitar_store.state ? larvitar_store : new larvitar_store();
+
+// global module variables
+let customImageLoaderCounter = 0;
+export var nrrdManager = {};
+export var nrrdImageTracker = {};
+const orientations = store.get("viewports");
+
+/*
+ * This module provides the following functions to be exported:
+ * loadImageWithOrientation(header, volume, seriesId, orientation)
+ * getNrrdImageId(customLoaderName)
+ * removeSeriesFromNrrdManager(seriesId)
+ * getSeriesData(seriesId)
+ * populateNrrdManager(header, volume, seriesId, orientation)
+ * loadNrrdImage(imageId)
+ * getImageIdFromSlice(sliceNumber, orientation)
+ * resetNrrdLoader()
+ * getSerieDimensions()
+ */
+
+/**
+ * Build the data structure for the provided image orientation
+ * @instance
+ * @function loadImageWithOrientation
+ * @param {Object} header The header object
+ * @param {Object} volume The volume object
+ * @param {String} seriesId The Id of the series
+ * @param {String} orientation The orientation tag
+ * @return {Object} series data
+ */
+export const loadImageWithOrientation = function(
+  header,
+  volume,
+  seriesId,
+  orientation
+) {
+  let seriesData = populateNrrdManager(header, volume, seriesId, orientation);
+  return seriesData;
+};
+
+/**
+ * Reset the NRRD Loader global variables
+ * @instance
+ * @function resetNrrdLoader
+ * @param {String} elementId The html id
+ */
+export const resetNrrdLoader = function(elementId) {
+  customImageLoaderCounter = 0;
+  nrrdManager = {};
+  nrrdImageTracker = {};
+  let element = document.getElementById(elementId);
+  if (element) {
+    cornerstone.disable(element);
+  }
+  clearImageCache();
+};
+
+/**
+ * Get the custom imageId from custom loader
+ * @instance
+ * @function getNrrdImageId
+ * @param {String} customLoaderName The custom loader name
+ * @return {String} the custom image id
+ */
+export const getNrrdImageId = function(customLoaderName) {
+  let imageId = customLoaderName + "://" + customImageLoaderCounter;
+  customImageLoaderCounter++;
+  return imageId;
+};
+
+/**
+ * Remove a stored seriesId from the nnrdManager
+ * @instance
+ * @function removeSeriesFromNrrdManager
+ * @param {String} seriesId The stored series id to remove
+ */
+export const removeSeriesFromNrrdManager = function(seriesId) {
+  if (nrrdManager[seriesId]) {
+    nrrdManager = omit(nrrdManager, seriesId);
+  }
+};
+
+/**
+ * Return the data of a specific seriesId stored in the nnrdManager
+ * @instance
+ * @function getSeriesData
+ * @param {String} seriesId The stored series id to remove
+ * @return {Object} series data
+ */
+export const getSeriesData = function(seriesId) {
+  return nrrdManager[seriesId];
+};
+
+/**
+ * This function can be called in order to populate
+ * the nrrd manager for a provided orientation
+ * @instance
+ * @function populateNrrdManager
+ * @param {Object} header The header object of the image
+ * @param {Object} volume The volume object of the image
+ * @param {String} seriesId The series id
+ * @param {String} orientation The orientation tag
+ * @return {Object} series data
+ */
+export const populateNrrdManager = function(
+  header,
+  volume,
+  seriesId,
+  orientation
+) {
+  // set nrrdManager as active manager
+  store.set(null, "manager", "nrrdManager");
+
+  // orientation can be: axial, coronal, sagittal, mprAxial, mprCoronal
+  if (!includes(orientations, orientation)) {
+    console.error(
+      "The provided orientation: " + orientation + " is not supported"
+    );
+    return null;
+  }
+
+  // check if nrrdManager exists for this seriesId
+  if (!nrrdManager[seriesId]) {
+    // console.error('no series found with id', seriesId)
+    nrrdManager[seriesId] = {};
+  }
+  // initialize nnrdManager for provided orientation
+  nrrdManager[seriesId][orientation] = {};
+  nrrdManager[seriesId][orientation].currentImageIdIndex = 0;
+  nrrdManager[seriesId][orientation].imageIds = [];
+  nrrdManager[seriesId][orientation].instances = {};
+  nrrdManager[seriesId][orientation].header = header;
+  nrrdManager[seriesId][orientation].volume = volume;
+  nrrdManager[seriesId][orientation].seriesUID = seriesId;
+
+  // build the data according to orientation
+  let data;
+  switch (orientation) {
+    case "axial":
+      data = initializeMainViewport(header, volume, seriesId);
+      break;
+    case "coronal":
+      data = initializeReslicedViewport(seriesId, "coronal");
+      break;
+    case "sagittal":
+      data = initializeReslicedViewport(seriesId, "sagittal");
+      break;
+    case "cmprSagittal":
+    case "cmprAxial":
+      data = initializeCmprViewport(header, volume, seriesId, orientation);
+      break;
+    default:
+      break;
+  }
+  return data;
+};
+
+/**
+ * Custom cornerstone image loader for nrrd files
+ * @instance
+ * @function loadNrrdImage
+ * @param {String} imageId The image id
+ * @return {Object} custom image object
+ */
+export const loadNrrdImage = function(imageId) {
+  let seriesId = nrrdImageTracker[imageId][0];
+  let orientation = nrrdImageTracker[imageId][1];
+  let instance = nrrdManager[seriesId][orientation].instances[imageId];
+  return createCustomImage(imageId, instance.metadata, instance.pixelData);
+};
+
+/**
+ * Retrieve imageId for a slice in the given orientation
+ * @instance
+ * @function getImageIdFromSlice
+ * @param {Integer} sliceNumber The image slice number
+ * @param {String} orientation The orientation tag
+ * @param {String} seriesId The series id
+ * @return {String} image id
+ */
+export function getImageIdFromSlice(sliceNumber, orientation, seriesId) {
+  var prefix = "nrrdLoader://";
+  var serieImageTracker;
+
+  if (seriesId) {
+    serieImageTracker = pickBy(nrrdImageTracker, image => {
+      return image[0] == seriesId;
+    });
+  } else {
+    serieImageTracker = nrrdImageTracker;
+  }
+
+  var firstImageId = findKey(serieImageTracker, entry => {
+    return entry[1] == orientation;
+  });
+
+  var imageIndex =
+    parseInt(firstImageId.split("//").pop()) + parseInt(sliceNumber);
+
+  var imageId = prefix.concat(imageIndex.toString());
+
+  return imageId;
+}
+
+/**
+ * Retrieve slice number for a the given orientation
+ * @instance
+ * @function getSliceNumberFromImageId
+ * @param {String} imageId The image slice id
+ * @param {String} orientation The orientation tag
+ * @param {String} seriesId The series id
+ * @return {Integer} The image slice number
+ */
+export function getSliceNumberFromImageId(imageId, orientation) {
+  var firstImageId = findKey(nrrdImageTracker, entry => {
+    return entry[1] == orientation;
+  });
+
+  var imageNumber = imageId.split("//").pop() || imageId;
+
+  var imageIndex =
+    parseInt(imageNumber) - parseInt(firstImageId.split("//").pop());
+
+  return imageIndex;
+}
+
+/**
+ * Get series dimension for each view
+ * @instance
+ * @function getSerieDimensions
+ * @return {Object} Series dimension for each view
+ */
+export function getSerieDimensions() {
+  var dim_axial = filter(nrrdImageTracker, img => {
+    return img[1] == "axial";
+  });
+  var dim_coronal = filter(nrrdImageTracker, img => {
+    return img[1] == "coronal";
+  });
+  var dim_sagittal = filter(nrrdImageTracker, img => {
+    return img[1] == "sagittal";
+  });
+
+  return {
+    axial: [dim_coronal.length, dim_sagittal.length, dim_axial.length],
+    coronal: [dim_sagittal.length, dim_axial.length, dim_coronal.length],
+    sagittal: [dim_coronal.length, dim_axial.length, dim_sagittal.length]
+  };
+}
+
+/* Internal functions */
+
+/**
+ * Build the cornerstone data structure into the nrrd manager
+ * from data (nrdd file) for the main viewport (axial)
+ * @instance
+ * @function initializeMainViewport
+ * @param {Object} header The header of the image
+ * @param {Object} volume The volume of the image
+ * @param {String} seriesId The series id
+ * @return {Object} The cornerstone data
+ */
+let initializeMainViewport = function(header, volume, seriesId) {
+  // get metadata from original volume and header
+  let rows = volume.header.sizes[0];
+  let cols = volume.header.sizes[1];
+  let frames = volume.header.sizes[2];
+  let iop = volume.header["space directions"][0].concat(
+    volume.header["space directions"][1]
+  );
+  let firstIpp = header.volume.imagePosition;
+  let w = getNormalOrientation(iop);
+  let ps = header.volume.pixelSpacing;
+  let thickness = header.volume.sliceThickness;
+  let intercept = header.volume.intercept;
+  let slope = header.volume.slope;
+
+  let metadata = {
+    x00280010: rows, // Rows
+    x00280011: cols, // Columns
+    x00200037: iop, // ImageOrientationPatient
+    x00280030: ps, // PixelSpacing
+    x00180050: [thickness][0], // SliceThickness
+    x00281052: intercept ? [intercept] : [0],
+    x00281053: slope ? [slope] : [1],
+    x00200052: header.volume.imageIds
+      ? header[header.volume.imageIds[0]].instanceUID
+      : null,
+    x0008103e: header.volume.imageIds
+      ? header[header.volume.imageIds[0]].seriesDescription
+      : null,
+    x00080060: header.volume.imageIds
+      ? header[header.volume.imageIds[0]].seriesModality
+      : null,
+    x00100010: header.volume.imageIds
+      ? header[header.volume.imageIds[0]].patientName
+      : null,
+    x00280100: header.volume.imageIds
+      ? header[header.volume.imageIds[0]].bitsAllocated
+      : null,
+    x00280103: header.volume.imageIds
+      ? header[header.volume.imageIds[0]].pixelRepresentation
+      : null,
+    repr: header.volume.repr || null
+  };
+
+  // compute default ww/wl values here to use them also for resliced images
+  let minMax = cornerstoneWADOImageLoader.getMinMax(volume.data);
+  let maxVoi = minMax.max * metadata.x00281053[0] + metadata.x00281052[0];
+  let minVoi = minMax.min * metadata.x00281053[0] + metadata.x00281052[0];
+  let ww = maxVoi - minVoi;
+  let wl = (maxVoi + minVoi) / 2;
+
+  // extract the pixelData of each frame, store the data into the nrrdManager
+  each(range(frames), function(sliceIndex) {
+    let sliceSize = rows * cols;
+    let sliceBuffer = volume.data.subarray(
+      sliceSize * sliceIndex,
+      sliceSize * (sliceIndex + 1)
+    );
+    let r = getPixelRepresentation(metadata);
+    let pixelData;
+    switch (r) {
+      case "Uint8":
+        pixelData = new Uint8Array(sliceBuffer);
+        break;
+      case "Sint8":
+        pixelData = new Int8Array(sliceBuffer);
+        break;
+      case "Unsigned short":
+        pixelData = new Uint16Array(sliceBuffer);
+        break;
+      case "Uint16":
+        pixelData = new Uint16Array(sliceBuffer);
+        break;
+      case "Sint16":
+        pixelData = new Int16Array(sliceBuffer);
+        break;
+      case "Int16":
+        pixelData = new Int16Array(sliceBuffer);
+        break;
+      case "Short":
+        pixelData = new Int16Array(sliceBuffer);
+        break;
+      case "Uint32":
+        pixelData = new Uint32Array(sliceBuffer);
+        break;
+      case "Sint32":
+        pixelData = new Int32Array(sliceBuffer);
+        break;
+    }
+    // assign these values to the metadata of all images
+    metadata.x00281050 = [wl];
+    metadata.x00281051 = [ww];
+
+    let imageId = getNrrdImageId("nrrdLoader");
+    nrrdImageTracker[imageId] = [seriesId, "axial"];
+
+    // store file references
+    nrrdManager[seriesId]["axial"].imageIds.push(imageId);
+    nrrdManager[seriesId]["axial"].instances[imageId] = {
+      instanceId: uuid.v4(),
+      frame: sliceIndex
+    };
+
+    let frameMetadata = clone(metadata);
+
+    frameMetadata.x00200032 = firstIpp.map(function(val, i) {
+      return val + thickness * sliceIndex * w[i];
+    });
+    nrrdManager[seriesId]["axial"].instances[imageId].metadata = frameMetadata;
+    nrrdManager[seriesId]["axial"].instances[imageId].pixelData = pixelData;
+  });
+  let imageIds = nrrdManager[seriesId]["axial"].imageIds;
+  let middleSlice = Math.floor(imageIds.length / 2);
+  nrrdManager[seriesId]["axial"].currentImageIdIndex = middleSlice;
+  return nrrdManager[seriesId]["axial"];
+};
+
+/**
+ * Build the cornerstone data structure into the nrrd manager
+ * from data (computed by vtk algorithm) for a resliced viewport
+ * (cmpr-orientation) using the native one (axial) as starting data
+ * @instance
+ * @function initializeCmprViewport
+ * @param {Object} header The header of the image
+ * @param {Object} volume The volume of the image
+ * @param {String} seriesId The series id
+ * @param {String} orientation The orientation tag
+ * @return {Object} The cornerstone data
+ */
+let initializeCmprViewport = function(header, volume, seriesId, orientation) {
+  const someIsNotZero = volume.some(item => item !== 0);
+  if (!someIsNotZero) {
+    console.warn("serie is empty", orientation);
+  }
+
+  // build the nrrdManager instance for this orientation
+  nrrdManager[seriesId][orientation] = {};
+  let reslicedSeriesId = seriesId + "_" + orientation;
+
+  // get the resliced metadata from native one TODO set proper metadata for cmpr
+  let reslicedData = getCmprMetadata(reslicedSeriesId, "nrrdLoader", header);
+
+  nrrdManager[seriesId][orientation].imageIds = reslicedData.imageIds;
+  nrrdManager[seriesId][orientation].instances = reslicedData.instances;
+
+  // populate nrrdManager with the pixelData information
+  each(nrrdManager[seriesId][orientation].imageIds, function(imageId, slice_n) {
+    let i = header.rows;
+    let j = header.cols;
+
+    // Render some fake data for dev
+    let data = volume.slice(slice_n * i * j, (slice_n + 1) * i * j);
+
+    nrrdManager[seriesId][orientation].instances[imageId].pixelData = data;
+
+    // track image data
+    nrrdImageTracker[imageId] = [seriesId, orientation];
+  });
+
+  // set currentImageIdIndex to the middle slice
+  let imageIds = nrrdManager[seriesId][orientation].imageIds;
+  let middleSlice = Math.floor(imageIds.length / 2);
+  nrrdManager[seriesId][orientation].currentImageIdIndex = middleSlice;
+  return nrrdManager[seriesId][orientation];
+};
+
+/**
+ * Build the cornerstone data structure into the nrrd manager
+ * from data (nrdd file) for a resliced viewport (orientation)
+ * using the native one (axial) as starting data
+ * @instance
+ * @function initializeReslicedViewport
+ * @param {String} seriesId The series id
+ * @param {String} orientation The orientation tag
+ * @return {Object} The cornerstone data
+ */
+function initializeReslicedViewport(seriesId, orientation) {
+  let seriesData = nrrdManager[seriesId]["axial"];
+  if (!seriesData) {
+    console.error("Main viewport data is missing!");
+    return null;
+  }
+  // build the nrrdManager instance for this orientation
+  nrrdManager[seriesId][orientation] = {};
+  let reslicedSeriesId = seriesId + "_" + orientation;
+
+  // get the resliced metadata from native one
+  let reslicedData = getReslicedMetadata(
+    reslicedSeriesId,
+    "axial",
+    orientation,
+    seriesData,
+    "nrrdLoader"
+  );
+
+  nrrdManager[seriesId][orientation].imageIds = reslicedData.imageIds;
+  nrrdManager[seriesId][orientation].instances = reslicedData.instances;
+
+  // populate nrrdManager with the pixelData information
+  each(nrrdManager[seriesId][orientation].imageIds, function(imageId) {
+    let data = getReslicedPixeldata(
+      imageId,
+      seriesData,
+      nrrdManager[seriesId][orientation]
+    );
+
+    nrrdManager[seriesId][orientation].instances[imageId].pixelData = data;
+
+    // track image data // TODO CHECK THIS
+    nrrdImageTracker[imageId] = [seriesId, orientation];
+  });
+
+  // set currentImageIdIndex to the middle slice
+  let imageIds = nrrdManager[seriesId][orientation].imageIds;
+  let middleSlice = Math.floor(imageIds.length / 2);
+  nrrdManager[seriesId][orientation].currentImageIdIndex = middleSlice;
+  return nrrdManager[seriesId][orientation];
+}
+
+/**
+ * Create the custom image object for conrnestone from nrrd file
+ * @instance
+ * @function createCustomImage
+ * @param {String} imageId The series id
+ * @param {Object} metadata The metadata object
+ * @param {Object} pixelData The pixeldata object
+ * @param {Object} dataSet The dataset
+ * @return {String} The image id
+ */
+let createCustomImage = function(imageId, metadata, pixelData, dataSet) {
+  let canvas = window.document.createElement("canvas");
+  let lastImageIdDrawn = "";
+
+  let imageFrame = getImageFrame(metadata, dataSet);
+
+  // This function uses the pixelData received as argument without manipulating
+  // them: if the image is compressed, the decompress function should be called
+  // before creating the custom image object (like the multiframe case).
+  imageFrame.pixelData = pixelData;
+
+  let pixelSpacing = metadata.x00280030;
+  let rescaleIntercept = metadata.x00281052;
+  let rescaleSlope = metadata.x00281053;
+  let windowCenter = metadata.x00281050;
+  let windowWidth = metadata.x00281051;
+
+  function getSizeInBytes() {
+    let bytesPerPixel = Math.round(imageFrame.bitsAllocated / 8);
+    return (
+      imageFrame.rows *
+      imageFrame.columns *
+      bytesPerPixel *
+      imageFrame.samplesPerPixel
+    );
+  }
+
+  let image = {
+    imageId: imageId,
+    color: cornerstoneWADOImageLoader.isColorImage(
+      imageFrame.photometricInterpretation
+    ),
+    columnPixelSpacing: pixelSpacing ? pixelSpacing[1] : undefined,
+    columns: imageFrame.columns,
+    height: imageFrame.rows,
+    intercept: rescaleIntercept ? rescaleIntercept[0] : 0,
+    invert: imageFrame.photometricInterpretation === "MONOCHROME1",
+    minPixelValue: imageFrame.smallestPixelValue,
+    maxPixelValue: imageFrame.largestPixelValue,
+    render: undefined, // set below
+    rowPixelSpacing: pixelSpacing ? pixelSpacing[0] : undefined,
+    rows: imageFrame.rows,
+    sizeInBytes: getSizeInBytes(),
+    slope: rescaleSlope ? rescaleSlope[0] : 1,
+    width: imageFrame.columns,
+    windowCenter: windowCenter ? windowCenter[0] : undefined,
+    windowWidth: windowWidth ? windowWidth[0] : undefined,
+    decodeTimeInMS: undefined,
+    webWorkerTimeInMS: undefined
+  };
+
+  // add function to return pixel data
+  image.getPixelData = function() {
+    return imageFrame.pixelData;
+  };
+
+  // convert color space
+  if (image.color) {
+    // setup the canvas context
+    canvas.height = imageFrame.rows;
+    canvas.width = imageFrame.columns;
+
+    let context = canvas.getContext("2d");
+    let imageData = context.createImageData(
+      imageFrame.columns,
+      imageFrame.rows
+    );
+    cornerstoneWADOImageLoader.convertColorSpace(imageFrame, imageData);
+
+    imageFrame.imageData = imageData;
+    imageFrame.pixelData = imageData.data;
+  }
+
+  // Setup the renderer
+  if (image.color) {
+    image.render = cornerstone.renderColorImage;
+    image.getCanvas = function() {
+      if (lastImageIdDrawn === imageId) {
+        return canvas;
+      }
+
+      canvas.height = image.rows;
+      canvas.width = image.columns;
+      let context = canvas.getContext("2d");
+      context.putImageData(imageFrame.imageData, 0, 0);
+      lastImageIdDrawn = imageId;
+      return canvas;
+    };
+  } else {
+    image.render = cornerstone.renderGrayscaleImage;
+  }
+
+  // calculate min/max if not supplied
+  if (image.minPixelValue === undefined || image.maxPixelValue === undefined) {
+    let minMax = cornerstoneWADOImageLoader.getMinMax(pixelData);
+    image.minPixelValue = minMax.min;
+    image.maxPixelValue = minMax.max;
+  }
+
+  // set the ww/wc to cover the dynamic range of the image if no values are supplied
+  if (image.windowCenter === undefined || image.windowWidth === undefined) {
+    if (image.color) {
+      image.windowWidth = 255;
+      image.windowCenter = 128;
+    } else {
+      let maxVoi = image.maxPixelValue * image.slope + image.intercept;
+      let minVoi = image.minPixelValue * image.slope + image.intercept;
+      image.windowWidth = maxVoi - minVoi;
+      image.windowCenter = (maxVoi + minVoi) / 2;
+    }
+  }
+
+  // Custom images does not have the "data" attribute becaouse their dataset is
+  // not available. The "metadata" attribute is used by the storeImageData
+  // function to store custom image pixelData and metadata.
+  image.metadata = metadata;
+
+  let promise = new Promise(function(resolve) {
+    resolve(image);
+  });
+
+  // Return an object containing the Promise to cornerstone so it can setup callbacks to be
+  // invoked asynchronously for the success/resolve and failure/reject scenarios.
+  return {
+    promise
+  };
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+</body>
+</html>

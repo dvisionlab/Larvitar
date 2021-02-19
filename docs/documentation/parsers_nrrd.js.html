@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>parsers/nrrd.js - Larvitar</title>
+    
+    <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
+    
+        <meta name="keywords" content="imaging, dataviz, medical, cornerstone" />
+        <meta name="keyword" content="imaging, dataviz, medical, cornerstone" />
+    
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/dvisionlab/Larvitar" target="_blank" class="menu-item" id="repository" >Github repo</a></h2><h3>Classes</h3><ul><li><a href="module-imaging_store.html">imaging/store</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="Tools.Annotation.ContoursTool.html">Tools.Annotation.ContoursTool</a></li><li><a href="Tools.Annotation.DiameterTool.html">Tools.Annotation.DiameterTool</a></li><li><a href="Tools.Annotation.SeedsTool.html">Tools.Annotation.SeedsTool</a></li><li><a href="Tools.Brush.BrushTool.html">Tools.Brush.BrushTool</a></li><li><a href="Tools.Brush.ThresholdsBrushTool.html">Tools.Brush.ThresholdsBrushTool</a></li></ul><h3>Modules</h3><ul><li><a href="module-imaging_contours.html">imaging/contours</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#extractSlicePoints">extractSlicePoints</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#populateContoursObject">populateContoursObject</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#~parseContours">parseContours</a></li></ul></li><li><a href="module-imaging_io.html">imaging/io</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildData">buildData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildHeader">buildHeader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~cacheAndSaveSerie">cacheAndSaveSerie</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~importNRRDImage">importNRRDImage</a></li></ul></li><li><a href="module-imaging_layers.html">imaging/layers</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#changeOpacityLayer">changeOpacityLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#getMainLayer">getMainLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#loadImageLayers">loadImageLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#updateImageLayer">updateImageLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~buildLayers">buildLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~loadLayers">loadLayers</a></li></ul></li><li><a href="module-imaging_loading.html">imaging/loading</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeFileImageLoader">initializeFileImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeImageLoader">initializeImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeWebImageLoader">initializeWebImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerNRRDImageLoader">registerNRRDImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerResliceLoader">registerResliceLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#updateLoadedStack">updateLoadedStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#~isNewInstance">isNewInstance</a></li></ul></li><li><a href="module-imaging_parsing.html">imaging/parsing</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#readFiles">readFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#resetImageParsing">resetImageParsing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~clearFileSystem">clearFileSystem</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFile">dumpFile</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFiles">dumpFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~errorHandler">errorHandler</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~parseNextFile">parseNextFile</a></li></ul></li><li><a href="module-imaging_rendering.html">imaging/rendering</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#.HSVToRGB">HSVToRGB</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#addColorMap">addColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#applyColorMap">applyColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#clearImageCache">clearImageCache</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#disableImage">disableImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#enableMouseHandlers">enableMouseHandlers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#fillPixelData">fillPixelData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#getColormapsList">getColormapsList</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadImage">loadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadWebImage">loadWebImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadWebImage">loadWebImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#reloadImage">reloadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#resetViewports">resetViewports</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#storeViewportData">storeViewportData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#updateImage">updateImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#updateViewportData">updateViewportData</a></li></ul></li><li></li><li><a href="module-imaging_store.html">imaging/store</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="module-imaging_tools.html">imaging/tools</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addContoursTool">addContoursTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDefaultTools">addDefaultTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDiameterTool">addDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addMaskEditingTool">addMaskEditingTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addSeedsTool">addSeedsTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addStackStateToElement">addStackStateToElement</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addToolStateSingleSlice">addToolStateSingleSlice</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearCornerstoneElements">clearCornerstoneElements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearMeasurements">clearMeasurements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearToolStateByName">clearToolStateByName</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getCurrentMaskData">getCurrentMaskData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getToolState">getToolState</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~isToolMissing">isToolMissing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setSegmentationConfig">setSegmentationConfig</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolEnabled">setToolEnabled</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolPassive">setToolPassive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~syncToolStack">syncToolStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateDiameterTool">updateDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateStackToolState">updateStackToolState</a></li></ul></li><li><a href="module-imaging_utils.html">imaging/utils</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDate">formatDate</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDateTime">formatDateTime</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getCmprMetadata">getCmprMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTag">getDICOMTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTagCode">getDICOMTagCode</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDistanceBetweenSlices">getDistanceBetweenSlices</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMaxPixelValue">getMaxPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMeanValue">getMeanValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMinPixelValue">getMinPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getNormalOrientation">getNormalOrientation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelRepresentation">getPixelRepresentation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIOP">getReslicedIOP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIPP">getReslicedIPP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedMetadata">getReslicedMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedPixeldata">getReslicedPixeldata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedSliceLocation">getReslicedSliceLocation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTagValue">getTagValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTypedArray">getTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#isNegativeSign">isNegativeSign</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#parseImageId">parseImageId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteSignedArrays">permuteSignedArrays</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteValues">permuteValues</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#rand">rand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#randomId">randomId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#remapVoxel">remapVoxel</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#sortStackCallback">sortStackCallback</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#spacingArray">spacingArray</a></li></ul></li><li><a href="module-loaders_commonLoader.html">loaders/commonLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getCustomImageId">getCustomImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getImageFrame">getImageFrame</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getLarvitarManager">getLarvitarManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getSerieDimensions">getSerieDimensions</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getSeriesData">getSeriesData</a></li></ul></li><li><a href="module-loaders_dicomLoader.html">loaders/dicomLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#getSeriesData">getSeriesData</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#initializeMainViewport">initializeMainViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#initializeReslicedViewport">initializeReslicedViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#populateDicomManager">populateDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#populateDicomManager">populateDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#removeSeriesFromDicomManager">removeSeriesFromDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#resetDicomManager">resetDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#resetImageLoader">resetImageLoader</a></li></ul></li><li><a href="module-loaders_fileLoader.html">loaders/fileLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#getFileImageId">getFileImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#populateFileManager">populateFileManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#resetFileLoader">resetFileLoader</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#resetFileManager">resetFileManager</a></li></ul></li><li><a href="module-loaders_nrrdLoader.html">loaders/nrrdLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#createCustomImage">createCustomImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getImageIdFromSlice">getImageIdFromSlice</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getNrrdImageId">getNrrdImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSerieDimensions">getSerieDimensions</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSeriesData">getSeriesData</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSliceNumberFromImageId">getSliceNumberFromImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#initializeCmprViewport">initializeCmprViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#initializeMainViewport">initializeMainViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#initializeReslicedViewport">initializeReslicedViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#loadImageWithOrientation">loadImageWithOrientation</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#loadNrrdImage">loadNrrdImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#populateNrrdManager">populateNrrdManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#removeSeriesFromNrrdManager">removeSeriesFromNrrdManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#resetNrrdLoader">resetNrrdLoader</a></li></ul></li><li><a href="module-loaders_resliceLoader.html">loaders/resliceLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_resliceLoader.html#createCustomImage">createCustomImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_resliceLoader.html#loadReslicedImage">loadReslicedImage</a></li></ul></li><li><a href="module-tools_default.html">tools/default</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-tools_default.html#~getDefaultToolsByType">getDefaultToolsByType</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="ContoursTool.html#event:_drawingDoubleTapClickCallback">ContoursTool#_drawingDoubleTapClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDoubleClickCallback">ContoursTool#_drawingMouseDoubleClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDownCallback">ContoursTool#_drawingMouseDownCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDragCallback">ContoursTool#_drawingMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseMoveCallback">ContoursTool#_drawingMouseMoveCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseUpCallback">ContoursTool#_drawingMouseUpCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchDragCallback">ContoursTool#_drawingTouchDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchStartCallback">ContoursTool#_drawingTouchStartCallback</a></li><li><a href="ContoursTool.html#event:_editMouseDragCallback">ContoursTool#_editMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_editTouchDragCallback">ContoursTool#_editTouchDragCallback</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_paint">_paint</a></li><li><a href="global.html#addDefaultTools">addDefaultTools</a></li><li><a href="global.html#addTool">addTool</a></li><li><a href="global.html#configureCornerstoneToolsSettings">configureCornerstoneToolsSettings</a></li><li><a href="global.html#csToolsCreateStack">csToolsCreateStack</a></li><li><a href="global.html#csToolsUpdateImageIndex">csToolsUpdateImageIndex</a></li><li><a href="global.html#download">download</a></li><li><a href="global.html#exportAnnotations">exportAnnotations</a></li><li><a href="global.html#extractToolInfo">extractToolInfo</a></li><li><a href="global.html#generateCSV">generateCSV</a></li><li><a href="global.html#getCircleWithThreshold">getCircleWithThreshold</a></li><li><a href="global.html#initializeCSTools">initializeCSTools</a></li><li><a href="global.html#isToolMissing">isToolMissing</a></li><li><a href="global.html#loadAnnotations">loadAnnotations</a></li><li><a href="global.html#NRRD_TYPES_TO_TYPEDARRAY">NRRD_TYPES_TO_TYPEDARRAY</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#restoreToolState">restoreToolState</a></li><li><a href="global.html#saveAnnotations">saveAnnotations</a></li><li><a href="global.html#saveToolState">saveToolState</a></li><li><a href="global.html#setToolActive">setToolActive</a></li><li><a href="global.html#setToolEnabled">setToolEnabled</a></li><li><a href="global.html#setToolPassive">setToolPassive</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">parsers/nrrd.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import pako from "pako";
+
+/**
+ * This is the mapping from the NRRD datatype as written in the NRRD header
+ * to the JS typed array equivalent.
+ */
+const NRRD_TYPES_TO_TYPEDARRAY = {
+  "signed char": Int8Array,
+  int8: Int8Array,
+  int8_t: Int8Array,
+  uchar: Uint8Array,
+  "unsigned char": Uint8Array,
+  uint8: Uint8Array,
+  uint8_t: Uint8Array,
+  short: Int16Array,
+  "short int": Int16Array,
+  "signed short": Int16Array,
+  "signed short int": Int16Array,
+  int16: Int16Array,
+  int16_t: Int16Array,
+  ushort: Uint16Array,
+  "unsigned short": Uint16Array,
+  "unsigned short int": Uint16Array,
+  uint16: Uint16Array,
+  uint16_t: Uint16Array,
+  int: Int32Array,
+  "signed int": Int32Array,
+  int32: Int32Array,
+  int32_t: Int32Array,
+  uint: Uint32Array,
+  "unsigned int": Uint32Array,
+  uint32: Uint32Array,
+  uint32_t: Uint32Array,
+  // longlong: BigInt64Array, // OK for Node/V8/Chrome but not Firefox
+  // "long long": BigInt64Array,
+  // "long long int": BigInt64Array,
+  // "signed long long": BigInt64Array,
+  // "signed long long int": BigInt64Array,
+  // int64: BigInt64Array,
+  // int64_t: BigInt64Array,
+  // ulonglong: BigUint64Array,
+  // "unsigned long long": BigUint64Array,
+  // "unsigned long long int": BigUint64Array,
+  // uint64: BigUint64Array,
+  // uint64_t: BigUint64Array,
+  float: Float32Array,
+  double: Float64Array
+};
+
+const NRRD_TYPES_TO_VIEW_GET = {
+  "signed char": "getInt8",
+  int8: "getInt8",
+  int8_t: "getInt8",
+  uchar: "getUint8",
+  "unsigned char": "getUint8",
+  uint8: "getUint8",
+  uint8_t: "getUint8",
+  short: "getInt16",
+  "short int": "getInt16",
+  "signed short": "getInt16",
+  "signed short int": "getInt16",
+  int16: "getInt16",
+  int16_t: "getInt16",
+  ushort: "getUint16",
+  "unsigned short": "getUint16",
+  "unsigned short int": "getUint16",
+  uint16: "getUint16",
+  uint16_t: "getUint16",
+  int: "getInt32",
+  "signed int": "getInt32",
+  int32: "getInt32",
+  int32_t: "getInt32",
+  uint: "getUint32",
+  "unsigned int": "getUint32",
+  uint32: "getUint32",
+  uint32_t: "getUint32",
+  // longlong: null,
+  // "long long": null,
+  // "long long int": null,
+  // "signed long long": null,
+  // "signed long long int": null,
+  // int64: null,
+  // int64_t: null,
+  // ulonglong: null,
+  // "unsigned long long": null,
+  // "unsigned long long int": null,
+  // uint64: null,
+  // uint64_t: null,
+  float: "getFloat32",
+  double: "getFloat64"
+};
+
+const SPACE_TO_SPACEDIMENSIONS = {
+  "right-anterior-superior": 3,
+  ras: 3,
+  "left-anterior-superior": 3,
+  las: 3,
+  "left-posterior-superior": 3,
+  lps: 3,
+  "right-anterior-superior-time": 4,
+  rast: 4,
+  "left-anterior-superior-time": 4,
+  last: 4,
+  "left-posterior-superior-time": 4,
+  lpst: 4,
+  "scanner-xyz": 3,
+  "scanner-xyz-time": 4,
+  "3d-right-handed": 3,
+  "3d-left-handed": 3,
+  "3d-right-handed-time": 4,
+  "3d-left-handed-time": 4
+};
+
+// in NRRD, some "kinds" have to respect a certain size. For example, the kind
+// "quaternion" has to be of size 4 (xyzw).
+// When the value is 'null', then no enforcement is made.
+// Note: the fields have been turned to lowercase here
+const KIND_TO_SIZE = {
+  domain: null,
+  space: null,
+  time: null,
+  list: null,
+  point: null,
+  vector: null,
+  "covariant-vector": null,
+  normal: null,
+  stub: 1,
+  scalar: 1,
+  complex: 2,
+  "2-vector": 2,
+  "3-color": 3,
+  "rgb-color": 3,
+  "hsv-color": 3,
+  "xyz-color": 3,
+  "4-color": 4,
+  "rgba-color": 4,
+  "3-vector": 3,
+  "3-gradient": 3,
+  "3-normal": 3,
+  "4-vector": 4,
+  quaternion: 4,
+  "2d-symmetric-matrix": 3,
+  "2d-masked-symmetric-matrix": 4,
+  "2d-matrix": 4,
+  "2d-masked-matrix": 4,
+  "3d-symmetric-matrix": 6,
+  "3d-masked-symmetric-matrix": 7,
+  "3d-matrix": 9,
+  "3d-masked-matrix": 10,
+  "???": null
+};
+
+/**
+ * Parse a buffer of a NRRD file.
+ * Throws an exception if the file is not a proper NRRD file.
+ * @param {ArrayBuffer} nrrdBuffer - the NRRD file buffer
+ * @param {Object} options - the option object
+ * @param {boolean} options.headerOnly - Parses only the header if true, parses header and data if false (default: false)
+ * @return {Object} NRRD header and data such as {header: Object, data: TypedArray }
+ */
+export const parse = function (nrrdBuffer, options) {
+  let magicControl = "NRRD000";
+  let magicTest = String.fromCharCode.apply(
+    null,
+    new Uint8Array(nrrdBuffer, 0, magicControl.length)
+  );
+
+  if (magicControl !== magicTest) {
+    throw new Error("This file is not a NRRD file");
+  }
+
+  let { header, dataByteOffset } = parseHeader(nrrdBuffer);
+
+  if ("headerOnly" in options &amp;&amp; options.headerOnly) {
+    return { header: header, data: null };
+  }
+
+  let data = parseData(nrrdBuffer, header, dataByteOffset);
+  return { header: header, data: data };
+};
+
+/**
+ * @private
+ * Parses the header
+ */
+function parseHeader(nrrdBuffer) {
+  let byteArrayHeader = [];
+  let dataStartPosition = null;
+  let view = new DataView(nrrdBuffer);
+
+  for (let i = 0; i &lt; nrrdBuffer.byteLength; i++) {
+    byteArrayHeader.push(String.fromCharCode(view.getUint8(i)));
+
+    if (
+      i > 0 &amp;&amp;
+      byteArrayHeader[i - 1] === "\n" &amp;&amp;
+      byteArrayHeader[i] === "\n"
+    ) {
+      dataStartPosition = i + 1;
+      break;
+    }
+  }
+
+  if (dataStartPosition === null) {
+    throw new Error("The NRRD header is corrupted.");
+  }
+
+  let comments = [];
+
+  let headerLines = byteArrayHeader
+    .join("")
+    .trim()
+    .split(/\r\n|\n/)
+    .map(l => l.trim());
+
+  let preMap = headerLines
+    .slice(1)
+    .filter(s => {
+      // removing empty lines
+      return s.length > 0;
+    })
+    .filter(s => {
+      // removing comments
+      if (s[0] === "#") {
+        comments.push(s.slice(1).trim());
+      }
+      return s[0] !== "#";
+    })
+    .map(s => {
+      let keyVal = s.split(":");
+      return {
+        key: keyVal[0].trim(),
+        val: keyVal[1].trim()
+      };
+    });
+
+  let nrrdHeader = {};
+
+  preMap.forEach(field => {
+    nrrdHeader[field.key] = field.val;
+  });
+
+  // parsing each fields of the header
+  if (nrrdHeader["sizes"]) {
+    nrrdHeader["sizes"] = nrrdHeader.sizes.split(/\s+/).map(n => parseInt(n));
+  }
+
+  if (nrrdHeader["space dimension"]) {
+    nrrdHeader["space dimension"] = parseInt(nrrdHeader["space dimension"]);
+  }
+
+  if (nrrdHeader["space"]) {
+    nrrdHeader["space dimension"] =
+      SPACE_TO_SPACEDIMENSIONS[nrrdHeader["space"].toLowerCase()];
+  }
+
+  if (nrrdHeader["dimension"]) {
+    nrrdHeader["dimension"] = parseInt(nrrdHeader["dimension"]);
+  }
+
+  if (nrrdHeader["space directions"]) {
+    nrrdHeader["space directions"] = nrrdHeader["space directions"]
+      .split(/\s+/)
+      .map(triple => {
+        if (triple.trim() === "none") {
+          return null;
+        }
+        return triple
+          .slice(1, triple.length - 1)
+          .split(",")
+          .map(n => parseFloat(n));
+      });
+
+    if (nrrdHeader["space directions"].length !== nrrdHeader["dimension"]) {
+      throw new Error(
+        '"space direction" property has to contain as many elements as dimensions. Non-spatial dimesnsions must be refered as "none". See http://teem.sourceforge.net/nrrd/format.html#spacedirections for more info.'
+      );
+    }
+  }
+
+  if (nrrdHeader["space units"]) {
+    nrrdHeader["space units"] = nrrdHeader["space units"].split(/\s+/);
+  }
+
+  if (nrrdHeader["space origin"]) {
+    nrrdHeader["space origin"] = nrrdHeader["space origin"]
+      .slice(1, nrrdHeader["space origin"].length - 1)
+      .split(",")
+      .map(n => parseFloat(n));
+  }
+
+  if (nrrdHeader["measurement frame"]) {
+    nrrdHeader["measurement frame"] = nrrdHeader["measurement frame"]
+      .split(/\s+/)
+      .map(triple => {
+        if (triple.trim() === "none") {
+          return null;
+        }
+        return triple
+          .slice(1, triple.length - 1)
+          .split(",")
+          .map(n => parseFloat(n));
+      });
+  }
+
+  if (nrrdHeader["kinds"]) {
+    nrrdHeader["kinds"] = nrrdHeader["kinds"].split(/\s+/);
+
+    if (nrrdHeader["kinds"].length !== nrrdHeader["sizes"].length) {
+      throw new Error(
+        `The "kinds" property is expected to have has many elements as the "size" property.`
+      );
+    }
+
+    nrrdHeader["kinds"].forEach((k, i) => {
+      let expectedLength = KIND_TO_SIZE[k.toLowerCase()];
+      let foundLength = nrrdHeader["sizes"][i];
+      if (expectedLength !== null &amp;&amp; expectedLength !== foundLength) {
+        throw new Error(
+          `The kind "${k}" expect a size of ${expectedLength} but ${foundLength} found`
+        );
+      }
+    });
+  }
+
+  if (nrrdHeader["min"]) {
+    nrrdHeader["min"] = parseFloat(nrrdHeader["min"]);
+  }
+
+  if (nrrdHeader["max"]) {
+    nrrdHeader["max"] = parseFloat(nrrdHeader["max"]);
+  }
+
+  if (nrrdHeader["old min"]) {
+    nrrdHeader["old min"] = parseFloat(nrrdHeader["old min"]);
+  }
+
+  if (nrrdHeader["old max"]) {
+    nrrdHeader["old max"] = parseFloat(nrrdHeader["old max"]);
+  }
+
+  if (nrrdHeader["spacings"]) {
+    nrrdHeader["spacings"] = nrrdHeader["spacings"]
+      .split(/\s+/)
+      .map(n => parseFloat(n));
+  }
+
+  if (nrrdHeader["thicknesses"]) {
+    nrrdHeader["thicknesses"] = nrrdHeader["thicknesses"]
+      .split(/\s+/)
+      .map(n => parseFloat(n));
+  }
+
+  if (nrrdHeader["axis mins"]) {
+    nrrdHeader["axis mins"] = nrrdHeader["axis mins"]
+      .split(/\s+/)
+      .map(n => parseFloat(n));
+  }
+
+  if (nrrdHeader["axismins"]) {
+    nrrdHeader["axismins"] = nrrdHeader["axismins"]
+      .split(/\s+/)
+      .map(n => parseFloat(n));
+  }
+
+  if (nrrdHeader["axis maxs"]) {
+    nrrdHeader["axis maxs"] = nrrdHeader["axis maxs"]
+      .split(/\s+/)
+      .map(n => parseFloat(n));
+  }
+
+  if (nrrdHeader["axismaxs"]) {
+    nrrdHeader["axismaxs"] = nrrdHeader["axismaxs"]
+      .split(/\s+/)
+      .map(n => parseFloat(n));
+  }
+
+  if (nrrdHeader["centers"]) {
+    nrrdHeader["centers"] = nrrdHeader["centers"].split(/\s+/).map(mode => {
+      if (mode === "cell" || mode === "node") {
+        return mode;
+      } else {
+        return null;
+      }
+    });
+  }
+
+  if (nrrdHeader["labels"]) {
+    nrrdHeader["labels"] = nrrdHeader["labels"].split(/\s+/);
+  }
+
+  // some additional metadata that are not part of the header will be added here
+  nrrdHeader.extra = {};
+
+  // adding the comments from lines starting with #
+  nrrdHeader.extra.comments = comments;
+
+  // having the stride can be handy.
+  nrrdHeader.extra.stride = [1];
+  for (let i = 1; i &lt; nrrdHeader.sizes.length; i++) {
+    nrrdHeader.extra.stride.push(
+      nrrdHeader.extra.stride[i - 1] * nrrdHeader.sizes[i - 1]
+    );
+  }
+
+  return {
+    header: nrrdHeader,
+    dataByteOffset: dataStartPosition
+  };
+}
+
+/**
+ * @private
+ * Parses the data
+ */
+function parseData(nrrdBuffer, header, dataByteOffset) {
+  let dataBuffer = null;
+  let arrayType = NRRD_TYPES_TO_TYPEDARRAY[header.type];
+  let nbElementsFromHeader = header.sizes.reduce((prev, curr) => prev * curr);
+  let min = +Infinity;
+  let max = -Infinity;
+  let data = null;
+
+  let isTextEncoded =
+    header.encoding === "ascii" ||
+    header.encoding === "txt" ||
+    header.encoding === "text";
+
+  if (header.encoding === "raw") {
+    dataBuffer = new Uint8Array(nrrdBuffer).slice(dataByteOffset).buffer;
+  } else if (isTextEncoded) {
+    let numbers = String.fromCharCode
+      .apply(null, new Uint8Array(nrrdBuffer, dataByteOffset))
+      .split(/\r\n|\n|\s/)
+      .map(s => s.trim())
+      .filter(s => s !== "")
+      .map(s => {
+        let numValue = parseFloat(s);
+        min = Math.min(min, numValue);
+        max = Math.max(max, numValue);
+        return numValue;
+      });
+    data = new arrayType(numbers);
+  } else if (header.encoding === "gzip" || header.encoding === "gz") {
+    dataBuffer = pako.inflate(new Uint8Array(nrrdBuffer).slice(dataByteOffset))
+      .buffer;
+  } else {
+    throw new Error('Only "raw", "ascii" and "gzip" encoding are supported.');
+  }
+
+  if (isTextEncoded) {
+    if (nbElementsFromHeader !== data.length) {
+      throw new Error("Unconsistency in data buffer length");
+    }
+  } else {
+    let nbElementsFromBufferAndType =
+      dataBuffer.byteLength / arrayType.BYTES_PER_ELEMENT;
+
+    if (nbElementsFromHeader !== nbElementsFromBufferAndType) {
+      throw new Error("Unconsistency in data buffer length");
+    }
+
+    data = new arrayType(nbElementsFromHeader);
+    let dataView = new DataView(dataBuffer);
+    let viewMethod = NRRD_TYPES_TO_VIEW_GET[header.type];
+    let littleEndian = header.endian === "little" ? true : false;
+
+    for (let i = 0; i &lt; nbElementsFromHeader; i++) {
+      data[i] = dataView[viewMethod](
+        i * arrayType.BYTES_PER_ELEMENT,
+        littleEndian
+      );
+      min = Math.min(min, data[i]);
+      max = Math.max(max, data[i]);
+    }
+  }
+
+  header.extra.min = min;
+  header.extra.max = max;
+  return data;
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+</body>
+</html>
