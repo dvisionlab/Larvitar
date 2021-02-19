@@ -192,7 +192,7 @@ const setToolActive = function (toolName, options, activeViewport, viewports) {
 
 /**
  * Set Tool "disabled" on all elements (ie, not rendered) & refresh cornerstone elements
- * @function setToolActive
+ * @function setToolDisabled
  * @param {String} toolName - The tool name.
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} _viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
