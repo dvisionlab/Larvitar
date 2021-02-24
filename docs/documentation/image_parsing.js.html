@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>image_parsing.js - Larvitar</title>
+    
+    <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
+    
+        <meta name="keywords" content="imaging, dataviz, medical, cornerstone" />
+        <meta name="keyword" content="imaging, dataviz, medical, cornerstone" />
+    
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/dvisionlab/Larvitar" target="_blank" class="menu-item" id="repository" >Github repo</a></h2><h3>Classes</h3><ul><li><a href="module-imaging_store-Larvitar_Store.html">imaging/store~Larvitar_Store</a></li><li><a href="Tools.Annotation.ContoursTool.html">Tools.Annotation.ContoursTool</a></li><li><a href="Tools.Annotation.DiameterTool.html">Tools.Annotation.DiameterTool</a></li><li><a href="Tools.Annotation.SeedsTool.html">Tools.Annotation.SeedsTool</a></li><li><a href="Tools.Brush.BrushTool.html">Tools.Brush.BrushTool</a></li><li><a href="Tools.Brush.ThresholdsBrushTool.html">Tools.Brush.ThresholdsBrushTool</a></li></ul><h3>Modules</h3><ul><li><a href="module-imaging_contours.html">imaging/contours</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#extractSlicePoints">extractSlicePoints</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#populateContoursObject">populateContoursObject</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#~parseContours">parseContours</a></li></ul></li><li><a href="module-imaging_io.html">imaging/io</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildData">buildData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildHeader">buildHeader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~cacheAndSaveSerie">cacheAndSaveSerie</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~importNRRDImage">importNRRDImage</a></li></ul></li><li><a href="module-imaging_layers.html">imaging/layers</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#changeOpacityLayer">changeOpacityLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#getMainLayer">getMainLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#loadImageLayers">loadImageLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#updateImageLayer">updateImageLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~buildLayers">buildLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~loadLayers">loadLayers</a></li></ul></li><li><a href="module-imaging_loading.html">imaging/loading</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeFileImageLoader">initializeFileImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeImageLoader">initializeImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeWebImageLoader">initializeWebImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerNRRDImageLoader">registerNRRDImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerResliceLoader">registerResliceLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#updateLoadedStack">updateLoadedStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#~isNewInstance">isNewInstance</a></li></ul></li><li><a href="module-imaging_parsing.html">imaging/parsing</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#readFiles">readFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#resetImageParsing">resetImageParsing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~clearFileSystem">clearFileSystem</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFile">dumpFile</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFiles">dumpFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~errorHandler">errorHandler</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~parseNextFile">parseNextFile</a></li></ul></li><li><a href="module-imaging_rendering.html">imaging/rendering</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#.HSVToRGB">HSVToRGB</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#addColorMap">addColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#applyColorMap">applyColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#clearImageCache">clearImageCache</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#disableImage">disableImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#enableMouseHandlers">enableMouseHandlers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#fillPixelData">fillPixelData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#getColormapsList">getColormapsList</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadImage">loadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadWebImage">loadWebImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadWebImage">loadWebImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#reloadImage">reloadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#resetViewports">resetViewports</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#storeViewportData">storeViewportData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#updateImage">updateImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#updateViewportData">updateViewportData</a></li></ul></li><li></li><li><a href="module-imaging_store.html">imaging/store</a><ul class='members'><li data-type='member' style='display: none;'><a href="module-imaging_store.html#.larvitar_store">larvitar_store</a></li></ul><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#.initLarvitarStore">initLarvitarStore</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="module-imaging_tools.html">imaging/tools</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addContoursTool">addContoursTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDefaultTools">addDefaultTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDiameterTool">addDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addMaskEditingTool">addMaskEditingTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addSeedsTool">addSeedsTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addStackStateToElement">addStackStateToElement</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addToolStateSingleSlice">addToolStateSingleSlice</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearCornerstoneElements">clearCornerstoneElements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearMeasurements">clearMeasurements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearToolStateByName">clearToolStateByName</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getCurrentMaskData">getCurrentMaskData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getToolState">getToolState</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~isToolMissing">isToolMissing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setSegmentationConfig">setSegmentationConfig</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolEnabled">setToolEnabled</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolPassive">setToolPassive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~syncToolStack">syncToolStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateDiameterTool">updateDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateStackToolState">updateStackToolState</a></li></ul></li><li><a href="module-imaging_utils.html">imaging/utils</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDate">formatDate</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDateTime">formatDateTime</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getCmprMetadata">getCmprMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTag">getDICOMTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTagCode">getDICOMTagCode</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDistanceBetweenSlices">getDistanceBetweenSlices</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMaxPixelValue">getMaxPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMeanValue">getMeanValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMinPixelValue">getMinPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getNormalOrientation">getNormalOrientation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelRepresentation">getPixelRepresentation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIOP">getReslicedIOP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIPP">getReslicedIPP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedMetadata">getReslicedMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedPixeldata">getReslicedPixeldata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedSliceLocation">getReslicedSliceLocation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTagValue">getTagValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTypedArray">getTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#isNegativeSign">isNegativeSign</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#parseImageId">parseImageId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteSignedArrays">permuteSignedArrays</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteValues">permuteValues</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#rand">rand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#randomId">randomId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#remapVoxel">remapVoxel</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#sortStackCallback">sortStackCallback</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#spacingArray">spacingArray</a></li></ul></li><li><a href="module-loaders_commonLoader.html">loaders/commonLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getCustomImageId">getCustomImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getImageFrame">getImageFrame</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getLarvitarManager">getLarvitarManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getSerieDimensions">getSerieDimensions</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getSeriesData">getSeriesData</a></li></ul></li><li><a href="module-loaders_dicomLoader.html">loaders/dicomLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#getDicomImageId">getDicomImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#getSeriesData">getSeriesData</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#initializeMainViewport">initializeMainViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#initializeReslicedViewport">initializeReslicedViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#populateDicomManager">populateDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#removeSeriesFromDicomManager">removeSeriesFromDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#resetDicomManager">resetDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#resetImageLoader">resetImageLoader</a></li></ul></li><li><a href="module-loaders_fileLoader.html">loaders/fileLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#getFileImageId">getFileImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#populateFileManager">populateFileManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#resetFileLoader">resetFileLoader</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#resetFileManager">resetFileManager</a></li></ul></li><li><a href="module-loaders_nrrdLoader.html">loaders/nrrdLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#createCustomImage">createCustomImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getImageIdFromSlice">getImageIdFromSlice</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getNrrdImageId">getNrrdImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSerieDimensions">getSerieDimensions</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSeriesData">getSeriesData</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSliceNumberFromImageId">getSliceNumberFromImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#initializeCmprViewport">initializeCmprViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#initializeMainViewport">initializeMainViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#initializeReslicedViewport">initializeReslicedViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#loadImageWithOrientation">loadImageWithOrientation</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#loadNrrdImage">loadNrrdImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#populateNrrdManager">populateNrrdManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#removeSeriesFromNrrdManager">removeSeriesFromNrrdManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#resetNrrdLoader">resetNrrdLoader</a></li></ul></li><li><a href="module-loaders_resliceLoader.html">loaders/resliceLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_resliceLoader.html#createCustomImage">createCustomImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_resliceLoader.html#loadReslicedImage">loadReslicedImage</a></li></ul></li><li><a href="module-tools_default.html">tools/default</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-tools_default.html#~getDefaultToolsByType">getDefaultToolsByType</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="ContoursTool.html#event:_drawingDoubleTapClickCallback">ContoursTool#_drawingDoubleTapClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDoubleClickCallback">ContoursTool#_drawingMouseDoubleClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDownCallback">ContoursTool#_drawingMouseDownCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDragCallback">ContoursTool#_drawingMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseMoveCallback">ContoursTool#_drawingMouseMoveCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseUpCallback">ContoursTool#_drawingMouseUpCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchDragCallback">ContoursTool#_drawingTouchDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchStartCallback">ContoursTool#_drawingTouchStartCallback</a></li><li><a href="ContoursTool.html#event:_editMouseDragCallback">ContoursTool#_editMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_editTouchDragCallback">ContoursTool#_editTouchDragCallback</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_paint">_paint</a></li><li><a href="global.html#addDefaultTools">addDefaultTools</a></li><li><a href="global.html#addTool">addTool</a></li><li><a href="global.html#configureCornerstoneToolsSettings">configureCornerstoneToolsSettings</a></li><li><a href="global.html#csToolsCreateStack">csToolsCreateStack</a></li><li><a href="global.html#csToolsUpdateImageIndex">csToolsUpdateImageIndex</a></li><li><a href="global.html#download">download</a></li><li><a href="global.html#exportAnnotations">exportAnnotations</a></li><li><a href="global.html#extractToolInfo">extractToolInfo</a></li><li><a href="global.html#generateCSV">generateCSV</a></li><li><a href="global.html#getCircleWithThreshold">getCircleWithThreshold</a></li><li><a href="global.html#initializeCSTools">initializeCSTools</a></li><li><a href="global.html#isToolMissing">isToolMissing</a></li><li><a href="global.html#loadAnnotations">loadAnnotations</a></li><li><a href="global.html#NRRD_TYPES_TO_TYPEDARRAY">NRRD_TYPES_TO_TYPEDARRAY</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#restoreToolState">restoreToolState</a></li><li><a href="global.html#saveAnnotations">saveAnnotations</a></li><li><a href="global.html#saveToolState">saveToolState</a></li><li><a href="global.html#setToolActive">setToolActive</a></li><li><a href="global.html#setToolDisabled">setToolDisabled</a></li><li><a href="global.html#setToolEnabled">setToolEnabled</a></li><li><a href="global.html#setToolPassive">setToolPassive</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">image_parsing.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module imaging/parsing
+ *  @desc  This file provides functionalities for parsing DICOM image files
+ *  @todo Document usage
+ */
+
+// external libraries
+import { parseDicom } from "dicom-parser";
+import { forEach } from "lodash";
+
+// internal libraries
+import {
+  getMinPixelValue,
+  getMaxPixelValue,
+  getPixelTypedArray,
+  getPixelRepresentation,
+  getTagValue,
+  randomId
+} from "./image_utils.js";
+import { updateLoadedStack } from "./image_loading.js";
+
+// global module variables
+var parsingQueueFlag = null;
+var parsingQueue = [];
+var totalFileSize = 0;
+var softQuota;
+var filesystem;
+var allSeriesStack = {};
+
+/*
+ * This module provides the following functions to be exported:
+ * readFiles(entries, callback)
+ * resetImageParsing()
+ */
+
+/**
+ * Reset Image Parsing (clear the parser before loading other data)
+ * @instance
+ * @function resetImageParsing
+ */
+export const resetImageParsing = function() {
+  parsingQueueFlag = null;
+  parsingQueue = [];
+  totalFileSize = 0;
+  allSeriesStack = {};
+  clearFileSystem(filesystem ? filesystem.root : null);
+};
+
+/**
+ * Read dicom files and return allSeriesStack object
+ * @instance
+ * @function readFiles
+ * @param {Array} entries - List of file paths
+ * @param {Function} callback - Will receive (imageObject, errorString) as args
+ */
+export const readFiles = function(entries, callback) {
+  allSeriesStack = {};
+  dumpFiles(entries, callback);
+};
+
+/* Internal module functions */
+
+/**
+ * Manage the parsing process waiting for the parsed object before proceeding with the next parse request
+ * @inner
+ * @function parseNextFile
+ * @param {Function} callback - Passed through
+ */
+let parseNextFile = function(callback) {
+  if (!parsingQueueFlag || parsingQueue.length === 0) {
+    if (parsingQueue.length === 0) {
+      callback(allSeriesStack);
+    }
+    return;
+  }
+
+  parsingQueueFlag = false;
+
+  // remove and return first item from queue
+  let file = parsingQueue.shift();
+
+  if (totalFileSize + file.size > softQuota) {
+    // do not parse the file and stop parsing
+
+    // empty and initialize queue
+    parsingQueue = [];
+    parsingQueueFlag = null;
+    // empty the webkit filesystem
+    clearFileSystem(filesystem ? filesystem.root : null);
+  } else {
+    // parse the file and wait for results
+    dumpFile(file, function(seriesData, err) {
+      if (parsingQueueFlag === null) {
+        console.log("parsingQueueFlag is null");
+        // parsing process has been stopped, but there could be a
+        // dumpFile callback still working: prevent actions
+        return;
+      }
+
+      if (err) {
+        parsingQueueFlag = true;
+        parseNextFile(callback);
+      } else {
+        // update the total parsed file size
+        totalFileSize += file.size;
+        // add file to cornerstoneWADOImageLoader file manager
+        updateLoadedStack(seriesData, allSeriesStack);
+        // console.log('updateLoadedStack')
+
+        // proceed with the next file to parse
+        parsingQueueFlag = true;
+        parseNextFile(callback);
+      }
+    });
+  }
+};
+
+/**
+ * Push files in queue and start parsing next file
+ * @inner
+ * @function dumpFiles
+ * @param {Array} fileList - Array of file objects
+ * @param {Function} callback - Passed through
+ */
+let dumpFiles = function(fileList, callback) {
+  forEach(fileList, function(file) {
+    if (!file.name.startsWith(".") &amp;&amp; !file.name.startsWith("DICOMDIR")) {
+      parsingQueue.push(file);
+      // enable parsing on first available path
+      if (parsingQueueFlag === null) {
+        parsingQueueFlag = true;
+      }
+    }
+  });
+  parseNextFile(callback);
+};
+
+/**
+ * Dump a single DICOM File (metaData and pixelData)
+ * @inner
+ * @function dumpFile
+ * @param {File} file - File object to be dumped
+ * @param {Function} callback - called with (imageObject, errorString)
+ */
+let dumpFile = function(file, callback) {
+  let reader = new FileReader();
+  reader.onload = function() {
+    let arrayBuffer = reader.result;
+    // Here we have the file data as an ArrayBuffer.
+    // dicomParser requires as input a Uint8Array so we create that here.
+    let byteArray = new Uint8Array(arrayBuffer);
+
+    let dataSet;
+    try {
+      dataSet = parseDicom(byteArray);
+      let seriesInstanceUID = getTagValue(dataSet, "x0020000e");
+      let pixelSpacing = getTagValue(dataSet, "x00280030");
+      let imageOrientation = getTagValue(dataSet, "x00200037");
+      let imagePosition = getTagValue(dataSet, "x00200032");
+      let sliceThickness = getTagValue(dataSet, "x00180050");
+
+      if (dataSet.warnings.length > 0) {
+        // warnings
+        callback(null, dataSet.warnings);
+      } else {
+        let pixelDataElement = dataSet.elements.x7fe00010;
+        if (pixelDataElement) {
+          // done, pixelData found
+          let pixelData = getPixelTypedArray(dataSet, pixelDataElement);
+          let instanceUID = getTagValue(dataSet, "x00080018") || randomId();
+          let imageObject = {
+            // metadata
+            metadata: {
+              // series identifiers //TODO
+              seriesUID: seriesInstanceUID, // series uid
+              instanceUID: instanceUID, // instance uid
+
+              // study UUID and Accession Number
+              studyUID: getTagValue(dataSet, "x00200010"), // study uuid
+              accessionNumber: getTagValue(dataSet, "x00080050"), // accession Number
+              studyDescription: getTagValue(dataSet, "x00081030"), // study description
+
+              // data displayed in imaging overlay page
+              patientName: getTagValue(dataSet, "x00100010"), // patient name
+              patientBirthdate: getTagValue(dataSet, "x00100030"), // patient birthdate
+              seriesDescription: getTagValue(dataSet, "x0008103e"), // series desc
+              seriesDate: getTagValue(dataSet, "x00080021"), // series date
+              seriesModality: getTagValue(dataSet, "x00080060").toLowerCase(), // series modality
+
+              // data needed for displaing
+              intercept: getTagValue(dataSet, "x00281052"),
+              slope: getTagValue(dataSet, "x00281053"),
+
+              // data needed for reslicing
+              pixelSpacing: pixelSpacing,
+              sliceThickness: sliceThickness,
+              imageOrientation: imageOrientation,
+              imagePosition: imagePosition,
+              rows: getTagValue(dataSet, "x00280010"),
+              cols: getTagValue(dataSet, "x00280011"),
+              numberOfSlices: getTagValue(dataSet, "x00540081"),
+              windowCenter: getTagValue(dataSet, "x00281050"),
+              windowWidth: getTagValue(dataSet, "x00281051"),
+              minPixelValue: getMinPixelValue(
+                getTagValue(dataSet, "x00280106"),
+                pixelData
+              ),
+              maxPixelValue: getMaxPixelValue(
+                getTagValue(dataSet, "x00280107"),
+                pixelData
+              ),
+              length: pixelData.length,
+
+              x00020000: getTagValue(dataSet, "x00020000"),
+              x00020001: getTagValue(dataSet, "x00020001"),
+              x00020002: getTagValue(dataSet, "x00020002"),
+              x00020003: getTagValue(dataSet, "x00020003"),
+              x00020010: getTagValue(dataSet, "x00020010"),
+              x00020012: getTagValue(dataSet, "x00020012"),
+              x00020013: getTagValue(dataSet, "x00020013"),
+              x00020016: getTagValue(dataSet, "x00020016"),
+              x00080005: getTagValue(dataSet, "x00080005"),
+              x00080008: getTagValue(dataSet, "x00080008"),
+              x00080012: getTagValue(dataSet, "x00080012"),
+              x00080013: getTagValue(dataSet, "x00080013"),
+              x00080016: getTagValue(dataSet, "x00080016"),
+              x00080018: getTagValue(dataSet, "x00080018") || randomId(),
+              x00080020: getTagValue(dataSet, "x00080020"),
+              x00080021: getTagValue(dataSet, "x00080021"),
+              x00080022: getTagValue(dataSet, "x00080022"),
+              x00080023: getTagValue(dataSet, "x00080023"),
+              // x0008002A: getTagValue(dataSet, "x0008002A"),
+              x00080030: getTagValue(dataSet, "x00080030"),
+              x00080031: getTagValue(dataSet, "x00080031"),
+              x00080032: getTagValue(dataSet, "x00080032"),
+              x00080033: getTagValue(dataSet, "x00080033"),
+              x00080050: getTagValue(dataSet, "x00080050"),
+              x00080060: getTagValue(dataSet, "x00080060").toLowerCase(),
+              x00080070: getTagValue(dataSet, "x00080070"),
+              x00080080: getTagValue(dataSet, "x00080080"),
+              x00080090: getTagValue(dataSet, "x00080090"),
+              x00081010: getTagValue(dataSet, "x00081010"),
+              x00081030: getTagValue(dataSet, "x00081030"),
+              x0008103E: getTagValue(dataSet, "x0008103e"),
+              x00081060: getTagValue(dataSet, "x00081060"),
+              x00081070: getTagValue(dataSet, "x00081070"),
+              x00081090: getTagValue(dataSet, "x00081090"),
+              x00082111: getTagValue(dataSet, "x00082111"),
+              x00100010: getTagValue(dataSet, "x00100010"),
+              x00100020: getTagValue(dataSet, "x00100020"),
+              x00100030: getTagValue(dataSet, "x00100030"),
+              x00101010: getTagValue(dataSet, "x00101010"),
+              x00101030: getTagValue(dataSet, "x00101030"),
+              x00180020: getTagValue(dataSet, "x00180020"),
+              x00180021: getTagValue(dataSet, "x00180021"),
+              x00180022: getTagValue(dataSet, "x00180022"),
+              x00180023: getTagValue(dataSet, "x00180023"),
+              x00180025: getTagValue(dataSet, "x00180025"),
+              x00180050: getTagValue(dataSet, "x00180050"),
+              x00180080: getTagValue(dataSet, "x00180080"),
+              x00180081: getTagValue(dataSet, "x00180081"),
+              x00180082: getTagValue(dataSet, "x00180082"),
+              x00180083: getTagValue(dataSet, "x00180083"),
+              x00180084: getTagValue(dataSet, "x00180084"),
+              x00180085: getTagValue(dataSet, "x00180085"),
+              x00180086: getTagValue(dataSet, "x00180086"),
+              x00180087: getTagValue(dataSet, "x00180087"),
+              x00180088: getTagValue(dataSet, "x00180088"),
+              x00180091: getTagValue(dataSet, "x00180091"),
+              x00180093: getTagValue(dataSet, "x00180093"),
+              x00180094: getTagValue(dataSet, "x00180094"),
+              x00180095: getTagValue(dataSet, "x00180095"),
+              x00181000: getTagValue(dataSet, "x00181000"),
+              x00181020: getTagValue(dataSet, "x00181020"),
+              x00181088: getTagValue(dataSet, "x00181088"),
+              x00181090: getTagValue(dataSet, "x00181094"),
+              x00181100: getTagValue(dataSet, "x00181100"),
+              x00181250: getTagValue(dataSet, "x00181250"),
+              x00181310: getTagValue(dataSet, "x00181310"),
+              x00181312: getTagValue(dataSet, "x00181312"),
+              x00181314: getTagValue(dataSet, "x00181314"),
+              x00181315: getTagValue(dataSet, "x00181315"),
+              x00181316: getTagValue(dataSet, "x00181316"),
+              x00185100: getTagValue(dataSet, "x00185100"),
+              x0020000D: getTagValue(dataSet, "x0020000d"),
+              x0020000E: getTagValue(dataSet, "x0020000e"),
+              x00200010: getTagValue(dataSet, "x00200010"),
+              x00200011: getTagValue(dataSet, "x00200011"),
+              x00200012: getTagValue(dataSet, "x00200012"),
+              x00200013: getTagValue(dataSet, "x00200013"),
+              x00200032: getTagValue(dataSet, "x00200032"),
+              x00200037: getTagValue(dataSet, "x00200037"),
+              x00201002: getTagValue(dataSet, "x00201002"),
+              x00201041: getTagValue(dataSet, "x00201041"),
+              x00280002: getTagValue(dataSet, "x00280002"),
+              x00280004: getTagValue(dataSet, "x00280004"),
+              x00280010: getTagValue(dataSet, "x00280010"),
+              x00280011: getTagValue(dataSet, "x00280011"),
+              x00280030: getTagValue(dataSet, "x00280030"),
+              x00280100: getTagValue(dataSet, "x00280100"),
+              x00280101: getTagValue(dataSet, "x00280101"),
+              x00280102: getTagValue(dataSet, "x00280102"),
+              x00280103: getTagValue(dataSet, "x00280103"),
+              x00280106: getMinPixelValue(
+                getTagValue(dataSet, "x00280106"),
+                pixelData
+              ),
+              x00280107: getMaxPixelValue(
+                getTagValue(dataSet, "x00280107"),
+                pixelData
+              ),
+              x00280120: getTagValue(dataSet, "x00280120"),
+              x00281050: getTagValue(dataSet, "x00281050"),
+              x00281051: getTagValue(dataSet, "x00281051"),
+              x00281052: getTagValue(dataSet, "x00281052"),
+              x00281053: getTagValue(dataSet, "x00281053"),
+              x00080061: getTagValue(dataSet, "x00080061"),
+              x00280008: getTagValue(dataSet, "x00280008"),
+              x00200052: getTagValue(dataSet, "x00200052"),
+              x00280006: getTagValue(dataSet, "x00280006"),
+              x00281101: getTagValue(dataSet, "x00281101"),
+              x00281102: getTagValue(dataSet, "x00281102"),
+              x00281103: getTagValue(dataSet, "x00281103"),
+              x00281201: getTagValue(dataSet, "x00281201"),
+              x00281202: getTagValue(dataSet, "x00281202"),
+              x00281203: getTagValue(dataSet, "x00281203"),
+              x00540081: getTagValue(dataSet, "x00540081"),
+              repr: getPixelRepresentation(dataSet)
+            },
+            pixelData: pixelData,
+
+            // data needed for rendering
+            file: file
+          };
+          callback(imageObject);
+        } else {
+          // done, no pixelData
+          callback(null, "no pixelData.");
+        }
+      }
+    } catch (err) {
+      callback(null, "can not read this file.");
+    }
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+/**
+ * Error handler function: reset parsing queue and clear file system if needed
+ * @inner
+ * @function errorHandler
+ */
+let errorHandler = function() {
+  // empty and initialize queue
+  parsingQueue = [];
+  parsingQueueFlag = null;
+
+  // empty the webkit filesystem
+  clearFileSystem(filesystem ? filesystem.root : null);
+};
+
+/**
+ * Clear file system
+ * @inner
+ * @function clearFileSystem
+ */
+let clearFileSystem = function(dirEntry) {
+  if (!dirEntry) {
+    return;
+  }
+  let dirReader = dirEntry.createReader();
+  dirReader.readEntries(function(results) {
+    for (let i = 0; i &lt; results.length; i++) {
+      if (results[i].isDirectory) {
+        results[i].removeRecursively(function() {});
+      } else {
+        results[i].remove(function() {});
+      }
+    }
+  }, errorHandler);
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+</body>
+</html>
