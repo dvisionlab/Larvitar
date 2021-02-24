@@ -1,4 +1,4 @@
-import { cornerstoneTools } from "larvitar";
+import cornerstoneTools from "cornerstone-tools";
 
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");

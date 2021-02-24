@@ -13,8 +13,7 @@ import {
 import { DEFAULT_TOOLS, dvTools } from "./tools.default";
 import { getLarvitarManager } from "../loaders/commonLoader";
 
-import { default as larvitar_store } from "../image_store";
-let store = larvitar_store.state ? larvitar_store : new larvitar_store();
+import { larvitar_store } from "../image_store";
 
 /**
  * Initialize cornerstone tools with default configuration
@@ -38,13 +37,13 @@ const initializeCSTools = function () {
  * @param {HTMLElement} element - The target hmtl element.
  */
 const csToolsCreateStack = function (element) {
-  let viewer = store.get("viewer");
-  let seriesId = store.get("seriesId");
+  let viewer = larvitar_store.get("viewer");
+  let seriesId = larvitar_store.get("seriesId");
   let manager = getLarvitarManager();
   let stack;
   if (seriesId && seriesId != "error") {
     stack = {
-      currentImageIdIndex: store.get(viewer, element.id, "sliceId"),
+      currentImageIdIndex: larvitar_store.get(viewer, element.id, "sliceId"),
       imageIds: manager[seriesId][element.id].imageIds
     };
   } else {

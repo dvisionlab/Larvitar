@@ -1,6 +1,6 @@
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
-import { default as larvitar_store } from "./imaging/image_store";
+import { initLarvitarStore, larvitar_store } from "./imaging/image_store";
 
 import { parseContours } from "./imaging/image_contours";
 
@@ -229,6 +229,7 @@ export {
   populateDicomManager,
   getDicomImageId,
   larvitar_store,
+  initLarvitarStore,
   getColormapsList,
   applyColorMap,
   addColorMap,

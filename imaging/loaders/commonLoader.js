@@ -20,9 +20,7 @@ import {
   dicomManager
 } from "./dicomLoader";
 import { fileManager } from "./fileLoader";
-
-import { default as larvitar_store } from "../image_store";
-let store = larvitar_store.state ? larvitar_store : new larvitar_store();
+import { larvitar_store } from "../image_store";
 
 /*
  * This module provides the following functions to be exported:
@@ -40,7 +38,7 @@ let store = larvitar_store.state ? larvitar_store : new larvitar_store();
  * @returns {Object} the loader manager
  */
 export const getLarvitarManager = function () {
-  let managerType = store.get(["manager"]);
+  let managerType = larvitar_store.get(["manager"]);
   let manager;
 
   switch (managerType) {

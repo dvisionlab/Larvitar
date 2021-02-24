@@ -9,7 +9,7 @@
   "opts": {
     "encoding": "utf8",
     "template": "./template/docdash",
-    "destination": "./docs/",
+    "destination": "./docs/documentation/",
     "recurse": true,
     "verbose": true
   },

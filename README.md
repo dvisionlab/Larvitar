@@ -64,6 +64,10 @@ Full documentation is available at http://www.dvisionlab.com/Larvitar/.
 
 `yarn add larvitar`
 
+# Build package
+
+`yarn build`
+
 # Build docs
 
 Clone docdash repo into template folder

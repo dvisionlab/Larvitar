@@ -1,157 +1,1044 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    
-    <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
     <title>Home - Larvitar</title>
-    
+
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
-    
-        <meta name="keywords" content="imaging, dataviz, medical, cornerstone" />
-        <meta name="keyword" content="imaging, dataviz, medical, cornerstone" />
-    
-    
-    
+
+    <meta name="keywords" content="imaging, dataviz, medical, cornerstone" />
+    <meta name="keyword" content="imaging, dataviz, medical, cornerstone" />
+
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css" />
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css" />
     <script src="scripts/nav.js" defer></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+    <label for="nav-trigger" class="navicon-button x">
+      <div class="navicon"></div>
+    </label>
 
-<input type="checkbox" id="nav-trigger" class="nav-trigger" />
-<label for="nav-trigger" class="navicon-button x">
-  <div class="navicon"></div>
-</label>
+    <label for="nav-trigger" class="overlay"></label>
 
-<label for="nav-trigger" class="overlay"></label>
+    <nav>
+      <input type="text" id="nav-search" placeholder="Search" />
 
-<nav >
-    
-    <input type="text" id="nav-search" placeholder="Search" />
-    
-    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/dvisionlab/Larvitar" target="_blank" class="menu-item" id="repository" >Github repo</a></h2><h3>Classes</h3><ul><li><a href="module-imaging_store.html">imaging/store</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="Tools.Annotation.ContoursTool.html">Tools.Annotation.ContoursTool</a></li><li><a href="Tools.Annotation.DiameterTool.html">Tools.Annotation.DiameterTool</a></li><li><a href="Tools.Annotation.SeedsTool.html">Tools.Annotation.SeedsTool</a></li><li><a href="Tools.Brush.BrushTool.html">Tools.Brush.BrushTool</a></li><li><a href="Tools.Brush.ThresholdsBrushTool.html">Tools.Brush.ThresholdsBrushTool</a></li></ul><h3>Modules</h3><ul><li><a href="module-imaging_contours.html">imaging/contours</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#extractSlicePoints">extractSlicePoints</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#populateContoursObject">populateContoursObject</a></li><li data-type='method' style='display: none;'><a href="module-imaging_contours.html#~parseContours">parseContours</a></li></ul></li><li><a href="module-imaging_io.html">imaging/io</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildData">buildData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~buildHeader">buildHeader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~cacheAndSaveSerie">cacheAndSaveSerie</a></li><li data-type='method' style='display: none;'><a href="module-imaging_io.html#~importNRRDImage">importNRRDImage</a></li></ul></li><li><a href="module-imaging_layers.html">imaging/layers</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#changeOpacityLayer">changeOpacityLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#getMainLayer">getMainLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#loadImageLayers">loadImageLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#updateImageLayer">updateImageLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~buildLayers">buildLayers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_layers.html#~loadLayers">loadLayers</a></li></ul></li><li><a href="module-imaging_loading.html">imaging/loading</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeFileImageLoader">initializeFileImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeImageLoader">initializeImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#initializeWebImageLoader">initializeWebImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerNRRDImageLoader">registerNRRDImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#registerResliceLoader">registerResliceLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#updateLoadedStack">updateLoadedStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_loading.html#~isNewInstance">isNewInstance</a></li></ul></li><li><a href="module-imaging_parsing.html">imaging/parsing</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#readFiles">readFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#resetImageParsing">resetImageParsing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~clearFileSystem">clearFileSystem</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFile">dumpFile</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~dumpFiles">dumpFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~errorHandler">errorHandler</a></li><li data-type='method' style='display: none;'><a href="module-imaging_parsing.html#~parseNextFile">parseNextFile</a></li></ul></li><li><a href="module-imaging_rendering.html">imaging/rendering</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#.HSVToRGB">HSVToRGB</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#addColorMap">addColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#applyColorMap">applyColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#clearImageCache">clearImageCache</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#disableImage">disableImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#enableMouseHandlers">enableMouseHandlers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#fillPixelData">fillPixelData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#getColormapsList">getColormapsList</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadImage">loadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadWebImage">loadWebImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#loadWebImage">loadWebImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#reloadImage">reloadImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#resetViewports">resetViewports</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#storeViewportData">storeViewportData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#updateImage">updateImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_rendering.html#updateViewportData">updateViewportData</a></li></ul></li><li></li><li><a href="module-imaging_store.html">imaging/store</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_store.html#~set">set</a></li></ul></li><li><a href="module-imaging_tools.html">imaging/tools</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addContoursTool">addContoursTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDefaultTools">addDefaultTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addDiameterTool">addDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addMaskEditingTool">addMaskEditingTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addSeedsTool">addSeedsTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addStackStateToElement">addStackStateToElement</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~addToolStateSingleSlice">addToolStateSingleSlice</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearCornerstoneElements">clearCornerstoneElements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearMeasurements">clearMeasurements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~clearToolStateByName">clearToolStateByName</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getCurrentMaskData">getCurrentMaskData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~getToolState">getToolState</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~isToolMissing">isToolMissing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setSegmentationConfig">setSegmentationConfig</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolEnabled">setToolEnabled</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~setToolPassive">setToolPassive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~syncToolStack">syncToolStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateDiameterTool">updateDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools.html#~updateStackToolState">updateStackToolState</a></li></ul></li><li><a href="module-imaging_utils.html">imaging/utils</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDate">formatDate</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#formatDateTime">formatDateTime</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getCmprMetadata">getCmprMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTag">getDICOMTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDICOMTagCode">getDICOMTagCode</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getDistanceBetweenSlices">getDistanceBetweenSlices</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMaxPixelValue">getMaxPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMeanValue">getMeanValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getMinPixelValue">getMinPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getNormalOrientation">getNormalOrientation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelRepresentation">getPixelRepresentation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIOP">getReslicedIOP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedIPP">getReslicedIPP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedMetadata">getReslicedMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedPixeldata">getReslicedPixeldata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getReslicedSliceLocation">getReslicedSliceLocation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTagValue">getTagValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#getTypedArray">getTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#isNegativeSign">isNegativeSign</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#parseImageId">parseImageId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteSignedArrays">permuteSignedArrays</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#permuteValues">permuteValues</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#rand">rand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#randomId">randomId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#remapVoxel">remapVoxel</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#sortStackCallback">sortStackCallback</a></li><li data-type='method' style='display: none;'><a href="module-imaging_utils.html#spacingArray">spacingArray</a></li></ul></li><li><a href="module-loaders_commonLoader.html">loaders/commonLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getCustomImageId">getCustomImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getImageFrame">getImageFrame</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getLarvitarManager">getLarvitarManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getSerieDimensions">getSerieDimensions</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getSeriesData">getSeriesData</a></li></ul></li><li><a href="module-loaders_dicomLoader.html">loaders/dicomLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#getDicomImageId">getDicomImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#getSeriesData">getSeriesData</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#initializeMainViewport">initializeMainViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#initializeReslicedViewport">initializeReslicedViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#populateDicomManager">populateDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#removeSeriesFromDicomManager">removeSeriesFromDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#resetDicomManager">resetDicomManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#resetImageLoader">resetImageLoader</a></li></ul></li><li><a href="module-loaders_fileLoader.html">loaders/fileLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#getFileImageId">getFileImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#populateFileManager">populateFileManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#resetFileLoader">resetFileLoader</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#resetFileManager">resetFileManager</a></li></ul></li><li><a href="module-loaders_nrrdLoader.html">loaders/nrrdLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#createCustomImage">createCustomImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getImageIdFromSlice">getImageIdFromSlice</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getNrrdImageId">getNrrdImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSerieDimensions">getSerieDimensions</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSeriesData">getSeriesData</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSliceNumberFromImageId">getSliceNumberFromImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#initializeCmprViewport">initializeCmprViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#initializeMainViewport">initializeMainViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#initializeReslicedViewport">initializeReslicedViewport</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#loadImageWithOrientation">loadImageWithOrientation</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#loadNrrdImage">loadNrrdImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#populateNrrdManager">populateNrrdManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#removeSeriesFromNrrdManager">removeSeriesFromNrrdManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#resetNrrdLoader">resetNrrdLoader</a></li></ul></li><li><a href="module-loaders_resliceLoader.html">loaders/resliceLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_resliceLoader.html#createCustomImage">createCustomImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_resliceLoader.html#loadReslicedImage">loadReslicedImage</a></li></ul></li><li><a href="module-tools_default.html">tools/default</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-tools_default.html#~getDefaultToolsByType">getDefaultToolsByType</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="ContoursTool.html#event:_drawingDoubleTapClickCallback">ContoursTool#_drawingDoubleTapClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDoubleClickCallback">ContoursTool#_drawingMouseDoubleClickCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDownCallback">ContoursTool#_drawingMouseDownCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseDragCallback">ContoursTool#_drawingMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseMoveCallback">ContoursTool#_drawingMouseMoveCallback</a></li><li><a href="ContoursTool.html#event:_drawingMouseUpCallback">ContoursTool#_drawingMouseUpCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchDragCallback">ContoursTool#_drawingTouchDragCallback</a></li><li><a href="ContoursTool.html#event:_drawingTouchStartCallback">ContoursTool#_drawingTouchStartCallback</a></li><li><a href="ContoursTool.html#event:_editMouseDragCallback">ContoursTool#_editMouseDragCallback</a></li><li><a href="ContoursTool.html#event:_editTouchDragCallback">ContoursTool#_editTouchDragCallback</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_paint">_paint</a></li><li><a href="global.html#addDefaultTools">addDefaultTools</a></li><li><a href="global.html#addTool">addTool</a></li><li><a href="global.html#configureCornerstoneToolsSettings">configureCornerstoneToolsSettings</a></li><li><a href="global.html#csToolsCreateStack">csToolsCreateStack</a></li><li><a href="global.html#csToolsUpdateImageIndex">csToolsUpdateImageIndex</a></li><li><a href="global.html#download">download</a></li><li><a href="global.html#exportAnnotations">exportAnnotations</a></li><li><a href="global.html#extractToolInfo">extractToolInfo</a></li><li><a href="global.html#generateCSV">generateCSV</a></li><li><a href="global.html#getCircleWithThreshold">getCircleWithThreshold</a></li><li><a href="global.html#initializeCSTools">initializeCSTools</a></li><li><a href="global.html#isToolMissing">isToolMissing</a></li><li><a href="global.html#loadAnnotations">loadAnnotations</a></li><li><a href="global.html#NRRD_TYPES_TO_TYPEDARRAY">NRRD_TYPES_TO_TYPEDARRAY</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#restoreToolState">restoreToolState</a></li><li><a href="global.html#saveAnnotations">saveAnnotations</a></li><li><a href="global.html#saveToolState">saveToolState</a></li><li><a href="global.html#setToolActive">setToolActive</a></li><li><a href="global.html#setToolDisabled">setToolDisabled</a></li><li><a href="global.html#setToolEnabled">setToolEnabled</a></li><li><a href="global.html#setToolPassive">setToolPassive</a></li></ul>
-</nav>
+      <h2><a href="index.html">Home</a></h2>
+      <h2>
+        <a
+          href="https://github.com/dvisionlab/Larvitar"
+          target="_blank"
+          class="menu-item"
+          id="repository"
+          >Github repo</a
+        >
+      </h2>
+      <h3>Classes</h3>
+      <ul>
+        <li>
+          <a href="module-imaging_store.html">imaging/store</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_store.html#~disableVuex">disableVuex</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_store.html#~enableVuex">enableVuex</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_store.html#~get">get</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_store.html#~set">set</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="Tools.Annotation.ContoursTool.html"
+            >Tools.Annotation.ContoursTool</a
+          >
+        </li>
+        <li>
+          <a href="Tools.Annotation.DiameterTool.html"
+            >Tools.Annotation.DiameterTool</a
+          >
+        </li>
+        <li>
+          <a href="Tools.Annotation.SeedsTool.html"
+            >Tools.Annotation.SeedsTool</a
+          >
+        </li>
+        <li><a href="Tools.Brush.BrushTool.html">Tools.Brush.BrushTool</a></li>
+        <li>
+          <a href="Tools.Brush.ThresholdsBrushTool.html"
+            >Tools.Brush.ThresholdsBrushTool</a
+          >
+        </li>
+      </ul>
+      <h3>Modules</h3>
+      <ul>
+        <li>
+          <a href="module-imaging_contours.html">imaging/contours</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_contours.html#extractSlicePoints"
+                >extractSlicePoints</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_contours.html#populateContoursObject"
+                >populateContoursObject</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_contours.html#~parseContours"
+                >parseContours</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-imaging_io.html">imaging/io</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_io.html#~buildData">buildData</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_io.html#~buildHeader">buildHeader</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_io.html#~cacheAndSaveSerie"
+                >cacheAndSaveSerie</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_io.html#~importNRRDImage"
+                >importNRRDImage</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-imaging_layers.html">imaging/layers</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_layers.html#changeOpacityLayer"
+                >changeOpacityLayer</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_layers.html#getMainLayer">getMainLayer</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_layers.html#loadImageLayers"
+                >loadImageLayers</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_layers.html#updateImageLayer"
+                >updateImageLayer</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_layers.html#~buildLayers">buildLayers</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_layers.html#~loadLayers">loadLayers</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-imaging_loading.html">imaging/loading</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_loading.html#initializeFileImageLoader"
+                >initializeFileImageLoader</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_loading.html#initializeImageLoader"
+                >initializeImageLoader</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_loading.html#initializeWebImageLoader"
+                >initializeWebImageLoader</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_loading.html#registerNRRDImageLoader"
+                >registerNRRDImageLoader</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_loading.html#registerResliceLoader"
+                >registerResliceLoader</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_loading.html#updateLoadedStack"
+                >updateLoadedStack</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_loading.html#~isNewInstance"
+                >isNewInstance</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-imaging_parsing.html">imaging/parsing</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_parsing.html#readFiles">readFiles</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_parsing.html#resetImageParsing"
+                >resetImageParsing</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_parsing.html#~clearFileSystem"
+                >clearFileSystem</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_parsing.html#~dumpFile">dumpFile</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_parsing.html#~dumpFiles">dumpFiles</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_parsing.html#~errorHandler"
+                >errorHandler</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_parsing.html#~parseNextFile"
+                >parseNextFile</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-imaging_rendering.html">imaging/rendering</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#.HSVToRGB">HSVToRGB</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#addColorMap"
+                >addColorMap</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#applyColorMap"
+                >applyColorMap</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#clearImageCache"
+                >clearImageCache</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#disableImage"
+                >disableImage</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#enableMouseHandlers"
+                >enableMouseHandlers</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#fillPixelData"
+                >fillPixelData</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#getColormapsList"
+                >getColormapsList</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#loadImage">loadImage</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#loadWebImage"
+                >loadWebImage</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#loadWebImage"
+                >loadWebImage</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#reloadImage"
+                >reloadImage</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#resetViewports"
+                >resetViewports</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#storeViewportData"
+                >storeViewportData</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#updateImage"
+                >updateImage</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_rendering.html#updateViewportData"
+                >updateViewportData</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li></li>
+        <li>
+          <a href="module-imaging_store.html">imaging/store</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_store.html#~disableVuex">disableVuex</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_store.html#~enableVuex">enableVuex</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_store.html#~get">get</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_store.html#~set">set</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-imaging_tools.html">imaging/tools</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~addContoursTool"
+                >addContoursTool</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~addDefaultTools"
+                >addDefaultTools</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~addDiameterTool"
+                >addDiameterTool</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~addMaskEditingTool"
+                >addMaskEditingTool</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~addSeedsTool">addSeedsTool</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~addStackStateToElement"
+                >addStackStateToElement</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~addToolStateSingleSlice"
+                >addToolStateSingleSlice</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~clearCornerstoneElements"
+                >clearCornerstoneElements</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~clearMeasurements"
+                >clearMeasurements</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~clearToolStateByName"
+                >clearToolStateByName</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~getCurrentMaskData"
+                >getCurrentMaskData</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~getToolState">getToolState</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~isToolMissing"
+                >isToolMissing</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~setSegmentationConfig"
+                >setSegmentationConfig</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~setToolActive"
+                >setToolActive</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~setToolActive"
+                >setToolActive</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~setToolEnabled"
+                >setToolEnabled</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~setToolPassive"
+                >setToolPassive</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~syncToolStack"
+                >syncToolStack</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~updateDiameterTool"
+                >updateDiameterTool</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_tools.html#~updateStackToolState"
+                >updateStackToolState</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-imaging_utils.html">imaging/utils</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#formatDate">formatDate</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#formatDateTime"
+                >formatDateTime</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getCmprMetadata"
+                >getCmprMetadata</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getDICOMTag">getDICOMTag</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getDICOMTagCode"
+                >getDICOMTagCode</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getDistanceBetweenSlices"
+                >getDistanceBetweenSlices</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getMaxPixelValue"
+                >getMaxPixelValue</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getMeanValue">getMeanValue</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getMinPixelValue"
+                >getMinPixelValue</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getNormalOrientation"
+                >getNormalOrientation</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getPixelRepresentation"
+                >getPixelRepresentation</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getPixelTypedArray"
+                >getPixelTypedArray</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getPixelTypedArray"
+                >getPixelTypedArray</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getReslicedIOP"
+                >getReslicedIOP</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getReslicedIPP"
+                >getReslicedIPP</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getReslicedMetadata"
+                >getReslicedMetadata</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getReslicedPixeldata"
+                >getReslicedPixeldata</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getReslicedSliceLocation"
+                >getReslicedSliceLocation</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getTagValue">getTagValue</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#getTypedArray"
+                >getTypedArray</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#isNegativeSign"
+                >isNegativeSign</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#parseImageId">parseImageId</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#permuteSignedArrays"
+                >permuteSignedArrays</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#permuteValues"
+                >permuteValues</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#rand">rand</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#randomId">randomId</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#remapVoxel">remapVoxel</a>
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#sortStackCallback"
+                >sortStackCallback</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-imaging_utils.html#spacingArray">spacingArray</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-loaders_commonLoader.html">loaders/commonLoader</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_commonLoader.html#getCustomImageId"
+                >getCustomImageId</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_commonLoader.html#getImageFrame"
+                >getImageFrame</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_commonLoader.html#getLarvitarManager"
+                >getLarvitarManager</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_commonLoader.html#getSerieDimensions"
+                >getSerieDimensions</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_commonLoader.html#getSeriesData"
+                >getSeriesData</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-loaders_dicomLoader.html">loaders/dicomLoader</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_dicomLoader.html#getDicomImageId"
+                >getDicomImageId</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_dicomLoader.html#getSeriesData"
+                >getSeriesData</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_dicomLoader.html#initializeMainViewport"
+                >initializeMainViewport</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a
+                href="module-loaders_dicomLoader.html#initializeReslicedViewport"
+                >initializeReslicedViewport</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_dicomLoader.html#populateDicomManager"
+                >populateDicomManager</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a
+                href="module-loaders_dicomLoader.html#removeSeriesFromDicomManager"
+                >removeSeriesFromDicomManager</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_dicomLoader.html#resetDicomManager"
+                >resetDicomManager</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_dicomLoader.html#resetImageLoader"
+                >resetImageLoader</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-loaders_fileLoader.html">loaders/fileLoader</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_fileLoader.html#getFileImageId"
+                >getFileImageId</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_fileLoader.html#populateFileManager"
+                >populateFileManager</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_fileLoader.html#resetFileLoader"
+                >resetFileLoader</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_fileLoader.html#resetFileManager"
+                >resetFileManager</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-loaders_nrrdLoader.html">loaders/nrrdLoader</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_nrrdLoader.html#createCustomImage"
+                >createCustomImage</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_nrrdLoader.html#getImageIdFromSlice"
+                >getImageIdFromSlice</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_nrrdLoader.html#getNrrdImageId"
+                >getNrrdImageId</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_nrrdLoader.html#getSerieDimensions"
+                >getSerieDimensions</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_nrrdLoader.html#getSeriesData"
+                >getSeriesData</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_nrrdLoader.html#getSliceNumberFromImageId"
+                >getSliceNumberFromImageId</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_nrrdLoader.html#initializeCmprViewport"
+                >initializeCmprViewport</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_nrrdLoader.html#initializeMainViewport"
+                >initializeMainViewport</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a
+                href="module-loaders_nrrdLoader.html#initializeReslicedViewport"
+                >initializeReslicedViewport</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_nrrdLoader.html#loadImageWithOrientation"
+                >loadImageWithOrientation</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_nrrdLoader.html#loadNrrdImage"
+                >loadNrrdImage</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_nrrdLoader.html#populateNrrdManager"
+                >populateNrrdManager</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a
+                href="module-loaders_nrrdLoader.html#removeSeriesFromNrrdManager"
+                >removeSeriesFromNrrdManager</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_nrrdLoader.html#resetNrrdLoader"
+                >resetNrrdLoader</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-loaders_resliceLoader.html">loaders/resliceLoader</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_resliceLoader.html#createCustomImage"
+                >createCustomImage</a
+              >
+            </li>
+            <li data-type="method" style="display: none">
+              <a href="module-loaders_resliceLoader.html#loadReslicedImage"
+                >loadReslicedImage</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="module-tools_default.html">tools/default</a>
+          <ul class="methods">
+            <li data-type="method" style="display: none">
+              <a href="module-tools_default.html#~getDefaultToolsByType"
+                >getDefaultToolsByType</a
+              >
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <h3>Events</h3>
+      <ul>
+        <li>
+          <a href="ContoursTool.html#event:_drawingDoubleTapClickCallback"
+            >ContoursTool#_drawingDoubleTapClickCallback</a
+          >
+        </li>
+        <li>
+          <a href="ContoursTool.html#event:_drawingMouseDoubleClickCallback"
+            >ContoursTool#_drawingMouseDoubleClickCallback</a
+          >
+        </li>
+        <li>
+          <a href="ContoursTool.html#event:_drawingMouseDownCallback"
+            >ContoursTool#_drawingMouseDownCallback</a
+          >
+        </li>
+        <li>
+          <a href="ContoursTool.html#event:_drawingMouseDragCallback"
+            >ContoursTool#_drawingMouseDragCallback</a
+          >
+        </li>
+        <li>
+          <a href="ContoursTool.html#event:_drawingMouseMoveCallback"
+            >ContoursTool#_drawingMouseMoveCallback</a
+          >
+        </li>
+        <li>
+          <a href="ContoursTool.html#event:_drawingMouseUpCallback"
+            >ContoursTool#_drawingMouseUpCallback</a
+          >
+        </li>
+        <li>
+          <a href="ContoursTool.html#event:_drawingTouchDragCallback"
+            >ContoursTool#_drawingTouchDragCallback</a
+          >
+        </li>
+        <li>
+          <a href="ContoursTool.html#event:_drawingTouchStartCallback"
+            >ContoursTool#_drawingTouchStartCallback</a
+          >
+        </li>
+        <li>
+          <a href="ContoursTool.html#event:_editMouseDragCallback"
+            >ContoursTool#_editMouseDragCallback</a
+          >
+        </li>
+        <li>
+          <a href="ContoursTool.html#event:_editTouchDragCallback"
+            >ContoursTool#_editTouchDragCallback</a
+          >
+        </li>
+      </ul>
+      <h3>Global</h3>
+      <ul>
+        <li><a href="global.html#_paint">_paint</a></li>
+        <li><a href="global.html#addDefaultTools">addDefaultTools</a></li>
+        <li><a href="global.html#addTool">addTool</a></li>
+        <li>
+          <a href="global.html#configureCornerstoneToolsSettings"
+            >configureCornerstoneToolsSettings</a
+          >
+        </li>
+        <li><a href="global.html#csToolsCreateStack">csToolsCreateStack</a></li>
+        <li>
+          <a href="global.html#csToolsUpdateImageIndex"
+            >csToolsUpdateImageIndex</a
+          >
+        </li>
+        <li><a href="global.html#download">download</a></li>
+        <li><a href="global.html#exportAnnotations">exportAnnotations</a></li>
+        <li><a href="global.html#extractToolInfo">extractToolInfo</a></li>
+        <li><a href="global.html#generateCSV">generateCSV</a></li>
+        <li>
+          <a href="global.html#getCircleWithThreshold"
+            >getCircleWithThreshold</a
+          >
+        </li>
+        <li><a href="global.html#initializeCSTools">initializeCSTools</a></li>
+        <li><a href="global.html#isToolMissing">isToolMissing</a></li>
+        <li><a href="global.html#loadAnnotations">loadAnnotations</a></li>
+        <li>
+          <a href="global.html#NRRD_TYPES_TO_TYPEDARRAY"
+            >NRRD_TYPES_TO_TYPEDARRAY</a
+          >
+        </li>
+        <li><a href="global.html#parse">parse</a></li>
+        <li><a href="global.html#restoreToolState">restoreToolState</a></li>
+        <li><a href="global.html#saveAnnotations">saveAnnotations</a></li>
+        <li><a href="global.html#saveToolState">saveToolState</a></li>
+        <li><a href="global.html#setToolActive">setToolActive</a></li>
+        <li><a href="global.html#setToolDisabled">setToolDisabled</a></li>
+        <li><a href="global.html#setToolEnabled">setToolEnabled</a></li>
+        <li><a href="global.html#setToolPassive">setToolPassive</a></li>
+      </ul>
+    </nav>
 
-<div id="main">
-    
+    <div id="main">
+      <section class="package">
+        <h3></h3>
+      </section>
 
-    
+      <section class="readme usertext">
+        <article>
+          <p align="center">
+            <img
+              src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png"
+              width="100"
+              title="hover text"
+              alt="accessibility text"
+            />
+          </p>
+          <h1 id="larvitar">Larvitar</h1>
+          <h2 id="dicom-image-toolkit-for-cornestonejs">
+            Dicom Image Toolkit for CornestoneJS
+          </h2>
+          <h3 id="current-version%3A-0.9.8">Current version: 0.9.8</h3>
+          <p>
+            This library provides common dicom functionalities to be used in
+            web-applications. Multiplanar reformat on axial, sagittal and
+            coronal viewports is included as well as custom loader/exporter for
+            nrrd files and orthogonal reslice.
+          </p>
+          <ul>
+            <li><code>index</code> main file</li>
+            <li><code>dataDictionary</code> json file for dicom tags</li>
+            <li>
+              <code>image_colormaps</code> provides color maps functionalities
+            </li>
+            <li>
+              <code>image_contours</code> using to populate cornerstone tool for
+              segmentation contours on 2D images
+            </li>
+            <li>
+              <code>image_io</code> import a dicom image in .nrrd format and
+              build contiguous array for exporting data as volume
+            </li>
+            <li>
+              <code>image_layers</code> provide support for multi-layer
+              cornerstone fusion renderer
+            </li>
+            <li>
+              <code>image_loading</code> initialize loader and custom loaders
+            </li>
+            <li>
+              <code>image_parsing</code> parse dicom files and return a
+              cornestone data structure ready to be used for rendering
+            </li>
+            <li>
+              <code>image_rendering</code> provides rendering functionalities
+            </li>
+            <li>
+              <code>image_store</code> provides data storage functionalities,
+              vuex support is integrated
+            </li>
+            <li>
+              <code>image_tools</code> using to handle standard and custom
+              cornerstone tools
+            </li>
+            <li>
+              <code>image_utils</code> utility functions on pixels and metadata
+              tags
+            </li>
+            <li>
+              <code>loaders/commonLoader</code> common functionalities for
+              custom loaders
+            </li>
+            <li>
+              <code>loaders/dicomLoader</code> custom loader for DICOM files
+              with support for multiplanar reformat (axial, sagittal and coronal
+              planes)
+            </li>
+            <li>
+              <code>loaders/fileLoader</code> custom loader for png/jpg files
+            </li>
+            <li>
+              <code>loaders/nrrdLoader</code>custom loader for nrrd files with
+              support for multiplanar reformat (axial, sagittal and coronal
+              planes)
+            </li>
+            <li>
+              <code>loaders/resliceLoader</code> custom loader for resliced data
+            </li>
+            <li><code>parsers/nrrd</code> custom parser for nrrd data</li>
+            <li>
+              <code>tools/contourTool</code> is a custom cornerstone tool for 2D
+              visualization of segmented images
+            </li>
+            <li>
+              <code>tools/diameterTool</code> is a custom cornerstone tool for
+              2D visualization of diameter widgets
+            </li>
+            <li>
+              <code>tools/editMaskTool</code> is a custom cornerstone tool for
+              2D visualization of segmentation masks with brush functionalities
+            </li>
+            <li>
+              <code>tools/seedTool</code> is a custom cornerstone tool for 2D
+              interactive seeding with custom colors and labels
+            </li>
+            <li>
+              <code>tools/thresholdsBrushTool</code> is a custom cornerstone
+              tool for handling thresholds in a brush tool
+            </li>
+            <li>
+              <code>tools/tools.default</code> default tools map and
+              configuration
+            </li>
+            <li>
+              <code>tools/tools.io</code> import and export functionalities for
+              tools
+            </li>
+            <li><code>tools/tools.main</code> tools main functionalities</li>
+            <li><code>tools/tools.state</code> tools state management</li>
+          </ul>
+          <p>
+            Full documentation is available at
+            http://www.dvisionlab.com/Larvitar/.
+          </p>
+          <h1 id="contributors">Contributors</h1>
+          <ul>
+            <li>Simone Manini, D/Vision Lab</li>
+            <li>Mattia Ronzoni, D/Vision Lab</li>
+            <li>Sara Zanchi, D/Vision Lab</li>
+          </ul>
+          <p>
+            <img
+              src="https://www.dvisionlab.com/images/logo_dv.png"
+              alt="dvisionlab logo"
+            />
+          </p>
+          <h1 id="dependencies">Dependencies</h1>
+          <ul>
+            <li><code>cornerstone</code></li>
+            <li><code>cornerstone-tools</code></li>
+            <li><code>dicomParser</code></li>
+            <li><code>wadoImageLoader</code></li>
+            <li><code>webImageLoader</code></li>
+            <li><code>fileImageLoader</code></li>
+            <li><code>lodash</code></li>
+            <li><code>pako</code></li>
+            <li><code>papaparse</code></li>
+          </ul>
+          <h1 id="installation">Installation</h1>
+          <p><code>yarn add larvitar</code></p>
+          <h1 id="build-docs">Build docs</h1>
+          <p>
+            Clone docdash repo into template folder<br />
+            <code>yarn run generate-docs</code>
+          </p>
+        </article>
+      </section>
+    </div>
 
+    <br class="clear" />
 
+    <footer>
+      Documentation generated by
+      <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> using the
+      <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    </footer>
 
-    
+    <script>
+      prettyPrint();
+    </script>
+    <script src="scripts/polyfill.js"></script>
+    <script src="scripts/linenumber.js"></script>
 
+    <script src="scripts/search.js" defer></script>
 
-    <section class="package">
-        <h3> </h3>		
-    </section>
-
-
-
-
-
-
-
-
-
-    
-
-
-
-    <section class="readme usertext">
-        <article><p align="center">
-  <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" width="100" title="hover text" alt="accessibility text">
-</p>
-<h1 id="larvitar">Larvitar</h1>
-<h2 id="dicom-image-toolkit-for-cornestonejs">Dicom Image Toolkit for CornestoneJS</h2>
-<h3 id="current-version%3A-0.9.8">Current version: 0.9.8</h3>
-<p>This library provides common dicom functionalities to be used in web-applications. Multiplanar reformat on axial, sagittal and coronal viewports is included as well as custom loader/exporter for nrrd files and orthogonal reslice.</p>
-<ul>
-<li><code>index</code> main file</li>
-<li><code>dataDictionary</code> json file for dicom tags</li>
-<li><code>image_colormaps</code> provides color maps functionalities</li>
-<li><code>image_contours</code> using to populate cornerstone tool for segmentation contours on 2D images</li>
-<li><code>image_io</code> import a dicom image in .nrrd format and build contiguous array for exporting data as volume</li>
-<li><code>image_layers</code> provide support for multi-layer cornerstone fusion renderer</li>
-<li><code>image_loading</code> initialize loader and custom loaders</li>
-<li><code>image_parsing</code> parse dicom files and return a cornestone data structure ready to be used for rendering</li>
-<li><code>image_rendering</code> provides rendering functionalities</li>
-<li><code>image_store</code> provides data storage functionalities, vuex support is integrated</li>
-<li><code>image_tools</code> using to handle standard and custom cornerstone tools</li>
-<li><code>image_utils</code> utility functions on pixels and metadata tags</li>
-<li><code>loaders/commonLoader</code> common functionalities for custom loaders</li>
-<li><code>loaders/dicomLoader</code> custom loader for DICOM files with support for multiplanar reformat (axial, sagittal and coronal planes)</li>
-<li><code>loaders/fileLoader</code> custom loader for png/jpg files</li>
-<li><code>loaders/nrrdLoader</code>custom loader for nrrd files with support for multiplanar reformat (axial, sagittal and coronal planes)</li>
-<li><code>loaders/resliceLoader</code> custom loader for resliced data</li>
-<li><code>parsers/nrrd</code> custom parser for nrrd data</li>
-<li><code>tools/contourTool</code> is a custom cornerstone tool for 2D visualization of segmented images</li>
-<li><code>tools/diameterTool</code> is a custom cornerstone tool for 2D visualization of diameter widgets</li>
-<li><code>tools/editMaskTool</code> is a custom cornerstone tool for 2D visualization of segmentation masks with brush functionalities</li>
-<li><code>tools/seedTool</code> is a custom cornerstone tool for 2D interactive seeding with custom colors and labels</li>
-<li><code>tools/thresholdsBrushTool</code> is a custom cornerstone tool for handling thresholds in a brush tool</li>
-<li><code>tools/tools.default</code> default tools map and configuration</li>
-<li><code>tools/tools.io</code> import and export functionalities for tools</li>
-<li><code>tools/tools.main</code> tools main functionalities</li>
-<li><code>tools/tools.state</code> tools state management</li>
-</ul>
-<p>Full documentation is available at http://www.dvisionlab.com/Larvitar/.</p>
-<h1 id="contributors">Contributors</h1>
-<ul>
-<li>Simone Manini, D/Vision Lab</li>
-<li>Mattia Ronzoni, D/Vision Lab</li>
-<li>Sara Zanchi, D/Vision Lab</li>
-</ul>
-<p><img src="https://www.dvisionlab.com/images/logo_dv.png" alt="dvisionlab logo"></p>
-<h1 id="dependencies">Dependencies</h1>
-<ul>
-<li><code>cornerstone</code></li>
-<li><code>cornerstone-tools</code></li>
-<li><code>dicomParser</code></li>
-<li><code>wadoImageLoader</code></li>
-<li><code>webImageLoader</code></li>
-<li><code>fileImageLoader</code></li>
-<li><code>lodash</code></li>
-<li><code>pako</code></li>
-<li><code>papaparse</code></li>
-</ul>
-<h1 id="installation">Installation</h1>
-<p><code>yarn add larvitar</code></p>
-<h1 id="build-docs">Build docs</h1>
-<p>Clone docdash repo into template folder<br>
-<code>yarn run generate-docs</code></p></article>
-    </section>
-
-
-
-
-
-
-    
-    
-</div>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
-</footer>
-
-<script>prettyPrint();</script>
-<script src="scripts/polyfill.js"></script>
-<script src="scripts/linenumber.js"></script>
-
-<script src="scripts/search.js" defer></script>
-
-
-<script src="scripts/collapse.js" defer></script>
-
-
-</body>
+    <script src="scripts/collapse.js" defer></script>
+  </body>
 </html>
