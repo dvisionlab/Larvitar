@@ -10,7 +10,7 @@ import { get as _get } from "lodash";
 /**
  * The Larvitar Internal Store
  */
-export const larvitar_store = null;
+export let larvitar_store = null;
 
 /** Class representing the Larvitar Store. */
 class Larvitar_Store {
