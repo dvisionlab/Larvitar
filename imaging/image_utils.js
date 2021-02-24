@@ -16,7 +16,7 @@ import {
   indexOf,
   random
 } from "lodash";
-import uuid from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
 import { getCustomImageId, getSerieDimensions } from "./loaders/commonLoader";
@@ -410,7 +410,7 @@ export const getReslicedMetadata = function (
     let reslicedImageId = getCustomImageId(imageLoaderName);
     reslicedImageIds.push(reslicedImageId);
 
-    let instanceId = uuid.v4();
+    let instanceId = uuidv4();
     let reslicedIPP = getReslicedIPP(
       sampleMetadata.x00200032,
       sampleMetadata.x00200037,
@@ -502,7 +502,7 @@ export const getCmprMetadata = function (
     let reslicedImageId = getCustomImageId(imageLoaderName);
     reslicedImageIds.push(reslicedImageId);
 
-    let instanceId = uuid.v4();
+    let instanceId = uuidv4();
 
     let metadata = {
       // pixel representation

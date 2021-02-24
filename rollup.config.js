@@ -9,13 +9,23 @@ export default [
     output: {
       name: "larvitar",
       file: pkg.browser,
-      format: "umd"
+      format: "umd",
+      globals: {
+        fs: "fs",
+        path: "path"
+      }
     },
     plugins: [
-      resolve(), // so Rollup can find `ms`
-      commonjs() // so Rollup can convert `ms` to an ES module
+      resolve({
+        jsnext: true,
+        main: true,
+        browser: true,
+        extensions: [".js", ".json"],
+        preferBuiltins: true
+      }), // so Rollup can find node_modules
+      commonjs() // so Rollup can convert node_modules to an ES module,
     ]
-  },
+  }
 
   // CommonJS (for Node) and ES module (for bundlers) build.
   // (We could have three entries in the configuration array
@@ -23,12 +33,12 @@ export default [
   // builds from a single configuration where possible, using
   // an array for the `output` option, where we can specify
   // `file` and `format` for each target)
-  {
-    input: "index.js",
-    external: ["lodash"],
-    output: [
-      { file: pkg.common, format: "cjs" },
-      { file: pkg.module, format: "es" }
-    ]
-  }
+  // {
+  //   input: "index.js",
+  //   external: ["cornerstone-core"],
+  //   output: [
+  //     { file: pkg.common, format: "cjs" },
+  //     { file: pkg.module, format: "es" }
+  //   ]
+  // }
 ];

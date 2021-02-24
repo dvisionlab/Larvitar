@@ -6,15 +6,20 @@
 
 // external libraries
 import { get as _get } from "lodash";
-import { default as vuex_store } from "@/store/index";
+
+/**
+ * The Larvitar Internal Store
+ */
+export const larvitar_store = null;
 
 /** Class representing the Larvitar Store. */
-export default class Larvitar_Store {
+class Larvitar_Store {
   /**
    * Create the Larvitar Store
    */
-  constructor() {
-    this.VUEX_STORE = true;
+  constructor(vuex_store) {
+    this.VUEX_STORE = vuex_store ? true : false;
+    this.vuex_store = vuex_store;
     this.state = {
       manager: null,
       viewer: "quadview",
@@ -168,7 +173,7 @@ export default class Larvitar_Store {
     if (this.VUEX_STORE) {
       let dispatch = "set" + field[0].toUpperCase() + field.slice(1);
       let route = viewer ? viewer + "/" + dispatch : dispatch;
-      vuex_store.dispatch(route, data);
+      this.vuex_store.dispatch(route, data);
     } else {
       if (field == "scale" || field == "rotation" || field == "translation") {
         this.state[data[0]]["viewport"][field] = data[1];
@@ -204,9 +209,22 @@ export default class Larvitar_Store {
    */
   get(...args) {
     if (this.VUEX_STORE) {
-      return _get(vuex_store.state, args, "error");
+      return _get(this.vuex_store.state, args, "error");
     } else {
       return _get(this.state, args, "error");
     }
+  }
+}
+
+/**
+ * Instancing the store
+ * @param {Object} vuex_store - The app vuex store [optional]
+ */
+
+export function initLarvitarStore(vuex_store) {
+  if (vuex_store) {
+    internal_store = new Larvitar_Store(vuex_store);
+  } else {
+    internal_store = new Larvitar_Store();
   }
 }
