@@ -131,10 +131,13 @@ export const loadImage = function (series, elementId, defaultProps) {
     defaultProps["sliceNumber"] <= series.imageIds.length
       ? defaultProps["sliceNumber"]
       : Math.floor(series.imageIds.length / 2);
-  let currentImageId =
-    imageIndex == 0
-      ? series.imageIds[imageIndex]
-      : series.imageIds[imageIndex - 1];
+  let currentImageId = series.imageIds[imageIndex - 1];
+
+  if (!currentImageId) {
+    currentImageId = series.imageIds[0];
+    console.warn("imageId not found for imageIndex", imageIndex);
+  }
+
   let rows = series.instances[series.imageIds[0]].metadata["x00280010"];
   let cols = series.instances[series.imageIds[0]].metadata["x00280011"];
   let thickness = series.instances[series.imageIds[0]].metadata["x00180050"];
@@ -212,9 +215,6 @@ export const loadImage = function (series, elementId, defaultProps) {
           cornerstone.setViewport(element, viewport);
         }
 
-        csToolsCreateStack(element);
-        enableMouseHandlers(elementId);
-
         let storedViewport = cornerstone.getViewport(element);
 
         storeViewportData(
@@ -234,6 +234,9 @@ export const loadImage = function (series, elementId, defaultProps) {
       }
     });
   });
+
+  csToolsCreateStack(element, series.imageIds, imageIndex - 1);
+  enableMouseHandlers(elementId);
 };
 
 /**
