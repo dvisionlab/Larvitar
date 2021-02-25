@@ -11,9 +11,6 @@ import {
   exportAnnotations
 } from "./tools.io";
 import { DEFAULT_TOOLS, dvTools } from "./tools.default";
-import { getLarvitarManager } from "../loaders/commonLoader";
-
-import { larvitar_store } from "../image_store";
 
 /**
  * Initialize cornerstone tools with default configuration
@@ -35,16 +32,14 @@ const initializeCSTools = function () {
  * Create stack object to sync stack tools
  * @function csToolsCreateStack
  * @param {HTMLElement} element - The target hmtl element.
+ * @param {Array} imageIds - Stack image ids.
  */
-const csToolsCreateStack = function (element) {
-  let viewer = larvitar_store.get("viewer");
-  let seriesId = larvitar_store.get("seriesId");
-  let manager = getLarvitarManager();
+const csToolsCreateStack = function (element, imageIds) {
   let stack;
-  if (seriesId && seriesId != "error") {
+  if (imageIds) {
     stack = {
-      currentImageIdIndex: larvitar_store.get(viewer, element.id, "sliceId"),
-      imageIds: manager[seriesId][element.id].imageIds
+      currentImageIdIndex: 0, //TODO get middle slice ?
+      imageIds: imageIds
     };
   } else {
     stack = {
