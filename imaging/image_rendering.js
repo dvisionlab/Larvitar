@@ -232,7 +232,7 @@ export const loadImage = function (series, elementId, defaultProps) {
     });
   });
 
-  csToolsCreateStack(element, series.imageIds);
+  csToolsCreateStack(element, series.imageIds, imageIndex); // or imageIndex-1 ? see line 134
   enableMouseHandlers(elementId);
 };
 

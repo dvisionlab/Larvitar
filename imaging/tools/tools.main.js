@@ -33,12 +33,13 @@ const initializeCSTools = function () {
  * @function csToolsCreateStack
  * @param {HTMLElement} element - The target hmtl element.
  * @param {Array} imageIds - Stack image ids.
+ * @param {String} currentImageId - The current image id.
  */
-const csToolsCreateStack = function (element, imageIds) {
+const csToolsCreateStack = function (element, imageIds, currentImageIndex) {
   let stack;
   if (imageIds) {
     stack = {
-      currentImageIdIndex: 0, //TODO get middle slice ?
+      currentImageIdIndex: currentImageIndex,
       imageIds: imageIds
     };
   } else {
