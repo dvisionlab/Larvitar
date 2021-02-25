@@ -51,5 +51,6 @@
   ],
   "common": "dist/larvitar.cjs.js",
   "module": "dist/larvitar.js",
-  "browser": "dist/larvitar.js"
+  "browser": "dist/larvitar.js",
+  "type": "module"
 }
