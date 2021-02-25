@@ -212,9 +212,6 @@ export const loadImage = function (series, elementId, defaultProps) {
           cornerstone.setViewport(element, viewport);
         }
 
-        csToolsCreateStack(element, series.imageIds); // TODO why not out of cycle ?
-        // enableMouseHandlers(elementId); // FIXME restore
-
         let storedViewport = cornerstone.getViewport(element);
 
         storeViewportData(
@@ -234,6 +231,9 @@ export const loadImage = function (series, elementId, defaultProps) {
       }
     });
   });
+
+  csToolsCreateStack(element, series.imageIds);
+  enableMouseHandlers(elementId);
 };
 
 /**
