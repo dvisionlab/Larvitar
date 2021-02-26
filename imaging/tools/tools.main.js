@@ -190,13 +190,9 @@ const setToolActive = function (toolName, options, activeViewport, viewports) {
  * @function setToolDisabled
  * @param {String} toolName - The tool name.
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
- * @param {Array} _viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
+ * @param {Array} _viewports - The hmtl element id to be used for tool initialization.
  */
-const setToolDisabled = function (
-  toolName,
-  activeViewport,
-  viewports = ["axial", "sagittal", "coronal"]
-) {
+const setToolDisabled = function (toolName, activeViewport, viewports) {
   cornerstoneTools.setToolDisabled(toolName);
   if (activeViewport == "all") {
     each(viewports, function (elementId) {
@@ -218,13 +214,9 @@ const setToolDisabled = function (
  * @function setToolEnabled
  * @param {String} toolName - The tool name.
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
- * @param {Array} viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
+ * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  */
-const setToolEnabled = function (
-  toolName,
-  activeViewport,
-  viewports = ["axial", "sagittal", "coronal"]
-) {
+const setToolEnabled = function (toolName, activeViewport, viewports) {
   cornerstoneTools.setToolEnabled(toolName);
   if (activeViewport == "all") {
     each(viewports, function (elementId) {
@@ -246,13 +238,9 @@ const setToolEnabled = function (
  * @function setToolPassive
  * @param {String} toolName - The tool name.
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
- * @param {Array} viewports - The hmtl element id to be used for tool initialization. @default ["axial","sagittal","coronal"]
+ * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  */
-const setToolPassive = function (
-  toolName,
-  activeViewport,
-  viewports = ["axial", "sagittal", "coronal"]
-) {
+const setToolPassive = function (toolName, activeViewport, viewports) {
   cornerstoneTools.setToolPassive(toolName);
   if (activeViewport == "all") {
     each(viewports, function (elementId) {

@@ -7,6 +7,45 @@
 // external libraries
 import { get as _get } from "lodash";
 
+// default viewport store object
+DEFAULT_VIEWPORT = {
+  ready: false,
+  minSliceId: 0,
+  maxSliceId: 0,
+  sliceId: 0,
+  rows: 0,
+  cols: 0,
+  spacing_x: 0.0,
+  spacing_y: 0.0,
+  thickness: 0.0,
+  minPixelValue: 0,
+  maxPixelValue: 0,
+  viewport: {
+    scale: 0.0,
+    translation: {
+      x: 0.0,
+      y: 0.0
+    },
+    rotation: 0.0,
+    voi: {
+      windowCenter: 0.0,
+      windowWidth: 0.0
+    }
+  },
+  default: {
+    scale: 0.0,
+    translation: {
+      x: 0.0,
+      y: 0.0
+    },
+    rotation: 0.0,
+    voi: {
+      windowCenter: 0.0,
+      windowWidth: 0.0
+    }
+  }
+};
+
 /**
  * The Larvitar Internal Store
  */
@@ -16,141 +55,32 @@ export let larvitar_store = null;
 class Larvitar_Store {
   /**
    * Create the Larvitar Store
+   * @param {Obj} vuex_store - The Vuex store
+   * @param {String} vuex_module - The name of the vuex store module, can be null
    */
-  constructor(vuex_store) {
+  constructor(vuex_store, vuex_module) {
     this.VUEX_STORE = vuex_store ? true : false;
     this.vuex_store = vuex_store;
+    this.vuex_module = vuex_module;
     this.state = {
       manager: null,
-      viewer: "quadview",
-      viewports: ["axial", "coronal", "sagittal"],
-      orientation: null,
       leftMouseHandler: "Wwwc",
       series: [],
-      seriesId: null,
-      imageId: null,
       colormapId: "gray",
-      axial: {
-        ready: false,
-        minSliceId: 0,
-        maxSliceId: 0,
-        sliceId: 0,
-        rows: 0,
-        cols: 0,
-        spacing_x: 0.0,
-        spacing_y: 0.0,
-        thickness: 0.0,
-        minPixelValue: 0,
-        maxPixelValue: 0,
-        viewport: {
-          scale: 0.0,
-          translation: {
-            x: 0.0,
-            y: 0.0
-          },
-          rotation: 0.0,
-          voi: {
-            windowCenter: 0.0,
-            windowWidth: 0.0
-          }
-        },
-        default: {
-          scale: 0.0,
-          translation: {
-            x: 0.0,
-            y: 0.0
-          },
-          rotation: 0.0,
-          voi: {
-            windowCenter: 0.0,
-            windowWidth: 0.0
-          }
-        }
-      },
-      sagittal: {
-        ready: false,
-        minSliceId: 0,
-        maxSliceId: 0,
-        sliceId: 0,
-        rows: 0,
-        cols: 0,
-        spacing_x: 0.0,
-        spacing_y: 0.0,
-        thickness: 0.0,
-        minPixelValue: 0,
-        maxPixelValue: 0,
-        viewport: {
-          scale: 1.0,
-          translation: {
-            x: 0.0,
-            y: 0.0
-          },
-          rotation: 0.0,
-          voi: {
-            windowCenter: 0.0,
-            windowWidth: 0.0
-          }
-        },
-        default: {
-          scale: 1.0,
-          translation: {
-            x: 0.0,
-            y: 0.0
-          },
-          rotation: 0.0,
-          voi: {
-            windowCenter: 0.0,
-            windowWidth: 0.0
-          }
-        }
-      },
-      coronal: {
-        ready: false,
-        minSliceId: 0,
-        maxSliceId: 0,
-        sliceId: 0,
-        rows: 0,
-        cols: 0,
-        spacing_x: 0.0,
-        spacing_y: 0.0,
-        thickness: 0.0,
-        minPixelValue: 0,
-        maxPixelValue: 0,
-        viewport: {
-          scale: 1.0,
-          translation: {
-            x: 0.0,
-            y: 0.0
-          },
-          rotation: 0.0,
-          voi: {
-            windowCenter: 0.0,
-            windowWidth: 0.0
-          }
-        },
-        default: {
-          scale: 1.0,
-          translation: {
-            x: 0.0,
-            y: 0.0
-          },
-          rotation: 0.0,
-          voi: {
-            windowCenter: 0.0,
-            windowWidth: 0.0
-          }
-        }
-      }
+      viewports: {},
+      errorLog: null
     };
   }
 
   /**
    * Enable the VUEX storage method
    * @function enableVuex
+   * @param {String} vuex_module - The name of the vuex store module, can be null
    */
-  enableVuex() {
+  enableVuex(vuex_module) {
     // VUEX IS ENABLED BY DEFAULT
     this.VUEX_STORE = true;
+    this.vuex_module = vuex_module;
   }
 
   /**
@@ -160,37 +90,75 @@ class Larvitar_Store {
   disableVuex() {
     // VUEX IS ENABLED BY DEFAULT
     this.VUEX_STORE = false;
+    this.vuex_module = null;
+  }
+
+  /**
+   * Add a viewport into the store
+   * @function addViewport
+   * @param {String} viewportId - The viewport id
+   */
+  addViewport(viewportId) {
+    if (this.VUEX_STORE) {
+      let dispatch = "addViewport";
+      let route = this.vuex_module
+        ? this.vuex_module + "/" + dispatch
+        : dispatch;
+      this.vuex_store.dispatch(route, viewportId);
+    } else {
+      this.state.viewports[viewportId] = {};
+      this.state.viewports[viewportId] = DEFAULT_VIEWPORT;
+    }
   }
 
   /**
    * Set a value into store
    * @function set
-   * @param {String} viewer - The name of the viewer, can be null
    * @param {field} field - The name of the field to be updated
    * @param {Object} data - The data object
    */
-  set(viewer, field, data) {
+  set(field, data) {
     if (this.VUEX_STORE) {
       let dispatch = "set" + field[0].toUpperCase() + field.slice(1);
-      let route = viewer ? viewer + "/" + dispatch : dispatch;
+      let route = this.vuex_module
+        ? this.vuex_module + "/" + dispatch
+        : dispatch;
       this.vuex_store.dispatch(route, data);
     } else {
       if (field == "scale" || field == "rotation" || field == "translation") {
-        this.state[data[0]]["viewport"][field] = data[1];
+        this.state["viewports"][data[0]]["viewport"][field] = data[1];
       } else if (field == "contrast") {
-        this.state[data[0]]["viewport"]["voi"][field] = data[1];
+        this.state["viewports"][data[0]]["viewport"]["voi"][field] = data[1];
       } else if (field == "dimensions") {
-        this.state[data[0]]["rows"] = data[1];
-        this.state[data[0]]["cols"] = data[2];
+        this.state["viewports"][data[0]]["rows"] = data[1];
+        this.state["viewports"][data[0]]["cols"] = data[2];
       } else if (field == "spacing") {
-        this.state[data[0]]["spacing_x"] = data[1];
-        this.state[data[0]]["spacing_y"] = data[2];
+        this.state["viewports"][data[0]]["spacing_x"] = data[1];
+        this.state["viewports"][data[0]]["spacing_y"] = data[2];
+      } else if (field == "thickness") {
+        this.state["viewports"][data[0]]["thickness"] = data[1];
+      } else if (field == "minPixelValue") {
+        this.state["viewports"][data[0]]["minPixelValue"] = data[1];
+      } else if (field == "maxPixelValue") {
+        this.state["viewports"][data[0]]["maxPixelValue"] = data[1];
+      } else if (field == "loadingStatus") {
+        this.state["viewports"][data[0]]["ready"] = data[1];
+      } else if (field == "minSliceNumber") {
+        this.state["viewports"][data[0]]["minSliceId"] = data[1];
+      } else if (field == "maxSliceNumber") {
+        this.state["viewports"][data[0]]["maxSliceId"] = data[1];
+      } else if (field == "currentSliceNumber") {
+        this.state["viewports"][data[0]]["sliceId"] = data[1];
       } else if (field == "defaultViewport") {
-        this.state[data[0]]["default"]["scale"] = data[1];
-        this.state[data[0]]["default"]["translation"]["x"] = data[2];
-        this.state[data[0]]["default"]["translation"]["y"] = data[3];
-        this.state[data[0]]["default"]["voi"]["windowWidth"] = data[4];
-        this.state[data[0]]["default"]["voi"]["windowCenter"] = data[5];
+        this.state["viewports"][data[0]]["default"]["scale"] = data[1];
+        this.state["viewports"][data[0]]["default"]["translation"]["x"] =
+          data[2];
+        this.state["viewports"][data[0]]["default"]["translation"]["y"] =
+          data[3];
+        this.state["viewports"][data[0]]["default"]["voi"]["windowWidth"] =
+          data[4];
+        this.state["viewports"][data[0]]["default"]["voi"]["windowCenter"] =
+          data[5];
       } else {
         if (data.length == 0) {
           this.state[field] = data;
@@ -209,7 +177,8 @@ class Larvitar_Store {
    */
   get(...args) {
     if (this.VUEX_STORE) {
-      return _get(this.vuex_store.state, args, "error");
+      let _args = this.vuex_module ? args.unshift(this.vuex_module) : args;
+      return _get(this.vuex_store.state, _args, "error");
     } else {
       return _get(this.state, args, "error");
     }
