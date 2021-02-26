@@ -112,6 +112,23 @@ class Larvitar_Store {
   }
 
   /**
+   * Delete a viewport from the store
+   * @function deleteViewport
+   * @param {String} viewportId - The viewport id
+   */
+  deleteViewport(viewportId) {
+    if (this.VUEX_STORE) {
+      let dispatch = "deleteViewport";
+      let route = this.vuex_module
+        ? this.vuex_module + "/" + dispatch
+        : dispatch;
+      this.vuex_store.dispatch(route, viewportId);
+    } else {
+      delete this.state.viewports[viewportId];
+    }
+  }
+
+  /**
    * Set a value into store
    * @function set
    * @param {field} field - The name of the field to be updated
@@ -188,11 +205,12 @@ class Larvitar_Store {
 /**
  * Instancing the store
  * @param {Object} vuex_store - The app vuex store [optional]
+ * @param {String} vuex_module - The name of the vuex store module, can be null
  */
 
-export function initLarvitarStore(vuex_store) {
+export function initLarvitarStore(vuex_store, vuex_module) {
   if (vuex_store) {
-    larvitar_store = new Larvitar_Store(vuex_store);
+    larvitar_store = new Larvitar_Store(vuex_store, vuex_module);
   } else {
     larvitar_store = new Larvitar_Store();
   }
