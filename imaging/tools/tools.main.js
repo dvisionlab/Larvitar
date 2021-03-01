@@ -150,12 +150,6 @@ export const addDefaultTools = function (elementId) {
       setToolActive(tool.name, tool.options);
     }
   });
-
-  setToolActive("StackScrollMouseWheel", {
-    loop: false, // default false
-    allowSkipping: false, // default true
-    invert: false
-  });
 };
 
 /**

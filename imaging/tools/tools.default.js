@@ -41,8 +41,13 @@ const DEFAULT_TOOLS = {
     name: "StackScrollMouseWheel",
     viewports: "all",
     configuration: {},
-    options: { mouseButtonMask: 1 },
+    options: {
+      loop: false, // default false
+      allowSkipping: false, // default true
+      invert: false
+    },
     cleanable: false,
+    defaultActive: true,
     class: "StackScrollMouseWheelTool"
   },
   Pan: {
