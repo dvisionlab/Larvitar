@@ -136,7 +136,7 @@ export class SeedsTool extends BaseAnnotationTool {
       eventData.element.id
     );
 
-    // store native coordinates (axial)
+    // store native coordinates
     this.storeNativeCoordinates(res, eventData.element.id, sliceNumber);
 
     // sync all the viewports

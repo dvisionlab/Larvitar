@@ -33,7 +33,7 @@ var mainLayer;
  * @param {String} mainSeriesName - Tag for mask series
  * @param {String} elementId - target HTML element id
  */
-export const loadImageLayers = function(
+export const loadImageLayers = function (
   mainSeries,
   mainSeriesName,
   maskSeries,
@@ -53,7 +53,7 @@ export const loadImageLayers = function(
     maskSeriesName
   );
   loadLayers(element, layers);
-  setTimeout(function() {
+  setTimeout(function () {
     updateImageLayer(
       mainSeries,
       maskSeries,
@@ -71,7 +71,7 @@ export const loadImageLayers = function(
  * @param {String} layerName - Target layer name
  * @param {Number} opacity - New opacity value [0-1]
  */
-export const changeOpacityLayer = function(elementId, layerName, opacity) {
+export const changeOpacityLayer = function (elementId, layerName, opacity) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -83,7 +83,7 @@ export const changeOpacityLayer = function(elementId, layerName, opacity) {
     return;
   }
   let activeLayerId;
-  each(layers, function(layer) {
+  each(layers, function (layer) {
     if (layer.options.name == layerName) {
       layer.options.opacity = opacity;
     } else {
@@ -104,7 +104,7 @@ export const changeOpacityLayer = function(elementId, layerName, opacity) {
  * @param {HTMLElement} element - Target html element
  * @param {Number} imageIndex - index of the image to load
  */
-export const updateImageLayer = function(
+export const updateImageLayer = function (
   mainSeries,
   mainSeriesName,
   maskSeries,
@@ -116,11 +116,11 @@ export const updateImageLayer = function(
     console.error("Invalid layers in active element");
     return;
   }
-  each(layers, function(layer) {
+  each(layers, function (layer) {
     let series = layer.options.name == mainSeriesName ? mainSeries : maskSeries;
     cornerstone
       .loadImage(series.imageIds[imageIndex - 1])
-      .then(function(image) {
+      .then(function (image) {
         cornerstone.setActiveLayer(element, layer.layerId);
         cornerstone.displayImage(element, image);
       });
@@ -133,7 +133,7 @@ export const updateImageLayer = function(
  * @function getMainLayer
  * @returns {String} Name of the main layer
  */
-export const getMainLayer = function() {
+export const getMainLayer = function () {
   return mainLayer;
 };
 
@@ -149,7 +149,7 @@ export const getMainLayer = function() {
  * @param {String} maskSeriesName - Name of the mask layer
  * @returns {Object} Cornerstone layers object
  */
-let buildLayers = function(
+let buildLayers = function (
   mainSeries,
   mainSeriesName,
   maskSeries,
@@ -186,13 +186,12 @@ let buildLayers = function(
  * @param {HTMLElement} element - Target HTML element
  * @param {Object} layers - Cornerstone layers object
  */
-let loadLayers = function(element, layers) {
-  cornerstone.imageCache.purgeCache();
-  each(layers, function(layer) {
+let loadLayers = function (element, layers) {
+  each(layers, function (layer) {
     let imageIndex = Math.floor(layer.imageIds.length / 2);
     let currentImageId = layer.imageIds[imageIndex];
-    each(layer.imageIds, function(imageId) {
-      cornerstone.loadAndCacheImage(imageId).then(function(image) {
+    each(layer.imageIds, function (imageId) {
+      cornerstone.loadAndCacheImage(imageId).then(function (image) {
         if (currentImageId == imageId) {
           cornerstone.displayImage(element, image);
           cornerstone.addLayer(element, image, layer.options);

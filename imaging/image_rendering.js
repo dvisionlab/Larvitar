@@ -16,10 +16,10 @@ import { larvitar_store } from "./image_store";
 /*
  * This module provides the following functions to be exported:
  * clearImageCache()
- * loadImage(series, elementId)
+ * renderImage(series, elementId)
  * disableImage(elementId)
- * loadFileImage(file, elementId)
- * loadWebImage(url, elementId)
+ * renderFileImage(file, elementId)
+ * renderWebImage(url, elementId)
  * updateImage(series, elementId, imageIndex)
  * resetViewports([elementIds])
  */
@@ -34,14 +34,14 @@ export const clearImageCache = function () {
 };
 
 /**
- * Load an image (png or jpg) from File on a html div using cornerstone
+ * Render an image (png or jpg) from File on a html div using cornerstone
  * @instance
- * @function loadWebImage
+ * @function renderWebImage
  * @param {Object} file - The image File object
  * @param {String} elementId - The html div id used for rendering
  * @param {Function} callback - Optional callback function
  */
-export const loadFileImage = function (file, elementId, callback) {
+export const renderFileImage = function (file, elementId, callback) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -72,13 +72,13 @@ export const loadFileImage = function (file, elementId, callback) {
 };
 
 /**
- * Load an image (png or jpg) from web url on a html div using cornerstone
+ * Render an image (png or jpg) from web url on a html div using cornerstone
  * @instance
- * @function loadWebImage
+ * @function renderWebImage
  * @param {String} url - The image data url
  * @param {String} elementId - The html div id used for rendering
  */
-export const loadWebImage = function (url, elementId) {
+export const renderWebImage = function (url, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -93,12 +93,13 @@ export const loadWebImage = function (url, elementId) {
 };
 
 /**
- * Reload an image on a html div using cornerstone
+ * Unrender an image on a html div using cornerstone
  * @instance
- * @function disableImage
+ * @function unloadViewport
  * @param {String} elementId - The html div id used for rendering
+ * @param {String} seriesId - The id of the serie
  */
-export const disableImage = function (elementId) {
+export const unloadViewport = function (elementId, seriesId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -106,17 +107,23 @@ export const disableImage = function (elementId) {
   }
   enableMouseHandlers(elementId, true); // flagged true to disable handlers
   cornerstone.disable(element);
+  // remove images from cornerstone cache
+  each(larvitar_store.state.series[seriesId], function (imageId) {
+    cornerstone.imageCache.removeImageLoadObject(imageId);
+  });
+  larvitar_store.removeSeriesIds(seriesId);
+  larvitar_store.deleteViewport(elementId);
 };
 
 /**
- * Load an cache image and render it in a html div using cornerstone
+ * Cache image and render it in a html div using cornerstone
  * @instance
- * @function loadImage
+ * @function renderImage
  * @param {Object} series - The original series data object
  * @param {String} elementId - The html div id used for rendering
  * @param {Object} defaultProps - Optional default props
  */
-export const loadImage = function (series, elementId, defaultProps) {
+export const renderImage = function (series, elementId, defaultProps) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -181,11 +188,14 @@ export const loadImage = function (series, elementId, defaultProps) {
 
   if (rows == null || cols == null) {
     console.error("invalid image metadata");
-    larvitar_store.set(null, "errorLog", "Invalid Image Metadata");
+    larvitar_store.set("errorLog", "Invalid Image Metadata");
     return;
   } else {
-    larvitar_store.set(null, "errorLog", "");
+    larvitar_store.set("errorLog", "");
   }
+
+  // add serie's imageIds into store
+  larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
 
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
@@ -252,9 +262,8 @@ export const reloadImage = function (series, elementId) {
     console.error("invalid html element: " + elementId);
     return;
   }
-  let viewer = larvitar_store.get("viewer");
   cornerstone.enable(element);
-  let sliceId = larvitar_store.get(viewer, elementId, "sliceId");
+  let sliceId = larvitar_store.get("viewports", elementId, "sliceId");
   let currentImageId = series.imageIds[sliceId];
 
   each(series.imageIds, function (imageId) {
@@ -263,14 +272,14 @@ export const reloadImage = function (series, elementId) {
         cornerstone.displayImage(element, image);
         let viewport = cornerstone.getViewport(element);
         viewport.voi.windowWidth = larvitar_store.get(
-          viewer,
+          "viewports",
           elementId,
           "viewport",
           "voi",
           "windowWidth"
         );
         viewport.voi.windowCenter = larvitar_store.get(
-          viewer,
+          "viewports",
           elementId,
           "viewport",
           "voi",
@@ -279,7 +288,7 @@ export const reloadImage = function (series, elementId) {
         csToolsCreateStack(element);
         enableMouseHandlers(elementId);
         cornerstone.fitToWindow(element);
-        larvitar_store.set(viewer, "loadingStatus", [elementId, true]);
+        larvitar_store.set("loadingStatus", [elementId, true]);
       }
     });
   });
@@ -316,38 +325,42 @@ export const resetViewports = function (elementIds) {
       console.error("invalid html element: " + elementId);
       return;
     }
-    let viewer = larvitar_store.get("viewer");
     let viewport = cornerstone.getViewport(element);
-    viewport.scale = larvitar_store.get(viewer, elementId, "default", "scale");
+    viewport.scale = larvitar_store.get(
+      "viewports",
+      elementId,
+      "default",
+      "scale"
+    );
     viewport.rotation = larvitar_store.get(
-      viewer,
+      "viewports",
       elementId,
       "default",
       "rotation"
     );
     viewport.translation.x = larvitar_store.get(
-      viewer,
+      "viewports",
       elementId,
       "default",
       "translation",
       "x"
     );
     viewport.translation.y = larvitar_store.get(
-      viewer,
+      "viewports",
       elementId,
       "default",
       "translation",
       "y"
     );
     viewport.voi.windowWidth = larvitar_store.get(
-      viewer,
+      "viewports",
       elementId,
       "default",
       "voi",
       "windowWidth"
     );
     viewport.voi.windowCenter = larvitar_store.get(
-      viewer,
+      "viewports",
       elementId,
       "default",
       "voi",
@@ -358,14 +371,14 @@ export const resetViewports = function (elementIds) {
     cornerstone.fitToWindow(element);
     cornerstone.updateImage(element);
 
-    larvitar_store.set(viewer, "scale", [elementId, viewport.scale]);
-    larvitar_store.set(viewer, "rotation", [elementId, viewport.rotation]);
-    larvitar_store.set(viewer, "translation", [
+    larvitar_store.set("scale", [elementId, viewport.scale]);
+    larvitar_store.set("rotation", [elementId, viewport.rotation]);
+    larvitar_store.set("translation", [
       elementId,
       viewport.translation.x,
       viewport.translation.y
     ]);
-    larvitar_store.set(viewer, "contrast", [
+    larvitar_store.set("contrast", [
       elementId,
       viewport.voi.windowWidth,
       viewport.voi.windowCenter
@@ -386,32 +399,27 @@ export const updateViewportData = function (elementId) {
     return;
   }
   let viewport = cornerstone.getViewport(element);
-  let viewportNames = larvitar_store.get("viewports");
-  let viewer = larvitar_store.get("viewer");
   let activeTool = larvitar_store.get("leftMouseHandler");
   switch (activeTool) {
     case "Wwwc":
-      each(viewportNames, function (viewportName) {
-        // sync ww and wc values in store
-        larvitar_store.set(viewer, "contrast", [
-          viewportName,
-          viewport.voi.windowWidth,
-          viewport.voi.windowCenter
-        ]);
-      });
+      larvitar_store.set("contrast", [
+        elementId,
+        viewport.voi.windowWidth,
+        viewport.voi.windowCenter
+      ]);
       break;
     case "Pan":
-      larvitar_store.set(viewer, "translation", [
+      larvitar_store.set("translation", [
         elementId,
         viewport.translation.x,
         viewport.translation.y
       ]);
       break;
     case "Zoom":
-      larvitar_store.set(viewer, "scale", [elementId, viewport.scale]);
+      larvitar_store.set("scale", [elementId, viewport.scale]);
       break;
     case "Rotate":
-      larvitar_store.set(viewer, "rotation", [elementId, viewport.rotation]);
+      larvitar_store.set("rotation", [elementId, viewport.rotation]);
       break;
     default:
       break;
@@ -471,12 +479,11 @@ export const enableMouseHandlers = function (elementId, disable) {
   }
 
   function mouseWheelHandler(evt) {
-    let viewer = larvitar_store.get("viewer");
     let enabledElement = cornerstone.getEnabledElement(element);
     let cix =
       enabledElement.toolStateManager.toolState.stack.data[0]
         .currentImageIdIndex;
-    larvitar_store.set(viewer, "currentSliceNumber", [evt.target.id, cix + 1]);
+    larvitar_store.set("currentSliceNumber", [evt.target.id, cix + 1]);
   }
 
   element.removeEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
@@ -514,17 +521,16 @@ export const storeViewportData = function (
   defaultWW,
   defaultWC
 ) {
-  let viewer = larvitar_store.get("viewer");
-  larvitar_store.set(viewer, "dimensions", [elementId, rows, cols]);
-  larvitar_store.set(viewer, "spacing", [elementId, spacing_x, spacing_y]);
-  larvitar_store.set(viewer, "thickness", [elementId, thickness]);
-  larvitar_store.set(viewer, "minPixelValue", [elementId, image.minPixelValue]);
-  larvitar_store.set(viewer, "maxPixelValue", [elementId, image.maxPixelValue]);
-  larvitar_store.set(viewer, "loadingStatus", [elementId, true]);
-  larvitar_store.set(viewer, "minSliceNumber", [elementId, 1]);
-  larvitar_store.set(viewer, "currentSliceNumber", [elementId, imageIndex]);
-  larvitar_store.set(viewer, "maxSliceNumber", [elementId, numberOfSlices]);
-  larvitar_store.set(viewer, "defaultViewport", [
+  larvitar_store.set("dimensions", [elementId, rows, cols]);
+  larvitar_store.set("spacing", [elementId, spacing_x, spacing_y]);
+  larvitar_store.set("thickness", [elementId, thickness]);
+  larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
+  larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
+  larvitar_store.set("loadingStatus", [elementId, true]);
+  larvitar_store.set("minSliceNumber", [elementId, 1]);
+  larvitar_store.set("currentSliceNumber", [elementId, imageIndex]);
+  larvitar_store.set("maxSliceNumber", [elementId, numberOfSlices]);
+  larvitar_store.set("defaultViewport", [
     elementId,
     viewport.scale,
     viewport.translation.x,
@@ -532,13 +538,13 @@ export const storeViewportData = function (
     defaultWW,
     defaultWC
   ]);
-  larvitar_store.set(viewer, "scale", [elementId, viewport.scale]);
-  larvitar_store.set(viewer, "translation", [
+  larvitar_store.set("scale", [elementId, viewport.scale]);
+  larvitar_store.set("translation", [
     elementId,
     viewport.translation.x,
     viewport.translation.y
   ]);
-  larvitar_store.set(viewer, "contrast", [
+  larvitar_store.set("contrast", [
     elementId,
     viewport.voi.windowWidth,
     viewport.voi.windowCenter

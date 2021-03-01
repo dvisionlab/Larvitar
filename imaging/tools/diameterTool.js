@@ -27,8 +27,6 @@ export class DiameterTool extends BidirectionalTool {
     this.name = "Diameter";
 
     this.initializeTool(props.dataArray, "cmprAxial", props.seriesId);
-
-    console.log(this);
   }
 
   initializeTool(dataArray, elementId, seriesId) {
@@ -113,7 +111,6 @@ export class DiameterTool extends BidirectionalTool {
   }
 
   passiveCallback(element) {
-    console.log("passive callback");
     element.addEventListener(
       "cornerstonetoolsmeasurementmodified",
       this.measureOnGoingCallback
@@ -121,26 +118,16 @@ export class DiameterTool extends BidirectionalTool {
   }
 
   measureOnGoingCallback(event) {
-    console.log("on going", event, this, this.isBeenModified);
     if (!this.isBeenModified) {
-      console.log("add mouseup listener");
-      event.target.addEventListener("mouseup", function(evt) {
-        console.log("MOUSEUP");
+      event.target.addEventListener("mouseup", function (evt) {
         this.__proto__.measureEndCallback(evt);
       });
     }
-
     this.isBeenModified = true;
     this.lastData = event.detail.measurementData;
   }
 
   measureEndCallback(event) {
-    console.log("end modified!", this.isBeenModified, this.lastData, event);
-    // compute ?
-    // update in store (update map values)
-    // update in db
-    // remove listener
-    console.log("remove mouseup listener");
     event.element.removeEventListener("mouseup", this.measureEndCallback);
     this.isBeenModified = false;
     this.lastData = null;

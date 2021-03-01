@@ -134,6 +134,7 @@ export const getSeriesData = function (seriesId) {
  * @param {String} orientation The orientation tag
  * @return {Object} series data
  */
+// TODO
 export const populateNrrdManager = function (
   header,
   volume,
@@ -144,7 +145,7 @@ export const populateNrrdManager = function (
   const orientations = larvitar_store.get("viewports");
 
   // set nrrdManager as active manager
-  larvitar_store.set(null, "manager", "nrrdManager");
+  larvitar_store.set("manager", "nrrdManager");
 
   // orientation can be: axial, coronal, sagittal, mprAxial, mprCoronal
   if (!includes(orientations, orientation)) {

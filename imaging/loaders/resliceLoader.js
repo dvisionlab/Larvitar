@@ -27,8 +27,7 @@ import { larvitar_store } from "../image_store";
  */
 export const loadReslicedImage = function (imageId) {
   let seriesId = larvitar_store.get("seriesId");
-  let orientation = larvitar_store.get("orientation");
-  let instance = dicomManager[seriesId][orientation].instances[imageId];
+  let instance = dicomManager[seriesId].instances[imageId];
   var reslicedPixeldata = instance.pixelData;
   return createCustomImage(imageId, instance.metadata, reslicedPixeldata);
 };
