@@ -8,7 +8,7 @@
 import { get as _get } from "lodash";
 
 // default viewport store object
-DEFAULT_VIEWPORT = {
+const DEFAULT_VIEWPORT = {
   ready: false,
   minSliceId: 0,
   maxSliceId: 0,
@@ -64,8 +64,8 @@ class Larvitar_Store {
     this.vuex_module = vuex_module;
     this.state = {
       manager: null,
+      series: {}, // seriesUID: [imageIds]
       leftMouseHandler: "Wwwc",
-      series: [],
       colormapId: "gray",
       viewports: {},
       errorLog: null
@@ -129,6 +129,41 @@ class Larvitar_Store {
   }
 
   /**
+   * Add a serie into the store
+   * @function addSeriesIds
+   * @param {String} seriesId - The serie's id
+   * @param {Array} imageIds - The array of image ids
+   */
+  addSeriesIds(seriesId, imageIds) {
+    if (this.VUEX_STORE) {
+      let dispatch = "addSeriesIds";
+      let route = this.vuex_module
+        ? this.vuex_module + "/" + dispatch
+        : dispatch;
+      this.vuex_store.dispatch(route, seriesId, imageIds);
+    } else {
+      this.state.series[seriesId] = imageIds;
+    }
+  }
+
+  /**
+   * Remove a serie from the store
+   * @function removeSeriesIds
+   * @param {String} seriesId - The serie's id
+   */
+  removeSeriesIds(seriesId) {
+    if (this.VUEX_STORE) {
+      let dispatch = "removeSeriesIds";
+      let route = this.vuex_module
+        ? this.vuex_module + "/" + dispatch
+        : dispatch;
+      this.vuex_store.dispatch(route, seriesId);
+    } else {
+      delete this.state.series[seriesId];
+    }
+  }
+
+  /**
    * Set a value into store
    * @function set
    * @param {field} field - The name of the field to be updated
@@ -145,7 +180,10 @@ class Larvitar_Store {
       if (field == "scale" || field == "rotation" || field == "translation") {
         this.state["viewports"][data[0]]["viewport"][field] = data[1];
       } else if (field == "contrast") {
-        this.state["viewports"][data[0]]["viewport"]["voi"][field] = data[1];
+        this.state["viewports"][data[0]]["viewport"]["voi"]["windowWidth"] =
+          data[1];
+        this.state["viewports"][data[0]]["viewport"]["voi"]["windowCenter"] =
+          data[2];
       } else if (field == "dimensions") {
         this.state["viewports"][data[0]]["rows"] = data[1];
         this.state["viewports"][data[0]]["cols"] = data[2];

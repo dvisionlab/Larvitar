@@ -11,16 +11,16 @@
     <title>Larvitar - Basic rendering example</title>
   </head>
 
-  <body>
+  <body width="100%" height="100%">
     <section>
       <div width="100%" height="100%" style="background-color: black">
         <div
-          id="axial"
+          id="viewer"
           style="
             display: inline-block;
             background-color: rgba(0, 255, 55, 0.151);
             width: 49.5%;
-            height: 400px;
+            height: 500px;
             vertical-align: top;
           "
         ></div>
@@ -51,7 +51,8 @@
           larvitar.initLarvitarStore();
           larvitar.initializeImageLoader();
           larvitar.initializeCSTools();
-    
+          larvitar.larvitar_store.addViewport("viewer")
+
           async function createFile(fileName, cb) {
             let response = await fetch("./demo/" + fileName);
             let data = await response.blob();
@@ -70,8 +71,9 @@
               let seriesId = _.keys(seriesStack)[0];
               let serie = seriesStack[seriesId];
               console.log(serie);
-              larvitar.loadImage(serie, "axial");
+              larvitar.renderImage(serie, "viewer");
               larvitar.addDefaultTools();
+              larvitar.setToolActive(larvitar.larvitar_store.state.leftMouseHandler)
             });
           }
     
@@ -106,6 +108,7 @@
       larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
+      larvitar.larvitar_store.addViewport("viewer");
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
@@ -125,8 +128,10 @@
           let seriesId = _.keys(seriesStack)[0];
           let serie = seriesStack[seriesId];
           console.log(serie);
-          larvitar.loadImage(serie, "axial");
+          larvitar.renderImage(serie, "viewer");
           larvitar.addDefaultTools();
+          larvitar.setToolActive(larvitar.larvitar_store.state.leftMouseHandler)
+          console.log(larvitar.larvitar_store)
         });
       }
 

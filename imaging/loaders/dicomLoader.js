@@ -33,7 +33,6 @@ let imageLoaderCounter = 0;
  * @param {String} elementId The Id of the html element
  */
 export const resetImageLoader = function (elementId) {
-  larvitar_store.set("series", []);
   larvitar_store.set("seriesId", null);
   let element = document.getElementById(elementId);
   if (element) {
@@ -98,15 +97,6 @@ export const populateDicomManager = function (seriesId, seriesData, callback) {
     callback();
   });
 };
-
-// TODO
-// una che fa reslice (larvitar_store.set("seriesId", null); )
-// una che fa reslice e lo mette nel dicom manager
-
-// dicomManager[seriesId][orientation] = initializeReslicedViewport(
-//   seriesId,
-//   orientation
-// );
 
 /**
  * Get the dicom imageId from dicom loader

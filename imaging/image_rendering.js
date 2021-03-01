@@ -93,12 +93,13 @@ export const renderWebImage = function (url, elementId) {
 };
 
 /**
- * Reload an image on a html div using cornerstone
+ * Unrender an image on a html div using cornerstone
  * @instance
- * @function disableImage
+ * @function unloadViewport
  * @param {String} elementId - The html div id used for rendering
+ * @param {String} seriesId - The id of the serie
  */
-export const disableImage = function (elementId) {
+export const unloadViewport = function (elementId, seriesId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -106,6 +107,12 @@ export const disableImage = function (elementId) {
   }
   enableMouseHandlers(elementId, true); // flagged true to disable handlers
   cornerstone.disable(element);
+  // remove images from cornerstone cache
+  each(larvitar_store.state.series[seriesId], function (imageId) {
+    cornerstone.imageCache.removeImageLoadObject(imageId);
+  });
+  larvitar_store.removeSeriesIds(seriesId);
+  larvitar_store.deleteViewport(elementId);
 };
 
 /**
@@ -186,6 +193,9 @@ export const renderImage = function (series, elementId, defaultProps) {
   } else {
     larvitar_store.set("errorLog", "");
   }
+
+  // add serie's imageIds into store
+  larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
 
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function (image) {

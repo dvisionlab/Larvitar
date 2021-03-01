@@ -4,7 +4,7 @@
     "dicom",
     "imaging"
   ],
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "javascript library for loading, rendering and interact with DICOM images",
   "main": "index.js",
   "repository": {
@@ -19,7 +19,7 @@
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
   "contributors": [
     "Mattia Ronzoni <mattia.ronzoni@dvisionlab.com> (https://www.dvisionlab.com)",
-    "Sara Zanchi <sara.pbji@gmail.com> (https://www.dvisionlab.com)"
+    "Sara Zanchi <sara.zanchi@dvisionlab.com> (https://www.dvisionlab.com)"
   ],
   "license": "MIT",
   "dependencies": {
