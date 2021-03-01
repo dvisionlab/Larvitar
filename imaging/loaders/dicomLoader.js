@@ -98,15 +98,6 @@ export const populateDicomManager = function (seriesId, seriesData, callback) {
   });
 };
 
-// TODO
-// una che fa reslice (larvitar_store.set("seriesId", null); )
-// una che fa reslice e lo mette nel dicom manager
-
-// dicomManager[seriesId][orientation] = initializeReslicedViewport(
-//   seriesId,
-//   orientation
-// );
-
 /**
  * Get the dicom imageId from dicom loader
  * @instance
