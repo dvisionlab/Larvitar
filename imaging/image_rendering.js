@@ -16,10 +16,10 @@ import { larvitar_store } from "./image_store";
 /*
  * This module provides the following functions to be exported:
  * clearImageCache()
- * loadImage(series, elementId)
+ * renderImage(series, elementId)
  * disableImage(elementId)
- * loadFileImage(file, elementId)
- * loadWebImage(url, elementId)
+ * renderFileImage(file, elementId)
+ * renderWebImage(url, elementId)
  * updateImage(series, elementId, imageIndex)
  * resetViewports([elementIds])
  */
@@ -34,14 +34,14 @@ export const clearImageCache = function () {
 };
 
 /**
- * Load an image (png or jpg) from File on a html div using cornerstone
+ * Render an image (png or jpg) from File on a html div using cornerstone
  * @instance
- * @function loadWebImage
+ * @function renderWebImage
  * @param {Object} file - The image File object
  * @param {String} elementId - The html div id used for rendering
  * @param {Function} callback - Optional callback function
  */
-export const loadFileImage = function (file, elementId, callback) {
+export const renderFileImage = function (file, elementId, callback) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -72,13 +72,13 @@ export const loadFileImage = function (file, elementId, callback) {
 };
 
 /**
- * Load an image (png or jpg) from web url on a html div using cornerstone
+ * Render an image (png or jpg) from web url on a html div using cornerstone
  * @instance
- * @function loadWebImage
+ * @function renderWebImage
  * @param {String} url - The image data url
  * @param {String} elementId - The html div id used for rendering
  */
-export const loadWebImage = function (url, elementId) {
+export const renderWebImage = function (url, elementId) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -109,14 +109,14 @@ export const disableImage = function (elementId) {
 };
 
 /**
- * Load an cache image and render it in a html div using cornerstone
+ * Cache image and render it in a html div using cornerstone
  * @instance
- * @function loadImage
+ * @function renderImage
  * @param {Object} series - The original series data object
  * @param {String} elementId - The html div id used for rendering
  * @param {Object} defaultProps - Optional default props
  */
-export const loadImage = function (series, elementId, defaultProps) {
+export const renderImage = function (series, elementId, defaultProps) {
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
