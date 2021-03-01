@@ -17,14 +17,18 @@ export default [
       }
     },
     plugins: [
-      resolve({
+      resolve(),
+      {
         jsnext: true,
         main: true,
         browser: true,
-        extensions: [".js", ".json"],
-        preferBuiltins: true
-      }), // so Rollup can find node_modules
-      commonjs(), // so Rollup can convert node_modules to an ES module,
+        extensions: [".js", ".json"]
+        // preferBuiltins: true
+      }, // so Rollup can find node_modules
+      commonjs({
+        // requireReturnsDefault: "auto",
+        // esmExternals: true
+      }), // so Rollup can convert node_modules to an ES module,
       json()
     ]
   }
@@ -37,10 +41,11 @@ export default [
   // `file` and `format` for each target)
   // {
   //   input: "index.js",
-  //   external: ["cornerstone-core"],
+  //   // external: ["cornerstone-core"],
   //   output: [
   //     { file: pkg.common, format: "cjs" },
   //     { file: pkg.module, format: "es" }
-  //   ]
+  //   ],
+  //   plugins: [resolve(), commonjs(), json()]
   // }
 ];
