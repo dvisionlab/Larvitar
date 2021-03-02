@@ -5,6 +5,7 @@
  */
 
 // external libraries
+import cornerstone from "cornerstone-core";
 import {
   isEmpty,
   sortBy,
@@ -14,7 +15,8 @@ import {
   forEach,
   extend,
   indexOf,
-  random
+  random,
+  find
 } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
@@ -467,6 +469,18 @@ export const getReslicedMetadata = function (
       x00200032: reslicedIPP
     });
 
+    // set human readable metadata
+    metadata.seriesUID = reslicedSeriesId;
+    metadata.rows = metadata.x00280010;
+    metadata.cols = metadata.x00280011;
+    metadata.imageOrientation = metadata.x00200037;
+    metadata.imagePosition = metadata.x00200032;
+    metadata.pixelSpacing = metadata.x00280030;
+    metadata.instanceUID = metadata.x00080018;
+    metadata.minPixelValue = metadata.x00280106;
+    metadata.maxPixelValue = metadata.x00280107;
+    metadata.sliceThickness = toSpacing[2];
+
     reslicedInstances[reslicedImageId] = {
       instanceId: instanceId,
       metadata: metadata,
@@ -638,7 +652,6 @@ export const getReslicedPixeldata = function (
       reslicedSlice[index] = getPixelValue(ijf);
     }
   }
-
   return reslicedSlice;
 };
 

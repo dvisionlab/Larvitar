@@ -58,6 +58,8 @@ import {
   enableMouseHandlers
 } from "./imaging/image_rendering";
 
+import { resliceSeries } from "./imaging/image_reslice";
+
 import {
   addDiameterTool,
   addContoursTool,
@@ -184,6 +186,7 @@ export {
   renderImage,
   reloadImage,
   updateImage,
+  resliceSeries,
   resetViewports,
   enableMouseHandlers,
   initializeCSTools,

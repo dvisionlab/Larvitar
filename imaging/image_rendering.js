@@ -124,6 +124,7 @@ export const unloadViewport = function (elementId, seriesId) {
  * @param {Object} defaultProps - Optional default props
  */
 export const renderImage = function (series, elementId, defaultProps) {
+  let t0 = performance.now();
   let element = document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -241,6 +242,8 @@ export const renderImage = function (series, elementId, defaultProps) {
           defaultWW,
           defaultWC
         );
+        let t1 = performance.now();
+        console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
       }
     });
   });

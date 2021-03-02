@@ -53,7 +53,7 @@ const globalConfig = {
  * @function initializeImageLoader
  * @param {Object} config - Custom config @default globalConfig
  */
-export const initializeImageLoader = function(config) {
+export const initializeImageLoader = function (config) {
   let imageLoaderConfig = config ? config : globalConfig;
   cornerstoneWADOImageLoader.webWorkerManager.initialize(imageLoaderConfig);
   cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
@@ -65,10 +65,10 @@ export const initializeImageLoader = function(config) {
  * @instance
  * @function initializeWebImageLoader
  */
-export const initializeWebImageLoader = function() {
+export const initializeWebImageLoader = function () {
   cornerstoneWebImageLoader.external.cornerstone = cornerstone;
   cornerstoneWebImageLoader.configure({
-    beforeSend: function() {
+    beforeSend: function () {
       // add xhr as function arg
       // Add custom headers here (e.g. auth tokens)
       // xhr.setRequestHeader('x-auth-token', 'my auth token');
@@ -81,7 +81,7 @@ export const initializeWebImageLoader = function() {
  * @instance
  * @function initializeFileImageLoader
  */
-export const initializeFileImageLoader = function() {
+export const initializeFileImageLoader = function () {
   cornerstoneFileImageLoader.external.cornerstone = cornerstone;
 };
 
@@ -90,7 +90,7 @@ export const initializeFileImageLoader = function() {
  * @instance
  * @function registerNRRDImageLoader
  */
-export const registerNRRDImageLoader = function() {
+export const registerNRRDImageLoader = function () {
   cornerstone.registerImageLoader("nrrdLoader", loadNrrdImage);
 };
 
@@ -99,7 +99,7 @@ export const registerNRRDImageLoader = function() {
  * @instance
  * @function registerResliceLoader
  */
-export const registerResliceLoader = function() {
+export const registerResliceLoader = function () {
   cornerstone.registerImageLoader("resliceLoader", loadReslicedImage);
 };
 
@@ -110,7 +110,7 @@ export const registerResliceLoader = function() {
  * @param {Object} seriesData - Cornerstone series object
  * @param {String} allSeriesStack - Dict containing all series objects
  */
-export const updateLoadedStack = function(seriesData, allSeriesStack) {
+export const updateLoadedStack = function (seriesData, allSeriesStack) {
   let sid = seriesData.metadata.seriesUID;
   let iid = seriesData.metadata.instanceUID;
   let seriesDescription = seriesData.metadata.seriesDescription;
@@ -162,9 +162,9 @@ export const updateLoadedStack = function(seriesData, allSeriesStack) {
  * @param {String} iid - instance uid to check
  * @return {Bool} True if is new instance, false if already present
  */
-let isNewInstance = function(instances, iid) {
+let isNewInstance = function (instances, iid) {
   let isNewInstance = true;
-  forEach(instances, function(instance) {
+  forEach(instances, function (instance) {
     if (instance.metadata.instanceUID === iid) {
       isNewInstance = false;
     }
