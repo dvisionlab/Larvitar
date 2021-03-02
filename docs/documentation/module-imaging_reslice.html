@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>tools/editMaskTool.js - Larvitar</title>
+    <title>imaging/reslice - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,154 +40,375 @@
 
 <div id="main">
     
-    <h1 class="page-title">tools/editMaskTool.js</h1>
+    <h1 class="page-title">imaging/reslice</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import csTools from "cornerstone-tools";
-const external = csTools.external;
-const BaseBrushTool = csTools.importInternal("base/BaseBrushTool");
-const segmentationUtils = csTools.importInternal("util/segmentationUtils");
-const getCircle = segmentationUtils.getCircle;
-const drawBrushPixels = segmentationUtils.drawBrushPixels;
-const getModule = csTools.getModule;
-const { configuration, setters } = getModule("segmentation");
+        
+            
+        
+    
+</header>
 
-/**
- * @public
- * @class BrushTool
- * @memberof Tools.Brush
- * @classdesc Tool for drawing segmentations on an image.
- * @extends Tools.Base.BaseBrushTool
- */
-export class EditMaskTool extends BaseBrushTool {
-  constructor(props = {}) {
-    const defaultProps = {
-      name: "EditMask",
-      supportedInteractionTypes: ["Mouse"],
-      configuration: {},
-      mixins: ["renderBrushMixin"]
-    };
+<article>
+    
+        <div class="container-overview">
+        
+            
+                <div class="description usertext"><p>This file provides functionalities for<br>
+image reslice in orthogonal directions</p></div>
+            
 
-    super(props, defaultProps);
-    this.touchDragCallback = this._paint.bind(this);
+            
+                
 
-    this._initializeTool(props.mask, props.initCallback);
-  }
 
-  _initializeTool(mask, callback) {
-    let enabledElement = csTools.external.cornerstone
-      .getEnabledElements()
-      .filter(e => e.element.id == "axial")
-      .pop();
 
-    // TODO improve performances!
 
-    console.time("...typedToNormal");
-    let pixelsNormalArray = Array.prototype.slice.call(mask.data);
-    console.timeEnd("...typedToNormal");
+<dl class="details">
 
-    console.time("...normalToTyped");
-    let pixelData = Uint16Array.from(pixelsNormalArray);
-    console.timeEnd("...normalToTyped");
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="image_reslice.js.html">image_reslice.js</a>, <a href="image_reslice.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
 
-    let labelmapIndex = 1;
+    
 
-    let segmentsOnLabelmapArray = new Array(mask.sizes[2]).fill([
-      labelmapIndex
-    ]);
+    
 
-    setters.labelmap3DForElement(
-      enabledElement.element,
-      pixelData.buffer,
-      labelmapIndex,
-      [],
-      segmentsOnLabelmapArray,
-      0
-    );
+    
 
-    csTools.external.cornerstone.updateImage(enabledElement.element);
+    
 
-    if (callback) {
-      callback();
-    }
-    // SIMPLE WAY --- AS FALLBACK :
+    
 
-    // labelmap3D.labelmaps2D = [];
+    
 
-    // for (let f = 0; f &lt; 110; f++) {
-    //   let pixels = mask.data.slice(f * 512 * 512, (f + 1) * 512 * 512);
-    //   let pixelsNormalArray = Array.prototype.slice.call(pixels);
-    //   // let pixelData = new Uint16Array();
-    //   let pixelData = Uint16Array.from(pixelsNormalArray);
-    //   labelmap3D.labelmaps2D.push({
-    //     pixelData: pixelData,
-    //     segmentsOnLabelmap: [labelmapIndex]
-    //   });
-    // }
-  }
+    
 
-  activeCallback(element, options) {
-    switch (options.force) {
-      case "delete":
-        this.configuration.alwaysEraseOnClick = true;
-        break;
-      case "add":
-        this.preventCtrl();
-        break;
-      default:
-        this.configuration.alwaysEraseOnClick = false;
-    }
-  }
+    
 
-  preventCtrl() {
-    this.__proto__.__proto__._isCtrlDown = function() {
-      return false;
-    };
-  }
+    
 
-  /**
-   * Paints the data to the labelmap.
-   *
-   * @protected
-   * @param  {Object} evt The data object associated with the event.
-   * @returns {void}
-   */
-  _paint(evt) {
-    const eventData = evt.detail;
-    const { rows, columns } = eventData.image;
-    const { x, y } = eventData.currentPoints.image;
+    
 
-    if (x &lt; 0 || x > columns || y &lt; 0 || y > rows) {
-      return;
-    }
+    
 
-    const radius = configuration.radius;
-    const pointerArray = getCircle(radius, rows, columns, x, y);
+    
 
-    const { labelmap2D, labelmap3D, shouldErase } = this.paintEventData;
+    
 
-    // Draw / Erase the active color.
-    drawBrushPixels(
-      pointerArray,
-      labelmap2D.pixelData,
-      labelmap3D.activeSegmentIndex,
-      columns,
-      shouldErase
-    );
+    
 
-    external.cornerstone.updateImage(evt.detail.element);
-  }
-}
-</code></pre>
-        </article>
-    </section>
+    
+    <dt class="tag-todo">To Do:</dt>
+    <dd class="tag-todo">
+        <ul>
+            <li>Document</li>
+        </ul>
+    </dd>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="resliceSeries"><span class="type-signature"></span>resliceSeries<span class="signature">(seriesId, seriesData, orientation, seriesId)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="image_reslice.js.html">image_reslice.js</a>, <a href="image_reslice.js.html#line25">line 25</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Reslice a serie from native orientation to coronal or sagittal orientation</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>seriesId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the original series id</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>seriesData</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the original series data</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>orientation</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the reslice orientation [coronal or sagittal]</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>seriesId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the series id</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>cornerstone data</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
