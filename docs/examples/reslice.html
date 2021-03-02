@@ -143,11 +143,11 @@
           // render the first series of the study
           let seriesId = _.keys(seriesStack)[0];
           let serie = seriesStack[seriesId];
-          larvitar.resliceSeries(seriesId, serie, "coronal", function(data){
+          larvitar.resliceSeries(seriesId, serie, "coronal", function(data) {
             larvitar.renderImage(serie, "viewer-base");
-            larvitar.renderImage(data, "viewer-reslice")
+            larvitar.renderImage(data, "viewer-reslice");
             larvitar.addDefaultTools();
-            larvitar.setToolActive(larvitar.larvitar_store.state.leftMouseHandler)
+            larvitar.setToolActive(larvitar.larvitar_store.state.leftMouseHandler);
           });
         });
       }

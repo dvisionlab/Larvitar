@@ -6,12 +6,10 @@
 
 // external libraries
 import { v4 as uuidv4 } from "uuid";
-import { each, clone, has } from "lodash";
+import { each, clone } from "lodash";
 
 // internal libraries
-import { larvitar_store } from "./image_store";
 import { getReslicedMetadata, getReslicedPixeldata } from "./image_utils";
-
 import { cacheImages } from "./loaders/dicomLoader";
 
 // temporary store for custom WADO Image Loader
@@ -34,7 +32,7 @@ export var RESLICED_DATA = null;
  */
 export function resliceSeries(seriesId, seriesData, orientation, callback) {
   let reslicedSeries = {};
-  let reslicedSeriesId = uuidv4(); // TODO generate it
+  let reslicedSeriesId = uuidv4();
   let reslicedMetaData = getReslicedMetadata(
     reslicedSeriesId,
     "axial",
@@ -70,13 +68,8 @@ export function resliceSeries(seriesId, seriesData, orientation, callback) {
     console.log(`Call to resliceSeries took ${t1 - t0} milliseconds.`);
     callback(reslicedSeries);
   }
-
-  if (!has(larvitar_store.state.series, seriesId)) {
-    cacheImages(seriesData, function () {
-      // TODO IF NOT NEEDED UNCACHE ORIGINAL IMAGES
-      computeReslice(seriesData, reslicedSeriesId, reslicedSeries, callback);
-    });
-  } else {
+  // pre cache and then reslice the data
+  cacheImages(seriesData, function () {
     computeReslice(seriesData, reslicedSeriesId, reslicedSeries, callback);
-  }
+  });
 }
