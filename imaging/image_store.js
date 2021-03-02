@@ -68,7 +68,8 @@ class Larvitar_Store {
       leftMouseHandler: "Wwwc",
       colormapId: "gray",
       viewports: {},
-      errorLog: null
+      errorLog: null,
+      temp: {}
     };
   }
 

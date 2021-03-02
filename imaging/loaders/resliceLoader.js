@@ -10,8 +10,7 @@ import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 
 // internal libraries
 import { getImageFrame } from "./commonLoader";
-import { dicomManager } from "./dicomLoader";
-import { larvitar_store } from "../image_store";
+import { RESLICED_DATA } from "../image_reslice";
 
 /*
  * This module provides the following functions to be exported:
@@ -26,8 +25,7 @@ import { larvitar_store } from "../image_store";
  * @returns {Object} custom image object
  */
 export const loadReslicedImage = function (imageId) {
-  let seriesId = larvitar_store.get("seriesId");
-  let instance = dicomManager[seriesId].instances[imageId];
+  let instance = RESLICED_DATA[imageId];
   var reslicedPixeldata = instance.pixelData;
   return createCustomImage(imageId, instance.metadata, reslicedPixeldata);
 };
@@ -89,8 +87,8 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
     sizeInBytes: getSizeInBytes(),
     slope: rescaleSlope ? rescaleSlope : 1,
     width: imageFrame.columns,
-    windowCenter: windowCenter ? windowCenter[0] : undefined,
-    windowWidth: windowWidth ? windowWidth[0] : undefined,
+    windowCenter: windowCenter ? windowCenter : undefined,
+    windowWidth: windowWidth ? windowWidth : undefined,
     decodeTimeInMS: undefined,
     webWorkerTimeInMS: undefined
   };

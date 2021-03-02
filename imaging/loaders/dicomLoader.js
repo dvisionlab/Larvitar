@@ -9,7 +9,6 @@ import cornerstone from "cornerstone-core";
 import { omit, each } from "lodash";
 
 // internal libraries
-import { getReslicedMetadata, getReslicedPixeldata } from "../image_utils";
 import { clearImageCache } from "../image_rendering";
 import { larvitar_store } from "../image_store";
 
@@ -18,12 +17,12 @@ export var dicomManager = {};
 let imageLoaderCounter = 0;
 /*
  * This module provides the following functions to be exported:
- * cacheAndSaveSerie(series)
  * removeSeriesFromDicomManager(seriesId)
  * getSeriesData(seriesId)
  * resetDicomManager()
  * resetImageLoader(elementId)
  * getDicomImageId(dicomLoaderName)
+ * cacheImages(seriesData, callback)
  */
 
 /**
@@ -91,7 +90,7 @@ export const populateDicomManager = function (seriesId, seriesData, callback) {
   if (!dicomManager[seriesId]) {
     dicomManager[seriesId] = {};
   }
-  initializeMainViewport(seriesData, function (data) {
+  cacheImages(seriesData, function (data) {
     dicomManager[seriesId] = data;
     imageLoaderCounter += seriesData.imageIds.length;
     callback();
@@ -111,16 +110,14 @@ export const getDicomImageId = function (dicomLoaderName) {
   return imageId;
 };
 
-/* Internal module functions */
-
 /**
- * Initialize the native viewport with pixel data
+ * Initialize the series data with pixel data
  * @instance
- * @function initializeMainViewport
+ * @function cacheImages
  * @param {Object} series the series data
  * @param {Function} callback a callback function
  */
-function initializeMainViewport(series, callback) {
+export function cacheImages(series, callback) {
   let counter = 0;
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
@@ -131,53 +128,4 @@ function initializeMainViewport(series, callback) {
       }
     });
   });
-}
-
-/**
- * Build the cornerstone data structure into the DICOM manager
- * from data (file) for a resliced viewport (orientation)
- * using the native one (axial) as starting data
- * @instance
- * @function initializeReslicedViewport
- * @param {String} seriesId the series id
- * @param {String} orientation the orientation tag
- * @return {Object} cornerstone data
- */
-function initializeReslicedViewport(seriesId, orientation) {
-  let seriesData = dicomManager[seriesId]["axial"];
-  if (!seriesData) {
-    console.error("Main viewport data is missing!");
-    return null;
-  }
-  // build the DICOM Manager instance for this orientation
-  dicomManager[seriesId][orientation] = {};
-  let reslicedSeriesId = seriesId + "_" + orientation;
-
-  // get the resliced metadata from native one
-  let reslicedData = getReslicedMetadata(
-    reslicedSeriesId,
-    "axial",
-    orientation,
-    seriesData,
-    "resliceLoader"
-  );
-
-  dicomManager[seriesId][orientation].imageIds = reslicedData.imageIds;
-  dicomManager[seriesId][orientation].instances = reslicedData.instances;
-
-  // populate nrrdManager with the pixelData information
-  each(dicomManager[seriesId][orientation].imageIds, function (imageId) {
-    let data = getReslicedPixeldata(
-      imageId,
-      seriesData,
-      dicomManager[seriesId][orientation]
-    );
-    dicomManager[seriesId][orientation].instances[imageId].pixelData = data;
-  });
-
-  // set currentImageIdIndex to the middle slice
-  let imageIds = dicomManager[seriesId][orientation].imageIds;
-  let middleSlice = Math.floor(imageIds.length / 2);
-  dicomManager[seriesId][orientation].currentImageIdIndex = middleSlice;
-  return dicomManager[seriesId][orientation];
 }
