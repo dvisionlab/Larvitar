@@ -5,7 +5,7 @@
  */
 
 // external libraries
-import cornerstone from "cornerstone-core";
+import { v4 as uuidv4 } from "uuid";
 import { each, clone, has } from "lodash";
 
 // internal libraries
@@ -23,7 +23,7 @@ export var RESLICED_DATA = null;
  */
 
 /**
- * TODO
+ * Reslice a serie from native orientation to coronal or sagittal orientation
  * @instance
  * @function resliceSeries
  * @param {String} seriesId the original series id
@@ -34,7 +34,7 @@ export var RESLICED_DATA = null;
  */
 export function resliceSeries(seriesId, seriesData, orientation, callback) {
   let reslicedSeries = {};
-  let reslicedSeriesId = "123"; // TODO generate it
+  let reslicedSeriesId = uuidv4(); // TODO generate it
   let reslicedMetaData = getReslicedMetadata(
     reslicedSeriesId,
     "axial",
