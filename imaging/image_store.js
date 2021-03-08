@@ -215,6 +215,8 @@ class Larvitar_Store {
           data[4];
         this.state["viewports"][data[0]]["default"]["voi"]["windowCenter"] =
           data[5];
+      } else if (field == "manager") {
+        this.state.manager = data;
       } else {
         if (data.length == 0) {
           this.state[field] = data;
