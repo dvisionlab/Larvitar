@@ -39,7 +39,7 @@ export const clearImageCache = function () {
  * @function renderWebImage
  * @param {Object} file - The image File object
  * @param {String} elementId - The html div id used for rendering
- * @param {Function} callback - Optional callback function
+ * @param {Function} callback - Optional callback function with image object
  */
 export const renderFileImage = function (file, elementId, callback) {
   let element = document.getElementById(elementId);
@@ -65,7 +65,7 @@ export const renderFileImage = function (file, elementId, callback) {
 
       csToolsCreateStack(element);
       if (callback) {
-        callback();
+        callback(image);
       }
     });
   }

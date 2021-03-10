@@ -28,7 +28,7 @@ export var fileManager = {};
  * @function resetFileLoader
  * @param {String} elementId The Id of the html element
  */
-export const resetFileLoader = function() {
+export const resetFileLoader = function () {
   clearCornerstoneElements();
   resetFileManager();
   clearImageCache();
@@ -39,7 +39,7 @@ export const resetFileLoader = function() {
  * @instance
  * @function resetFileManager
  */
-export const resetFileManager = function() {
+export const resetFileManager = function () {
   fileManager = {};
 };
 
@@ -49,10 +49,12 @@ export const resetFileManager = function() {
  * @function populateFileManager
  * @return {String} current file image id
  */
-export const populateFileManager = function(file) {
-  if (!has(fileManager, file.webkitRelativePath)) {
+export const populateFileManager = function (file) {
+  // TODO USE CUSTOM UUID AS FUNCTION ARGUMENT
+  let uuid = file.webkitRelativePath || file.name;
+  if (!has(fileManager, uuid)) {
     const imageId = cornerstoneFileImageLoader.fileManager.add(file);
-    fileManager[file.webkitRelativePath] = imageId;
+    fileManager[uuid] = imageId;
   }
 };
 
@@ -62,10 +64,10 @@ export const populateFileManager = function(file) {
  * @function getFileImageId
  * @return {String} current file image id
  */
-export const getFileImageId = function(file) {
-  const imageId = has(fileManager, file.webkitRelativePath)
-    ? fileManager[file.webkitRelativePath]
-    : null;
+export const getFileImageId = function (file) {
+  // TODO USE CUSTOM UUID AS FUNCTION ARGUMENT
+  let uuid = file.webkitRelativePath || file.name;
+  const imageId = has(fileManager, uuid) ? fileManager[uuid] : null;
   return imageId;
 };
 
