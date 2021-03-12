@@ -15,13 +15,18 @@ import { larvitar_store } from "./image_store";
 
 /*
  * This module provides the following functions to be exported:
- * clearImageCache()
+ * clearImageCache(seriesId)
  * renderImage(series, elementId)
  * disableImage(elementId)
  * renderFileImage(file, elementId)
  * renderWebImage(url, elementId)
+ * disableViewport(elementId)
+ * unloadViewport(elementId, seriesId)
+ * resizeViewport(elementId)
  * updateImage(series, elementId, imageIndex)
  * resetViewports([elementIds])
+ * updateViewportData(elementId)
+ * storeViewportData(params...)
  */
 
 /**
@@ -141,6 +146,22 @@ export const unloadViewport = function (elementId, seriesId) {
 };
 
 /**
+ * Resize a viewport using cornerstone resize
+ * And forcing fit to window
+ * @instance
+ * @function resizeViewport
+ * @param {String} elementId - The html div id used for rendering
+ */
+export const resizeViewport = function (elementId) {
+  let element = document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  cornerstone.resize(element, true); // true flag forces fitToWindow
+};
+
+/**
  * Cache image and render it in a html div using cornerstone
  * @instance
  * @function renderImage
@@ -222,6 +243,9 @@ export const renderImage = function (series, elementId, defaultProps) {
 
   // add serie's imageIds into store
   larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
+  let loadingCounter = 0;
+  larvitar_store.set("loadingProgress", [elementId, loadingCounter]);
+  larvitar_store.set("loadingStatus", [elementId, false]);
 
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
@@ -267,9 +291,15 @@ export const renderImage = function (series, elementId, defaultProps) {
           defaultWW,
           defaultWC
         );
+        larvitar_store.set("loadingStatus", [elementId, true]);
         let t1 = performance.now();
         console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
       }
+      loadingCounter += 1;
+      let loadingPercentage = Math.floor(
+        (loadingCounter / series.imageIds.length) * 100
+      );
+      larvitar_store.set("loadingProgress", [elementId, loadingPercentage]);
     });
   });
 
@@ -293,6 +323,9 @@ export const reloadImage = function (series, elementId) {
   cornerstone.enable(element);
   let sliceId = larvitar_store.get("viewports", elementId, "sliceId");
   let currentImageId = series.imageIds[sliceId];
+  let loadingCounter = 0;
+  larvitar_store.set("loadingStatus", [elementId, false]);
+  larvitar_store.set("loadingProgress", [elementId, loadingCounter]);
 
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
@@ -318,6 +351,11 @@ export const reloadImage = function (series, elementId) {
         cornerstone.fitToWindow(element);
         larvitar_store.set("loadingStatus", [elementId, true]);
       }
+      loadingCounter += 1;
+      let loadingPercentage = Math.floor(
+        (loadingCounter / series.imageIds.length) * 100
+      );
+      larvitar_store.set("loadingProgress", [elementId, loadingPercentage]);
     });
   });
 };
@@ -554,7 +592,6 @@ export const storeViewportData = function (
   larvitar_store.set("thickness", [elementId, thickness]);
   larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
   larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
-  larvitar_store.set("loadingStatus", [elementId, true]);
   larvitar_store.set("minSliceNumber", [elementId, 1]);
   larvitar_store.set("currentSliceNumber", [elementId, imageIndex]);
   larvitar_store.set("maxSliceNumber", [elementId, numberOfSlices]);

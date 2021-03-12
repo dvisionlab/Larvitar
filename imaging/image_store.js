@@ -9,7 +9,8 @@ import { get as _get } from "lodash";
 
 // default viewport store object
 const DEFAULT_VIEWPORT = {
-  ready: false,
+  loading: 0, // from 0 to 100 (%)
+  ready: false, // true when currentImageId is rendered
   minSliceId: 0,
   maxSliceId: 0,
   sliceId: 0,
@@ -199,6 +200,8 @@ class Larvitar_Store {
         this.state["viewports"][data[0]]["maxPixelValue"] = data[1];
       } else if (field == "loadingStatus") {
         this.state["viewports"][data[0]]["ready"] = data[1];
+      } else if (field == "loadingProgress") {
+        this.state["viewports"][data[0]]["loading"] = data[1];
       } else if (field == "minSliceNumber") {
         this.state["viewports"][data[0]]["minSliceId"] = data[1];
       } else if (field == "maxSliceNumber") {
