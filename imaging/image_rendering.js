@@ -26,11 +26,19 @@ import { larvitar_store } from "./image_store";
 
 /**
  * Purge the cornestone internal cache
+ * If seriesId is passed as argument only imageIds of the series are purged from internal cache
  * @instance
  * @function clearImageCache
+ * @param {String} seriesId - The id of the serie
  */
-export const clearImageCache = function () {
-  cornerstone.imageCache.purgeCache();
+export const clearImageCache = function (seriesId) {
+  if (seriesId) {
+    each(larvitar_store.state.series[seriesId], function (imageId) {
+      cornerstone.imageCache.removeImageLoadObject(imageId);
+    });
+  } else {
+    cornerstone.imageCache.purgeCache();
+  }
 };
 
 /**
@@ -94,6 +102,23 @@ export const renderWebImage = function (url, elementId) {
 
 /**
  * Unrender an image on a html div using cornerstone
+ * @instance
+ * @function disableViewport
+ * @param {String} elementId - The html div id used for rendering
+ */
+export const disableViewport = function (elementId) {
+  let element = document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  enableMouseHandlers(elementId, true); // flagged true to disable handlers
+  cornerstone.disable(element);
+};
+
+/**
+ * Unrender an image on a html div using cornerstone
+ * Remove image from cornerstone cache and remove from store
  * @instance
  * @function unloadViewport
  * @param {String} elementId - The html div id used for rendering
