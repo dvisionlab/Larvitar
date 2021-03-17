@@ -95,7 +95,8 @@ import {
 
 import {
   DEFAULT_TOOLS,
-  getDefaultToolsByType
+  getDefaultToolsByType,
+  setDefaultToolsProps
 } from "./imaging/tools/tools.default";
 
 import {
@@ -251,5 +252,6 @@ export {
   loadAnnotations,
   exportAnnotations,
   setSegmentationConfig,
-  csToolsUpdateImageIndex
+  csToolsUpdateImageIndex,
+  setDefaultToolsProps
 };
