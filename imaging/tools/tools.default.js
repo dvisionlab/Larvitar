@@ -8,14 +8,19 @@
  *      viewports : "all" or [array of target viewports],
  *      configuration : configuration {object},
  *      options : options {object},
- *      class : cornerstone tool library class name (ie "LengthTool" for Length tool)
- *      sync : cornerstone synchronizer name (ie "wwwcSynchronizer" for Wwwc sync tool)
+ *      class : cornerstone tool library class name (ie "LengthTool" for Length tool),
+ *      sync : cornerstone synchronizer name (ie "wwwcSynchronizer" for Wwwc sync tool),
+ *      cleanable : if true, this tool will be removed when calling "no tools",
+ *      defaultActive : if true, this tool will be activated when calling "addDefaultTools",
+ *      shortcut : keyboard shortcut [not implemented],
+ *      type : tool category inside Larvitar (one of: "utils", "annotation", "segmentation")
  * }
  *
  */
 
-import { filter } from "lodash";
+import { filter, isArray } from "lodash";
 import ThresholdsBrushTool from "./thresholdsBrushTool";
+import PolylineScissorsTool from "./polylineScissorsTool";
 
 /**
  * These tools are added with `addDefaultTools()`
@@ -30,7 +35,7 @@ const DEFAULT_TOOLS = {
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: false,
-    defaultActive: false,
+    defaultActive: true,
     class: "WwwcTool",
     sync: "wwwcSynchronizer",
     description: "Change image contrast",
@@ -301,6 +306,28 @@ const DEFAULT_TOOLS = {
     description: "A circular segmentation tool",
     shortcut: "ctrl-r",
     type: "segmentation"
+  },
+  CorrectionScissors: {
+    name: "CorrectionScissors",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "CorrectionScissorsTool",
+    description: "A correction segmentation tool",
+    shortcut: "ctrl-p",
+    type: "segmentation"
+  },
+  PolylineScissors: {
+    name: "PolylineScissors",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "PolylineScissorsTool",
+    description: "A polyline segmentation tool",
+    shortcut: "ctrl-s",
+    type: "segmentation"
   }
 };
 
@@ -308,7 +335,8 @@ const DEFAULT_TOOLS = {
  * D/Vision Lab custom tools
  */
 const dvTools = {
-  ThresholdsBrushTool: ThresholdsBrushTool
+  ThresholdsBrushTool: ThresholdsBrushTool,
+  PolylineScissorsTool: PolylineScissorsTool
 };
 
 /**
@@ -319,4 +347,25 @@ const getDefaultToolsByType = function (type) {
   return filter(DEFAULT_TOOLS, ["type", type]);
 };
 
-export { DEFAULT_TOOLS, getDefaultToolsByType, dvTools };
+/**
+ * Override default tools props
+ * @param {Array} newProps - An array of objects as in the DEFAULT_TOOLS list, but with a subset of props
+ * NOTE: prop "name" is mandatory
+ */
+const setDefaultToolsProps = function (newProps) {
+  if (isArray(newProps)) {
+    newProps.forEach(props => {
+      let targetTool = DEFAULT_TOOLS[props.name];
+      if (targetTool) {
+        DEFAULT_TOOLS[props.name] = Object.assign(targetTool, props);
+      } else {
+        console.error(`${newProps.name} does not exist`);
+      }
+    });
+  } else {
+    console.error("newProps must be an array");
+  }
+  console.log(DEFAULT_TOOLS);
+};
+
+export { DEFAULT_TOOLS, dvTools, getDefaultToolsByType, setDefaultToolsProps };
