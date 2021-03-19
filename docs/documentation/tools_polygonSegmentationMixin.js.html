@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>tools/tools.default.js - Larvitar</title>
+    <title>tools/polygonSegmentationMixin.js - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,7 +40,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">tools/tools.default.js</h1>
+    <h1 class="page-title">tools/polygonSegmentationMixin.js</h1>
     
 
     
@@ -50,377 +50,247 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** @module tools/default */
+            <pre class="prettyprint source linenums"><code>import cornerstoneTools from "cornerstone-tools";
 
-/* DEFINE DEFAULT TOOLS
- * example
+const external = cornerstoneTools.external;
+const draw = cornerstoneTools.importInternal("drawing/draw");
+const drawJoinedLines = cornerstoneTools.importInternal(
+  "drawing/drawJoinedLines"
+);
+const getNewContext = cornerstoneTools.importInternal("drawing/getNewContext");
+const { getDiffBetweenPixelData } = cornerstoneTools.importInternal(
+  "util/segmentationUtils"
+);
+const { getters, setters } = cornerstoneTools.getModule("segmentation");
+
+/**
+ * Global var, identify when first point has already been placed
+ */
+let isDrawing = false;
+
+/**
+ * Override for `freehandSegmentationMixin`'s `renderToolData` method to render a polyline instead
+ * of a freehand region with the first and last point connected. Apply after the `freehandSegmentationMixin`.
  *
- * toolName : {
- *      name : toolName (string),
- *      viewports : "all" or [array of target viewports],
- *      configuration : configuration {object},
- *      options : options {object},
- *      class : cornerstone tool library class name (ie "LengthTool" for Length tool),
- *      sync : cornerstone synchronizer name (ie "wwwcSynchronizer" for Wwwc sync tool),
- *      cleanable : if true, this tool will be removed when calling "no tools",
- *      defaultActive : if true, this tool will be activated when calling "addDefaultTools",
- *      shortcut : keyboard shortcut [not implemented],
- *      type : tool category inside Larvitar (one of: "utils", "annotation", "segmentation")
- * }
- *
+ * @override
+ * @param {Object} evt The cornerstone render event.
+ * @returns {null}
  */
+function renderToolData(evt) {
+  const eventData = evt.detail;
+  const { element } = eventData;
+  const color = getters.brushColor(element, true);
+  const context = getNewContext(eventData.canvasContext.canvas);
+  const handles = this.handles;
 
-import { filter, isArray } from "lodash";
-import ThresholdsBrushTool from "./thresholdsBrushTool";
-import PolylineScissorsTool from "./polylineScissorsTool";
+  draw(context, context => {
+    const isNotTheFirstHandle = handles.points.length > 1;
 
-/**
- * These tools are added with `addDefaultTools()`
- */
-const DEFAULT_TOOLS = {
-  Wwwc: {
-    name: "Wwwc",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    defaultActive: true,
-    class: "WwwcTool",
-    sync: "wwwcSynchronizer",
-    description: "Change image contrast",
-    shortcut: "ctrl-m",
-    type: "utils"
-  },
-  StackScrollMouseWheel: {
-    name: "StackScrollMouseWheel",
-    viewports: "all",
-    configuration: {},
-    options: {
-      loop: false, // default false
-      allowSkipping: false, // default true
-      invert: false
-    },
-    cleanable: false,
-    defaultActive: true,
-    class: "StackScrollMouseWheelTool"
-  },
-  Pan: {
-    name: "Pan",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "PanTool",
-    description: "Move image xy",
-    shortcut: "ctrl-p",
-    type: "utils"
-  },
-  Zoom: {
-    name: "Zoom",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "ZoomTool",
-    defaultActive: false,
-    description: "Zoom image at mouse position",
-    shortcut: "ctrl-z",
-    type: "utils"
-  },
-  Magnify: {
-    name: "Magnify",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "MagnifyTool",
-    defaultActive: false,
-    description: "Magnify image at mouse position",
-    shortcut: "ctrl-m",
-    type: "utils"
-  },
-  DragProbe: {
-    name: "DragProbe",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "DragProbeTool",
-    description: "Probe image at mouse position",
-    shortcut: "ctrl-p",
-    type: "utils"
-  },
-  Rotate: {
-    name: "Rotate",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: false,
-    class: "RotateTool",
-    description: "Rotate image"
-  },
-  Length: {
-    name: "Length",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: true,
-    class: "LengthTool"
-  },
-  Angle: {
-    name: "Angle",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
-    },
-    cleanable: true,
-    class: "AngleTool"
-  },
-  Bidirectional: {
-    name: "Bidirectional",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "BidirectionalTool"
-  },
-  EllipticalRoi: {
-    name: "EllipticalRoi",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "EllipticalRoiTool",
-    description: "Draw an ellipse",
-    shortcut: "ctrl-f",
-    type: "annotation"
-  },
-  RectangleRoi: {
-    name: "RectangleRoi",
-    viewports: "all",
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    defaultActive: false,
-    class: "RectangleRoiTool",
-    description: "Draw a rectangle",
-    shortcut: "ctrl-a",
-    type: "annotation"
-  },
-  FreehandRoi: {
-    name: "FreehandRoi",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "FreehandRoiTool",
-    description: "Draw a polyline / freehand form",
-    shortcut: "ctrl-s",
-    type: "annotation"
-  },
-  Probe: {
-    name: "Probe",
-    viewports: "all",
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "ProbeTool"
-  },
-  ArrowAnnotate: {
-    name: "ArrowAnnotate",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "ArrowAnnotateTool",
-    description: "Draw an arrow",
-    shortcut: "ctrl-d",
-    type: "annotation"
-  },
-  TextMarker: {
-    name: "TextMarker",
-    viewports: "all",
-    configuration: {
-      markers: Object.keys(new Array(100).fill(0)),
-      current: "0",
-      ascending: true,
-      loop: true
-    },
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "TextMarkerTool"
-  },
-  Eraser: {
-    name: "Eraser",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    class: "EraserTool"
-  },
-  ZoomTouchPinch: {
-    name: "ZoomTouchPinch",
-    viewports: "all",
-    configuration: {},
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["TouchPinch"]
-    },
-    cleanable: false,
-    class: "ZoomTouchPinchTool",
-    defaultActive: true
-  },
-  PanMultiTouch: {
-    name: "PanMultiTouch",
-    viewports: "all",
-    configuration: {
-      touchPointers: 2
-    },
-    options: {
-      mouseButtonMask: 1,
-      supportedInteractionTypes: ["MultiTouch"]
-    },
-    cleanable: false,
-    class: "PanMultiTouchTool",
-    defaultActive: true
-  },
-  Brush: {
-    name: "Brush",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "BrushTool",
-    description: "A simple brush",
-    shortcut: "ctrl-q",
-    type: "segmentation"
-  },
-  ThresholdsBrush: {
-    name: "ThresholdsBrush",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "ThresholdsBrushTool",
-    description: "Brush only values inside thresholds",
-    shortcut: "ctrl-t",
-    type: "segmentation"
-  },
-  RectangleScissors: {
-    name: "RectangleScissors",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "RectangleScissorsTool",
-    description: "A rectangular segmentation tool",
-    shortcut: "ctrl-w",
-    type: "segmentation"
-  },
-  FreehandScissors: {
-    name: "FreehandScissors",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "FreehandScissorsTool",
-    description: "A free-hand segmentation tool",
-    shortcut: "ctrl-e",
-    type: "segmentation"
-  },
-  CircleScissors: {
-    name: "CircleScissors",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "CircleScissorsTool",
-    description: "A circular segmentation tool",
-    shortcut: "ctrl-r",
-    type: "segmentation"
-  },
-  CorrectionScissors: {
-    name: "CorrectionScissors",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "CorrectionScissorsTool",
-    description: "A correction segmentation tool",
-    shortcut: "ctrl-p",
-    type: "segmentation"
-  },
-  PolylineScissors: {
-    name: "PolylineScissors",
-    viewports: "all",
-    configuration: {},
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "PolylineScissorsTool",
-    description: "A polyline segmentation tool",
-    shortcut: "ctrl-s",
-    type: "segmentation"
-  }
-};
+    if (isNotTheFirstHandle) {
+      for (let j = 0; j &lt; handles.points.length; j++) {
+        const lines = [...handles.points[j].lines];
 
-/**
- * D/Vision Lab custom tools
- */
-const dvTools = {
-  ThresholdsBrushTool: ThresholdsBrushTool,
-  PolylineScissorsTool: PolylineScissorsTool
-};
-
-/**
- * Get available tools by type (useful to populate menus)
- * @param {String} type
- */
-const getDefaultToolsByType = function (type) {
-  return filter(DEFAULT_TOOLS, ["type", type]);
-};
-
-/**
- * Override default tools props
- * @param {Array} newProps - An array of objects as in the DEFAULT_TOOLS list, but with a subset of props
- * NOTE: prop "name" is mandatory
- */
-const setDefaultToolsProps = function (newProps) {
-  if (isArray(newProps)) {
-    newProps.forEach(props => {
-      let targetTool = DEFAULT_TOOLS[props.name];
-      if (targetTool) {
-        DEFAULT_TOOLS[props.name] = Object.assign(targetTool, props);
-      } else {
-        console.error(`${newProps.name} does not exist`);
+        drawJoinedLines(context, element, this.handles.points[j], lines, {
+          color
+        });
       }
-    });
-  } else {
-    console.error("newProps must be an array");
-  }
-  console.log(DEFAULT_TOOLS);
-};
+    }
+  });
+}
 
-export { DEFAULT_TOOLS, dvTools, getDefaultToolsByType, setDefaultToolsProps };
+/**
+ * Returns a handle of a particular tool if it is close to the mouse cursor
+ *
+ * @private
+ * @param {Object} element - The element on which the roi is being drawn.
+ * @param {Object} data      Data object associated with the tool.
+ * @param {*} coords
+ * @returns {Number|Object|Boolean}
+ */
+function _pointNearHandle(element, data, coords) {
+  if (data.handles === undefined || data.handles.points === undefined) {
+    return;
+  }
+
+  if (data.visible === false) {
+    return;
+  }
+
+  for (let i = 0; i &lt; data.handles.points.length; i++) {
+    const handleCanvas = external.cornerstone.pixelToCanvas(
+      element,
+      data.handles.points[i]
+    );
+
+    if (external.cornerstoneMath.point.distance(handleCanvas, coords) &lt; 6) {
+      return true;
+    }
+  }
+}
+
+/**
+ * Entry point, manage workflow starting / ending
+ * @param {Object} evt
+ */
+
+function _checkIfDrawing(evt) {
+  const { currentPoints, element } = evt.detail;
+  const coords = currentPoints.canvas;
+  let data = this;
+
+  if (isDrawing &amp;&amp; _pointNearHandle(element, data, coords)) {
+    _applyStrategy.call(this, evt);
+  } else if (isDrawing) {
+    _setHandlesAndUpdate.call(this, evt);
+  } else {
+    isDrawing = true;
+    _startOutliningRegion.call(this, evt);
+  }
+}
+
+/**
+ * Sets the start handle point and claims the eventDispatcher event
+ *
+ * @private
+ * @param {*} evt // mousedown, touchstart, click
+ * @returns {void|null}
+ */
+function _startOutliningRegion(evt) {
+  const element = evt.detail.element;
+  const image = evt.detail.currentPoints.image;
+  const points = this.handles.points;
+
+  points.push({
+    x: image.x,
+    y: image.y,
+    lines: []
+  });
+
+  this.currentHandle += 1;
+
+  external.cornerstone.updateImage(element);
+}
+
+/**
+ * This function will update the handles and updateImage to force re-draw
+ *
+ * @private
+ * @method _setHandlesAndUpdate
+ * @param {(CornerstoneTools.event#TOUCH_DRAG|CornerstoneTools.event#MOUSE_DRAG|CornerstoneTools.event#MOUSE_MOVE)} evt  Interaction event emitted by an enabledElement
+ * @returns {void}
+ */
+function _setHandlesAndUpdate(evt) {
+  const eventData = evt.detail;
+  const element = evt.detail.element;
+
+  this._addPoint(eventData);
+  external.cornerstone.updateImage(element);
+}
+
+/**
+ * Event handler for MOUSE_UP/TOUCH_END during handle drag event loop.
+ *
+ * @private
+ * @method _applyStrategy
+ * @param {(CornerstoneTools.event#MOUSE_UP|CornerstoneTools.event#TOUCH_END)} evt Interaction event emitted by an enabledElement
+ * @returns {void}
+ */
+function _applyStrategy(evt) {
+  const points = this.handles.points;
+  const { element } = evt.detail;
+
+  const { labelmap2D, labelmap3D, currentImageIdIndex } = getters.labelmap2D(
+    element
+  );
+
+  const pixelData = labelmap2D.pixelData;
+  const previousPixeldata = pixelData.slice();
+
+  const operationData = {
+    points,
+    pixelData,
+    segmentIndex: labelmap3D.activeSegmentIndex,
+    segmentationMixinType: `freehandSegmentationMixin`
+  };
+
+  this.applyActiveStrategy(evt, operationData);
+
+  const operation = {
+    imageIdIndex: currentImageIdIndex,
+    diff: getDiffBetweenPixelData(previousPixeldata, pixelData)
+  };
+
+  setters.pushState(this.element, [operation]);
+
+  // Invalidate the brush tool data so it is redrawn
+  setters.updateSegmentsOnLabelmap2D(labelmap2D);
+  external.cornerstone.updateImage(element);
+
+  this._resetHandles();
+}
+
+/**
+ * Sets the start and end handle points to empty objects
+ *
+ * @private
+ * @method _resetHandles
+ * @returns {undefined}
+ */
+function _resetHandles() {
+  this.handles = {
+    points: []
+  };
+
+  isDrawing = false;
+
+  this.currentHandle = 0;
+}
+
+/**
+ * Adds a point on mouse click in polygon mode.
+ *
+ * @private
+ * @param {Object} evt - data object associated with an event.
+ * @returns {void}
+ */
+function _addPoint(evt) {
+  const points = this.handles.points;
+
+  if (points.length) {
+    // Add the line from the current handle to the new handle
+    points[this.currentHandle - 1].lines.push({
+      x: evt.currentPoints.image.x,
+      y: evt.currentPoints.image.y,
+      lines: []
+    });
+  }
+
+  // Add the new handle
+  points.push({
+    x: evt.currentPoints.image.x,
+    y: evt.currentPoints.image.y,
+    lines: []
+  });
+
+  // Increment the current handle value
+  this.currentHandle += 1;
+
+  // Force onImageRendered to fire
+  external.cornerstone.updateImage(evt.element);
+}
+
+/**
+ * @mixin polygonSegmentationMixin - segmentation operations for polyline
+ * @memberof Mixins
+ */
+export default {
+  mouseClickCallback: _checkIfDrawing,
+  initializeMixin: _resetHandles,
+  renderToolData,
+  _resetHandles,
+  _addPoint,
+  _applyStrategy
+};
 </code></pre>
         </article>
     </section>
