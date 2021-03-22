@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="h-100">
   <head>
     <meta charset="UTF-8" />
     <title>Larvitar</title>
@@ -10,42 +10,78 @@
       crossorigin="anonymous"
     />
   </head>
-  <body>
-    <div class="container">
-      <img
-        src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png"
-        style="height: 200px"
-        alt="..."
-      />
-
-      <section>
-        <div id="title">
-          <h1 class="display-4">Larvitar documentation</h1>
+  <body class="h-100" style="background-color: #d7e8e1">
+    <div class="container h-100">
+      <div class="row justify-content-center">
+        <div class="col-4"></div>
+        <div class="col-4 text-center">
+          <img
+            src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png"
+            style="height: 200px"
+            alt="..."
+          />
         </div>
+        <div class="col-4"></div>
+      </div>
+
+      <div>
+        <div class="row justify-content-center">
+          <div class="col-3"></div>
+          <div class="col-6 text-center">
+            <div id="title">
+              <p class="display-2">Larvitar Documentation</p>
+            </div>
+          </div>
+          <div class="col-3"></div>
+        </div>
+
         <hr class="my-4" />
-        <p class="lead">Dicom Image Toolkit for CornestoneJS</p>
-
-        <div class="btn-group-vertical" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-primary">
-            <a href="./documentation/index.html"
-              ><span style="color: white">Docs</span></a
-            >
-          </button>
-
-          <button type="button" class="btn btn-primary">
-            <a href="./examples/index.html"
-              ><span style="color: white">Examples</span></a
-            >
-          </button>
+        <div class="row justify-content-center">
+          <div class="col-3"></div>
+          <div class="col-6 text-center">
+            <div id="title">
+              <p class="lead">Dicom Image Toolkit for CornestoneJS</p>
+            </div>
+          </div>
+          <div class="col-3"></div>
         </div>
 
-        <hr class="mt-5 mb-5" style="color: white" />
-        <img
-          src="https://www.dvisionlab.com/images/logo_dv.png"
-          style="height: 50px"
-          alt="..."
-        />
-      </section>
+        <div class="row justify-content-center">
+          <div class="col-3"></div>
+          <div class="col-6 text-center">
+            <a
+              class="btn btn-outline-success btn-lg"
+              href="./documentation/index.html"
+              role="button"
+              >Docs
+            </a>
+
+            <a
+              class="btn btn-outline-success btn-lg"
+              href="./examples/index.html"
+              role="button"
+              >Examples
+            </a>
+          </div>
+          <div class="col-3"></div>
+        </div>
+
+        <hr class="mt-5 mb-5" />
+      </div>
+
+      <div class="row align-items-end">
+        <div class="col-2"></div>
+        <div class="col-8 text-center">
+          <a href="https://www.dvisionlab.com" target="_blank">
+            <img
+              src="https://www.dvisionlab.com/images/logo_500.png"
+              style="height: 300px"
+              alt="..."
+            />
+          </a>
+        </div>
+        <div class="col-2"></div>
+      </div>
     </div>
   </body>
 </html>
