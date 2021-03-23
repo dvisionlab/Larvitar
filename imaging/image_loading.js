@@ -42,6 +42,8 @@ const globalConfig = {
 /*
  * This module provides the following functions to be exported:
  * initializeImageLoader(config)
+ * initializeWebImageLoader()
+ * initializeFileImageLoader()
  * registerNRRDImageLoader()
  * registerResliceLoader()
  * updateLoadedStack(seriesData, allSeriesStack)

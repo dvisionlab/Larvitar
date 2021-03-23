@@ -8,12 +8,16 @@ import cornerstone from "cornerstone-core";
 import { forEach, find } from "lodash";
 
 // internal libraries
-import { getMeanValue, getDistanceBetweenSlices } from "./image_utils.js";
+import {
+  getMeanValue,
+  getDistanceBetweenSlices,
+  getTypedArrayFromDataType
+} from "./image_utils.js";
 import { parse } from "./parsers/nrrd";
 
 /*
  * This module provides the following functions to be exported:
- * cacheAndSaveSerie(series)
+ * buildVolume(series)
  * buildHeader(series)
  * buildData(series)
  * importNRRDImage(bufferArray)
@@ -21,11 +25,11 @@ import { parse } from "./parsers/nrrd";
 
 /**
  * Save image as volume: build header and data (use the cache to extract original pixel arrays)
- * @function cacheAndSaveSerie
+ * @function buildVolume
  * @param {Object} series - Cornerstone series object
  * @returns {Object} {data: pixeldata, header: image metadata}
  */
-export const cacheAndSaveSerie = async function (series) {
+export const buildVolume = async function (series) {
   // Purge the cache
   cornerstone.imageCache.purgeCache(); // TODO UNDERSTAND THIS
   // Ensure all image of series to be cached
@@ -101,30 +105,8 @@ export const buildData = function (series, useSeriesData) {
     series.instances[series.imageIds[0]].metadata.x00280011;
   let len = rows * cols * series.imageIds.length;
 
-  let data;
-  switch (repr) {
-    case "Uint8":
-      data = new Uint8Array(len);
-      break;
-    case "Sint8":
-      data = new Int8Array(len);
-      break;
-    case "Uint16":
-      data = new Uint16Array(len);
-      break;
-    case "Sint16":
-      data = new Int16Array(len);
-      break;
-    case "Uint32":
-      data = new Uint32Array(len);
-      break;
-    case "Sint32":
-      data = new Int32Array(len);
-      break;
-    default:
-      data = new Uint8Array(len);
-      break;
-  }
+  let typedArray = getTypedArrayFromDataType(repr);
+  let data = new typedArray(len);
   let offsetData = 0;
 
   // use input data or cached data
@@ -150,7 +132,7 @@ export const buildData = function (series, useSeriesData) {
 };
 
 /**
- * Import NRRD image from bufferArray (use nrrdjs @link https://github.com/jonathanlurie/nrrdjs)
+ * Import NRRD image from bufferArray
  * @function importNRRDImage
  * @param {ArrayBuffer} bufferArray - buffer array from nrrd file
  * @returns {Array} Parsed pixel data array

@@ -5,23 +5,27 @@
  */
 
 // external libraries
-import cornerstone from "cornerstone-core";
 import {
   isEmpty,
   sortBy,
   clone,
+  has,
   max,
   map,
   forEach,
   extend,
   indexOf,
-  random,
-  find
+  random
 } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
-import { getCustomImageId, getSerieDimensions } from "./loaders/commonLoader";
+import {
+  getCustomImageId,
+  getLarvitarImageLoader
+} from "./loaders/commonLoader";
+
+import { getNrrdSerieDimensions as getSerieDimensions } from "./loaders/nrrdLoader";
 
 import TAG_DICT from "./dataDictionary.json";
 
@@ -39,15 +43,17 @@ const resliceTable = {
  * getMinPixelValue(defaultValue, pixelData)
  * getMaxPixelValue(defaultValue, pixelData)
  * getPixelRepresentation(dataset)
+ * getTypedArrayFromDataType(dataType)
  * getPixelTypedArray(dataset, pixelDataElement)
  * getSortedStack(seriesData, sortPriorities, returnSuccessMethod)
  * getTagValue(dataSet, tag)
  * randomId()
  * getMeanValue(series, tag, isArray)
  * getReslicedMetadata(reslicedSeriesId, fromOrientation, toOrientation, seriesData, imageLoaderName)
+ * getCmprMetadata(reslicedSeriesId, imageLoaderName, header)
  * getReslicedPixeldata(imageId, originalData, reslicedData)
- * parseImageId(imageId)
  * getDistanceBetweenSlices(seriesData, sliceIndex1, sliceIndex2)
+ * parseImageId(imageId)
  * remapVoxel([i,j,k], fromOrientation, toOrientation)
  */
 
@@ -144,6 +150,24 @@ export const getPixelRepresentation = function (dataSet) {
 };
 
 /**
+ * Get a typed array from a representation type
+ * @instance
+ * @function getTypedArrayFromDataType
+ * @param {Object} dataType - The data type
+ * @returns {TypedArray} The typed array
+ */
+export const getTypedArrayFromDataType = function (dataType) {
+  let repr = dataType.toLowerCase();
+  let typedArray = has(TYPES_TO_TYPEDARRAY, repr)
+    ? TYPES_TO_TYPEDARRAY[repr]
+    : null;
+  if (!typedArray) {
+    console.error("invalida data type: ", dataType);
+  }
+  return typedArray;
+};
+
+/**
  * Create and return a typed array from the pixel data
  * @instance
  * @function getPixelTypedArray
@@ -152,37 +176,28 @@ export const getPixelRepresentation = function (dataSet) {
  * @returns {TypedArray} The pixel array as proper typed array
  */
 export const getPixelTypedArray = function (dataSet, pixelDataElement) {
-  let pixels;
   let buffer = dataSet.byteArray.buffer;
   let offset = pixelDataElement.dataOffset;
-  let length = pixelDataElement.length;
-
   let r = getPixelRepresentation(dataSet);
-
-  switch (r) {
-    case "Uint8":
-      pixels = new Uint8Array(buffer, offset, length);
+  let typedArray = getTypedArrayFromDataType(r);
+  switch (typedArray) {
+    case Uint16Array:
+      length = pixelDataElement.length / 2;
       break;
-    case "Sint8":
-      pixels = new Int8Array(buffer, offset, length);
+    case Int16Array:
+      length = pixelDataElement.length / 2;
       break;
-    case "Uint16":
-      pixels = new Uint16Array(buffer, offset, length / 2);
+    case Uint32Array:
+      length = pixelDataElement.length / 4;
       break;
-    case "Sint16":
-      pixels = new Int16Array(buffer, offset, length / 2);
-      break;
-    case "Uint32":
-      pixels = new Uint32Array(buffer, offset, length / 4);
-      break;
-    case "Sint32":
-      pixels = new Int32Array(buffer, offset, length / 4);
+    case Int32Array:
+      length = pixelDataElement.length / 4;
       break;
     default:
-      pixels = new Uint8Array(buffer, offset, length);
+      length = pixelDataElement.length;
       break;
   }
-  return pixels;
+  return new typedArray(buffer, offset, length);
 };
 
 /**
@@ -192,7 +207,7 @@ export const getPixelTypedArray = function (dataSet, pixelDataElement) {
  * - instance order, if series has instance numbers tags
  * The priority of the method depends on the instanceSortPriority value
  * @instance
- * @function getPixelTypedArray
+ * @function getSortedStack
  * @param {Object} seriesData - The dataset
  * @param {Array} sortPriorities - TODO
  * @param {Bool} returnSuccessMethod - TODO ask @SZ
@@ -738,7 +753,7 @@ export function remapVoxel([i, j, k], fromOrientation, toOrientation) {
   });
 
   // if permuteTable value is negative, count slices from the end
-  var dims = getSerieDimensions();
+  var dims = getSerieDimensions(getLarvitarImageLoader());
 
   let i_ = isNegativeSign(permuteTable[0]) ? dims[fromOrientation][0] - i : i;
   let j_ = isNegativeSign(permuteTable[1]) ? dims[fromOrientation][1] - j : j;
@@ -942,36 +957,8 @@ let isNegativeSign = function (x) {
  */
 let getTypedArray = function (tags, size) {
   let r = getPixelRepresentation(tags);
-
-  let array;
-  switch (r) {
-    case "Uint8":
-      array = new Uint8Array(size);
-      break;
-    case "Sint8":
-      array = new Int8Array(size);
-      break;
-    case "Uint16":
-      array = new Uint16Array(size);
-      break;
-    case "Sint16":
-      array = new Int16Array(size);
-      break;
-    case "Short":
-      array = new Int16Array(size);
-      break;
-    case "Uint32":
-      array = new Uint32Array(size);
-      break;
-    case "Sint32":
-      array = new Int32Array(size);
-      break;
-    default:
-      array = new Int16Array(size);
-      break;
-  }
-
-  return array;
+  let typedArray = getTypedArrayFromDataType(r);
+  return new typedArray(size);
 };
 
 /**
@@ -1142,14 +1129,6 @@ let spacingArray = function (seriesData, sampleMetadata) {
   ];
 };
 
-/**
- * Permute a signed array using original array
- * @instance
- * @function permuteSignedArrays
- * @param {Array} convertArray - The original array
- * @param {Array} sourceArray - The array to convert
- * @return {Array} - The converted array
- */
 let permuteSignedArrays = function (convertArray, sourceArray) {
   let outputArray = new Array(convertArray.length);
   for (let i = 0; i < convertArray.length; i++) {
@@ -1164,4 +1143,48 @@ let permuteSignedArrays = function (convertArray, sourceArray) {
   }
 
   return outputArray;
+};
+
+/**
+ * Object used to convert data type to typed array
+ * @object
+ */
+const TYPES_TO_TYPEDARRAY = {
+  "unsigned char": Uint8Array,
+  uchar: Uint8Array,
+  uint8: Uint8Array,
+  uint8_t: Uint8Array,
+
+  sint8: Int8Array,
+  "signed char": Int8Array,
+  int8: Int8Array,
+  int8_t: Int8Array,
+
+  ushort: Uint16Array,
+  "unsigned short": Uint16Array,
+  "unsigned short int": Uint16Array,
+  uint16: Uint16Array,
+  uint16_t: Uint16Array,
+
+  sint16: Int16Array,
+  short: Int16Array,
+  "short int": Int16Array,
+  "signed short": Int16Array,
+  "signed short int": Int16Array,
+  int16: Int16Array,
+  int16_t: Int16Array,
+
+  sint32: Int32Array,
+  int: Int32Array,
+  "signed int": Int32Array,
+  int32: Int32Array,
+  int32_t: Int32Array,
+
+  uint: Uint32Array,
+  "unsigned int": Uint32Array,
+  uint32: Uint32Array,
+  uint32_t: Uint32Array,
+
+  float: Float32Array,
+  double: Float64Array
 };

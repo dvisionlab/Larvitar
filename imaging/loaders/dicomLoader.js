@@ -9,7 +9,7 @@ import cornerstone from "cornerstone-core";
 import { omit, each } from "lodash";
 
 // internal libraries
-import { clearImageCache } from "../image_rendering";
+import { clearImageCache, isElement } from "../image_rendering";
 import { larvitar_store } from "../image_store";
 
 // global variables
@@ -17,10 +17,11 @@ export var dicomManager = {};
 let imageLoaderCounter = 0;
 /*
  * This module provides the following functions to be exported:
- * removeSeriesFromDicomManager(seriesId)
- * getSeriesData(seriesId)
- * resetDicomManager()
  * resetImageLoader(elementId)
+ * resetDicomManager()
+ * removeSeriesFromDicomManager(seriesId)
+ * getSeriesDataFromDicomLoader(seriesId)
+ * populateDicomManager(seriesId, seriesData, callback)
  * getDicomImageId(dicomLoaderName)
  * cacheImages(seriesData, callback)
  */
@@ -29,11 +30,12 @@ let imageLoaderCounter = 0;
  * Reset the Custom Image Loader
  * @instance
  * @function resetImageLoader
- * @param {String} elementId The Id of the html element
+ * @param {String} elementId The Id of the html element or its DOM HTMLElement
  */
 export const resetImageLoader = function (elementId) {
-  larvitar_store.set("seriesId", null);
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
   if (element) {
     cornerstone.disable(element);
   }
@@ -66,11 +68,11 @@ export const removeSeriesFromDicomManager = function (seriesId) {
 /**
  * Return the data of a specific seriesId stored in the DICOM Manager
  * @instance
- * @function getSeriesData
+ * @function getSeriesDataFromDicomLoader
  * @param {String} seriesId The Id of the series
  * @return {Object} dicom manager data
  */
-export const getSeriesData = function (seriesId) {
+export const getSeriesDataFromDicomLoader = function (seriesId) {
   return dicomManager[seriesId];
 };
 

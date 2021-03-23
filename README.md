@@ -6,7 +6,10 @@
 
 ## Dicom Image Toolkit for CornestoneJS
 
-### Current version: 0.12.2
+### Current version: 1.0.0-alpha
+
+### Last Stable version: 0.12.2
+### Last Published Release: 0.9.9
 
 This library provides common dicom functionalities to be used in web-applications. Multiplanar reformat on axial, sagittal and coronal viewports is included as well as custom loader/exporter for nrrd files and orthogonal reslice.
 
@@ -38,6 +41,7 @@ This library provides common dicom functionalities to be used in web-application
 - `tools/tools.io` import and export functionalities for tools
 - `tools/tools.main` tools main functionalities
 - `tools/tools.state` tools state management
+- `modules/vuex/larvitar.js` optional vuex state module
 
 <br>
 

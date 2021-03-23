@@ -10,56 +10,92 @@
       crossorigin="anonymous"
     />
   </head>
-  <body>
-    <div class="container">
-      <img
-        src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png"
-        style="height: 200px"
-        alt="..."
-      />
-
-      <section>
-        <div id="title">
-          <h1 class="display-4">Larvitar documentation</h1>
+  <body class="h-100" style="background-color: #d7e8e1">
+    <div class="container h-100">
+      <div class="row justify-content-center">
+        <div class="col-4"></div>
+        <div class="col-4 text-center">
+          <img
+            src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png"
+            style="height: 200px"
+            alt="..."
+          />
         </div>
+        <div class="col-4"></div>
+      </div>
+
+      <div>
+        <div class="row justify-content-center">
+          <div class="col-3"></div>
+          <div class="col-6 text-center">
+            <div id="title">
+              <p class="display-5">Larvitar Examples</p>
+            </div>
+          </div>
+          <div class="col-3"></div>
+        </div>
+
         <hr class="my-4" />
-        <p class="lead">Dicom Image Toolkit for CornestoneJS</p>
-
-        <div class="btn-group-vertical" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-primary">
-            <a href="base.html"
-              ><span style="color: white">Load and render a dicom</span>
-            </a>
-          </button>
+        <div class="row justify-content-center">
+          <div class="col-3"></div>
+          <div class="col-6 text-center">
+            <div id="title">
+              <p class="lead">Dicom Image Toolkit for CornestoneJS</p>
+            </div>
+          </div>
+          <div class="col-3"></div>
         </div>
 
-        <div
-          class="btn-group-vertical"
-          role="group"
-          aria-label="Reslice example"
-        >
-          <button type="button" class="btn btn-primary">
-            <a href="reslice.html"
-              ><span style="color: white">Reslice and render a dicom</span>
+        <div class="row justify-content-center">
+          <div class="col-2"></div>
+          <div class="col-8 text-center">
+            <a
+              class="btn btn-outline-success btn-lg"
+              href="./base.html"
+              role="button"
+              >Render
             </a>
-          </button>
+
+            <a
+              class="btn btn-outline-success btn-lg"
+              href="./reslice.html"
+              role="button"
+              >Reslice
+            </a>
+
+            <a
+              class="btn btn-outline-success btn-lg"
+              href="./nrrd.html"
+              role="button"
+              >NRRD
+            </a>
+
+            <a
+              class="btn btn-outline-success btn-lg"
+              href="./defaultTools.html"
+              role="button"
+              >Tools
+            </a>
+          </div>
+          <div class="col-2"></div>
         </div>
 
-        <div class="btn-group-vertical" role="group" aria-label="Tools example">
-          <button type="button" class="btn btn-primary">
-            <a href="defaultTools.html"
-              ><span style="color: white">Add default tools</span>
-            </a>
-          </button>
-        </div>
+        <hr class="mt-5 mb-5" />
+      </div>
 
-        <hr class="mt-5 mb-5" style="color: white" />
-        <img
-          src="https://www.dvisionlab.com/images/logo_dv.png"
-          style="height: 50px"
-          alt="..."
-        />
-      </section>
+      <div class="row align-items-end">
+        <div class="col-2"></div>
+        <div class="col-8 text-center">
+          <a href="https://www.dvisionlab.com" target="_blank">
+            <img
+              src="https://www.dvisionlab.com/images/logo_500.png"
+              style="height: 300px"
+              alt="..."
+            />
+          </a>
+        </div>
+        <div class="col-2"></div>
+      </div>
     </div>
   </body>
 </html>

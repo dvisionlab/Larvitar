@@ -9,8 +9,6 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
-import cornerstoneMath from "cornerstone-math";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { each, extend, filter, remove, cloneDeep } from "lodash";
 
 // internal libraries
@@ -19,8 +17,10 @@ import { SeedsTool } from "./tools/seedTool";
 import { ContoursTool } from "./tools/contourTool";
 import { EditMaskTool } from "./tools/editMaskTool";
 import { DiameterTool } from "./tools/diameterTool";
-import { getImageIdFromSlice, getSeriesData } from "./loaders/nrrdLoader";
+import { getImageIdFromSlice } from "./loaders/nrrdLoader";
+import { getSeriesData } from "./loaders/commonLoader";
 import { parseContours } from "./image_contours";
+import { isElement } from "./image_rendering";
 
 /*
  * This module provides the following functions to be exported:
@@ -111,13 +111,15 @@ export const addDefaultTools = function (toolToActivate, cb) {
 /**
  * Add Diameter tool
  * @function addDiameterTool
- * @param {String} targetElementId - The target hmtl element id.
+ * @param {String} elementId - The target hmtl element id or its DOM HTMLElement
  * @param {Array} diameters - The array of diameter objects.
  * @param {String} seriesId - The id of the target serie.
  */
-export const addDiameterTool = function (targetElementId, diameters, seriesId) {
+export const addDiameterTool = function (elementId, diameters, seriesId) {
   if (isToolMissing("Diameter")) {
-    let element = document.getElementById(targetElementId);
+    let element = isElement(elementId)
+      ? elementId
+      : document.getElementById(elementId);
     cornerstoneTools.addToolForElement(element, DiameterTool, {
       dataArray: diameters,
       seriesId: seriesId

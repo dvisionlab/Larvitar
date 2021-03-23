@@ -10,13 +10,12 @@ import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 // internal libraries
 import {
   getNrrdImageId,
-  getSerieDimensions as getNrrdSerieDimensions,
-  getSeriesData as getSeriesDataFromNrrdLoader,
-  nrrdManager
+  nrrdManager,
+  getSeriesDataFromNrrdLoader
 } from "./nrrdLoader";
 import {
   getDicomImageId,
-  getSeriesData as getSeriesDataFromDicomLoader,
+  getSeriesDataFromDicomLoader,
   dicomManager
 } from "./dicomLoader";
 import { fileManager } from "./fileLoader";
@@ -25,10 +24,10 @@ import { larvitar_store } from "../image_store";
 /*
  * This module provides the following functions to be exported:
  * getLarvitarManager()
- * getCustomImageId(loaderName)
- * getSerieDimensions()
- * getImageFrame(metadata, dataSet)
+ * getLarvitarImageLoader()
  * getSeriesData(loaderName, seriesId)
+ * getCustomImageId(loaderName)
+ * getImageFrame(metadata, dataSet)
  */
 
 /**
@@ -60,6 +59,33 @@ export const getLarvitarManager = function () {
 };
 
 /**
+ * Return the common active image loader
+ * @instance
+ * @function getLarvitarImageLoader
+ * @returns {Object} the active image loader
+ */
+export const getLarvitarImageLoader = function () {
+  let managerType = larvitar_store.get(["manager"]);
+  let loader;
+
+  switch (managerType) {
+    case "dicomManager":
+      loader = "dicomLoader";
+      break;
+    case "nrrdManager":
+      loader = "nrrdLoader";
+      break;
+    case "fileManager":
+      loader = "fileLoader";
+      break;
+    default:
+      console.warn("no matching loader");
+      loader = {};
+  }
+  return loader;
+};
+
+/**
  * Return the data of a specific seriesId stored in a custom Loader Manager
  * @instance
  * @function getSeriesData
@@ -68,9 +94,19 @@ export const getLarvitarManager = function () {
  * @returns {Object} series data of a specific seriesId
  */
 export const getSeriesData = function (seriesId, loaderName) {
-  return loaderName == "nrrdLoader"
-    ? getSeriesDataFromNrrdLoader(seriesId)
-    : getSeriesDataFromDicomLoader(seriesId);
+  let data;
+  switch (loaderName) {
+    case "dicomLoader":
+      data = getSeriesDataFromDicomLoader(seriesId);
+      break;
+    case "nrrdLoader":
+      data = getSeriesDataFromNrrdLoader(seriesId);
+      break;
+    default:
+      console.warn("no matching loader");
+      data = null;
+  }
+  return data;
 };
 
 /**
@@ -81,20 +117,22 @@ export const getSeriesData = function (seriesId, loaderName) {
  * @returns {String} custom Image Id
  */
 export const getCustomImageId = function (loaderName) {
-  return loaderName == "nrrdLoader"
-    ? getNrrdImageId(loaderName)
-    : getDicomImageId(loaderName);
-};
-
-/**
- * Return series dimension
- * @instance
- * @function getSerieDimensions
- * @returns {Array} dimensions for series
- */
-export const getSerieDimensions = function () {
-  // TODO FOR DICOM LOADER
-  return getNrrdSerieDimensions();
+  let imageId;
+  switch (loaderName) {
+    case "dicomLoader":
+      imageId = getDicomImageId(loaderName);
+      break;
+    case "resliceLoader":
+      imageId = getDicomImageId(loaderName);
+      break;
+    case "nrrdLoader":
+      imageId = getNrrdImageId(loaderName);
+      break;
+    default:
+      console.warn("no matching loader");
+      imageId = null;
+  }
+  return imageId;
 };
 
 /**

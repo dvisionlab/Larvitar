@@ -31,7 +31,8 @@ const NRRD_TYPES_TO_TYPEDARRAY = {
   "unsigned int": Uint32Array,
   uint32: Uint32Array,
   uint32_t: Uint32Array,
-  // longlong: BigInt64Array, // OK for Node/V8/Chrome but not Firefox
+  // OK for Node/V8/Chrome but not Firefox
+  // longlong: BigInt64Array,
   // "long long": BigInt64Array,
   // "long long int": BigInt64Array,
   // "signed long long": BigInt64Array,
@@ -74,6 +75,7 @@ const NRRD_TYPES_TO_VIEW_GET = {
   "unsigned int": "getUint32",
   uint32: "getUint32",
   uint32_t: "getUint32",
+  // OK for Node/V8/Chrome but not Firefox
   // longlong: null,
   // "long long": null,
   // "long long int": null,
@@ -153,6 +155,8 @@ const KIND_TO_SIZE = {
 /**
  * Parse a buffer of a NRRD file.
  * Throws an exception if the file is not a proper NRRD file.
+ * @instance
+ * @function parse
  * @param {ArrayBuffer} nrrdBuffer - the NRRD file buffer
  * @param {Object} options - the option object
  * @param {boolean} options.headerOnly - Parses only the header if true, parses header and data if false (default: false)
