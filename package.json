@@ -4,17 +4,16 @@
     "dicom",
     "imaging"
   ],
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "javascript library for loading, rendering and interact with DICOM images",
-  "main": "index.js",
   "repository": {
     "url": "https://github.com/dvisionlab/Larvitar.git",
     "type": "git"
   },
   "scripts": {
     "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json",
-    "build": "rollup -c",
-    "dev": "rollup -c -w"
+    "build-examples": "rollup -c",
+    "run-examples": "rollup -c -w"
   },
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
   "contributors": [
@@ -46,9 +45,6 @@
     "rollup": "^2.39.0",
     "rollup-plugin-node-resolve": "^5.2.0"
   },
-  "files": [
-    "dist"
-  ],
   "common": "dist/larvitar.cjs.js",
   "module": "dist/larvitar.js",
   "browser": "dist/larvitar.js",
