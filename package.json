@@ -12,8 +12,8 @@
   },
   "scripts": {
     "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json",
-    "build-examples": "rollup -c",
-    "run-examples": "rollup -c -w"
+    "build-lib": "rollup -c",
+    "dev-lib": "rollup -c -w"
   },
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
   "contributors": [
