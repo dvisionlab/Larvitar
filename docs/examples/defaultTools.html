@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<<html class="h-100 overflow-hidden">
+<html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
     <link
@@ -13,13 +13,16 @@
 
   <body class="h-100" style="background-color: #d7e8e1">
     <div class="row h-100">
-      <div 
-        id="viewer" 
-        class="col-8  h-100" 
-        style="background-color:black;">
+      <div id="viewer" class="col-8 h-100" style="background-color: black">
+        <p style="position: absolute; color: white">
+          Press "t" to cycle through tools
+        </p>
+        <p id="active-tool" style="position: absolute; top: 20px; color: white">
+          Active Tool: Wwwc
+        </p>
       </div>
 
-      <div class="col-4  h-100">
+      <div class="col-4 h-100">
         <pre class="h-100">
           <code class="javascript" data-lang="javascript">
           <p style="font-size:0.6vw;">
@@ -58,12 +61,8 @@
                 let seriesId = _.keys(seriesStack)[0];
                 let serie = seriesStack[seriesId];
                 larvitar.renderImage(serie, "viewer");
-                // override some default tools props before adding
-                larvitar.setDefaultToolsProps([
-                  { name: "Wwwc", defaultActive: false },
-                  { name: "Brush", defaultActive: true }
-                ]);
                 larvitar.addDefaultTools();
+                larvitar.setToolActive("Wwwc");
               });
             }
 
@@ -71,15 +70,39 @@
             _.each(demoFileList, function (demoFile) {
               createFile(demoFile, renderSerie);
             });
+
+            let tool_counter = 0;
+            document.onkeypress = function (e) {
+              e = e || window.event;
+              let tools = _.map(larvitar.DEFAULT_TOOLS, "name");
+              // remove useless tools for the live example
+              tools = _.without(
+                tools,
+                "StackScrollMouseWheel",
+                "TextMarker",
+                "ZoomTouchPinch",
+                "PanMultiTouch"
+              );
+              tool_counter = tool_counter == tools.length - 1 ? 0 : tool_counter + 1;
+              let tool = tools[tool_counter];
+              if (e.keyCode == 116) {
+                larvitar.setToolActive(tool);
+                $("#active-tool").html("Active Tool: " + tool);
+              }
+            };
           </p>
           </code>
         </pre>
       </div>
-
     </div>
 
     <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
 
     <script>
       let demoFiles = [];
@@ -117,12 +140,8 @@
           let seriesId = _.keys(seriesStack)[0];
           let serie = seriesStack[seriesId];
           larvitar.renderImage(serie, "viewer");
-          // override some default tools props before adding
-          larvitar.setDefaultToolsProps([
-            { name: "Wwwc", defaultActive: false },
-            { name: "Brush", defaultActive: true }
-          ]);
           larvitar.addDefaultTools();
+          larvitar.setToolActive("Wwwc");
         });
       }
 
@@ -130,6 +149,26 @@
       _.each(demoFileList, function (demoFile) {
         createFile(demoFile, renderSerie);
       });
+
+      let tool_counter = 0;
+      document.onkeypress = function (e) {
+        e = e || window.event;
+        let tools = _.map(larvitar.DEFAULT_TOOLS, "name");
+        // remove useless tools for the live example
+        tools = _.without(
+          tools,
+          "StackScrollMouseWheel",
+          "TextMarker",
+          "ZoomTouchPinch",
+          "PanMultiTouch"
+        );
+        tool_counter = tool_counter == tools.length - 1 ? 0 : tool_counter + 1;
+        let tool = tools[tool_counter];
+        if (e.keyCode == 116) {
+          larvitar.setToolActive(tool);
+          $("#active-tool").html("Active Tool: " + tool);
+        }
+      };
     </script>
   </body>
 </html>

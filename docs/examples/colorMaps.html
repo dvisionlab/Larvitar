@@ -13,11 +13,17 @@
 
   <body class="h-100" style="background-color: #d7e8e1">
     <div class="row h-100">
-      <div
-        id="viewer"
-        class="col-8 h-100"
-        style="background-color: black"
-      ></div>
+      <div id="viewer" class="col-8 h-100" style="background-color: black">
+        <p style="position: absolute; color: white">
+          Press "m" to cycle through color maps
+        </p>
+        <p
+          id="active-color-map"
+          style="position: absolute; top: 20px; color: white"
+        >
+          Active Color Map: Gray
+        </p>
+      </div>
 
       <div class="col-4 h-100">
         <pre class="h-100">
@@ -63,10 +69,6 @@
                 larvitar.setToolActive(
                   larvitar.larvitar_store.state.leftMouseHandler
                 );
-                // normally you should watch loading status in larvitar store
-                setTimeout(function () {
-                  larvitar.applyColorMap("jet");
-                }, 1000);
               });
             }
 
@@ -74,14 +76,32 @@
             _.each(demoFileList, function (demoFile) {
               createFile(demoFile, renderSerie);
             });
+
+            let color_counter = 0;
+            document.onkeypress = function (e) {
+              let color_maps = larvitar.getColormapsList();
+              color_counter =
+                color_counter == color_maps.length - 1 ? 0 : color_counter + 1;
+              let color_map = color_maps[color_counter];
+              e = e || window.event;
+              if (e.keyCode == 109) {
+                larvitar.applyColorMap(color_map.id);
+                $("#active-color-map").html("Active Color Map: " + color_map.name);
+              }
+            };
           </p>
           </code>
         </pre>
       </div>
     </div>
 
-    <script src="../../dist/larvitar.js"></script>
+    <script src="./dist/larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
 
     <script>
       let demoFiles = [];
@@ -124,10 +144,6 @@
           larvitar.setToolActive(
             larvitar.larvitar_store.state.leftMouseHandler
           );
-          // normally you should watch loading status in larvitar store
-          setTimeout(function () {
-            larvitar.applyColorMap("jet");
-          }, 1000);
         });
       }
 
@@ -135,68 +151,19 @@
       _.each(demoFileList, function (demoFile) {
         createFile(demoFile, renderSerie);
       });
+
+      let color_counter = 0;
+      document.onkeypress = function (e) {
+        e = e || window.event;
+        let color_maps = larvitar.getColormapsList();
+        color_counter =
+          color_counter == color_maps.length - 1 ? 0 : color_counter + 1;
+        let color_map = color_maps[color_counter];
+        if (e.keyCode == 109) {
+          larvitar.applyColorMap(color_map.id);
+          $("#active-color-map").html("Active Color Map: " + color_map.name);
+        }
+      };
     </script>
   </body>
 </html>
-
-<!-- <div
-          id="app-container-dx"
-          style="
-            display: inline-block;
-            background-color: rgb(255, 255, 255);
-            width: 49.5%;
-            height: 100%;
-          "
-        >
-          <pre><code class="javascript" data-lang="javascript">
-          <p style="font-size:0.8vw;">
-          let demoFiles = [];
-          let counter = 0;
-    
-          const getDemoFileNames = function () {
-            let demoFileList = [];
-            for (let i = 1; i < 25; i++) {
-              let filename = "anon" + i;
-              demoFileList.push(filename);
-            }
-            return demoFileList;
-          };
-    
-          // init all
-          larvitar.initLarvitarStore();
-          larvitar.initializeImageLoader();
-          larvitar.initializeCSTools();
-          larvitar.larvitar_store.addViewport("viewer")
-
-          async function createFile(fileName, cb) {
-            let response = await fetch("./demo/" + fileName);
-            let data = await response.blob();
-            let file = new File([data], fileName);
-            demoFiles.push(file);
-            counter++;
-            if (counter == 24) {
-              cb();
-            }
-          }
-    
-          function renderSerie() {
-            larvitar.resetImageParsing();
-            larvitar.readFiles(demoFiles, function (seriesStack, err) {
-              // render the first series of the study
-              let seriesId = _.keys(seriesStack)[0];
-              let serie = seriesStack[seriesId];
-              console.log(serie);
-              larvitar.renderImage(serie, "viewer");
-              larvitar.addDefaultTools();
-              larvitar.setToolActive(larvitar.larvitar_store.state.leftMouseHandler)
-            });
-          }
-    
-          let demoFileList = getDemoFileNames();
-    
-          _.each(demoFileList, function (demoFile) {
-            createFile(demoFile, renderSerie);
-          });
-        </p>
-        </code></pre>
-        </div> -->
