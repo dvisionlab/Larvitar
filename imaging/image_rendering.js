@@ -16,16 +16,17 @@ import { larvitar_store } from "./image_store";
 /*
  * This module provides the following functions to be exported:
  * clearImageCache(seriesId)
- * renderImage(series, elementId)
- * disableImage(elementId)
  * renderFileImage(file, elementId)
  * renderWebImage(url, elementId)
  * disableViewport(elementId)
  * unloadViewport(elementId, seriesId)
  * resizeViewport(elementId)
+ * renderImage(series, elementId)
+ * reloadImage(series, elementId)
  * updateImage(series, elementId, imageIndex)
  * resetViewports([elementIds])
  * updateViewportData(elementId)
+ * toggleMouseHandlers(elementId, disableFlag)
  * storeViewportData(params...)
  */
 
@@ -51,11 +52,13 @@ export const clearImageCache = function (seriesId) {
  * @instance
  * @function renderWebImage
  * @param {Object} file - The image File object
- * @param {String} elementId - The html div id used for rendering
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {Function} callback - Optional callback function with image object
  */
 export const renderFileImage = function (file, elementId, callback) {
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
@@ -89,10 +92,12 @@ export const renderFileImage = function (file, elementId, callback) {
  * @instance
  * @function renderWebImage
  * @param {String} url - The image data url
- * @param {String} elementId - The html div id used for rendering
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  */
 export const renderWebImage = function (url, elementId) {
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
@@ -109,15 +114,17 @@ export const renderWebImage = function (url, elementId) {
  * Unrender an image on a html div using cornerstone
  * @instance
  * @function disableViewport
- * @param {String} elementId - The html div id used for rendering
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  */
 export const disableViewport = function (elementId) {
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
   }
-  enableMouseHandlers(elementId, true); // flagged true to disable handlers
+  toggleMouseHandlers(elementId, true); // flagged true to disable handlers
   cornerstone.disable(element);
 };
 
@@ -126,16 +133,18 @@ export const disableViewport = function (elementId) {
  * Remove image from cornerstone cache and remove from store
  * @instance
  * @function unloadViewport
- * @param {String} elementId - The html div id used for rendering
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {String} seriesId - The id of the serie
  */
 export const unloadViewport = function (elementId, seriesId) {
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
   }
-  enableMouseHandlers(elementId, true); // flagged true to disable handlers
+  toggleMouseHandlers(elementId, true); // flagged true to disable handlers
   cornerstone.disable(element);
   // remove images from cornerstone cache
   each(larvitar_store.state.series[seriesId], function (imageId) {
@@ -150,10 +159,12 @@ export const unloadViewport = function (elementId, seriesId) {
  * And forcing fit to window
  * @instance
  * @function resizeViewport
- * @param {String} elementId - The html div id used for rendering
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  */
 export const resizeViewport = function (elementId) {
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
@@ -166,12 +177,14 @@ export const resizeViewport = function (elementId) {
  * @instance
  * @function renderImage
  * @param {Object} series - The original series data object
- * @param {String} elementId - The html div id used for rendering
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {Object} defaultProps - Optional default props
  */
 export const renderImage = function (series, elementId, defaultProps) {
   let t0 = performance.now();
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
@@ -304,7 +317,7 @@ export const renderImage = function (series, elementId, defaultProps) {
   });
 
   csToolsCreateStack(element, series.imageIds, imageIndex - 1);
-  enableMouseHandlers(elementId);
+  toggleMouseHandlers(elementId);
 };
 
 /**
@@ -312,10 +325,12 @@ export const renderImage = function (series, elementId, defaultProps) {
  * @instance
  * @function reloadImage
  * @param {Object} series - The original series data object
- * @param {String} elementId - The html div id used for rendering
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  */
 export const reloadImage = function (series, elementId) {
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
@@ -347,7 +362,7 @@ export const reloadImage = function (series, elementId) {
           "windowCenter"
         );
         csToolsCreateStack(element);
-        enableMouseHandlers(elementId);
+        toggleMouseHandlers(elementId);
         cornerstone.fitToWindow(element);
         larvitar_store.set("loadingStatus", [elementId, true]);
       }
@@ -365,10 +380,13 @@ export const reloadImage = function (series, elementId) {
  * @instance
  * @function updateImage
  * @param {Object} series - The original series data object
- * @param {String} elementId - The html div id used for rendering
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {Number} imageIndex - The index of the image to be rendered
  */
-export const updateImage = function (series, element, imageIndex) {
+export const updateImage = function (series, elementId, imageIndex) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
   if (!element) {
     return;
   }
@@ -456,12 +474,14 @@ export const resetViewports = function (elementIds) {
  * Update viewport data in store
  * @instance
  * @function updateViewportData
- * @param {String} elementId - The html div id used for rendering
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  */
 export const updateViewportData = function (elementId) {
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
   if (!element) {
-    // console.error("invalid html element: " + elementId);
+    console.error("invalid html element: " + elementId);
     return;
   }
   let viewport = cornerstone.getViewport(element);
@@ -495,11 +515,14 @@ export const updateViewportData = function (elementId) {
 /**
  * Add event handlers to mouse move
  * @instance
- * @function enableMouseHandlers
- * @param {String} elementId - The html div id used for rendering
+ * @function toggleMouseHandlers
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Boolean} disable - If true disable handlers, default is false
  */
-export const enableMouseHandlers = function (elementId, disable) {
-  let element = document.getElementById(elementId);
+export const toggleMouseHandlers = function (elementId, disable) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
@@ -614,4 +637,21 @@ export const storeViewportData = function (
     viewport.voi.windowWidth,
     viewport.voi.windowCenter
   ]);
+};
+
+/**
+ * Check if a div tag is a valid DOM HTMLElement
+ * @instance
+ * @function isElement
+ * @param {Object} o - The div tag
+ * @return {Boolean} - True if is an element otherwise returns False
+ */
+export const isElement = function (o) {
+  return typeof HTMLElement === "object"
+    ? o instanceof HTMLElement //DOM2
+    : o &&
+        typeof o === "object" &&
+        o !== null &&
+        o.nodeType === 1 &&
+        typeof o.nodeName === "string";
 };

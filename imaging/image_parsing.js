@@ -28,8 +28,9 @@ var allSeriesStack = {};
 
 /*
  * This module provides the following functions to be exported:
- * readFiles(entries, callback)
  * resetImageParsing()
+ * readFiles(entries, callback)
+ *
  */
 
 /**
@@ -37,7 +38,7 @@ var allSeriesStack = {};
  * @instance
  * @function resetImageParsing
  */
-export const resetImageParsing = function() {
+export const resetImageParsing = function () {
   parsingQueueFlag = null;
   parsingQueue = [];
   totalFileSize = 0;
@@ -52,7 +53,7 @@ export const resetImageParsing = function() {
  * @param {Array} entries - List of file paths
  * @param {Function} callback - Will receive (imageObject, errorString) as args
  */
-export const readFiles = function(entries, callback) {
+export const readFiles = function (entries, callback) {
   allSeriesStack = {};
   dumpFiles(entries, callback);
 };
@@ -65,7 +66,7 @@ export const readFiles = function(entries, callback) {
  * @function parseNextFile
  * @param {Function} callback - Passed through
  */
-let parseNextFile = function(callback) {
+let parseNextFile = function (callback) {
   if (!parsingQueueFlag || parsingQueue.length === 0) {
     if (parsingQueue.length === 0) {
       callback(allSeriesStack);
@@ -88,15 +89,15 @@ let parseNextFile = function(callback) {
     clearFileSystem(filesystem ? filesystem.root : null);
   } else {
     // parse the file and wait for results
-    dumpFile(file, function(seriesData, err) {
+    dumpFile(file, function (seriesData, err) {
       if (parsingQueueFlag === null) {
         console.log("parsingQueueFlag is null");
         // parsing process has been stopped, but there could be a
         // dumpFile callback still working: prevent actions
         return;
       }
-
       if (err) {
+        console.warn(err);
         parsingQueueFlag = true;
         parseNextFile(callback);
       } else {
@@ -104,8 +105,6 @@ let parseNextFile = function(callback) {
         totalFileSize += file.size;
         // add file to cornerstoneWADOImageLoader file manager
         updateLoadedStack(seriesData, allSeriesStack);
-        // console.log('updateLoadedStack')
-
         // proceed with the next file to parse
         parsingQueueFlag = true;
         parseNextFile(callback);
@@ -121,8 +120,8 @@ let parseNextFile = function(callback) {
  * @param {Array} fileList - Array of file objects
  * @param {Function} callback - Passed through
  */
-let dumpFiles = function(fileList, callback) {
-  forEach(fileList, function(file) {
+let dumpFiles = function (fileList, callback) {
+  forEach(fileList, function (file) {
     if (!file.name.startsWith(".") && !file.name.startsWith("DICOMDIR")) {
       parsingQueue.push(file);
       // enable parsing on first available path
@@ -141,9 +140,9 @@ let dumpFiles = function(fileList, callback) {
  * @param {File} file - File object to be dumped
  * @param {Function} callback - called with (imageObject, errorString)
  */
-let dumpFile = function(file, callback) {
+let dumpFile = function (file, callback) {
   let reader = new FileReader();
-  reader.onload = function() {
+  reader.onload = function () {
     let arrayBuffer = reader.result;
     // Here we have the file data as an ArrayBuffer.
     // dicomParser requires as input a Uint8Array so we create that here.
@@ -157,12 +156,12 @@ let dumpFile = function(file, callback) {
       let imageOrientation = getTagValue(dataSet, "x00200037");
       let imagePosition = getTagValue(dataSet, "x00200032");
       let sliceThickness = getTagValue(dataSet, "x00180050");
-
       if (dataSet.warnings.length > 0) {
         // warnings
         callback(null, dataSet.warnings);
       } else {
         let pixelDataElement = dataSet.elements.x7fe00010;
+
         if (pixelDataElement) {
           // done, pixelData found
           let pixelData = getPixelTypedArray(dataSet, pixelDataElement);
@@ -349,11 +348,10 @@ let dumpFile = function(file, callback) {
  * @inner
  * @function errorHandler
  */
-let errorHandler = function() {
+let errorHandler = function () {
   // empty and initialize queue
   parsingQueue = [];
   parsingQueueFlag = null;
-
   // empty the webkit filesystem
   clearFileSystem(filesystem ? filesystem.root : null);
 };
@@ -363,17 +361,17 @@ let errorHandler = function() {
  * @inner
  * @function clearFileSystem
  */
-let clearFileSystem = function(dirEntry) {
+let clearFileSystem = function (dirEntry) {
   if (!dirEntry) {
     return;
   }
   let dirReader = dirEntry.createReader();
-  dirReader.readEntries(function(results) {
+  dirReader.readEntries(function (results) {
     for (let i = 0; i < results.length; i++) {
       if (results[i].isDirectory) {
-        results[i].removeRecursively(function() {});
+        results[i].removeRecursively(function () {});
       } else {
-        results[i].remove(function() {});
+        results[i].remove(function () {});
       }
     }
   }, errorHandler);

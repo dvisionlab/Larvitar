@@ -9,6 +9,7 @@ import {
   getMinPixelValue,
   getMaxPixelValue,
   getPixelRepresentation,
+  getTypedArrayFromDataType,
   getPixelTypedArray,
   getSortedStack,
   getTagValue,
@@ -22,7 +23,7 @@ import {
 } from "./imaging/image_utils";
 
 import {
-  cacheAndSaveSerie,
+  buildVolume,
   buildHeader,
   buildData,
   importNRRDImage
@@ -37,8 +38,8 @@ import {
 
 import {
   initializeImageLoader,
-  initializeFileImageLoader,
   initializeWebImageLoader,
+  initializeFileImageLoader,
   registerNRRDImageLoader,
   registerResliceLoader,
   updateLoadedStack
@@ -48,19 +49,21 @@ import { resetImageParsing, readFiles } from "./imaging/image_parsing";
 
 import {
   clearImageCache,
+  renderFileImage,
+  renderWebImage,
   disableViewport,
   unloadViewport,
   resizeViewport,
-  renderWebImage,
-  renderFileImage,
   renderImage,
   reloadImage,
   updateImage,
   resetViewports,
-  enableMouseHandlers
+  updateViewportData,
+  toggleMouseHandlers,
+  storeViewportData
 } from "./imaging/image_rendering";
 
-import { resliceSeries } from "./imaging/image_reslice";
+import { resliceSeries, cleanResliceStore } from "./imaging/image_reslice";
 
 import {
   addDiameterTool,
@@ -100,23 +103,25 @@ import {
 } from "./imaging/tools/tools.default";
 
 import {
-  getCustomImageId,
-  getSerieDimensions,
-  getImageFrame,
+  getLarvitarManager,
+  getLarvitarImageLoader,
   getSeriesData,
-  getLarvitarManager
+  getCustomImageId,
+  getImageFrame
 } from "./imaging/loaders/commonLoader";
 
 import {
   nrrdManager,
   nrrdImageTracker,
-  loadImageWithOrientation,
+  buildNrrdImage,
   resetNrrdLoader,
+  getNrrdImageId,
   removeSeriesFromNrrdManager,
-  populateNrrdManager,
+  getSeriesDataFromNrrdLoader,
   loadNrrdImage,
   getImageIdFromSlice,
-  getSliceNumberFromImageId
+  getSliceNumberFromImageId,
+  getNrrdSerieDimensions
 } from "./imaging/loaders/nrrdLoader";
 
 import {
@@ -124,16 +129,18 @@ import {
   resetImageLoader,
   resetDicomManager,
   removeSeriesFromDicomManager,
+  getSeriesDataFromDicomLoader,
   populateDicomManager,
-  getDicomImageId
+  getDicomImageId,
+  cacheImages
 } from "./imaging/loaders/dicomLoader";
 
 import {
   fileManager,
   resetFileLoader,
   resetFileManager,
-  getFileImageId,
-  populateFileManager
+  populateFileManager,
+  getFileImageId
 } from "./imaging/loaders/fileLoader";
 
 import {
@@ -147,14 +154,18 @@ import {
 import { saveAnnotations, loadAnnotations } from "./imaging/tools/tools.io";
 
 export {
+  // global cornerstone variables
   cornerstone,
   cornerstoneTools,
-  DEFAULT_TOOLS,
-  getDefaultToolsByType,
+  // larvitar store
+  initLarvitarStore,
+  larvitar_store,
+  // image_utils
   getNormalOrientation,
   getMinPixelValue,
   getMaxPixelValue,
   getPixelRepresentation,
+  getTypedArrayFromDataType,
   getPixelTypedArray,
   getSortedStack,
   getTagValue,
@@ -165,39 +176,85 @@ export {
   getDistanceBetweenSlices,
   parseImageId,
   remapVoxel,
-  parseContours,
-  cacheAndSaveSerie,
+  // image_io
+  buildVolume,
   buildHeader,
   buildData,
   importNRRDImage,
+  // image_layers
   getMainLayer,
   loadImageLayers,
   changeOpacityLayer,
   updateImageLayer,
+  // image_loading
   initializeImageLoader,
   initializeWebImageLoader,
   initializeFileImageLoader,
   registerNRRDImageLoader,
   registerResliceLoader,
   updateLoadedStack,
+  // image_parsing
   resetImageParsing,
   readFiles,
+  // image_rendering
   clearImageCache,
+  renderFileImage,
+  renderWebImage,
   disableViewport,
   unloadViewport,
   resizeViewport,
-  renderFileImage,
-  renderWebImage,
   renderImage,
   reloadImage,
   updateImage,
-  resliceSeries,
   resetViewports,
-  enableMouseHandlers,
-  initializeCSTools,
-  addTool,
-  csToolsCreateStack,
-  addDefaultTools,
+  updateViewportData,
+  toggleMouseHandlers,
+  storeViewportData,
+  // image_reslice
+  resliceSeries,
+  cleanResliceStore,
+  // image_colormaps
+  getColormapsList,
+  applyColorMap,
+  addColorMap,
+  fillPixelData,
+  HSVToRGB,
+  // image_contours
+  parseContours,
+  // loaders/commonLoader
+  getLarvitarManager,
+  getLarvitarImageLoader,
+  getSeriesData,
+  getCustomImageId,
+  getImageFrame,
+  // loaders/nrrdLoader
+  nrrdManager,
+  nrrdImageTracker,
+  buildNrrdImage,
+  resetNrrdLoader,
+  getNrrdImageId,
+  removeSeriesFromNrrdManager,
+  getSeriesDataFromNrrdLoader,
+  loadNrrdImage,
+  getImageIdFromSlice,
+  getSliceNumberFromImageId,
+  getNrrdSerieDimensions,
+  // loaders/dicomLoader
+  dicomManager,
+  resetImageLoader,
+  resetDicomManager,
+  removeSeriesFromDicomManager,
+  getSeriesDataFromDicomLoader,
+  populateDicomManager,
+  getDicomImageId,
+  cacheImages,
+  // loaders/fileLoader
+  fileManager,
+  resetFileLoader,
+  resetFileManager,
+  populateFileManager,
+  getFileImageId,
+  // image_tools
   addDiameterTool,
   addContoursTool,
   addMaskEditingTool,
@@ -205,10 +262,6 @@ export {
   addStackStateToElement,
   addSeedsTool,
   clearMeasurements,
-  setToolActive,
-  setToolDisabled,
-  setToolEnabled,
-  setToolPassive,
   getToolState,
   clearToolStateByName,
   updateDiameterTool,
@@ -216,42 +269,23 @@ export {
   clearCornerstoneElements,
   syncToolStack,
   updateStackToolState,
-  getCustomImageId,
-  getSerieDimensions,
-  getImageFrame,
-  getSeriesData,
-  loadImageWithOrientation,
-  nrrdManager,
-  nrrdImageTracker,
-  resetNrrdLoader,
-  removeSeriesFromNrrdManager,
-  populateNrrdManager,
-  loadNrrdImage,
-  getImageIdFromSlice,
-  getSliceNumberFromImageId,
-  dicomManager,
-  resetImageLoader,
-  resetDicomManager,
-  getLarvitarManager,
-  removeSeriesFromDicomManager,
-  populateDicomManager,
-  getDicomImageId,
-  larvitar_store,
-  initLarvitarStore,
-  getColormapsList,
-  applyColorMap,
-  addColorMap,
-  fillPixelData,
-  HSVToRGB,
-  fileManager,
-  resetFileLoader,
-  resetFileManager,
-  populateFileManager,
-  getFileImageId,
-  saveAnnotations,
-  loadAnnotations,
-  exportAnnotations,
   setSegmentationConfig,
+  // tools.main
+  csToolsCreateStack,
   csToolsUpdateImageIndex,
-  setDefaultToolsProps
+  initializeCSTools,
+  addDefaultTools,
+  addTool,
+  setToolActive,
+  setToolDisabled,
+  setToolEnabled,
+  setToolPassive,
+  exportAnnotations,
+  // tools.default
+  DEFAULT_TOOLS,
+  getDefaultToolsByType,
+  setDefaultToolsProps,
+  // tools.io
+  saveAnnotations,
+  loadAnnotations
 };

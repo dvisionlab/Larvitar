@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<<html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
     <link
@@ -8,44 +8,24 @@
       integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
       crossorigin="anonymous"
     />
-    <title>Larvitar - Basic rendering example</title>
+    <title>Larvitar - Default Tools example</title>
   </head>
 
-  <body width="100%" height="100%">
-    <section>
-      <div width="100%" height="100%" style="background-color: black">
-        <div
-          id="viewer"
-          style="
-            color: white;
-            display: inline-block;
-            background-color: rgb(0, 0, 0);
-            width: 49.5%;
-            height: 500px;
-            vertical-align: top;
-          "
-        >
-          <div>
-            <p>
-              Segment an area by drawing a polyline. Click near an existing
-              point to close, or double click.
-            </p>
-          </div>
-        </div>
-        <div
-          id="app-container-dx"
-          style="
-            display: inline-block;
-            background-color: rgb(255, 255, 255);
-            width: 49.5%;
-            height: 100%;
-          "
-        >
-          <pre><code class="javascript" data-lang="javascript">
-          <p style="font-size:0.8vw;">
+  <body class="h-100" style="background-color: #d7e8e1">
+    <div class="row h-100">
+      <div 
+        id="viewer" 
+        class="col-8  h-100" 
+        style="background-color:black;">
+      </div>
+
+      <div class="col-4  h-100">
+        <pre class="h-100">
+          <code class="javascript" data-lang="javascript">
+          <p style="font-size:0.6vw;">
             let demoFiles = [];
             let counter = 0;
-      
+
             const getDemoFileNames = function () {
               let demoFileList = [];
               for (let i = 1; i < 25; i++) {
@@ -54,13 +34,13 @@
               }
               return demoFileList;
             };
-      
+
             // init all
             larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
             larvitar.initializeCSTools();
             larvitar.larvitar_store.addViewport("viewer");
-      
+
             async function createFile(fileName, cb) {
               let response = await fetch("./demo/" + fileName);
               let data = await response.blob();
@@ -71,7 +51,7 @@
                 cb();
               }
             }
-      
+
             function renderSerie() {
               larvitar.resetImageParsing();
               larvitar.readFiles(demoFiles, function (seriesStack, err) {
@@ -81,22 +61,22 @@
                 // override some default tools props before adding
                 larvitar.setDefaultToolsProps([
                   { name: "Wwwc", defaultActive: false },
-                  { name: "PolylineScissors", defaultActive: true }
+                  { name: "Brush", defaultActive: true }
                 ]);
                 larvitar.addDefaultTools();
               });
             }
-      
+
             let demoFileList = getDemoFileNames();
-      
             _.each(demoFileList, function (demoFile) {
               createFile(demoFile, renderSerie);
             });
-        </p>
-        </code></pre>
-        </div>
+          </p>
+          </code>
+        </pre>
       </div>
-    </section>
+
+    </div>
 
     <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
@@ -140,14 +120,13 @@
           // override some default tools props before adding
           larvitar.setDefaultToolsProps([
             { name: "Wwwc", defaultActive: false },
-            { name: "PolylineScissors", defaultActive: true }
+            { name: "Brush", defaultActive: true }
           ]);
           larvitar.addDefaultTools();
         });
       }
 
       let demoFileList = getDemoFileNames();
-
       _.each(demoFileList, function (demoFile) {
         createFile(demoFile, renderSerie);
       });

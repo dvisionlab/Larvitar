@@ -17,6 +17,7 @@ export var fileManager = {};
 
 /*
  * This module provides the following functions to be exported:
+ * resetFileLoader()
  * resetFileManager()
  * populateFileManager(file)
  * getFileImageId(file)
@@ -26,7 +27,6 @@ export var fileManager = {};
  * Reset the Custom File Loader
  * @instance
  * @function resetFileLoader
- * @param {String} elementId The Id of the html element
  */
 export const resetFileLoader = function () {
   clearCornerstoneElements();
@@ -50,7 +50,6 @@ export const resetFileManager = function () {
  * @return {String} current file image id
  */
 export const populateFileManager = function (file) {
-  // TODO USE CUSTOM UUID AS FUNCTION ARGUMENT
   let uuid = file.webkitRelativePath || file.name;
   if (!has(fileManager, uuid)) {
     const imageId = cornerstoneFileImageLoader.fileManager.add(file);
@@ -65,7 +64,6 @@ export const populateFileManager = function (file) {
  * @return {String} current file image id
  */
 export const getFileImageId = function (file) {
-  // TODO USE CUSTOM UUID AS FUNCTION ARGUMENT
   let uuid = file.webkitRelativePath || file.name;
   const imageId = has(fileManager, uuid) ? fileManager[uuid] : null;
   return imageId;

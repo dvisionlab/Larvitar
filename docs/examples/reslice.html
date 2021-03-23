@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
     <link
@@ -8,46 +8,30 @@
       integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
       crossorigin="anonymous"
     />
-    <title>Larvitar - Basic rendering example</title>
+    <title>Larvitar - Reslice rendering example</title>
   </head>
 
-  <body width="100%" height="100%">
-    <section>
-      <div width="100%" height="100%" style="background-color: black">
-        <div
-          id="viewer-base"
-          style="
-            display: inline-block;
-            background-color: rgba(0, 255, 55, 0.151);
-            width: 35%;
-            height: 500px;
-            vertical-align: top;
-          "
-        ></div>
-        <div
-        id="viewer-reslice"
-        style="
-          display: inline-block;
-          background-color: rgba(0, 255, 55, 0.151);
-          width: 35%;
-          height: 500px;
-          vertical-align: top;
-        "
-        ></div>
-        <div
-          id="app-container-dx"
-          style="
-            display: inline-block;
-            background-color: rgb(255, 255, 255);
-            width: 28%;
-            height: 100%;
-          "
-        >
-          <pre><code class="javascript" data-lang="javascript">
-          <p style="font-size:0.8vw;">
+  <body class="h-100" style="background-color: #d7e8e1">
+    <div class="row h-100">
+      <div class = "col-8  h-100">
+        <div 
+        id="viewer-base" 
+        class="col-12  h-50" 
+        style="background-color:black;">
+      </div>
+      <div 
+        id="viewer-reslice" 
+        class="col-12  h-50" 
+        style="background-color:black;">
+      </div>
+    </div>
+    <div class="col-4  h-100">
+      <pre class="h-100">
+        <code class="javascript" data-lang="javascript">
+        <p style="font-size:0.6vw;">
           let demoFiles = [];
           let counter = 0;
-    
+
           const getDemoFileNames = function () {
             let demoFileList = [];
             for (let i = 1; i < 25; i++) {
@@ -56,7 +40,7 @@
             }
             return demoFileList;
           };
-    
+
           // init all
           larvitar.initLarvitarStore();
           larvitar.initializeImageLoader();
@@ -75,32 +59,36 @@
               cb();
             }
           }
-    
+
           function renderSerie() {
             larvitar.resetImageParsing();
             larvitar.readFiles(demoFiles, function (seriesStack, err) {
               // render the first series of the study
               let seriesId = _.keys(seriesStack)[0];
               let serie = seriesStack[seriesId];
-              larvitar.resliceSeries(seriesId, serie, "coronal", function(data){
-                larvitar.renderImage(data, "viewer-reslice")
+              larvitar.resliceSeries(serie, "coronal", function(data) {
                 larvitar.renderImage(serie, "viewer-base");
+                larvitar.renderImage(data, "viewer-reslice");
                 larvitar.addDefaultTools();
-                larvitar.setToolActive(larvitar.larvitar_store.state.leftMouseHandler)
+                larvitar.setToolActive(
+                  larvitar.larvitar_store.state.leftMouseHandler
+                  );
+                larvitar.cleanResliceStore();
               });
             });
-          }    
-    
+          }
+
           let demoFileList = getDemoFileNames();
-    
           _.each(demoFileList, function (demoFile) {
             createFile(demoFile, renderSerie);
           });
         </p>
-        </code></pre>
-        </div>
-      </div>
-    </section>
+        </code>
+      </pre>
+    </div>
+
+
+    </div>
 
     <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
@@ -143,17 +131,19 @@
           // render the first series of the study
           let seriesId = _.keys(seriesStack)[0];
           let serie = seriesStack[seriesId];
-          larvitar.resliceSeries(seriesId, serie, "coronal", function(data) {
+          larvitar.resliceSeries(serie, "coronal", function(data) {
             larvitar.renderImage(serie, "viewer-base");
             larvitar.renderImage(data, "viewer-reslice");
             larvitar.addDefaultTools();
-            larvitar.setToolActive(larvitar.larvitar_store.state.leftMouseHandler);
+            larvitar.setToolActive(
+              larvitar.larvitar_store.state.leftMouseHandler
+              );
+            larvitar.cleanResliceStore();
           });
         });
       }
 
       let demoFileList = getDemoFileNames();
-
       _.each(demoFileList, function (demoFile) {
         createFile(demoFile, renderSerie);
       });

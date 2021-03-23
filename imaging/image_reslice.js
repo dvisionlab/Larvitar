@@ -18,19 +18,19 @@ export var RESLICED_DATA = null;
 /*
  * This module provides the following functions to be exported:
  * resliceSeries(seriesId, seriesData, orientation, callback)
+ * cleanResliceStore()
  */
 
 /**
  * Reslice a serie from native orientation to coronal or sagittal orientation
  * @instance
  * @function resliceSeries
- * @param {String} seriesId the original series id
  * @param {Object} seriesData the original series data
  * @param {String} orientation the reslice orientation [coronal or sagittal]
  * @param {String} seriesId the series id
  * @return {Object} cornerstone data
  */
-export function resliceSeries(seriesId, seriesData, orientation, callback) {
+export function resliceSeries(seriesData, orientation, callback) {
   let reslicedSeries = {};
   let reslicedSeriesId = uuidv4();
   let reslicedMetaData = getReslicedMetadata(
@@ -72,4 +72,13 @@ export function resliceSeries(seriesId, seriesData, orientation, callback) {
   cacheImages(seriesData, function () {
     computeReslice(seriesData, reslicedSeriesId, reslicedSeries, callback);
   });
+}
+
+/**
+ * Clean the temporary store for custom WADO Image Loader
+ * @instance
+ * @function cleanResliceStore
+ */
+export function cleanResliceStore() {
+  RESLICED_DATA = null;
 }
