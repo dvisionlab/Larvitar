@@ -1,6 +1,5 @@
 /** @module imaging/parsing
  *  @desc  This file provides functionalities for parsing DICOM image files
- *  @todo Document usage
  */
 
 // external libraries
@@ -169,7 +168,7 @@ let dumpFile = function (file, callback) {
           let imageObject = {
             // metadata
             metadata: {
-              // series identifiers //TODO
+              // series identifiers
               seriesUID: seriesInstanceUID, // series uid
               instanceUID: instanceUID, // instance uid
 

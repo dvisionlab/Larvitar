@@ -20,7 +20,7 @@ yarn-error.log*
 *.sw?
 
 # JsDocs templates directory
-/template/*
+template/docdash/
 
 # Boundles
 /dist

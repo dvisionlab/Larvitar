@@ -1,9 +1,6 @@
-/* eslint-disable no-prototype-builtins */ // for dev
-
 /** @module imaging/tools
  *  @desc This file provides functionalities for
  *        interacting with cornerstone tools
- *  @todo Document
  */
 
 // external libraries
@@ -200,10 +197,7 @@ export const addMaskEditingTool = function (mask, callback, targetViewport) {
  */
 export const setSegmentationConfig = function (config) {
   let { configuration } = cornerstoneTools.getModule("segmentation");
-
   extend(configuration, config);
-
-  // TODO try if this is equivalent:
   let enabledElements = cornerstone.getEnabledElements();
   each(enabledElements, el => {
     cornerstone.updateImage(el.element);
@@ -609,7 +603,6 @@ export const clearCornerstoneElements = function () {
   var enabledElements = cornerstone.getEnabledElements();
   var inMemElements = cloneDeep(enabledElements); // copy before modifying
   each(inMemElements, el => {
-    // cornerstoneTools.clearToolState(el.element, "Seeds"); // this reset all seeds TODO remove ?
     each(DEFAULT_TOOLS, function (tool) {
       if (tool.cleanable) {
         cornerstoneTools.clearToolState(el.element, tool.name);

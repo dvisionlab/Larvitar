@@ -1,7 +1,6 @@
 /** @module imaging/utils
  *  @desc This file provides utility functions for
  *        manipulating image pixels and image metadata
- *  @todo Document
  */
 
 // external libraries
@@ -555,7 +554,6 @@ export const getCmprMetadata = function (
       x00080018: instanceId,
       x00020003: instanceId,
       x00200013: f + 1,
-      // TODO
       // x00201041: getReslicedSliceLocation(reslicedIOP, reslicedIPP), // Slice Location
       // x00100010: sampleMetadata.x00100010,
       // x00081030: sampleMetadata.x00081030,
@@ -1014,7 +1012,6 @@ let getReslicedIPP = function (
   fromSpacing
 ) {
   // compute resliced ipp
-  // TODO test synch and rl
   let reslicedIPP = [];
 
   // iop data

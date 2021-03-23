@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <title>Larvitar - Color Maps rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #d7e8e1">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-8 h-100"
+        style="background-color: black"
+      ></div>
+
+      <div class="col-4 h-100">
+        <pre class="h-100">
+          <code class="javascript" data-lang="javascript">
+          <p style="font-size:0.6vw;">
+            let demoFiles = [];
+            let counter = 0;
+
+            const getDemoFileNames = function () {
+              let demoFileList = [];
+              for (let i = 1; i < 25; i++) {
+                let filename = "anon" + i;
+                demoFileList.push(filename);
+              }
+              return demoFileList;
+            };
+
+            // init all
+            larvitar.initLarvitarStore();
+            larvitar.initializeImageLoader();
+            larvitar.initializeCSTools();
+            larvitar.larvitar_store.addViewport("viewer");
+
+            async function createFile(fileName, cb) {
+              let response = await fetch("./demo/" + fileName);
+              let data = await response.blob();
+              let file = new File([data], fileName);
+              demoFiles.push(file);
+              counter++;
+              if (counter == 24) {
+                cb();
+              }
+            }
+
+            function renderSerie() {
+              larvitar.resetImageParsing();
+              larvitar.readFiles(demoFiles, function (seriesStack, err) {
+                // render the first series of the study
+                let seriesId = _.keys(seriesStack)[0];
+                let serie = seriesStack[seriesId];
+                larvitar.renderImage(serie, "viewer");
+                larvitar.addDefaultTools();
+                larvitar.setToolActive(
+                  larvitar.larvitar_store.state.leftMouseHandler
+                );
+                // normally you should watch loading status in larvitar store
+                setTimeout(function () {
+                  larvitar.applyColorMap("jet");
+                }, 1000);
+              });
+            }
+
+            let demoFileList = getDemoFileNames();
+            _.each(demoFileList, function (demoFile) {
+              createFile(demoFile, renderSerie);
+            });
+          </p>
+          </code>
+        </pre>
+      </div>
+    </div>
+
+    <script src="../../dist/larvitar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+
+    <script>
+      let demoFiles = [];
+      let counter = 0;
+
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+
+      // init all
+      larvitar.initLarvitarStore();
+      larvitar.initializeImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.larvitar_store.addViewport("viewer");
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 24) {
+          cb();
+        }
+      }
+
+      function renderSerie() {
+        larvitar.resetImageParsing();
+        larvitar.readFiles(demoFiles, function (seriesStack, err) {
+          // render the first series of the study
+          let seriesId = _.keys(seriesStack)[0];
+          let serie = seriesStack[seriesId];
+          larvitar.renderImage(serie, "viewer");
+          larvitar.addDefaultTools();
+          larvitar.setToolActive(
+            larvitar.larvitar_store.state.leftMouseHandler
+          );
+          // normally you should watch loading status in larvitar store
+          setTimeout(function () {
+            larvitar.applyColorMap("jet");
+          }, 1000);
+        });
+      }
+
+      let demoFileList = getDemoFileNames();
+      _.each(demoFileList, function (demoFile) {
+        createFile(demoFile, renderSerie);
+      });
+    </script>
+  </body>
+</html>
+
+<!-- <div
+          id="app-container-dx"
+          style="
+            display: inline-block;
+            background-color: rgb(255, 255, 255);
+            width: 49.5%;
+            height: 100%;
+          "
+        >
+          <pre><code class="javascript" data-lang="javascript">
+          <p style="font-size:0.8vw;">
+          let demoFiles = [];
+          let counter = 0;
+    
+          const getDemoFileNames = function () {
+            let demoFileList = [];
+            for (let i = 1; i < 25; i++) {
+              let filename = "anon" + i;
+              demoFileList.push(filename);
+            }
+            return demoFileList;
+          };
+    
+          // init all
+          larvitar.initLarvitarStore();
+          larvitar.initializeImageLoader();
+          larvitar.initializeCSTools();
+          larvitar.larvitar_store.addViewport("viewer")
+
+          async function createFile(fileName, cb) {
+            let response = await fetch("./demo/" + fileName);
+            let data = await response.blob();
+            let file = new File([data], fileName);
+            demoFiles.push(file);
+            counter++;
+            if (counter == 24) {
+              cb();
+            }
+          }
+    
+          function renderSerie() {
+            larvitar.resetImageParsing();
+            larvitar.readFiles(demoFiles, function (seriesStack, err) {
+              // render the first series of the study
+              let seriesId = _.keys(seriesStack)[0];
+              let serie = seriesStack[seriesId];
+              console.log(serie);
+              larvitar.renderImage(serie, "viewer");
+              larvitar.addDefaultTools();
+              larvitar.setToolActive(larvitar.larvitar_store.state.leftMouseHandler)
+            });
+          }
+    
+          let demoFileList = getDemoFileNames();
+    
+          _.each(demoFileList, function (demoFile) {
+            createFile(demoFile, renderSerie);
+          });
+        </p>
+        </code></pre>
+        </div> -->

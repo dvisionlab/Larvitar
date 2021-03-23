@@ -1,6 +1,5 @@
 /** @module imaging/io
- *  @desc This file provides i/o functionalities on DICOM series
- *  @todo Document
+ *  @desc This file provides I/O functionalities on NRRD files and DICOM images
  */
 
 // external libraries

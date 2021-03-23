@@ -1,7 +1,6 @@
 /** @module imaging/rendering
  *  @desc  This file provides functionalities for
  *         rendering images in html canvas using cornerstone
- *  @todo Document
  */
 
 import cornerstone from "cornerstone-core";
@@ -10,9 +9,9 @@ import { each } from "lodash";
 /*
  * This module provides the following functions to be exported:
  * getColormapsList()
- * applyColorMap(colormapId)
  * addColorMap(colormapId, colormapName, colors)
  * fillPixelData(canvas, colormapId)
+ * applyColorMap(colormapId)
  * HSVToRGB(hue, sat, val)
  */
 
@@ -86,7 +85,7 @@ export function fillPixelData(canvas, colormapId) {
  * Apply a color map on a viewport
  * @instance
  * @function applyColorMap
- * @param {} todo - todo
+ * @param {String} colormapId - the colormap name
  */
 export function applyColorMap(colormapId) {
   let enabledElements = cornerstone.getEnabledElements();

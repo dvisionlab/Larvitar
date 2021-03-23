@@ -1,7 +1,6 @@
 /** @module loaders/commonLoader
  *  @desc This file provides functionalities for
  *        custom WadoImageLoaders
- *  @todo Document
  */
 
 // external libraries

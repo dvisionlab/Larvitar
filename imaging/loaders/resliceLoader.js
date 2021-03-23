@@ -1,7 +1,6 @@
 /** @module loaders/resliceLoader
  *  @desc This file provides functionalities for
  *        custom Reslice Loader
- *  @todo Document
  */
 
 // external libraries

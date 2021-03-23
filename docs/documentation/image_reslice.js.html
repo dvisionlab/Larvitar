@@ -53,7 +53,6 @@
             <pre class="prettyprint source linenums"><code>/** @module imaging/reslice
  *  @desc  This file provides functionalities for
  *         image reslice in orthogonal directions
- *  @todo Document
  */
 
 // external libraries
@@ -115,7 +114,6 @@ export function resliceSeries(seriesData, orientation, callback) {
     reslicedSeries.seriesUID = reslicedSeriesId;
     reslicedSeries.seriesDescription = seriesData.seriesDescription;
     RESLICED_DATA = clone(reslicedSeries.instances);
-    // TODO CLEAN TEMP RESLICED_DATA
     let t1 = performance.now();
     console.log(`Call to resliceSeries took ${t1 - t0} milliseconds.`);
     callback(reslicedSeries);

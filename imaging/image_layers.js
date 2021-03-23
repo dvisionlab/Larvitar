@@ -1,7 +1,6 @@
 /** @module imaging/layers
  *  @desc This file provides functionalities for
  *        rendering image layers using cornerstone stack
- *  @todo Document
  */
 
 // external libraries

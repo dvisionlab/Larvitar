@@ -1,7 +1,6 @@
 /** @module loaders/dicomLoader
  *  @desc This file provides functionalities for
  *        custom DICOM Loader
- *  @todo Document
  */
 
 // external libraries
