@@ -620,12 +620,14 @@ export const storeViewportData = function (
   larvitar_store.set("defaultViewport", [
     elementId,
     viewport.scale,
+    viewport.rotation,
     viewport.translation.x,
     viewport.translation.y,
     defaultWW,
     defaultWC
   ]);
   larvitar_store.set("scale", [elementId, viewport.scale]);
+  larvitar_store.set("rotation", [elementId, viewport.rotation]);
   larvitar_store.set("translation", [
     elementId,
     viewport.translation.x,

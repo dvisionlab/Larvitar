@@ -22,11 +22,11 @@ const DEFAULT_VIEWPORT = {
   maxPixelValue: 0,
   viewport: {
     scale: 0.0,
+    rotation: 0.0,
     translation: {
       x: 0.0,
       y: 0.0
     },
-    rotation: 0.0,
     voi: {
       windowCenter: 0.0,
       windowWidth: 0.0
@@ -34,6 +34,7 @@ const DEFAULT_VIEWPORT = {
   },
   default: {
     scale: 0.0,
+    rotation: 0.0,
     translation: {
       x: 0.0,
       y: 0.0
@@ -209,14 +210,15 @@ class Larvitar_Store {
         this.state["viewports"][data[0]]["sliceId"] = data[1];
       } else if (field == "defaultViewport") {
         this.state["viewports"][data[0]]["default"]["scale"] = data[1];
+        this.state["viewports"][data[0]]["default"]["rotation"] = data[2];
         this.state["viewports"][data[0]]["default"]["translation"]["x"] =
-          data[2];
-        this.state["viewports"][data[0]]["default"]["translation"]["y"] =
           data[3];
-        this.state["viewports"][data[0]]["default"]["voi"]["windowWidth"] =
+        this.state["viewports"][data[0]]["default"]["translation"]["y"] =
           data[4];
-        this.state["viewports"][data[0]]["default"]["voi"]["windowCenter"] =
+        this.state["viewports"][data[0]]["default"]["voi"]["windowWidth"] =
           data[5];
+        this.state["viewports"][data[0]]["default"]["voi"]["windowCenter"] =
+          data[6];
       } else if (field == "manager") {
         this.state.manager = data;
       } else {
@@ -237,8 +239,10 @@ class Larvitar_Store {
    */
   get(...args) {
     if (this.VUEX_STORE) {
-      let _args = this.vuex_module ? args.unshift(this.vuex_module) : args;
-      return _get(this.vuex_store.state, _args, "error");
+      if (this.vuex_module) {
+        args.unshift(this.vuex_module);
+      }
+      return _get(this.vuex_store.state, args, "error");
     } else {
       return _get(this.state, args, "error");
     }

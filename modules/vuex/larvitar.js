@@ -18,11 +18,11 @@ const DEFAULT_VIEWPORT = {
   maxPixelValue: 0,
   viewport: {
     scale: 0.0,
+    rotation: 0.0,
     translation: {
       x: 0.0,
       y: 0.0
     },
-    rotation: 0.0,
     voi: {
       windowCenter: 0.0,
       windowWidth: 0.0
@@ -34,7 +34,6 @@ const DEFAULT_VIEWPORT = {
       x: 0.0,
       y: 0.0
     },
-    rotation: 0.0,
     voi: {
       windowCenter: 0.0,
       windowWidth: 0.0
@@ -94,21 +93,22 @@ export default {
       commit("viewport", { id, d: { minPixelValue } }),
     setMaxPixelValue: ({ commit }, [id, maxPixelValue]) =>
       commit("viewport", { id, d: { maxPixelValue } }),
-    setMinSliceNumber: ({ commit }, [id, minSliceNumber]) =>
-      commit("viewport", { id, d: { minSliceNumber } }),
-    setMaxSliceNumber: ({ commit }, [id, maxSliceNumber]) =>
-      commit("viewport", { id, d: { maxSliceNumber } }),
-    setCurrentSliceNumber: ({ commit }, [id, sliceId]) =>
+    setMinSliceId: ({ commit }, [id, minSliceId]) =>
+      commit("viewport", { id, d: { minSliceId } }),
+    setMaxSliceId: ({ commit }, [id, maxSliceId]) =>
+      commit("viewport", { id, d: { maxSliceId } }),
+    setSliceId: ({ commit }, [id, sliceId]) =>
       commit("viewport", { id, d: { sliceId } }),
     setDefaultViewport: (
       { commit },
-      [id, scale, x, y, windowWidth, windowCenter]
+      [id, scale, rotation, x, y, windowWidth, windowCenter]
     ) =>
       commit("viewport", {
         id,
         d: {
           default: {
             scale,
+            rotation,
             translation: { x, y },
             voi: { windowWidth, windowCenter }
           }
