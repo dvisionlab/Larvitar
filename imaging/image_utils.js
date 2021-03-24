@@ -480,7 +480,9 @@ export const getReslicedMetadata = function (
       // new image orientation
       x00200037: reslicedIOP,
       // new image position
-      x00200032: reslicedIPP
+      x00200032: reslicedIPP,
+      x00280106: sampleMetadata.x00280106,
+      x00280107: sampleMetadata.x00280107
     });
 
     // set human readable metadata

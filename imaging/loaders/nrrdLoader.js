@@ -18,6 +18,7 @@ import {
 
 import { getImageFrame } from "./commonLoader";
 import { clearImageCache } from "../image_rendering";
+import { larvitar_store } from "../image_store";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -157,6 +158,9 @@ export const buildNrrdImage = function (volume, seriesId, custom_header) {
   let ww = maxVoi - minVoi;
   let wl = (maxVoi + minVoi) / 2;
 
+  metadata.x00280106 = minMax.min;
+  metadata.x00280107 = minMax.max;
+
   // extract the pixelData of each frame, store the data into the image object
   each(range(frames), function (sliceIndex) {
     let sliceSize = rows * cols;
@@ -168,8 +172,8 @@ export const buildNrrdImage = function (volume, seriesId, custom_header) {
     let typedArray = getTypedArrayFromDataType(r);
     let pixelData = new typedArray(sliceBuffer);
     // assign these values to the metadata of all images
-    metadata.x00281050 = [wl];
-    metadata.x00281051 = [ww];
+    metadata.x00281050 = wl;
+    metadata.x00281051 = ww;
 
     let imageId = getNrrdImageId("nrrdLoader");
     nrrdImageTracker[imageId] = seriesId;
