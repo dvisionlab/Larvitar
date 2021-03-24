@@ -4,7 +4,11 @@ import { initLarvitarStore, larvitar_store } from "./imaging/image_store";
 
 import { parseContours } from "./imaging/image_contours";
 
-import { getImagePresets, setImagePreset } from "./imaging/image_presets";
+import {
+  getImagePresets,
+  setImagePreset,
+  setImageCustomPreset
+} from "./imaging/image_presets";
 
 import {
   getNormalOrientation,
@@ -165,6 +169,7 @@ export {
   // image_presets
   getImagePresets,
   setImagePreset,
+  setImageCustomPreset,
   // image_utils
   getNormalOrientation,
   getMinPixelValue,

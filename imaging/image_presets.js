@@ -14,6 +14,7 @@ import { larvitar_store } from "./image_store";
  * This module provides the following functions to be exported:
  * getImagePresets()
  * setImagePreset(name)
+ * setImageCustomPreset(viewportNames, customValues)
  */
 
 /**
@@ -49,6 +50,35 @@ export const setImagePreset = function (viewportNames, preset_name) {
     let viewport = cornerstone.getViewport(element);
     viewport.voi.windowWidth = image_preset.ww;
     viewport.voi.windowCenter = image_preset.wl;
+    cornerstone.setViewport(element, viewport);
+    // sync ww and wc values in store
+    larvitar_store.set("contrast", [
+      viewportName,
+      viewport.voi.windowWidth,
+      viewport.voi.windowCenter
+    ]);
+  });
+};
+
+/**
+ * Set Image presets
+ * @instance
+ * @function setImageCustomPreset
+ * @param {Array} viewportNames - List of viewports where to apply preset
+ * @param {Object} customValues - {wl: value, ww: value}
+ */
+export const setImageCustomPreset = function (viewportNames, customValues) {
+  if (!Array.isArray(viewportNames)) {
+    console.error(
+      "Invalid parameter, viewportNames has to be an array of viewport names."
+    );
+    return;
+  }
+  each(viewportNames, function (viewportName) {
+    let element = document.getElementById(viewportName);
+    let viewport = cornerstone.getViewport(element);
+    viewport.voi.windowWidth = customValues.ww;
+    viewport.voi.windowCenter = customValues.wl;
     cornerstone.setViewport(element, viewport);
     // sync ww and wc values in store
     larvitar_store.set("contrast", [
