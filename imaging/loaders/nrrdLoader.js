@@ -47,6 +47,7 @@ export var nrrdImageTracker = {};
  * @return {Object} volume data
  */
 export const buildNrrdImage = function (volume, seriesId, custom_header) {
+  larvitar_store.set("manager", "nrrdManager");
   let t0 = performance.now();
   // standard image structure
   let image = {};
