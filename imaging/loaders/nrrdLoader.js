@@ -1,7 +1,6 @@
 /** @module loaders/nrrdLoader
  *  @desc This file provides functionalities for
  *        custom NRRD Loader
- *  @todo Document
  */
 
 // external libraries

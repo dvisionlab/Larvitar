@@ -1,7 +1,6 @@
 /** @module loaders/fileLoader
  *  @desc This file provides functionalities for
  *        custom File Loader
- *  @todo Document
  */
 
 // external libraries

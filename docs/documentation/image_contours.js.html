@@ -53,7 +53,6 @@
             <pre class="prettyprint source linenums"><code>/** @module imaging/contours
  *  @desc This file provides functionalities to render a set of points on a canvas.
  *        Use this in order to render image contours (e.g. from binary masks).
- *  @todo Document "contours" object (raw and parsed)
  */
 
 // external libraries
@@ -63,6 +62,53 @@ import { each, range } from "lodash";
  * This module provides the following functions to be exported:
  * parseContours(contoursData,pointBatchSize,segmentationName, viewports)
  */
+
+/**
+ * Parse raw data to contours object for each viewport
+ * @export
+ * @function parseContours
+ * @param {Array} contoursData - Raw data
+ * @param {Number} pointBatchSize - Number of points that defines a contour segment (default to 2)
+ * @param {String} segmentationName - Mask object name
+ * @param {Array} viewports - Viewport array ids
+ * @returns {Number} Number of array elements consumed
+ */
+
+export const parseContours = function (
+  contoursData,
+  pointBatchSize,
+  segmentationName,
+  viewports
+) {
+  let contours = {};
+  each(viewports, viewport => {
+    contour[viewport] = {};
+    contour[viewport][segmentationName] = [];
+    let points = contoursData[viewport];
+
+    if (!points) {
+      return;
+    }
+
+    let numberOfSlices = points[0];
+    points = points.slice(1);
+
+    each(range(numberOfSlices), function () {
+      let sliceSize = extractSlicePoints(
+        contours,
+        pointBatchSize,
+        points,
+        segmentationName,
+        viewport
+      );
+      points = points.slice(sliceSize);
+    });
+  });
+
+  return contours;
+};
+
+/* Internal module functions */
 
 /**
  * From raw data, fill cornerstone tool data structure for ContoursTool for a single slice
@@ -198,51 +244,6 @@ const extractSlicePoints = function (
   }
 
   return 2 + numberOfPoints;
-};
-
-/**
- * Parse raw data to contours object for each viewport
- * @export
- * @function parseContours
- * @param {Array} contoursData - Raw data
- * @param {Number} pointBatchSize - Number of points that defines a contour segment (default to 2)
- * @param {String} segmentationName - Mask object name
- * @param {Array} viewports - Viewport array ids
- * @returns {Number} Number of array elements consumed
- */
-
-export const parseContours = function (
-  contoursData,
-  pointBatchSize,
-  segmentationName,
-  viewports
-) {
-  let contours = {};
-  each(viewports, viewport => {
-    contour[viewport] = {};
-    contour[viewport][segmentationName] = [];
-    let points = contoursData[viewport];
-
-    if (!points) {
-      return;
-    }
-
-    let numberOfSlices = points[0];
-    points = points.slice(1);
-
-    each(range(numberOfSlices), function () {
-      let sliceSize = extractSlicePoints(
-        contours,
-        pointBatchSize,
-        points,
-        segmentationName,
-        viewport
-      );
-      points = points.slice(sliceSize);
-    });
-  });
-
-  return contours;
 };
 </code></pre>
         </article>

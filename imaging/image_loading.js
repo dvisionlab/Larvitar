@@ -1,7 +1,6 @@
 /** @module imaging/loading
  *  @desc This file provides functionalities for
  *        initialize, configure and update WadoImageLoader
- *  @todo Document global config obj
  */
 
 // external libraries
@@ -21,9 +20,9 @@ import { loadReslicedImage } from "./loaders/resliceLoader";
  * Global standard configuration
  * @inner
  * @var {Object} globalConfig
- * @property {Number} maxWebWorkers - ...
- * @property {String} webWorkerPath - ...
- * @property {} ... -...
+ * @property {Number} maxWebWorkers - number of maximum web workers
+ * @property {String} webWorkerPath - path to default WADO web worker
+ * @property {} - see https://github.com/cornerstonejs/cornerstoneWADOImageLoader/blob/master/docs/WebWorkers.md
  */
 const globalConfig = {
   maxWebWorkers: navigator.hardwareConcurrency || 1,

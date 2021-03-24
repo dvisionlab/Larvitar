@@ -1,7 +1,6 @@
 /** @module imaging/store
  *  @desc This file provides functionalities
  *        for data config store.
- *  @todo Document
  */
 
 // external libraries
