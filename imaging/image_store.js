@@ -201,11 +201,11 @@ class Larvitar_Store {
         this.state["viewports"][data[0]]["ready"] = data[1];
       } else if (field == "loadingProgress") {
         this.state["viewports"][data[0]]["loading"] = data[1];
-      } else if (field == "minSliceNumber") {
+      } else if (field == "minSliceId") {
         this.state["viewports"][data[0]]["minSliceId"] = data[1];
-      } else if (field == "maxSliceNumber") {
+      } else if (field == "maxSliceId") {
         this.state["viewports"][data[0]]["maxSliceId"] = data[1];
-      } else if (field == "currentSliceNumber") {
+      } else if (field == "sliceId") {
         this.state["viewports"][data[0]]["sliceId"] = data[1];
       } else if (field == "defaultViewport") {
         this.state["viewports"][data[0]]["default"]["scale"] = data[1];

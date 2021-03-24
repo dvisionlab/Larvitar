@@ -623,7 +623,7 @@ export const toggleMouseHandlers = function (elementId, disable) {
     let cix =
       enabledElement.toolStateManager.toolState.stack.data[0]
         .currentImageIdIndex;
-    larvitar_store.set("currentSliceNumber", [evt.target.id, cix + 1]);
+    larvitar_store.set("sliceId", [evt.target.id, cix + 1]);
   }
 
   element.removeEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
@@ -666,9 +666,9 @@ export const storeViewportData = function (
   larvitar_store.set("thickness", [elementId, thickness]);
   larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
   larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
-  larvitar_store.set("minSliceNumber", [elementId, 1]);
-  larvitar_store.set("currentSliceNumber", [elementId, imageIndex]);
-  larvitar_store.set("maxSliceNumber", [elementId, numberOfSlices]);
+  larvitar_store.set("minSliceId", [elementId, 1]);
+  larvitar_store.set("sliceId", [elementId, imageIndex]);
+  larvitar_store.set("maxSliceId", [elementId, numberOfSlices]);
   larvitar_store.set("defaultViewport", [
     elementId,
     viewport.scale,
