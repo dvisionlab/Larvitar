@@ -22,6 +22,7 @@ This library provides common dicom functionalities to be used in web-application
 - `image_layers` provide support for multi-layer cornerstone fusion renderer
 - `image_loading` initialize loader and custom loaders
 - `image_parsing` parse dicom files and return a cornestone data structure ready to be used for rendering
+- `image_presets` provides default image CT presets and set functionality
 - `image_rendering` provides rendering functionalities
 - `image_reslice` provides reslice functionalities
 - `image_store` provides data storage functionalities, vuex support is integrated
