@@ -171,6 +171,29 @@ export const resizeViewport = function (elementId) {
   cornerstone.resize(element, true); // true flag forces fitToWindow
 };
 
+export const renderFrame = function (series, elementId) {
+  // let t0 = performance.now();
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  cornerstone.enable(element);
+
+  // if not, return TODO
+  console.log(series);
+  // TODO estrarre i metadati corretti
+
+  each(series.imageIds, function (imageId) {
+    console.log(imageId);
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
+      console.log(image);
+    });
+  });
+};
+
 /**
  * Cache image and render it in a html div using cornerstone
  * @instance

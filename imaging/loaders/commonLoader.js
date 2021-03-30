@@ -17,6 +17,11 @@ import {
   getSeriesDataFromDicomLoader,
   dicomManager
 } from "./dicomLoader";
+import {
+  getMultiFrameImageId,
+  getSeriesDataFromMultiFrameLoaderLoader,
+  multiFrameManager
+} from "./multiframeLoader";
 import { fileManager } from "./fileLoader";
 import { larvitar_store } from "../image_store";
 
@@ -45,6 +50,9 @@ export const getLarvitarManager = function () {
       break;
     case "nrrdManager":
       manager = nrrdManager;
+      break;
+    case "multiFrameManager":
+      manager = multiFrameManager;
       break;
     case "fileManager":
       manager = fileManager;
@@ -101,6 +109,9 @@ export const getSeriesData = function (seriesId, loaderName) {
     case "nrrdLoader":
       data = getSeriesDataFromNrrdLoader(seriesId);
       break;
+    case "multiFrameLoader":
+      data = getSeriesDataFromMultiFrameLoaderLoader(seriesId);
+      break;
     default:
       console.warn("no matching loader");
       data = null;
@@ -126,6 +137,9 @@ export const getCustomImageId = function (loaderName) {
       break;
     case "nrrdLoader":
       imageId = getNrrdImageId(loaderName);
+      break;
+    case "multiFrameLoader":
+      imageId = getMultiFrameImageId(loaderName);
       break;
     default:
       console.warn("no matching loader");

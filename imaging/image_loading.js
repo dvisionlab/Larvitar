@@ -15,6 +15,7 @@ import { forEach } from "lodash";
 import { getSortedStack } from "./image_utils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
+import { loadMultiFrameImage } from "./loaders/multiframeLoader";
 
 /**
  * Global standard configuration
@@ -105,6 +106,15 @@ export const registerResliceLoader = function () {
 };
 
 /**
+ * Register custom MultiFrame ImageLoader
+ * @instance
+ * @function registerMultiFrameImageLoader
+ */
+export const registerMultiFrameImageLoader = function () {
+  cornerstone.registerImageLoader("multiFrameLoader", loadMultiFrameImage);
+};
+
+/**
  * Update the allSeriesStack object using wadoImageLoader fileManager
  * @instance
  * @function updateLoadedStack
@@ -128,7 +138,7 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
     };
   }
 
-  // if the parsed file is a new series insatence, keep it
+  // if the parsed file is a new series instance, keep it
   if (isNewInstance(allSeriesStack[sid].instances, iid)) {
     // generate an imageId for the file and store it
     // in allSeriesStack imageIds array, used by
@@ -142,7 +152,8 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
     allSeriesStack[sid].instances[imageId] = {
       pixelData: seriesData.pixelData,
       metadata: seriesData.metadata,
-      file: seriesData.file
+      file: seriesData.file,
+      dataSet: seriesData.dataSet
     };
     // order images in stack
     allSeriesStack[sid].imageIds = getSortedStack(

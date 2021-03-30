@@ -150,11 +150,22 @@ let dumpFile = function (file, callback) {
     let dataSet;
     try {
       dataSet = parseDicom(byteArray);
-      let seriesInstanceUID = getTagValue(dataSet, "x0020000e");
+      let numberOfFrames = getTagValue(dataSet, "x00280008");
+      let isMultiframe = numberOfFrames > 1 ? true : false;
+      // Overwrite SOPInstanceUID to manage multiframes.
+      // Usually different SeriesInstanceUID means different series and that value
+      // is used into the application to group different instances into the same series,
+      // but if a DICOM file contains a multiframe series, then the SeriesInstanceUID
+      // can be shared by other files of the same study.
+      // In multiframe cases, the SOPInstanceUID (unique) is used as SeriesInstanceUID.
+      let seriesInstanceUID = isMultiframe
+        ? getTagValue(dataSet, "x00080018")
+        : getTagValue(dataSet, "x0020000e");
       let pixelSpacing = getTagValue(dataSet, "x00280030");
       let imageOrientation = getTagValue(dataSet, "x00200037");
       let imagePosition = getTagValue(dataSet, "x00200032");
       let sliceThickness = getTagValue(dataSet, "x00180050");
+
       if (dataSet.warnings.length > 0) {
         // warnings
         callback(null, dataSet.warnings);
@@ -164,7 +175,9 @@ let dumpFile = function (file, callback) {
         if (pixelDataElement) {
           // done, pixelData found
           let pixelData = getPixelTypedArray(dataSet, pixelDataElement);
+          // TODO instanceUID has to change for multiframe
           let instanceUID = getTagValue(dataSet, "x00080018") || randomId();
+
           let imageObject = {
             // metadata
             metadata: {
@@ -196,6 +209,8 @@ let dumpFile = function (file, callback) {
               rows: getTagValue(dataSet, "x00280010"),
               cols: getTagValue(dataSet, "x00280011"),
               numberOfSlices: getTagValue(dataSet, "x00540081"),
+              numberOfFrames: numberOfFrames,
+
               windowCenter: getTagValue(dataSet, "x00281050"),
               windowWidth: getTagValue(dataSet, "x00281051"),
               minPixelValue: getMinPixelValue(
@@ -325,9 +340,9 @@ let dumpFile = function (file, callback) {
               repr: getPixelRepresentation(dataSet)
             },
             pixelData: pixelData,
-
             // data needed for rendering
-            file: file
+            file: file,
+            dataSet: dataSet
           };
           callback(imageObject);
         } else {

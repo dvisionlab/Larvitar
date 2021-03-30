@@ -48,6 +48,7 @@ import {
   initializeFileImageLoader,
   registerNRRDImageLoader,
   registerResliceLoader,
+  registerMultiFrameImageLoader,
   updateLoadedStack
 } from "./imaging/image_loading";
 
@@ -61,6 +62,7 @@ import {
   unloadViewport,
   resizeViewport,
   renderImage,
+  renderFrame,
   reloadImage,
   updateImage,
   resetViewports,
@@ -142,6 +144,16 @@ import {
 } from "./imaging/loaders/dicomLoader";
 
 import {
+  multiFrameManager,
+  multiFrameImageTracker,
+  buildMultiFrameImage,
+  loadMultiFrameImage,
+  resetMultiFrameLoader,
+  getMultiFrameImageId,
+  getSeriesDataFromMultiFrameLoaderLoader
+} from "./imaging/loaders/multiframeLoader";
+
+import {
   fileManager,
   resetFileLoader,
   resetFileManager,
@@ -202,6 +214,7 @@ export {
   initializeFileImageLoader,
   registerNRRDImageLoader,
   registerResliceLoader,
+  registerMultiFrameImageLoader,
   updateLoadedStack,
   // image_parsing
   resetImageParsing,
@@ -214,6 +227,7 @@ export {
   unloadViewport,
   resizeViewport,
   renderImage,
+  renderFrame,
   reloadImage,
   updateImage,
   resetViewports,
@@ -258,6 +272,14 @@ export {
   populateDicomManager,
   getDicomImageId,
   cacheImages,
+  // loaders/multiFrameLoader
+  multiFrameManager,
+  multiFrameImageTracker,
+  buildMultiFrameImage,
+  loadMultiFrameImage,
+  resetMultiFrameLoader,
+  getMultiFrameImageId,
+  getSeriesDataFromMultiFrameLoaderLoader,
   // loaders/fileLoader
   fileManager,
   resetFileLoader,
