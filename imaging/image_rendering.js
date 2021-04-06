@@ -183,13 +183,16 @@ export const renderFrame = function (series, elementId) {
   cornerstone.enable(element);
 
   // if not, return TODO
-  console.log(series);
-  // TODO estrarre i metadati corretti
+
+  let currentImageId = "multiFrameLoader://0?frame=1";
 
   each(series.imageIds, function (imageId) {
-    console.log(imageId);
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
       console.log(image);
+      if (imageId == currentImageId) {
+        cornerstone.displayImage(element, image);
+        cornerstone.fitToWindow(element);
+      }
     });
   });
 };

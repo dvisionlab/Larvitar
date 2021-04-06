@@ -351,6 +351,7 @@ let dumpFile = function (file, callback) {
         }
       }
     } catch (err) {
+      console.log(err);
       callback(null, "can not read this file.");
     }
   };

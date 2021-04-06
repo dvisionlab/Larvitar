@@ -4,16 +4,22 @@
  */
 
 // external libraries
+import dicomParser from "dicom-parser";
+
 import {
+  difference,
   isEmpty,
   sortBy,
   clone,
   has,
+  keys,
   max,
   map,
+  mapValues,
   forEach,
   extend,
   indexOf,
+  isObject,
   random
 } from "lodash";
 import { v4 as uuidv4 } from "uuid";
@@ -767,6 +773,158 @@ export function remapVoxel([i, j, k], fromOrientation, toOrientation) {
   return ijk;
 }
 
+export function extractMultiframeTagValue(metadata, tag, frameNumber) {
+  if (!metadata) {
+    return null;
+  }
+
+  var tagValue;
+
+  switch (tag) {
+    // image position patient
+    case "x00200032":
+      var perFrameSequence = metadata.x52009230;
+      if (
+        perFrameSequence &&
+        perFrameSequence[frameNumber] &&
+        perFrameSequence[frameNumber].x00209113 &&
+        perFrameSequence[frameNumber].x00209113[0]
+      ) {
+        var planePositionSequenceItem =
+          perFrameSequence[frameNumber].x00209113[0];
+        tagValue = planePositionSequenceItem[tag];
+      }
+      break;
+    // image orientation patient
+    case "x00200037":
+      var sharedSequence = metadata.x52009229;
+      if (
+        sharedSequence &&
+        sharedSequence[0] &&
+        sharedSequence[0].x00209116 &&
+        sharedSequence[0].x00209116[0]
+      ) {
+        var planeOrientationSequenceItem = sharedSequence[0].x00209116[0];
+        tagValue = planeOrientationSequenceItem[tag];
+      }
+      break;
+    // slice thickness
+    case "x00180050":
+    // pixel spacing
+    case "x00280030":
+      var sharedSequence = metadata.x52009229;
+      if (
+        sharedSequence &&
+        sharedSequence[0] &&
+        sharedSequence[0].x00289110 &&
+        sharedSequence[0].x00289110[0]
+      ) {
+        var pixelMeasuresSqeuenceItem = sharedSequence[0].x00289110[0];
+        tagValue = pixelMeasuresSqeuenceItem[tag];
+      }
+      break;
+    // window width and level
+    case "x00281050":
+    case "x00281051":
+      var sharedSequence = metadata.x52009229;
+      if (
+        sharedSequence &&
+        sharedSequence[0] &&
+        sharedSequence[0].x00289132 &&
+        sharedSequence[0].x00289132[0]
+      ) {
+        var frameVOILUTSequenceItem = sharedSequence[0].x00289132[0];
+        tagValue = frameVOILUTSequenceItem[tag];
+      }
+      break;
+    case "x00281052":
+    case "x00281053":
+      var sharedSequence = metadata.x52009229;
+      if (
+        sharedSequence &&
+        sharedSequence[0] &&
+        sharedSequence[0].x00289145 &&
+        sharedSequence[0].x00289145[0]
+      ) {
+        var pixelValueTransformationSequenceItem =
+          sharedSequence[0].x00289145[0];
+        tagValue = pixelValueTransformationSequenceItem[tag];
+      }
+      break;
+  }
+
+  return tagValue;
+}
+
+// Extract parsed DICOM tags from a dataSet
+// VR info http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_6.2.html
+export function dumpDataSet(dataSet, attrs, frameNumber) {
+  // if !dataSet.elements return empty obj
+  if (!dataSet.elements) {
+    return {};
+  }
+
+  var options = {
+    omitPrivateAttibutes: false,
+    maxElementLength: 128
+  };
+  var instance = dicomParser.explicitDataSetToJS(dataSet, options, getDICOMTag);
+
+  // filter by required attrs
+  if (attrs) {
+    // always parse the numberOfFrames attribute, this is needed to correctly
+    // extract multiframe tags
+    attrs.push("x00280008");
+    var omitAttrs = difference(keys(dataSet.elements), attrs);
+    instance = omit(instance, omitAttrs);
+  }
+
+  // manage multiframe tags needed to implement the viewer functionalities
+  if (frameNumber !== undefined) {
+    if (!attrs || has(instance, "x00200032")) {
+      instance.x00200032 = extractMultiframeTagValue(
+        instance,
+        "x00200032",
+        frameNumber
+      );
+    }
+
+    if (!attrs || has(instance, "x00200037")) {
+      instance.x00200037 = extractMultiframeTagValue(instance, "x00200037");
+    }
+
+    if (!attrs || has(instance, "x00180050")) {
+      instance.x00180050 = extractMultiframeTagValue(instance, "x00180050");
+    }
+
+    if (!attrs || has(instance, "x00280030")) {
+      instance.x00280030 = extractMultiframeTagValue(instance, "x00280030");
+    }
+
+    if (!attrs || has(instance, "x00281050")) {
+      instance.x00281050 = extractMultiframeTagValue(instance, "x00281050");
+    }
+
+    if (!attrs || has(parsedInsinstancetance, "x00281051")) {
+      instance.x00281051 = extractMultiframeTagValue(instance, "x00281051");
+    }
+
+    if (!attrs || has(instance, "x00281052")) {
+      instance.x00281052 = extractMultiframeTagValue(instance, "x00281052");
+    }
+
+    if (!attrs || has(parsedIinstancenstance, "x00281053")) {
+      instance.x00281053 = extractMultiframeTagValue(instance, "x00281053");
+    }
+  }
+
+  // convert all tag values into more usable formats
+  var parsedInstance = mapValues(instance, function (value, key) {
+    return parseTag(dataSet, key, value);
+  });
+  return parsedInstance;
+}
+
 /* Internal module functions */
 
 /**
@@ -1186,4 +1344,268 @@ const TYPES_TO_TYPEDARRAY = {
 
   float: Float32Array,
   double: Float64Array
+};
+
+const isValidDate = function (d) {
+  return d instanceof Date && !isNaN(d);
+};
+
+// TODO
+const parseTag = function (dataSet, attr, element, subItems) {
+  // do not parse undefined elements
+  if (element === undefined) {
+    return element;
+  }
+
+  var tagData = dataSet.elements[attr] || {};
+  var vr = tagData.vr;
+  if (!vr) {
+    // use dicom dict to get VR
+    var tag = getDICOMTag(attr);
+    if (tag && tag.vr) {
+      vr = tag.vr;
+    } else {
+      return element;
+    }
+  }
+
+  // do not parse elements already converted into objects
+  // (see the dicomParser.explicitDataSetToJS function call)
+  if (isObject(element) && has(element, "dataOffset")) {
+    if (isStringVr(vr) && element.length === 0) {
+      // show an empty string instead of the detail object for undefined string tags
+      return "";
+    } else {
+      return "length=" + element.length + "; offset=" + element.dataOffset;
+    }
+  }
+
+  var value;
+  var subItems = subItems || {};
+
+  if (isStringVr(vr)) {
+    // We ask the dataset to give us the element's data in string form.
+    // Most elements are strings but some aren't so we do a quick check
+    // to make sure it actually has all ascii characters so we know it is
+    // reasonable to display it.
+    var str = element.toString();
+    if (str === undefined) {
+      return element;
+    } else {
+      // the string will be undefined if the element is present but has no data
+      // (i.e. attribute is of type 2 or 3) so we only display the string if it has
+      // data. Note that the length of the element will be 0 to indicate "no data"
+      // so we don't put anything here for the value in that case.
+      value = str;
+    }
+
+    // A string of characters representing an Integer in base-10 (decimal),
+    // shall contain only the characters 0 - 9, with an optional leading "+" or "-".
+    // It may be padded with leading and/or trailing spaces. Embedded spaces
+    // are not allowed. The integer, n, represented shall be in the range:
+    // -231 <= n <= (231 - 1).
+    if (vr === "IS") {
+      value = parseInt(value);
+    }
+    // A string of characters representing either a fixed point number
+    // or a floating point number. A fixed point number shall contain only
+    // the characters 0-9 with an optional leading "+" or "-" and an optional "."
+    // to mark the decimal point. A floating point number shall be conveyed
+    // as defined in ANSI X3.9, with an "E" or "e" to indicate the start
+    // of the exponent. Decimal Strings may be padded with leading or trailing spaces.
+    // Embedded spaces are not allowed.
+    else if (vr === "DS") {
+      value = value.split("\\").map(Number);
+    }
+    // A string of characters of the format YYYYMMDD; where YYYY shall contain year,
+    // MM shall contain the month, and DD shall contain the day,
+    // interpreted as a date of the Gregorian calendar system.
+    else if (vr === "DA") {
+      value = parseDateTag(value, false);
+    }
+    // A concatenated date-time character string in the format:
+    // YYYYMMDDHHMMSS.FFFFFF
+    else if (vr === "DT") {
+      value = parseDateTimeTag(value);
+    }
+    // A string of characters of the format HHMMSS.FFFFFF; where HH contains hours
+    // (range "00" - "23"), MM contains minutes (range "00" - "59"),
+    // SS contains seconds (range "00" - "60"), and FFFFFF contains a fractional
+    // part of a second as small as 1 millionth of a second (range "000000" - "999999").
+    else if (vr === "TM") {
+      value = parseTimeTag(value);
+    }
+
+    // PatientName tag value is: "LastName^FirstName^MiddleName".
+    // Spaces inside each name component are permitted. If you don't know
+    // any of the three components, just leave it empty.
+    // Actually you may even append a name prefix (^professor) and
+    // a name suffix (^senior) so you have a maximum of 5 components.
+    else if (vr == "PN") {
+      value = parsePatientNameTag(value);
+    }
+
+    // A string of characters with one of the following formats
+    // -- nnnD, nnnW, nnnM, nnnY; where nnn shall contain the number of days for D,
+    // weeks for W, months for M, or years for Y.
+    else if (vr == "AS") {
+      value = parseAgeTag(value);
+    }
+
+    // A string of characters with leading or trailing spaces (20H) being non-significant.
+    else if (vr === "CS") {
+      if (attr === "x00041500") {
+        value = parseDICOMFileIDTag(value);
+      } else {
+        value = value.split("\\").join(", ");
+      }
+    }
+  } else if (vr === "US") {
+    value = dataSet.uint16(attr);
+  } else if (vr === "SS") {
+    value = dataSet.int16(attr);
+  } else if (vr === "UL") {
+    value = dataSet.uint32(attr);
+  } else if (vr === "SL") {
+    value = dataSet.int32(attr);
+  } else if (vr == "FD") {
+    value = dataSet.double(attr);
+  } else if (vr == "FL") {
+    value = dataSet.float(attr);
+  } else if (
+    vr === "OB" ||
+    vr === "OW" ||
+    vr === "UN" ||
+    vr === "OF" ||
+    vr === "UT"
+  ) {
+    // If it is some other length and we have no string
+    if (element.length === 2) {
+      value =
+        "binary data of length " +
+        element.length +
+        " as uint16: " +
+        dataSet.uint16(attr);
+    } else if (element.length === 4) {
+      value =
+        "binary data of length " +
+        element.length +
+        " as uint32: " +
+        dataSet.uint32(attr);
+    } else {
+      value = "binary data of length " + element.length + " and VR " + vr;
+    }
+  } else if (vr === "AT") {
+    var group = dataSet.uint16(attr, 0);
+    if (group) {
+      var groupHexStr = ("0000" + group.toString(16)).substr(-4);
+      var elm = dataSet.uint16(attr, 1);
+      var elmHexStr = ("0000" + elm.toString(16)).substr(-4);
+      value = "x" + groupHexStr + elmHexStr;
+    } else {
+      value = "";
+    }
+  } else if (vr === "SQ") {
+    // parse the nested tags
+    var subTags = map(element, function (obj) {
+      return map(obj, function (v, k) {
+        return parseTag(dataSet, k, v);
+      });
+    });
+
+    value = subTags;
+  } else {
+    // If it is some other length and we have no string
+    value = "no display code for VR " + vr;
+  }
+
+  return value;
+};
+
+const isStringVr = function (vr) {
+  // vr can be a string of concatenated vrs
+  vr = vr || "";
+  vr = vr.split("|")[0];
+
+  if (
+    vr === "AT" ||
+    vr === "FL" ||
+    vr === "FD" ||
+    vr === "OB" ||
+    vr === "OF" ||
+    vr === "OW" ||
+    vr === "SI" ||
+    vr === "SQ" ||
+    vr === "SS" ||
+    vr === "UL" ||
+    vr === "US"
+  ) {
+    return false;
+  }
+  return true;
+};
+
+const parseDateTag = function (tagValue) {
+  if (!tagValue) return;
+  let year = tagValue.substring(0, 4);
+  let month = tagValue.substring(4, 6);
+  let day = tagValue.substring(6, 8);
+  let date = new Date(year, month - 1, day);
+  if (isValidDate(date) === true) {
+    return date.toISOString();
+  } else {
+    return tagValue;
+  }
+};
+
+const parseDateTimeTag = function (tagValue) {
+  if (!tagValue) return;
+  let year = tagValue.substring(0, 4);
+  let month = tagValue.substring(4, 6);
+  let day = tagValue.substring(6, 8);
+  let hour = tagValue.substring(8, 10);
+  let min = tagValue.substring(10, 12);
+  let sec = tagValue.substring(12, 14);
+  let msec = tagValue.substring(15, 21);
+  let date = new Date(year, month - 1, day, hour, min, sec, msec);
+  if (isValidDate(date) === true) {
+    return date.toISOString();
+  } else {
+    return tagValue;
+  }
+};
+
+const parseTimeTag = function (tagValue) {
+  if (!tagValue) return;
+  let hour = tagValue.substring(0, 2);
+  let min = tagValue.substring(2, 4);
+  let sec = tagValue.substring(4, 6);
+  let msec = tagValue.substring(7, 13) ? tagValue.substring(7, 13) : "0";
+  let result = hour + ":" + min + ":" + sec + "." + msec;
+  return result;
+};
+
+const parsePatientNameTag = function (tagValue) {
+  if (!tagValue) return;
+  return tagValue.replace(/\^/gi, " ");
+};
+
+// parse age value: 000Y = 0 years
+const parseAgeTag = function (tagValue) {
+  if (!tagValue) return;
+  let regs = /(\d{3})(D|W|M|Y)/gim.exec(tagValue);
+  if (regs) {
+    return parseInt(regs[1]) + " " + regs[2];
+  }
+};
+
+const parseDICOMFileIDTag = function (tagValue) {
+  // The DICOM File Service does not specify any "separator" between
+  // the Components of the File ID. This is a Value Representation issue that
+  // may be addressed in a specific manner by each Media Format Layer.
+  // In DICOM IODs, File ID Components are generally handled as multiple
+  // Values and separated by "backslashes".
+  // There is no requirement that Media Format Layers use this separator.
+  if (!tagValue) return;
+  return tagValue.split("\\").join(path.sep);
 };
