@@ -13,7 +13,8 @@ import {
   getPixelTypedArray,
   getPixelRepresentation,
   getTagValue,
-  randomId
+  randomId,
+  parseTag
 } from "./image_utils.js";
 import { updateLoadedStack } from "./image_loading.js";
 
@@ -58,6 +59,33 @@ export const readFiles = function (entries, callback) {
 };
 
 /* Internal module functions */
+
+// helper function to see if a string only has ascii characters in it
+const isASCII = function (str) {
+  return /^[\x00-\x7F]*$/.test(str);
+};
+
+/** TODO */
+// This function iterates through dataSet recursively and adds new HTML strings
+// to the output array passed into it
+let dumpDataSet = function (dataSet) {
+  let metadata = {};
+  // the dataSet.elements object contains properties for each element parsed.  The name of the property
+  // is based on the elements tag and looks like 'xGGGGEEEE' where GGGG is the group number and EEEE is the
+  // element number both with lowercase hexadecimal letters.  For example, the Series Description DICOM element 0008,103E would
+  // be named 'x0008103e'.  Here we iterate over each property (element) so we can build a string describing its
+  // contents to add to the output array
+  try {
+    for (let propertyName in dataSet.elements) {
+      let element = dataSet.elements[propertyName];
+      let tagValue = parseTag(dataSet, propertyName, element);
+      metadata[propertyName] = tagValue;
+    }
+    return metadata;
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 /**
  * Manage the parsing process waiting for the parsed object before proceeding with the next parse request
@@ -150,11 +178,12 @@ let dumpFile = function (file, callback) {
     let dataSet;
     try {
       dataSet = parseDicom(byteArray);
+      console.log(dataSet);
+      let metadata = dumpDataSet(dataSet);
 
-      // TODO change this and use
-      // https://rawgit.com/cornerstonejs/dicomParser/master/examples/dragAndDropDump/index.html
+      console.log(metadata);
 
-      let numberOfFrames = getTagValue(dataSet, "x00280008");
+      let numberOfFrames = metadata["x00280008"];
       let isMultiframe = numberOfFrames > 1 ? true : false;
       // Overwrite SOPInstanceUID to manage multiframes.
       // Usually different SeriesInstanceUID means different series and that value
@@ -163,12 +192,12 @@ let dumpFile = function (file, callback) {
       // can be shared by other files of the same study.
       // In multiframe cases, the SOPInstanceUID (unique) is used as SeriesInstanceUID.
       let seriesInstanceUID = isMultiframe
-        ? getTagValue(dataSet, "x00080018")
-        : getTagValue(dataSet, "x0020000e");
-      let pixelSpacing = getTagValue(dataSet, "x00280030");
-      let imageOrientation = getTagValue(dataSet, "x00200037");
-      let imagePosition = getTagValue(dataSet, "x00200032");
-      let sliceThickness = getTagValue(dataSet, "x00180050");
+        ? metadata["x00080018"]
+        : metadata["x0020000e"];
+      let pixelSpacing = metadata["x00280030"];
+      let imageOrientation = metadata["x00200037"];
+      let imagePosition = metadata["x00200032"];
+      let sliceThickness = metadata["x00180050"];
 
       if (dataSet.warnings.length > 0) {
         // warnings
@@ -179,188 +208,50 @@ let dumpFile = function (file, callback) {
         if (pixelDataElement) {
           // done, pixelData found
           let pixelData = getPixelTypedArray(dataSet, pixelDataElement);
-          // TODO instanceUID has to change for multiframe
-          let instanceUID = getTagValue(dataSet, "x00080018") || randomId();
+          let instanceUID = metadata["x00080018"] || randomId();
 
           let imageObject = {
-            // metadata
-            metadata: {
-              // series identifiers
-              seriesUID: seriesInstanceUID, // series uid
-              instanceUID: instanceUID, // instance uid
-
-              // study UUID and Accession Number
-              studyUID: getTagValue(dataSet, "x00200010"), // study uuid
-              accessionNumber: getTagValue(dataSet, "x00080050"), // accession Number
-              studyDescription: getTagValue(dataSet, "x00081030"), // study description
-
-              // data displayed in imaging overlay page
-              patientName: getTagValue(dataSet, "x00100010"), // patient name
-              patientBirthdate: getTagValue(dataSet, "x00100030"), // patient birthdate
-              seriesDescription: getTagValue(dataSet, "x0008103e"), // series desc
-              seriesDate: getTagValue(dataSet, "x00080021"), // series date
-              seriesModality: getTagValue(dataSet, "x00080060").toLowerCase(), // series modality
-
-              // data needed for displaing
-              intercept: getTagValue(dataSet, "x00281052"),
-              slope: getTagValue(dataSet, "x00281053"),
-
-              // data needed for reslicing
-              pixelSpacing: pixelSpacing,
-              sliceThickness: sliceThickness,
-              imageOrientation: imageOrientation,
-              imagePosition: imagePosition,
-              rows: getTagValue(dataSet, "x00280010"),
-              cols: getTagValue(dataSet, "x00280011"),
-              numberOfSlices: getTagValue(dataSet, "x00540081"),
-              numberOfFrames: numberOfFrames,
-
-              windowCenter: getTagValue(dataSet, "x00281050"),
-              windowWidth: getTagValue(dataSet, "x00281051"),
-              minPixelValue: getMinPixelValue(
-                getTagValue(dataSet, "x00280106"),
-                pixelData
-              ),
-              maxPixelValue: getMaxPixelValue(
-                getTagValue(dataSet, "x00280107"),
-                pixelData
-              ),
-              length: pixelData.length,
-
-              x00020000: getTagValue(dataSet, "x00020000"),
-              x00020001: getTagValue(dataSet, "x00020001"),
-              x00020002: getTagValue(dataSet, "x00020002"),
-              x00020003: getTagValue(dataSet, "x00020003"),
-              x00020010: getTagValue(dataSet, "x00020010"),
-              x00020012: getTagValue(dataSet, "x00020012"),
-              x00020013: getTagValue(dataSet, "x00020013"),
-              x00020016: getTagValue(dataSet, "x00020016"),
-              x00020017: getTagValue(dataSet, "x00020017"),
-              x00020018: getTagValue(dataSet, "x00020018"),
-              x00020100: getTagValue(dataSet, "x00020100"),
-              x00020102: getTagValue(dataSet, "x00020102"),
-              x00041130: getTagValue(dataSet, "x00041130"),
-              x00041141: getTagValue(dataSet, "x00041141"),
-              x00041142: getTagValue(dataSet, "x00041142"),
-              x00041200: getTagValue(dataSet, "x00041200"),
-              x00041202: getTagValue(dataSet, "x00041202"),
-
-              x52009230: getTagValue(dataSet, "x52009230"),
-              // TODO OTHER TAGS
-
-              x00080005: getTagValue(dataSet, "x00080005"),
-              x00080008: getTagValue(dataSet, "x00080008"),
-              x00080012: getTagValue(dataSet, "x00080012"),
-              x00080013: getTagValue(dataSet, "x00080013"),
-              x00080016: getTagValue(dataSet, "x00080016"),
-              x00080018: getTagValue(dataSet, "x00080018") || randomId(),
-              x00080020: getTagValue(dataSet, "x00080020"),
-              x00080021: getTagValue(dataSet, "x00080021"),
-              x00080022: getTagValue(dataSet, "x00080022"),
-              x00080023: getTagValue(dataSet, "x00080023"),
-              // x0008002A: getTagValue(dataSet, "x0008002A"),
-              x00080030: getTagValue(dataSet, "x00080030"),
-              x00080031: getTagValue(dataSet, "x00080031"),
-              x00080032: getTagValue(dataSet, "x00080032"),
-              x00080033: getTagValue(dataSet, "x00080033"),
-              x00080050: getTagValue(dataSet, "x00080050"),
-              x00080060: getTagValue(dataSet, "x00080060").toLowerCase(),
-              x00080070: getTagValue(dataSet, "x00080070"),
-              x00080080: getTagValue(dataSet, "x00080080"),
-              x00080090: getTagValue(dataSet, "x00080090"),
-              x00081010: getTagValue(dataSet, "x00081010"),
-              x00081030: getTagValue(dataSet, "x00081030"),
-              x0008103E: getTagValue(dataSet, "x0008103e"),
-              x00081060: getTagValue(dataSet, "x00081060"),
-              x00081070: getTagValue(dataSet, "x00081070"),
-              x00081090: getTagValue(dataSet, "x00081090"),
-              x00082111: getTagValue(dataSet, "x00082111"),
-              x00100010: getTagValue(dataSet, "x00100010"),
-              x00100020: getTagValue(dataSet, "x00100020"),
-              x00100030: getTagValue(dataSet, "x00100030"),
-              x00101010: getTagValue(dataSet, "x00101010"),
-              x00101030: getTagValue(dataSet, "x00101030"),
-              x00180020: getTagValue(dataSet, "x00180020"),
-              x00180021: getTagValue(dataSet, "x00180021"),
-              x00180022: getTagValue(dataSet, "x00180022"),
-              x00180023: getTagValue(dataSet, "x00180023"),
-              x00180025: getTagValue(dataSet, "x00180025"),
-              x00180050: getTagValue(dataSet, "x00180050"),
-              x00180080: getTagValue(dataSet, "x00180080"),
-              x00180081: getTagValue(dataSet, "x00180081"),
-              x00180082: getTagValue(dataSet, "x00180082"),
-              x00180083: getTagValue(dataSet, "x00180083"),
-              x00180084: getTagValue(dataSet, "x00180084"),
-              x00180085: getTagValue(dataSet, "x00180085"),
-              x00180086: getTagValue(dataSet, "x00180086"),
-              x00180087: getTagValue(dataSet, "x00180087"),
-              x00180088: getTagValue(dataSet, "x00180088"),
-              x00180091: getTagValue(dataSet, "x00180091"),
-              x00180093: getTagValue(dataSet, "x00180093"),
-              x00180094: getTagValue(dataSet, "x00180094"),
-              x00180095: getTagValue(dataSet, "x00180095"),
-              x00181000: getTagValue(dataSet, "x00181000"),
-              x00181020: getTagValue(dataSet, "x00181020"),
-              x00181088: getTagValue(dataSet, "x00181088"),
-              x00181090: getTagValue(dataSet, "x00181094"),
-              x00181100: getTagValue(dataSet, "x00181100"),
-              x00181250: getTagValue(dataSet, "x00181250"),
-              x00181310: getTagValue(dataSet, "x00181310"),
-              x00181312: getTagValue(dataSet, "x00181312"),
-              x00181314: getTagValue(dataSet, "x00181314"),
-              x00181315: getTagValue(dataSet, "x00181315"),
-              x00181316: getTagValue(dataSet, "x00181316"),
-              x00185100: getTagValue(dataSet, "x00185100"),
-              x0020000D: getTagValue(dataSet, "x0020000d"),
-              x0020000E: getTagValue(dataSet, "x0020000e"),
-              x00200010: getTagValue(dataSet, "x00200010"),
-              x00200011: getTagValue(dataSet, "x00200011"),
-              x00200012: getTagValue(dataSet, "x00200012"),
-              x00200013: getTagValue(dataSet, "x00200013"),
-              x00200032: getTagValue(dataSet, "x00200032"),
-              x00200037: getTagValue(dataSet, "x00200037"),
-              x00201002: getTagValue(dataSet, "x00201002"),
-              x00201041: getTagValue(dataSet, "x00201041"),
-              x00280002: getTagValue(dataSet, "x00280002"),
-              x00280004: getTagValue(dataSet, "x00280004"),
-              x00280010: getTagValue(dataSet, "x00280010"),
-              x00280011: getTagValue(dataSet, "x00280011"),
-              x00280030: getTagValue(dataSet, "x00280030"),
-              x00280100: getTagValue(dataSet, "x00280100"),
-              x00280101: getTagValue(dataSet, "x00280101"),
-              x00280102: getTagValue(dataSet, "x00280102"),
-              x00280103: getTagValue(dataSet, "x00280103"),
-              x00280106: getMinPixelValue(
-                getTagValue(dataSet, "x00280106"),
-                pixelData
-              ),
-              x00280107: getMaxPixelValue(
-                getTagValue(dataSet, "x00280107"),
-                pixelData
-              ),
-              x00280120: getTagValue(dataSet, "x00280120"),
-              x00281050: getTagValue(dataSet, "x00281050"),
-              x00281051: getTagValue(dataSet, "x00281051"),
-              x00281052: getTagValue(dataSet, "x00281052"),
-              x00281053: getTagValue(dataSet, "x00281053"),
-              x00080061: getTagValue(dataSet, "x00080061"),
-              x00280008: getTagValue(dataSet, "x00280008"),
-              x00200052: getTagValue(dataSet, "x00200052"),
-              x00280006: getTagValue(dataSet, "x00280006"),
-              x00281101: getTagValue(dataSet, "x00281101"),
-              x00281102: getTagValue(dataSet, "x00281102"),
-              x00281103: getTagValue(dataSet, "x00281103"),
-              x00281201: getTagValue(dataSet, "x00281201"),
-              x00281202: getTagValue(dataSet, "x00281202"),
-              x00281203: getTagValue(dataSet, "x00281203"),
-              x00540081: getTagValue(dataSet, "x00540081"),
-              repr: getPixelRepresentation(dataSet)
-            },
             pixelData: pixelData,
             // data needed for rendering
             file: file,
             dataSet: dataSet
           };
+          imageObject.metadata = metadata;
+          imageObject.metadata.seriesUID = seriesInstanceUID;
+          imageObject.metadata.instanceUID = instanceUID;
+          imageObject.metadata.studyUID = metadata["x00200010"];
+          imageObject.metadata.accessionNumber = metadata["x00080050"];
+          imageObject.metadata.studyDescription = metadata["x00081030"];
+          imageObject.metadata.patientName = metadata["x00100010"];
+          imageObject.metadata.patientBirthdate = metadata["x00100030"];
+          imageObject.metadata.seriesDescription = metadata["x0008103e"];
+          imageObject.metadata.seriesDate = metadata["x00080021"];
+          imageObject.metadata.seriesModality = metadata[
+            "x00080060"
+          ].toLowerCase();
+          imageObject.metadata.intercept = metadata["x00281052"];
+          imageObject.metadata.slope = metadata["x00281053"];
+          imageObject.metadata.pixelSpacing = pixelSpacing;
+          imageObject.metadata.sliceThickness = sliceThickness;
+          imageObject.metadata.imageOrientation = imageOrientation;
+          imageObject.metadata.imagePosition = imagePosition;
+          imageObject.metadata.rows = metadata["x00280010"];
+          imageObject.metadata.cols = metadata["x00280011"];
+          imageObject.metadata.numberOfSlices = metadata["x00540081"];
+          imageObject.metadata.numberOfFrames = numberOfFrames;
+          imageObject.metadata.windowCenter = metadata["x00281050"];
+          imageObject.metadata.windowWidth = metadata["x00281051"];
+          imageObject.metadata.minPixelValue = getMinPixelValue(
+            metadata["x00280106"],
+            pixelData
+          );
+          imageObject.metadata.maxPixelValue = getMaxPixelValue(
+            metadata["x00280107"],
+            pixelData
+          );
+          imageObject.metadata.length = pixelData.length;
+          imageObject.metadata.repr = getPixelRepresentation(dataSet);
+          console.log(imageObject);
           callback(imageObject);
         } else {
           // done, no pixelData

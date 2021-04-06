@@ -787,7 +787,7 @@ export function extractMultiframeTagValue(metadata, tag, frameNumber) {
     // image position patient
     case "x00200032":
       var perFrameSequence = metadata.x52009230;
-      console.log(perFrameSequence)
+      console.log(perFrameSequence);
       if (
         perFrameSequence &&
         perFrameSequence[frameNumber] &&
@@ -896,11 +896,13 @@ export function updateMetadata(metadata, frameNumber) {
   if (has(metadata, "x00281053")) {
     metadata.x00281053 = extractMultiframeTagValue(metadata, "x00281053");
   }
-  // convert all tag values into more usable formats
-  var parsedInstance = mapValues(metadata, function (value, key) {
-    return parseTag(metadata, key, value);
-  });
-  return parsedInstance;
+  console.log(metadata);
+
+  // // convert all tag values into more usable formats
+  // var parsedInstance = mapValues(metadata, function (value, key) {
+  //   return parseTag(metadata, key, value);
+  // });
+  return metadata;
 }
 
 // Extract parsed DICOM tags from a dataSet
@@ -1398,44 +1400,30 @@ const isValidDate = function (d) {
 };
 
 // TODO
-const parseTag = function (dataSet, attr, element, subItems) {
-  // do not parse undefined elements
-  if (element === undefined) {
-    return element;
-  }
-
-  var tagData = dataSet.elements[attr] || {};
+export const parseTag = function (dataSet, propertyName, element) {
+  // GET VR
+  var tagData = dataSet.elements[propertyName] || {};
   var vr = tagData.vr;
   if (!vr) {
     // use dicom dict to get VR
-    var tag = getDICOMTag(attr);
+    var tag = getDICOMTag(propertyName);
     if (tag && tag.vr) {
       vr = tag.vr;
     } else {
+      console.warn("UNDEFINED VR FOR: ", propertyName);
       return element;
     }
   }
 
-  // do not parse elements already converted into objects
-  // (see the dicomParser.explicitDataSetToJS function call)
-  if (isObject(element) && has(element, "dataOffset")) {
-    if (isStringVr(vr) && element.length === 0) {
-      // show an empty string instead of the detail object for undefined string tags
-      return "";
-    } else {
-      return "length=" + element.length + "; offset=" + element.dataOffset;
-    }
-  }
-
+  let subItems = {};
   var value;
-  var subItems = subItems || {};
 
   if (isStringVr(vr)) {
     // We ask the dataset to give us the element's data in string form.
     // Most elements are strings but some aren't so we do a quick check
     // to make sure it actually has all ascii characters so we know it is
     // reasonable to display it.
-    var str = element.toString();
+    var str = dataSet.string(propertyName);
     if (str === undefined) {
       return element;
     } else {
@@ -1501,24 +1489,24 @@ const parseTag = function (dataSet, attr, element, subItems) {
 
     // A string of characters with leading or trailing spaces (20H) being non-significant.
     else if (vr === "CS") {
-      if (attr === "x00041500") {
+      if (propertyName === "x00041500") {
         value = parseDICOMFileIDTag(value);
       } else {
         value = value.split("\\").join(", ");
       }
     }
   } else if (vr === "US") {
-    value = dataSet.uint16(attr);
+    value = dataSet.uint16(propertyName);
   } else if (vr === "SS") {
-    value = dataSet.int16(attr);
+    value = dataSet.int16(propertyName);
   } else if (vr === "UL") {
-    value = dataSet.uint32(attr);
+    value = dataSet.uint32(propertyName);
   } else if (vr === "SL") {
-    value = dataSet.int32(attr);
+    value = dataSet.int32(propertyName);
   } else if (vr == "FD") {
-    value = dataSet.double(attr);
+    value = dataSet.double(propertyName);
   } else if (vr == "FL") {
-    value = dataSet.float(attr);
+    value = dataSet.float(propertyName);
   } else if (
     vr === "OB" ||
     vr === "OW" ||
@@ -1532,21 +1520,21 @@ const parseTag = function (dataSet, attr, element, subItems) {
         "binary data of length " +
         element.length +
         " as uint16: " +
-        dataSet.uint16(attr);
+        dataSet.uint16(propertyName);
     } else if (element.length === 4) {
       value =
         "binary data of length " +
         element.length +
         " as uint32: " +
-        dataSet.uint32(attr);
+        dataSet.uint32(propertyName);
     } else {
       value = "binary data of length " + element.length + " and VR " + vr;
     }
   } else if (vr === "AT") {
-    var group = dataSet.uint16(attr, 0);
+    var group = dataSet.uint16(propertyName, 0);
     if (group) {
       var groupHexStr = ("0000" + group.toString(16)).substr(-4);
-      var elm = dataSet.uint16(attr, 1);
+      var elm = dataSet.uint16(propertyName, 1);
       var elmHexStr = ("0000" + elm.toString(16)).substr(-4);
       value = "x" + groupHexStr + elmHexStr;
     } else {
@@ -1565,7 +1553,6 @@ const parseTag = function (dataSet, attr, element, subItems) {
     // If it is some other length and we have no string
     value = "no display code for VR " + vr;
   }
-
   return value;
 };
 
