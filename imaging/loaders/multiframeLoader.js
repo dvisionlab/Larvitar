@@ -7,7 +7,7 @@ import { each, range } from "lodash";
 import { getImageFrame } from "./commonLoader";
 import { clearImageCache } from "../image_rendering";
 import { larvitar_store } from "../image_store";
-import { dumpDataSet } from "../image_utils";
+import { dumpDataSet, updateMetadata } from "../image_utils";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -23,9 +23,8 @@ export const loadMultiFrameImage = function (imageId) {
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
 
   if (multiframeDatasetCache[rootImageId]) {
-    let metadata = dumpDataSet(
+    let metadata = updateMetadata(
       multiframeDatasetCache[rootImageId],
-      null,
       parsedImageId.frame
     );
     return createCustomImage(
@@ -35,13 +34,14 @@ export const loadMultiFrameImage = function (imageId) {
       metadata
     );
   } else {
-    multiframeDatasetCache[rootImageId] = multiFrameManager[seriesId].dataSet;
+    multiframeDatasetCache[rootImageId] = multiFrameManager[seriesId].metadata;
+    // TODO UPDATE MULTIFRAME METATDATA
     // Extract metadata of the whole multiframe object
-    let metadata = dumpDataSet(
+    let metadata = updateMetadata(
       multiframeDatasetCache[rootImageId],
-      null,
       parsedImageId.frame
     );
+    console.log(metadata);
     return createCustomImage(
       rootImageId,
       imageId,
@@ -60,6 +60,7 @@ export const buildMultiFrameImage = function (seriesId, serie) {
   each(serie.imageIds, function (instanceId) {
     let file = serie.instances[instanceId].file;
     let dataSet = serie.instances[instanceId].dataSet;
+    let metadata = serie.instances[instanceId].metadata;
     let imageId = getMultiFrameImageId("multiFrameLoader");
 
     // check if multiFrameManager exists for this seriesId
@@ -82,6 +83,7 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       };
       multiFrameManager[seriesId].file = file;
       multiFrameManager[seriesId].dataSet = dataSet;
+      multiFrameManager[seriesId].metadata = metadata;
     });
   });
 };
@@ -164,6 +166,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
 
   let promise = new Promise((resolve, reject) => {
     decodePromise.then(function handleDecodeResponse(imageFrame) {
+      console.log(imageFrame);
       let lastImageIdDrawn = "";
 
       // This function uses the pixelData received as argument without manipulating

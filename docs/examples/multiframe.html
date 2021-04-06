@@ -34,9 +34,8 @@
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>
-
       let demoFiles = [];
-   
+
       // init all
       larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
@@ -44,24 +43,29 @@
       larvitar.initializeCSTools();
       larvitar.larvitar_store.addViewport("viewer");
 
-     
-
       function renderSerie() {
         larvitar.resetImageParsing();
         larvitar.readFiles(demoFiles, function (seriesStack, err) {
           // render the first series of the study
           let seriesId = _.keys(seriesStack)[0];
           let serie = seriesStack[seriesId];
-          console.log(serie);
           larvitar.buildMultiFrameImage(seriesId, serie);
           let multiFrameSerie = larvitar.multiFrameManager[seriesId];
-          larvitar.renderFrame(multiFrameSerie, "viewer")
+          larvitar.renderFrame(multiFrameSerie, "viewer");
           // larvitar.renderImage(multiFrameSerie, "viewer");
           // larvitar.renderImage(serie, "viewer");
           larvitar.addDefaultTools();
           larvitar.setToolActive(
             larvitar.larvitar_store.state.leftMouseHandler
           );
+          let index = 0;
+          setTimeout(function () {
+            setInterval(function () {
+              index += 1;
+              console.log(index);
+              larvitar.updateImage(multiFrameSerie, "viewer", index);
+            }, 1000);
+          }, 3000);
         });
       }
 

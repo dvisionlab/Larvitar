@@ -150,6 +150,10 @@ let dumpFile = function (file, callback) {
     let dataSet;
     try {
       dataSet = parseDicom(byteArray);
+
+      // TODO change this and use
+      // https://rawgit.com/cornerstonejs/dicomParser/master/examples/dragAndDropDump/index.html
+
       let numberOfFrames = getTagValue(dataSet, "x00280008");
       let isMultiframe = numberOfFrames > 1 ? true : false;
       // Overwrite SOPInstanceUID to manage multiframes.
@@ -231,6 +235,19 @@ let dumpFile = function (file, callback) {
               x00020012: getTagValue(dataSet, "x00020012"),
               x00020013: getTagValue(dataSet, "x00020013"),
               x00020016: getTagValue(dataSet, "x00020016"),
+              x00020017: getTagValue(dataSet, "x00020017"),
+              x00020018: getTagValue(dataSet, "x00020018"),
+              x00020100: getTagValue(dataSet, "x00020100"),
+              x00020102: getTagValue(dataSet, "x00020102"),
+              x00041130: getTagValue(dataSet, "x00041130"),
+              x00041141: getTagValue(dataSet, "x00041141"),
+              x00041142: getTagValue(dataSet, "x00041142"),
+              x00041200: getTagValue(dataSet, "x00041200"),
+              x00041202: getTagValue(dataSet, "x00041202"),
+
+              x52009230: getTagValue(dataSet, "x52009230"),
+              // TODO OTHER TAGS
+
               x00080005: getTagValue(dataSet, "x00080005"),
               x00080008: getTagValue(dataSet, "x00080008"),
               x00080012: getTagValue(dataSet, "x00080012"),

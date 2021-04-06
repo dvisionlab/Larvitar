@@ -263,6 +263,9 @@ export const getSortedStack = function (
  */
 export const getTagValue = function (dataSet, tag) {
   // tag value rapresentation
+  if (!getDICOMTag(tag)) {
+    return null;
+  }
   let vr = getDICOMTag(tag).vr;
 
   // parse value according to vr map
@@ -784,6 +787,7 @@ export function extractMultiframeTagValue(metadata, tag, frameNumber) {
     // image position patient
     case "x00200032":
       var perFrameSequence = metadata.x52009230;
+      console.log(perFrameSequence)
       if (
         perFrameSequence &&
         perFrameSequence[frameNumber] &&
@@ -854,6 +858,49 @@ export function extractMultiframeTagValue(metadata, tag, frameNumber) {
   }
 
   return tagValue;
+}
+
+export function updateMetadata(metadata, frameNumber) {
+  if (has(metadata, "x00200032")) {
+    metadata.x00200032 = extractMultiframeTagValue(
+      metadata,
+      "x00200032",
+      frameNumber
+    );
+  }
+
+  if (has(metadata, "x00200037")) {
+    metadata.x00200037 = extractMultiframeTagValue(metadata, "x00200037");
+  }
+
+  if (has(metadata, "x00180050")) {
+    metadata.x00180050 = extractMultiframeTagValue(metadata, "x00180050");
+  }
+
+  if (has(metadata, "x00280030")) {
+    metadata.x00280030 = extractMultiframeTagValue(metadata, "x00280030");
+  }
+
+  if (has(metadata, "x00281050")) {
+    metadata.x00281050 = extractMultiframeTagValue(metadata, "x00281050");
+  }
+
+  if (has(metadata, "x00281051")) {
+    metadata.x00281051 = extractMultiframeTagValue(metadata, "x00281051");
+  }
+
+  if (has(metadata, "x00281052")) {
+    metadata.x00281052 = extractMultiframeTagValue(metadata, "x00281052");
+  }
+
+  if (has(metadata, "x00281053")) {
+    metadata.x00281053 = extractMultiframeTagValue(metadata, "x00281053");
+  }
+  // convert all tag values into more usable formats
+  var parsedInstance = mapValues(metadata, function (value, key) {
+    return parseTag(metadata, key, value);
+  });
+  return parsedInstance;
 }
 
 // Extract parsed DICOM tags from a dataSet

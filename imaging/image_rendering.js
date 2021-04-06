@@ -184,7 +184,7 @@ export const renderFrame = function (series, elementId) {
 
   // if not, return TODO
 
-  let currentImageId = "multiFrameLoader://0?frame=1";
+  let currentImageId = "multiFrameLoader://0?frame=0";
 
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
@@ -413,6 +413,7 @@ export const updateImage = function (series, elementId, imageIndex) {
     ? elementId
     : document.getElementById(elementId);
   if (!element) {
+    console.log("not element");
     return;
   }
   let index = imageIndex == 0 ? imageIndex : imageIndex - 1;
