@@ -4,7 +4,7 @@
 
 // external libraries
 import { parseDicom } from "dicom-parser";
-import { forEach } from "lodash";
+import { forEach, has, pick } from "lodash";
 
 // internal libraries
 import {
@@ -12,7 +12,6 @@ import {
   getMaxPixelValue,
   getPixelTypedArray,
   getPixelRepresentation,
-  getTagValue,
   randomId,
   parseTag
 } from "./image_utils.js";
@@ -30,6 +29,7 @@ var allSeriesStack = {};
  * This module provides the following functions to be exported:
  * resetImageParsing()
  * readFiles(entries, callback)
+ * dumpDataSet(dataSet, metadata, customFilter)
  *
  */
 
@@ -60,28 +60,50 @@ export const readFiles = function (entries, callback) {
 
 /* Internal module functions */
 
-// helper function to see if a string only has ascii characters in it
-const isASCII = function (str) {
-  return /^[\x00-\x7F]*$/.test(str);
-};
-
-/** TODO */
+/**
+ * Dump metadata from dicom parser dataSet object
+ * @instance
+ * @function dumpDataSet
+ * @param {Object} dataSet - dicom parser dataSet object
+ * @param {Array} metadata - Initialized metadata object
+ * @param {Array} customFilter - Optional filter: {tags:[], frameId: 0}
+ */
 // This function iterates through dataSet recursively and adds new HTML strings
 // to the output array passed into it
-let dumpDataSet = function (dataSet) {
-  let metadata = {};
+export const dumpDataSet = function (dataSet, metadata, customFilter) {
+  // customFilter= {tags:[], frameId:xxx}
+
   // the dataSet.elements object contains properties for each element parsed.  The name of the property
   // is based on the elements tag and looks like 'xGGGGEEEE' where GGGG is the group number and EEEE is the
   // element number both with lowercase hexadecimal letters.  For example, the Series Description DICOM element 0008,103E would
   // be named 'x0008103e'.  Here we iterate over each property (element) so we can build a string describing its
   // contents to add to the output array
   try {
-    for (let propertyName in dataSet.elements) {
-      let element = dataSet.elements[propertyName];
-      let tagValue = parseTag(dataSet, propertyName, element);
-      metadata[propertyName] = tagValue;
+    let elements =
+      customFilter && has(customFilter, "tags")
+        ? pick(dataSet.elements, customFilter.tags)
+        : dataSet.elements;
+    for (let propertyName in elements) {
+      let element = elements[propertyName];
+      // Here we check for Sequence items and iterate over them if present.  items will not be set in the
+      // element object for elements that don't have SQ VR type.  Note that implicit little endian
+      // sequences will are currently not parsed.
+      if (element.items) {
+        // each item contains its own data set so we iterate over the items
+        // and recursively call this function
+        if (customFilter && has(customFilter, "frameId")) {
+          let item = element.items[customFilter.frameId];
+          dumpDataSet(item.dataSet, metadata);
+        } else {
+          element.items.forEach(function (item) {
+            dumpDataSet(item.dataSet, metadata);
+          });
+        }
+      } else {
+        let tagValue = parseTag(dataSet, propertyName, element);
+        metadata[propertyName] = tagValue;
+      }
     }
-    return metadata;
   } catch (err) {
     console.log(err);
   }
@@ -178,10 +200,8 @@ let dumpFile = function (file, callback) {
     let dataSet;
     try {
       dataSet = parseDicom(byteArray);
-      console.log(dataSet);
-      let metadata = dumpDataSet(dataSet);
-
-      console.log(metadata);
+      let metadata = {};
+      dumpDataSet(dataSet, metadata);
 
       let numberOfFrames = metadata["x00280008"];
       let isMultiframe = numberOfFrames > 1 ? true : false;
@@ -237,7 +257,9 @@ let dumpFile = function (file, callback) {
           imageObject.metadata.imagePosition = imagePosition;
           imageObject.metadata.rows = metadata["x00280010"];
           imageObject.metadata.cols = metadata["x00280011"];
-          imageObject.metadata.numberOfSlices = metadata["x00540081"];
+          imageObject.metadata.numberOfSlices = metadata["x00540081"]
+            ? metadata["x00540081"] // number of slices
+            : metadata["x00201002"]; // number of instances
           imageObject.metadata.numberOfFrames = numberOfFrames;
           imageObject.metadata.windowCenter = metadata["x00281050"];
           imageObject.metadata.windowWidth = metadata["x00281051"];
@@ -251,7 +273,6 @@ let dumpFile = function (file, callback) {
           );
           imageObject.metadata.length = pixelData.length;
           imageObject.metadata.repr = getPixelRepresentation(dataSet);
-          console.log(imageObject);
           callback(imageObject);
         } else {
           // done, no pixelData

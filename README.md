@@ -6,7 +6,7 @@
 
 ## Dicom Image Toolkit for CornestoneJS
 
-### Current version: 1.0.0-alpha
+### Current version: 1.0.1-alpha
 
 ### Latest Stable version: 0.12.2
 
@@ -33,6 +33,7 @@ This library provides common dicom functionalities to be used in web-application
 - `loaders/fileLoader` custom loader for png/jpg files
 - `loaders/nrrdLoader`custom loader for nrrd files with support for multiplanar reformat (axial, sagittal and coronal planes)
 - `loaders/resliceLoader` custom loader for resliced data
+- `loaders/multiFrameLoader` custom loader for multiFrame data
 - `parsers/nrrd` custom parser for nrrd data
 - `tools/contourTool` is a custom cornerstone tool for 2D visualization of segmented images
 - `tools/diameterTool` is a custom cornerstone tool for 2D visualization of diameter widgets

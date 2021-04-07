@@ -18,13 +18,11 @@ import {
   getTypedArrayFromDataType,
   getPixelTypedArray,
   getSortedStack,
-  getTagValue,
   randomId,
   getMeanValue,
   getReslicedMetadata,
   getReslicedPixeldata,
   getDistanceBetweenSlices,
-  parseImageId,
   remapVoxel
 } from "./imaging/image_utils";
 
@@ -52,7 +50,11 @@ import {
   updateLoadedStack
 } from "./imaging/image_loading";
 
-import { resetImageParsing, readFiles } from "./imaging/image_parsing";
+import {
+  resetImageParsing,
+  readFiles,
+  dumpDataSet
+} from "./imaging/image_parsing";
 
 import {
   clearImageCache,
@@ -190,13 +192,11 @@ export {
   getTypedArrayFromDataType,
   getPixelTypedArray,
   getSortedStack,
-  getTagValue,
   randomId,
   getMeanValue,
   getReslicedMetadata,
   getReslicedPixeldata,
   getDistanceBetweenSlices,
-  parseImageId,
   remapVoxel,
   // image_io
   buildVolume,
@@ -219,6 +219,7 @@ export {
   // image_parsing
   resetImageParsing,
   readFiles,
+  dumpDataSet,
   // image_rendering
   clearImageCache,
   renderFileImage,

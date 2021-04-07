@@ -125,7 +125,9 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
   let sid = seriesData.metadata.seriesUID;
   let iid = seriesData.metadata.instanceUID;
   let seriesDescription = seriesData.metadata.seriesDescription;
-  let numberOfImages = seriesData.metadata.numberOfSlices;
+  let numberOfImages = seriesData.metadata["x00201002"];
+  let numberOfFrames = seriesData.metadata["x00280008"];
+  let isMultiframe = numberOfFrames > 1 ? true : false;
   // initialize series stack
   if (!allSeriesStack[sid]) {
     allSeriesStack[sid] = {
@@ -134,7 +136,9 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
       instances: {},
       seriesDescription: seriesDescription,
       seriesUID: sid,
-      numberOfImages: numberOfImages
+      numberOfImages: numberOfImages,
+      numberOfFrames: numberOfFrames,
+      isMultiframe: isMultiframe
     };
   }
 

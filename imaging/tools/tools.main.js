@@ -158,7 +158,7 @@ export const addDefaultTools = function (elementId) {
  * @param {String} toolName - The tool name.
  * @param {Object} options - The custom options. @default from tools.default.js
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
- * @param {Array} viewports - The hmtl element id to be used for tool initialization. TODO default viewports ?
+ * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  */
 const setToolActive = function (toolName, options, activeViewport, viewports) {
   let defaultOpt = DEFAULT_TOOLS[toolName].options;

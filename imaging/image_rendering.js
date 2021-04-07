@@ -171,8 +171,16 @@ export const resizeViewport = function (elementId) {
   cornerstone.resize(element, true); // true flag forces fitToWindow
 };
 
-export const renderFrame = function (series, elementId) {
-  // let t0 = performance.now();
+/**
+ * Render a image frame in a html div using cornerstone
+ * @instance
+ * @function renderFrame
+ * @param {Object} series - The original series data object
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Integer} frameId - Optional frameId, default is 0
+ */
+export const renderFrame = function (series, elementId, frameId) {
+  let t0 = performance.now();
   let element = isElement(elementId)
     ? elementId
     : document.getElementById(elementId);
@@ -181,19 +189,16 @@ export const renderFrame = function (series, elementId) {
     return;
   }
   cornerstone.enable(element);
+  frameId = frameId ? frameId : 0;
+  let imageId = series.imageIds[frameId];
 
-  // if not, return TODO
+  // TODO SET IN STORE METADATA?
 
-  let currentImageId = "multiFrameLoader://0?frame=0";
-
-  each(series.imageIds, function (imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function (image) {
-      console.log(image);
-      if (imageId == currentImageId) {
-        cornerstone.displayImage(element, image);
-        cornerstone.fitToWindow(element);
-      }
-    });
+  cornerstone.loadImage(imageId).then(function (image) {
+    cornerstone.displayImage(element, image);
+    cornerstone.fitToWindow(element);
+    let t1 = performance.now();
+    console.log(`Call to renderFrame took ${t1 - t0} milliseconds.`);
   });
 };
 

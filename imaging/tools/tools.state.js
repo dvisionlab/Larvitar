@@ -9,7 +9,7 @@ import { state_example } from "./cstools_state_example.js";
  *
  * @param {*} elementId
  */
-const saveToolState = function(elementId) {
+const saveToolState = function (elementId) {
   const elementToolStateManager = cornerstoneTools.getElementToolStateManager(
     document.getElementById(elementId)
   );
@@ -24,7 +24,7 @@ const saveToolState = function(elementId) {
  * @param {*} elementId
  * @param {*} allToolState
  */
-const restoreToolState = function(elementId, allToolState) {
+const restoreToolState = function (elementId, allToolState) {
   const elementToolStateManager = cornerstoneTools.getElementToolStateManager(
     document.getElementById(elementId)
   );
@@ -40,16 +40,13 @@ const restoreToolState = function(elementId, allToolState) {
 
 // EXAMPLE OF CORRECT USE OF TOOL STATE MANAGER
 
-export const example = function() {
+export const example = function () {
   // Declare state manager
   const stateManager = cornerstoneTools.newImageIdSpecificToolStateManager();
 
   // Get enabled element (cornerstone.getEnabledElement)
   const imageId = "imagefile:0";
-  const testElement = cornerstone
-    .getEnabledElements()
-    .slice()
-    .pop();
+  const testElement = cornerstone.getEnabledElements().slice().pop();
   testElement.image = { imageId };
   // const testElement = {
   //   image: {
@@ -71,7 +68,6 @@ export const example = function() {
 
   // Check the results
   const allToolState = stateManager.saveToolState();
-  console.log(allToolState);
 };
 
 export { saveToolState, restoreToolState };

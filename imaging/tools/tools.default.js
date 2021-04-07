@@ -365,7 +365,6 @@ const setDefaultToolsProps = function (newProps) {
   } else {
     console.error("newProps must be an array");
   }
-  console.log(DEFAULT_TOOLS);
 };
 
 export { DEFAULT_TOOLS, dvTools, getDefaultToolsByType, setDefaultToolsProps };
