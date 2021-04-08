@@ -15,6 +15,7 @@ import { forEach } from "lodash";
 import { getSortedStack } from "./image_utils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
+import { loadMultiFrameImage } from "./loaders/multiframeLoader";
 
 /**
  * Global standard configuration
@@ -105,6 +106,15 @@ export const registerResliceLoader = function () {
 };
 
 /**
+ * Register custom MultiFrame ImageLoader
+ * @instance
+ * @function registerMultiFrameImageLoader
+ */
+export const registerMultiFrameImageLoader = function () {
+  cornerstone.registerImageLoader("multiFrameLoader", loadMultiFrameImage);
+};
+
+/**
  * Update the allSeriesStack object using wadoImageLoader fileManager
  * @instance
  * @function updateLoadedStack
@@ -115,7 +125,9 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
   let sid = seriesData.metadata.seriesUID;
   let iid = seriesData.metadata.instanceUID;
   let seriesDescription = seriesData.metadata.seriesDescription;
-  let numberOfImages = seriesData.metadata.numberOfSlices;
+  let numberOfImages = seriesData.metadata["x00201002"];
+  let numberOfFrames = seriesData.metadata["x00280008"];
+  let isMultiframe = numberOfFrames > 1 ? true : false;
   // initialize series stack
   if (!allSeriesStack[sid]) {
     allSeriesStack[sid] = {
@@ -124,11 +136,13 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
       instances: {},
       seriesDescription: seriesDescription,
       seriesUID: sid,
-      numberOfImages: numberOfImages
+      numberOfImages: numberOfImages,
+      numberOfFrames: numberOfFrames,
+      isMultiframe: isMultiframe
     };
   }
 
-  // if the parsed file is a new series insatence, keep it
+  // if the parsed file is a new series instance, keep it
   if (isNewInstance(allSeriesStack[sid].instances, iid)) {
     // generate an imageId for the file and store it
     // in allSeriesStack imageIds array, used by
@@ -142,7 +156,8 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
     allSeriesStack[sid].instances[imageId] = {
       pixelData: seriesData.pixelData,
       metadata: seriesData.metadata,
-      file: seriesData.file
+      file: seriesData.file,
+      dataSet: seriesData.dataSet
     };
     // order images in stack
     allSeriesStack[sid].imageIds = getSortedStack(

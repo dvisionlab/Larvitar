@@ -172,6 +172,37 @@ export const resizeViewport = function (elementId) {
 };
 
 /**
+ * Render a image frame in a html div using cornerstone
+ * @instance
+ * @function renderFrame
+ * @param {Object} series - The original series data object
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Integer} frameId - Optional frameId, default is 0
+ */
+export const renderFrame = function (series, elementId, frameId) {
+  let t0 = performance.now();
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  cornerstone.enable(element);
+  frameId = frameId ? frameId : 0;
+  let imageId = series.imageIds[frameId];
+
+  // TODO SET IN STORE METADATA?
+
+  cornerstone.loadImage(imageId).then(function (image) {
+    cornerstone.displayImage(element, image);
+    cornerstone.fitToWindow(element);
+    let t1 = performance.now();
+    console.log(`Call to renderFrame took ${t1 - t0} milliseconds.`);
+  });
+};
+
+/**
  * Cache image and render it in a html div using cornerstone
  * @instance
  * @function renderImage
@@ -387,6 +418,7 @@ export const updateImage = function (series, elementId, imageIndex) {
     ? elementId
     : document.getElementById(elementId);
   if (!element) {
+    console.log("not element");
     return;
   }
   let index = imageIndex == 0 ? imageIndex : imageIndex - 1;

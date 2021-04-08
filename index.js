@@ -18,13 +18,11 @@ import {
   getTypedArrayFromDataType,
   getPixelTypedArray,
   getSortedStack,
-  getTagValue,
   randomId,
   getMeanValue,
   getReslicedMetadata,
   getReslicedPixeldata,
   getDistanceBetweenSlices,
-  parseImageId,
   remapVoxel
 } from "./imaging/image_utils";
 
@@ -48,10 +46,15 @@ import {
   initializeFileImageLoader,
   registerNRRDImageLoader,
   registerResliceLoader,
+  registerMultiFrameImageLoader,
   updateLoadedStack
 } from "./imaging/image_loading";
 
-import { resetImageParsing, readFiles } from "./imaging/image_parsing";
+import {
+  resetImageParsing,
+  readFiles,
+  dumpDataSet
+} from "./imaging/image_parsing";
 
 import {
   clearImageCache,
@@ -61,6 +64,7 @@ import {
   unloadViewport,
   resizeViewport,
   renderImage,
+  renderFrame,
   reloadImage,
   updateImage,
   resetViewports,
@@ -142,6 +146,16 @@ import {
 } from "./imaging/loaders/dicomLoader";
 
 import {
+  multiFrameManager,
+  multiFrameImageTracker,
+  buildMultiFrameImage,
+  loadMultiFrameImage,
+  resetMultiFrameLoader,
+  getMultiFrameImageId,
+  getSeriesDataFromMultiFrameLoaderLoader
+} from "./imaging/loaders/multiframeLoader";
+
+import {
   fileManager,
   resetFileLoader,
   resetFileManager,
@@ -178,13 +192,11 @@ export {
   getTypedArrayFromDataType,
   getPixelTypedArray,
   getSortedStack,
-  getTagValue,
   randomId,
   getMeanValue,
   getReslicedMetadata,
   getReslicedPixeldata,
   getDistanceBetweenSlices,
-  parseImageId,
   remapVoxel,
   // image_io
   buildVolume,
@@ -202,10 +214,12 @@ export {
   initializeFileImageLoader,
   registerNRRDImageLoader,
   registerResliceLoader,
+  registerMultiFrameImageLoader,
   updateLoadedStack,
   // image_parsing
   resetImageParsing,
   readFiles,
+  dumpDataSet,
   // image_rendering
   clearImageCache,
   renderFileImage,
@@ -214,6 +228,7 @@ export {
   unloadViewport,
   resizeViewport,
   renderImage,
+  renderFrame,
   reloadImage,
   updateImage,
   resetViewports,
@@ -258,6 +273,14 @@ export {
   populateDicomManager,
   getDicomImageId,
   cacheImages,
+  // loaders/multiFrameLoader
+  multiFrameManager,
+  multiFrameImageTracker,
+  buildMultiFrameImage,
+  loadMultiFrameImage,
+  resetMultiFrameLoader,
+  getMultiFrameImageId,
+  getSeriesDataFromMultiFrameLoaderLoader,
   // loaders/fileLoader
   fileManager,
   resetFileLoader,
