@@ -10,12 +10,12 @@ import { each, extend, filter, remove, cloneDeep } from "lodash";
 
 // internal libraries
 import { DEFAULT_TOOLS } from "./tools/tools.default";
-import { SeedsTool } from "./tools/seedTool";
+// import { SeedsTool } from "./tools/seedTool";
 import { ContoursTool } from "./tools/contourTool";
 import { EditMaskTool } from "./tools/editMaskTool";
 import { DiameterTool } from "./tools/diameterTool";
 import { getImageIdFromSlice } from "./loaders/nrrdLoader";
-import { getSeriesData } from "./loaders/commonLoader";
+import { getSeriesDataFromLarvitarManager } from "./loaders/commonLoader";
 import { parseContours } from "./image_contours";
 import { isElement } from "./image_rendering";
 
@@ -229,7 +229,7 @@ export const getCurrentMaskData = function (viewportId) {
  */
 export const addStackStateToElement = function (seriesId, element) {
   // Define the Stack object
-  const stack = getSeriesData(seriesId)[element.id];
+  const stack = getSeriesDataFromLarvitarManager(seriesId)[element.id];
   // Add the stack tool state to the enabled element
   cornerstoneTools.addStackStateManager(element, ["stack"]);
   cornerstoneTools.addToolState(element, "stack", stack);
@@ -627,7 +627,7 @@ export const syncToolStack = function (
   seriesId
 ) {
   // get the imageIds array
-  let seriesData = getSeriesData(seriesId);
+  let seriesData = getSeriesDataFromLarvitarManager(seriesId);
   let imageIds = seriesData[viewport].imageIds;
 
   // get the tool state of source imageId

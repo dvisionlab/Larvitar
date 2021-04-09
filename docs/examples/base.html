@@ -116,8 +116,9 @@
           // render the first series of the study
           let seriesId = _.keys(seriesStack)[0];
           let serie = seriesStack[seriesId];
-          console.log(serie)
+          console.log(serie);
           larvitar.renderImage(serie, "viewer");
+          larvitar.populateLarvitarManager(seriesId, serie);
           larvitar.addDefaultTools();
           larvitar.setToolActive(
             larvitar.larvitar_store.state.leftMouseHandler

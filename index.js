@@ -58,14 +58,13 @@ import {
 
 import {
   clearImageCache,
+  loadAndCacheImages,
   renderFileImage,
   renderWebImage,
   disableViewport,
   unloadViewport,
   resizeViewport,
   renderImage,
-  renderFrame,
-  reloadImage,
   updateImage,
   resetViewports,
   updateViewportData,
@@ -114,20 +113,17 @@ import {
 
 import {
   getLarvitarManager,
-  getLarvitarImageLoader,
-  getSeriesData,
+  getLarvitarImageTracker,
+  resetLarvitarManager,
+  removeSeriesFromLarvitarManager,
+  getSeriesDataFromLarvitarManager,
   getCustomImageId,
   getImageFrame
 } from "./imaging/loaders/commonLoader";
 
 import {
-  nrrdManager,
-  nrrdImageTracker,
   buildNrrdImage,
-  resetNrrdLoader,
   getNrrdImageId,
-  removeSeriesFromNrrdManager,
-  getSeriesDataFromNrrdLoader,
   loadNrrdImage,
   getImageIdFromSlice,
   getSliceNumberFromImageId,
@@ -135,24 +131,17 @@ import {
 } from "./imaging/loaders/nrrdLoader";
 
 import {
-  dicomManager,
-  resetImageLoader,
-  resetDicomManager,
-  removeSeriesFromDicomManager,
-  getSeriesDataFromDicomLoader,
-  populateDicomManager,
-  getDicomImageId,
-  cacheImages
+  populateLarvitarManager,
+  getDicomImageId
 } from "./imaging/loaders/dicomLoader";
 
+import { loadReslicedImage } from "./imaging/loaders/resliceLoader";
+
 import {
-  multiFrameManager,
-  multiFrameImageTracker,
-  buildMultiFrameImage,
   loadMultiFrameImage,
-  resetMultiFrameLoader,
+  buildMultiFrameImage,
   getMultiFrameImageId,
-  getSeriesDataFromMultiFrameLoaderLoader
+  clearMultiFrameCache
 } from "./imaging/loaders/multiframeLoader";
 
 import {
@@ -197,7 +186,6 @@ export {
   getReslicedMetadata,
   getReslicedPixeldata,
   getDistanceBetweenSlices,
-  remapVoxel,
   // image_io
   buildVolume,
   buildHeader,
@@ -222,14 +210,13 @@ export {
   dumpDataSet,
   // image_rendering
   clearImageCache,
+  loadAndCacheImages,
   renderFileImage,
   renderWebImage,
   disableViewport,
   unloadViewport,
   resizeViewport,
   renderImage,
-  renderFrame,
-  reloadImage,
   updateImage,
   resetViewports,
   updateViewportData,
@@ -248,39 +235,29 @@ export {
   parseContours,
   // loaders/commonLoader
   getLarvitarManager,
-  getLarvitarImageLoader,
-  getSeriesData,
+  getLarvitarImageTracker,
+  resetLarvitarManager,
+  removeSeriesFromLarvitarManager,
+  getSeriesDataFromLarvitarManager,
   getCustomImageId,
   getImageFrame,
   // loaders/nrrdLoader
-  nrrdManager,
-  nrrdImageTracker,
   buildNrrdImage,
-  resetNrrdLoader,
   getNrrdImageId,
-  removeSeriesFromNrrdManager,
-  getSeriesDataFromNrrdLoader,
   loadNrrdImage,
   getImageIdFromSlice,
   getSliceNumberFromImageId,
   getNrrdSerieDimensions,
+  // loaders/resliceLoader
+  loadReslicedImage,
   // loaders/dicomLoader
-  dicomManager,
-  resetImageLoader,
-  resetDicomManager,
-  removeSeriesFromDicomManager,
-  getSeriesDataFromDicomLoader,
-  populateDicomManager,
+  populateLarvitarManager,
   getDicomImageId,
-  cacheImages,
   // loaders/multiFrameLoader
-  multiFrameManager,
-  multiFrameImageTracker,
-  buildMultiFrameImage,
   loadMultiFrameImage,
-  resetMultiFrameLoader,
+  buildMultiFrameImage,
   getMultiFrameImageId,
-  getSeriesDataFromMultiFrameLoaderLoader,
+  clearMultiFrameCache,
   // loaders/fileLoader
   fileManager,
   resetFileLoader,

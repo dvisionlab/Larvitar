@@ -4,15 +4,16 @@ import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { each, range } from "lodash";
 
 // internal libraries
-import { getImageFrame } from "./commonLoader";
-import { clearImageCache } from "../image_rendering";
-import { larvitar_store } from "../image_store";
+import {
+  getImageFrame,
+  getLarvitarImageTracker,
+  getLarvitarManager
+} from "./commonLoader";
 import { dumpDataSet } from "../image_parsing";
 
 // global module variables
 let customImageLoaderCounter = 0;
-export var multiFrameManager = {};
-export var multiFrameImageTracker = {};
+
 // Local cache used to store multiframe datasets to avoid reading and parsing
 // the whole file to show a single frame.
 let multiframeDatasetCache = {};
@@ -21,8 +22,7 @@ let multiframeDatasetCache = {};
  * loadMultiFrameImage(elementId)
  * buildMultiFrameImage(seriesId, serie)
  * getMultiFrameImageId(customLoaderName)
- * resetMultiFrameLoader(elementId)
- * getSeriesDataFromMultiFrameLoaderLoader(seriesId)
+ * clearMultiFrameCache()
  */
 
 /**
@@ -35,17 +35,19 @@ let multiframeDatasetCache = {};
 export const loadMultiFrameImage = function (imageId) {
   let parsedImageId = cornerstoneWADOImageLoader.wadouri.parseImageId(imageId);
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
-  let seriesId = multiFrameImageTracker[rootImageId];
+  let imageTracker = getLarvitarImageTracker();
+  let seriesId = imageTracker[rootImageId];
+  let manager = getLarvitarManager();
   multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId]
     ? multiframeDatasetCache[rootImageId]
-    : multiFrameManager[seriesId];
+    : manager[seriesId];
   let metadata =
     multiframeDatasetCache[rootImageId].instances[imageId].metadata;
   return createCustomImage(rootImageId, imageId, parsedImageId.frame, metadata);
 };
 
 /**
- * Build the multiframe layout in the multiFrameManager
+ * Build the multiframe layout in the larvitar Manager
  * @export
  * @function buildMultiFrameImage
  * @param {String} seriesId - SeriesId tag
@@ -53,8 +55,8 @@ export const loadMultiFrameImage = function (imageId) {
  */
 export const buildMultiFrameImage = function (seriesId, serie) {
   let t0 = performance.now();
-  larvitar_store.set("manager", "multiFrameManager");
-
+  let manager = getLarvitarManager();
+  let imageTracker = getLarvitarImageTracker();
   let numberOfFrames =
     serie.instances[serie.imageIds[0]].metadata.numberOfFrames;
   let frameTime = serie.instances[serie.imageIds[0]].metadata.frameTime;
@@ -67,13 +69,13 @@ export const buildMultiFrameImage = function (seriesId, serie) {
     let dataSet = serie.instances[instanceId].dataSet;
     let metadata = serie.instances[instanceId].metadata;
     let imageId = getMultiFrameImageId("multiFrameLoader");
-    multiFrameImageTracker[imageId] = seriesId;
+    imageTracker[imageId] = seriesId;
 
-    // check if multiFrameManager exists for this seriesId
-    if (!multiFrameManager[seriesId]) {
-      multiFrameManager[seriesId] = {};
-      multiFrameManager[seriesId].imageIds = [];
-      multiFrameManager[seriesId].instances = {};
+    // check if manager exists for this seriesId
+    if (!manager[seriesId]) {
+      manager[seriesId] = {};
+      manager[seriesId].imageIds = [];
+      manager[seriesId].instances = {};
     }
 
     each(range(numberOfFrames), function (frameNumber) {
@@ -94,16 +96,16 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       multiFrameManager[seriesId].frameDelay = frameDelay;
       multiFrameManager[seriesId].numberOfImages = undefined;
       multiFrameManager[seriesId].imageIds.push(frameImageId);
-      multiFrameManager[seriesId].instances[frameImageId] = {
+      manager[seriesId].instances[frameImageId] = {
         instanceId: instanceId,
         file: file,
         frame: frameNumber,
         metadata: frameMetadata
       };
-      multiFrameManager[seriesId].dataSet = dataSet;
-      multiFrameManager[seriesId].seriesDescription =
+      manager[seriesId].dataSet = dataSet;
+      manager[seriesId].seriesDescription =
         serie.instances[serie.imageIds[0]].metadata.seriesDescription;
-      multiFrameManager[seriesId].serieUID = seriesId;
+      manager[seriesId].serieUID = seriesId;
     });
   });
   let t1 = performance.now();
@@ -124,33 +126,12 @@ export const getMultiFrameImageId = function (customLoaderName) {
 };
 
 /**
- * Reset the MultiFrame Loader global variables
+ * Clear the multiframe cache
  * @instance
- * @function resetMultiFrameLoader
- * @param {String} elementId The html id
+ * @function clearMultiFrameCache
  */
-export const resetMultiFrameLoader = function (elementId) {
-  customImageLoaderCounter = 0;
-  multiFrameManager = {};
-  multiFrameImageTracker = {};
+export const clearMultiFrameCache = function () {
   multiframeDatasetCache = {};
-  let element = document.getElementById(elementId);
-  if (element) {
-    cornerstone.disable(element);
-  }
-  clearImageCache();
-};
-
-/**
- * Return the data of a specific seriesId stored in the MultiFrame Manager
- * @instance
- * @function getSeriesDataFromMultiFrameLoaderLoader
- * @param {String} seriesId The series Id
- * @return {Object} the series data
- *
- */
-export const getSeriesDataFromMultiFrameLoaderLoader = function (seriesId) {
-  return multiFrameManager[seriesId];
 };
 
 /* Internal module functions */

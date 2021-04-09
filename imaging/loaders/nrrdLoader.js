@@ -16,22 +16,19 @@ import {
   getTypedArrayFromDataType
 } from "../image_utils";
 
-import { getImageFrame } from "./commonLoader";
-import { clearImageCache } from "../image_rendering";
-import { larvitar_store } from "../image_store";
+import {
+  getImageFrame,
+  getLarvitarImageTracker,
+  getLarvitarManager
+} from "./commonLoader";
 
 // global module variables
 let customImageLoaderCounter = 0;
-export var nrrdManager = {};
-export var nrrdImageTracker = {};
 
 /*
  * This module provides the following functions to be exported:
  * buildNrrdImage(volume, seriesId, custom_header)
- * resetNrrdLoader()
  * getNrrdImageId(customLoaderName)
- * removeSeriesFromNrrdManager(seriesId)
- * getSeriesDataFromNrrdLoader(seriesId)
  * loadNrrdImage(imageId)
  * getImageIdFromSlice(sliceNumber, orientation)
  * getSliceNumberFromImageId(imageId, orientation)
@@ -48,10 +45,11 @@ export var nrrdImageTracker = {};
  * @return {Object} volume data
  */
 export const buildNrrdImage = function (volume, seriesId, custom_header) {
-  larvitar_store.set("manager", "nrrdManager");
   let t0 = performance.now();
   // standard image structure
   let image = {};
+  let manager = getLarvitarManager();
+  let imageTracker = getLarvitarImageTracker();
   image.currentImageIdIndex = 0;
   image.imageIds = [];
   image.instances = {};
@@ -176,7 +174,7 @@ export const buildNrrdImage = function (volume, seriesId, custom_header) {
     metadata.x00281051 = ww;
 
     let imageId = getNrrdImageId("nrrdLoader");
-    nrrdImageTracker[imageId] = seriesId;
+    imageTracker[imageId] = seriesId;
 
     // store file references
     image.imageIds.push(imageId);
@@ -196,28 +194,11 @@ export const buildNrrdImage = function (volume, seriesId, custom_header) {
   let middleSlice = Math.floor(image.imageIds.length / 2);
   image.currentImageIdIndex = middleSlice;
   image.numberOfImages = image.imageIds.length;
-  nrrdManager[seriesId] = image;
+  manager[seriesId] = image;
 
   let t1 = performance.now();
   console.log(`Call to buildNrrdImage took ${t1 - t0} milliseconds.`);
   return image;
-};
-
-/**
- * Reset the NRRD Loader global variables
- * @instance
- * @function resetNrrdLoader
- * @param {String} elementId The html id
- */
-export const resetNrrdLoader = function (elementId) {
-  customImageLoaderCounter = 0;
-  nrrdManager = {};
-  nrrdImageTracker = {};
-  let element = document.getElementById(elementId);
-  if (element) {
-    cornerstone.disable(element);
-  }
-  clearImageCache();
 };
 
 /**
@@ -234,29 +215,6 @@ export const getNrrdImageId = function (customLoaderName) {
 };
 
 /**
- * Remove a stored seriesId from the nnrdManager
- * @instance
- * @function removeSeriesFromNrrdManager
- * @param {String} seriesId The stored series id to remove
- */
-export const removeSeriesFromNrrdManager = function (seriesId) {
-  if (nrrdManager[seriesId]) {
-    nrrdManager = omit(nrrdManager, seriesId);
-  }
-};
-
-/**
- * Return the data of a specific seriesId stored in the nnrdManager
- * @instance
- * @function getSeriesDataFromNrrdLoader
- * @param {String} seriesId The stored series id to remove
- * @return {Object} series data
- */
-export const getSeriesDataFromNrrdLoader = function (seriesId) {
-  return nrrdManager[seriesId];
-};
-
-/**
  * Custom cornerstone image loader for nrrd files
  * @instance
  * @function loadNrrdImage
@@ -264,8 +222,10 @@ export const getSeriesDataFromNrrdLoader = function (seriesId) {
  * @return {Object} custom image object
  */
 export const loadNrrdImage = function (imageId) {
-  let seriesId = nrrdImageTracker[imageId];
-  let instance = nrrdManager[seriesId].instances[imageId];
+  let manager = getLarvitarManager();
+  let imageTracker = getLarvitarImageTracker();
+  let seriesId = imageTracker[imageId];
+  let instance = manager[seriesId].instances[imageId];
   return createCustomImage(imageId, instance.metadata, instance.pixelData);
 };
 
@@ -281,13 +241,14 @@ export const loadNrrdImage = function (imageId) {
 export function getImageIdFromSlice(sliceNumber, orientation, seriesId) {
   var prefix = "nrrdLoader://";
   var serieImageTracker;
+  let imageTracker = getLarvitarImageTracker();
 
   if (seriesId) {
-    serieImageTracker = pickBy(nrrdImageTracker, image => {
+    serieImageTracker = pickBy(imageTracker, image => {
       return image[0] == seriesId;
     });
   } else {
-    serieImageTracker = nrrdImageTracker;
+    serieImageTracker = imageTracker;
   }
 
   var firstImageId = findKey(serieImageTracker, entry => {
@@ -312,7 +273,8 @@ export function getImageIdFromSlice(sliceNumber, orientation, seriesId) {
  * @return {Integer} The image slice number
  */
 export function getSliceNumberFromImageId(imageId, orientation) {
-  var firstImageId = findKey(nrrdImageTracker, entry => {
+  let imageTracker = getLarvitarImageTracker();
+  var firstImageId = findKey(imageTracker, entry => {
     return entry[1] == orientation;
   });
 
@@ -331,13 +293,14 @@ export function getSliceNumberFromImageId(imageId, orientation) {
  * @return {Object} Series dimension for each view
  */
 export function getNrrdSerieDimensions() {
-  var dim_axial = filter(nrrdImageTracker, img => {
+  let imageTracker = getLarvitarImageTracker();
+  var dim_axial = filter(imageTracker, img => {
     return img[1] == "axial";
   });
-  var dim_coronal = filter(nrrdImageTracker, img => {
+  var dim_coronal = filter(imageTracker, img => {
     return img[1] == "coronal";
   });
-  var dim_sagittal = filter(nrrdImageTracker, img => {
+  var dim_sagittal = filter(imageTracker, img => {
     return img[1] == "sagittal";
   });
 
