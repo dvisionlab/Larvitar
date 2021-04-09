@@ -89,13 +89,13 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       });
 
       // store file references
-      multiFrameManager[seriesId].isMultiframe = true;
-      multiFrameManager[seriesId].currentImageIdIndex = 0;
-      multiFrameManager[seriesId].numberOfFrames = numberOfFrames;
-      multiFrameManager[seriesId].frameTime = frameTime;
-      multiFrameManager[seriesId].frameDelay = frameDelay;
-      multiFrameManager[seriesId].numberOfImages = undefined;
-      multiFrameManager[seriesId].imageIds.push(frameImageId);
+      manager[seriesId].isMultiframe = true;
+      manager[seriesId].currentImageIdIndex = 0;
+      manager[seriesId].numberOfFrames = numberOfFrames;
+      manager[seriesId].frameTime = frameTime;
+      manager[seriesId].frameDelay = frameDelay;
+      manager[seriesId].numberOfImages = undefined;
+      manager[seriesId].imageIds.push(frameImageId);
       manager[seriesId].instances[frameImageId] = {
         instanceId: instanceId,
         file: file,

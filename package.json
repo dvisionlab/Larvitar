@@ -12,7 +12,7 @@
   },
   "scripts": {
     "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json",
-    "build-lib": "rollup -c",
+    "build-lib": "rollup -c && cp dist/larvitar.js docs/examples",
     "dev-lib": "rollup -c -w"
   },
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",

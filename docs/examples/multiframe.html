@@ -74,10 +74,10 @@
                       frameId =
                         larvitar.larvitar_store.state.viewports.viewer.sliceId;
                       animationId = setInterval(function () {
-                        index = index == numberOfFrames ? 1 : index + 1;
-                        larvitar.renderImage(multiFrameSerie, "viewer", index);
+                        frameId = frameId == numberOfFrames ? 1 : frameId + 1;
+                        larvitar.renderImage(multiFrameSerie, "viewer", frameId);
                         $("#current-frame").html(
-                          "Current Frame: " + index + " of " + numberOfFrames
+                          "Current Frame: " + frameId + " of " + numberOfFrames
                         );
                       }, frameRate);
                     } else {
@@ -103,7 +103,7 @@
       </div>
     </div>
 
-    <script src=".//larvitar.js"></script>
+    <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
@@ -152,10 +152,10 @@
                 frameId =
                   larvitar.larvitar_store.state.viewports.viewer.sliceId;
                 animationId = setInterval(function () {
-                  index = index == numberOfFrames ? 1 : index + 1;
-                  larvitar.renderImage(multiFrameSerie, "viewer", index);
+                  frameId = frameId == numberOfFrames ? 1 : frameId + 1;
+                  larvitar.renderImage(multiFrameSerie, "viewer", frameId);
                   $("#current-frame").html(
-                    "Current Frame: " + index + " of " + numberOfFrames
+                    "Current Frame: " + frameId + " of " + numberOfFrames
                   );
                 }, frameRate);
               } else {

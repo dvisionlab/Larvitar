@@ -22,8 +22,7 @@ import {
   getMeanValue,
   getReslicedMetadata,
   getReslicedPixeldata,
-  getDistanceBetweenSlices,
-  remapVoxel
+  getDistanceBetweenSlices
 } from "./imaging/image_utils";
 
 import {
