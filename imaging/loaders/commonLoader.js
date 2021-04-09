@@ -160,7 +160,7 @@ export const getImageFrame = function (metadata, dataSet) {
   let imagePixelModule;
 
   if (dataSet) {
-    imagePixelModule = cornerstoneWADOImageLoader.wadouri.getImagePixelModule(
+    imagePixelModule = cornerstoneWADOImageLoader.wadouri.metaData.getImagePixelModule(
       dataSet
     );
   } else {

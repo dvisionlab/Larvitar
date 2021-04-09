@@ -25,13 +25,13 @@
         id="frame-rate"
         style="position: absolute; top: 20px; color: white"
       >
-        Frame Rate: 80ms
+        
       </p>
       <p
         id="current-frame"
         style="position: absolute; top: 40px; color: white"
       >
-        Current Frame: 1 of 76
+        
       </p>
 
       <div class="col-4 h-100">
@@ -55,18 +55,21 @@
                 let serie = seriesStack[seriesId];
                 larvitar.buildMultiFrameImage(seriesId, serie);
                 let multiFrameSerie = larvitar.multiFrameManager[seriesId];
+                console.log(multiFrameSerie)
                 larvitar.renderFrame(multiFrameSerie, "viewer");
-                // // larvitar.renderImage(multiFrameSerie, "viewer");
                 larvitar.addDefaultTools();
                 larvitar.setToolActive(
                   larvitar.larvitar_store.state.leftMouseHandler
                 );
                 
-
                 let animation = false;
                 let index = 0;
                 let animationId = null;
-
+                let numberOfFrames = multiFrameSerie.numberOfFrames;
+                let frameRate = multiFrameSerie.frameTime;
+                $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms")
+                $("#current-frame").html("Current Frame: 1 of " + numberOfFrames);
+        
                 document.onkeypress = function (e) {
                   e = e || window.event;
                   
@@ -74,10 +77,10 @@
                     animation = !animation;
                     if (animation) {
                       animationId = setInterval(function () {
-                        index = index == 75 ? 0 : index + 1; // numberOfFrames = 76
+                        index = index == (numberOfFrames - 1) ? 0 : index + 1;
                         larvitar.renderFrame(multiFrameSerie, "viewer", index);
-                        $("#current-frame").html("Current Frame: " + parseInt(index+1) + " of 76");
-                      }, 80); // frame rate
+                        $("#current-frame").html("Current Frame: " + parseInt(index+1) + " of " + numberOfFrames);
+                      }, frameRate);
                     } else {
                       clearInterval(animationId);
                     }
@@ -126,18 +129,21 @@
           let serie = seriesStack[seriesId];
           larvitar.buildMultiFrameImage(seriesId, serie);
           let multiFrameSerie = larvitar.multiFrameManager[seriesId];
+          console.log(multiFrameSerie)
           larvitar.renderFrame(multiFrameSerie, "viewer");
-          // // larvitar.renderImage(multiFrameSerie, "viewer");
           larvitar.addDefaultTools();
           larvitar.setToolActive(
             larvitar.larvitar_store.state.leftMouseHandler
           );
           
-
           let animation = false;
           let index = 0;
           let animationId = null;
-
+          let numberOfFrames = multiFrameSerie.numberOfFrames;
+          let frameRate = multiFrameSerie.frameTime;
+          $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms")
+          $("#current-frame").html("Current Frame: 1 of " + numberOfFrames);
+  
           document.onkeypress = function (e) {
             e = e || window.event;
             
@@ -145,10 +151,10 @@
               animation = !animation;
               if (animation) {
                 animationId = setInterval(function () {
-                  index = index == 75 ? 0 : index + 1; // numberOfFrames = 76
+                  index = index == (numberOfFrames - 1) ? 0 : index + 1;
                   larvitar.renderFrame(multiFrameSerie, "viewer", index);
-                  $("#current-frame").html("Current Frame: " + parseInt(index+1) + " of 76");
-                }, 80); // frame rate
+                  $("#current-frame").html("Current Frame: " + parseInt(index+1) + " of " + numberOfFrames);
+                }, frameRate);
               } else {
                 clearInterval(animationId);
               }

@@ -104,10 +104,15 @@ export const loadMultiFrameImage = function (imageId) {
  * @param {Object} serie - parsed serie object
  */
 export const buildMultiFrameImage = function (seriesId, serie) {
+  let t0 = performance.now();
   larvitar_store.set("manager", "multiFrameManager");
 
   let numberOfFrames =
     serie.instances[serie.imageIds[0]].metadata.numberOfFrames;
+  let frameTime = serie.instances[serie.imageIds[0]].metadata.frameTime;
+  let frameDelay = serie.instances[serie.imageIds[0]].metadata.frameDelay
+    ? serie.instances[serie.imageIds[0]].metadata.frameDelay
+    : 0;
 
   each(serie.imageIds, function (instanceId) {
     let file = serie.instances[instanceId].file;
@@ -135,6 +140,11 @@ export const buildMultiFrameImage = function (seriesId, serie) {
 
       // store file references
       multiFrameManager[seriesId].isMultiframe = true;
+      multiFrameManager[seriesId].currentImageIdIndex = 0;
+      multiFrameManager[seriesId].numberOfFrames = numberOfFrames;
+      multiFrameManager[seriesId].frameTime = frameTime;
+      multiFrameManager[seriesId].frameDelay = frameDelay;
+      multiFrameManager[seriesId].numberOfImages = undefined;
       multiFrameManager[seriesId].imageIds.push(frameImageId);
       multiFrameManager[seriesId].instances[frameImageId] = {
         instanceId: instanceId,
@@ -143,8 +153,13 @@ export const buildMultiFrameImage = function (seriesId, serie) {
         metadata: frameMetadata
       };
       multiFrameManager[seriesId].dataSet = dataSet;
+      multiFrameManager[seriesId].seriesDescription =
+        serie.instances[serie.imageIds[0]].metadata.seriesDescription;
+      multiFrameManager[seriesId].serieUID = seriesId;
     });
   });
+  let t1 = performance.now();
+  console.log(`Call to buildMultiFrameImage took ${t1 - t0} milliseconds.`);
 };
 
 /**
@@ -203,7 +218,6 @@ export const getSeriesDataFromMultiFrameLoaderLoader = function (seriesId) {
  * @returns {Object} custom image object
  */
 let createCustomImage = function (id, imageId, frameIndex, metadata) {
-  // TODO DOES NOT WORK WITH COLORED IMAGES
   let dataSet = multiframeDatasetCache[id].dataSet;
   let pixelDataElement = dataSet.elements.x7fe00010;
   // Extract pixelData of the required frame
@@ -224,7 +238,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
     console.error(error);
   }
 
-  let imageFrame = getImageFrame(metadata);
+  let imageFrame = getImageFrame(metadata, dataSet);
   let transferSyntax = dataSet.string("x00020010");
   let canvas = window.document.createElement("canvas");
 
@@ -243,6 +257,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
       // them: if the image is compressed, the decompress function should be called
       // before creating the custom image object (like the multiframe case).
       setPixelDataType(imageFrame);
+
       let pixelSpacing = metadata.x00280030 ? metadata.x00280030 : 1.0;
       let rescaleIntercept = metadata.x00281052;
       let rescaleSlope = metadata.x00281053;
@@ -266,7 +281,9 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
         ),
         columnPixelSpacing: pixelSpacing,
         columns: imageFrame.columns,
+        data: dataSet,
         height: imageFrame.rows,
+        floatPixelData: undefined,
         intercept: rescaleIntercept ? rescaleIntercept : 0,
         invert: imageFrame.photometricInterpretation === "MONOCHROME1",
         minPixelValue: imageFrame.smallestPixelValue,
@@ -279,8 +296,8 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
         width: imageFrame.columns,
         windowCenter: windowCenter,
         windowWidth: windowWidth,
-        decodeTimeInMS: undefined,
-        webWorkerTimeInMS: undefined
+        decodeTimeInMS: undefined, // TODO
+        loadTimeInMS: undefined // TODO
       };
       // add function to return pixel data
       image.getPixelData = function () {
@@ -299,7 +316,8 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
           imageFrame.columns,
           imageFrame.rows
         );
-        // cornerstoneWADOImageLoader.convertColorSpace(imageFrame, imageData);
+
+        cornerstoneWADOImageLoader.convertColorSpace(imageFrame, imageData);
 
         imageFrame.imageData = imageData;
         imageFrame.pixelData = imageData.data;
@@ -346,11 +364,6 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
           image.windowCenter = (maxVoi + minVoi) / 2;
         }
       }
-
-      // Custom images does not have the "data" attribute becaouse their dataset is
-      // not available. The "metadata" attribute is used by the storeImageData
-      // function to store custom image pixelData and metadata.
-      image.metadata = metadata;
 
       resolve(image);
     }, reject);
