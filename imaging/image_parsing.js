@@ -261,6 +261,10 @@ let dumpFile = function (file, callback) {
             ? metadata["x00540081"] // number of slices
             : metadata["x00201002"]; // number of instances
           imageObject.metadata.numberOfFrames = numberOfFrames;
+          if (isMultiframe) {
+            imageObject.metadata.frameTime = metadata["x00181063"];
+            imageObject.metadata.frameDelay = metadata["x00181066"];
+          }
           imageObject.metadata.windowCenter = metadata["x00281050"];
           imageObject.metadata.windowWidth = metadata["x00281051"];
           imageObject.metadata.minPixelValue = getMinPixelValue(
