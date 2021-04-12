@@ -104,7 +104,7 @@ export const clearImageCache = function (seriesId) {
  * @instance
  * @function loadAndCacheImages
  * @param {Object} series the parsed series data
- * @param {Function} callback an optional callback function
+ * @param {Function} callback a callback function
  */
 export function loadAndCacheImages(series, callback) {
   let t0 = performance.now();
@@ -113,28 +113,29 @@ export function loadAndCacheImages(series, callback) {
     console.warn("Do not cache multiframe images for performance issues");
     return;
   }
-  // larvitar_store.set("cachingProgress", [series.seriesUID, cachingCounter]);
+  let response = {
+    seriesId: series.seriesUID,
+    loading: 0,
+    series: {}
+  };
+  callback(response);
   // add serie's imageIds into store
   larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
       series.instances[imageId].pixelData = image.getPixelData();
       cachingCounter += 1;
-      // let cachingPercentage = Math.floor(
-      //   (cachingCounter / series.imageIds.length) * 100
-      // );
-      // larvitar_store.set("cachingProgress", [
-      //   series.seriesUID,
-      //   cachingPercentage
-      // ]);
+      let cachingPercentage = Math.floor(
+        (cachingCounter / series.imageIds.length) * 100
+      );
+      response.loading = cachingPercentage;
       if (cachingCounter == series.imageIds.length) {
         let t1 = performance.now();
         console.log(`Call to cacheImages took ${t1 - t0} milliseconds.`);
         console.log("Cached images for ", series.seriesUID);
-        if (callback) {
-          callback(series);
-        }
+        response.series = series;
       }
+      callback(response);
     });
   });
 }
@@ -295,16 +296,12 @@ export const renderImage = function (
   // default to 0 if multiframe and frameId is null
   frameId = series.isMultiframe &amp;&amp; frameId == null ? 1 : frameId;
 
-  larvitar_store.set("loadingProgress", [elementId, 0]);
-  larvitar_store.set("loadingStatus", [elementId, false]);
+  larvitar_store.set("renderingStatus", [elementId, false]);
   let data = getSeriesData(series, frameId, defaultProps);
-  larvitar_store.set("loadingProgress", [elementId, 10]);
 
   // load and display one image (imageId)
   cornerstone.loadImage(data.imageId).then(function (image) {
-    larvitar_store.set("loadingProgress", [elementId, 50]);
     cornerstone.displayImage(element, image);
-    larvitar_store.set("loadingProgress", [elementId, 70]);
     let viewport = cornerstone.getViewport(element);
     if (data.ww || data.wc) {
       viewport.voi.windowWidth = data.ww ? data.ww : Math.abs(data.wc) * 2;
@@ -330,7 +327,6 @@ export const renderImage = function (
     }
 
     let storedViewport = cornerstone.getViewport(element);
-    larvitar_store.set("loadingProgress", [elementId, 90]);
     storeViewportData(
       image,
       elementId,
@@ -345,8 +341,7 @@ export const renderImage = function (
       data.defaultWW,
       data.defaultWC
     );
-    larvitar_store.set("loadingStatus", [elementId, true]);
-    larvitar_store.set("loadingProgress", [elementId, 100]);
+    larvitar_store.set("renderingStatus", [elementId, true]);
     let t1 = performance.now();
     console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
   });

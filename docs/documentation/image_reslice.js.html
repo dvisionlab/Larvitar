@@ -119,8 +119,10 @@ export function resliceSeries(seriesData, orientation, callback) {
     callback(reslicedSeries);
   }
   // pre cache and then reslice the data
-  loadAndCacheImages(seriesData, function () {
-    computeReslice(seriesData, reslicedSeriesId, reslicedSeries, callback);
+  loadAndCacheImages(seriesData, function (resp) {
+    if (resp.loading == 100) {
+      computeReslice(seriesData, reslicedSeriesId, reslicedSeries, callback);
+    }
   });
 }
 

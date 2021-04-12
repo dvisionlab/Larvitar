@@ -68,7 +68,10 @@
                 let serie = seriesStack[seriesId];
                 console.log(serie);
                 larvitar.renderImage(serie, "viewer");
-                larvitar.populateLarvitarManager(seriesId, serie);
+                larvitar.populateLarvitarManager(seriesId, serie, function(resp) {
+                  console.log(resp.loading);
+                  console.log(resp.series);
+                });
                 larvitar.addDefaultTools();
                 larvitar.setToolActive(
                   larvitar.larvitar_store.state.leftMouseHandler
@@ -128,7 +131,10 @@
           let serie = seriesStack[seriesId];
           console.log(serie);
           larvitar.renderImage(serie, "viewer");
-          larvitar.populateLarvitarManager(seriesId, serie);
+          larvitar.populateLarvitarManager(seriesId, serie, function(resp) {
+            console.log(resp.loading);
+            console.log(resp.series);
+          });
           larvitar.addDefaultTools();
           larvitar.setToolActive(
             larvitar.larvitar_store.state.leftMouseHandler

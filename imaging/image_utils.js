@@ -20,9 +20,6 @@ import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
 import { getCustomImageId } from "./loaders/commonLoader";
-
-import { getNrrdSerieDimensions as getSerieDimensions } from "./loaders/nrrdLoader";
-
 import TAG_DICT from "./dataDictionary.json";
 
 // global module variables
