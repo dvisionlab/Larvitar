@@ -38,19 +38,18 @@
             larvitar.initializeCSTools();
             larvitar.larvitar_store.addViewport("viewer");
 
-
-            createFile("example.nrrd", function(nrrd_file) {
+            createFile("example.nrrd", function (nrrd_file) {
               let reader = new FileReader();
               reader.readAsArrayBuffer(nrrd_file);
-              reader.onload = function() {
+              reader.onload = function () {
                 let volume = larvitar.importNRRDImage(reader.result);
-                let image = larvitar.buildNrrdImage(volume, "1234", {});
-                larvitar.renderImage(image, "viewer");
+                let serie = larvitar.buildNrrdImage(volume, "1234", {});
+                larvitar.renderImage(serie, "viewer");
                 larvitar.addDefaultTools();
                 larvitar.setToolActive(
                   larvitar.larvitar_store.state.leftMouseHandler
-                  )
-              }    
+                );
+              };
             });
 
             async function createFile(fileName, callback) {

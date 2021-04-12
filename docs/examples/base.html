@@ -33,7 +33,7 @@
           <p style="font-size:0.6vw;">
             let demoFiles = [];
             let counter = 0;
-      
+
             const getDemoFileNames = function () {
               let demoFileList = [];
               for (let i = 1; i < 25; i++) {
@@ -42,13 +42,13 @@
               }
               return demoFileList;
             };
-      
+
             // init all
             larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
             larvitar.initializeCSTools();
             larvitar.larvitar_store.addViewport("viewer");
-      
+
             async function createFile(fileName, cb) {
               let response = await fetch("./demo/" + fileName);
               let data = await response.blob();
@@ -59,23 +59,25 @@
                 cb();
               }
             }
-      
+
             function renderSerie() {
               larvitar.resetImageParsing();
               larvitar.readFiles(demoFiles, function (seriesStack, err) {
                 // render the first series of the study
                 let seriesId = _.keys(seriesStack)[0];
                 let serie = seriesStack[seriesId];
+                console.log(serie);
                 larvitar.renderImage(serie, "viewer");
+                larvitar.populateLarvitarManager(seriesId, serie);
                 larvitar.addDefaultTools();
                 larvitar.setToolActive(
                   larvitar.larvitar_store.state.leftMouseHandler
-                  )
+                );
               });
             }
-      
+
             let demoFileList = getDemoFileNames();
-      
+
             _.each(demoFileList, function (demoFile) {
               createFile(demoFile, renderSerie);
             });

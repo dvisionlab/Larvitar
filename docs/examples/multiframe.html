@@ -42,69 +42,69 @@
         <pre class="h-100">
           <code class="javascript" style="background-color: #000000">
             <p style="font-size:0.6vw;">
-            let demoFiles = [];
+              let demoFiles = [];
 
-            // init all
-            larvitar.initLarvitarStore();
-            larvitar.initializeImageLoader();
-            larvitar.registerMultiFrameImageLoader();
-            larvitar.initializeCSTools();
-            larvitar.larvitar_store.addViewport("viewer");
-
-            function renderSerie() {
-              larvitar.resetImageParsing();
-              larvitar.readFiles(demoFiles, function (seriesStack, err) {
-                // render the first series of the study
-                let seriesId = _.keys(seriesStack)[0];
-                let serie = seriesStack[seriesId];
-                larvitar.buildMultiFrameImage(seriesId, serie);
-                let manager = larvitar.getLarvitarManager();
-                let multiFrameSerie = manager[seriesId];
-                let frameId = 1;
-                larvitar.renderImage(multiFrameSerie, "viewer", frameId);
-                larvitar.addDefaultTools();
-                larvitar.setToolActive(
-                  larvitar.larvitar_store.state.leftMouseHandler
-                );
-                let animation = false;
-                let animationId = null;
-                let numberOfFrames = multiFrameSerie.numberOfFrames;
-                let frameRate = multiFrameSerie.frameTime;
-                $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
-                $("#current-frame").html("Current Frame: 1 of " + numberOfFrames);
-
-                document.onkeypress = function (e) {
-                  e = e || window.event;
-
-                  if (e.keyCode == 112) {
-                    animation = !animation;
-                    if (animation) {
-                      frameId =
-                        larvitar.larvitar_store.state.viewports.viewer.sliceId;
-                      animationId = setInterval(function () {
-                        frameId = frameId == numberOfFrames ? 1 : frameId + 1;
-                        larvitar.renderImage(multiFrameSerie, "viewer", frameId);
-                        $("#current-frame").html(
-                          "Current Frame: " + frameId + " of " + numberOfFrames
-                        );
-                      }, frameRate);
-                    } else {
-                      clearInterval(animationId);
-                      $("#current-frame").html();
+              // init all
+              larvitar.initLarvitarStore();
+              larvitar.initializeImageLoader();
+              larvitar.registerMultiFrameImageLoader();
+              larvitar.initializeCSTools();
+              larvitar.larvitar_store.addViewport("viewer");
+        
+              function renderSerie() {
+                larvitar.resetImageParsing();
+                larvitar.readFiles(demoFiles, function (seriesStack, err) {
+                  // render the first series of the study
+                  let seriesId = _.keys(seriesStack)[0];
+                  let serie = seriesStack[seriesId];
+                  larvitar.buildMultiFrameImage(seriesId, serie);
+                  let manager = larvitar.getLarvitarManager();
+                  let multiFrameSerie = manager[seriesId];
+                  let frameId = 1;
+                  larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+                  larvitar.addDefaultTools();
+                  larvitar.setToolActive(
+                    larvitar.larvitar_store.state.leftMouseHandler
+                  );
+                  let animation = false;
+                  let animationId = null;
+                  let numberOfFrames = multiFrameSerie.numberOfFrames;
+                  let frameRate = multiFrameSerie.frameTime;
+                  $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
+                  $("#current-frame").html("Current Frame: 1 of " + numberOfFrames);
+        
+                  document.onkeypress = function (e) {
+                    e = e || window.event;
+        
+                    if (e.keyCode == 112) {
+                      animation = !animation;
+                      if (animation) {
+                        frameId =
+                          larvitar.larvitar_store.state.viewports.viewer.sliceId;
+                        animationId = setInterval(function () {
+                          frameId = frameId == numberOfFrames ? 1 : frameId + 1;
+                          larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+                          $("#current-frame").html(
+                            "Current Frame: " + frameId + " of " + numberOfFrames
+                          );
+                        }, frameRate);
+                      } else {
+                        clearInterval(animationId);
+                        $("#current-frame").html();
+                      }
                     }
-                  }
-                };
-              });
-            }
-
-            async function createFile(fileName, cb) {
-              let response = await fetch("./demo/" + fileName);
-              let data = await response.blob();
-              let file = new File([data], fileName);
-              demoFiles.push(file);
-              cb();
-            }
-            createFile("xa_integris.dcm", renderSerie);
+                  };
+                });
+              }
+        
+              async function createFile(fileName, cb) {
+                let response = await fetch("./demo/" + fileName);
+                let data = await response.blob();
+                let file = new File([data], fileName);
+                demoFiles.push(file);
+                cb();
+              }
+              createFile("xa_integris.dcm", renderSerie);
             </p>
           </code>
         </pre>
