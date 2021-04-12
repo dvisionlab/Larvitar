@@ -215,7 +215,7 @@ export const resizeViewport = function (elementId) {
 };
 
 /**
- * Cache image and render it in a html div using cornerstone
+ * Load image and render it in a html div using cornerstone
  * @instance
  * @function renderImage
  * @param {Object} series - The original series data object
