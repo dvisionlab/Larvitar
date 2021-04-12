@@ -250,6 +250,15 @@ export const renderImage = function (
   // load and display one image (imageId)
   cornerstone.loadImage(data.imageId).then(function (image) {
     cornerstone.displayImage(element, image);
+    if (series.layer) {
+      // assign the image to its layer and return its id
+      series.layer.id = cornerstone.addLayer(
+        element,
+        image,
+        series.layer.options
+      );
+    }
+
     let viewport = cornerstone.getViewport(element);
     if (data.ww || data.wc) {
       viewport.voi.windowWidth = data.ww ? data.ww : Math.abs(data.wc) * 2;
