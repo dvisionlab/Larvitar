@@ -8,10 +8,18 @@
       integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
     <title>Larvitar - Reslice rendering example</title>
   </head>
 
-  <body class="h-100" style="background-color: #d7e8e1">
+  <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
       <div class="col-8 h-100">
         <div
@@ -27,64 +35,64 @@
       </div>
       <div class="col-4 h-100">
         <pre class="h-100">
-        <code class="javascript" data-lang="javascript">
-        <p style="font-size:0.6vw;">
-          let demoFiles = [];
-          let counter = 0;
+          <code class="javascript" style="background-color: #000000">
+            <p style="font-size:0.6vw;">
+            let demoFiles = [];
+            let counter = 0;
 
-          const getDemoFileNames = function () {
-            let demoFileList = [];
-            for (let i = 1; i < 25; i++) {
-              let filename = "anon" + i;
-              demoFileList.push(filename);
+            const getDemoFileNames = function () {
+              let demoFileList = [];
+              for (let i = 1; i < 25; i++) {
+                let filename = "anon" + i;
+                demoFileList.push(filename);
+              }
+              return demoFileList;
+            };
+
+            // init all
+            larvitar.initLarvitarStore();
+            larvitar.initializeImageLoader();
+            larvitar.registerResliceLoader();
+            larvitar.initializeCSTools();
+            larvitar.larvitar_store.addViewport("viewer-base");
+            larvitar.larvitar_store.addViewport("viewer-reslice");
+
+            async function createFile(fileName, cb) {
+              let response = await fetch("./demo/" + fileName);
+              let data = await response.blob();
+              let file = new File([data], fileName);
+              demoFiles.push(file);
+              counter++;
+              if (counter == 24) {
+                cb();
+              }
             }
-            return demoFileList;
-          };
 
-          // init all
-          larvitar.initLarvitarStore();
-          larvitar.initializeImageLoader();
-          larvitar.registerResliceLoader();
-          larvitar.initializeCSTools();
-          larvitar.larvitar_store.addViewport("viewer-base");
-          larvitar.larvitar_store.addViewport("viewer-reslice");
-
-          async function createFile(fileName, cb) {
-            let response = await fetch("./demo/" + fileName);
-            let data = await response.blob();
-            let file = new File([data], fileName);
-            demoFiles.push(file);
-            counter++;
-            if (counter == 24) {
-              cb();
-            }
-          }
-
-          function renderSerie() {
-            larvitar.resetImageParsing();
-            larvitar.readFiles(demoFiles, function (seriesStack, err) {
-              // render the first series of the study
-              let seriesId = _.keys(seriesStack)[0];
-              let serie = seriesStack[seriesId];
-              larvitar.resliceSeries(serie, "coronal", function(data) {
-                larvitar.renderImage(serie, "viewer-base");
-                larvitar.renderImage(data, "viewer-reslice");
-                larvitar.addDefaultTools();
-                larvitar.setToolActive(
-                  larvitar.larvitar_store.state.leftMouseHandler
-                  );
-                larvitar.cleanResliceStore();
+            function renderSerie() {
+              larvitar.resetImageParsing();
+              larvitar.readFiles(demoFiles, function (seriesStack, err) {
+                // render the first series of the study
+                let seriesId = _.keys(seriesStack)[0];
+                let serie = seriesStack[seriesId];
+                larvitar.resliceSeries(serie, "coronal", function(data) {
+                  larvitar.renderImage(serie, "viewer-base");
+                  larvitar.renderImage(data, "viewer-reslice");
+                  larvitar.addDefaultTools();
+                  larvitar.setToolActive(
+                    larvitar.larvitar_store.state.leftMouseHandler
+                    );
+                  larvitar.cleanResliceStore();
+                });
               });
-            });
-          }
+            }
 
-          let demoFileList = getDemoFileNames();
-          _.each(demoFileList, function (demoFile) {
-            createFile(demoFile, renderSerie);
-          });
-        </p>
-        </code>
-      </pre>
+            let demoFileList = getDemoFileNames();
+            _.each(demoFileList, function (demoFile) {
+              createFile(demoFile, renderSerie);
+            });
+            </p>
+          </code>
+        </pre>
       </div>
     </div>
 
@@ -136,7 +144,6 @@
             larvitar.setToolActive(
               larvitar.larvitar_store.state.leftMouseHandler
             );
-            larvitar.cleanResliceStore();
           });
         });
       }

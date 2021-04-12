@@ -9,7 +9,7 @@ import { each, clone } from "lodash";
 
 // internal libraries
 import { getReslicedMetadata, getReslicedPixeldata } from "./image_utils";
-import { cacheImages } from "./loaders/dicomLoader";
+import { loadAndCacheImages } from "./image_rendering";
 
 // temporary store for custom WADO Image Loader
 export var RESLICED_DATA = null;
@@ -67,7 +67,7 @@ export function resliceSeries(seriesData, orientation, callback) {
     callback(reslicedSeries);
   }
   // pre cache and then reslice the data
-  cacheImages(seriesData, function () {
+  loadAndCacheImages(seriesData, function () {
     computeReslice(seriesData, reslicedSeriesId, reslicedSeries, callback);
   });
 }

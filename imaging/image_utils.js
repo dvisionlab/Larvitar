@@ -19,10 +19,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
-import {
-  getCustomImageId,
-  getLarvitarImageLoader
-} from "./loaders/commonLoader";
+import { getCustomImageId } from "./loaders/commonLoader";
 
 import { getNrrdSerieDimensions as getSerieDimensions } from "./loaders/nrrdLoader";
 
@@ -51,7 +48,6 @@ const resliceTable = {
  * getCmprMetadata(reslicedSeriesId, imageLoaderName, header)
  * getReslicedPixeldata(imageId, originalData, reslicedData)
  * getDistanceBetweenSlices(seriesData, sliceIndex1, sliceIndex2)
- * remapVoxel([i,j,k], fromOrientation, toOrientation)
  * parseTag(dataSet, propertyName, element)
  */
 
@@ -635,39 +631,39 @@ export const getDistanceBetweenSlices = function (
   }
 };
 
-/**
- * Remap a voxel cooordinates in a target orientation
- * @instance
- * @function remapVoxel
- * @param {Array} ijk - Voxel coordinates to convert
- * @param {fromOrientation} orientationName - Orientation source
- * @param {toOrientation} orientationName - Orientation target
- * @return {Array} - Voxel coordinates in target orientation
- */
-export function remapVoxel([i, j, k], fromOrientation, toOrientation) {
-  if (fromOrientation == toOrientation) {
-    return [i, j, k];
-  }
+// /**
+//  * Remap a voxel cooordinates in a target orientation
+//  * @instance
+//  * @function remapVoxel
+//  * @param {Array} ijk - Voxel coordinates to convert
+//  * @param {fromOrientation} orientationName - Orientation source
+//  * @param {toOrientation} orientationName - Orientation target
+//  * @return {Array} - Voxel coordinates in target orientation
+//  */
+// export function remapVoxel([i, j, k], fromOrientation, toOrientation) {
+//   if (fromOrientation == toOrientation) {
+//     return [i, j, k];
+//   }
 
-  let permuteTable = resliceTable[toOrientation][fromOrientation];
-  let permuteAbsTable = permuteTable.map(function (v) {
-    return Math.abs(v);
-  });
+//   let permuteTable = resliceTable[toOrientation][fromOrientation];
+//   let permuteAbsTable = permuteTable.map(function (v) {
+//     return Math.abs(v);
+//   });
 
-  // if permuteTable value is negative, count slices from the end
-  var dims = getSerieDimensions(getLarvitarImageLoader());
+//   // if permuteTable value is negative, count slices from the end
+//   var dims = getSerieDimensions(getLarvitarImageLoader());
 
-  let i_ = isNegativeSign(permuteTable[0]) ? dims[fromOrientation][0] - i : i;
-  let j_ = isNegativeSign(permuteTable[1]) ? dims[fromOrientation][1] - j : j;
-  let k_ = isNegativeSign(permuteTable[2]) ? dims[fromOrientation][2] - k : k;
+//   let i_ = isNegativeSign(permuteTable[0]) ? dims[fromOrientation][0] - i : i;
+//   let j_ = isNegativeSign(permuteTable[1]) ? dims[fromOrientation][1] - j : j;
+//   let k_ = isNegativeSign(permuteTable[2]) ? dims[fromOrientation][2] - k : k;
 
-  let ijk = [0, 0, 0];
-  ijk[permuteAbsTable[0]] = i_;
-  ijk[permuteAbsTable[1]] = j_;
-  ijk[permuteAbsTable[2]] = k_;
+//   let ijk = [0, 0, 0];
+//   ijk[permuteAbsTable[0]] = i_;
+//   ijk[permuteAbsTable[1]] = j_;
+//   ijk[permuteAbsTable[2]] = k_;
 
-  return ijk;
-}
+//   return ijk;
+// }
 
 /**
  * Parse a DICOM Tag according to its type

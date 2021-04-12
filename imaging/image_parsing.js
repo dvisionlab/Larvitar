@@ -72,7 +72,6 @@ export const readFiles = function (entries, callback) {
 // to the output array passed into it
 export const dumpDataSet = function (dataSet, metadata, customFilter) {
   // customFilter= {tags:[], frameId:xxx}
-
   // the dataSet.elements object contains properties for each element parsed.  The name of the property
   // is based on the elements tag and looks like 'xGGGGEEEE' where GGGG is the group number and EEEE is the
   // element number both with lowercase hexadecimal letters.  For example, the Series Description DICOM element 0008,103E would

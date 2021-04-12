@@ -8,10 +8,18 @@
       integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
     <title>Larvitar - Basic rendering example</title>
   </head>
 
-  <body class="h-100" style="background-color: #d7e8e1">
+  <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
       <div
         id="viewer"
@@ -21,7 +29,7 @@
 
       <div class="col-4 h-100">
         <pre class="h-100">
-          <code class="javascript" data-lang="javascript">
+          <code class="javascript" style="background-color: #000000">
           <p style="font-size:0.6vw;">
             let demoFiles = [];
             let counter = 0;
@@ -116,8 +124,9 @@
           // render the first series of the study
           let seriesId = _.keys(seriesStack)[0];
           let serie = seriesStack[seriesId];
-          console.log(serie)
+          console.log(serie);
           larvitar.renderImage(serie, "viewer");
+          larvitar.populateLarvitarManager(seriesId, serie);
           larvitar.addDefaultTools();
           larvitar.setToolActive(
             larvitar.larvitar_store.state.leftMouseHandler

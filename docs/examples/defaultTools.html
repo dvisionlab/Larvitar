@@ -8,10 +8,18 @@
       integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
     <title>Larvitar - Default Tools example</title>
   </head>
 
-  <body class="h-100" style="background-color: #d7e8e1">
+  <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
       <div id="viewer" class="col-8 h-100" style="background-color: black">
         <p style="position: absolute; color: white">
@@ -24,7 +32,7 @@
 
       <div class="col-4 h-100">
         <pre class="h-100">
-          <code class="javascript" data-lang="javascript">
+          <code class="javascript" style="background-color: #000000">
           <p style="font-size:0.6vw;">
             let demoFiles = [];
             let counter = 0;

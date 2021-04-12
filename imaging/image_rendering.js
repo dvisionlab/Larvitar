@@ -15,13 +15,13 @@ import { larvitar_store } from "./image_store";
 /*
  * This module provides the following functions to be exported:
  * clearImageCache(seriesId)
+ * loadAndCacheImages(seriesData, callback)
  * renderFileImage(file, elementId)
  * renderWebImage(url, elementId)
  * disableViewport(elementId)
  * unloadViewport(elementId, seriesId)
  * resizeViewport(elementId)
  * renderImage(series, elementId)
- * reloadImage(series, elementId)
  * updateImage(series, elementId, imageIndex)
  * resetViewports([elementIds])
  * updateViewportData(elementId)
@@ -45,6 +45,47 @@ export const clearImageCache = function (seriesId) {
     cornerstone.imageCache.purgeCache();
   }
 };
+
+/**
+ * Load and cache all serie's images
+ * Add series's imageIds into store
+ * @instance
+ * @function loadAndCacheImages
+ * @param {Object} series the parsed series data
+ * @param {Function} callback an optional callback function
+ */
+export function loadAndCacheImages(series, callback) {
+  let t0 = performance.now();
+  let cachingCounter = 0;
+  if (series.isMultiframe) {
+    console.warn("Do not cache multiframe images for performance issues");
+    return;
+  }
+  // larvitar_store.set("cachingProgress", [series.seriesUID, cachingCounter]);
+  // add serie's imageIds into store
+  larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
+  each(series.imageIds, function (imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
+      series.instances[imageId].pixelData = image.getPixelData();
+      cachingCounter += 1;
+      // let cachingPercentage = Math.floor(
+      //   (cachingCounter / series.imageIds.length) * 100
+      // );
+      // larvitar_store.set("cachingProgress", [
+      //   series.seriesUID,
+      //   cachingPercentage
+      // ]);
+      if (cachingCounter == series.imageIds.length) {
+        let t1 = performance.now();
+        console.log(`Call to cacheImages took ${t1 - t0} milliseconds.`);
+        console.log("Cached images for ", series.seriesUID);
+        if (callback) {
+          callback(series);
+        }
+      }
+    });
+  });
+}
 
 /**
  * Render an image (png or jpg) from File on a html div using cornerstone
@@ -136,20 +177,21 @@ export const disableViewport = function (elementId) {
  * @param {String} seriesId - The id of the serie
  */
 export const unloadViewport = function (elementId, seriesId) {
-  let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
+  disableViewport(elementId);
+
+  if (!seriesId) {
+    console.warn(
+      "seriesId not provided, use disableViewport if you do not want to uncache images"
+    );
   }
-  toggleMouseHandlers(elementId, true); // flagged true to disable handlers
-  cornerstone.disable(element);
   // remove images from cornerstone cache
-  each(larvitar_store.state.series[seriesId], function (imageId) {
-    cornerstone.imageCache.removeImageLoadObject(imageId);
-  });
-  larvitar_store.removeSeriesIds(seriesId);
+  if (seriesId && has(larvitar_store.state.series, seriesId)) {
+    each(larvitar_store.state.series[seriesId], function (imageId) {
+      cornerstone.imageCache.removeImageLoadObject(imageId);
+    });
+    larvitar_store.removeSeriesIds(seriesId);
+    console.log("Uncached images for ", seriesId);
+  }
   larvitar_store.deleteViewport(elementId);
 };
 
@@ -172,46 +214,23 @@ export const resizeViewport = function (elementId) {
 };
 
 /**
- * Render a image frame in a html div using cornerstone
- * @instance
- * @function renderFrame
- * @param {Object} series - The original series data object
- * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {Integer} frameId - Optional frameId, default is 0
- */
-export const renderFrame = function (series, elementId, frameId) {
-  let t0 = performance.now();
-  let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
-  cornerstone.enable(element);
-  frameId = frameId ? frameId : 0;
-  let imageId = series.imageIds[frameId];
-
-  // TODO SET IN STORE METADATA?
-
-  cornerstone.loadImage(imageId).then(function (image) {
-    cornerstone.displayImage(element, image);
-    cornerstone.fitToWindow(element);
-    let t1 = performance.now();
-    console.log(`Call to renderFrame took ${t1 - t0} milliseconds.`);
-  });
-};
-
-/**
  * Cache image and render it in a html div using cornerstone
  * @instance
  * @function renderImage
  * @param {Object} series - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {String} frameId - Frame id for multiframe images
  * @param {Object} defaultProps - Optional default props
  */
-export const renderImage = function (series, elementId, defaultProps) {
+export const renderImage = function (
+  series,
+  elementId,
+  frameId = null,
+  defaultProps
+) {
   let t0 = performance.now();
+
+  // get element and enable it
   let element = isElement(elementId)
     ? elementId
     : document.getElementById(elementId);
@@ -221,188 +240,67 @@ export const renderImage = function (series, elementId, defaultProps) {
   }
   cornerstone.enable(element);
 
-  let numberOfSlices = series.imageIds.length;
-  let imageIndex =
-    defaultProps &&
-    has(defaultProps, "sliceNumber") &&
-    defaultProps["sliceNumber"] <= series.imageIds.length
-      ? defaultProps["sliceNumber"]
-      : Math.floor(series.imageIds.length / 2);
-  let currentImageId = series.imageIds[imageIndex - 1];
+  // default to 0 if multiframe and frameId is null
+  frameId = series.isMultiframe && frameId == null ? 1 : frameId;
 
-  if (!currentImageId) {
-    currentImageId = series.imageIds[0];
-    console.warn("imageId not found for imageIndex", imageIndex);
-  }
-
-  let rows = series.instances[series.imageIds[0]].metadata["x00280010"];
-  let cols = series.instances[series.imageIds[0]].metadata["x00280011"];
-  let thickness = series.instances[series.imageIds[0]].metadata["x00180050"];
-  let spacing_x = series.instances[series.imageIds[0]].metadata["x00280030"]
-    ? series.instances[series.imageIds[0]].metadata["x00280030"][0]
-    : null;
-  let spacing_y = series.instances[series.imageIds[0]].metadata["x00280030"]
-    ? series.instances[series.imageIds[0]].metadata["x00280030"][1]
-    : null;
-
-  let wc,
-    ww = null;
-  if (defaultProps && has(defaultProps, "wc")) {
-    wc = defaultProps["wc"];
-  } else {
-    if (series.instances[series.imageIds[0]].metadata["x00281050"]) {
-      wc =
-        series.instances[series.imageIds[0]].metadata["x00281050"][0] ||
-        series.instances[series.imageIds[0]].metadata["x00281050"];
-    }
-  }
-
-  if (defaultProps && has(defaultProps, "ww")) {
-    ww = defaultProps["ww"];
-  } else {
-    if (series.instances[series.imageIds[0]].metadata["x00281051"]) {
-      ww =
-        series.instances[series.imageIds[0]].metadata["x00281051"][0] ||
-        series.instances[series.imageIds[0]].metadata["x00281051"];
-    }
-  }
-
-  let defaultWW =
-    defaultProps && has(defaultProps, "defaultWW")
-      ? defaultProps["defaultWW"]
-      : ww;
-  let defaultWC =
-    defaultProps && has(defaultProps, "defaultWC")
-      ? defaultProps["defaultWC"]
-      : wc;
-
-  if (rows == null || cols == null) {
-    console.error("invalid image metadata");
-    larvitar_store.set("errorLog", "Invalid Image Metadata");
-    return;
-  } else {
-    larvitar_store.set("errorLog", "");
-  }
-
-  // add serie's imageIds into store
-  larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
-  let loadingCounter = 0;
-  larvitar_store.set("loadingProgress", [elementId, loadingCounter]);
+  larvitar_store.set("loadingProgress", [elementId, 0]);
   larvitar_store.set("loadingStatus", [elementId, false]);
+  let data = getSeriesData(series, frameId, defaultProps);
+  larvitar_store.set("loadingProgress", [elementId, 10]);
 
-  each(series.imageIds, function (imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function (image) {
-      if (currentImageId == imageId) {
-        cornerstone.displayImage(element, image);
-        let viewport = cornerstone.getViewport(element);
-        if (ww || wc) {
-          viewport.voi.windowWidth = ww ? ww : Math.abs(wc) * 2;
-          viewport.voi.windowCenter = wc ? wc : parseInt(ww / 2);
-        }
-        cornerstone.fitToWindow(element);
+  // load and display one image (imageId)
+  cornerstone.loadImage(data.imageId).then(function (image) {
+    larvitar_store.set("loadingProgress", [elementId, 50]);
+    cornerstone.displayImage(element, image);
+    larvitar_store.set("loadingProgress", [elementId, 70]);
+    let viewport = cornerstone.getViewport(element);
+    if (data.ww || data.wc) {
+      viewport.voi.windowWidth = data.ww ? data.ww : Math.abs(data.wc) * 2;
+      viewport.voi.windowCenter = data.wc ? data.wc : parseInt(data.ww / 2);
+    }
+    cornerstone.fitToWindow(element);
 
-        if (defaultProps && has(defaultProps, "scale")) {
-          let viewport = cornerstone.getViewport(element);
-          viewport.scale = defaultProps["scale"];
-          cornerstone.setViewport(element, viewport);
-        }
+    if (defaultProps && has(defaultProps, "scale")) {
+      let viewport = cornerstone.getViewport(element);
+      viewport.scale = defaultProps["scale"];
+      cornerstone.setViewport(element, viewport);
+    }
 
-        if (
-          defaultProps &&
-          has(defaultProps, "tr_x") &&
-          has(defaultProps, "tr_y")
-        ) {
-          let viewport = cornerstone.getViewport(element);
-          viewport.translation.x = defaultProps["tr_x"];
-          viewport.translation.y = defaultProps["tr_y"];
-          cornerstone.setViewport(element, viewport);
-        }
+    if (
+      defaultProps &&
+      has(defaultProps, "tr_x") &&
+      has(defaultProps, "tr_y")
+    ) {
+      let viewport = cornerstone.getViewport(element);
+      viewport.translation.x = defaultProps["tr_x"];
+      viewport.translation.y = defaultProps["tr_y"];
+      cornerstone.setViewport(element, viewport);
+    }
 
-        let storedViewport = cornerstone.getViewport(element);
-
-        storeViewportData(
-          image,
-          elementId,
-          imageIndex,
-          numberOfSlices,
-          rows,
-          cols,
-          spacing_x,
-          spacing_y,
-          thickness,
-          storedViewport,
-          defaultWW,
-          defaultWC
-        );
-        larvitar_store.set("loadingStatus", [elementId, true]);
-        let t1 = performance.now();
-        console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
-      }
-      loadingCounter += 1;
-      let loadingPercentage = Math.floor(
-        (loadingCounter / series.imageIds.length) * 100
-      );
-      larvitar_store.set("loadingProgress", [elementId, loadingPercentage]);
-    });
+    let storedViewport = cornerstone.getViewport(element);
+    larvitar_store.set("loadingProgress", [elementId, 90]);
+    storeViewportData(
+      image,
+      elementId,
+      data.imageIndex,
+      data.numberOfSlices,
+      data.rows,
+      data.cols,
+      data.spacing_x,
+      data.spacing_y,
+      data.thickness,
+      storedViewport,
+      data.defaultWW,
+      data.defaultWC
+    );
+    larvitar_store.set("loadingStatus", [elementId, true]);
+    larvitar_store.set("loadingProgress", [elementId, 100]);
+    let t1 = performance.now();
+    console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
   });
 
-  csToolsCreateStack(element, series.imageIds, imageIndex - 1);
+  csToolsCreateStack(element, series.imageIds, data.imageIndex - 1);
   toggleMouseHandlers(elementId);
-};
-
-/**
- * Reload an image on a html div using cornerstone
- * @instance
- * @function reloadImage
- * @param {Object} series - The original series data object
- * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- */
-export const reloadImage = function (series, elementId) {
-  let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
-  cornerstone.enable(element);
-  let sliceId = larvitar_store.get("viewports", elementId, "sliceId");
-  let currentImageId = series.imageIds[sliceId];
-  let loadingCounter = 0;
-  larvitar_store.set("loadingStatus", [elementId, false]);
-  larvitar_store.set("loadingProgress", [elementId, loadingCounter]);
-
-  each(series.imageIds, function (imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function (image) {
-      if (currentImageId == imageId) {
-        cornerstone.displayImage(element, image);
-        let viewport = cornerstone.getViewport(element);
-        viewport.voi.windowWidth = larvitar_store.get(
-          "viewports",
-          elementId,
-          "viewport",
-          "voi",
-          "windowWidth"
-        );
-        viewport.voi.windowCenter = larvitar_store.get(
-          "viewports",
-          elementId,
-          "viewport",
-          "voi",
-          "windowCenter"
-        );
-        csToolsCreateStack(element);
-        toggleMouseHandlers(elementId);
-        cornerstone.fitToWindow(element);
-        larvitar_store.set("loadingStatus", [elementId, true]);
-      }
-      loadingCounter += 1;
-      let loadingPercentage = Math.floor(
-        (loadingCounter / series.imageIds.length) * 100
-      );
-      larvitar_store.set("loadingProgress", [elementId, loadingPercentage]);
-    });
-  });
 };
 
 /**
@@ -687,4 +585,81 @@ export const isElement = function (o) {
         o !== null &&
         o.nodeType === 1 &&
         typeof o.nodeName === "string";
+};
+
+/* Internal module functions */
+
+/**
+ * Get series metadata from default props and series' metadata
+ * @instance
+ * @function getSeriesData
+ * @param {Object} series - The parsed data series
+ * @param {String} frameId - Frame id for multiframe images
+ * @param {Object} defaultProps - Optional default properties
+ * @return {Object} data - A data dictionary with parsed tags' values
+ */
+let getSeriesData = function (series, frameId, defaultProps) {
+  let data = {};
+  // image index
+  if (series.isMultiframe) {
+    data.numberOfSlices = series.imageIds.length;
+    data.imageIndex = frameId;
+    data.imageId = series.imageIds[frameId - 1];
+  } else {
+    data.numberOfSlices = series.imageIds.length;
+    data.imageIndex =
+      defaultProps &&
+      has(defaultProps, "sliceNumber") &&
+      defaultProps["sliceNumber"] <= series.imageIds.length
+        ? defaultProps["sliceNumber"]
+        : Math.floor(series.imageIds.length / 2);
+    data.imageId = series.imageIds[data.imageIndex - 1];
+  }
+
+  if (!data.imageId) {
+    data.imageId = series.imageIds[0];
+    console.warn("imageId not found for imageIndex", data.imageIndex);
+  }
+
+  // rows, cols and x y z spacing
+  data.rows = series.instances[series.imageIds[0]].metadata["x00280010"];
+  data.cols = series.instances[series.imageIds[0]].metadata["x00280011"];
+  data.thickness = series.instances[series.imageIds[0]].metadata["x00180050"];
+  data.spacing_x = series.instances[series.imageIds[0]].metadata["x00280030"]
+    ? series.instances[series.imageIds[0]].metadata["x00280030"][0]
+    : null;
+  data.spacing_y = series.instances[series.imageIds[0]].metadata["x00280030"]
+    ? series.instances[series.imageIds[0]].metadata["x00280030"][1]
+    : null;
+
+  // window center and window width
+  data.wc =
+    defaultProps && has(defaultProps, "wc")
+      ? defaultProps["wc"]
+      : series.instances[series.imageIds[0]].metadata["x00281050"];
+
+  data.ww =
+    defaultProps && has(defaultProps, "ww")
+      ? defaultProps["ww"]
+      : series.instances[series.imageIds[0]].metadata["x00281051"];
+
+  // default values for reset
+  data.defaultWW =
+    defaultProps && has(defaultProps, "defaultWW")
+      ? defaultProps["defaultWW"]
+      : data.ww;
+  data.defaultWC =
+    defaultProps && has(defaultProps, "defaultWC")
+      ? defaultProps["defaultWC"]
+      : data.wc;
+
+  if (data.rows == null || data.cols == null) {
+    console.error("invalid image metadata");
+    larvitar_store.set("errorLog", "Invalid Image Metadata");
+    return;
+  } else {
+    larvitar_store.set("errorLog", "");
+  }
+
+  return data;
 };
