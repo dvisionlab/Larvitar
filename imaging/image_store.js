@@ -198,7 +198,7 @@ class Larvitar_Store {
         this.state["viewports"][data[0]]["minPixelValue"] = data[1];
       } else if (field == "maxPixelValue") {
         this.state["viewports"][data[0]]["maxPixelValue"] = data[1];
-      } else if (field == "loadingStatus") {
+      } else if (field == "renderingStatus") {
         this.state["viewports"][data[0]]["ready"] = data[1];
       } else if (field == "loadingProgress") {
         this.state["viewports"][data[0]]["loading"] = data[1];

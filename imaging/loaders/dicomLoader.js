@@ -37,11 +37,13 @@ export const populateLarvitarManager = function (
   if (!manager[seriesId]) {
     manager[seriesId] = {};
   }
-  loadAndCacheImages(seriesData, function (data) {
-    manager[seriesId] = data;
-    imageLoaderCounter += seriesData.imageIds.length;
+  loadAndCacheImages(seriesData, function (resp) {
+    if (resp.loading == 100) {
+      manager[seriesId] = resp.series;
+      imageLoaderCounter += seriesData.imageIds.length;
+    }
     if (callback) {
-      callback();
+      callback(resp);
     }
   });
 };
