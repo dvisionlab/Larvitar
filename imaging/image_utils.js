@@ -720,7 +720,11 @@ export const parseTag = function (dataSet, propertyName, element) {
     // Embedded spaces are not allowed.
     else if (vr === "DS") {
       value = value.split("\\").map(Number);
-      value = value.length == 1 ? value[0] : value;
+      if (propertyName == "x00281050" || propertyName == "x00281051") {
+        value = value.length > 0 ? value[0] : value;
+      } else {
+        value = value.length == 1 ? value[0] : value;
+      }
     }
     // A string of characters of the format YYYYMMDD; where YYYY shall contain year,
     // MM shall contain the month, and DD shall contain the day,

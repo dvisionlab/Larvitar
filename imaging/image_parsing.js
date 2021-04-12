@@ -115,8 +115,11 @@ export const dumpDataSet = function (dataSet, metadata, customFilter) {
  * @param {Function} callback - Passed through
  */
 let parseNextFile = function (callback) {
+  let t0 = performance.now();
   if (!parsingQueueFlag || parsingQueue.length === 0) {
     if (parsingQueue.length === 0) {
+      let t1 = performance.now();
+      console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
       callback(allSeriesStack);
     }
     return;
