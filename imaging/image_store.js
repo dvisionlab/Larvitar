@@ -65,7 +65,7 @@ class Larvitar_Store {
     this.vuex_module = vuex_module;
     this.state = {
       manager: null,
-      series: {}, // seriesUID: [imageIds]
+      series: {}, // seriesUID: {imageIds:[], progress:value}
       leftMouseHandler: "Wwwc",
       colormapId: "gray",
       viewports: {},
@@ -144,7 +144,10 @@ class Larvitar_Store {
         : dispatch;
       this.vuex_store.dispatch(route, seriesId, imageIds);
     } else {
-      this.state.series[seriesId] = imageIds;
+      if (this.state.series[seriesId] == null) {
+        this.state.series[seriesId] = {};
+      }
+      this.state.series[seriesId]["imageIds"] = imageIds;
     }
   }
 
@@ -219,6 +222,8 @@ class Larvitar_Store {
           data[5];
         this.state["viewports"][data[0]]["default"]["voi"]["windowCenter"] =
           data[6];
+      } else if (field == "progress") {
+        this.state.series[data[0]]["progress"] = data[1];
       } else if (field == "manager") {
         this.state.manager = data;
       } else {

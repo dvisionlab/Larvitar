@@ -5,6 +5,7 @@
 
 // external libraries
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import { omit } from "lodash";
 
 // internal libraries
 import { getNrrdImageId } from "./nrrdLoader";

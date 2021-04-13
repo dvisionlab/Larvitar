@@ -37,9 +37,10 @@ export const populateLarvitarManager = function (
   if (!manager[seriesId]) {
     manager[seriesId] = {};
   }
+  manager[seriesId] = seriesData;
   loadAndCacheImages(seriesData, function (resp) {
     if (resp.loading == 100) {
-      manager[seriesId] = resp.series;
+      manager[seriesId] = resp.series; // TODO Metto via prima della cache o faccio due funz separate
       imageLoaderCounter += seriesData.imageIds.length;
     }
     if (callback) {

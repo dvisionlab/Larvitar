@@ -64,6 +64,9 @@ export default {
     }
   },
   actions: {
+    // TODO SERIES OBJ NOW IS SERIES: {imageIds: [], progress: value}
+    // UPDATE ADD SERIESIDS
+    // ADD setProgress(seriesId, value)
     addSeriesIds: ({ state }, { imageIds, seriesId }) =>
       Vue.set(state.series, seriesId, imageIds),
     addViewport: ({ state }, viewportId) => {
