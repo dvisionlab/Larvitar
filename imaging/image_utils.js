@@ -19,7 +19,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
-import { getCustomImageId } from "./loaders/commonLoader";
+import { getDicomImageId } from "./loaders/dicomLoader";
 import TAG_DICT from "./dataDictionary.json";
 
 // global module variables
@@ -332,7 +332,7 @@ export const getReslicedMetadata = function (
   let reslicedIOP = getReslicedIOP(sampleMetadata.x00200037, permuteTable);
 
   for (let f = 0; f < toSize[2]; f++) {
-    let reslicedImageId = getCustomImageId(imageLoaderName);
+    let reslicedImageId = getDicomImageId(imageLoaderName);
     reslicedImageIds.push(reslicedImageId);
 
     let instanceId = uuidv4();
@@ -438,7 +438,7 @@ export const getCmprMetadata = function (
   let reslicedInstances = {};
 
   for (let f = 0; f < header.frames_number; f++) {
-    let reslicedImageId = getCustomImageId(imageLoaderName);
+    let reslicedImageId = getDicomImageId(imageLoaderName);
     reslicedImageIds.push(reslicedImageId);
 
     let instanceId = uuidv4();

@@ -111,12 +111,12 @@ import {
 } from "./imaging/tools/tools.default";
 
 import {
+  populateLarvitarManager,
   getLarvitarManager,
   getLarvitarImageTracker,
   resetLarvitarManager,
   removeSeriesFromLarvitarManager,
   getSeriesDataFromLarvitarManager,
-  getCustomImageId,
   getImageFrame
 } from "./imaging/loaders/commonLoader";
 
@@ -129,10 +129,7 @@ import {
   getNrrdSerieDimensions
 } from "./imaging/loaders/nrrdLoader";
 
-import {
-  populateLarvitarManager,
-  getDicomImageId
-} from "./imaging/loaders/dicomLoader";
+import { getDicomImageId, cacheImages } from "./imaging/loaders/dicomLoader";
 
 import { loadReslicedImage } from "./imaging/loaders/resliceLoader";
 
@@ -233,12 +230,12 @@ export {
   // image_contours
   parseContours,
   // loaders/commonLoader
+  populateLarvitarManager,
   getLarvitarManager,
   getLarvitarImageTracker,
   resetLarvitarManager,
   removeSeriesFromLarvitarManager,
   getSeriesDataFromLarvitarManager,
-  getCustomImageId,
   getImageFrame,
   // loaders/nrrdLoader
   buildNrrdImage,
@@ -250,8 +247,8 @@ export {
   // loaders/resliceLoader
   loadReslicedImage,
   // loaders/dicomLoader
-  populateLarvitarManager,
   getDicomImageId,
+  cacheImages,
   // loaders/multiFrameLoader
   loadMultiFrameImage,
   buildMultiFrameImage,

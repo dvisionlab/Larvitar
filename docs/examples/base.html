@@ -133,7 +133,8 @@
           console.log(serie);
           larvitar.renderImage(serie, "viewer");
           // optionally cache the series
-          larvitar.populateLarvitarManager(seriesId, serie, function(resp) {
+          larvitar.populateLarvitarManager(seriesId, serie);
+          larvitar.cacheImages(seriesId, serie, function (resp) {
             console.log(resp.loading);
             console.log(resp.series);
           });
