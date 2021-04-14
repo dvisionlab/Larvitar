@@ -5,11 +5,7 @@
 
 // external libraries
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-
-// internal libraries
-import { getNrrdImageId } from "./nrrdLoader";
-import { getDicomImageId } from "./dicomLoader";
-import { getMultiFrameImageId } from "./multiframeLoader";
+import { omit } from "lodash";
 
 // global variables
 var larvitarManager = {};
@@ -17,14 +13,28 @@ var imageTracker = {};
 
 /*
  * This module provides the following functions to be exported:
+ * populateLarvitarManager(seriesId, seriesData)
  * getLarvitarManager()
  * getLarvitarImageTracker()
  * resetLarvitarManager()
  * removeSeriesFromLarvitarManager(seriesId)
  * getSeriesDataFromLarvitarManager(seriesId)
- * getCustomImageId(loaderName)
  * getImageFrame(metadata, dataSet)
  */
+
+/**
+ * This function can be called in order to populate the Larvitar manager
+ * @instance
+ * @function populateLarvitarManager
+ * @param {String} seriesId The Id of the series
+ * @param {Object} seriesData The series data
+ * @returns {manager} the Larvitar manager
+ */
+export const populateLarvitarManager = function (seriesId, seriesData) {
+  let manager = getLarvitarManager();
+  manager[seriesId] = seriesData;
+  return manager;
+};
 
 /**
  * Return the common data loader manager
@@ -77,35 +87,6 @@ export const removeSeriesFromLarvitarManager = function (seriesId) {
  */
 export const getSeriesDataFromLarvitarManager = function (seriesId) {
   return larvitarManager[seriesId];
-};
-
-/**
- * Generate a custom ImageId from loader name
- * @instance
- * @function getCustomImageId
- * @param {String} loaderName The name of the current loader
- * @returns {String} custom Image Id
- */
-export const getCustomImageId = function (loaderName) {
-  let imageId;
-  switch (loaderName) {
-    case "dicomLoader":
-      imageId = getDicomImageId(loaderName);
-      break;
-    case "resliceLoader":
-      imageId = getDicomImageId(loaderName);
-      break;
-    case "nrrdLoader":
-      imageId = getNrrdImageId(loaderName);
-      break;
-    case "multiFrameLoader":
-      imageId = getMultiFrameImageId(loaderName);
-      break;
-    default:
-      console.warn("no matching loader");
-      imageId = null;
-  }
-  return imageId;
 };
 
 /**

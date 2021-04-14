@@ -69,6 +69,8 @@ export function loadAndCacheImages(series, callback) {
   callback(response);
   // add serie's imageIds into store
   larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
+  // add serie's caching progress into store
+  larvitar_store.set("progress", [series.seriesUID, 0]);
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
       series.instances[imageId].pixelData = image.getPixelData();
@@ -77,6 +79,7 @@ export function loadAndCacheImages(series, callback) {
         (cachingCounter / series.imageIds.length) * 100
       );
       response.loading = cachingPercentage;
+      larvitar_store.set("progress", [series.seriesUID, cachingPercentage]);
       if (cachingCounter == series.imageIds.length) {
         let t1 = performance.now();
         console.log(`Call to cacheImages took ${t1 - t0} milliseconds.`);

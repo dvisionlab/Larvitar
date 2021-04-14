@@ -12,34 +12,27 @@ import { getLarvitarManager } from "./commonLoader";
 
 /*
  * This module provides the following functions to be exported:
- * populateLarvitarManager(seriesId, seriesData, callback)
+ * cacheImages(seriesId, seriesData, callback)
  * getDicomImageId(dicomLoaderName)
  */
 
 let imageLoaderCounter = 0;
 
 /**
- * This function can be called in order to populate the DICOM manager for a provided orientation
+ * Load and cache images and then store in manager if ready
  * @instance
- * @function populateLarvitarManager
+ * @function cacheImages
  * @param {String} seriesId The Id of the series
  * @param {Object} seriesData The series data
  * @param {Function} callback An optional callback function
  */
-export const populateLarvitarManager = function (
-  seriesId,
-  seriesData,
-  callback
-) {
+export const cacheImages = function (seriesId, seriesData, callback) {
   let manager = getLarvitarManager();
-
-  // check if DICOM Manager exists for this seriesId
-  if (!manager[seriesId]) {
-    manager[seriesId] = {};
-  }
   loadAndCacheImages(seriesData, function (resp) {
     if (resp.loading == 100) {
-      manager[seriesId] = resp.series;
+      if (manager[seriesId]) {
+        manager[seriesId] = resp.series;
+      }
       imageLoaderCounter += seriesData.imageIds.length;
     }
     if (callback) {

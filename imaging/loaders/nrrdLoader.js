@@ -6,7 +6,7 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import { each, clone, omit, range, findKey, filter, pickBy } from "lodash";
+import { each, clone, range, findKey, filter, pickBy } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
