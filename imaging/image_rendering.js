@@ -27,6 +27,12 @@ import { larvitar_store } from "./image_store";
  * updateViewportData(elementId)
  * toggleMouseHandlers(elementId, disableFlag)
  * storeViewportData(params...)
+ * isElement(o)
+ * invertImage(elementId)
+ * flipImageHorizontal(elementId)
+ * flipImageVertical(elementId)
+ * rotateImageLeft(elementId)
+ * rotateImageRight(elementId)
  */
 
 /**
@@ -378,6 +384,10 @@ export const resetViewports = function (elementIds) {
       "windowCenter"
     );
 
+    viewport.hflip = false;
+    viewport.vflip = false;
+    viewport.invert = false;
+
     cornerstone.setViewport(element, viewport);
     cornerstone.fitToWindow(element);
     cornerstone.updateImage(element);
@@ -583,6 +593,101 @@ export const isElement = function (o) {
         o !== null &&
         o.nodeType === 1 &&
         typeof o.nodeName === "string";
+};
+
+/**
+ * Invert pixels of an image
+ * @instance
+ * @function invertImage
+ * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const invertImage = function (elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let viewport = cornerstone.getViewport(element);
+  viewport.invert = !viewport.invert;
+  cornerstone.setViewport(element, viewport);
+};
+
+/**
+ * Flip image around horizontal axis
+ * @instance
+ * @function flipImageHorizontal
+ * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const flipImageHorizontal = function (elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let viewport = cornerstone.getViewport(element);
+  viewport.hflip = !viewport.hflip;
+  cornerstone.setViewport(element, viewport);
+};
+
+/**
+ * Flip image around vertical axis
+ * @instance
+ * @function flipImageVertical
+ * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const flipImageVertical = function (elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let viewport = cornerstone.getViewport(element);
+  viewport.vflip = !viewport.vflip;
+  cornerstone.setViewport(element, viewport);
+};
+
+/**
+ * Rotate image by 90° in left direction
+ * @instance
+ * @function rotateImageLeft
+ * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const rotateImageLeft = function (elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let viewport = cornerstone.getViewport(element);
+  viewport.rotation -= 90;
+  cornerstone.setViewport(element, viewport);
+};
+
+/**
+ * Rotate image by 90° in right direction
+ * @instance
+ * @function rotateImageRight
+ * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const rotateImageRight = function (elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let viewport = cornerstone.getViewport(element);
+  viewport.rotation += 90;
+  cornerstone.setViewport(element, viewport);
 };
 
 /* Internal module functions */
