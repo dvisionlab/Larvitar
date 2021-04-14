@@ -142,7 +142,7 @@ class Larvitar_Store {
       let route = this.vuex_module
         ? this.vuex_module + "/" + dispatch
         : dispatch;
-      this.vuex_store.dispatch(route, seriesId, imageIds);
+      this.vuex_store.dispatch(route, [seriesId, imageIds]);
     } else {
       if (this.state.series[seriesId] == null) {
         this.state.series[seriesId] = {};

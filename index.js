@@ -68,7 +68,12 @@ import {
   resetViewports,
   updateViewportData,
   toggleMouseHandlers,
-  storeViewportData
+  storeViewportData,
+  invertImage,
+  flipImageHorizontal,
+  flipImageVertical,
+  rotateImageLeft,
+  rotateImageRight
 } from "./imaging/image_rendering";
 
 import { resliceSeries, cleanResliceStore } from "./imaging/image_reslice";
@@ -218,6 +223,11 @@ export {
   updateViewportData,
   toggleMouseHandlers,
   storeViewportData,
+  invertImage,
+  flipImageHorizontal,
+  flipImageVertical,
+  rotateImageLeft,
+  rotateImageRight,
   // image_reslice
   resliceSeries,
   cleanResliceStore,
