@@ -114,7 +114,7 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
     imageFrame.pixelData = imageData.data;
   }
 
-  // Setup the renderer
+  // Setup the renderer TODO check if this is really needed (see comment below)
   if (image.color) {
     image.render = cornerstone.renderColorImage;
     image.getCanvas = function () {
@@ -130,7 +130,7 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
       return canvas;
     };
   } else {
-    image.render = cornerstone.renderGrayscaleImage;
+    image.render = undefined; // will be set at need in cornerstone render pipeline, see drawImageSync.js (line 44)
   }
 
   // calculate min/max if not supplied
