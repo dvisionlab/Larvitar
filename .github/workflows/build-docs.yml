@@ -47,5 +47,5 @@ jobs:
         run: |
           git config --global user.name 'Mattia-gh-action'
           git config --global user.email 'ronzim@users.noreply.github.com'
-          git diff-index --quiet HEAD || git commit -am "Automated docs generation"
+          git commit --allow-empty -am "Automated docs generation"
           git push
