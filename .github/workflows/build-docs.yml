@@ -41,10 +41,9 @@ jobs:
       - name: Generate docs
         run: |
           ls &&
-          cd ./template &&
+          cd template &&
           ls && 
-          cd ..
-          &&
+          cd .. &&
           yarn generate-docs
 
       # Commit Package and Docs
