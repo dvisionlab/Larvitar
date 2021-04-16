@@ -33,7 +33,7 @@ jobs:
       # Create template folder
       - name: Create template folder
         run: |
-          mkdir templates
+          mkdir template
 
       # Clone template
       - name: Clone docdash template
