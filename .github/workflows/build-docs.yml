@@ -41,7 +41,7 @@ jobs:
       - name: Generate docs
         run: |
           ls &&
-          cd ./template/docdash &&
+          cd ./template &&
           ls && 
           cd ..
           &&
