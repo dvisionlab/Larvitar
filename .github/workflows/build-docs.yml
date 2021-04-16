@@ -40,13 +40,6 @@ jobs:
       # Generate docs
       - name: Generate docs
         run: |
-          ls &&
-          echo ------ && 
-          cd template &&
-          ls && 
-          echo ------ && 
-          cd .. &&
-          ls &&
           yarn generate-docs
 
       # Commit Package and Docs
