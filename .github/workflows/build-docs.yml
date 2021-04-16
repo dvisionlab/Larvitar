@@ -42,6 +42,7 @@ jobs:
         run: |
           ls &&
           cd template &&
+          echo ------ && 
           ls && 
           cd .. &&
           yarn generate-docs
