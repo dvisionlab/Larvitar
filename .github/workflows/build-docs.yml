@@ -48,7 +48,7 @@ jobs:
           yarn generate-docs
 
       # Commit Package and Docs
-      - name: Commit package and docs
+      - name: Commit docs
         run: |
           git config --global user.name 'Mattia-gh-action'
           git config --global user.email 'ronzim@users.noreply.github.com'
