@@ -35,16 +35,18 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: clenemt/docdash
-          path: ./template/
+          path: ./template/docdash/
 
       # Generate docs
       - name: Generate docs
         run: |
           ls &&
-          cd template &&
           echo ------ && 
+          cd template &&
           ls && 
+          echo ------ && 
           cd .. &&
+          ls &&
           yarn generate-docs
 
       # Commit Package and Docs
