@@ -40,6 +40,11 @@ jobs:
       # Generate docs
       - name: Generate docs
         run: |
+          ls &&
+          cd ./template/docdash &&
+          ls && 
+          cd ..
+          &&
           yarn generate-docs
 
       # Commit Package and Docs
