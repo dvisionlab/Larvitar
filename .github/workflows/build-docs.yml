@@ -30,11 +30,6 @@ jobs:
         run: |
           yarn install
 
-      # Create template folder
-      - name: Create template folder
-        run: |
-          mkdir template
-
       # Clone template
       - name: Clone docdash template
         uses: actions/checkout@v2
