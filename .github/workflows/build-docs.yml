@@ -1,0 +1,51 @@
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [master]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # First job, build package
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      # Setup node environment
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      # Install node modules
+      - name: Install node modules
+        run: |
+          yarn install
+
+      # Clone template
+      - name: Clone docdash template
+        uses: actions/checkout@v2
+        with:
+          repository: clenemt/docdash
+          path: ./template/docdash/
+
+      # Generate docs
+      - name: Generate docs
+        run: |
+          yarn generate-docs
+
+      # Commit Package and Docs
+      - name: Commit docs
+        run: |
+          git config --global user.name 'Mattia-gh-action'
+          git config --global user.email 'ronzim@users.noreply.github.com'
+          git commit --allow-empty -am "Automated docs generation"
+          git push
