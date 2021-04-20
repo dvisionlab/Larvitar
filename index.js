@@ -76,7 +76,7 @@ import {
   rotateImageRight
 } from "./imaging/image_rendering";
 
-import { resliceSeries, cleanResliceStore } from "./imaging/image_reslice";
+import { resliceSeries } from "./imaging/image_reslice";
 
 import {
   addDiameterTool,
@@ -230,7 +230,6 @@ export {
   rotateImageRight,
   // image_reslice
   resliceSeries,
-  cleanResliceStore,
   // image_colormaps
   getColormapsList,
   applyColorMap,

@@ -5,19 +5,18 @@
 
 // external libraries
 import { v4 as uuidv4 } from "uuid";
-import { each, clone } from "lodash";
+import { each } from "lodash";
 
 // internal libraries
 import { getReslicedMetadata, getReslicedPixeldata } from "./image_utils";
-import { loadAndCacheImages } from "./image_rendering";
-
-// temporary store for custom WADO Image Loader
-export var RESLICED_DATA = null;
+import {
+  getLarvitarImageTracker,
+  getLarvitarManager
+} from "./loaders/commonLoader";
 
 /*
  * This module provides the following functions to be exported:
  * resliceSeries(seriesId, seriesData, orientation, callback)
- * cleanResliceStore()
  */
 
 /**
@@ -54,31 +53,22 @@ export function resliceSeries(seriesData, orientation, callback) {
     callback
   ) {
     let t0 = performance.now();
+    let imageTracker = getLarvitarImageTracker();
+    let manager = getLarvitarManager();
     each(reslicedSeries.imageIds, function (imageId) {
       let data = getReslicedPixeldata(imageId, seriesData, reslicedSeries);
       reslicedSeries.instances[imageId].pixelData = data;
+      imageTracker[imageId] = reslicedSeriesId;
     });
     reslicedSeries.numberOfImages = reslicedSeries.imageIds.length;
     reslicedSeries.seriesUID = reslicedSeriesId;
     reslicedSeries.seriesDescription = seriesData.seriesDescription;
-    RESLICED_DATA = clone(reslicedSeries.instances);
+    reslicedSeries.orientation = orientation;
+    manager[reslicedSeriesId] = reslicedSeries;
     let t1 = performance.now();
     console.log(`Call to resliceSeries took ${t1 - t0} milliseconds.`);
     callback(reslicedSeries);
   }
-  // pre cache and then reslice the data
-  loadAndCacheImages(seriesData, function (resp) {
-    if (resp.loading == 100) {
-      computeReslice(seriesData, reslicedSeriesId, reslicedSeries, callback);
-    }
-  });
-}
-
-/**
- * Clean the temporary store for custom WADO Image Loader
- * @instance
- * @function cleanResliceStore
- */
-export function cleanResliceStore() {
-  RESLICED_DATA = null;
+  // reslice the data
+  computeReslice(seriesData, reslicedSeriesId, reslicedSeries, callback);
 }
