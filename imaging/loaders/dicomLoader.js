@@ -3,9 +3,6 @@
  *        custom DICOM Loader
  */
 
-// external libraries
-import cornerstone from "cornerstone-core";
-
 // internal libraries
 import { loadAndCacheImages } from "../image_rendering";
 import { getLarvitarManager } from "./commonLoader";

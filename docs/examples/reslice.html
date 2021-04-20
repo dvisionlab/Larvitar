@@ -39,7 +39,7 @@
             <p style="font-size:0.6vw;">
               let demoFiles = [];
               let counter = 0;
-        
+
               const getDemoFileNames = function () {
                 let demoFileList = [];
                 for (let i = 1; i < 25; i++) {
@@ -48,7 +48,7 @@
                 }
                 return demoFileList;
               };
-        
+
               // init all
               larvitar.initLarvitarStore();
               larvitar.initializeImageLoader();
@@ -56,7 +56,7 @@
               larvitar.initializeCSTools();
               larvitar.larvitar_store.addViewport("viewer-base");
               larvitar.larvitar_store.addViewport("viewer-reslice");
-        
+
               async function createFile(fileName, cb) {
                 let response = await fetch("./demo/" + fileName);
                 let data = await response.blob();
@@ -67,24 +67,29 @@
                   cb();
                 }
               }
-        
+
               function renderSerie() {
                 larvitar.resetImageParsing();
                 larvitar.readFiles(demoFiles, function (seriesStack, err) {
                   // render the first series of the study
                   let seriesId = _.keys(seriesStack)[0];
                   let serie = seriesStack[seriesId];
-                  larvitar.resliceSeries(serie, "coronal", function (data) {
-                    larvitar.renderImage(serie, "viewer-base");
-                    larvitar.renderImage(data, "viewer-reslice");
-                    larvitar.addDefaultTools();
-                    larvitar.setToolActive(
-                      larvitar.larvitar_store.state.leftMouseHandler
-                    );
+                  larvitar.populateLarvitarManager(seriesId, serie);
+                  larvitar.renderImage(serie, "viewer-base");
+                  larvitar.cacheImages(seriesId, serie, function(resp) {
+                    if (resp.loading == 100) {
+                      larvitar.resliceSeries(serie, "coronal", function (data) {
+                        larvitar.renderImage(data, "viewer-reslice");
+                        larvitar.addDefaultTools();
+                        larvitar.setToolActive(
+                          larvitar.larvitar_store.state.leftMouseHandler
+                        );
+                      });
+                    }
                   });
                 });
               }
-        
+
               let demoFileList = getDemoFileNames();
               _.each(demoFileList, function (demoFile) {
                 createFile(demoFile, renderSerie);
@@ -136,13 +141,18 @@
           // render the first series of the study
           let seriesId = _.keys(seriesStack)[0];
           let serie = seriesStack[seriesId];
-          larvitar.resliceSeries(serie, "coronal", function (data) {
-            larvitar.renderImage(serie, "viewer-base");
-            larvitar.renderImage(data, "viewer-reslice");
-            larvitar.addDefaultTools();
-            larvitar.setToolActive(
-              larvitar.larvitar_store.state.leftMouseHandler
-            );
+          larvitar.populateLarvitarManager(seriesId, serie);
+          larvitar.renderImage(serie, "viewer-base");
+          larvitar.cacheImages(seriesId, serie, function(resp) {
+            if (resp.loading == 100) {
+              larvitar.resliceSeries(serie, "coronal", function (data) {
+                larvitar.renderImage(data, "viewer-reslice");
+                larvitar.addDefaultTools();
+                larvitar.setToolActive(
+                  larvitar.larvitar_store.state.leftMouseHandler
+                );
+              });
+            }
           });
         });
       }
