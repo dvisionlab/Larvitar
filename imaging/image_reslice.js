@@ -65,6 +65,7 @@ export function resliceSeries(seriesData, orientation, callback) {
     reslicedSeries.seriesDescription = seriesData.seriesDescription;
     reslicedSeries.orientation = orientation;
     manager[reslicedSeriesId] = reslicedSeries;
+    manager[seriesData.seriesUID][orientation] = reslicedSeriesId;
     let t1 = performance.now();
     console.log(`Call to resliceSeries took ${t1 - t0} milliseconds.`);
     callback(reslicedSeries);
