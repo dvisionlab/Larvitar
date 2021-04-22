@@ -29,6 +29,7 @@ import {
   buildVolume,
   buildHeader,
   buildData,
+  buildDataAsync,
   importNRRDImage
 } from "./imaging/image_io";
 
@@ -191,6 +192,7 @@ export {
   buildVolume,
   buildHeader,
   buildData,
+  buildDataAsync,
   importNRRDImage,
   // image_layers
   getMainLayer,
