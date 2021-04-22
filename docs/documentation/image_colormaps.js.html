@@ -150,9 +150,11 @@ export function applyColorMap(colormapId) {
     // HACK to bypass cornerstone bug
     el.options = {};
     const viewport = cornerstone.getViewport(el.element);
-    viewport.colormap = colormap;
-    cornerstone.setViewport(el.element, viewport);
-    cornerstone.updateImage(el.element, true);
+    if (viewport) {
+      viewport.colormap = colormap;
+      cornerstone.setViewport(el.element, viewport);
+      cornerstone.updateImage(el.element, true);
+    }
   });
 
   return colormap;
