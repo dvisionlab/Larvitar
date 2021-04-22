@@ -448,6 +448,11 @@ export const updateViewportData = function (elementId) {
   }
 };
 
+function mouseMoveHandler() {
+  throttledSave();
+}
+let throttledSave = undefined;
+
 /**
  * Add event handlers to mouse move
  * @instance
@@ -464,10 +469,12 @@ export const toggleMouseHandlers = function (elementId, disable) {
     return;
   }
 
+  throttledSave = throttle(function () {
+    updateViewportData(elementId);
+  }, 500);
+
   if (disable) {
-    element.removeEventListener("cornerstonetoolsmousedown", mouseDownHandler);
     element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
-    element.removeEventListener("cornerstonetoolsmouseup", mouseUpHandler);
     element.removeEventListener(
       "cornerstonetoolsmousewheel",
       mouseWheelHandler
@@ -475,33 +482,7 @@ export const toggleMouseHandlers = function (elementId, disable) {
     return;
   }
 
-  let throttledSave = throttle(function () {
-    updateViewportData(elementId);
-  }, 500);
-
-  function mouseMoveHandler() {
-    throttledSave();
-  }
-
-  function mouseUpHandler() {
-    element.removeEventListener("cornerstonetoolsmousemove", mouseMoveHandler);
-    element.removeEventListener("cornerstonetoolsmouseup", mouseUpHandler);
-    updateViewportData(elementId);
-  }
-
-  // remove and add mousedown
-  element.removeEventListener("cornerstonetoolsmousedown", mouseDownHandler);
-  element.addEventListener("cornerstonetoolsmousedown", mouseDownHandler);
-
-  function mouseDownHandler() {
-    // remove and add mousedrag
-    element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
-    element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
-
-    // remove and add mouseup
-    element.removeEventListener("cornerstonetoolsmouseup", mouseUpHandler);
-    element.addEventListener("cornerstonetoolsmouseup", mouseUpHandler);
-  }
+  element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
 
   function mouseWheelHandler(evt) {
     let enabledElement = cornerstone.getEnabledElement(element);
@@ -510,8 +491,6 @@ export const toggleMouseHandlers = function (elementId, disable) {
         .currentImageIdIndex;
     larvitar_store.set("sliceId", [evt.target.id, cix + 1]);
   }
-
-  element.removeEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
   element.addEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
 };
 
