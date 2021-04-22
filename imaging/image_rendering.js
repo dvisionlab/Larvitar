@@ -47,6 +47,8 @@ export const clearImageCache = function (seriesId) {
     each(larvitar_store.state.series[seriesId], function (imageId) {
       cornerstone.imageCache.removeImageLoadObject(imageId);
     });
+    larvitar_store.removeSeriesIds(seriesId);
+    console.log("Uncached images for ", seriesId);
   } else {
     cornerstone.imageCache.purgeCache();
   }
@@ -196,11 +198,7 @@ export const unloadViewport = function (elementId, seriesId) {
   }
   // remove images from cornerstone cache
   if (seriesId && has(larvitar_store.state.series, seriesId)) {
-    each(larvitar_store.state.series[seriesId], function (imageId) {
-      cornerstone.imageCache.removeImageLoadObject(imageId);
-    });
-    larvitar_store.removeSeriesIds(seriesId);
-    console.log("Uncached images for ", seriesId);
+    clearImageCache(seriesId);
   }
   larvitar_store.deleteViewport(elementId);
 };
