@@ -44,7 +44,8 @@ import { larvitar_store } from "./image_store";
  */
 export const clearImageCache = function (seriesId) {
   if (seriesId) {
-    each(larvitar_store.state.series[seriesId], function (imageId) {
+    let series = larvitar_store.get("series");
+    each(series[seriesId].imageIds, function (imageId) {
       cornerstone.imageCache.removeImageLoadObject(imageId);
     });
     larvitar_store.removeSeriesIds(seriesId);
@@ -197,7 +198,7 @@ export const unloadViewport = function (elementId, seriesId) {
     );
   }
   // remove images from cornerstone cache
-  if (seriesId && has(larvitar_store.state.series, seriesId)) {
+  if (seriesId && has(larvitar_store.get("series"), seriesId)) {
     clearImageCache(seriesId);
   }
   larvitar_store.deleteViewport(elementId);

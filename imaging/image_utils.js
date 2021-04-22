@@ -773,6 +773,8 @@ export const parseTag = function (dataSet, propertyName, element) {
     value = dataSet.uint16(propertyName);
   } else if (vr === "SS") {
     value = dataSet.int16(propertyName);
+  } else if (vr === "US|SS") {
+    value = dataSet.int16(propertyName);
   } else if (vr === "UL") {
     value = dataSet.uint32(propertyName);
   } else if (vr === "SL") {
@@ -784,6 +786,7 @@ export const parseTag = function (dataSet, propertyName, element) {
   } else if (
     vr === "OB" ||
     vr === "OW" ||
+    vr === "OW|OB" ||
     vr === "UN" ||
     vr === "OF" ||
     vr === "UT"
