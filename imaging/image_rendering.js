@@ -11,6 +11,7 @@ import { each, has, throttle } from "lodash";
 import { getFileImageId } from "./loaders/fileLoader";
 import { csToolsCreateStack } from "./tools/tools.main";
 import { larvitar_store } from "./image_store";
+import { applyColorMap } from "./image_colormaps";
 
 /*
  * This module provides the following functions to be exported:
@@ -21,7 +22,7 @@ import { larvitar_store } from "./image_store";
  * disableViewport(elementId)
  * unloadViewport(elementId, seriesId)
  * resizeViewport(elementId)
- * renderImage(series, elementId)
+ * renderImage(series, elementId, frameId, defaultProps)
  * updateImage(series, elementId, imageIndex)
  * resetViewports([elementIds])
  * updateViewportData(elementId)
@@ -280,6 +281,11 @@ export const renderImage = function (
       viewport.translation.x = defaultProps["tr_x"];
       viewport.translation.y = defaultProps["tr_y"];
       cornerstone.setViewport(element, viewport);
+    }
+
+    // color maps
+    if (defaultProps && has(defaultProps, "colormap")) {
+      applyColorMap(defaultProps["colormap"]);
     }
 
     let storedViewport = cornerstone.getViewport(element);
