@@ -194,12 +194,10 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
     image.render = undefined; // will be set at need in cornerstone render pipeline, see drawImageSync.js (line 44)
   }
 
-  // calculate min/max if not supplied
-  if (image.minPixelValue === undefined || image.maxPixelValue === undefined) {
-    let minMax = cornerstoneWADOImageLoader.getMinMax(pixelData);
-    image.minPixelValue = minMax.min;
-    image.maxPixelValue = minMax.max;
-  }
+  // calculate min/max to avoid erroneous calculation from getImageFrame function
+  let minMax = cornerstoneWADOImageLoader.getMinMax(pixelData);
+  image.minPixelValue = minMax.min;
+  image.maxPixelValue = minMax.max;
 
   // set the ww/wc to cover the dynamic range of the image if no values are supplied
   if (image.windowCenter === undefined || image.windowWidth === undefined) {
