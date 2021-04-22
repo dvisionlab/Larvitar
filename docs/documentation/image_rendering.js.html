@@ -485,11 +485,15 @@ export const updateViewportData = function (elementId) {
   let activeTool = larvitar_store.get("leftMouseHandler");
   switch (activeTool) {
     case "Wwwc":
-      larvitar_store.set("contrast", [
-        elementId,
-        viewport.voi.windowWidth,
-        viewport.voi.windowCenter
-      ]);
+      // sync viewports if needed
+      let elements = cornerstone.getEnabledElements();
+      each(elements, function (el) {
+        larvitar_store.set("contrast", [
+          el.element.id,
+          viewport.voi.windowWidth,
+          viewport.voi.windowCenter
+        ]);
+      });
       break;
     case "Pan":
       larvitar_store.set("translation", [
@@ -509,10 +513,13 @@ export const updateViewportData = function (elementId) {
   }
 };
 
-function mouseMoveHandler() {
-  throttledSave();
+// internal functions for mouse move handlers
+let throttledSave = throttle(function (elementId) {
+  updateViewportData(elementId);
+}, 500);
+function mouseMoveHandler(evt) {
+  throttledSave(evt.srcElement.id);
 }
-let throttledSave = undefined;
 
 /**
  * Add event handlers to mouse move
@@ -529,10 +536,6 @@ export const toggleMouseHandlers = function (elementId, disable) {
     console.error("invalid html element: " + elementId);
     return;
   }
-
-  throttledSave = throttle(function () {
-    updateViewportData(elementId);
-  }, 500);
 
   if (disable) {
     element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
