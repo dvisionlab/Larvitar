@@ -262,10 +262,12 @@ class Larvitar_Store {
  * @param {String} vuex_module - The name of the vuex store module, can be null
  */
 
-export function initLarvitarStore(vuex_store, vuex_module) {
+export function initLarvitarStore(vuex_store, vuex_module, registerModule) {
   if (vuex_store) {
     larvitar_store = new Larvitar_Store(vuex_store, vuex_module);
-    vuex_store.registerModule(vuex_module, larvitar);
+    if (registerModule) {
+      vuex_store.registerModule(vuex_module, larvitar);
+    }
   } else {
     larvitar_store = new Larvitar_Store();
   }
