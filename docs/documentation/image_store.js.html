@@ -58,6 +58,8 @@
  *        for data config store.
  */
 
+import larvitar from "../modules/vuex/larvitar";
+
 // external libraries
 import { get as _get } from "lodash";
 
@@ -318,6 +320,7 @@ class Larvitar_Store {
 export function initLarvitarStore(vuex_store, vuex_module) {
   if (vuex_store) {
     larvitar_store = new Larvitar_Store(vuex_store, vuex_module);
+    vuex_store.registerModule(vuex_module, larvitar);
   } else {
     larvitar_store = new Larvitar_Store();
   }
