@@ -155,7 +155,7 @@ export const buildDataAsync = function (series, cb) {
   function runFillPixelData(data, callback) {
     let imageId = imageIds.shift();
     if (imageId) {
-      let cachedImage = lodash.find(cornerstone.imageCache.cachedImages, [
+      let cachedImage = find(cornerstone.imageCache.cachedImages, [
         "imageId",
         imageId
       ]);

@@ -4,7 +4,6 @@ import Vue from "vue";
 
 // default viewport store object
 const DEFAULT_VIEWPORT = {
-  loading: 0, // from 0 to 100 (%)
   ready: false, // true when currentImageId is rendered
   minSliceId: 0,
   maxSliceId: 0,
@@ -47,13 +46,26 @@ export default {
     colormapId: "gray",
     leftMouseHandler: "Wwwc",
     manager: null,
-    series: {}, // seriesUID: [imageIds]
+    series: {}, // seriesUID: {imageIds:[], progress:value}
     viewports: {}
   },
   getters: {
     viewport: state => id => state.viewports[id]
   },
   mutations: {
+    canvas: (state, { id, d }) => {
+      if (!state.viewports[id]) {
+        console.warn(`Can not update viewport ${id}: viewport not found.`);
+        return;
+      }
+
+      Vue.set(state.viewports[id], "viewport", {
+        ...state.viewports[id].viewport,
+        ...d
+      });
+    },
+    series: (state, { id, d }) =>
+      Vue.set(state.series, id, { ...state.series[id], ...d }),
     viewport: (state, { id, d }) => {
       if (!state.viewports[id]) {
         console.warn(`Can not update viewport ${id}: viewport not found.`);
@@ -64,11 +76,6 @@ export default {
     }
   },
   actions: {
-    // TODO SERIES OBJ NOW IS SERIES: {imageIds: [], progress: value}
-    // UPDATE ADD SERIESIDS
-    // ADD setProgress(seriesId, value)
-    addSeriesIds: ({ state }, { imageIds, seriesId }) =>
-      Vue.set(state.series, seriesId, imageIds),
     addViewport: ({ state }, viewportId) => {
       if (!state.viewports[viewportId])
         Vue.set(state.viewports, viewportId, DEFAULT_VIEWPORT);
@@ -77,17 +84,22 @@ export default {
     deleteViewport: ({ state }, viewportId) =>
       Vue.delete(state.viewports, viewportId),
     setManager: ({ state }, value) => (state.manager = value),
+    setLeftMouseHandler: ({ state }, value) => (state.leftMouseHandler = value),
     removeSeriesIds: ({ state }, seriesId) =>
       Vue.delete(state.series, seriesId),
     setErrorLog: () => {}, // TODO LT pass elementId
 
+    // Series fields setters
+    addSeriesIds: ({ commit }, [id, imageIds]) =>
+      commit("series", { id, d: { imageIds } }),
+    // !!! this is CACHE progress
+    setProgress: ({ commit }, [id, progress]) =>
+      commit("series", { id, d: { progress } }),
     // Viewport fields setters
     setDimensions: ({ commit }, [id, rows, cols]) =>
       commit("viewport", { id, d: { rows, cols } }),
-    setLoadingStatus: ({ commit }, [id, ready]) =>
+    setRenderingStatus: ({ commit }, [id, ready]) =>
       commit("viewport", { id, d: { ready } }),
-    setLoadingProgress: ({ commit }, [id, loading]) =>
-      commit("viewport", { id, d: { loading } }),
     setSpacing: ({ commit }, [id, spacing_x, spacing_y]) =>
       commit("viewport", { id, d: { spacing_x, spacing_y } }),
     setThickness: ({ commit }, [id, thickness]) =>
@@ -117,13 +129,14 @@ export default {
           }
         }
       }),
+    // viewports[id].viewport properties
     setScale: ({ commit }, [id, scale]) =>
-      commit("viewport", { id, d: { scale } }),
+      commit("canvas", { id, d: { scale } }),
     setRotation: ({ commit }, [id, rotation]) =>
-      commit("viewport", { id, d: { rotation } }),
+      commit("canvas", { id, d: { rotation } }),
     setTranslation: ({ commit }, [id, translation]) =>
-      commit("viewport", { id, d: { translation } }),
+      commit("canvas", { id, d: { translation } }),
     setContrast: ({ commit }, [id, windowWidth, windowCenter]) =>
-      commit("viewport", { id, d: { voi: { windowWidth, windowCenter } } })
+      commit("canvas", { id, d: { voi: { windowWidth, windowCenter } } })
   }
 };
