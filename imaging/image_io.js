@@ -131,6 +131,51 @@ export const buildData = function (series, useSeriesData) {
 };
 
 /**
+ * Build the contiguous typed array from slices (async version)
+ * @function buildDataAsync
+ * @param {Object} series - Cornerstone series object
+ * @param {Function} - receive data (contiguous pixel array) as param
+ */
+export const buildDataAsync = function (series, cb) {
+  let repr = series.instances[series.imageIds[0]].metadata.repr;
+  let rows =
+    series.instances[series.imageIds[0]].metadata.rows ||
+    series.instances[series.imageIds[0]].metadata.x00280010;
+  let cols =
+    series.instances[series.imageIds[0]].metadata.cols ||
+    series.instances[series.imageIds[0]].metadata.x00280011;
+  let len = rows * cols * series.imageIds.length;
+
+  let typedArray = getTypedArrayFromDataType(repr);
+  let data = new typedArray(len);
+  let offsetData = 0;
+
+  let imageIds = series.imageIds.slice();
+
+  function runFillPixelData(data, callback) {
+    let imageId = imageIds.shift();
+    if (imageId) {
+      let cachedImage = lodash.find(cornerstone.imageCache.cachedImages, [
+        "imageId",
+        imageId
+      ]);
+      const sliceData = cachedImage.image.getPixelData();
+      data.set(sliceData, offsetData);
+      offsetData += sliceData.length;
+
+      // this does the trick: delay next computation to next tick
+      setTimeout(() => {
+        runFillPixelData(data, cb);
+      }, 0);
+    } else {
+      callback(data);
+    }
+  }
+
+  runFillPixelData(data, cb);
+};
+
+/**
  * Import NRRD image from bufferArray
  * @function importNRRDImage
  * @param {ArrayBuffer} bufferArray - buffer array from nrrd file
