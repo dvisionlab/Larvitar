@@ -44,8 +44,8 @@ import { applyColorMap } from "./image_colormaps";
  * @param {String} seriesId - The id of the serie
  */
 export const clearImageCache = function (seriesId) {
-  let series = larvitar_store.get("series");
   if (seriesId) {
+    let series = larvitar_store.get("series");
     if (has(series, seriesId)) {
       each(series[seriesId].imageIds, function (imageId) {
         try {
