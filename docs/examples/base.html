@@ -130,6 +130,7 @@
 
       function renderSerie() {
         larvitar.resetImageParsing();
+        larvitar.resetLarvitarManager();
         larvitar.readFiles(demoFiles, function (seriesStack, err) {
           // render the first series of the study
           let seriesId = _.keys(seriesStack)[0];
@@ -139,11 +140,14 @@
           larvitar.populateLarvitarManager(seriesId, serie);
           larvitar.cacheImages(serie, function (resp) {
             if (resp.loading == 100) {
-              let cache =  larvitar.cornerstone.imageCache;
-              console.log("Cache size: ",
-              cache.getCacheInfo().cacheSizeInBytes / 1e6, "Mb")
+              let cache = larvitar.cornerstone.imageCache;
+              console.log(
+                "Cache size: ",
+                cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                "Mb"
+              );
             }
-          });    
+          });
           larvitar.addDefaultTools();
           larvitar.setToolActive(
             larvitar.larvitar_store.state.leftMouseHandler

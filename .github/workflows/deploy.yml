@@ -24,6 +24,12 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v1.4.4
 
+      # Clean examples and docs file
+      - name: Clean examples and docs file
+        run: |
+          cd ${{ github.workspace }}
+          rm -rf docs
+
       # Install npm-cli-login
       - name: Install npm-cli-login
         run: |
