@@ -34,10 +34,10 @@ import {
 } from "./imaging/image_io";
 
 import {
-  getMainLayer,
-  loadImageLayers,
-  changeOpacityLayer,
-  updateImageLayer
+  buildLayer,
+  updateLayer,
+  getActiveLayer,
+  setActiveLayer
 } from "./imaging/image_layers";
 
 import {
@@ -195,10 +195,10 @@ export {
   buildDataAsync,
   importNRRDImage,
   // image_layers
-  getMainLayer,
-  loadImageLayers,
-  changeOpacityLayer,
-  updateImageLayer,
+  buildLayer,
+  updateLayer,
+  getActiveLayer,
+  setActiveLayer,
   // image_loading
   initializeImageLoader,
   initializeWebImageLoader,
