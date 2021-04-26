@@ -258,6 +258,16 @@ export const renderImage = function (series, elementId, defaultProps) {
   // load and display one image (imageId)
   cornerstone.loadImage(data.imageId).then(function (image) {
     cornerstone.displayImage(element, image);
+
+    if (series.layer) {
+      // assign the image to its layer and return its id
+      series.layer.id = cornerstone.addLayer(
+        element,
+        image,
+        series.layer.options
+      );
+    }
+
     let viewport = cornerstone.getViewport(element);
 
     // window width and window level
