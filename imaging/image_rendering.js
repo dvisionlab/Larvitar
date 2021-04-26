@@ -44,17 +44,19 @@ import { applyColorMap } from "./image_colormaps";
  * @param {String} seriesId - The id of the serie
  */
 export const clearImageCache = function (seriesId) {
+  let series = larvitar_store.get("series");
   if (seriesId) {
-    let series = larvitar_store.get("series");
-    each(series[seriesId].imageIds, function (imageId) {
-      try {
-        cornerstone.imageCache.removeImageLoadObject(imageId);
-      } catch (e) {
-        console.warn("no cached image");
-      }
-    });
-    larvitar_store.removeSeriesIds(seriesId);
-    console.log("Uncached images for ", seriesId);
+    if (has(series, seriesId)) {
+      each(series[seriesId].imageIds, function (imageId) {
+        try {
+          cornerstone.imageCache.removeImageLoadObject(imageId);
+        } catch (e) {
+          console.warn("no cached image");
+        }
+      });
+      larvitar_store.removeSeriesIds(seriesId);
+      console.log("Uncached images for ", seriesId);
+    }
   } else {
     cornerstone.imageCache.purgeCache();
   }
