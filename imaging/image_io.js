@@ -16,33 +16,11 @@ import { parse } from "./parsers/nrrd";
 
 /*
  * This module provides the following functions to be exported:
- * buildVolume(series)
  * buildHeader(series)
+ * getCachedPixelData(imageId)
  * buildData(series)
  * importNRRDImage(bufferArray)
  */
-
-/**
- * Save image as volume: build header and data (use the cache to extract original pixel arrays)
- * @function buildVolume
- * @param {Object} series - Cornerstone series object
- * @returns {Object} {data: pixeldata, header: image metadata}
- */
-export const buildVolume = async function (series) {
-  // Purge the cache
-  cornerstone.imageCache.purgeCache(); // TODO UNDERSTAND THIS
-  // Ensure all image of series to be cached
-  await Promise.all(
-    series.imageIds.map(imageId => {
-      return cornerstone.loadAndCacheImage(imageId);
-    })
-  );
-  // At this time all images are cached
-  // Now save the serie
-  const header = buildHeader(series);
-  const data = buildData(series);
-  return { data, header };
-};
 
 /**
  * Build the image header from slices' metadata
@@ -88,6 +66,27 @@ export const buildHeader = function (series) {
 };
 
 /**
+ * Get cached pixel data
+ * @function getCachedPixelData
+ * @param {String} imageId - ImageId of the cached image
+ * @returns {Array} Pixel data array or null if not cached
+ */
+
+export const getCachedPixelData = function (imageId, callback) {
+  let cachedImage = find(cornerstone.imageCache.cachedImages, [
+    "imageId",
+    imageId
+  ]);
+  if (cachedImage) {
+    callback(cachedImage.image.getPixelData());
+  } else {
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
+      callback(image.getPixelData());
+    });
+  }
+};
+
+/**
  * Build the contiguous typed array from slices
  * @function buildData
  * @param {Object} series - Cornerstone series object
@@ -95,6 +94,7 @@ export const buildHeader = function (series) {
  * @returns {Array} Contiguous pixel array
  */
 export const buildData = function (series, useSeriesData) {
+  let t0 = performance.now();
   let repr = series.instances[series.imageIds[0]].metadata.repr;
   let rows =
     series.instances[series.imageIds[0]].metadata.rows ||
@@ -117,16 +117,14 @@ export const buildData = function (series, useSeriesData) {
     });
   } else {
     forEach(series.imageIds, function (imageId) {
-      let cachedImage = find(cornerstone.imageCache.cachedImages, [
-        "imageId",
-        imageId
-      ]);
-      const sliceData = cachedImage.image.getPixelData();
-      data.set(sliceData, offsetData);
-      offsetData += sliceData.length;
+      getCachedPixelData(imageId, function (sliceData) {
+        data.set(sliceData, offsetData);
+        offsetData += sliceData.length;
+      });
     });
   }
-
+  let t1 = performance.now();
+  console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
   return data;
 };
 
@@ -137,6 +135,7 @@ export const buildData = function (series, useSeriesData) {
  * @param {Function} - receive data (contiguous pixel array) as param
  */
 export const buildDataAsync = function (series, cb) {
+  let t0 = performance.now();
   let repr = series.instances[series.imageIds[0]].metadata.repr;
   let rows =
     series.instances[series.imageIds[0]].metadata.rows ||
@@ -155,23 +154,20 @@ export const buildDataAsync = function (series, cb) {
   function runFillPixelData(data, callback) {
     let imageId = imageIds.shift();
     if (imageId) {
-      let cachedImage = find(cornerstone.imageCache.cachedImages, [
-        "imageId",
-        imageId
-      ]);
-      const sliceData = cachedImage.image.getPixelData();
-      data.set(sliceData, offsetData);
-      offsetData += sliceData.length;
-
+      getCachedPixelData(imageId, function (sliceData) {
+        data.set(sliceData, offsetData);
+        offsetData += sliceData.length;
+      });
       // this does the trick: delay next computation to next tick
       setTimeout(() => {
         runFillPixelData(data, cb);
       }, 0);
     } else {
+      let t1 = performance.now();
+      console.log(`Call to buildDataAsync took ${t1 - t0} milliseconds.`);
       callback(data);
     }
   }
-
   runFillPixelData(data, cb);
 };
 

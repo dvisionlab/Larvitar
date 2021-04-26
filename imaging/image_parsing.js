@@ -233,7 +233,6 @@ let dumpFile = function (file, callback) {
           let instanceUID = metadata["x00080018"] || randomId();
 
           let imageObject = {
-            pixelData: pixelData,
             // data needed for rendering
             file: file,
             dataSet: dataSet

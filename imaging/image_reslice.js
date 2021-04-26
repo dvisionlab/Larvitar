@@ -13,6 +13,7 @@ import {
   getLarvitarImageTracker,
   getLarvitarManager
 } from "./loaders/commonLoader";
+import { larvitar_store } from "./image_store";
 
 /*
  * This module provides the following functions to be exported:
@@ -56,10 +57,14 @@ export function resliceSeries(seriesData, orientation, callback) {
     let imageTracker = getLarvitarImageTracker();
     let manager = getLarvitarManager();
     each(reslicedSeries.imageIds, function (imageId) {
-      let data = getReslicedPixeldata(imageId, seriesData, reslicedSeries);
-      reslicedSeries.instances[imageId].pixelData = data;
+      reslicedSeries.instances[imageId].pixelData = getReslicedPixeldata(
+        imageId,
+        seriesData,
+        reslicedSeries
+      );
       imageTracker[imageId] = reslicedSeriesId;
     });
+    larvitar_store.addSeriesIds(reslicedSeriesId, reslicedSeries.imageIds);
     reslicedSeries.numberOfImages = reslicedSeries.imageIds.length;
     reslicedSeries.seriesUID = reslicedSeriesId;
     reslicedSeries.seriesDescription = seriesData.seriesDescription;

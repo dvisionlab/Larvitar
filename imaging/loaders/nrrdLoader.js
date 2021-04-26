@@ -323,7 +323,7 @@ export function getNrrdSerieDimensions() {
  * @function createCustomImage
  * @param {String} imageId The series id
  * @param {Object} metadata The metadata object
- * @param {Object} pixelData The pixeldata object
+ * @param {Object} pixelData The pixelData object
  * @param {Object} dataSet The dataset
  * @return {String} The image id
  */

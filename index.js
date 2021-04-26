@@ -26,8 +26,8 @@ import {
 } from "./imaging/image_utils";
 
 import {
-  buildVolume,
   buildHeader,
+  getCachedPixelData,
   buildData,
   buildDataAsync,
   importNRRDImage
@@ -189,8 +189,8 @@ export {
   getReslicedPixeldata,
   getDistanceBetweenSlices,
   // image_io
-  buildVolume,
   buildHeader,
+  getCachedPixelData,
   buildData,
   buildDataAsync,
   importNRRDImage,

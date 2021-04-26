@@ -8,6 +8,7 @@ import {
   isEmpty,
   sortBy,
   clone,
+  find,
   has,
   max,
   map,
@@ -17,6 +18,7 @@ import {
   random
 } from "lodash";
 import { v4 as uuidv4 } from "uuid";
+import cornerstone from "cornerstone-core";
 
 // internal libraries
 import { getDicomImageId } from "./loaders/dicomLoader";
@@ -455,7 +457,7 @@ export const getCmprMetadata = function (
       x00280030: [header.spacing[1], header.spacing[0]],
       x00180050: [header.distance_btw_slices],
       // remove min and max pixelvalue from metadata before calling the createCustomImage function:
-      // need to recalculate the min and max pixel values on the new instance pixeldata
+      // need to recalculate the min and max pixel values on the new instance pixelData
       x00280106: undefined,
       x00280107: undefined,
       // resliced series data
@@ -537,15 +539,11 @@ export const getReslicedPixeldata = function (
     let j = ijf[1];
     let f = ijf[2];
 
-    let targetInstance = originalData.instances[originalData.imageIds[f]];
-    if (!targetInstance) {
-      console.log("ERROR");
-      // let f_padded = Math.floor(f / originalSampleMetadata.x00180050 * originalSampleMetadata.x00280030[0]);
-      // targetInstance = originalSeries.instances[originalSeries.imageIds[f_padded]];
-      return;
-    }
-
-    let targetPixeldata = targetInstance.pixelData;
+    let cachedImage = find(cornerstone.imageCache.cachedImages, [
+      "imageId",
+      originalData.imageIds[f]
+    ]);
+    let targetPixeldata = cachedImage.image.getPixelData();
     let index = j * fromCols + i;
     return targetPixeldata[index];
   }

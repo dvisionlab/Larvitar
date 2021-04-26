@@ -47,7 +47,11 @@ export const clearImageCache = function (seriesId) {
   if (seriesId) {
     let series = larvitar_store.get("series");
     each(series[seriesId].imageIds, function (imageId) {
-      cornerstone.imageCache.removeImageLoadObject(imageId);
+      try {
+        cornerstone.imageCache.removeImageLoadObject(imageId);
+      } catch (e) {
+        console.warn("no cached image");
+      }
     });
     larvitar_store.removeSeriesIds(seriesId);
     console.log("Uncached images for ", seriesId);
@@ -82,8 +86,7 @@ export function loadAndCacheImages(series, callback) {
   // add serie's caching progress into store
   larvitar_store.set("progress", [series.seriesUID, 0]);
   each(series.imageIds, function (imageId) {
-    cornerstone.loadAndCacheImage(imageId).then(function (image) {
-      series.instances[imageId].pixelData = image.getPixelData();
+    cornerstone.loadAndCacheImage(imageId).then(function () {
       cachingCounter += 1;
       let cachingPercentage = Math.floor(
         (cachingCounter / series.imageIds.length) * 100

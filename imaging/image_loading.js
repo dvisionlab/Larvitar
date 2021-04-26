@@ -154,7 +154,6 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
     allSeriesStack[sid].numberOfImages += 1;
     // store needed instance tags
     allSeriesStack[sid].instances[imageId] = {
-      pixelData: seriesData.pixelData,
       metadata: seriesData.metadata,
       file: seriesData.file,
       dataSet: seriesData.dataSet
