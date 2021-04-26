@@ -12,6 +12,7 @@ import {
   getDistanceBetweenSlices,
   getTypedArrayFromDataType
 } from "./image_utils.js";
+import { larvitar_store } from "./image_store";
 import { parse } from "./parsers/nrrd";
 
 /*
@@ -116,6 +117,7 @@ export const buildData = function (series, useSeriesData) {
       offsetData += sliceData.length;
     });
   } else {
+    larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
     forEach(series.imageIds, function (imageId) {
       getCachedPixelData(imageId, function (sliceData) {
         data.set(sliceData, offsetData);
@@ -150,6 +152,7 @@ export const buildDataAsync = function (series, cb) {
   let offsetData = 0;
 
   let imageIds = series.imageIds.slice();
+  larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
 
   function runFillPixelData(data, callback) {
     let imageId = imageIds.shift();

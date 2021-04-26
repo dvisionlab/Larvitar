@@ -137,13 +137,13 @@
           larvitar.renderImage(serie, "viewer");
           // optionally cache the series
           larvitar.populateLarvitarManager(seriesId, serie);
-          larvitar.cacheImages(seriesId, serie, function (resp) {
+          larvitar.cacheImages(serie, function (resp) {
             if (resp.loading == 100) {
               let cache =  larvitar.cornerstone.imageCache;
               console.log("Cache size: ",
               cache.getCacheInfo().cacheSizeInBytes / 1e6, "Mb")
             }
-          });
+          });    
           larvitar.addDefaultTools();
           larvitar.setToolActive(
             larvitar.larvitar_store.state.leftMouseHandler
