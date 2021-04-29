@@ -50,7 +50,7 @@
               larvitar.registerMultiFrameImageLoader();
               larvitar.initializeCSTools();
               larvitar.larvitar_store.addViewport("viewer");
-        
+
               function renderSerie() {
                 larvitar.resetImageParsing();
                 larvitar.readFiles(demoFiles, function (seriesStack, err) {
@@ -72,10 +72,10 @@
                   let frameRate = multiFrameSerie.frameTime;
                   $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
                   $("#current-frame").html("Current Frame: 1 of " + numberOfFrames);
-        
+
                   document.onkeypress = function (e) {
                     e = e || window.event;
-        
+
                     if (e.keyCode == 112) {
                       animation = !animation;
                       if (animation) {
@@ -83,7 +83,7 @@
                           larvitar.larvitar_store.state.viewports.viewer.sliceId;
                         animationId = setInterval(function () {
                           frameId = frameId == numberOfFrames ? 1 : frameId + 1;
-                          larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+                          larvitar.updateImage(multiFrameSerie, "viewer", frameId);
                           $("#current-frame").html(
                             "Current Frame: " + frameId + " of " + numberOfFrames
                           );
@@ -96,7 +96,7 @@
                   };
                 });
               }
-        
+
               async function createFile(fileName, cb) {
                 let response = await fetch("./demo/" + fileName);
                 let data = await response.blob();
@@ -161,7 +161,7 @@
                   larvitar.larvitar_store.state.viewports.viewer.sliceId;
                 animationId = setInterval(function () {
                   frameId = frameId == numberOfFrames ? 1 : frameId + 1;
-                  larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+                  larvitar.updateImage(multiFrameSerie, "viewer", frameId);
                   $("#current-frame").html(
                     "Current Frame: " + frameId + " of " + numberOfFrames
                   );
