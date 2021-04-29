@@ -70,7 +70,7 @@
                 larvitar.renderImage(serie, "viewer");
                 // optionally cache the series
                 larvitar.populateLarvitarManager(seriesId, serie);
-                larvitar.cacheImages(seriesId, serie, function (resp) {
+                larvitar.cacheImages(serie, function (resp) {
                   if (resp.loading == 100) {
                     let cache =  larvitar.cornerstone.imageCache;
                     console.log("Cache size: ",

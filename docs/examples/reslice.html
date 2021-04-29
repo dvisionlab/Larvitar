@@ -76,7 +76,7 @@
                   let serie = seriesStack[seriesId];
                   larvitar.populateLarvitarManager(seriesId, serie);
                   larvitar.renderImage(serie, "viewer-base");
-                  larvitar.cacheImages(seriesId, serie, function(resp) {
+                  larvitar.cacheImages(serie, function(resp) {
                     if (resp.loading == 100) {
                       larvitar.resliceSeries(serie, "coronal", function (data) {
                         larvitar.renderImage(data, "viewer-reslice");
@@ -143,7 +143,7 @@
           let serie = seriesStack[seriesId];
           larvitar.populateLarvitarManager(seriesId, serie);
           larvitar.renderImage(serie, "viewer-base");
-          larvitar.cacheImages(seriesId, serie, function(resp) {
+          larvitar.cacheImages(serie, function (resp) {
             if (resp.loading == 100) {
               larvitar.resliceSeries(serie, "coronal", function (data) {
                 larvitar.renderImage(data, "viewer-reslice");
