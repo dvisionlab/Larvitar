@@ -1,5 +1,4 @@
 // external libraries
-import cornerstone from "cornerstone-core";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { each, range } from "lodash";
 
@@ -65,7 +64,6 @@ export const buildMultiFrameImage = function (seriesId, serie) {
     : 0;
 
   each(serie.imageIds, function (instanceId) {
-    let file = serie.instances[instanceId].file;
     let dataSet = serie.instances[instanceId].dataSet;
     let metadata = serie.instances[instanceId].metadata;
     let imageId = getMultiFrameImageId("multiFrameLoader");
@@ -98,7 +96,6 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       manager[seriesId].imageIds.push(frameImageId);
       manager[seriesId].instances[frameImageId] = {
         instanceId: instanceId,
-        file: file,
         frame: frameNumber,
         metadata: frameMetadata
       };
@@ -233,8 +230,13 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
         return imageFrame.pixelData;
       };
 
-      // convert color space
-      if (image.color) {
+      // convert color space if not isJPEGBaseline8BitColor
+      let isJPEGBaseline8BitColor = cornerstoneWADOImageLoader.isJPEGBaseline8BitColor(
+        imageFrame,
+        transferSyntax
+      );
+
+      if (image.color && !isJPEGBaseline8BitColor) {
         // setup the canvas context
         canvas.height = imageFrame.rows;
         canvas.width = imageFrame.columns;
@@ -254,12 +256,12 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
 
       // Setup the renderer
       if (image.color) {
-        image.render = cornerstone.renderColorImage;
+        // image.render = cornerstone.renderColorImage;
+        image.render = undefined;
         image.getCanvas = function () {
           if (lastImageIdDrawn === imageId) {
             return canvas;
           }
-
           canvas.height = image.rows;
           canvas.width = image.columns;
           let context = canvas.getContext("2d");
@@ -268,7 +270,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
           return canvas;
         };
       } else {
-        image.render = cornerstone.renderGrayscaleImage;
+        image.render = undefined;
       }
 
       // calculate min/max if not supplied
