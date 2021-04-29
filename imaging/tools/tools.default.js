@@ -26,6 +26,39 @@ import PolylineScissorsTool from "./polylineScissorsTool";
  * These tools are added with `addDefaultTools()`
  */
 const DEFAULT_TOOLS = {
+  ScaleOverlay: {
+    name: "ScaleOverlay",
+    viewports: "all",
+    configuration: {
+      minorTickLength: 12.5,
+      majorTickLength: 25
+    },
+    options: {
+      mouseButtonMask: 1
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "ScaleOverlayTool",
+    sync: null,
+    description: "Add scale overlay",
+    shortcut: "ctrl-m",
+    type: "overlay"
+  },
+  OrientationMarkers: {
+    name: "OrientationMarkers",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "OrientationMarkersTool",
+    sync: null,
+    description: "Add orientation markers",
+    shortcut: "ctrl-m",
+    type: "overlay"
+  },
   Wwwc: {
     name: "Wwwc",
     viewports: "all",
@@ -39,6 +72,22 @@ const DEFAULT_TOOLS = {
     class: "WwwcTool",
     sync: "wwwcSynchronizer",
     description: "Change image contrast",
+    shortcut: "ctrl-m",
+    type: "utils"
+  },
+  WwwcRegion: {
+    name: "WwwcRegion",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "WwwcRegionTool",
+    sync: "wwwcSynchronizer",
+    description: "Change image contrast based on selected region",
     shortcut: "ctrl-m",
     type: "utils"
   },

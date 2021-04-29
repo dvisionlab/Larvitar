@@ -89,7 +89,9 @@
                 "StackScrollMouseWheel",
                 "TextMarker",
                 "ZoomTouchPinch",
-                "PanMultiTouch"
+                "PanMultiTouch",
+                "OrientationMarkers",
+                "ScaleOverlay"
               );
               tool_counter = tool_counter == tools.length - 1 ? 0 : tool_counter + 1;
               let tool = tools[tool_counter];
@@ -104,7 +106,7 @@
       </div>
     </div>
 
-    <script src="./larvitar.js"></script>
+    <script src="../../dist/larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
@@ -149,7 +151,7 @@
           let serie = seriesStack[seriesId];
           larvitar.renderImage(serie, "viewer");
           larvitar.addDefaultTools();
-          larvitar.setToolActive("Wwwc");
+          larvitar.setToolActive("ScaleOverlay");
         });
       }
 
@@ -162,13 +164,16 @@
       document.onkeypress = function (e) {
         e = e || window.event;
         let tools = _.map(larvitar.DEFAULT_TOOLS, "name");
+        console.log(tools);
         // remove useless tools for the live example
         tools = _.without(
           tools,
           "StackScrollMouseWheel",
           "TextMarker",
           "ZoomTouchPinch",
-          "PanMultiTouch"
+          "PanMultiTouch",
+          "OrientationMarkers",
+          "ScaleOverlay"
         );
         tool_counter = tool_counter == tools.length - 1 ? 0 : tool_counter + 1;
         let tool = tools[tool_counter];
