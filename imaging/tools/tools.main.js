@@ -184,9 +184,8 @@ const setToolActive = function (toolName, options, viewports) {
     // activate and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
-      let enel = cornerstone.getEnabledElement(el);
-      cornerstoneTools.setToolActiveForElement(enel, toolName, defaultOpt);
-      console.log("upd img", enel.element.id);
+      cornerstoneTools.setToolActiveForElement(el, toolName, defaultOpt);
+      console.log("upd img", el.id);
       tryUpdateImage(enel);
     });
   } else {
