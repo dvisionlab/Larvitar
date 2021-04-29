@@ -1,5 +1,4 @@
 // external libraries
-import cornerstone from "cornerstone-core";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { each, range } from "lodash";
 
@@ -65,7 +64,6 @@ export const buildMultiFrameImage = function (seriesId, serie) {
     : 0;
 
   each(serie.imageIds, function (instanceId) {
-    let file = serie.instances[instanceId].file;
     let dataSet = serie.instances[instanceId].dataSet;
     let metadata = serie.instances[instanceId].metadata;
     let imageId = getMultiFrameImageId("multiFrameLoader");
@@ -89,6 +87,12 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       });
 
       // store file references
+      manager[seriesId].seriesUID = seriesId;
+      manager[seriesId].studyUID = metadata["x0020000d"];
+      manager[seriesId].modality = metadata["x00080060"];
+      manager[seriesId].color = cornerstoneWADOImageLoader.isColorImage(
+        metadata["x00280004"]
+      );
       manager[seriesId].isMultiframe = true;
       manager[seriesId].currentImageIdIndex = 0;
       manager[seriesId].numberOfFrames = numberOfFrames;
@@ -98,14 +102,12 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       manager[seriesId].imageIds.push(frameImageId);
       manager[seriesId].instances[frameImageId] = {
         instanceId: instanceId,
-        file: file,
         frame: frameNumber,
         metadata: frameMetadata
       };
       manager[seriesId].dataSet = dataSet;
       manager[seriesId].seriesDescription =
         serie.instances[serie.imageIds[0]].metadata.seriesDescription;
-      manager[seriesId].serieUID = seriesId;
     });
   });
   let t1 = performance.now();
@@ -226,15 +228,21 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
         windowCenter: windowCenter,
         windowWidth: windowWidth,
         decodeTimeInMS: undefined, // TODO
-        loadTimeInMS: undefined // TODO
+        loadTimeInMS: undefined, // TODO
+        render: undefined
       };
       // add function to return pixel data
       image.getPixelData = function () {
         return imageFrame.pixelData;
       };
 
-      // convert color space
-      if (image.color) {
+      // convert color space if not isJPEGBaseline8BitColor
+      let isJPEGBaseline8BitColor = cornerstoneWADOImageLoader.isJPEGBaseline8BitColor(
+        imageFrame,
+        transferSyntax
+      );
+
+      if (image.color && !isJPEGBaseline8BitColor) {
         // setup the canvas context
         canvas.height = imageFrame.rows;
         canvas.width = imageFrame.columns;
@@ -254,12 +262,10 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
 
       // Setup the renderer
       if (image.color) {
-        image.render = cornerstone.renderColorImage;
         image.getCanvas = function () {
           if (lastImageIdDrawn === imageId) {
             return canvas;
           }
-
           canvas.height = image.rows;
           canvas.width = image.columns;
           let context = canvas.getContext("2d");
@@ -267,8 +273,6 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
           lastImageIdDrawn = imageId;
           return canvas;
         };
-      } else {
-        image.render = cornerstone.renderGrayscaleImage;
       }
 
       // calculate min/max if not supplied

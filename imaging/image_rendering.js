@@ -22,7 +22,7 @@ import { applyColorMap } from "./image_colormaps";
  * disableViewport(elementId)
  * unloadViewport(elementId, seriesId)
  * resizeViewport(elementId)
- * renderImage(series, elementId, frameId, defaultProps)
+ * renderImage(series, elementId, defaultProps)
  * updateImage(series, elementId, imageIndex)
  * resetViewports([elementIds])
  * updateViewportData(elementId)
@@ -74,7 +74,7 @@ export function loadAndCacheImages(series, callback) {
   let t0 = performance.now();
   let cachingCounter = 0;
   if (series.isMultiframe) {
-    console.warn("Do not cache multiframe images for performance issues");
+    // console.warn("Do not cache multiframe images for performance issues");
     return;
   }
   let response = {
@@ -234,15 +234,9 @@ export const resizeViewport = function (elementId) {
  * @function renderImage
  * @param {Object} series - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {String} frameId - Frame id for multiframe images
  * @param {Object} defaultProps - Optional default props
  */
-export const renderImage = function (
-  series,
-  elementId,
-  frameId = null,
-  defaultProps
-) {
+export const renderImage = function (series, elementId, defaultProps) {
   let t0 = performance.now();
 
   // get element and enable it
@@ -256,7 +250,7 @@ export const renderImage = function (
   cornerstone.enable(element);
 
   // default to 0 if multiframe and frameId is null
-  frameId = series.isMultiframe && frameId == null ? 1 : frameId;
+  let frameId = series.isMultiframe ? 1 : null;
 
   larvitar_store.set("renderingStatus", [elementId, false]);
   let data = getSeriesData(series, frameId, defaultProps);
@@ -265,14 +259,19 @@ export const renderImage = function (
   cornerstone.loadImage(data.imageId).then(function (image) {
     cornerstone.displayImage(element, image);
     let viewport = cornerstone.getViewport(element);
-    if (data.ww || data.wc) {
-      viewport.voi.windowWidth = data.ww ? data.ww : Math.abs(data.wc) * 2;
-      viewport.voi.windowCenter = data.wc ? data.wc : parseInt(data.ww / 2);
-    }
+
+    // window width and window level
+    // are stored in specific dicom tags
+    // (x00281050 and x00281051)
+    // if not present check in image object
+    data.ww = data.ww ? data.ww : image.windowWidth;
+    data.wc = data.wc ? data.wc : image.windowCenter;
+    data.defaultWW = data.defaultWW ? data.defaultWW : data.ww;
+    data.defaultWC = data.defaultWC ? data.defaultWC : data.wc;
+
     cornerstone.fitToWindow(element);
 
     if (defaultProps && has(defaultProps, "scale")) {
-      let viewport = cornerstone.getViewport(element);
       viewport.scale = defaultProps["scale"];
       cornerstone.setViewport(element, viewport);
     }
@@ -282,14 +281,13 @@ export const renderImage = function (
       has(defaultProps, "tr_x") &&
       has(defaultProps, "tr_y")
     ) {
-      let viewport = cornerstone.getViewport(element);
       viewport.translation.x = defaultProps["tr_x"];
       viewport.translation.y = defaultProps["tr_y"];
       cornerstone.setViewport(element, viewport);
     }
 
     // color maps
-    if (defaultProps && has(defaultProps, "colormap")) {
+    if (defaultProps && has(defaultProps, "colormap" && image.color == false)) {
       applyColorMap(defaultProps["colormap"]);
     }
 
@@ -359,6 +357,7 @@ export const resetViewports = function (elementIds) {
       "default",
       "scale"
     );
+
     viewport.rotation = larvitar_store.get(
       "viewports",
       elementId,
@@ -689,17 +688,16 @@ export const rotateImageRight = function (elementId) {
  * @instance
  * @function getSeriesData
  * @param {Object} series - The parsed data series
- * @param {String} frameId - Frame id for multiframe images
  * @param {Object} defaultProps - Optional default properties
  * @return {Object} data - A data dictionary with parsed tags' values
  */
-let getSeriesData = function (series, frameId, defaultProps) {
+let getSeriesData = function (series, defaultProps) {
   let data = {};
   // image index
   if (series.isMultiframe) {
     data.numberOfSlices = series.imageIds.length;
-    data.imageIndex = frameId;
-    data.imageId = series.imageIds[frameId - 1];
+    data.imageIndex = 1;
+    data.imageId = series.imageIds[0];
   } else {
     data.numberOfSlices = series.imageIds.length;
     data.imageIndex =
