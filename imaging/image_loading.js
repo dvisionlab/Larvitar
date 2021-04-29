@@ -123,11 +123,15 @@ export const registerMultiFrameImageLoader = function () {
  */
 export const updateLoadedStack = function (seriesData, allSeriesStack) {
   let sid = seriesData.metadata.seriesUID;
+  let ssid = seriesData.metadata.studyUID;
   let iid = seriesData.metadata.instanceUID;
   let seriesDescription = seriesData.metadata.seriesDescription;
   let numberOfFrames = seriesData.metadata["x00280008"];
   let modality = seriesData.metadata["x00080060"];
   let isMultiframe = numberOfFrames > 1 ? true : false;
+  let color = cornerstoneWADOImageLoader.isColorImage(
+    seriesData.metadata["x00280004"]
+  );
   // initialize series stack
   if (!allSeriesStack[sid]) {
     allSeriesStack[sid] = {
@@ -136,10 +140,12 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
       instances: {},
       seriesDescription: seriesDescription,
       seriesUID: sid,
+      studyUID: ssid,
       numberOfImages: 0,
       numberOfFrames: numberOfFrames,
       isMultiframe: isMultiframe,
-      modality: modality
+      modality: modality,
+      color: color
     };
   }
 

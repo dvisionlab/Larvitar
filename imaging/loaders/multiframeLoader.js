@@ -87,6 +87,12 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       });
 
       // store file references
+      manager[seriesId].seriesUID = seriesId;
+      manager[seriesId].studyUID = metadata["x0020000d"];
+      manager[seriesId].modality = metadata["x00080060"];
+      manager[seriesId].color = cornerstoneWADOImageLoader.isColorImage(
+        metadata["x00280004"]
+      );
       manager[seriesId].isMultiframe = true;
       manager[seriesId].currentImageIdIndex = 0;
       manager[seriesId].numberOfFrames = numberOfFrames;
@@ -102,7 +108,6 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       manager[seriesId].dataSet = dataSet;
       manager[seriesId].seriesDescription =
         serie.instances[serie.imageIds[0]].metadata.seriesDescription;
-      manager[seriesId].serieUID = seriesId;
     });
   });
   let t1 = performance.now();
@@ -223,7 +228,8 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
         windowCenter: windowCenter,
         windowWidth: windowWidth,
         decodeTimeInMS: undefined, // TODO
-        loadTimeInMS: undefined // TODO
+        loadTimeInMS: undefined, // TODO
+        render: undefined
       };
       // add function to return pixel data
       image.getPixelData = function () {
@@ -256,8 +262,6 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
 
       // Setup the renderer
       if (image.color) {
-        // image.render = cornerstone.renderColorImage;
-        image.render = undefined;
         image.getCanvas = function () {
           if (lastImageIdDrawn === imageId) {
             return canvas;
@@ -269,8 +273,6 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
           lastImageIdDrawn = imageId;
           return canvas;
         };
-      } else {
-        image.render = undefined;
       }
 
       // calculate min/max if not supplied

@@ -260,21 +260,18 @@ export const renderImage = function (series, elementId, defaultProps) {
     cornerstone.displayImage(element, image);
     let viewport = cornerstone.getViewport(element);
 
-    let ww = viewport.voi.windowWidth
-      ? viewport.voi.windowWidth
-      : data.ww || Math.abs(data.wc) * 2;
-    let wc = viewport.voi.windowCenter
-      ? viewport.voi.windowCenter
-      : data.wc || parseInt(data.ww / 2);
-    viewport.voi.windowWidth = ww;
-    viewport.voi.windowCenter = wc;
-    data.defaultWW = data.defaultWW ? data.defaultWW : ww;
-    data.defaultWC = data.defaultWC ? data.defaultWC : wc;
+    // window width and window level
+    // are stored in specific dicom tags
+    // (x00281050 and x00281051)
+    // if not present check in image object
+    data.ww = data.ww ? data.ww : image.windowWidth;
+    data.wc = data.wc ? data.wc : image.windowCenter;
+    data.defaultWW = data.defaultWW ? data.defaultWW : data.ww;
+    data.defaultWC = data.defaultWC ? data.defaultWC : data.wc;
 
     cornerstone.fitToWindow(element);
 
     if (defaultProps && has(defaultProps, "scale")) {
-      let viewport = cornerstone.getViewport(element);
       viewport.scale = defaultProps["scale"];
       cornerstone.setViewport(element, viewport);
     }
@@ -284,7 +281,6 @@ export const renderImage = function (series, elementId, defaultProps) {
       has(defaultProps, "tr_x") &&
       has(defaultProps, "tr_y")
     ) {
-      let viewport = cornerstone.getViewport(element);
       viewport.translation.x = defaultProps["tr_x"];
       viewport.translation.y = defaultProps["tr_y"];
       cornerstone.setViewport(element, viewport);
