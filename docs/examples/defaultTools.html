@@ -151,10 +151,7 @@
           let serie = seriesStack[seriesId];
           larvitar.renderImage(serie, "viewer");
           larvitar.addDefaultTools();
-          larvitar.setToolActive("Zoom", {}, ["viewer"]);
-          // larvitar.setToolActive("ScaleOverlay", {}, ["viewer"]);
-          // larvitar.setToolActive("ScaleOverlay", {}, ["viewer"]);
-          // larvitar.setToolActive("ScaleOverlay", {}, ["viewer"]);
+          larvitar.setToolActive("Wwwc");
         });
       }
 
@@ -166,8 +163,8 @@
       let tool_counter = 0;
       document.onkeypress = function (e) {
         e = e || window.event;
+        if (e.keyCode == 116) {
         let tools = _.map(larvitar.DEFAULT_TOOLS, "name");
-        console.log(tools);
         // remove useless tools for the live example
         tools = _.without(
           tools,
@@ -177,14 +174,78 @@
           "PanMultiTouch",
           "OrientationMarkers",
           "ScaleOverlay"
-        );
+          );
         tool_counter = tool_counter == tools.length - 1 ? 0 : tool_counter + 1;
         let tool = tools[tool_counter];
-        if (e.keyCode == 116) {
           larvitar.setToolActive(tool);
           $("#active-tool").html("Active Tool: " + tool);
         }
       };
-    </script>
+
+      function addMouseKeyHandlers(config){
+        function onKeyDown(evt){
+          let codes = Object.values(config.shortcut).map(e => e.keycode)
+          if (codes.includes(evt.keyCode) && evt.altKey){
+            let toolName = Object.values(config.shortcut).filter(e => e.keycode == evt.keyCode).pop().tool;
+            console.log('active', toolName)
+            larvitar.setToolActive(toolName)
+            document.addEventListener('keydown', onKeyDown, {once: true});
+          }
+          else if (evt.keyCode == config.shift.keycode){ // shift
+            console.log('active zoom')
+            larvitar.setToolActive(config.shift.tool, {mouseButtonMask:2})
+            document.addEventListener('keyup', onKeyUp, {once: true});
+          }
+          else if (evt.keyCode == config.ctrl.keycode){ // ctrl
+            console.log('active pan')
+            larvitar.setToolActive(config.ctrl.tool, {mouseButtonMask:2})
+            document.addEventListener('keyup', onKeyUp, {once: true});
+          }
+          else{
+            document.addEventListener('keydown', onKeyDown, {once: true});
+            return;
+          }
+        }
+      
+        function onKeyUp(e){
+          console.log('active wwwc')
+          larvitar.setToolActive(config.default.tool, {mouseButtonMask:2})
+          document.addEventListener('keydown', onKeyDown, {once: true});
+        }
+        
+        console.log('active wwwc')
+        larvitar.setToolActive(config.default.tool, {mouseButtonMask:[1,2]})
+        document.addEventListener('keydown', onKeyDown, {once: true});
+      }
+
+      addMouseKeyHandlers({
+        shortcut: {
+          r: {
+            tool:"Rotate",
+            keycode: 82
+          },
+          l: {
+            tool:"Length",
+            keycode: 76
+          },
+          a: {
+            tool:"Angle",
+            keycode:65
+          }
+        },
+        shift: {
+          keycode : 16,
+          tool: "Zoom"
+        },
+        ctrl: {
+          keycode : 17,
+          tool : "Pan"
+        },
+        default: {
+          tool: "Wwwc"
+        }
+      })
+
+          </script>
   </body>
 </html>

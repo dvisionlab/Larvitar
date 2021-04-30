@@ -156,16 +156,13 @@ export const addDefaultTools = function (elementId) {
 
 /**
  * Try to update image, catching errors if image is not loaded yet
- * @param {Object} enabledElement
+ * @param {HTMLObject} element
  */
-function tryUpdateImage(enabledElement) {
+function tryUpdateImage(element) {
   try {
-    cornerstone.updateImage(enabledElement.element);
+    cornerstone.updateImage(element);
   } catch (err) {
-    console.warn(
-      "updateImage: image has not been loaded yet:",
-      enabledElement.element.id
-    );
+    console.warn("updateImage: image has not been loaded yet:", element.id);
   }
 }
 
@@ -185,15 +182,14 @@ const setToolActive = function (toolName, options, viewports) {
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       cornerstoneTools.setToolActiveForElement(el, toolName, defaultOpt);
-      console.log("upd img", el.id);
-      tryUpdateImage(enel);
+      tryUpdateImage(el);
     });
   } else {
     // activate and update all
     cornerstoneTools.setToolActive(toolName, defaultOpt);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
-      tryUpdateImage(enel);
+      tryUpdateImage(enel.element);
     });
   }
 };
@@ -209,17 +205,15 @@ const setToolDisabled = function (toolName, viewports) {
     // activate and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
-      let enel = cornerstone.getEnabledElement(el);
-      cornerstoneTools.setToolDisabledForElement(enel, toolName, defaultOpt);
-      console.log("upd img", enel.element.id);
-      tryUpdateImage(enel);
+      cornerstoneTools.setToolDisabledForElement(el, toolName);
+      tryUpdateImage(el);
     });
   } else {
     // activate and update all
-    cornerstoneTools.setToolDisabled(toolName, defaultOpt);
+    cornerstoneTools.setToolDisabled(toolName);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
-      tryUpdateImage(enel);
+      tryUpdateImage(enel.element);
     });
   }
 };
@@ -235,17 +229,15 @@ const setToolEnabled = function (toolName, viewports) {
     // activate and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
-      let enel = cornerstone.getEnabledElement(el);
-      cornerstoneTools.setToolEnabledForElement(enel, toolName, defaultOpt);
-      console.log("upd img", enel.element.id);
-      tryUpdateImage(enel);
+      cornerstoneTools.setToolEnabledForElement(el, toolName);
+      tryUpdateImage(el);
     });
   } else {
     // activate and update all
-    cornerstoneTools.setToolEnabled(toolName, defaultOpt);
+    cornerstoneTools.setToolEnabled(toolName);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
-      tryUpdateImage(enel);
+      tryUpdateImage(enel.element);
     });
   }
 };
@@ -261,17 +253,15 @@ const setToolPassive = function (toolName, viewports) {
     // activate and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
-      let enel = cornerstone.getEnabledElement(el);
-      cornerstoneTools.setToolPassiveForElement(enel, toolName, defaultOpt);
-      console.log("upd img", enel.element.id);
-      tryUpdateImage(enel);
+      cornerstoneTools.setToolPassiveForElement(el, toolName);
+      tryUpdateImage(el);
     });
   } else {
     // activate and update all
-    cornerstoneTools.setToolPassive(toolName, defaultOpt);
+    cornerstoneTools.setToolPassive(toolName);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
-      tryUpdateImage(enel);
+      tryUpdateImage(enel.element);
     });
   }
 };
