@@ -10,22 +10,22 @@ import {
   loadAnnotations,
   exportAnnotations
 } from "./tools.io";
-import { DEFAULT_TOOLS, dvTools } from "./tools.default";
+import { DEFAULT_TOOLS, DEFAULT_STYLE, DEFAULT_SETTINGS, dvTools } from "./tools.default";
 
 /**
- * Initialize cornerstone tools with default configuration
+ * Initialize cornerstone tools with default configuration (extended with custom configuration)
  * @function initializeCSTools
+ * @param {Object} settings - the settings object (see tools.default.js)
+ * @param {Object} settings - the style object (see tools.default.js)
+ * @example larvitar.initializeCSTools({showSVGCursors:false}, {color: "0000FF"});
  */
-const initializeCSTools = function () {
+const initializeCSTools = function (settings, style) {
   cornerstoneTools.external.cornerstone = cornerstone;
   cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
   // cornerstoneTools.external.Hammer = Hammer;
-  cornerstoneTools.init({
-    mouseEnabled: true,
-    touchEnabled: false,
-    showSVGCursors: true
-  });
-  configureCornerstoneToolsSettings();
+  extend(DEFAULT_SETTINGS, settings)
+  cornerstoneTools.init(DEFAULT_SETTINGS);
+  setToolsStyle(style);
 };
 
 /**
@@ -90,6 +90,7 @@ const isToolMissing = function (toolName) {
  * Add a cornerstone tool (grab it from original library or dvision custom tools)
  * @param {*} toolName
  * @param {*} targetElementId
+ * @example larvitar.addTool("ScaleOverlay", {configuration:{minorTickLength: 10, majorTickLength: 25}}, "viewer")
  */
 const addTool = function (toolName, customConfig, targetElementId) {
   // extend defaults with user custom props
@@ -103,7 +104,6 @@ const addTool = function (toolName, customConfig, targetElementId) {
       let element = document.getElementById(targetElementId);
       cornerstoneTools.addToolForElement(element, toolClass, defaultConfig);
     } else {
-      console.log(defaultConfig)
       cornerstoneTools.addTool(toolClass, defaultConfig);
     }
   }
@@ -281,28 +281,27 @@ const setToolPassive = function (toolName, viewports) {
 /** @inner Internal module functions */
 
 /**
- * Set cornerstone tools configuration
- * @function configureCornerstoneToolsSettings
- * TODO set as config file
+ * Set cornerstone tools custom configuration (extend default configuration)
+ * @function setToolsStyle
+ * @param {Object} style - the style object (see tools.defaults.js)
  */
-const configureCornerstoneToolsSettings = function () {
-  // Font families :
-  // Work Sans, Roboto, OpenSans, HelveticaNeue-Light,
-  // Helvetica Neue Light, Helvetica Neue, Helvetica,
-  // Arial, Lucida Grande, sans-serif;
-  let fontFamily = "Roboto";
-  let fontSize = 18;
+const setToolsStyle = function (style) {
+  extend(DEFAULT_STYLE, style);
 
-  cornerstoneTools.toolStyle.setToolWidth(1);
-  cornerstoneTools.toolColors.setToolColor("#02FAE5");
-  cornerstoneTools.toolColors.setActiveColor("#00FF00");
-  cornerstoneTools.toolColors.setFillColor("#0000FF"); // used only by FreehandRoiTool indide handles
+  let fontFamily = DEFAULT_STYLE.fontFamily;
+  let fontSize = DEFAULT_STYLE.fontSize;
+
+  cornerstoneTools.toolStyle.setToolWidth(DEFAULT_STYLE.width);
+  cornerstoneTools.toolColors.setToolColor(DEFAULT_STYLE.color);
+  cornerstoneTools.toolColors.setActiveColor(DEFAULT_STYLE.activeColor);
+  cornerstoneTools.toolColors.setFillColor(DEFAULT_STYLE.fillColor); // used only by FreehandRoiTool indide handles
   cornerstoneTools.textStyle.setFont(`${fontSize}px ${fontFamily}`);
-  cornerstoneTools.textStyle.setBackgroundColor("rgba(1, 1, 1, 0.7)");
+  cornerstoneTools.textStyle.setBackgroundColor(DEFAULT_STYLE.backgroundColor);
 };
 
 export {
   initializeCSTools,
+  setToolsStyle,
   csToolsCreateStack,
   addTool,
   setToolActive,

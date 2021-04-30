@@ -389,6 +389,35 @@ const dvTools = {
 };
 
 /**
+ * Tools default style
+ * Available font families :
+ * Work Sans, Roboto, OpenSans, HelveticaNeue-Light,
+ * Helvetica Neue Light, Helvetica Neue, Helvetica,
+ * Arial, Lucida Grande, sans-serif;
+ */
+const DEFAULT_STYLE = {
+  width: 1,
+  color: "#02FAE5",
+  activeColor: "#00FF00",
+  fillColor: "#0000FF",
+  fontFamily: "Roboto",
+  fontSize: 18,
+  backgroundColor: "rgba(1, 1, 1, 0.7)"
+}
+
+/**
+ * Tools default settings
+ */
+const DEFAULT_SETTINGS = {
+  mouseEnabled: true,
+  touchEnabled: false, // TODO 
+  showSVGCursors: true,
+  globalToolSyncEnabled: false,
+  autoResizeViewports: true,
+  lineDash: [4, 4],
+}
+
+/**
  * Get available tools by type (useful to populate menus)
  * @param {String} type
  */
@@ -416,5 +445,5 @@ const setDefaultToolsProps = function (newProps) {
   }
 };
 
-export { DEFAULT_TOOLS, dvTools, getDefaultToolsByType, setDefaultToolsProps };
+export { DEFAULT_TOOLS, DEFAULT_STYLE, DEFAULT_SETTINGS, dvTools, getDefaultToolsByType, setDefaultToolsProps };
 
