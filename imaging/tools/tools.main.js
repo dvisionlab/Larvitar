@@ -1,6 +1,6 @@
 // external libraries
 import cornerstone from "cornerstone-core";
-import cornerstoneTools from "cornerstone-tools";
+import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
 import cornerstoneMath from "cornerstone-math";
 
 import { each, extend } from "lodash";
@@ -11,7 +11,6 @@ import {
   exportAnnotations
 } from "./tools.io";
 import { DEFAULT_TOOLS, dvTools } from "./tools.default";
-import { cornerstoneWADOImageLoader } from "cornerstone-wado-image-loader";
 
 /**
  * Initialize cornerstone tools with default configuration
@@ -89,19 +88,23 @@ const isToolMissing = function (toolName) {
 
 /**
  * Add a cornerstone tool (grab it from original library or dvision custom tools)
- * // TODO get missing properties from defaults
  * @param {*} toolName
  * @param {*} targetElementId
  */
-const addTool = function (toolName, configuration, targetElementId) {
+const addTool = function (toolName, customConfig, targetElementId) {
+  // extend defaults with user custom props
+  let defaultConfig = DEFAULT_TOOLS[toolName];
+  extend(defaultConfig, customConfig)
+
   if (isToolMissing(toolName)) {
     const toolClassName = DEFAULT_TOOLS[toolName].class;
     const toolClass = cornerstoneTools[toolClassName] || dvTools[toolClassName];
     if (targetElementId) {
       let element = document.getElementById(targetElementId);
-      cornerstoneTools.addToolForElement(element, toolClass, configuration);
+      cornerstoneTools.addToolForElement(element, toolClass, defaultConfig);
     } else {
-      cornerstoneTools.addTool(toolClass, configuration);
+      console.log(defaultConfig)
+      cornerstoneTools.addTool(toolClass, defaultConfig);
     }
   }
 };

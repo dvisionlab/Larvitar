@@ -152,9 +152,7 @@
           larvitar.renderImage(serie, "viewer");
           larvitar.addDefaultTools();
           larvitar.setToolActive("Wwwc");
-          setTimeout(()=>{
-            larvitar.setToolEnabled("Wwwc");
-          }, 5000)
+          larvitar.addTool("ScaleOverlay", {configuration:{minorTickLength: 10, majorTickLength: 25}})
         });
       }
 

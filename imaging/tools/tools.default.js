@@ -30,8 +30,8 @@ const DEFAULT_TOOLS = {
     name: "ScaleOverlay",
     viewports: "all",
     configuration: {
-      minorTickLength: 12.5,
-      majorTickLength: 25
+      minorTickLength: 25,
+      majorTickLength: 50
     },
     options: {
       mouseButtonMask: 1
