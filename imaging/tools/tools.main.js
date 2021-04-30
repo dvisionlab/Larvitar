@@ -152,7 +152,6 @@ export const addDefaultTools = function (elementId) {
     }
 
     if (tool.defaultActive) {
-      console.log(tool.name);
       setToolActive(tool.name, tool.options);
     }
   });

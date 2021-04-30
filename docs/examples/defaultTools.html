@@ -71,6 +71,7 @@
                 larvitar.renderImage(serie, "viewer");
                 larvitar.addDefaultTools();
                 larvitar.setToolActive("Wwwc");
+                larvitar.addMouseKeyHandlers();
               });
             }
 
@@ -106,7 +107,7 @@
       </div>
     </div>
 
-    <script src="../../dist/larvitar.js"></script>
+    <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
@@ -152,6 +153,7 @@
           larvitar.renderImage(serie, "viewer");
           larvitar.addDefaultTools();
           larvitar.setToolActive("Wwwc");
+          larvitar.addMouseKeyHandlers();
         });
       }
 
@@ -181,9 +183,6 @@
           $("#active-tool").html("Active Tool: " + tool);
         }
       };
-
-          larvitar.addMouseKeyHandlers();
-
           </script>
   </body>
 </html>
