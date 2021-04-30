@@ -287,7 +287,7 @@ export const renderImage = function (series, elementId, defaultProps) {
     }
 
     // color maps
-    if (defaultProps && has(defaultProps, "colormap" && image.color == false)) {
+    if (defaultProps && has(defaultProps, "colormap") && image.color == false) {
       applyColorMap(defaultProps["colormap"]);
     }
 
