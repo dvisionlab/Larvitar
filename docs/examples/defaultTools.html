@@ -182,69 +182,7 @@
         }
       };
 
-      function addMouseKeyHandlers(config){
-        function onKeyDown(evt){
-          let codes = Object.values(config.shortcut).map(e => e.keycode)
-          if (codes.includes(evt.keyCode) && evt.altKey){
-            let toolName = Object.values(config.shortcut).filter(e => e.keycode == evt.keyCode).pop().tool;
-            console.log('active', toolName)
-            larvitar.setToolActive(toolName)
-            document.addEventListener('keydown', onKeyDown, {once: true});
-          }
-          else if (evt.keyCode == config.shift.keycode){ // shift
-            console.log('active zoom')
-            larvitar.setToolActive(config.shift.tool, {mouseButtonMask:2})
-            document.addEventListener('keyup', onKeyUp, {once: true});
-          }
-          else if (evt.keyCode == config.ctrl.keycode){ // ctrl
-            console.log('active pan')
-            larvitar.setToolActive(config.ctrl.tool, {mouseButtonMask:2})
-            document.addEventListener('keyup', onKeyUp, {once: true});
-          }
-          else{
-            document.addEventListener('keydown', onKeyDown, {once: true});
-            return;
-          }
-        }
-      
-        function onKeyUp(e){
-          console.log('active wwwc')
-          larvitar.setToolActive(config.default.tool, {mouseButtonMask:2})
-          document.addEventListener('keydown', onKeyDown, {once: true});
-        }
-        
-        console.log('active wwwc')
-        larvitar.setToolActive(config.default.tool, {mouseButtonMask:[1,2]})
-        document.addEventListener('keydown', onKeyDown, {once: true});
-      }
-
-      addMouseKeyHandlers({
-        shortcut: {
-          r: {
-            tool:"Rotate",
-            keycode: 82
-          },
-          l: {
-            tool:"Length",
-            keycode: 76
-          },
-          a: {
-            tool:"Angle",
-            keycode:65
-          }
-        },
-        shift: {
-          keycode : 16,
-          tool: "Zoom"
-        },
-        ctrl: {
-          keycode : 17,
-          tool : "Pan"
-        },
-        default: {
-          tool: "Wwwc"
-        }
-      })
+          larvitar.addMouseKeyHandlers();
 
           </script>
   </body>

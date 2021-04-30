@@ -165,6 +165,8 @@ import {
 
 import { saveAnnotations, loadAnnotations } from "./imaging/tools/tools.io";
 
+import { addMouseKeyHandlers } from "./imaging/tools/tools.interaction";
+
 export {
   // global cornerstone variables
   cornerstone,
@@ -306,5 +308,7 @@ export {
   setDefaultToolsProps,
   // tools.io
   saveAnnotations,
-  loadAnnotations
+  loadAnnotations,
+  // tools.interaction
+  addMouseKeyHandlers
 };

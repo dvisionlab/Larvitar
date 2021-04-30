@@ -418,6 +418,30 @@ const DEFAULT_SETTINGS = {
 }
 
 /**
+ * Shortcut and mouse bindings defaults 
+ */
+const DEFAULT_MOUSE_KEYS = {
+  debug: true, // log changes 
+  mouse_button_left: {
+    shift: "Zoom",
+    ctrl: "Pan",
+    default: "Wwwc"
+  },
+  mouse_button_right: {
+    shift: "Zoom",
+    ctrl: "Pan",
+    default: "Wwwc"
+  },
+  keyboard_shortcuts: {
+    // alt key + letter
+    r: "Rotate",
+    a: "Angle",
+    l: "Length"
+    // ... TODO ...
+  }
+}
+
+/**
  * Get available tools by type (useful to populate menus)
  * @param {String} type
  */
@@ -445,5 +469,5 @@ const setDefaultToolsProps = function (newProps) {
   }
 };
 
-export { DEFAULT_TOOLS, DEFAULT_STYLE, DEFAULT_SETTINGS, dvTools, getDefaultToolsByType, setDefaultToolsProps };
+export { DEFAULT_TOOLS, DEFAULT_STYLE, DEFAULT_SETTINGS, DEFAULT_MOUSE_KEYS, dvTools, getDefaultToolsByType, setDefaultToolsProps };
 
