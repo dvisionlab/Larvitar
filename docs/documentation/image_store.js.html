@@ -284,10 +284,10 @@ class Larvitar_Store {
       } else if (field == "manager") {
         this.state.manager = data;
       } else {
-        if (data.length == 0) {
-          this.state[field] = data;
+        if (Array.isArray(data)) {
+          this.state[field][data[0]] = data[1];
         } else {
-          this.state[data[0]][field] = data[1];
+          this.state[field] = data;
         }
       }
     }
