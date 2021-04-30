@@ -417,3 +417,4 @@ const setDefaultToolsProps = function (newProps) {
 };
 
 export { DEFAULT_TOOLS, dvTools, getDefaultToolsByType, setDefaultToolsProps };
+

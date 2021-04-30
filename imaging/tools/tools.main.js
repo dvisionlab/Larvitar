@@ -89,6 +89,7 @@ const isToolMissing = function (toolName) {
 
 /**
  * Add a cornerstone tool (grab it from original library or dvision custom tools)
+ * // TODO get missing properties from defaults
  * @param {*} toolName
  * @param {*} targetElementId
  */
@@ -206,6 +207,8 @@ const setToolDisabled = function (toolName, viewports) {
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       cornerstoneTools.setToolDisabledForElement(el, toolName);
+      // restore native cursor
+      el.style.cursor = "initial"
       tryUpdateImage(el);
     });
   } else {
@@ -213,6 +216,8 @@ const setToolDisabled = function (toolName, viewports) {
     cornerstoneTools.setToolDisabled(toolName);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
+      // restore native cursor
+      enel.element.style.cursor = "initial"
       tryUpdateImage(enel.element);
     });
   }
@@ -230,6 +235,8 @@ const setToolEnabled = function (toolName, viewports) {
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       cornerstoneTools.setToolEnabledForElement(el, toolName);
+      // restore native cursor
+      el.style.cursor = "initial"
       tryUpdateImage(el);
     });
   } else {
@@ -237,6 +244,8 @@ const setToolEnabled = function (toolName, viewports) {
     cornerstoneTools.setToolEnabled(toolName);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
+      // restore native cursor
+      enel.element.style.cursor = "initial"
       tryUpdateImage(enel.element);
     });
   }
