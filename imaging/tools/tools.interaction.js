@@ -1,4 +1,5 @@
 import { DEFAULT_MOUSE_KEYS } from "./tools.default";
+import { setToolActive } from "./tools.main";
 
 const KEY_CODES = {
   shift: 16,
@@ -41,13 +42,13 @@ export function addMouseKeyHandlers(config, viewports) {
         .filter(key => KEY_CODES[key] == evt.keyCode)
         .pop();
       if (config.debug) console.log("active", config.keyboard_shortcuts[key]);
-      larvitar.setToolActive(config.keyboard_shortcuts[key], {}, viewports);
+      setToolActive(config.keyboard_shortcuts[key], {}, viewports);
       document.addEventListener("keydown", onKeyDown, { once: true });
     }
     // right drag + shift
     else if (evt.keyCode == KEY_CODES["shift"]) {
       if (config.debug) console.log("active", config.mouse_button_right.shift);
-      larvitar.setToolActive(
+      setToolActive(
         config.mouse_button_right.shift,
         { mouseButtonMask: 2 },
         viewports
@@ -57,7 +58,7 @@ export function addMouseKeyHandlers(config, viewports) {
     // right drag + ctrl
     else if (evt.keyCode == KEY_CODES["ctrl"]) {
       if (config.debug) console.log("active", config.mouse_button_right.ctrl);
-      larvitar.setToolActive(
+      setToolActive(
         config.mouse_button_right.ctrl,
         { mouseButtonMask: 2 },
         viewports
@@ -73,7 +74,7 @@ export function addMouseKeyHandlers(config, viewports) {
 
   function onKeyUp(e) {
     if (config.debug) console.log("active wwwc");
-    larvitar.setToolActive(
+    setToolActive(
       config.mouse_button_right.default,
       { mouseButtonMask: 2 },
       viewports
@@ -81,7 +82,7 @@ export function addMouseKeyHandlers(config, viewports) {
     document.addEventListener("keydown", onKeyDown, { once: true });
   }
 
-  larvitar.setToolActive(
+  setToolActive(
     config.mouse_button_right.default,
     { mouseButtonMask: [1, 2] },
     viewports
