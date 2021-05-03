@@ -28,6 +28,7 @@
     "cornerstone-tools": "^5.1.4",
     "cornerstone-wado-image-loader": "^3.0.6",
     "cornerstone-web-image-loader": "^2.1.1",
+    "dicom-character-set": "^1.0.3",
     "dicom-parser": "^1.8.4",
     "docdash": "^1.2.0",
     "hammerjs": "^2.0.8",

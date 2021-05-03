@@ -174,6 +174,11 @@ deepmerge@^4.2.2:
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-4.2.2.tgz#44d2ea3679b8f4d4ffba33f03d865fc1e7bf4955"
   integrity sha512-FJ3UgI4gIl+PHZm53knsuSFpE+nESMr7M4v9QcgB7S63Kj/6WqMiFQJpBBYz1Pt+66bZpP3Q7Lye0Oo9MPKEdg==
 
+dicom-character-set@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/dicom-character-set/-/dicom-character-set-1.0.3.tgz#406d3cbe562ea66c7a834627f33c95dbdce7457e"
+  integrity sha512-nfP6WTWX6L4rGAG8ydTnl8STqlSDdkkSZuNYjd9ynWmH3QU5KRmv6aATJfTHAWrzyJz/TwYIs/h+IvSZYxlopQ==
+
 dicom-parser@^1.8.3, dicom-parser@^1.8.4:
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/dicom-parser/-/dicom-parser-1.8.5.tgz#626aab3f3aa3d54452c302b2628248f27b351f22"
