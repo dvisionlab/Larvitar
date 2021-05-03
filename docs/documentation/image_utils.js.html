@@ -74,6 +74,7 @@ import {
 } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import cornerstone from "cornerstone-core";
+import { convertBytes } from "dicom-character-set";
 
 // internal libraries
 import { getDicomImageId } from "./loaders/dicomLoader";
@@ -681,40 +682,6 @@ export const getDistanceBetweenSlices = function (
   }
 };
 
-// /**
-//  * Remap a voxel cooordinates in a target orientation
-//  * @instance
-//  * @function remapVoxel
-//  * @param {Array} ijk - Voxel coordinates to convert
-//  * @param {fromOrientation} orientationName - Orientation source
-//  * @param {toOrientation} orientationName - Orientation target
-//  * @return {Array} - Voxel coordinates in target orientation
-//  */
-// export function remapVoxel([i, j, k], fromOrientation, toOrientation) {
-//   if (fromOrientation == toOrientation) {
-//     return [i, j, k];
-//   }
-
-//   let permuteTable = resliceTable[toOrientation][fromOrientation];
-//   let permuteAbsTable = permuteTable.map(function (v) {
-//     return Math.abs(v);
-//   });
-
-//   // if permuteTable value is negative, count slices from the end
-//   var dims = getSerieDimensions(getLarvitarImageLoader());
-
-//   let i_ = isNegativeSign(permuteTable[0]) ? dims[fromOrientation][0] - i : i;
-//   let j_ = isNegativeSign(permuteTable[1]) ? dims[fromOrientation][1] - j : j;
-//   let k_ = isNegativeSign(permuteTable[2]) ? dims[fromOrientation][2] - k : k;
-
-//   let ijk = [0, 0, 0];
-//   ijk[permuteAbsTable[0]] = i_;
-//   ijk[permuteAbsTable[1]] = j_;
-//   ijk[permuteAbsTable[2]] = k_;
-
-//   return ijk;
-// }
-
 /**
  * Parse a DICOM Tag according to its type
  * @instance
@@ -797,16 +764,47 @@ export const parseTag = function (dataSet, propertyName, element) {
     else if (vr === "TM") {
       value = parseTimeTag(value);
     }
-
-    // PatientName tag value is: "LastName^FirstName^MiddleName".
-    // Spaces inside each name component are permitted. If you don't know
-    // any of the three components, just leave it empty.
-    // Actually you may even append a name prefix (^professor) and
-    // a name suffix (^senior) so you have a maximum of 5 components.
-    else if (vr == "PN") {
-      value = parsePatientNameTag(value);
+    // Specific Character Set (0008,0005) identifies the Character Set that expands or
+    // replaces the Basic Graphic Set (ISO 646) for values of Data Elements that have
+    // Value Representation of SH, LO, ST, PN, LT, UC or UT.
+    // If the Attribute Specific Character Set (0008,0005) is not present or has only
+    // a single value, Code Extension techniques are not used. Defined Terms for the
+    // Attribute Specific Character Set (0008,0005), when single valued, are derived
+    // from the International Registration Number as per ISO 2375
+    // (e.g., ISO_IR 100 for Latin alphabet No. 1).
+    // See https://github.com/radialogica/dicom-character-set
+    else if (
+      vr == "PN" ||
+      vr == "SH" ||
+      vr == "LO" ||
+      vr == "ST" ||
+      vr == "PN" ||
+      vr == "LT" ||
+      vr == "UC" ||
+      vr == "UT"
+    ) {
+      // get character set
+      let characterSet = dataSet.string("x00080005");
+      if (characterSet) {
+        let data = dataSet.elements[propertyName];
+        let arr = new Uint8Array(
+          dataSet.byteArray.buffer,
+          data.dataOffset,
+          data.length
+        );
+        value = convertBytes(characterSet, arr, {
+          vr: vr
+        });
+      }
+      if (vr == "PN") {
+        // PatientName tag value is: "LastName^FirstName^MiddleName".
+        // Spaces inside each name component are permitted. If you don't know
+        // any of the three components, just leave it empty.
+        // Actually you may even append a name prefix (^professor) and
+        // a name suffix (^senior) so you have a maximum of 5 components.
+        value = parsePatientNameTag(value);
+      }
     }
-
     // A string of characters with one of the following formats
     // -- nnnD, nnnW, nnnM, nnnY; where nnn shall contain the number of days for D,
     // weeks for W, months for M, or years for Y.
@@ -840,6 +838,7 @@ export const parseTag = function (dataSet, propertyName, element) {
     vr === "OB" ||
     vr === "OW" ||
     vr === "OW|OB" ||
+    vr === "US|OW" ||
     vr === "UN" ||
     vr === "OF" ||
     vr === "UT"
