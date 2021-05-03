@@ -101,6 +101,7 @@ import {
   csToolsCreateStack,
   csToolsUpdateImageIndex,
   initializeCSTools,
+  setToolsStyle,
   addDefaultTools,
   addTool,
   setToolActive,
@@ -163,6 +164,8 @@ import {
 } from "./imaging/image_colormaps";
 
 import { saveAnnotations, loadAnnotations } from "./imaging/tools/tools.io";
+
+import { addMouseKeyHandlers } from "./imaging/tools/tools.interaction";
 
 export {
   // global cornerstone variables
@@ -291,6 +294,7 @@ export {
   csToolsCreateStack,
   csToolsUpdateImageIndex,
   initializeCSTools,
+  setToolsStyle,
   addDefaultTools,
   addTool,
   setToolActive,
@@ -304,5 +308,7 @@ export {
   setDefaultToolsProps,
   // tools.io
   saveAnnotations,
-  loadAnnotations
+  loadAnnotations,
+  // tools.interaction
+  addMouseKeyHandlers
 };

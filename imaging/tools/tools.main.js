@@ -1,6 +1,6 @@
 // external libraries
 import cornerstone from "cornerstone-core";
-import cornerstoneTools from "cornerstone-tools";
+import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
 import cornerstoneMath from "cornerstone-math";
 
 import { each, extend } from "lodash";
@@ -10,22 +10,22 @@ import {
   loadAnnotations,
   exportAnnotations
 } from "./tools.io";
-import { DEFAULT_TOOLS, dvTools } from "./tools.default";
+import { DEFAULT_TOOLS, DEFAULT_STYLE, DEFAULT_SETTINGS, dvTools } from "./tools.default";
 
 /**
- * Initialize cornerstone tools with default configuration
+ * Initialize cornerstone tools with default configuration (extended with custom configuration)
  * @function initializeCSTools
+ * @param {Object} settings - the settings object (see tools.default.js)
+ * @param {Object} settings - the style object (see tools.default.js)
+ * @example larvitar.initializeCSTools({showSVGCursors:false}, {color: "0000FF"});
  */
-const initializeCSTools = function () {
+const initializeCSTools = function (settings, style) {
   cornerstoneTools.external.cornerstone = cornerstone;
   cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
   // cornerstoneTools.external.Hammer = Hammer;
-  cornerstoneTools.init({
-    mouseEnabled: true,
-    touchEnabled: false,
-    showSVGCursors: true
-  });
-  configureCornerstoneToolsSettings();
+  extend(DEFAULT_SETTINGS, settings)
+  cornerstoneTools.init(DEFAULT_SETTINGS);
+  setToolsStyle(style);
 };
 
 /**
@@ -90,16 +90,21 @@ const isToolMissing = function (toolName) {
  * Add a cornerstone tool (grab it from original library or dvision custom tools)
  * @param {*} toolName
  * @param {*} targetElementId
+ * @example larvitar.addTool("ScaleOverlay", {configuration:{minorTickLength: 10, majorTickLength: 25}}, "viewer")
  */
-const addTool = function (toolName, configuration, targetElementId) {
+const addTool = function (toolName, customConfig, targetElementId) {
+  // extend defaults with user custom props
+  let defaultConfig = DEFAULT_TOOLS[toolName];
+  extend(defaultConfig, customConfig)
+
   if (isToolMissing(toolName)) {
     const toolClassName = DEFAULT_TOOLS[toolName].class;
     const toolClass = cornerstoneTools[toolClassName] || dvTools[toolClassName];
     if (targetElementId) {
       let element = document.getElementById(targetElementId);
-      cornerstoneTools.addToolForElement(element, toolClass, configuration);
+      cornerstoneTools.addToolForElement(element, toolClass, defaultConfig);
     } else {
-      cornerstoneTools.addTool(toolClass, configuration);
+      cornerstoneTools.addTool(toolClass, defaultConfig);
     }
   }
 };
@@ -153,29 +158,42 @@ export const addDefaultTools = function (elementId) {
 };
 
 /**
+ * Try to update image, catching errors if image is not loaded yet
+ * @param {HTMLObject} element
+ */
+function tryUpdateImage(element) {
+  try {
+    cornerstone.updateImage(element);
+  } catch (err) {
+    console.warn("updateImage: image has not been loaded yet:", element.id);
+  }
+}
+
+/**
  * Set Tool "active" on all elements (ie, rendered and manipulable) & refresh cornerstone elements
  * @function setToolActive
  * @param {String} toolName - The tool name.
  * @param {Object} options - The custom options. @default from tools.default.js
- * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  */
-const setToolActive = function (toolName, options, activeViewport, viewports) {
+const setToolActive = function (toolName, options, viewports) {
   let defaultOpt = DEFAULT_TOOLS[toolName].options;
   extend(defaultOpt, options);
-  cornerstoneTools.setToolActive(toolName, defaultOpt);
-  if (activeViewport == "all") {
+
+  if (viewports && viewports.length > 0) {
+    // activate and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
-      if (el) {
-        cornerstone.updateImage(el);
-      }
+      cornerstoneTools.setToolActiveForElement(el, toolName, defaultOpt);
+      tryUpdateImage(el);
     });
   } else {
-    let el = document.getElementById(activeViewport);
-    if (el) {
-      cornerstone.updateImage(el);
-    }
+    // activate and update all
+    cornerstoneTools.setToolActive(toolName, defaultOpt);
+    let enabledElements = cornerstone.getEnabledElements();
+    each(enabledElements, enel => {
+      tryUpdateImage(enel.element);
+    });
   }
 };
 
@@ -183,23 +201,27 @@ const setToolActive = function (toolName, options, activeViewport, viewports) {
  * Set Tool "disabled" on all elements (ie, not rendered) & refresh cornerstone elements
  * @function setToolDisabled
  * @param {String} toolName - The tool name.
- * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
- * @param {Array} _viewports - The hmtl element id to be used for tool initialization.
+ * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  */
-const setToolDisabled = function (toolName, activeViewport, viewports) {
-  cornerstoneTools.setToolDisabled(toolName);
-  if (activeViewport == "all") {
+const setToolDisabled = function (toolName, viewports) {
+  if (viewports && viewports.length > 0) {
+    // activate and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
-      if (el) {
-        cornerstone.updateImage(el);
-      }
+      cornerstoneTools.setToolDisabledForElement(el, toolName);
+      // restore native cursor
+      el.style.cursor = "initial"
+      tryUpdateImage(el);
     });
   } else {
-    let el = document.getElementById(activeViewport);
-    if (el) {
-      cornerstone.updateImage(el);
-    }
+    // activate and update all
+    cornerstoneTools.setToolDisabled(toolName);
+    let enabledElements = cornerstone.getEnabledElements();
+    each(enabledElements, enel => {
+      // restore native cursor
+      enel.element.style.cursor = "initial"
+      tryUpdateImage(enel.element);
+    });
   }
 };
 
@@ -207,23 +229,27 @@ const setToolDisabled = function (toolName, activeViewport, viewports) {
  * Set Tool "enabled" on all elements (ie, rendered but not manipulable) & refresh cornerstone elements
  * @function setToolEnabled
  * @param {String} toolName - The tool name.
- * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  */
-const setToolEnabled = function (toolName, activeViewport, viewports) {
-  cornerstoneTools.setToolEnabled(toolName);
-  if (activeViewport == "all") {
+const setToolEnabled = function (toolName, viewports) {
+  if (viewports && viewports.length > 0) {
+    // activate and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
-      if (el) {
-        cornerstone.updateImage(el);
-      }
+      cornerstoneTools.setToolEnabledForElement(el, toolName);
+      // restore native cursor
+      el.style.cursor = "initial"
+      tryUpdateImage(el);
     });
   } else {
-    let el = document.getElementById(activeViewport);
-    if (el) {
-      cornerstone.updateImage(el);
-    }
+    // activate and update all
+    cornerstoneTools.setToolEnabled(toolName);
+    let enabledElements = cornerstone.getEnabledElements();
+    each(enabledElements, enel => {
+      // restore native cursor
+      enel.element.style.cursor = "initial"
+      tryUpdateImage(enel.element);
+    });
   }
 };
 
@@ -231,50 +257,50 @@ const setToolEnabled = function (toolName, activeViewport, viewports) {
  * Set Tool "enabled" on all elements (ie, rendered and manipulable passively) & refresh cornerstone elements
  * @function setToolPassive
  * @param {String} toolName - The tool name.
- * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  */
-const setToolPassive = function (toolName, activeViewport, viewports) {
-  cornerstoneTools.setToolPassive(toolName);
-  if (activeViewport == "all") {
+const setToolPassive = function (toolName, viewports) {
+  if (viewports && viewports.length > 0) {
+    // activate and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
-      if (el) {
-        cornerstone.updateImage(el);
-      }
+      cornerstoneTools.setToolPassiveForElement(el, toolName);
+      tryUpdateImage(el);
     });
   } else {
-    let el = document.getElementById(activeViewport);
-    if (el) {
-      cornerstone.updateImage(el);
-    }
+    // activate and update all
+    cornerstoneTools.setToolPassive(toolName);
+    let enabledElements = cornerstone.getEnabledElements();
+    each(enabledElements, enel => {
+      tryUpdateImage(enel.element);
+    });
   }
 };
 
 /** @inner Internal module functions */
 
 /**
- * Set cornerstone tools configuration
- * @function configureCornerstoneToolsSettings
+ * Set cornerstone tools custom configuration (extend default configuration)
+ * @function setToolsStyle
+ * @param {Object} style - the style object (see tools.defaults.js)
  */
-const configureCornerstoneToolsSettings = function () {
-  // Font families :
-  // Work Sans, Roboto, OpenSans, HelveticaNeue-Light,
-  // Helvetica Neue Light, Helvetica Neue, Helvetica,
-  // Arial, Lucida Grande, sans-serif;
-  let fontFamily = "Roboto";
-  let fontSize = 18;
+const setToolsStyle = function (style) {
+  extend(DEFAULT_STYLE, style);
 
-  cornerstoneTools.toolStyle.setToolWidth(1);
-  cornerstoneTools.toolColors.setToolColor("#FF0000");
-  cornerstoneTools.toolColors.setActiveColor("#00FF00");
-  cornerstoneTools.toolColors.setFillColor("#0000FF");
+  let fontFamily = DEFAULT_STYLE.fontFamily;
+  let fontSize = DEFAULT_STYLE.fontSize;
+
+  cornerstoneTools.toolStyle.setToolWidth(DEFAULT_STYLE.width);
+  cornerstoneTools.toolColors.setToolColor(DEFAULT_STYLE.color);
+  cornerstoneTools.toolColors.setActiveColor(DEFAULT_STYLE.activeColor);
+  cornerstoneTools.toolColors.setFillColor(DEFAULT_STYLE.fillColor); // used only by FreehandRoiTool indide handles
   cornerstoneTools.textStyle.setFont(`${fontSize}px ${fontFamily}`);
-  cornerstoneTools.textStyle.setBackgroundColor("rgba(1, 1, 1, 0.0)");
+  cornerstoneTools.textStyle.setBackgroundColor(DEFAULT_STYLE.backgroundColor);
 };
 
 export {
   initializeCSTools,
+  setToolsStyle,
   csToolsCreateStack,
   addTool,
   setToolActive,

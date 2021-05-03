@@ -26,6 +26,39 @@ import PolylineScissorsTool from "./polylineScissorsTool";
  * These tools are added with `addDefaultTools()`
  */
 const DEFAULT_TOOLS = {
+  ScaleOverlay: {
+    name: "ScaleOverlay",
+    viewports: "all",
+    configuration: {
+      minorTickLength: 25,
+      majorTickLength: 50
+    },
+    options: {
+      mouseButtonMask: 1
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "ScaleOverlayTool",
+    sync: null,
+    description: "Add scale overlay",
+    shortcut: "ctrl-m",
+    type: "overlay"
+  },
+  OrientationMarkers: {
+    name: "OrientationMarkers",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "OrientationMarkersTool",
+    sync: null,
+    description: "Add orientation markers",
+    shortcut: "ctrl-m",
+    type: "overlay"
+  },
   Wwwc: {
     name: "Wwwc",
     viewports: "all",
@@ -39,6 +72,22 @@ const DEFAULT_TOOLS = {
     class: "WwwcTool",
     sync: "wwwcSynchronizer",
     description: "Change image contrast",
+    shortcut: "ctrl-m",
+    type: "utils"
+  },
+  WwwcRegion: {
+    name: "WwwcRegion",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "WwwcRegionTool",
+    sync: "wwwcSynchronizer",
+    description: "Change image contrast based on selected region",
     shortcut: "ctrl-m",
     type: "utils"
   },
@@ -340,6 +389,59 @@ const dvTools = {
 };
 
 /**
+ * Tools default style
+ * Available font families :
+ * Work Sans, Roboto, OpenSans, HelveticaNeue-Light,
+ * Helvetica Neue Light, Helvetica Neue, Helvetica,
+ * Arial, Lucida Grande, sans-serif;
+ */
+const DEFAULT_STYLE = {
+  width: 1,
+  color: "#02FAE5",
+  activeColor: "#00FF00",
+  fillColor: "#0000FF",
+  fontFamily: "Roboto",
+  fontSize: 18,
+  backgroundColor: "rgba(1, 1, 1, 0.7)"
+}
+
+/**
+ * Tools default settings
+ */
+const DEFAULT_SETTINGS = {
+  mouseEnabled: true,
+  touchEnabled: false, // TODO 
+  showSVGCursors: true,
+  globalToolSyncEnabled: false,
+  autoResizeViewports: true,
+  lineDash: [4, 4],
+}
+
+/**
+ * Shortcut and mouse bindings defaults 
+ */
+const DEFAULT_MOUSE_KEYS = {
+  debug: true, // log changes 
+  mouse_button_left: {
+    shift: "Zoom",
+    ctrl: "Pan",
+    default: "Wwwc"
+  },
+  mouse_button_right: {
+    shift: "Zoom",
+    ctrl: "Pan",
+    default: "Wwwc"
+  },
+  keyboard_shortcuts: {
+    // alt key + letter
+    r: "Rotate",
+    a: "Angle",
+    l: "Length"
+    // ... TODO ...
+  }
+}
+
+/**
  * Get available tools by type (useful to populate menus)
  * @param {String} type
  */
@@ -367,4 +469,5 @@ const setDefaultToolsProps = function (newProps) {
   }
 };
 
-export { DEFAULT_TOOLS, dvTools, getDefaultToolsByType, setDefaultToolsProps };
+export { DEFAULT_TOOLS, DEFAULT_STYLE, DEFAULT_SETTINGS, DEFAULT_MOUSE_KEYS, dvTools, getDefaultToolsByType, setDefaultToolsProps };
+

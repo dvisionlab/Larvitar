@@ -71,6 +71,7 @@
                 larvitar.renderImage(serie, "viewer");
                 larvitar.addDefaultTools();
                 larvitar.setToolActive("Wwwc");
+                larvitar.addMouseKeyHandlers();
               });
             }
 
@@ -89,7 +90,9 @@
                 "StackScrollMouseWheel",
                 "TextMarker",
                 "ZoomTouchPinch",
-                "PanMultiTouch"
+                "PanMultiTouch",
+                "OrientationMarkers",
+                "ScaleOverlay"
               );
               tool_counter = tool_counter == tools.length - 1 ? 0 : tool_counter + 1;
               let tool = tools[tool_counter];
@@ -150,6 +153,7 @@
           larvitar.renderImage(serie, "viewer");
           larvitar.addDefaultTools();
           larvitar.setToolActive("Wwwc");
+          larvitar.addMouseKeyHandlers();
         });
       }
 
@@ -161,6 +165,7 @@
       let tool_counter = 0;
       document.onkeypress = function (e) {
         e = e || window.event;
+        if (e.keyCode == 116) {
         let tools = _.map(larvitar.DEFAULT_TOOLS, "name");
         // remove useless tools for the live example
         tools = _.without(
@@ -168,15 +173,16 @@
           "StackScrollMouseWheel",
           "TextMarker",
           "ZoomTouchPinch",
-          "PanMultiTouch"
-        );
+          "PanMultiTouch",
+          "OrientationMarkers",
+          "ScaleOverlay"
+          );
         tool_counter = tool_counter == tools.length - 1 ? 0 : tool_counter + 1;
         let tool = tools[tool_counter];
-        if (e.keyCode == 116) {
           larvitar.setToolActive(tool);
           $("#active-tool").html("Active Tool: " + tool);
         }
       };
-    </script>
+          </script>
   </body>
 </html>
