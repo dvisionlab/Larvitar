@@ -139,6 +139,7 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
       imageIds: [],
       instances: {},
       seriesDescription: seriesDescription,
+      larvitarSeriesInstanceUID: sid,
       seriesUID: sid,
       studyUID: ssid,
       numberOfImages: 0,
