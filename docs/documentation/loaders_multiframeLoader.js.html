@@ -126,7 +126,7 @@ export const buildMultiFrameImage = function (seriesId, serie) {
 
     // check if manager exists for this seriesId
     if (!manager[seriesId]) {
-      manager[seriesId] = {};
+      manager[seriesId] = serie;
       manager[seriesId].imageIds = [];
       manager[seriesId].instances = {};
     }
