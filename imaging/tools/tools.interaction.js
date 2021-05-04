@@ -15,7 +15,7 @@ const KEY_CODES = {
  * NOTE: at the moment only mouse right button is affected
  * Improvements could be:
  * - "restore previous active tool" instead of passed "default" tool
- * - manage left button
+ * - manage left button (an idea could be to cycle over object keys for both buttons)
  * - possibility to change modifier keys
  * @param {Object} config - see tools.default
  * @param {Array} viewports - The hmtl element ids to be used for tool activation.
@@ -34,9 +34,10 @@ export function addMouseKeyHandlers(config, viewports) {
 
   function onKeyDown(evt) {
     // keyboard shortcuts
-    let codes = Object.keys(config.keyboard_shortcuts).map(
-      key => KEY_CODES[key]
-    );
+    let codes = config.keyboard_shortcuts
+      ? Object.keys(config.keyboard_shortcuts).map(key => KEY_CODES[key])
+      : [];
+
     if (codes.includes(evt.keyCode) && evt.altKey) {
       let key = Object.keys(config.keyboard_shortcuts)
         .filter(key => KEY_CODES[key] == evt.keyCode)
@@ -46,7 +47,11 @@ export function addMouseKeyHandlers(config, viewports) {
       document.addEventListener("keydown", onKeyDown, { once: true });
     }
     // right drag + shift
-    else if (evt.keyCode == KEY_CODES["shift"]) {
+    else if (
+      config.mouse_button_right &&
+      config.mouse_button_right.shift &&
+      evt.keyCode == KEY_CODES["shift"]
+    ) {
       if (config.debug) console.log("active", config.mouse_button_right.shift);
       setToolActive(
         config.mouse_button_right.shift,
@@ -56,7 +61,11 @@ export function addMouseKeyHandlers(config, viewports) {
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
     // right drag + ctrl
-    else if (evt.keyCode == KEY_CODES["ctrl"]) {
+    else if (
+      config.mouse_button_right &&
+      config.mouse_button_right.ctrl &&
+      evt.keyCode == KEY_CODES["ctrl"]
+    ) {
       if (config.debug) console.log("active", config.mouse_button_right.ctrl);
       setToolActive(
         config.mouse_button_right.ctrl,
@@ -65,7 +74,7 @@ export function addMouseKeyHandlers(config, viewports) {
       );
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
-    // restore default
+    // leave default
     else {
       document.addEventListener("keydown", onKeyDown, { once: true });
       return;
@@ -73,7 +82,8 @@ export function addMouseKeyHandlers(config, viewports) {
   }
 
   function onKeyUp(e) {
-    if (config.debug) console.log("active wwwc");
+    if (config.debug)
+      console.log("active default", config.mouse_button_right.default);
     setToolActive(
       config.mouse_button_right.default,
       { mouseButtonMask: 2 },
@@ -82,10 +92,13 @@ export function addMouseKeyHandlers(config, viewports) {
     document.addEventListener("keydown", onKeyDown, { once: true });
   }
 
-  setToolActive(
-    config.mouse_button_right.default,
-    { mouseButtonMask: [1, 2] },
-    viewports
-  );
+  // activate default, if any
+  if (config.mouse_button_right && config.mouse_button_right.default) {
+    setToolActive(
+      config.mouse_button_right.default,
+      { mouseButtonMask: [1, 2] },
+      viewports
+    );
+  }
   document.addEventListener("keydown", onKeyDown, { once: true });
 }
