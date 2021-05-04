@@ -761,9 +761,10 @@ let getSeriesData = function (series, defaultProps) {
       defaultProps["sliceNumber"] &lt;= series.imageIds.length
         ? defaultProps["sliceNumber"]
         : Math.floor(series.imageIds.length / 2);
-    data.imageId = series.imageIds[data.imageIndex - 1]
-      ? data.imageIndex > 0
-      : series.imageIds[0];
+    data.imageId =
+      data.imageIndex > 0
+        ? series.imageIds[data.imageIndex - 1]
+        : series.imageIds[0];
   }
 
   // rows, cols and x y z spacing
