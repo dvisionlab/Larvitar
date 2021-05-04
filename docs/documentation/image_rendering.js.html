@@ -761,12 +761,9 @@ let getSeriesData = function (series, defaultProps) {
       defaultProps["sliceNumber"] &lt;= series.imageIds.length
         ? defaultProps["sliceNumber"]
         : Math.floor(series.imageIds.length / 2);
-    data.imageId = series.imageIds[data.imageIndex - 1];
-  }
-
-  if (!data.imageId) {
-    data.imageId = series.imageIds[0];
-    console.warn("imageId not found for imageIndex", data.imageIndex);
+    data.imageId = series.imageIds[data.imageIndex - 1]
+      ? data.imageIndex > 0
+      : series.imageIds[0];
   }
 
   // rows, cols and x y z spacing
