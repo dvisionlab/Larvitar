@@ -10,7 +10,12 @@ import {
   loadAnnotations,
   exportAnnotations
 } from "./tools.io";
-import { DEFAULT_TOOLS, DEFAULT_STYLE, DEFAULT_SETTINGS, dvTools } from "./tools.default";
+import {
+  DEFAULT_TOOLS,
+  DEFAULT_STYLE,
+  DEFAULT_SETTINGS,
+  dvTools
+} from "./tools.default";
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
@@ -23,7 +28,7 @@ const initializeCSTools = function (settings, style) {
   cornerstoneTools.external.cornerstone = cornerstone;
   cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
   // cornerstoneTools.external.Hammer = Hammer;
-  extend(DEFAULT_SETTINGS, settings)
+  extend(DEFAULT_SETTINGS, settings);
   cornerstoneTools.init(DEFAULT_SETTINGS);
   setToolsStyle(style);
 };
@@ -95,7 +100,7 @@ const isToolMissing = function (toolName) {
 const addTool = function (toolName, customConfig, targetElementId) {
   // extend defaults with user custom props
   let defaultConfig = DEFAULT_TOOLS[toolName];
-  extend(defaultConfig, customConfig)
+  extend(defaultConfig, customConfig);
 
   if (isToolMissing(toolName)) {
     const toolClassName = DEFAULT_TOOLS[toolName].class;
@@ -165,7 +170,7 @@ function tryUpdateImage(element) {
   try {
     cornerstone.updateImage(element);
   } catch (err) {
-    console.warn("updateImage: image has not been loaded yet:", element.id);
+    // console.warn("updateImage: image has not been loaded yet:", element.id);
   }
 }
 
@@ -210,7 +215,7 @@ const setToolDisabled = function (toolName, viewports) {
       let el = document.getElementById(elementId);
       cornerstoneTools.setToolDisabledForElement(el, toolName);
       // restore native cursor
-      el.style.cursor = "initial"
+      el.style.cursor = "initial";
       tryUpdateImage(el);
     });
   } else {
@@ -219,7 +224,7 @@ const setToolDisabled = function (toolName, viewports) {
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
       // restore native cursor
-      enel.element.style.cursor = "initial"
+      enel.element.style.cursor = "initial";
       tryUpdateImage(enel.element);
     });
   }
@@ -238,7 +243,7 @@ const setToolEnabled = function (toolName, viewports) {
       let el = document.getElementById(elementId);
       cornerstoneTools.setToolEnabledForElement(el, toolName);
       // restore native cursor
-      el.style.cursor = "initial"
+      el.style.cursor = "initial";
       tryUpdateImage(el);
     });
   } else {
@@ -247,7 +252,7 @@ const setToolEnabled = function (toolName, viewports) {
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
       // restore native cursor
-      enel.element.style.cursor = "initial"
+      enel.element.style.cursor = "initial";
       tryUpdateImage(enel.element);
     });
   }
