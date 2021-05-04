@@ -7,6 +7,9 @@
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { omit } from "lodash";
 
+// internal libraries
+import { buildMultiFrameImage } from "./multiframeLoader";
+
 // global variables
 var larvitarManager = {};
 var imageTracker = {};
@@ -32,7 +35,11 @@ var imageTracker = {};
  */
 export const populateLarvitarManager = function (seriesId, seriesData) {
   let manager = getLarvitarManager();
-  manager[seriesId] = seriesData;
+  if (seriesData.isMultiframe) {
+    buildMultiFrameImage(seriesId, seriesData);
+  } else {
+    manager[seriesId] = seriesData;
+  }
   return manager;
 };
 

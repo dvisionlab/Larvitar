@@ -57,7 +57,7 @@
                   // render the first series of the study
                   let seriesId = _.keys(seriesStack)[0];
                   let serie = seriesStack[seriesId];
-                  larvitar.buildMultiFrameImage(seriesId, serie);
+                  larvitar.populateLarvitarManager(seriesId, serie);
                   let manager = larvitar.getLarvitarManager();
                   let multiFrameSerie = manager[seriesId];
                   let frameId = 1;
@@ -135,7 +135,7 @@
           // render the first series of the study
           let seriesId = _.keys(seriesStack)[0];
           let serie = seriesStack[seriesId];
-          larvitar.buildMultiFrameImage(seriesId, serie);
+          larvitar.populateLarvitarManager(seriesId, serie);
           let manager = larvitar.getLarvitarManager();
           let multiFrameSerie = manager[seriesId];
           let frameId = 1;
