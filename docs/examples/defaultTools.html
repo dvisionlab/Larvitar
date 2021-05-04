@@ -152,8 +152,20 @@
           let serie = seriesStack[seriesId];
           larvitar.renderImage(serie, "viewer");
           larvitar.addDefaultTools();
-          larvitar.setToolActive("Wwwc");
-          larvitar.addMouseKeyHandlers();
+
+          let mouseConfig = {
+            keyboard_shortcuts: {
+              a: "Angle",
+              l: "Length"
+            },
+            mouse_button_right: {
+              ctrl: "Zoom",
+              default: "Wwwc"
+            },
+            debug: true
+          };
+
+          larvitar.addMouseKeyHandlers(mouseConfig);
         });
       }
 
@@ -166,23 +178,24 @@
       document.onkeypress = function (e) {
         e = e || window.event;
         if (e.keyCode == 116) {
-        let tools = _.map(larvitar.DEFAULT_TOOLS, "name");
-        // remove useless tools for the live example
-        tools = _.without(
-          tools,
-          "StackScrollMouseWheel",
-          "TextMarker",
-          "ZoomTouchPinch",
-          "PanMultiTouch",
-          "OrientationMarkers",
-          "ScaleOverlay"
+          let tools = _.map(larvitar.DEFAULT_TOOLS, "name");
+          // remove useless tools for the live example
+          tools = _.without(
+            tools,
+            "StackScrollMouseWheel",
+            "TextMarker",
+            "ZoomTouchPinch",
+            "PanMultiTouch",
+            "OrientationMarkers",
+            "ScaleOverlay"
           );
-        tool_counter = tool_counter == tools.length - 1 ? 0 : tool_counter + 1;
-        let tool = tools[tool_counter];
+          tool_counter =
+            tool_counter == tools.length - 1 ? 0 : tool_counter + 1;
+          let tool = tools[tool_counter];
           larvitar.setToolActive(tool);
           $("#active-tool").html("Active Tool: " + tool);
         }
       };
-          </script>
+    </script>
   </body>
 </html>
