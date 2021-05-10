@@ -210,7 +210,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
         color: cornerstoneWADOImageLoader.isColorImage(
           imageFrame.photometricInterpretation
         ),
-        columnPixelSpacing: pixelSpacing,
+        columnPixelSpacing: pixelSpacing[1] ? pixelSpacing[1] : pixelSpacing, // check for specific spacing value
         columns: imageFrame.columns,
         data: dataSet,
         height: imageFrame.rows,
@@ -220,7 +220,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
         minPixelValue: imageFrame.smallestPixelValue,
         maxPixelValue: imageFrame.largestPixelValue,
         render: undefined, // set below
-        rowPixelSpacing: pixelSpacing,
+        rowPixelSpacing: pixelSpacing[0] ? pixelSpacing[0] : pixelSpacing, // check for specific spacing value
         rows: imageFrame.rows,
         sizeInBytes: getSizeInBytes(),
         slope: rescaleSlope ? rescaleSlope : 1,
