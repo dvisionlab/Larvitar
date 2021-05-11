@@ -192,6 +192,7 @@
           tool_counter =
             tool_counter == tools.length - 1 ? 0 : tool_counter + 1;
           let tool = tools[tool_counter];
+          larvitar.larvitar_store.set("leftMouseHandler", tool);
           larvitar.setToolActive(tool);
           $("#active-tool").html("Active Tool: " + tool);
         }

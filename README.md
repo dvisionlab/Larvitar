@@ -6,11 +6,11 @@
 
 ## Dicom Image Toolkit for CornestoneJS
 
-### Current version: 1.0.1-alpha
+### Current version: 0.13.0
 
-### Latest Stable version: 0.12.2
+### Latest Stable version: 0.13.0
 
-### Latest Published Release: 0.9.9
+### Latest Published Release: 0.13.0
 
 This library provides common dicom functionalities to be used in web-applications. Multiplanar reformat on axial, sagittal and coronal viewports is included as well as custom loader/exporter for nrrd files and orthogonal reslice.
 
@@ -88,8 +88,3 @@ Full documentation is available at http://www.dvisionlab.com/Larvitar/.
 # Build package
 
 `yarn build`
-
-# Build docs
-
-Clone docdash repo into template folder
-`yarn run generate-docs`
