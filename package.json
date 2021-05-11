@@ -4,7 +4,7 @@
     "dicom",
     "imaging"
   ],
-  "version": "1.0.1-alpha",
+  "version": "0.13.0",
   "description": "javascript library for loading, rendering and interact with DICOM images",
   "repository": {
     "url": "https://github.com/dvisionlab/Larvitar.git",
