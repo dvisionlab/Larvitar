@@ -723,7 +723,6 @@ export const parseTag = function (dataSet, propertyName, element) {
       vr == "SH" ||
       vr == "LO" ||
       vr == "ST" ||
-      vr == "PN" ||
       vr == "LT" ||
       vr == "UC" ||
       vr == "UT"
@@ -749,6 +748,7 @@ export const parseTag = function (dataSet, propertyName, element) {
         // a name suffix (^senior) so you have a maximum of 5 components.
         value = parsePatientNameTag(value);
       }
+      value = value.replace(/\0/g, ""); // remove null char (\u0000)
     }
     // A string of characters with one of the following formats
     // -- nnnD, nnnW, nnnM, nnnY; where nnn shall contain the number of days for D,
