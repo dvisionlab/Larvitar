@@ -21,8 +21,6 @@ import { checkMemoryAllocation } from "./monitors/memory.js";
 // global module variables
 var parsingQueueFlag = null;
 var parsingQueue = [];
-var totalFileSize = 0;
-var softQuota;
 var filesystem;
 var allSeriesStack = {};
 
@@ -42,7 +40,6 @@ var allSeriesStack = {};
 export const resetImageParsing = function () {
   parsingQueueFlag = null;
   parsingQueue = [];
-  totalFileSize = 0;
   allSeriesStack = {};
   clearFileSystem(filesystem ? filesystem.root : null);
 };
@@ -131,15 +128,13 @@ let parseNextFile = function (callback) {
   // remove and return first item from queue
   let file = parsingQueue.shift();
 
-  if (totalFileSize + file.size > softQuota) {
+  // Check if there is enough memory to dump the file
+  if (checkMemoryAllocation(file.size) === false) {
     // do not parse the file and stop parsing
-
-    // empty and initialize queue
-    parsingQueue = [];
-    parsingQueueFlag = null;
-    // empty the webkit filesystem
-    clearFileSystem(filesystem ? filesystem.root : null);
+    resetImageParsing();
+    callback(null, "Available memory is not enough");
   } else {
+    console.log("dumpFile");
     // parse the file and wait for results
     dumpFile(file, function (seriesData, err) {
       if (parsingQueueFlag === null) {
@@ -153,8 +148,6 @@ let parseNextFile = function (callback) {
         parsingQueueFlag = true;
         parseNextFile(callback);
       } else {
-        // update the total parsed file size
-        totalFileSize += file.size;
         // add file to cornerstoneWADOImageLoader file manager
         updateLoadedStack(seriesData, allSeriesStack);
         // proceed with the next file to parse
@@ -193,11 +186,6 @@ let dumpFiles = function (fileList, callback) {
  * @param {Function} callback - called with (imageObject, errorString)
  */
 let dumpFile = function (file, callback) {
-  // Check if there is enough memory to dump the file
-  if (checkMemoryAllocation(file.size) === false) {
-    callback(null, "Available memory is not enough");
-  }
-
   let reader = new FileReader();
   reader.onload = function () {
     let arrayBuffer = reader.result;

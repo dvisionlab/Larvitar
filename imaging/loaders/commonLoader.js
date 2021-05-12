@@ -32,7 +32,7 @@ var imageTracker = {};
  * @function populateLarvitarManager
  * @param {String} seriesId The Id of the series
  * @param {Object} seriesData The series data
- * @returns {manager} the Larvitar manager
+ * @returns {manager} the Larvitar manager or null if memory is not enough
  */
 export const populateLarvitarManager = function (seriesId, seriesData) {
   let manager = getLarvitarManager();
@@ -42,8 +42,10 @@ export const populateLarvitarManager = function (seriesId, seriesData) {
     } else {
       manager[seriesId] = seriesData;
     }
+    return manager;
+  } else {
+    return null;
   }
-  return manager;
 };
 
 /**
