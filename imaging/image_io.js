@@ -14,6 +14,7 @@ import {
 } from "./image_utils.js";
 import { larvitar_store } from "./image_store";
 import { parse } from "./parsers/nrrd";
+import { checkMemoryAllocation } from "./monitors/memory";
 
 /*
  * This module provides the following functions to be exported:
@@ -78,7 +79,7 @@ export const getCachedPixelData = function (imageId, callback) {
     "imageId",
     imageId
   ]);
-  if (cachedImage) {
+  if (cachedImage && cachedImage.image) {
     callback(cachedImage.image.getPixelData());
   } else {
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
@@ -95,39 +96,43 @@ export const getCachedPixelData = function (imageId, callback) {
  * @returns {Array} Contiguous pixel array
  */
 export const buildData = function (series, useSeriesData) {
-  let t0 = performance.now();
-  let repr = series.instances[series.imageIds[0]].metadata.repr;
-  let rows =
-    series.instances[series.imageIds[0]].metadata.rows ||
-    series.instances[series.imageIds[0]].metadata.x00280010;
-  let cols =
-    series.instances[series.imageIds[0]].metadata.cols ||
-    series.instances[series.imageIds[0]].metadata.x00280011;
-  let len = rows * cols * series.imageIds.length;
+  if (checkMemoryAllocation(series.bytes)) {
+    let t0 = performance.now();
+    let repr = series.instances[series.imageIds[0]].metadata.repr;
+    let rows =
+      series.instances[series.imageIds[0]].metadata.rows ||
+      series.instances[series.imageIds[0]].metadata.x00280010;
+    let cols =
+      series.instances[series.imageIds[0]].metadata.cols ||
+      series.instances[series.imageIds[0]].metadata.x00280011;
+    let len = rows * cols * series.imageIds.length;
 
-  let typedArray = getTypedArrayFromDataType(repr);
-  let data = new typedArray(len);
-  let offsetData = 0;
+    let typedArray = getTypedArrayFromDataType(repr);
+    let data = new typedArray(len);
+    let offsetData = 0;
 
-  // use input data or cached data
-  if (useSeriesData) {
-    forEach(series.imageIds, function (imageId) {
-      const sliceData = series.instances[imageId].pixelData;
-      data.set(sliceData, offsetData);
-      offsetData += sliceData.length;
-    });
-  } else {
-    larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
-    forEach(series.imageIds, function (imageId) {
-      getCachedPixelData(imageId, function (sliceData) {
+    // use input data or cached data
+    if (useSeriesData) {
+      forEach(series.imageIds, function (imageId) {
+        const sliceData = series.instances[imageId].pixelData;
         data.set(sliceData, offsetData);
         offsetData += sliceData.length;
       });
-    });
+    } else {
+      larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
+      forEach(series.imageIds, function (imageId) {
+        getCachedPixelData(imageId, function (sliceData) {
+          data.set(sliceData, offsetData);
+          offsetData += sliceData.length;
+        });
+      });
+    }
+    let t1 = performance.now();
+    console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
+    return data;
+  } else {
+    return null;
   }
-  let t1 = performance.now();
-  console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
-  return data;
 };
 
 /**
@@ -137,41 +142,44 @@ export const buildData = function (series, useSeriesData) {
  * @param {Function} - receive data (contiguous pixel array) as param
  */
 export const buildDataAsync = function (series, cb) {
-  let t0 = performance.now();
-  let repr = series.instances[series.imageIds[0]].metadata.repr;
-  let rows =
-    series.instances[series.imageIds[0]].metadata.rows ||
-    series.instances[series.imageIds[0]].metadata.x00280010;
-  let cols =
-    series.instances[series.imageIds[0]].metadata.cols ||
-    series.instances[series.imageIds[0]].metadata.x00280011;
-  let len = rows * cols * series.imageIds.length;
+  if (checkMemoryAllocation(series.bytes)) {
+    let t0 = performance.now();
+    let repr = series.instances[series.imageIds[0]].metadata.repr;
+    let rows =
+      series.instances[series.imageIds[0]].metadata.rows ||
+      series.instances[series.imageIds[0]].metadata.x00280010;
+    let cols =
+      series.instances[series.imageIds[0]].metadata.cols ||
+      series.instances[series.imageIds[0]].metadata.x00280011;
+    let len = rows * cols * series.imageIds.length;
+    let typedArray = getTypedArrayFromDataType(repr);
+    let data = new typedArray(len);
+    let offsetData = 0;
 
-  let typedArray = getTypedArrayFromDataType(repr);
-  let data = new typedArray(len);
-  let offsetData = 0;
+    let imageIds = series.imageIds.slice();
+    larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
 
-  let imageIds = series.imageIds.slice();
-  larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
-
-  function runFillPixelData(data, callback) {
-    let imageId = imageIds.shift();
-    if (imageId) {
-      getCachedPixelData(imageId, function (sliceData) {
-        data.set(sliceData, offsetData);
-        offsetData += sliceData.length;
-      });
-      // this does the trick: delay next computation to next tick
-      setTimeout(() => {
-        runFillPixelData(data, cb);
-      }, 0);
-    } else {
-      let t1 = performance.now();
-      console.log(`Call to buildDataAsync took ${t1 - t0} milliseconds.`);
-      callback(data);
+    function runFillPixelData(data, callback) {
+      let imageId = imageIds.shift();
+      if (imageId) {
+        getCachedPixelData(imageId, function (sliceData) {
+          data.set(sliceData, offsetData);
+          offsetData += sliceData.length;
+        });
+        // this does the trick: delay next computation to next tick
+        setTimeout(() => {
+          runFillPixelData(data, cb);
+        }, 0);
+      } else {
+        let t1 = performance.now();
+        console.log(`Call to buildDataAsync took ${t1 - t0} milliseconds.`);
+        callback(data);
+      }
     }
+    runFillPixelData(data, cb);
+  } else {
+    cb(null);
   }
-  runFillPixelData(data, cb);
 };
 
 /**

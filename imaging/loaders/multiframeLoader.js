@@ -99,6 +99,7 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       manager[seriesId].frameTime = frameTime;
       manager[seriesId].frameDelay = frameDelay;
       manager[seriesId].numberOfImages = undefined;
+      manager[seriesId].bytes = serie.bytes;
       manager[seriesId].imageIds.push(frameImageId);
       manager[seriesId].instances[frameImageId] = {
         instanceId: instanceId,
@@ -237,10 +238,11 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
       };
 
       // convert color space if not isJPEGBaseline8BitColor
-      let isJPEGBaseline8BitColor = cornerstoneWADOImageLoader.isJPEGBaseline8BitColor(
-        imageFrame,
-        transferSyntax
-      );
+      let isJPEGBaseline8BitColor =
+        cornerstoneWADOImageLoader.isJPEGBaseline8BitColor(
+          imageFrame,
+          transferSyntax
+        );
 
       if (image.color && !isJPEGBaseline8BitColor) {
         // setup the canvas context

@@ -16,6 +16,7 @@ import {
   parseTag
 } from "./image_utils.js";
 import { updateLoadedStack } from "./image_loading.js";
+import { checkMemoryAllocation } from "./monitors/memory.js";
 
 // global module variables
 var parsingQueueFlag = null;
@@ -192,6 +193,11 @@ let dumpFiles = function (fileList, callback) {
  * @param {Function} callback - called with (imageObject, errorString)
  */
 let dumpFile = function (file, callback) {
+  // Check if there is enough memory to dump the file
+  if (checkMemoryAllocation(file.size) === false) {
+    callback(null, "Available memory is not enough");
+  }
+
   let reader = new FileReader();
   reader.onload = function () {
     let arrayBuffer = reader.result;
@@ -247,9 +253,8 @@ let dumpFile = function (file, callback) {
           imageObject.metadata.patientBirthdate = metadata["x00100030"];
           imageObject.metadata.seriesDescription = metadata["x0008103e"];
           imageObject.metadata.seriesDate = metadata["x00080021"];
-          imageObject.metadata.seriesModality = metadata[
-            "x00080060"
-          ].toLowerCase();
+          imageObject.metadata.seriesModality =
+            metadata["x00080060"].toLowerCase();
           imageObject.metadata.intercept = metadata["x00281052"];
           imageObject.metadata.slope = metadata["x00281053"];
           imageObject.metadata.pixelSpacing = pixelSpacing;

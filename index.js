@@ -1,5 +1,12 @@
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
+
+import {
+  checkMemoryAllocation,
+  getUsedMemory,
+  getAvailableMemory
+} from "./imaging/monitors/memory";
+
 import { initLarvitarStore, larvitar_store } from "./imaging/image_store";
 
 import { parseContours } from "./imaging/image_contours";
@@ -171,6 +178,10 @@ export {
   // global cornerstone variables
   cornerstone,
   cornerstoneTools,
+  // memory module
+  checkMemoryAllocation,
+  getUsedMemory,
+  getAvailableMemory,
   // larvitar store
   initLarvitarStore,
   larvitar_store,
