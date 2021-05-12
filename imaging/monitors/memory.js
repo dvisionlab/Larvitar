@@ -3,11 +3,6 @@
  *        monitoring memory usage
  */
 
-// external libraries
-import cornerstone from "cornerstone-core";
-
-// internal libraries
-
 // global module variables
 const backingMemory = 300 * 1048576; // 300 MB
 
