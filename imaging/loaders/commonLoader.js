@@ -9,7 +9,6 @@ import { omit } from "lodash";
 
 // internal libraries
 import { buildMultiFrameImage } from "./multiframeLoader";
-import { checkMemoryAllocation } from "../monitors/memory";
 
 // global variables
 var larvitarManager = {};
@@ -35,19 +34,13 @@ var imageTracker = {};
  * @returns {manager} the Larvitar manager
  */
 export const populateLarvitarManager = function (seriesId, seriesData) {
-  if (checkMemoryAllocation(seriesData.bytes)) {
-    let manager = getLarvitarManager();
-    if (seriesData.isMultiframe) {
-      buildMultiFrameImage(seriesId, seriesData);
-    } else {
-      manager[seriesId] = seriesData;
-    }
-    return manager;
+  let manager = getLarvitarManager();
+  if (seriesData.isMultiframe) {
+    buildMultiFrameImage(seriesId, seriesData);
   } else {
-    throw new Error(
-      "Larvitar Manager has not been populated: not enough memory"
-    );
+    manager[seriesId] = seriesData;
   }
+  return manager;
 };
 
 /**
