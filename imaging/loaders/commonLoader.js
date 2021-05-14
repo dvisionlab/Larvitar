@@ -9,6 +9,7 @@ import { omit } from "lodash";
 
 // internal libraries
 import { buildMultiFrameImage } from "./multiframeLoader";
+import { checkMemoryAllocation } from "../monitors/memory";
 
 // global variables
 var larvitarManager = {};
@@ -34,13 +35,19 @@ var imageTracker = {};
  * @returns {manager} the Larvitar manager
  */
 export const populateLarvitarManager = function (seriesId, seriesData) {
-  let manager = getLarvitarManager();
-  if (seriesData.isMultiframe) {
-    buildMultiFrameImage(seriesId, seriesData);
+  if (checkMemoryAllocation(seriesData.bytes)) {
+    let manager = getLarvitarManager();
+    if (seriesData.isMultiframe) {
+      buildMultiFrameImage(seriesId, seriesData);
+    } else {
+      manager[seriesId] = seriesData;
+    }
+    return manager;
   } else {
-    manager[seriesId] = seriesData;
+    throw new Error(
+      "Larvitar Manager has not been populated: not enough memory"
+    );
   }
-  return manager;
 };
 
 /**
@@ -108,9 +115,8 @@ export const getImageFrame = function (metadata, dataSet) {
   let imagePixelModule;
 
   if (dataSet) {
-    imagePixelModule = cornerstoneWADOImageLoader.wadouri.metaData.getImagePixelModule(
-      dataSet
-    );
+    imagePixelModule =
+      cornerstoneWADOImageLoader.wadouri.metaData.getImagePixelModule(dataSet);
   } else {
     imagePixelModule = {
       samplesPerPixel: metadata.x00280002,

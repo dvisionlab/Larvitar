@@ -146,7 +146,8 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
       numberOfFrames: numberOfFrames,
       isMultiframe: isMultiframe,
       modality: modality,
-      color: color
+      color: color,
+      bytes: 0
     };
   }
 
@@ -161,6 +162,7 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
 
     allSeriesStack[sid].imageIds.push(imageId);
     allSeriesStack[sid].numberOfImages += 1;
+    allSeriesStack[sid].bytes += seriesData.file.size;
     // store needed instance tags
     allSeriesStack[sid].instances[imageId] = {
       metadata: seriesData.metadata,

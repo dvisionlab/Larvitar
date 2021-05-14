@@ -1,5 +1,12 @@
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
+
+import {
+  checkMemoryAllocation,
+  getUsedMemory,
+  getAvailableMemory
+} from "./imaging/monitors/memory";
+
 import { initLarvitarStore, larvitar_store } from "./imaging/image_store";
 
 import { parseContours } from "./imaging/image_contours";
@@ -50,11 +57,7 @@ import {
   updateLoadedStack
 } from "./imaging/image_loading";
 
-import {
-  resetImageParsing,
-  readFiles,
-  dumpDataSet
-} from "./imaging/image_parsing";
+import { readFiles, dumpDataSet } from "./imaging/image_parsing";
 
 import {
   clearImageCache,
@@ -171,6 +174,10 @@ export {
   // global cornerstone variables
   cornerstone,
   cornerstoneTools,
+  // memory module
+  checkMemoryAllocation,
+  getUsedMemory,
+  getAvailableMemory,
   // larvitar store
   initLarvitarStore,
   larvitar_store,
@@ -211,7 +218,6 @@ export {
   registerMultiFrameImageLoader,
   updateLoadedStack,
   // image_parsing
-  resetImageParsing,
   readFiles,
   dumpDataSet,
   // image_rendering

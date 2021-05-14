@@ -69,7 +69,6 @@
               }
 
               function renderSerie() {
-                larvitar.resetImageParsing();
                 larvitar.readFiles(demoFiles, function (seriesStack, err) {
                   // render the first series of the study
                   let seriesId = _.keys(seriesStack)[0];
@@ -136,7 +135,6 @@
       }
 
       function renderSerie() {
-        larvitar.resetImageParsing();
         larvitar.readFiles(demoFiles, function (seriesStack, err) {
           // render the first series of the study
           let seriesId = _.keys(seriesStack)[0];

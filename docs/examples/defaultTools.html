@@ -64,7 +64,6 @@
             }
 
             function renderSerie() {
-              larvitar.resetImageParsing();
               larvitar.readFiles(demoFiles, function (seriesStack, err) {
                 let seriesId = _.keys(seriesStack)[0];
                 let serie = seriesStack[seriesId];
@@ -146,7 +145,6 @@
       }
 
       function renderSerie() {
-        larvitar.resetImageParsing();
         larvitar.readFiles(demoFiles, function (seriesStack, err) {
           let seriesId = _.keys(seriesStack)[0];
           let serie = seriesStack[seriesId];
