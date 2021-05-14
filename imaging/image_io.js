@@ -131,7 +131,7 @@ export const buildData = function (series, useSeriesData) {
     console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
     return data;
   } else {
-    return null;
+    throw new Error("Data has not been builded: not enough memory");
   }
 };
 
@@ -178,7 +178,7 @@ export const buildDataAsync = function (series, cb) {
     }
     runFillPixelData(data, cb);
   } else {
-    cb(null);
+    throw new Error("Data has not been builded: not enough memory");
   }
 };
 

@@ -19,30 +19,15 @@ import { updateLoadedStack } from "./image_loading.js";
 import { checkMemoryAllocation } from "./monitors/memory.js";
 
 // global module variables
-var parsingQueueFlag = null;
-var parsingQueue = [];
-var filesystem;
-var allSeriesStack = {};
+var parsingQueueFlag = null; // flag to handle the queue
+var t0 = null; // t0 variable for timing debugging purpose
 
 /*
  * This module provides the following functions to be exported:
- * resetImageParsing()
  * readFiles(entries, callback)
  * dumpDataSet(dataSet, metadata, customFilter)
  *
  */
-
-/**
- * Reset Image Parsing (clear the parser before loading other data)
- * @instance
- * @function resetImageParsing
- */
-export const resetImageParsing = function () {
-  parsingQueueFlag = null;
-  parsingQueue = [];
-  allSeriesStack = {};
-  clearFileSystem(filesystem ? filesystem.root : null);
-};
 
 /**
  * Read dicom files and return allSeriesStack object
@@ -52,8 +37,9 @@ export const resetImageParsing = function () {
  * @param {Function} callback - Will receive (imageObject, errorString) as args
  */
 export const readFiles = function (entries, callback) {
-  allSeriesStack = {};
-  dumpFiles(entries, callback);
+  let allSeriesStack = {};
+  let parsingQueue = [];
+  dumpFiles(entries, parsingQueue, allSeriesStack, callback);
 };
 
 /* Internal module functions */
@@ -110,14 +96,24 @@ export const dumpDataSet = function (dataSet, metadata, customFilter) {
  * Manage the parsing process waiting for the parsed object before proceeding with the next parse request
  * @inner
  * @function parseNextFile
+ * @param {Array} parsingQueue - Array of queued files to be parsed
+ * @param {Object} allSeriesStack - Series stack object to be populated
  * @param {Function} callback - Passed through
  */
-let parseNextFile = function (callback) {
-  let t0 = performance.now();
+let parseNextFile = function (parsingQueue, allSeriesStack, callback) {
+  // initialize t0 on first file of the queue
+  if (
+    Object.keys(allSeriesStack).length === 0 &&
+    allSeriesStack.constructor === Object
+  ) {
+    t0 = performance.now();
+  }
+
   if (!parsingQueueFlag || parsingQueue.length === 0) {
     if (parsingQueue.length === 0) {
       let t1 = performance.now();
       console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
+      parsingQueueFlag = null;
       callback(allSeriesStack);
     }
     return;
@@ -131,10 +127,8 @@ let parseNextFile = function (callback) {
   // Check if there is enough memory to dump the file
   if (checkMemoryAllocation(file.size) === false) {
     // do not parse the file and stop parsing
-    resetImageParsing();
     callback(null, "Available memory is not enough");
   } else {
-    console.log("dumpFile");
     // parse the file and wait for results
     dumpFile(file, function (seriesData, err) {
       if (parsingQueueFlag === null) {
@@ -146,13 +140,13 @@ let parseNextFile = function (callback) {
       if (err) {
         console.warn(err);
         parsingQueueFlag = true;
-        parseNextFile(callback);
+        parseNextFile(parsingQueue, allSeriesStack, callback);
       } else {
         // add file to cornerstoneWADOImageLoader file manager
         updateLoadedStack(seriesData, allSeriesStack);
         // proceed with the next file to parse
         parsingQueueFlag = true;
-        parseNextFile(callback);
+        parseNextFile(parsingQueue, allSeriesStack, callback);
       }
     });
   }
@@ -163,9 +157,11 @@ let parseNextFile = function (callback) {
  * @inner
  * @function dumpFiles
  * @param {Array} fileList - Array of file objects
+ * @param {Array} parsingQueue - Array of queued files to be parsed
+ * @param {Object} allSeriesStack - Series stack object to be populated
  * @param {Function} callback - Passed through
  */
-let dumpFiles = function (fileList, callback) {
+let dumpFiles = function (fileList, parsingQueue, allSeriesStack, callback) {
   forEach(fileList, function (file) {
     if (!file.name.startsWith(".") && !file.name.startsWith("DICOMDIR")) {
       parsingQueue.push(file);
@@ -175,7 +171,7 @@ let dumpFiles = function (fileList, callback) {
       }
     }
   });
-  parseNextFile(callback);
+  parseNextFile(parsingQueue, allSeriesStack, callback);
 };
 
 /**
@@ -283,38 +279,4 @@ let dumpFile = function (file, callback) {
     }
   };
   reader.readAsArrayBuffer(file);
-};
-
-/**
- * Error handler function: reset parsing queue and clear file system if needed
- * @inner
- * @function errorHandler
- */
-let errorHandler = function () {
-  // empty and initialize queue
-  parsingQueue = [];
-  parsingQueueFlag = null;
-  // empty the webkit filesystem
-  clearFileSystem(filesystem ? filesystem.root : null);
-};
-
-/**
- * Clear file system
- * @inner
- * @function clearFileSystem
- */
-let clearFileSystem = function (dirEntry) {
-  if (!dirEntry) {
-    return;
-  }
-  let dirReader = dirEntry.createReader();
-  dirReader.readEntries(function (results) {
-    for (let i = 0; i < results.length; i++) {
-      if (results[i].isDirectory) {
-        results[i].removeRecursively(function () {});
-      } else {
-        results[i].remove(function () {});
-      }
-    }
-  }, errorHandler);
 };

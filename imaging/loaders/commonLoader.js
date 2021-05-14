@@ -35,8 +35,8 @@ var imageTracker = {};
  * @returns {manager} the Larvitar manager or null if memory is not enough
  */
 export const populateLarvitarManager = function (seriesId, seriesData) {
-  let manager = getLarvitarManager();
   if (checkMemoryAllocation(seriesData.bytes)) {
+    let manager = getLarvitarManager();
     if (seriesData.isMultiframe) {
       buildMultiFrameImage(seriesId, seriesData);
     } else {
@@ -44,7 +44,9 @@ export const populateLarvitarManager = function (seriesId, seriesData) {
     }
     return manager;
   } else {
-    return null;
+    throw new Error(
+      "Larvitar Manager has not been populated: not enough memory"
+    );
   }
 };
 

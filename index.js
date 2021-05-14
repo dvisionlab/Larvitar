@@ -57,11 +57,7 @@ import {
   updateLoadedStack
 } from "./imaging/image_loading";
 
-import {
-  resetImageParsing,
-  readFiles,
-  dumpDataSet
-} from "./imaging/image_parsing";
+import { readFiles, dumpDataSet } from "./imaging/image_parsing";
 
 import {
   clearImageCache,
@@ -222,7 +218,6 @@ export {
   registerMultiFrameImageLoader,
   updateLoadedStack,
   // image_parsing
-  resetImageParsing,
   readFiles,
   dumpDataSet,
   // image_rendering
