@@ -32,7 +32,7 @@ var imageTracker = {};
  * @function populateLarvitarManager
  * @param {String} seriesId The Id of the series
  * @param {Object} seriesData The series data
- * @returns {manager} the Larvitar manager or null if memory is not enough
+ * @returns {manager} the Larvitar manager
  */
 export const populateLarvitarManager = function (seriesId, seriesData) {
   if (checkMemoryAllocation(seriesData.bytes)) {
