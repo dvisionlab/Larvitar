@@ -4,17 +4,10 @@
 
 // external libraries
 import { parseDicom } from "dicom-parser";
-import { forEach, has, pick } from "lodash";
+import { forEach, each, has, pick } from "lodash";
 
 // internal libraries
-import {
-  getMinPixelValue,
-  getMaxPixelValue,
-  getPixelTypedArray,
-  getPixelRepresentation,
-  randomId,
-  parseTag
-} from "./image_utils.js";
+import { getPixelRepresentation, randomId, parseTag } from "./image_utils.js";
 import { updateLoadedStack } from "./image_loading.js";
 import { checkMemoryAllocation } from "./monitors/memory.js";
 
@@ -127,7 +120,20 @@ let parseNextFile = function (parsingQueue, allSeriesStack, callback) {
   // Check if there is enough memory to dump the file
   if (checkMemoryAllocation(file.size) === false) {
     // do not parse the file and stop parsing
-    callback(null, "Available memory is not enough");
+    each(allSeriesStack, function (stack) {
+      each(stack.instances, function (instance) {
+        instance.dataSet.byteArray = null;
+        instance.dataSet = null;
+        instance.file = null;
+        instance.metadata = null;
+      });
+    });
+    allSeriesStack = null;
+    let t1 = performance.now();
+    console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
+    parsingQueueFlag = null;
+    file = null;
+    callback(allSeriesStack, "Available memory is not enough");
   } else {
     // parse the file and wait for results
     dumpFile(file, function (seriesData, err) {
@@ -148,6 +154,8 @@ let parseNextFile = function (parsingQueue, allSeriesStack, callback) {
         parsingQueueFlag = true;
         parseNextFile(parsingQueue, allSeriesStack, callback);
       }
+      file = null;
+      seriesData = null;
     });
   }
 };
