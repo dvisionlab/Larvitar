@@ -5,18 +5,21 @@
 
 // global module variables
 const backingMemory = 300 * 1048576; // 300 MB
+var customMemoryLimit = null;
 
 /*
  * This module provides the following functions to be exported:
  * checkMemoryAllocation()
  * getUsedMemory()
  * getAvailableMemory()
+ * setAvailableMemory()
  */
 
 /**
  * Check memory allocation and returns false if js Heap size has reached its limit
  * @instance
  * @function checkMemoryAllocation
+ * @param {Number} - Number of bytes to allocate
  * @return {Boolean} - Returns a boolean flag to warn the user about memory allocation limit
  */
 export const checkMemoryAllocation = function (bytes) {
@@ -57,9 +60,23 @@ export const getUsedMemory = function () {
  * @return {Number} - Returns available JSHeapSize in bytes or NaN if not supported
  */
 export const getAvailableMemory = function () {
-  return checkMemorySupport()
-    ? performance.memory.jsHeapSizeLimit - backingMemory
-    : NaN;
+  if (checkMemorySupport()) {
+    return customMemoryLimit
+      ? customMemoryLimit
+      : performance.memory.jsHeapSizeLimit - backingMemory;
+  } else {
+    return NaN;
+  }
+};
+
+/**
+ * Check performance.memory browser support and returns available Js Heap Size in Mb
+ * @instance
+ * @function setAvailableMemory
+ * @param {Number} - Number of GB to set as maximum custom memory limit
+ */
+export const setAvailableMemory = function (value) {
+  customMemoryLimit = value * 1024 * 1024 * 1024;
 };
 
 /* Internal module functions */

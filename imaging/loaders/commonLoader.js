@@ -11,8 +11,8 @@ import { omit } from "lodash";
 import { buildMultiFrameImage } from "./multiframeLoader";
 
 // global variables
-var larvitarManager = {};
-var imageTracker = {};
+var larvitarManager = null;
+var imageTracker = null;
 
 /*
  * This module provides the following functions to be exported:
@@ -34,13 +34,16 @@ var imageTracker = {};
  * @returns {manager} the Larvitar manager
  */
 export const populateLarvitarManager = function (seriesId, seriesData) {
-  let manager = getLarvitarManager();
-  if (seriesData.isMultiframe) {
-    buildMultiFrameImage(seriesId, seriesData);
-  } else {
-    manager[seriesId] = seriesData;
+  if (larvitarManager === null) {
+    larvitarManager = {};
   }
-  return manager;
+  let data = { ...seriesData };
+  if (data.isMultiframe) {
+    buildMultiFrameImage(seriesId, data);
+  } else {
+    larvitarManager[seriesId] = data;
+  }
+  return larvitarManager;
 };
 
 /**
@@ -50,6 +53,9 @@ export const populateLarvitarManager = function (seriesId, seriesData) {
  * @returns {Object} the loader manager
  */
 export const getLarvitarManager = function () {
+  if (larvitarManager == null) {
+    larvitarManager = {};
+  }
   return larvitarManager;
 };
 
@@ -60,6 +66,9 @@ export const getLarvitarManager = function () {
  * @returns {Object} the image tracker
  */
 export const getLarvitarImageTracker = function () {
+  if (imageTracker == null) {
+    imageTracker = {};
+  }
   return imageTracker;
 };
 
@@ -69,8 +78,8 @@ export const getLarvitarImageTracker = function () {
  * @function resetLarvitarManager
  */
 export const resetLarvitarManager = function () {
-  larvitarManager = {};
-  imageTracker = {};
+  larvitarManager = null;
+  imageTracker = null;
 };
 
 /**
@@ -80,7 +89,7 @@ export const resetLarvitarManager = function () {
  * @param {String} seriesId The Id of the series
  */
 export const removeSeriesFromLarvitarManager = function (seriesId) {
-  if (larvitarManager[seriesId]) {
+  if (larvitarManager && larvitarManager[seriesId]) {
     larvitarManager = omit(larvitarManager, seriesId);
   }
 };
@@ -93,7 +102,7 @@ export const removeSeriesFromLarvitarManager = function (seriesId) {
  * @return {Object} larvitar manager data
  */
 export const getSeriesDataFromLarvitarManager = function (seriesId) {
-  return larvitarManager[seriesId];
+  return larvitarManager ? larvitarManager[seriesId] : null;
 };
 
 /**

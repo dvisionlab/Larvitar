@@ -192,6 +192,7 @@ let dumpFile = function (file, callback) {
     let dataSet;
     try {
       dataSet = parseDicom(byteArray);
+      byteArray = null;
       let metadata = {};
       dumpDataSet(dataSet, metadata);
 
@@ -218,10 +219,8 @@ let dumpFile = function (file, callback) {
         let pixelDataElement = dataSet.elements.x7fe00010;
 
         if (pixelDataElement) {
-          // done, pixelData found
-          let pixelData = getPixelTypedArray(dataSet, pixelDataElement);
+          // done, pixelDataElement found
           let instanceUID = metadata["x00080018"] || randomId();
-
           let imageObject = {
             // data needed for rendering
             file: file,
@@ -257,15 +256,9 @@ let dumpFile = function (file, callback) {
           }
           imageObject.metadata.windowCenter = metadata["x00281050"];
           imageObject.metadata.windowWidth = metadata["x00281051"];
-          imageObject.metadata.minPixelValue = getMinPixelValue(
-            metadata["x00280106"],
-            pixelData
-          );
-          imageObject.metadata.maxPixelValue = getMaxPixelValue(
-            metadata["x00280107"],
-            pixelData
-          );
-          imageObject.metadata.length = pixelData.length;
+          imageObject.metadata.minPixelValue = metadata["x00280106"];
+          imageObject.metadata.maxPixelValue = metadata["x00280107"];
+          imageObject.metadata.length = pixelDataElement.length;
           imageObject.metadata.repr = getPixelRepresentation(dataSet);
           callback(imageObject);
         } else {

@@ -5,6 +5,7 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
+import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { each, has, throttle } from "lodash";
 
 // internal libraries
@@ -232,11 +233,11 @@ export const resizeViewport = function (elementId) {
  * Cache image and render it in a html div using cornerstone
  * @instance
  * @function renderImage
- * @param {Object} series - The original series data object
+ * @param {Object} seriesStack - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {Object} defaultProps - Optional default props
  */
-export const renderImage = function (series, elementId, defaultProps) {
+export const renderImage = function (seriesStack, elementId, defaultProps) {
   let t0 = performance.now();
 
   // get element and enable it
@@ -248,6 +249,8 @@ export const renderImage = function (series, elementId, defaultProps) {
     return;
   }
   cornerstone.enable(element);
+
+  let series = { ...seriesStack };
 
   // default to 0 if multiframe and frameId is null
   let frameId = series.isMultiframe ? 1 : null;
@@ -319,6 +322,10 @@ export const renderImage = function (series, elementId, defaultProps) {
     larvitar_store.set("renderingStatus", [elementId, true]);
     let t1 = performance.now();
     console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
+    image = null;
+    series = null;
+    data = null;
+    cornerstoneWADOImageLoader.wadouri.dataSetCacheManager.purge();
   });
 
   csToolsCreateStack(element, series.imageIds, data.imageIndex - 1);

@@ -198,6 +198,7 @@ export const buildNrrdImage = function (volume, seriesId, custom_header) {
   image.customLoader = "nrrdLoader";
   header.volume.imageIds = image.imageIds;
   image.nrrdHeader = header;
+
   manager[seriesId] = image;
 
   let t1 = performance.now();

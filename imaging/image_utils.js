@@ -739,6 +739,7 @@ export const parseTag = function (dataSet, propertyName, element) {
         value = convertBytes(characterSet, arr, {
           vr: vr
         });
+        arr = null;
       }
       if (vr == "PN") {
         // PatientName tag value is: "LastName^FirstName^MiddleName".
