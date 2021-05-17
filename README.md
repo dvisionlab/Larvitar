@@ -10,7 +10,7 @@
 
 ### Latest Stable version: 0.13.3
 
-### Latest Published Release: 0.13.2
+### Latest Published Release: 0.13.3
 
 This library provides common dicom functionalities to be used in web-applications. Multiplanar reformat on axial, sagittal and coronal viewports is included as well as custom loader/exporter for nrrd files and orthogonal reslice.
 
