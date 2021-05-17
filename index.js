@@ -1,5 +1,6 @@
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
+import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 
 import {
   checkMemoryAllocation,
@@ -174,6 +175,7 @@ export {
   // global cornerstone variables
   cornerstone,
   cornerstoneTools,
+  cornerstoneWADOImageLoader,
   // memory module
   checkMemoryAllocation,
   getUsedMemory,
