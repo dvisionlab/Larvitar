@@ -112,8 +112,8 @@ export const buildHeader = function (series) {
   );
 
   header.volume.pixelSpacing = getMeanValue(series, "pixelSpacing", true);
-  header.volume.maxPixelValue = getMeanValue(series, "maxPixelValue", false);
-  header.volume.minPixelValue = getMeanValue(series, "minPixelValue", false);
+  // header.volume.maxPixelValue = getMeanValue(series, "maxPixelValue", false);
+  // header.volume.minPixelValue = getMeanValue(series, "minPixelValue", false);
   header.volume.sliceThickness = getDistanceBetweenSlices(series, 0, 1);
 
   forEach(series.imageIds, function (imageId) {
