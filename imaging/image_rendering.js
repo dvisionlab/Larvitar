@@ -252,6 +252,12 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
 
   let series = { ...seriesStack };
 
+  let seriesInStore = larvitar_store.get("series");
+
+  if (!has(seriesInStore, series.seriesUID)) {
+    larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
+  }
+
   // default to 0 if multiframe and frameId is null
   let frameId = series.isMultiframe ? 1 : null;
 
@@ -322,10 +328,12 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
     larvitar_store.set("renderingStatus", [elementId, true]);
     let t1 = performance.now();
     console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
+
+    let uri = cornerstoneWADOImageLoader.wadouri.parseImageId(data.imageId).url;
+    cornerstoneWADOImageLoader.wadouri.dataSetCacheManager.unload(uri);
     image = null;
     series = null;
     data = null;
-    cornerstoneWADOImageLoader.wadouri.dataSetCacheManager.purge();
   });
 
   csToolsCreateStack(element, series.imageIds, data.imageIndex - 1);
