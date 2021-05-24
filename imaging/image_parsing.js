@@ -19,8 +19,26 @@ var t0 = null; // t0 variable for timing debugging purpose
  * This module provides the following functions to be exported:
  * readFiles(entries, callback)
  * dumpDataSet(dataSet, metadata, customFilter)
- *
+ * clearImageParsing(seriesStack)
  */
+
+/**
+ * Reset series stack object and its internal data
+ * @instance
+ * @function clearImageParsing
+ * @param {Object} seriesStack - Parsed series stack object
+ */
+export const clearImageParsing = function (seriesStack) {
+  each(seriesStack, function (stack) {
+    each(stack.instances, function (instance) {
+      instance.dataSet.byteArray = null;
+      instance.dataSet = null;
+      instance.file = null;
+      instance.metadata = null;
+    });
+  });
+  seriesStack = null;
+};
 
 /**
  * Read dicom files and return allSeriesStack object
@@ -120,15 +138,7 @@ let parseNextFile = function (parsingQueue, allSeriesStack, callback) {
   // Check if there is enough memory to dump the file
   if (checkMemoryAllocation(file.size) === false) {
     // do not parse the file and stop parsing
-    each(allSeriesStack, function (stack) {
-      each(stack.instances, function (instance) {
-        instance.dataSet.byteArray = null;
-        instance.dataSet = null;
-        instance.file = null;
-        instance.metadata = null;
-      });
-    });
-    allSeriesStack = null;
+    clearImageParsing(allSeriesStack);
     let t1 = performance.now();
     console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
     parsingQueueFlag = null;

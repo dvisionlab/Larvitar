@@ -58,7 +58,11 @@ import {
   updateLoadedStack
 } from "./imaging/image_loading";
 
-import { readFiles, dumpDataSet } from "./imaging/image_parsing";
+import {
+  readFiles,
+  dumpDataSet,
+  clearImageParsing
+} from "./imaging/image_parsing";
 
 import {
   clearImageCache,
@@ -222,6 +226,7 @@ export {
   // image_parsing
   readFiles,
   dumpDataSet,
+  clearImageParsing,
   // image_rendering
   clearImageCache,
   loadAndCacheImages,
