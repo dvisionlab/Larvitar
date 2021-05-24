@@ -5,7 +5,7 @@
 
 // external libraries
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import { omit } from "lodash";
+import { each } from "lodash";
 
 // internal libraries
 import { buildMultiFrameImage } from "./multiframeLoader";
@@ -78,6 +78,16 @@ export const getLarvitarImageTracker = function () {
  * @function resetLarvitarManager
  */
 export const resetLarvitarManager = function () {
+  each(larvitarManager, function (stack) {
+    each(stack.instances, function (instance) {
+      if (instance.dataSet) {
+        instance.dataSet.byteArray = null;
+      }
+      instance.dataSet = null;
+      instance.file = null;
+      instance.metadata = null;
+    });
+  });
   larvitarManager = null;
   imageTracker = null;
 };
@@ -90,7 +100,16 @@ export const resetLarvitarManager = function () {
  */
 export const removeSeriesFromLarvitarManager = function (seriesId) {
   if (larvitarManager && larvitarManager[seriesId]) {
-    larvitarManager = omit(larvitarManager, seriesId);
+    each(larvitarManager[seriesId].instances, function (instance) {
+      if (instance.dataSet) {
+        instance.dataSet.byteArray = null;
+      }
+      instance.dataSet = null;
+      instance.file = null;
+      instance.metadata = null;
+    });
+    larvitarManager[seriesId] = null;
+    delete larvitarManager[seriesId];
   }
 };
 
