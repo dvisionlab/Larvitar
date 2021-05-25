@@ -84,6 +84,7 @@ export const getCachedPixelData = function (imageId, callback) {
   } else {
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
       callback(image.getPixelData());
+      cornerstone.imageCache.removeImageLoadObject(imageId);
     });
   }
 };
