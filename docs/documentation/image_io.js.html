@@ -195,10 +195,13 @@ export const buildData = function (series, useSeriesData) {
  * Build the contiguous typed array from slices (async version)
  * @function buildDataAsync
  * @param {Object} series - Cornerstone series object
- * @param {Function} - receive data (contiguous pixel array) as param
+ * @param {Number} time - Time(s) to wait for garbage collector
+ * @param {Function} resolve - Promise resolve function
+ * @param {Function} reject - Promise reject function
  */
-export const buildDataAsync = function (series, cb) {
-  if (checkMemoryAllocation(series.bytes)) {
+export const buildDataAsync = function (series, time, resolve, reject) {
+  const memoryAllocation = checkMemoryAllocation(series.bytes);
+  if (memoryAllocation) {
     let t0 = performance.now();
     let repr = series.instances[series.imageIds[0]].metadata.repr;
     let rows =
@@ -215,7 +218,7 @@ export const buildDataAsync = function (series, cb) {
     let imageIds = series.imageIds.slice();
     larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
 
-    function runFillPixelData(data, callback) {
+    function runFillPixelData(data) {
       let imageId = imageIds.shift();
       if (imageId) {
         getCachedPixelData(imageId, function (sliceData) {
@@ -223,18 +226,23 @@ export const buildDataAsync = function (series, cb) {
           offsetData += sliceData.length;
           // this does the trick: delay next computation to next tick
           setTimeout(() => {
-            runFillPixelData(data, cb);
+            runFillPixelData(data);
           }, 0);
         });
       } else {
         let t1 = performance.now();
         console.log(`Call to buildDataAsync took ${t1 - t0} milliseconds.`);
-        callback(data);
+        resolve(data);
       }
     }
-    runFillPixelData(data, cb);
+    runFillPixelData(data);
+  } else if (time > 0) {
+    setTimeout(function () {
+      time = time - 5;
+      buildDataAsync(series, time, resolve, reject);
+    }, 5000);
   } else {
-    throw new Error("Data has not been builded: not enough memory");
+    reject("Data has not been builded: not enough memory");
   }
 };
 
