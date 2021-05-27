@@ -4,7 +4,7 @@
  */
 
 // global module variables
-const backingMemory = 300 * 1048576; // 300 MB
+const backingMemory = 100 * 1048576; // 100 MB
 var customMemoryLimit = null;
 
 /*
