@@ -166,11 +166,11 @@ export const buildDataAsync = function (series, cb) {
         getCachedPixelData(imageId, function (sliceData) {
           data.set(sliceData, offsetData);
           offsetData += sliceData.length;
+          // this does the trick: delay next computation to next tick
+          setTimeout(() => {
+            runFillPixelData(data, cb);
+          }, 0);
         });
-        // this does the trick: delay next computation to next tick
-        setTimeout(() => {
-          runFillPixelData(data, cb);
-        }, 0);
       } else {
         let t1 = performance.now();
         console.log(`Call to buildDataAsync took ${t1 - t0} milliseconds.`);
