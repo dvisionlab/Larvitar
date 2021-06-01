@@ -15,7 +15,7 @@ let customImageLoaderCounter = 0;
 
 // Local cache used to store multiframe datasets to avoid reading and parsing
 // the whole file to show a single frame.
-let multiframeDatasetCache = {};
+let multiframeDatasetCache = null;
 /*
  * This module provides the following functions to be exported:
  * loadMultiFrameImage(elementId)
@@ -37,6 +37,9 @@ export const loadMultiFrameImage = function (imageId) {
   let imageTracker = getLarvitarImageTracker();
   let seriesId = imageTracker[rootImageId];
   let manager = getLarvitarManager();
+  if (multiframeDatasetCache === null) {
+    multiframeDatasetCache = {};
+  }
   multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId]
     ? multiframeDatasetCache[rootImageId]
     : manager[seriesId];
@@ -132,9 +135,27 @@ export const getMultiFrameImageId = function (customLoaderName) {
  * Clear the multiframe cache
  * @instance
  * @function clearMultiFrameCache
+ * @param {String} seriesId - SeriesId tag
  */
-export const clearMultiFrameCache = function () {
-  multiframeDatasetCache = {};
+export const clearMultiFrameCache = function (seriesId) {
+  each(multiframeDatasetCache, function (image, imageId) {
+    if (seriesId == image.seriesUID || !seriesId) {
+      if (image.dataSet) {
+        image.dataSet.byteArray = null;
+      }
+      image.dataSet = null;
+      image.elements = null;
+      each(image.instances, function (instance) {
+        instance.metadata = null;
+      });
+      image.instances = null;
+      multiframeDatasetCache[imageId] = null;
+      delete multiframeDatasetCache[imageId];
+    }
+  });
+  if (!seriesId) {
+    multiframeDatasetCache = null;
+  }
 };
 
 /* Internal module functions */
@@ -328,14 +349,3 @@ const setPixelDataType = function (imageFrame) {
     imageFrame.pixelData = new Uint8Array(imageFrame.pixelData);
   }
 };
-
-// TODO?
-// // add a decache callback function to clear out our dataSetCacheManager
-// function addDecache(imageLoadObject, imageId) {
-//   imageLoadObject.decache = function () {
-//     // console.log('decache');
-//     const parsedImageId = parseImageId(imageId);
-
-//     cornerstoneWADOImageLoader.dataSetCacheManager.unload(parsedImageId.url);
-//   };
-// }

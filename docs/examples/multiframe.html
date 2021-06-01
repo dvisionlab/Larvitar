@@ -74,15 +74,16 @@
 
                   document.onkeypress = function (e) {
                     e = e || window.event;
-
                     if (e.keyCode == 112) {
                       animation = !animation;
                       if (animation) {
                         frameId =
                           larvitar.larvitar_store.state.viewports.viewer.sliceId;
                         animationId = setInterval(function () {
+                          let series =
+                            larvitar.getSeriesDataFromLarvitarManager(seriesId);
                           frameId = frameId == numberOfFrames ? 1 : frameId + 1;
-                          larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+                          larvitar.updateImage(series, "viewer", frameId);
                           $("#current-frame").html(
                             "Current Frame: " + frameId + " of " + numberOfFrames
                           );
@@ -151,15 +152,16 @@
 
           document.onkeypress = function (e) {
             e = e || window.event;
-
             if (e.keyCode == 112) {
               animation = !animation;
               if (animation) {
                 frameId =
                   larvitar.larvitar_store.state.viewports.viewer.sliceId;
                 animationId = setInterval(function () {
+                  let series =
+                    larvitar.getSeriesDataFromLarvitarManager(seriesId);
                   frameId = frameId == numberOfFrames ? 1 : frameId + 1;
-                  larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+                  larvitar.updateImage(series, "viewer", frameId);
                   $("#current-frame").html(
                     "Current Frame: " + frameId + " of " + numberOfFrames
                   );
