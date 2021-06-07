@@ -2,14 +2,7 @@ import { DEFAULT_MOUSE_KEYS } from "./tools.default";
 import { setToolActive } from "./tools.main";
 import { larvitar_store } from "../image_store";
 
-const KEY_CODES = {
-  shift: 16,
-  ctrl: 17,
-  a: 65,
-  r: 82,
-  l: 76
-  // ...TODO...
-};
+import * as keyCodes from "keycode-js";
 
 /**
  * Setup mouse handler modifiers and keyboard shortcuts
@@ -36,12 +29,12 @@ export function addMouseKeyHandlers(config, viewports) {
   function onKeyDown(evt) {
     // keyboard shortcuts (activate on left mouse button)
     let codes = config.keyboard_shortcuts
-      ? Object.keys(config.keyboard_shortcuts).map(key => KEY_CODES[key])
+      ? Object.keys(config.keyboard_shortcuts).map(key => keyCodes[key])
       : [];
 
     if (codes.includes(evt.keyCode) && evt.altKey) {
       let key = Object.keys(config.keyboard_shortcuts)
-        .filter(key => KEY_CODES[key] == evt.keyCode)
+        .filter(key => keyCodes[key] == evt.keyCode)
         .pop();
       if (config.debug) console.log("active", config.keyboard_shortcuts[key]);
       setToolActive(config.keyboard_shortcuts[key], {}, viewports);
@@ -52,7 +45,7 @@ export function addMouseKeyHandlers(config, viewports) {
     else if (
       config.mouse_button_right &&
       config.mouse_button_right.shift &&
-      evt.keyCode == KEY_CODES["shift"]
+      evt.keyCode == keyCodes.KEY_SHIFT
     ) {
       if (config.debug) console.log("active", config.mouse_button_right.shift);
       setToolActive(
@@ -67,7 +60,7 @@ export function addMouseKeyHandlers(config, viewports) {
     else if (
       config.mouse_button_right &&
       config.mouse_button_right.ctrl &&
-      evt.keyCode == KEY_CODES["ctrl"]
+      evt.keyCode == keyCodes.KEY_CONTROL
     ) {
       if (config.debug) console.log("active", config.mouse_button_right.ctrl);
       setToolActive(
