@@ -45,6 +45,7 @@ export default {
   state: {
     colormapId: "gray",
     leftMouseHandler: "Wwwc",
+    rightMouseHandler: "Wwwc",
     manager: null,
     series: {}, // seriesUID: {imageIds:[], progress:value}
     viewports: {}
@@ -85,6 +86,8 @@ export default {
       Vue.delete(state.viewports, viewportId),
     setManager: ({ state }, value) => (state.manager = value),
     setLeftMouseHandler: ({ state }, value) => (state.leftMouseHandler = value),
+    setRightMouseHandler: ({ state }, value) =>
+      (state.rightMouseHandler = value),
     removeSeriesIds: ({ state }, seriesId) =>
       Vue.delete(state.series, seriesId),
     setErrorLog: () => {}, // TODO LT pass elementId
