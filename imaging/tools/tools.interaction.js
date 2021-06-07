@@ -93,7 +93,6 @@ export function addMouseKeyHandlers(config, viewports) {
   // activate default, if any
 
   if (config.mouse_button_right && config.mouse_button_right.default) {
-    console.log("set initial default right", config.mouse_button_right.default);
     setToolActive(
       config.mouse_button_right.default,
       { mouseButtonMask: 2 },
@@ -103,7 +102,6 @@ export function addMouseKeyHandlers(config, viewports) {
   }
 
   if (config.mouse_button_left && config.mouse_button_left.default) {
-    console.log("set initial default left", config.mouse_button_left.default);
     setToolActive(
       config.mouse_button_left.default,
       { mouseButtonMask: 1 },
