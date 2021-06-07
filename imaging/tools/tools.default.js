@@ -403,25 +403,25 @@ const DEFAULT_STYLE = {
   fontFamily: "Roboto",
   fontSize: 18,
   backgroundColor: "rgba(1, 1, 1, 0.7)"
-}
+};
 
 /**
  * Tools default settings
  */
 const DEFAULT_SETTINGS = {
   mouseEnabled: true,
-  touchEnabled: false, // TODO 
+  touchEnabled: false, // TODO
   showSVGCursors: true,
   globalToolSyncEnabled: false,
   autoResizeViewports: true,
-  lineDash: [4, 4],
-}
+  lineDash: [4, 4]
+};
 
 /**
- * Shortcut and mouse bindings defaults 
+ * Shortcut and mouse bindings defaults
  */
 const DEFAULT_MOUSE_KEYS = {
-  debug: true, // log changes 
+  debug: true, // log changes
   mouse_button_left: {
     shift: "Zoom",
     ctrl: "Pan",
@@ -434,12 +434,11 @@ const DEFAULT_MOUSE_KEYS = {
   },
   keyboard_shortcuts: {
     // alt key + letter
-    r: "Rotate",
-    a: "Angle",
-    l: "Length"
-    // ... TODO ...
+    KEY_R: "Rotate",
+    KEY_A: "Angle",
+    KEY_L: "Length"
   }
-}
+};
 
 /**
  * Get available tools by type (useful to populate menus)
@@ -469,5 +468,12 @@ const setDefaultToolsProps = function (newProps) {
   }
 };
 
-export { DEFAULT_TOOLS, DEFAULT_STYLE, DEFAULT_SETTINGS, DEFAULT_MOUSE_KEYS, dvTools, getDefaultToolsByType, setDefaultToolsProps };
-
+export {
+  DEFAULT_TOOLS,
+  DEFAULT_STYLE,
+  DEFAULT_SETTINGS,
+  DEFAULT_MOUSE_KEYS,
+  dvTools,
+  getDefaultToolsByType,
+  setDefaultToolsProps
+};

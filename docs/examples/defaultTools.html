@@ -132,6 +132,7 @@
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
       larvitar.larvitar_store.addViewport("viewer");
+      larvitar.addMouseKeyHandlers(null, ["viewer"]);
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
