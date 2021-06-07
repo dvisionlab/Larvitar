@@ -33,6 +33,8 @@ export function addMouseKeyHandlers(config, viewports) {
       : [];
 
     if (codes.includes(evt.keyCode) && evt.altKey) {
+      evt.preventDefault(); // avoid browser menu selections
+
       let key = Object.keys(config.keyboard_shortcuts)
         .filter(key => keyCodes[key] == evt.keyCode)
         .pop();
