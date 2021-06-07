@@ -69,6 +69,7 @@ class Larvitar_Store {
       manager: null,
       series: {}, // seriesUID: {imageIds:[], progress:value}
       leftMouseHandler: "Wwwc",
+      rightMouseHandler: "Wwwc",
       colormapId: "gray",
       viewports: {},
       errorLog: null,
