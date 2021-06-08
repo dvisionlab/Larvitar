@@ -7,8 +7,6 @@ import { updateViewportData } from "../image_rendering";
 import { throttle } from "lodash";
 import * as keyCodes from "keycode-js";
 
-import cornerstone from "cornerstone-core";
-
 /**
  * TOOLS INTERACTIONS TODOS:
  * - enable touch controls
@@ -139,7 +137,6 @@ export const toggleMouseToolsListeners = function (elementId, disable) {
 
   // mouse move handler (throttled)
   let mouseMoveHandler = throttle(function (evt) {
-    console.log(evt);
     let activeTool =
       evt.detail.buttons == 1
         ? larvitar_store.get("leftActiveTool")
