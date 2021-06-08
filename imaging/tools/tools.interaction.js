@@ -8,6 +8,13 @@ import { throttle } from "lodash";
 import * as keyCodes from "keycode-js";
 
 /**
+ * TOOLS INTERACTIONS TODOS:
+ * - enable touch controls
+ * - rework active tools / ui labels sync (we can get all active tools from cornerstoneTools state, then check the button / input method to update the correct label, or update all props scale, translation and voi)
+ * - use config to setup all interactions (mouse left/right, keyboard shortcuts, touch inputs)
+ */
+
+/**
  * Setup mouse handler modifiers and keyboard shortcuts
  * NOTE: at the moment only mouse right button is affected
  * Improvements could be:
@@ -129,11 +136,16 @@ export const toggleMouseToolsListeners = function (elementId, disable) {
   }
 
   // mouse move handler
-  let throttledSave = throttle(function (elementId, data) {
-    updateViewportData(elementId, data);
+  let throttledSave = throttle(function (evt) {
+    console.log(evt);
+    let activeTool =
+      evt.detail.buttons == 1
+        ? larvitar_store.get("leftActiveTool")
+        : larvitar_store.get("rightActiveTool");
+    updateViewportData(evt.srcElement.id, evt.detail.viewport, activeTool);
   }, 500);
   function mouseMoveHandler(evt) {
-    throttledSave(evt.srcElement.id, evt.detail.viewport);
+    throttledSave(evt);
   }
   // mouse wheel handler
   function mouseWheelHandler(evt) {

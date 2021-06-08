@@ -458,8 +458,11 @@ export const resetViewports = function (elementIds) {
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {Object} viewportData - The new viewport data
  */
-export const updateViewportData = function (elementId, viewportData) {
-  console.log("updateViewportData");
+export const updateViewportData = function (
+  elementId,
+  viewportData,
+  activeTool
+) {
   let element = isElement(elementId)
     ? elementId
     : document.getElementById(elementId);
@@ -467,8 +470,7 @@ export const updateViewportData = function (elementId, viewportData) {
     console.error("invalid html element: " + elementId);
     return;
   }
-  let activeTool = larvitar_store.get("activeTool");
-  console.log(activeTool);
+  console.log("updateViewportData", activeTool);
   switch (activeTool) {
     case "Wwwc":
     case "WwwcRegion":

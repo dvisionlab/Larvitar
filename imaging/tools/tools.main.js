@@ -158,7 +158,7 @@ export const addDefaultTools = function (elementId) {
     }
 
     if (tool.defaultActive) {
-      setToolActive(tool.name, tool.options);
+      setToolActive(tool.name, tool.options, [], true);
     }
   });
 };
@@ -181,8 +181,9 @@ function tryUpdateImage(element) {
  * @param {String} toolName - The tool name.
  * @param {Object} options - The custom options. @default from tools.default.js
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
+ * @param {Boolean} doNotSetInStore - Flag to avoid setting in store (useful on tools initialization eg in addDefaultTools). NOTE: This is just a hack, we must rework tools/ui sync.
  */
-const setToolActive = function (toolName, options, viewports) {
+const setToolActive = function (toolName, options, viewports, doNotSetInStore) {
   let defaultOpt = DEFAULT_TOOLS[toolName].options;
   extend(defaultOpt, options);
 
@@ -203,7 +204,11 @@ const setToolActive = function (toolName, options, viewports) {
   }
 
   // set active tool in larvitar store
-  larvitar_store.set("activeTool", toolName);
+  if (!doNotSetInStore) {
+    defaultOpt.mouseButtonMask && defaultOpt.mouseButtonMask == 1
+      ? larvitar_store.set("leftActiveTool", toolName)
+      : larvitar_store.set("rightActiveTool", toolName);
+  }
 };
 
 /**
