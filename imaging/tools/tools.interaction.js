@@ -7,6 +7,8 @@ import { updateViewportData } from "../image_rendering";
 import { throttle } from "lodash";
 import * as keyCodes from "keycode-js";
 
+import cornerstone from "cornerstone-core";
+
 /**
  * TOOLS INTERACTIONS TODOS:
  * - enable touch controls
@@ -135,36 +137,30 @@ export const toggleMouseToolsListeners = function (elementId, disable) {
     return;
   }
 
-  // mouse move handler
-  let throttledSave = throttle(function (evt) {
+  // mouse move handler (throttled)
+  let mouseMoveHandler = throttle(function (evt) {
     console.log(evt);
     let activeTool =
       evt.detail.buttons == 1
         ? larvitar_store.get("leftActiveTool")
         : larvitar_store.get("rightActiveTool");
     updateViewportData(evt.srcElement.id, evt.detail.viewport, activeTool);
-  }, 2000);
-  // function mouseMoveHandler(evt) {
-  //   throttledSave(evt);
-  // }
+  }, 500);
+
   // mouse wheel handler
   function mouseWheelHandler(evt) {
-    let enabledElement = cornerstone.getEnabledElement(element);
-    let cix =
-      enabledElement.toolStateManager.toolState.stack.data[0]
-        .currentImageIdIndex;
-    larvitar_store.set("sliceId", [evt.target.id, cix + 1]);
+    larvitar_store.set("sliceId", [evt.target.id, evt.detail.newImageIdIndex]);
   }
 
   if (disable) {
     element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
     element.removeEventListener(
-      "cornerstonetoolsmousewheel",
+      "cornerstonetoolsstackscroll",
       mouseWheelHandler
     );
     return;
   }
 
-  element.addEventListener("cornerstonetoolsmousedrag", throttledSave);
-  element.addEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
+  element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+  element.addEventListener("cornerstonetoolsstackscroll", mouseWheelHandler);
 };
