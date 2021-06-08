@@ -502,51 +502,6 @@ export const updateViewportData = function (
   }
 };
 
-// // internal functions for mouse move handlers
-// let throttledSave = throttle(function (elementId) {
-//   updateViewportData(elementId);
-// }, 500);
-// function mouseMoveHandler(evt) {
-//   throttledSave(evt.srcElement.id);
-// }
-
-// /**
-//  * Add event handlers to mouse move MOVED to tools.interaction
-//  * @instance
-//  * @function toggleMouseHandlers
-//  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
-//  * @param {Boolean} disable - If true disable handlers, default is false
-//  */
-// export const toggleMouseHandlers = function (elementId, disable) {
-//   let element = isElement(elementId)
-//     ? elementId
-//     : document.getElementById(elementId);
-//   if (!element) {
-//     console.error("invalid html element: " + elementId);
-//     return;
-//   }
-
-//   if (disable) {
-//     element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
-//     element.removeEventListener(
-//       "cornerstonetoolsmousewheel",
-//       mouseWheelHandler
-//     );
-//     return;
-//   }
-
-//   element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
-
-//   function mouseWheelHandler(evt) {
-//     let enabledElement = cornerstone.getEnabledElement(element);
-//     let cix =
-//       enabledElement.toolStateManager.toolState.stack.data[0]
-//         .currentImageIdIndex;
-//     larvitar_store.set("sliceId", [evt.target.id, cix + 1]);
-//   }
-//   element.addEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
-// };
-
 /**
  * Store the viewport data into internal storage
  * @instance
