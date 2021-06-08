@@ -49,6 +49,7 @@ const resliceTable = {
  * getReslicedPixeldata(imageId, originalData, reslicedData)
  * getDistanceBetweenSlices(seriesData, sliceIndex1, sliceIndex2)
  * parseTag(dataSet, propertyName, element)
+ * isElement(o)
  */
 
 /**
@@ -1488,4 +1489,21 @@ const TYPES_TO_TYPEDARRAY = {
 
   float: Float32Array,
   double: Float64Array
+};
+
+/**
+ * Check if a div tag is a valid DOM HTMLElement
+ * @instance
+ * @function isElement
+ * @param {Object} o - The div tag
+ * @return {Boolean} - True if is an element otherwise returns False
+ */
+export const isElement = function (o) {
+  return typeof HTMLElement === "object"
+    ? o instanceof HTMLElement //DOM2
+    : o &&
+        typeof o === "object" &&
+        o !== null &&
+        o.nodeType === 1 &&
+        typeof o.nodeName === "string";
 };

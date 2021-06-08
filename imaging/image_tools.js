@@ -17,7 +17,7 @@ import { DiameterTool } from "./tools/diameterTool";
 import { getImageIdFromSlice } from "./loaders/nrrdLoader";
 import { getSeriesDataFromLarvitarManager } from "./loaders/commonLoader";
 import { parseContours } from "./image_contours";
-import { isElement } from "./image_rendering";
+import { isElement } from "./image_utils";
 
 /*
  * This module provides the following functions to be exported:

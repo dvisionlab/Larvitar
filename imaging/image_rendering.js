@@ -6,13 +6,15 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import { each, has, throttle } from "lodash";
+import { each, has } from "lodash";
 
 // internal libraries
 import { getFileImageId } from "./loaders/fileLoader";
 import { csToolsCreateStack } from "./tools/tools.main";
+import { toggleMouseToolsListeners } from "./tools/tools.interaction";
 import { larvitar_store } from "./image_store";
 import { applyColorMap } from "./image_colormaps";
+import { isElement } from "./image_utils";
 
 /*
  * This module provides the following functions to be exported:
@@ -29,7 +31,6 @@ import { applyColorMap } from "./image_colormaps";
  * updateViewportData(elementId)
  * toggleMouseHandlers(elementId, disableFlag)
  * storeViewportData(params...)
- * isElement(o)
  * invertImage(elementId)
  * flipImageHorizontal(elementId)
  * flipImageVertical(elementId)
@@ -191,7 +192,8 @@ export const disableViewport = function (elementId) {
     console.error("invalid html element: " + elementId);
     return;
   }
-  toggleMouseHandlers(elementId, true); // flagged true to disable handlers
+  // toggleMouseHandlers(elementId, true); // flagged true to disable handlers
+  toggleMouseToolsListeners(elementId, true);
   cornerstone.disable(element);
 };
 
@@ -344,7 +346,8 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
   });
 
   csToolsCreateStack(element, series.imageIds, data.imageIndex - 1);
-  toggleMouseHandlers(elementId);
+  // toggleMouseHandlers(elementId);
+  toggleMouseToolsListeners(elementId);
 };
 
 /**
@@ -494,50 +497,50 @@ export const updateViewportData = function (elementId) {
   }
 };
 
-// internal functions for mouse move handlers
-let throttledSave = throttle(function (elementId) {
-  updateViewportData(elementId);
-}, 500);
-function mouseMoveHandler(evt) {
-  throttledSave(evt.srcElement.id);
-}
+// // internal functions for mouse move handlers
+// let throttledSave = throttle(function (elementId) {
+//   updateViewportData(elementId);
+// }, 500);
+// function mouseMoveHandler(evt) {
+//   throttledSave(evt.srcElement.id);
+// }
 
-/**
- * Add event handlers to mouse move
- * @instance
- * @function toggleMouseHandlers
- * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {Boolean} disable - If true disable handlers, default is false
- */
-export const toggleMouseHandlers = function (elementId, disable) {
-  let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
+// /**
+//  * Add event handlers to mouse move MOVED to tools.interaction
+//  * @instance
+//  * @function toggleMouseHandlers
+//  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+//  * @param {Boolean} disable - If true disable handlers, default is false
+//  */
+// export const toggleMouseHandlers = function (elementId, disable) {
+//   let element = isElement(elementId)
+//     ? elementId
+//     : document.getElementById(elementId);
+//   if (!element) {
+//     console.error("invalid html element: " + elementId);
+//     return;
+//   }
 
-  if (disable) {
-    element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
-    element.removeEventListener(
-      "cornerstonetoolsmousewheel",
-      mouseWheelHandler
-    );
-    return;
-  }
+//   if (disable) {
+//     element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+//     element.removeEventListener(
+//       "cornerstonetoolsmousewheel",
+//       mouseWheelHandler
+//     );
+//     return;
+//   }
 
-  element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+//   element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
 
-  function mouseWheelHandler(evt) {
-    let enabledElement = cornerstone.getEnabledElement(element);
-    let cix =
-      enabledElement.toolStateManager.toolState.stack.data[0]
-        .currentImageIdIndex;
-    larvitar_store.set("sliceId", [evt.target.id, cix + 1]);
-  }
-  element.addEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
-};
+//   function mouseWheelHandler(evt) {
+//     let enabledElement = cornerstone.getEnabledElement(element);
+//     let cix =
+//       enabledElement.toolStateManager.toolState.stack.data[0]
+//         .currentImageIdIndex;
+//     larvitar_store.set("sliceId", [evt.target.id, cix + 1]);
+//   }
+//   element.addEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
+// };
 
 /**
  * Store the viewport data into internal storage
@@ -599,23 +602,6 @@ export const storeViewportData = function (
     viewport.voi.windowWidth,
     viewport.voi.windowCenter
   ]);
-};
-
-/**
- * Check if a div tag is a valid DOM HTMLElement
- * @instance
- * @function isElement
- * @param {Object} o - The div tag
- * @return {Boolean} - True if is an element otherwise returns False
- */
-export const isElement = function (o) {
-  return typeof HTMLElement === "object"
-    ? o instanceof HTMLElement //DOM2
-    : o &&
-        typeof o === "object" &&
-        o !== null &&
-        o.nodeType === 1 &&
-        typeof o.nodeName === "string";
 };
 
 /**

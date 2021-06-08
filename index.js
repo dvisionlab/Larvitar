@@ -76,7 +76,7 @@ import {
   updateImage,
   resetViewports,
   updateViewportData,
-  toggleMouseHandlers,
+  // toggleMouseHandlers,
   storeViewportData,
   invertImage,
   flipImageHorizontal,
@@ -173,7 +173,10 @@ import {
 
 import { saveAnnotations, loadAnnotations } from "./imaging/tools/tools.io";
 
-import { addMouseKeyHandlers } from "./imaging/tools/tools.interaction";
+import {
+  addMouseKeyHandlers,
+  toggleMouseToolsListeners
+} from "./imaging/tools/tools.interaction";
 
 export {
   // global cornerstone variables
@@ -239,7 +242,8 @@ export {
   updateImage,
   resetViewports,
   updateViewportData,
-  toggleMouseHandlers,
+  // toggleMouseHandlers,
+  toggleMouseToolsListeners,
   storeViewportData,
   invertImage,
   flipImageHorizontal,

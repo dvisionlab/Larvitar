@@ -1,5 +1,6 @@
 import { DEFAULT_MOUSE_KEYS } from "./tools.default";
 import { setToolActive } from "./tools.main";
+import { isElement } from "../image_utils";
 import { larvitar_store } from "../image_store";
 
 import * as keyCodes from "keycode-js";
@@ -114,3 +115,48 @@ export function addMouseKeyHandlers(config, viewports) {
 
   document.addEventListener("keydown", onKeyDown, { once: true });
 }
+
+/**
+ * Add event handlers to mouse move
+ * @instance
+ * @function toggleMouseHandlers
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Boolean} disable - If true disable handlers, default is false
+ */
+export const toggleMouseToolsListeners = function (elementId, disable) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+
+  // mouse move handler
+  let throttledSave = throttle(function (elementId) {
+    updateViewportData(elementId);
+  }, 500);
+  function mouseMoveHandler(evt) {
+    throttledSave(evt.srcElement.id);
+  }
+  // mouse wheel handler
+  function mouseWheelHandler(evt) {
+    let enabledElement = cornerstone.getEnabledElement(element);
+    let cix =
+      enabledElement.toolStateManager.toolState.stack.data[0]
+        .currentImageIdIndex;
+    larvitar_store.set("sliceId", [evt.target.id, cix + 1]);
+  }
+
+  if (disable) {
+    element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+    element.removeEventListener(
+      "cornerstonetoolsmousewheel",
+      mouseWheelHandler
+    );
+    return;
+  }
+
+  element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+  element.addEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
+};
