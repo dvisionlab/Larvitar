@@ -1,3 +1,7 @@
+import pkg from "./package.json";
+const VERSION = pkg.version;
+console.log(`LARVITAR v${VERSION}`);
+
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
@@ -179,6 +183,7 @@ import {
 } from "./imaging/tools/tools.interaction";
 
 export {
+  VERSION,
   // global cornerstone variables
   cornerstone,
   cornerstoneTools,

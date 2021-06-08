@@ -41,7 +41,7 @@
           <div class="col-6 text-center">
             <div id="title">
               <p class="lead">Dicom Image Toolkit for CornestoneJS</p>
-              <p class="lead"><i>v0.15.0</i></p>
+              <p class="lead" id="version"><i>v</i></p>
             </div>
           </div>
           <div class="col-3"></div>
@@ -84,5 +84,9 @@
         <div class="col-2"></div>
       </div>
     </div>
+    <script src="examples/larvitar.js"></script>
+    <script>
+      document.getElementById("version").innerHTML += larvitar.VERSION;
+    </script>
   </body>
 </html>
