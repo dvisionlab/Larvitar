@@ -106,7 +106,7 @@
       </div>
     </div>
 
-    <script src="./larvitar.js"></script>
+    <script src="../../dist/larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
@@ -132,7 +132,12 @@
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
       larvitar.larvitar_store.addViewport("viewer");
-      larvitar.addMouseKeyHandlers(null, ["viewer"]);
+
+      // setInterval(() => {
+      //   console.log(larvitar.larvitar_store);
+      //   console.log(larvitar.larvitar_store.state.viewports.viewer.viewport);
+      // }, 1000);
+      window.larvitar_store = larvitar.larvitar_store;
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
@@ -154,8 +159,8 @@
 
           let mouseConfig = {
             keyboard_shortcuts: {
-              a: "Angle",
-              l: "Length"
+              KEY_A: "Angle",
+              KEY_L: "Length"
             },
             mouse_button_right: {
               ctrl: "Zoom",
@@ -164,7 +169,8 @@
             debug: true
           };
 
-          larvitar.addMouseKeyHandlers(mouseConfig);
+          // NOTE: this also activate the tools marked as default for each mouse button
+          larvitar.addMouseKeyHandlers(mouseConfig, ["viewer"]);
         });
       }
 
@@ -176,7 +182,7 @@
       let tool_counter = 0;
       document.onkeypress = function (e) {
         e = e || window.event;
-        if (e.keyCode == 116) {
+        if (e.keyCode == 116 || e.keyCode == 84) {
           let tools = _.map(larvitar.DEFAULT_TOOLS, "name");
           // remove useless tools for the live example
           tools = _.without(
@@ -188,10 +194,11 @@
             "OrientationMarkers",
             "ScaleOverlay"
           );
+          let increment = e.shiftKey ? -1 : 1;
           tool_counter =
-            tool_counter == tools.length - 1 ? 0 : tool_counter + 1;
+            tool_counter == tools.length - 1 ? 0 : tool_counter + increment;
+          tool_counter = tool_counter < 0 ? 0 : tool_counter;
           let tool = tools[tool_counter];
-          larvitar.larvitar_store.set("leftMouseHandler", tool);
           larvitar.setToolActive(tool);
           $("#active-tool").html("Active Tool: " + tool);
         }

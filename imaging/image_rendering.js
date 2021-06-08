@@ -456,8 +456,10 @@ export const resetViewports = function (elementIds) {
  * @instance
  * @function updateViewportData
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Object} viewportData - The new viewport data
  */
-export const updateViewportData = function (elementId) {
+export const updateViewportData = function (elementId, viewportData) {
+  console.log("updateViewportData");
   let element = isElement(elementId)
     ? elementId
     : document.getElementById(elementId);
@@ -465,32 +467,33 @@ export const updateViewportData = function (elementId) {
     console.error("invalid html element: " + elementId);
     return;
   }
-  let viewport = cornerstone.getViewport(element);
-  let activeTool = larvitar_store.get("leftMouseHandler");
+  let activeTool = larvitar_store.get("activeTool");
+  console.log(activeTool);
   switch (activeTool) {
     case "Wwwc":
+    case "WwwcRegion":
       // sync viewports if needed
       let elements = cornerstone.getEnabledElements();
       each(elements, function (el) {
         larvitar_store.set("contrast", [
           el.element.id,
-          viewport.voi.windowWidth,
-          viewport.voi.windowCenter
+          viewportData.voi.windowWidth,
+          viewportData.voi.windowCenter
         ]);
       });
       break;
     case "Pan":
       larvitar_store.set("translation", [
         elementId,
-        viewport.translation.x,
-        viewport.translation.y
+        viewportData.translation.x,
+        viewportData.translation.y
       ]);
       break;
     case "Zoom":
-      larvitar_store.set("scale", [elementId, viewport.scale]);
+      larvitar_store.set("scale", [elementId, viewportData.scale]);
       break;
     case "Rotate":
-      larvitar_store.set("rotation", [elementId, viewport.rotation]);
+      larvitar_store.set("rotation", [elementId, viewportData.rotation]);
       break;
     default:
       break;

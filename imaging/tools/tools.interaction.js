@@ -2,7 +2,9 @@ import { DEFAULT_MOUSE_KEYS } from "./tools.default";
 import { setToolActive } from "./tools.main";
 import { isElement } from "../image_utils";
 import { larvitar_store } from "../image_store";
+import { updateViewportData } from "../image_rendering";
 
+import { throttle } from "lodash";
 import * as keyCodes from "keycode-js";
 
 /**
@@ -41,7 +43,6 @@ export function addMouseKeyHandlers(config, viewports) {
         .pop();
       if (config.debug) console.log("active", config.keyboard_shortcuts[key]);
       setToolActive(config.keyboard_shortcuts[key], {}, viewports);
-      larvitar_store.set("leftMouseHandler", config.keyboard_shortcuts[key]);
       document.addEventListener("keydown", onKeyDown, { once: true });
     }
     // right drag + shift
@@ -56,7 +57,6 @@ export function addMouseKeyHandlers(config, viewports) {
         { mouseButtonMask: 2 },
         viewports
       );
-      larvitar_store.set("rightMouseHandler", config.mouse_button_right.shift);
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
     // right drag + ctrl
@@ -71,7 +71,6 @@ export function addMouseKeyHandlers(config, viewports) {
         { mouseButtonMask: 2 },
         viewports
       );
-      larvitar_store.set("rightMouseHandler", config.mouse_button_right.ctrl);
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
     // leave default
@@ -89,7 +88,6 @@ export function addMouseKeyHandlers(config, viewports) {
       { mouseButtonMask: 2 },
       viewports
     );
-    larvitar_store.set("rightMouseHandler", config.mouse_button_right.default);
     document.addEventListener("keydown", onKeyDown, { once: true });
   }
 
@@ -101,7 +99,6 @@ export function addMouseKeyHandlers(config, viewports) {
       { mouseButtonMask: 2 },
       viewports
     );
-    larvitar_store.set("rightMouseHandler", config.mouse_button_right.default);
   }
 
   if (config.mouse_button_left && config.mouse_button_left.default) {
@@ -110,7 +107,6 @@ export function addMouseKeyHandlers(config, viewports) {
       { mouseButtonMask: 1 },
       viewports
     );
-    larvitar_store.set("leftMouseHandler", config.mouse_button_left.default);
   }
 
   document.addEventListener("keydown", onKeyDown, { once: true });
@@ -133,11 +129,11 @@ export const toggleMouseToolsListeners = function (elementId, disable) {
   }
 
   // mouse move handler
-  let throttledSave = throttle(function (elementId) {
-    updateViewportData(elementId);
+  let throttledSave = throttle(function (elementId, data) {
+    updateViewportData(elementId, data);
   }, 500);
   function mouseMoveHandler(evt) {
-    throttledSave(evt.srcElement.id);
+    throttledSave(evt.srcElement.id, evt.detail.viewport);
   }
   // mouse wheel handler
   function mouseWheelHandler(evt) {

@@ -16,6 +16,7 @@ import {
   DEFAULT_SETTINGS,
   dvTools
 } from "./tools.default";
+import { larvitar_store } from "../image_store";
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
@@ -200,6 +201,9 @@ const setToolActive = function (toolName, options, viewports) {
       tryUpdateImage(enel.element);
     });
   }
+
+  // set active tool in larvitar store
+  larvitar_store.set("activeTool", toolName);
 };
 
 /**
