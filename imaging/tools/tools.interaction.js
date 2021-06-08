@@ -143,10 +143,10 @@ export const toggleMouseToolsListeners = function (elementId, disable) {
         ? larvitar_store.get("leftActiveTool")
         : larvitar_store.get("rightActiveTool");
     updateViewportData(evt.srcElement.id, evt.detail.viewport, activeTool);
-  }, 500);
-  function mouseMoveHandler(evt) {
-    throttledSave(evt);
-  }
+  }, 2000);
+  // function mouseMoveHandler(evt) {
+  //   throttledSave(evt);
+  // }
   // mouse wheel handler
   function mouseWheelHandler(evt) {
     let enabledElement = cornerstone.getEnabledElement(element);
@@ -165,6 +165,6 @@ export const toggleMouseToolsListeners = function (elementId, disable) {
     return;
   }
 
-  element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+  element.addEventListener("cornerstonetoolsmousedrag", throttledSave);
   element.addEventListener("cornerstonetoolsmousewheel", mouseWheelHandler);
 };
