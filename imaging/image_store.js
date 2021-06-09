@@ -68,8 +68,8 @@ class Larvitar_Store {
     this.state = {
       manager: null,
       series: {}, // seriesUID: {imageIds:[], progress:value}
-      leftMouseHandler: "Wwwc",
-      rightMouseHandler: "Wwwc",
+      leftActiveTool: "Wwwc",
+      rightActiveTool: "Zoom",
       colormapId: "gray",
       viewports: {},
       errorLog: null,

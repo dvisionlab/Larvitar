@@ -7,7 +7,7 @@
 import cornerstone from "cornerstone-core";
 
 // internal libraries
-import { isElement } from "./image_rendering";
+import { isElement } from "./image_utils";
 
 /*
  * This module provides the following functions to be exported:

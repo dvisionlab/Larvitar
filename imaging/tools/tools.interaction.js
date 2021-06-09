@@ -1,8 +1,18 @@
 import { DEFAULT_MOUSE_KEYS } from "./tools.default";
 import { setToolActive } from "./tools.main";
+import { isElement } from "../image_utils";
 import { larvitar_store } from "../image_store";
+import { updateViewportData } from "../image_rendering";
 
+import { throttle } from "lodash";
 import * as keyCodes from "keycode-js";
+
+/**
+ * TOOLS INTERACTIONS TODOS:
+ * - enable touch controls
+ * - rework active tools / ui labels sync (we can get all active tools from cornerstoneTools state, then check the button / input method to update the correct label, or update all props scale, translation and voi)
+ * - use config to setup all interactions (mouse left/right, keyboard shortcuts, touch inputs)
+ */
 
 /**
  * Setup mouse handler modifiers and keyboard shortcuts
@@ -33,12 +43,13 @@ export function addMouseKeyHandlers(config, viewports) {
       : [];
 
     if (codes.includes(evt.keyCode) && evt.altKey) {
+      evt.preventDefault(); // avoid browser menu selections
+
       let key = Object.keys(config.keyboard_shortcuts)
         .filter(key => keyCodes[key] == evt.keyCode)
         .pop();
       if (config.debug) console.log("active", config.keyboard_shortcuts[key]);
       setToolActive(config.keyboard_shortcuts[key], {}, viewports);
-      larvitar_store.set("leftMouseHandler", config.keyboard_shortcuts[key]);
       document.addEventListener("keydown", onKeyDown, { once: true });
     }
     // right drag + shift
@@ -53,7 +64,6 @@ export function addMouseKeyHandlers(config, viewports) {
         { mouseButtonMask: 2 },
         viewports
       );
-      larvitar_store.set("rightMouseHandler", config.mouse_button_right.shift);
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
     // right drag + ctrl
@@ -68,7 +78,6 @@ export function addMouseKeyHandlers(config, viewports) {
         { mouseButtonMask: 2 },
         viewports
       );
-      larvitar_store.set("rightMouseHandler", config.mouse_button_right.ctrl);
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
     // leave default
@@ -86,7 +95,6 @@ export function addMouseKeyHandlers(config, viewports) {
       { mouseButtonMask: 2 },
       viewports
     );
-    larvitar_store.set("rightMouseHandler", config.mouse_button_right.default);
     document.addEventListener("keydown", onKeyDown, { once: true });
   }
 
@@ -98,7 +106,6 @@ export function addMouseKeyHandlers(config, viewports) {
       { mouseButtonMask: 2 },
       viewports
     );
-    larvitar_store.set("rightMouseHandler", config.mouse_button_right.default);
   }
 
   if (config.mouse_button_left && config.mouse_button_left.default) {
@@ -107,8 +114,50 @@ export function addMouseKeyHandlers(config, viewports) {
       { mouseButtonMask: 1 },
       viewports
     );
-    larvitar_store.set("leftMouseHandler", config.mouse_button_left.default);
   }
 
   document.addEventListener("keydown", onKeyDown, { once: true });
 }
+
+/**
+ * Add event handlers to mouse move
+ * @instance
+ * @function toggleMouseHandlers
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Boolean} disable - If true disable handlers, default is false
+ */
+export const toggleMouseToolsListeners = function (elementId, disable) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+
+  // mouse move handler (throttled)
+  let mouseMoveHandler = throttle(function (evt) {
+    let activeTool =
+      evt.detail.buttons == 1
+        ? larvitar_store.get("leftActiveTool")
+        : larvitar_store.get("rightActiveTool");
+    updateViewportData(evt.srcElement.id, evt.detail.viewport, activeTool);
+  }, 500);
+
+  // mouse wheel handler
+  function mouseWheelHandler(evt) {
+    larvitar_store.set("sliceId", [evt.target.id, evt.detail.newImageIdIndex]);
+  }
+
+  if (disable) {
+    element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+    element.removeEventListener(
+      "cornerstonetoolsstackscroll",
+      mouseWheelHandler
+    );
+    return;
+  }
+
+  element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+  element.addEventListener("cornerstonetoolsstackscroll", mouseWheelHandler);
+};

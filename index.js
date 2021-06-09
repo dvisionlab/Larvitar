@@ -1,3 +1,7 @@
+import pkg from "./package.json";
+const VERSION = pkg.version;
+console.log(`LARVITAR v${VERSION}`);
+
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
@@ -76,7 +80,7 @@ import {
   updateImage,
   resetViewports,
   updateViewportData,
-  toggleMouseHandlers,
+  // toggleMouseHandlers,
   storeViewportData,
   invertImage,
   flipImageHorizontal,
@@ -173,9 +177,13 @@ import {
 
 import { saveAnnotations, loadAnnotations } from "./imaging/tools/tools.io";
 
-import { addMouseKeyHandlers } from "./imaging/tools/tools.interaction";
+import {
+  addMouseKeyHandlers,
+  toggleMouseToolsListeners
+} from "./imaging/tools/tools.interaction";
 
 export {
+  VERSION,
   // global cornerstone variables
   cornerstone,
   cornerstoneTools,
@@ -239,7 +247,8 @@ export {
   updateImage,
   resetViewports,
   updateViewportData,
-  toggleMouseHandlers,
+  // toggleMouseHandlers,
+  toggleMouseToolsListeners,
   storeViewportData,
   invertImage,
   flipImageHorizontal,
