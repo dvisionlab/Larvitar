@@ -470,7 +470,6 @@ export const updateViewportData = function (
     console.error("invalid html element: " + elementId);
     return;
   }
-  console.log("updateViewportData", activeTool);
   switch (activeTool) {
     case "Wwwc":
     case "WwwcRegion":
