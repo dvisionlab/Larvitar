@@ -176,10 +176,16 @@ const DEFAULT_TOOLS = {
   Zoom: {
     name: "Zoom",
     viewports: "all",
-    configuration: {},
+    configuration: {
+      invert: false,
+      preventZoomOutsideImage: false,
+      minScale: 0.01,
+      maxScale: 25.0
+    },
     options: {
       mouseButtonMask: 1,
-      supportedInteractionTypes: ["Mouse", "Touch"]
+      supportedInteractionTypes: ["Mouse", "Touch"],
+      defaultStrategy: "default" // can be 'default', 'translate' or 'zoomToCenter'
     },
     cleanable: false,
     class: "ZoomTool",
