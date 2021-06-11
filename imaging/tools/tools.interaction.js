@@ -49,7 +49,11 @@ export function addMouseKeyHandlers(config, viewports) {
         .filter(key => keyCodes[key] == evt.keyCode)
         .pop();
       if (config.debug) console.log("active", config.keyboard_shortcuts[key]);
-      setToolActive(config.keyboard_shortcuts[key], {}, viewports);
+      setToolActive(
+        config.keyboard_shortcuts[key],
+        { mouseButtonMask: 1 },
+        viewports
+      );
       document.addEventListener("keydown", onKeyDown, { once: true });
     }
     // right drag + shift
