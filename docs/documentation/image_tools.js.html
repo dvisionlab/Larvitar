@@ -705,10 +705,17 @@ export const syncToolStack = function (
 /**
  * Update slice index in cornerstone tools stack state
  * @function updateStackToolState
- * @param {HTMLElement} element - The target hmtl element.
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {Number} imageIndex - The new imageIndex value.
  */
-export const updateStackToolState = function (element, imageIndex) {
+export const updateStackToolState = function (elementId, imageIndex) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
   let enabledElement = cornerstone.getEnabledElement(element);
   if (!enabledElement.toolStateManager) {
     return;
