@@ -6,6 +6,8 @@ import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 
+import larvitarModule from "./modules/vuex/larvitar";
+
 import {
   checkMemoryAllocation,
   getUsedMemory,
@@ -188,6 +190,8 @@ export {
   cornerstone,
   cornerstoneTools,
   cornerstoneWADOImageLoader,
+  // vuex module
+  larvitarModule,
   // memory module
   checkMemoryAllocation,
   getUsedMemory,
