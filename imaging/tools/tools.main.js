@@ -30,6 +30,13 @@ const initializeCSTools = function (settings, style) {
   cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
   // cornerstoneTools.external.Hammer = Hammer;
   extend(DEFAULT_SETTINGS, settings);
+
+  // hack to fix warning on init()
+  // see https://github.com/cornerstonejs/cornerstoneTools/issues/1395
+  cornerstoneTools.getModule(
+    "segmentation"
+  ).configuration.segmentsPerLabelmap = 0;
+
   cornerstoneTools.init(DEFAULT_SETTINGS);
   setToolsStyle(style);
 };
