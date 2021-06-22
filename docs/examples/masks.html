@@ -29,9 +29,54 @@
 
       <div class="col-4 h-100">
         <pre class="h-100">
+          <p style="color: #ffffff">
+          Example of loading a segmentation 
+          mask on the image.
+          You can modify the mask using Brush tool.
+          (press ctrl to delete instead of adding)</p>
           <code class="javascript" style="background-color: #000000">
           <p style="font-size:0.6vw;">
-            TODO
+            /**
+              * Load an image as in base example, then:
+              *
+              */
+
+            async function loadMasks() {
+              larvitar.initSegmentationModule();
+      
+              // fetch data
+              let response = await fetch("./demo/" + "segmentation.nrrd");
+              let data = await response.blob();
+              let nrrd_file = new File([data], "segmentation.nrrd");
+              // read file
+              let reader = new FileReader();
+              reader.readAsArrayBuffer(nrrd_file);
+              reader.onload = function () {
+                // create volume
+                let volume = larvitar.importNRRDImage(reader.result);
+                volume.data = volume.data.map(e => e * 100);
+                // define mask properties
+                let properties = {
+                  color: "#00ff00",
+                  opacity: 0.2,
+                  labelId: 0
+                };
+                // add to viewport
+                larvitar.addSegmentationMask(
+                  properties,
+                  volume.data,
+                  "viewer",
+                  () => {
+                    // wait for render image to complete
+                    setTimeout(() => {
+                      // activate brush on this labelmap
+                      larvitar.setActiveLabelmap(0, "viewer");
+                      larvitar.setToolActive("Brush");
+                    }, 100);
+                  }
+                );
+              };
+            }          
           </p>
           </code>
         </pre>
@@ -60,7 +105,6 @@
       larvitar.initializeCSTools();
       larvitar.larvitar_store.addViewport("viewer");
       larvitar.registerNRRDImageLoader();
-      larvitar.initSegmentationModule();
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
@@ -84,7 +128,6 @@
             larvitar.addDefaultTools();
 
             demoFiles = [];
-            console.log("call load mask");
             loadMasks();
           } else {
             console.log(err);
@@ -98,22 +141,30 @@
         createFile(demoFile, renderSerie);
       });
 
+      /**
+       * Load an image as in base example, then:
+       **/
+
       async function loadMasks() {
+        larvitar.initSegmentationModule();
+
+        // fetch data
         let response = await fetch("./demo/" + "segmentation.nrrd");
         let data = await response.blob();
         let nrrd_file = new File([data], "segmentation.nrrd");
+        // read file
         let reader = new FileReader();
         reader.readAsArrayBuffer(nrrd_file);
         reader.onload = function () {
+          // create volume
           let volume = larvitar.importNRRDImage(reader.result);
-          volume.data = volume.data.map(e => e * 100);
-
+          // define mask properties
           let properties = {
-            color: "#00ff00",
+            // color: "#00ff00",
             opacity: 0.2,
             labelId: 0
           };
-
+          // add to viewport
           larvitar.addSegmentationMask(
             properties,
             volume.data,
@@ -121,9 +172,10 @@
             () => {
               // wait for render image to complete
               setTimeout(() => {
+                // activate brush on this labelmap
                 larvitar.setActiveLabelmap(0, "viewer");
                 larvitar.setToolActive("Brush");
-              }, 1000);
+              }, 100);
             }
           );
         };

@@ -38,7 +38,7 @@ const config = {
   radius: 10,
   minRadius: 1,
   maxRadius: 50,
-  segmentsPerLabelmap: 512 * 512, // TODO set based on mask array type
+  segmentsPerLabelmap: 10,
   fillAlpha: 0.9,
   fillAlphaInactive: 0.9,
   outlineAlpha: 1.0,
@@ -46,16 +46,6 @@ const config = {
   outlineWidth: 1,
   storeHistory: true
 };
-
-// This map contains the values of the mask pixels inside the volume
-// const MAP_VALUES = {
-//   pancreas_a: 219,
-//   pancreas_v: null,
-//   svs: 287,
-//   vein: 16,
-//   spleen: 220,
-//   lesion: 1
-// };
 
 // ====================================================
 // utils to convert from hex to rgb and vice-versa ====
@@ -85,6 +75,41 @@ export function hexToRgb(hex) {
 }
 
 /**
+ * Convert color from hsv to rgb
+ * @param {Array} color as [h,s,v] 0-1
+ * @returns color as [r,g,b] 0-255
+ */
+function HSVtoRGB([h, s, v]) {
+  var r, g, b, i, f, p, q, t;
+  i = Math.floor(h * 6);
+  f = h * 6 - i;
+  p = v * (1 - s);
+  q = v * (1 - f * s);
+  t = v * (1 - (1 - f) * s);
+  switch (i % 6) {
+    case 0:
+      (r = v), (g = t), (b = p);
+      break;
+    case 1:
+      (r = q), (g = v), (b = p);
+      break;
+    case 2:
+      (r = p), (g = v), (b = t);
+      break;
+    case 3:
+      (r = p), (g = q), (b = v);
+      break;
+    case 4:
+      (r = t), (g = p), (b = v);
+      break;
+    case 5:
+      (r = v), (g = p), (b = q);
+      break;
+  }
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+
+/**
  * Force cs tools refresh on all enabled images
  */
 export function forceRender() {
@@ -94,38 +119,26 @@ export function forceRender() {
 
 /**
  * Generate the custom LUT - single volume version
- * detach store, use params
  */
 
-// function generateLUT() {
-//   let lut = new Array(2 ** 16);
-//   lut.fill([0, 0, 0, 0]);
+function generateLUT(opacity) {
+  let lut = new Array(segModule.configuration.segmentsPerLabelmap).fill(0);
+  lut = lut.map((e, i) => {
+    return HSVtoRGB([i / lut.length, 1, 1]).concat(Math.round(opacity * 255));
+  });
 
-//   for (let tag in MAP_VALUES) {
-//     let value = MAP_VALUES[tag];
+  return lut;
+}
 
-//     if (!value) continue;
-
-//     let opacity =
-//       store.state.segmentations[tag].visualization == 1
-//         ? 0
-//         : Math.round(store.state.segmentations[tag].opacity * 255);
-
-//     let color = hexToRgb(store.state.segmentations[tag].color);
-
-//     lut[value] = color.concat(opacity);
-//   }
-
-//   return lut;
-// }
+window.generateLUT = generateLUT;
 
 /**
  * Generate the custom LUT - multiple volume version
  * @param {String} hex_color - color for LUT in the #RRGGBB form
  * @param {NUmber} opacity - number between 0 and 1
  */
-function generateLUT(hex_color, opacity) {
-  let lut = new Array(config.segmentsPerLabelmap);
+function generateUniformLUT(hex_color, opacity) {
+  let lut = new Array(segModule.configuration.segmentsPerLabelmap);
   let rgb_color = hexToRgb(hex_color);
   let rgba_color = rgb_color.concat(Math.round(opacity * 255));
   lut.fill(rgba_color);
@@ -146,17 +159,19 @@ export function initSegmentationModule() {
  * @param {Number} labelId - The label index (must be unique)
  * @param {TypedArray} - The mask data array
  */
-export function addSegmentationMask(props, data, elementId, callback) {
+export function addSegmentationMask(props, data, elementId, cb) {
   let element = document.getElementById(elementId);
-  let customLUT = generateLUT(props.color, props.opacity);
-  setters.colorLUT(props.labelId, customLUT);
   setters.labelmap3DForElement(element, data.buffer, props.labelId);
-
+  // if user set a color property, use that color for all segments on the labelmap
+  let lut = props.color
+    ? generateUniformLUT(props.color, props.opacity)
+    : generateLUT(props.opacity);
+  setters.colorLUT(props.labelId, lut);
   // bind labelmap to colorLUT
   let labelmap3d = getters.labelmap3D(element, props.labelId);
   setters.colorLUTIndexForLabelmap3D(labelmap3d, props.labelId);
-  if (callback) {
-    callback();
+  if (cb) {
+    cb();
   }
 }
 

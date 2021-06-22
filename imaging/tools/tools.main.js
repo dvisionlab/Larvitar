@@ -31,7 +31,7 @@ const initializeCSTools = function (settings, style) {
   // cornerstoneTools.external.Hammer = Hammer;
   extend(DEFAULT_SETTINGS, settings);
 
-  // hack to fix warning on init()
+  // hack to fix warning on init() - but breaks labelmap 0 auto generation
   // see https://github.com/cornerstonejs/cornerstoneTools/issues/1395
   cornerstoneTools.getModule(
     "segmentation"
