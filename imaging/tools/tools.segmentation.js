@@ -186,6 +186,16 @@ export function setActiveLabelmap(labelId, elementId) {
 }
 
 /**
+ * Activate a specific segment through its index
+ * @param {Number} segmentIndex - The segment index to activate
+ * @param {String} elementId - The target html element id
+ */
+export function setActiveSegment(segmentIndex, elementId) {
+  let element = document.getElementById(elementId);
+  setters.activeSegmentIndex(element, segmentIndex);
+}
+
+/**
  * Change opacity for active label
  * @param {Number} opacity - The desired opacity value
  */
@@ -326,8 +336,8 @@ export function getActiveLabelmapBuffer() {
 /**
  * Undo last brush operation (stroke)
  */
-export function undoLastStroke() {
-  let element = document.getElementById("axial");
+export function undoLastStroke(elementId) {
+  let element = document.getElementById(elementId);
   let activeLabelMapIndex = segModule.getters.activeLabelmapIndex(element);
   setters.undo(element, activeLabelMapIndex);
 }
@@ -335,8 +345,8 @@ export function undoLastStroke() {
 /**
  * Redo last brush operation (stroke)
  */
-export function redoLastStroke() {
-  let element = document.getElementById("axial");
+export function redoLastStroke(elementId) {
+  let element = document.getElementById(elementId);
   let activeLabelMapIndex = segModule.getters.activeLabelmapIndex(element);
   setters.redo(element, activeLabelMapIndex);
 }

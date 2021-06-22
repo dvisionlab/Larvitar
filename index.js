@@ -134,7 +134,10 @@ import {
 import {
   initSegmentationModule,
   addSegmentationMask,
-  setActiveLabelmap
+  setActiveLabelmap,
+  setActiveSegment,
+  undoLastStroke,
+  redoLastStroke
 } from "./imaging/tools/tools.segmentation";
 
 import {
@@ -346,5 +349,8 @@ export {
   // tools.segmentation
   initSegmentationModule,
   addSegmentationMask,
-  setActiveLabelmap
+  setActiveLabelmap,
+  setActiveSegment,
+  undoLastStroke,
+  redoLastStroke
 };
