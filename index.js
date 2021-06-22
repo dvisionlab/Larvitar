@@ -132,6 +132,15 @@ import {
 } from "./imaging/tools/tools.default";
 
 import {
+  initSegmentationModule,
+  addSegmentationMask,
+  setActiveLabelmap,
+  setActiveSegment,
+  undoLastStroke,
+  redoLastStroke
+} from "./imaging/tools/tools.segmentation";
+
+import {
   populateLarvitarManager,
   getLarvitarManager,
   getLarvitarImageTracker,
@@ -336,5 +345,12 @@ export {
   saveAnnotations,
   loadAnnotations,
   // tools.interaction
-  addMouseKeyHandlers
+  addMouseKeyHandlers,
+  // tools.segmentation
+  initSegmentationModule,
+  addSegmentationMask,
+  setActiveLabelmap,
+  setActiveSegment,
+  undoLastStroke,
+  redoLastStroke
 };

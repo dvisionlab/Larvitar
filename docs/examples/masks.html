@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
+    <title>Larvitar - Masks rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-8 h-100"
+        style="background-color: black"
+      ></div>
+
+      <div class="col-4 h-100">
+        <pre class="h-100">
+          <p style="color: #ffffff">
+          Example of loading a segmentation 
+          mask on the image.
+          You can modify the mask using Brush tool.
+          (press ctrl to delete instead of adding)
+          </p>
+          <button id="btn-label" class="btn btn-danger m-1" onclick="switchLabel()">Switch label</button> 
+          <button class="btn btn-primary m-1" onclick="undo()">Undo</button><button class="btn btn-primary m-1" onclick="redo()">Redo</button>
+          <code class="javascript" style="background-color: #000000">
+          <p style="font-size:0.6vw;">
+            /**
+              * Load an image as in base example, then:
+              *
+              */
+
+            async function loadMasks() {
+              larvitar.initSegmentationModule();
+      
+              // fetch data
+              let response = await fetch("./demo/" + "segmentation.nrrd");
+              let data = await response.blob();
+              let nrrd_file = new File([data], "segmentation.nrrd");
+              // read file
+              let reader = new FileReader();
+              reader.readAsArrayBuffer(nrrd_file);
+              reader.onload = function () {
+                // create volume
+                let volume = larvitar.importNRRDImage(reader.result);
+                volume.data = volume.data.map(e => e * 100);
+                // define mask properties
+                let properties = {
+                  color: "#00ff00", // optional
+                  opacity: 0.2,
+                  labelId: 0
+                };
+                // add to viewport
+                larvitar.addSegmentationMask(
+                  properties,
+                  volume.data,
+                  "viewer",
+                  () => {
+                    // wait for render image to complete
+                    setTimeout(() => {
+                      // activate brush on this labelmap
+                      larvitar.setActiveLabelmap(0, "viewer");
+                      larvitar.setToolActive("Brush");
+                    }, 100);
+                  }
+                );
+              };
+            } 
+
+            /**
+            * Undo: larvitar.undoLastStroke("viewer");
+            * Redo: larvitar.redoLastStroke("viewer");
+            * Switch: larvitar.setActiveSegment(1|2, "viewer");
+            */   
+          </p>
+          </code>
+        </pre>
+      </div>
+    </div>
+
+    <script src="./larvitar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+
+    <script>
+      let demoFiles = [];
+      let counter = 0;
+
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+
+      // init all
+      larvitar.initLarvitarStore();
+      larvitar.initializeImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.registerNRRDImageLoader();
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 24) {
+          cb();
+        }
+      }
+
+      function renderSerie() {
+        larvitar.resetLarvitarManager();
+        larvitar.readFiles(demoFiles, function (seriesStack, err) {
+          if (seriesStack) {
+            // render the first series of the study
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            larvitar.renderImage(serie, "viewer");
+            larvitar.addDefaultTools();
+
+            demoFiles = [];
+            loadMasks();
+          } else {
+            console.log(err);
+          }
+        });
+      }
+
+      let demoFileList = getDemoFileNames();
+
+      _.each(demoFileList, function (demoFile) {
+        createFile(demoFile, renderSerie);
+      });
+
+      /**
+       * Load an image as in base example, then:
+       **/
+
+      async function loadMasks() {
+        larvitar.initSegmentationModule();
+
+        // fetch data
+        let response = await fetch("./demo/" + "segmentation.nrrd");
+        let data = await response.blob();
+        let nrrd_file = new File([data], "segmentation.nrrd");
+        // read file
+        let reader = new FileReader();
+        reader.readAsArrayBuffer(nrrd_file);
+        reader.onload = function () {
+          // create volume
+          let volume = larvitar.importNRRDImage(reader.result);
+          // define mask properties
+          let properties = {
+            // color: "#00ff00",
+            opacity: 0.2,
+            labelId: 0
+          };
+          // add to viewport
+          larvitar.addSegmentationMask(
+            properties,
+            volume.data,
+            "viewer",
+            () => {
+              // wait for render image to complete
+              setTimeout(() => {
+                // activate brush on this labelmap
+                larvitar.setActiveLabelmap(0, "viewer");
+                larvitar.setToolActive("Brush");
+              }, 200);
+            }
+          );
+        };
+      }
+
+      let activeLabel = 1;
+      function switchLabel() {
+        let nextLabel = activeLabel == 1 ? 2 : 1;
+        larvitar.setActiveSegment(nextLabel, "viewer");
+        activeLabel = nextLabel;
+        let btn = document.getElementById("btn-label");
+        let btnClass = btn.className;
+        if (activeLabel == 1) {
+          btn.className = btnClass.replace("warning", "danger");
+        } else {
+          btn.className = btnClass.replace("danger", "warning");
+        }
+      }
+      function undo() {
+        larvitar.undoLastStroke("viewer");
+      }
+      function redo() {
+        larvitar.redoLastStroke("viewer");
+      }
+    </script>
+  </body>
+</html>
