@@ -193,7 +193,11 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
 
   let imageFrame = getImageFrame(metadata, dataSet);
   let transferSyntax = dataSet.string("x00020010");
-  let canvas = window.document.createElement("canvas");
+
+  let canvas =
+    window.document.getElementsByTagName("canvas").length > 0
+      ? window.document.getElementsByTagName("canvas")[0]
+      : window.document.createElement("canvas");
 
   const decodePromise = cornerstoneWADOImageLoader.decodeImageFrame(
     imageFrame,

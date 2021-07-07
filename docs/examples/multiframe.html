@@ -82,7 +82,7 @@
                           let series =
                             larvitar.getSeriesDataFromLarvitarManager(seriesId);
                           frameId = frameId == numberOfFrames ? 1 : frameId + 1;
-                          larvitar.updateImage(series, "viewer", frameId);
+                          larvitar.updateImage(series, "viewer", frameId, true);
                           $("#current-frame").html(
                             "Current Frame: " + frameId + " of " + numberOfFrames
                           );
@@ -159,7 +159,7 @@
                   let series =
                     larvitar.getSeriesDataFromLarvitarManager(seriesId);
                   frameId = frameId == numberOfFrames ? 1 : frameId + 1;
-                  larvitar.updateImage(series, "viewer", frameId);
+                  larvitar.updateImage(series, "viewer", frameId, true);
                   $("#current-frame").html(
                     "Current Frame: " + frameId + " of " + numberOfFrames
                   );
