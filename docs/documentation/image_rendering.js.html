@@ -412,8 +412,14 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
  * @param {Object} series - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {Number} imageIndex - The index of the image to be rendered
+ * @param {Boolean} cacheImage - A flag to handle image cache
  */
-export const updateImage = function (series, elementId, imageIndex) {
+export const updateImage = function (
+  series,
+  elementId,
+  imageIndex,
+  cacheImage
+) {
   let element = isElement(elementId)
     ? elementId
     : document.getElementById(elementId);
@@ -422,9 +428,17 @@ export const updateImage = function (series, elementId, imageIndex) {
     return;
   }
   let index = imageIndex == 0 ? imageIndex : imageIndex - 1;
-  cornerstone.loadImage(series.imageIds[index]).then(function (image) {
-    cornerstone.displayImage(element, image);
-  });
+  if (cacheImage) {
+    cornerstone
+      .loadAndCacheImage(series.imageIds[index])
+      .then(function (image) {
+        cornerstone.displayImage(element, image);
+      });
+  } else {
+    cornerstone.loadImage(series.imageIds[index]).then(function (image) {
+      cornerstone.displayImage(element, image);
+    });
+  }
 };
 
 /**
