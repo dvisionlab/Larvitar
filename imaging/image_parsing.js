@@ -17,7 +17,8 @@ var t0 = null; // t0 variable for timing debugging purpose
 
 /*
  * This module provides the following functions to be exported:
- * readFiles(entries, callback)
+ * readFiles(fileList, callback)
+ * readFile(file, callback)
  * dumpDataSet(dataSet, metadata, customFilter)
  * clearImageParsing(seriesStack)
  */
@@ -44,13 +45,24 @@ export const clearImageParsing = function (seriesStack) {
  * Read dicom files and return allSeriesStack object
  * @instance
  * @function readFiles
- * @param {Array} entries - List of file paths
+ * @param {Array} entries - List of file objects
  * @param {Function} callback - Will receive (imageObject, errorString) as args
  */
 export const readFiles = function (entries, callback) {
   let allSeriesStack = {};
   let parsingQueue = [];
   dumpFiles(entries, parsingQueue, allSeriesStack, callback);
+};
+
+/**
+ * Read a single dicom file and return parsed object
+ * @instance
+ * @function readFile
+ * @param {File} entry - File object
+ * @param {Function} callback - Will receive (imageObject, errorString) as args
+ */
+export const readFile = function (entry, callback) {
+  dumpFile(entry, callback);
 };
 
 /* Internal module functions */

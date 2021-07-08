@@ -42,6 +42,7 @@ const resliceTable = {
  * getTypedArrayFromDataType(dataType)
  * getPixelTypedArray(dataset, pixelDataElement)
  * getSortedStack(seriesData, sortPriorities, returnSuccessMethod)
+ * getSortedUIDs(seriesData)
  * randomId()
  * getMeanValue(series, tag, isArray)
  * getReslicedMetadata(reslicedSeriesId, fromOrientation, toOrientation, seriesData, imageLoaderName)
@@ -240,6 +241,21 @@ export const getSortedStack = function (
   // sortPriorities will be shifted, so clone it before calling the tryToSort fucntion
   let clonedList = clone(sortPriorities);
   return tryToSort(seriesData, clonedList);
+};
+
+/**
+ * Sort the array of instanceUIDs according to imageIds sorted using sortSeriesStack
+ * @instance
+ * @function getSortedUIDs
+ * @param {Object} seriesData - The dataset
+ * @return {Object} The sorted instanceUIDs
+ */
+export const getSortedUIDs = function (seriesData) {
+  let instanceUIDs = {};
+  forEach(seriesData.imageIds, function (imageId) {
+    instanceUIDs[seriesData.instances[imageId].metadata.instanceUID] = imageId;
+  });
+  return instanceUIDs;
 };
 
 /**

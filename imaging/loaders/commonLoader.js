@@ -6,6 +6,7 @@
 // external libraries
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { each } from "lodash";
+import { updateLoadedStack } from "../image_loading";
 
 // internal libraries
 import { buildMultiFrameImage, clearMultiFrameCache } from "./multiframeLoader";
@@ -16,6 +17,7 @@ var imageTracker = null;
 
 /*
  * This module provides the following functions to be exported:
+ * updateLarvitarManager(imageObject)
  * populateLarvitarManager(seriesId, seriesData)
  * getLarvitarManager()
  * getLarvitarImageTracker()
@@ -24,6 +26,26 @@ var imageTracker = null;
  * getSeriesDataFromLarvitarManager(seriesId)
  * getImageFrame(metadata, dataSet)
  */
+
+/**
+ * Update and initialize larvitar manager in order to parse and load a single dicom object
+ * @instance
+ * @function updateLarvitarManager
+ * @param {Object} imageObject The single dicom object
+ */
+export const updateLarvitarManager = function (imageObject) {
+  if (larvitarManager === null) {
+    larvitarManager = {};
+  }
+  let seriesId = imageObject.seriesUID;
+  let data = { ...imageObject };
+  if (data.isMultiframe) {
+    buildMultiFrameImage(seriesId, data);
+  } else {
+    updateLoadedStack(data, larvitarManager);
+  }
+  return larvitarManager;
+};
 
 /**
  * This function can be called in order to populate the Larvitar manager
