@@ -12,7 +12,8 @@ import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { forEach } from "lodash";
 
 // internal libraries
-import { getSortedStack } from "./image_utils";
+import { larvitar_store } from "./image_store";
+import { getSortedStack, getSortedUIDs } from "./image_utils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
 import { loadMultiFrameImage } from "./loaders/multiframeLoader";
@@ -136,7 +137,8 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
   if (!allSeriesStack[sid]) {
     allSeriesStack[sid] = {
       currentImageIdIndex: 0,
-      imageIds: [],
+      imageIds: [], // (ordered)
+      instanceUIDs: {}, // instanceUID: imageId (ordered)
       instances: {},
       seriesDescription: seriesDescription,
       larvitarSeriesInstanceUID: sid,
@@ -175,6 +177,9 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
       ["imagePosition"],
       true
     );
+    // populate the ordered dictionary of instanceUIDs
+    allSeriesStack[sid].instanceUIDs = getSortedUIDs(allSeriesStack[sid]);
+    larvitar_store.addSeriesIds(sid, allSeriesStack[sid].imageIds);
   }
 };
 

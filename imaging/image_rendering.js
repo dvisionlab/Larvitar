@@ -261,17 +261,15 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
 
   let series = { ...seriesStack };
 
-  let seriesInStore = larvitar_store.get("series");
-
-  if (!has(seriesInStore, series.seriesUID)) {
-    larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
-  }
-
   // default to 0 if multiframe and frameId is null
-  let frameId = series.isMultiframe ? 1 : null;
+  // let frameId = series.isMultiframe ? 1 : null;
 
   larvitar_store.set("renderingStatus", [elementId, false]);
-  let data = getSeriesData(series, frameId, defaultProps);
+  let data = getSeriesData(series, defaultProps);
+  if (!data.imageId) {
+    console.warn("Error during renderImage: imageId has not been loaded yet.");
+    return;
+  }
 
   // load and display one image (imageId)
   cornerstone.loadImage(data.imageId).then(function (image) {
@@ -346,7 +344,6 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
   });
 
   csToolsCreateStack(element, series.imageIds, data.imageIndex - 1);
-  // toggleMouseHandlers(elementId);
   toggleMouseToolsListeners(elementId);
 };
 
@@ -690,13 +687,18 @@ let getSeriesData = function (series, defaultProps) {
     data.imageIndex = 1;
     data.imageId = series.imageIds[0];
   } else {
-    data.numberOfSlices = series.imageIds.length;
+    data.numberOfSlices =
+      defaultProps && has(defaultProps, "numberOfSlices")
+        ? defaultProps["numberOfSlices"]
+        : series.imageIds.length;
+
     data.imageIndex =
       defaultProps &&
       has(defaultProps, "sliceNumber") &&
-      defaultProps["sliceNumber"] <= series.imageIds.length
+      defaultProps["sliceNumber"] <= data.numberOfSlices
         ? defaultProps["sliceNumber"]
-        : Math.floor(series.imageIds.length / 2);
+        : Math.floor(data.numberOfSlices / 2);
+
     data.imageId =
       data.imageIndex > 0
         ? series.imageIds[data.imageIndex - 1]

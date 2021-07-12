@@ -65,6 +65,7 @@ import {
 } from "./imaging/image_loading";
 
 import {
+  readFile,
   readFiles,
   dumpDataSet,
   clearImageParsing
@@ -141,6 +142,7 @@ import {
 } from "./imaging/tools/tools.segmentation";
 
 import {
+  updateLarvitarManager,
   populateLarvitarManager,
   getLarvitarManager,
   getLarvitarImageTracker,
@@ -245,6 +247,7 @@ export {
   registerMultiFrameImageLoader,
   updateLoadedStack,
   // image_parsing
+  readFile,
   readFiles,
   dumpDataSet,
   clearImageParsing,
@@ -279,6 +282,7 @@ export {
   // image_contours
   parseContours,
   // loaders/commonLoader
+  updateLarvitarManager,
   populateLarvitarManager,
   getLarvitarManager,
   getLarvitarImageTracker,
