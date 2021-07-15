@@ -86,8 +86,8 @@ export const buildNrrdImage = function (volume, seriesId, custom_header) {
       volume.header["space directions"][2][2] *
         volume.header["space directions"][2][2]
   );
-  header.volume.rows = volume.header.sizes[0];
-  header.volume.cols = volume.header.sizes[1];
+  header.volume.rows = volume.header.sizes[1];
+  header.volume.cols = volume.header.sizes[0];
   header.volume.numberOfSlices = volume.header.sizes[2];
   header.volume.imagePosition = volume.header["space origin"];
   header.volume.pixelSpacing = [spacing_x, spacing_y];
@@ -107,8 +107,8 @@ export const buildNrrdImage = function (volume, seriesId, custom_header) {
     ? custom_header.acquisition_date
     : "";
 
-  let rows = volume.header.sizes[0];
-  let cols = volume.header.sizes[1];
+  let rows = volume.header.sizes[1];
+  let cols = volume.header.sizes[0];
   let frames = volume.header.sizes[2];
   let iop = volume.header["space directions"][0].concat(
     volume.header["space directions"][1]
