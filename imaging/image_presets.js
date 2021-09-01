@@ -100,10 +100,15 @@ export const setImageCustomPreset = function (viewportNames, customValues) {
   }
   each(viewportNames, function (viewportName) {
     let element = document.getElementById(viewportName);
-    if (!element) {
-      console.warn("No element with id", viewportName);
+    let enabledElement;
+
+    try {
+      enabledElement = cornerstone.getEnabledElement(element);
+    } catch {
+      console.warn("No enabledElement with id", viewportName);
       return;
     }
+
     let viewport = cornerstone.getViewport(element);
     viewport.voi.windowWidth = customValues.ww;
     viewport.voi.windowCenter = customValues.wl;
