@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>image_loading.js - Larvitar</title>
+    <title>tools/tools.interaction.js - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,7 +40,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">image_loading.js</h1>
+    <h1 class="page-title">tools/tools.interaction.js</h1>
     
 
     
@@ -50,209 +50,172 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** @module imaging/loading
- *  @desc This file provides functionalities for
- *        initialize, configure and update WadoImageLoader
- */
+            <pre class="prettyprint source linenums"><code>import { DEFAULT_MOUSE_KEYS } from "./tools.default";
+import { setToolActive } from "./tools.main";
+import { isElement } from "../image_utils";
+import { larvitar_store } from "../image_store";
+import { updateViewportData } from "../image_rendering";
 
-// external libraries
-import cornerstone from "cornerstone-core";
-import dicomParser from "dicom-parser";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import cornerstoneWebImageLoader from "cornerstone-web-image-loader";
-import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
-import { forEach } from "lodash";
-
-// internal libraries
-import { larvitar_store } from "./image_store";
-import { getSortedStack, getSortedUIDs } from "./image_utils";
-import { loadNrrdImage } from "./loaders/nrrdLoader";
-import { loadReslicedImage } from "./loaders/resliceLoader";
-import { loadMultiFrameImage } from "./loaders/multiframeLoader";
+import { throttle } from "lodash";
+import * as keyCodes from "keycode-js";
 
 /**
- * Global standard configuration
- * @inner
- * @var {Object} globalConfig
- * @property {Number} maxWebWorkers - number of maximum web workers
- * @property {String} webWorkerPath - path to default WADO web worker
- * @property {} - see https://github.com/cornerstonejs/cornerstoneWADOImageLoader/blob/master/docs/WebWorkers.md
+ * TOOLS INTERACTIONS TODOS:
+ * - enable touch controls
+ * - rework active tools / ui labels sync (we can get all active tools from cornerstoneTools state, then check the button / input method to update the correct label, or update all props scale, translation and voi)
+ * - use config to setup all interactions (mouse left/right, keyboard shortcuts, touch inputs)
  */
-const globalConfig = {
-  maxWebWorkers: navigator.hardwareConcurrency || 1,
-  webWorkerPath: "/cornerstoneWADOImageLoaderWebWorker.js",
-  startWebWorkersOnDemand: true,
-  taskConfiguration: {
-    decodeTask: {
-      loadCodecsOnStartup: true,
-      initializeCodecsOnStartup: false,
-      codecsPath: "/cornerstoneWADOImageLoaderCodecs.js",
-      usePDFJS: false
-    }
+
+/**
+ * Setup mouse handler modifiers and keyboard shortcuts
+ * NOTE: at the moment only mouse right button is affected
+ * Improvements could be:
+ * - "restore previous active tool" instead of passed "default" tool
+ * - manage left button (an idea could be to cycle over object keys for both buttons)
+ * - possibility to change modifier keys
+ * @param {Object} config - see tools.default
+ * @param {Array} viewports - The hmtl element ids to be used for tool activation.
+ */
+
+export function addMouseKeyHandlers(config, viewports) {
+  if (!config) {
+    config = DEFAULT_MOUSE_KEYS;
   }
-};
 
-/*
- * This module provides the following functions to be exported:
- * initializeImageLoader(config)
- * initializeWebImageLoader()
- * initializeFileImageLoader()
- * registerNRRDImageLoader()
- * registerResliceLoader()
- * updateLoadedStack(seriesData, allSeriesStack)
- */
-
-/**
- * Configure cornerstoneWADOImageLoader
- * @instance
- * @function initializeImageLoader
- * @param {Object} config - Custom config @default globalConfig
- */
-export const initializeImageLoader = function (config) {
-  let imageLoaderConfig = config ? config : globalConfig;
-  cornerstoneWADOImageLoader.webWorkerManager.initialize(imageLoaderConfig);
-  cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-  cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
-};
-
-/**
- * Configure cornerstoneWebImageLoader
- * @instance
- * @function initializeWebImageLoader
- */
-export const initializeWebImageLoader = function () {
-  cornerstoneWebImageLoader.external.cornerstone = cornerstone;
-  cornerstoneWebImageLoader.configure({
-    beforeSend: function () {
-      // add xhr as function arg
-      // Add custom headers here (e.g. auth tokens)
-      // xhr.setRequestHeader('x-auth-token', 'my auth token');
-    }
+  // Prevent context menu on right click
+  document.addEventListener("contextmenu", evt => {
+    evt.preventDefault();
+    return false;
   });
-};
 
-/**
- * Configure cornerstoneFileImageLoader
- * @instance
- * @function initializeFileImageLoader
- */
-export const initializeFileImageLoader = function () {
-  cornerstoneFileImageLoader.external.cornerstone = cornerstone;
-};
+  function onKeyDown(evt) {
+    // keyboard shortcuts (activate on left mouse button)
+    let codes = config.keyboard_shortcuts
+      ? Object.keys(config.keyboard_shortcuts).map(key => keyCodes[key])
+      : [];
 
-/**
- * Register custom NRRD ImageLoader
- * @instance
- * @function registerNRRDImageLoader
- */
-export const registerNRRDImageLoader = function () {
-  cornerstone.registerImageLoader("nrrdLoader", loadNrrdImage);
-};
+    if (codes.includes(evt.keyCode) &amp;&amp; evt.altKey) {
+      evt.preventDefault(); // avoid browser menu selections
 
-/**
- * Register custom Reslice ImageLoader
- * @instance
- * @function registerResliceLoader
- */
-export const registerResliceLoader = function () {
-  cornerstone.registerImageLoader("resliceLoader", loadReslicedImage);
-};
-
-/**
- * Register custom MultiFrame ImageLoader
- * @instance
- * @function registerMultiFrameImageLoader
- */
-export const registerMultiFrameImageLoader = function () {
-  cornerstone.registerImageLoader("multiFrameLoader", loadMultiFrameImage);
-};
-
-/**
- * Update the allSeriesStack object using wadoImageLoader fileManager
- * @instance
- * @function updateLoadedStack
- * @param {Object} seriesData - Cornerstone series object
- * @param {String} allSeriesStack - Dict containing all series objects
- */
-export const updateLoadedStack = function (seriesData, allSeriesStack) {
-  let sid = seriesData.metadata.seriesUID;
-  let ssid = seriesData.metadata.studyUID;
-  let iid = seriesData.metadata.instanceUID;
-  let seriesDescription = seriesData.metadata.seriesDescription;
-  let numberOfFrames = seriesData.metadata["x00280008"];
-  let modality = seriesData.metadata["x00080060"];
-  let isMultiframe = numberOfFrames > 1 ? true : false;
-  let color = cornerstoneWADOImageLoader.isColorImage(
-    seriesData.metadata["x00280004"]
-  );
-  // initialize series stack
-  if (!allSeriesStack[sid]) {
-    allSeriesStack[sid] = {
-      currentImageIdIndex: 0,
-      imageIds: [], // (ordered)
-      instanceUIDs: {}, // instanceUID: imageId (ordered)
-      instances: {},
-      seriesDescription: seriesDescription,
-      larvitarSeriesInstanceUID: sid,
-      seriesUID: sid,
-      studyUID: ssid,
-      numberOfImages: 0,
-      numberOfFrames: numberOfFrames,
-      isMultiframe: isMultiframe,
-      modality: modality,
-      color: color,
-      bytes: 0
-    };
-  }
-
-  // if the parsed file is a new series instance, keep it
-  if (isNewInstance(allSeriesStack[sid].instances, iid)) {
-    // generate an imageId for the file and store it
-    // in allSeriesStack imageIds array, used by
-    // cornerstoneWADOImageLoader to display the stack of images
-    let imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(
-      seriesData.file
-    );
-
-    allSeriesStack[sid].imageIds.push(imageId);
-    allSeriesStack[sid].numberOfImages += 1;
-    allSeriesStack[sid].bytes += seriesData.file.size;
-    // store needed instance tags
-    allSeriesStack[sid].instances[imageId] = {
-      metadata: seriesData.metadata,
-      file: seriesData.file,
-      dataSet: seriesData.dataSet
-    };
-    // order images in stack
-    allSeriesStack[sid].imageIds = getSortedStack(
-      allSeriesStack[sid],
-      ["imagePosition"],
-      true
-    );
-    // populate the ordered dictionary of instanceUIDs
-    allSeriesStack[sid].instanceUIDs = getSortedUIDs(allSeriesStack[sid]);
-    larvitar_store.addSeriesIds(sid, allSeriesStack[sid].imageIds);
-  }
-};
-
-/* Internal module functions */
-
-/**
- * Check if the instance is new or not
- * @inner
- * @function isNewInstance
- * @param {Object} instances - instances already loaded
- * @param {String} iid - instance uid to check
- * @return {Bool} True if is new instance, false if already present
- */
-let isNewInstance = function (instances, iid) {
-  let isNewInstance = true;
-  forEach(instances, function (instance) {
-    if (instance.metadata.instanceUID === iid) {
-      isNewInstance = false;
+      let key = Object.keys(config.keyboard_shortcuts)
+        .filter(key => keyCodes[key] == evt.keyCode)
+        .pop();
+      if (config.debug) console.log("active", config.keyboard_shortcuts[key]);
+      setToolActive(
+        config.keyboard_shortcuts[key],
+        { mouseButtonMask: 1 },
+        viewports
+      );
+      document.addEventListener("keydown", onKeyDown, { once: true });
     }
-  });
-  return isNewInstance;
+    // right drag + shift
+    else if (
+      config.mouse_button_right &amp;&amp;
+      config.mouse_button_right.shift &amp;&amp;
+      evt.keyCode == keyCodes.KEY_SHIFT
+    ) {
+      if (config.debug) console.log("active", config.mouse_button_right.shift);
+      setToolActive(
+        config.mouse_button_right.shift,
+        { mouseButtonMask: 2 },
+        viewports
+      );
+      document.addEventListener("keyup", onKeyUp, { once: true });
+    }
+    // right drag + ctrl
+    else if (
+      config.mouse_button_right &amp;&amp;
+      config.mouse_button_right.ctrl &amp;&amp;
+      evt.keyCode == keyCodes.KEY_CONTROL
+    ) {
+      if (config.debug) console.log("active", config.mouse_button_right.ctrl);
+      setToolActive(
+        config.mouse_button_right.ctrl,
+        { mouseButtonMask: 2 },
+        viewports
+      );
+      document.addEventListener("keyup", onKeyUp, { once: true });
+    }
+    // leave default
+    else {
+      document.addEventListener("keydown", onKeyDown, { once: true });
+      return;
+    }
+  }
+
+  function onKeyUp(e) {
+    if (config.debug)
+      console.log("active default", config.mouse_button_right.default);
+    setToolActive(
+      config.mouse_button_right.default,
+      { mouseButtonMask: 2 },
+      viewports
+    );
+    document.addEventListener("keydown", onKeyDown, { once: true });
+  }
+
+  // activate default, if any
+
+  if (config.mouse_button_right &amp;&amp; config.mouse_button_right.default) {
+    setToolActive(
+      config.mouse_button_right.default,
+      { mouseButtonMask: 2 },
+      viewports
+    );
+  }
+
+  if (config.mouse_button_left &amp;&amp; config.mouse_button_left.default) {
+    setToolActive(
+      config.mouse_button_left.default,
+      { mouseButtonMask: 1 },
+      viewports
+    );
+  }
+
+  document.addEventListener("keydown", onKeyDown, { once: true });
+}
+
+/**
+ * Add event handlers to mouse move
+ * @instance
+ * @function toggleMouseHandlers
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Boolean} disable - If true disable handlers, default is false
+ */
+export const toggleMouseToolsListeners = function (elementId, disable) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+
+  // mouse move handler (throttled)
+  let mouseMoveHandler = throttle(function (evt) {
+    let activeTool =
+      evt.detail.buttons == 1
+        ? larvitar_store.get("leftActiveTool")
+        : larvitar_store.get("rightActiveTool");
+    updateViewportData(evt.srcElement.id, evt.detail.viewport, activeTool);
+  }, 500);
+
+  // mouse wheel handler
+  function mouseWheelHandler(evt) {
+    larvitar_store.set("sliceId", [evt.target.id, evt.detail.newImageIdIndex]);
+  }
+
+  if (disable) {
+    element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+    element.removeEventListener(
+      "cornerstonetoolsstackscroll",
+      mouseWheelHandler
+    );
+    return;
+  }
+
+  element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
+  element.addEventListener("cornerstonetoolsstackscroll", mouseWheelHandler);
 };
 </code></pre>
         </article>

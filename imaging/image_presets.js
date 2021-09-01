@@ -10,6 +10,21 @@ import { each, find } from "lodash";
 // internal libraries
 import { larvitar_store } from "./image_store";
 
+/**
+ * Object used to list image presets
+ * @object
+ */
+const IMAGE_PRESETS = [
+  { name: "CT: Abdomen", ww: 350, wl: 50 },
+  { name: "CT: Bone", ww: 2500, wl: 500 },
+  { name: "CT: Cerebrum", ww: 80, wl: 0 },
+  { name: "CT: Covid-19", ww: 240, wl: -860 },
+  { name: "CT: Liver", ww: 150, wl: 50 },
+  { name: "CT: Lung", ww: 1500, wl: -500 },
+  { name: "CT: Mediastinum", ww: 300, wl: 50 },
+  { name: "CT: Pelvis", ww: 400, wl: 40 }
+];
+
 /*
  * This module provides the following functions to be exported:
  * getImagePresets()
@@ -47,6 +62,15 @@ export const setImagePreset = function (viewportNames, preset_name) {
   }
   each(viewportNames, function (viewportName) {
     let element = document.getElementById(viewportName);
+    let enabledElement;
+
+    try {
+      enabledElement = cornerstone.getEnabledElement(element);
+    } catch {
+      console.warn("No enabledElement with id", viewportName);
+      return;
+    }
+
     let viewport = cornerstone.getViewport(element);
     viewport.voi.windowWidth = image_preset.ww;
     viewport.voi.windowCenter = image_preset.wl;
@@ -76,6 +100,10 @@ export const setImageCustomPreset = function (viewportNames, customValues) {
   }
   each(viewportNames, function (viewportName) {
     let element = document.getElementById(viewportName);
+    if (!element) {
+      console.warn("No element with id", viewportName);
+      return;
+    }
     let viewport = cornerstone.getViewport(element);
     viewport.voi.windowWidth = customValues.ww;
     viewport.voi.windowCenter = customValues.wl;
@@ -88,18 +116,3 @@ export const setImageCustomPreset = function (viewportNames, customValues) {
     ]);
   });
 };
-
-/**
- * Object used to list image presets
- * @object
- */
-const IMAGE_PRESETS = [
-  { name: "CT: Abdomen", ww: 350, wl: 50 },
-  { name: "CT: Bone", ww: 2500, wl: 500 },
-  { name: "CT: Cerebrum", ww: 120, wl: -40 },
-  { name: "CT: Covid-19", ww: 240, wl: -860 },
-  { name: "CT: Liver", ww: 150, wl: 50 },
-  { name: "CT: Lung", ww: 1500, wl: -500 },
-  { name: "CT: Mediastinum", ww: 300, wl: 50 },
-  { name: "CT: Pelvis", ww: 400, wl: 40 }
-];

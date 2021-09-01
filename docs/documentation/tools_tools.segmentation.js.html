@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>image_loading.js - Larvitar</title>
+    <title>tools/tools.segmentation.js - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,7 +40,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">image_loading.js</h1>
+    <h1 class="page-title">tools/tools.segmentation.js</h1>
     
 
     
@@ -50,210 +50,367 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** @module imaging/loading
- *  @desc This file provides functionalities for
- *        initialize, configure and update WadoImageLoader
- */
-
-// external libraries
+            <pre class="prettyprint source linenums"><code>// external libraries
 import cornerstone from "cornerstone-core";
-import dicomParser from "dicom-parser";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import cornerstoneWebImageLoader from "cornerstone-web-image-loader";
-import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
-import { forEach } from "lodash";
+import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
+// tools
+import { setToolActive, setToolDisabled } from "./tools.main";
+// utils
+import { cloneDeep, extend, values } from "lodash";
 
-// internal libraries
-import { larvitar_store } from "./image_store";
-import { getSortedStack, getSortedUIDs } from "./image_utils";
-import { loadNrrdImage } from "./loaders/nrrdLoader";
-import { loadReslicedImage } from "./loaders/resliceLoader";
-import { loadMultiFrameImage } from "./loaders/multiframeLoader";
+const segModule = cornerstoneTools.getModule("segmentation");
+const setters = segModule.setters;
+const getters = segModule.getters;
 
 /**
- * Global standard configuration
- * @inner
- * @var {Object} globalConfig
- * @property {Number} maxWebWorkers - number of maximum web workers
- * @property {String} webWorkerPath - path to default WADO web worker
- * @property {} - see https://github.com/cornerstonejs/cornerstoneWADOImageLoader/blob/master/docs/WebWorkers.md
+ * THIS MODULE IS A WIP
  */
-const globalConfig = {
-  maxWebWorkers: navigator.hardwareConcurrency || 1,
-  webWorkerPath: "/cornerstoneWADOImageLoaderWebWorker.js",
-  startWebWorkersOnDemand: true,
-  taskConfiguration: {
-    decodeTask: {
-      loadCodecsOnStartup: true,
-      initializeCodecsOnStartup: false,
-      codecsPath: "/cornerstoneWADOImageLoaderCodecs.js",
-      usePDFJS: false
-    }
+
+// DEV
+window.segModule = segModule;
+window.cornerstone = cornerstone;
+window.cornerstoneTools = cornerstoneTools;
+
+/**
+ * NOTES ON CS TOOLS SEGMENTATION MODULE
+ * The value in the mask (binary) define which color will be used from the LUT map
+ * The different masks are 'labelmap', while different values in the same mask are 'segments'
+ * Segments get the color from the lutmap (up to 2^16 segments) and can be shown/hidden one by one
+ * > setters.toggleSegmentVisibility(htmlelement,segmentvalue,labelmapid)
+ * > setters.colorForSegmentIndexOfColorLUT(colorLutIndex, segmentValue, colorRGBAarray)
+ * Labelmaps are linked to a colormap and can be active / inactive
+ * */
+
+// General segmentation cs tools module configuration
+const config = {
+  arrayType: 0,
+  renderOutline: false,
+  renderFill: true,
+  shouldRenderInactiveLabelmaps: true,
+  radius: 10,
+  minRadius: 1,
+  maxRadius: 50,
+  segmentsPerLabelmap: 10,
+  fillAlpha: 0.9,
+  fillAlphaInactive: 0.9,
+  outlineAlpha: 1.0,
+  outlineAlphaInactive: 1.0,
+  outlineWidth: 1,
+  storeHistory: true
+};
+
+// ====================================================
+// utils to convert from hex to rgb and vice-versa ====
+// ====================================================
+
+function componentToHex(c) {
+  var hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
+
+export function rgbToHex(c) {
+  let r = componentToHex(c[0]);
+  let g = componentToHex(c[1]);
+  let b = componentToHex(c[2]);
+  return "#" + r + g + b;
+}
+
+export function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16)
+      ]
+    : null;
+}
+
+/**
+ * Convert color from hsv to rgb
+ * @param {Array} color as [h,s,v] 0-1
+ * @returns color as [r,g,b] 0-255
+ */
+function HSVtoRGB([h, s, v]) {
+  var r, g, b, i, f, p, q, t;
+  i = Math.floor(h * 6);
+  f = h * 6 - i;
+  p = v * (1 - s);
+  q = v * (1 - f * s);
+  t = v * (1 - (1 - f) * s);
+  switch (i % 6) {
+    case 0:
+      (r = v), (g = t), (b = p);
+      break;
+    case 1:
+      (r = q), (g = v), (b = p);
+      break;
+    case 2:
+      (r = p), (g = v), (b = t);
+      break;
+    case 3:
+      (r = p), (g = q), (b = v);
+      break;
+    case 4:
+      (r = t), (g = p), (b = v);
+      break;
+    case 5:
+      (r = v), (g = p), (b = q);
+      break;
   }
-};
-
-/*
- * This module provides the following functions to be exported:
- * initializeImageLoader(config)
- * initializeWebImageLoader()
- * initializeFileImageLoader()
- * registerNRRDImageLoader()
- * registerResliceLoader()
- * updateLoadedStack(seriesData, allSeriesStack)
- */
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
 
 /**
- * Configure cornerstoneWADOImageLoader
- * @instance
- * @function initializeImageLoader
- * @param {Object} config - Custom config @default globalConfig
+ * Force cs tools refresh on all enabled images
  */
-export const initializeImageLoader = function (config) {
-  let imageLoaderConfig = config ? config : globalConfig;
-  cornerstoneWADOImageLoader.webWorkerManager.initialize(imageLoaderConfig);
-  cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-  cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
-};
+export function forceRender() {
+  let enabledElement = cornerstone.getEnabledElements().slice().pop();
+  cornerstone.updateImage(enabledElement.element);
+}
 
 /**
- * Configure cornerstoneWebImageLoader
- * @instance
- * @function initializeWebImageLoader
+ * Generate the custom LUT - single volume version
  */
-export const initializeWebImageLoader = function () {
-  cornerstoneWebImageLoader.external.cornerstone = cornerstone;
-  cornerstoneWebImageLoader.configure({
-    beforeSend: function () {
-      // add xhr as function arg
-      // Add custom headers here (e.g. auth tokens)
-      // xhr.setRequestHeader('x-auth-token', 'my auth token');
-    }
+
+function generateLUT(opacity) {
+  let lut = new Array(segModule.configuration.segmentsPerLabelmap).fill(0);
+  lut = lut.map((e, i) => {
+    return HSVtoRGB([i / lut.length, 1, 1]).concat(Math.round(opacity * 255));
   });
-};
+
+  return lut;
+}
+
+window.generateLUT = generateLUT;
 
 /**
- * Configure cornerstoneFileImageLoader
- * @instance
- * @function initializeFileImageLoader
+ * Generate the custom LUT - multiple volume version
+ * @param {String} hex_color - color for LUT in the #RRGGBB form
+ * @param {NUmber} opacity - number between 0 and 1
  */
-export const initializeFileImageLoader = function () {
-  cornerstoneFileImageLoader.external.cornerstone = cornerstone;
-};
+function generateUniformLUT(hex_color, opacity) {
+  let lut = new Array(segModule.configuration.segmentsPerLabelmap);
+  let rgb_color = hexToRgb(hex_color);
+  let rgba_color = rgb_color.concat(Math.round(opacity * 255));
+  lut.fill(rgba_color);
+  return lut;
+}
 
 /**
- * Register custom NRRD ImageLoader
- * @instance
- * @function registerNRRDImageLoader
+ * A function to group all settings to load before masks
+ * TODO add a param to override config
  */
-export const registerNRRDImageLoader = function () {
-  cornerstone.registerImageLoader("nrrdLoader", loadNrrdImage);
-};
+export function initSegmentationModule() {
+  // set configuration
+  segModule.configuration = cloneDeep(config);
+}
 
 /**
- * Register custom Reslice ImageLoader
- * @instance
- * @function registerResliceLoader
+ * Add segmentation mask to segmentation module
+ * @param {Number} labelId - The label index (must be unique)
+ * @param {TypedArray} - The mask data array
  */
-export const registerResliceLoader = function () {
-  cornerstone.registerImageLoader("resliceLoader", loadReslicedImage);
-};
+export function addSegmentationMask(props, data, elementId, cb) {
+  let element = document.getElementById(elementId);
+  setters.labelmap3DForElement(element, data.buffer, props.labelId);
+  // if user set a color property, use that color for all segments on the labelmap
+  let lut = props.color
+    ? generateUniformLUT(props.color, props.opacity)
+    : generateLUT(props.opacity);
+  setters.colorLUT(props.labelId, lut);
+  // bind labelmap to colorLUT
+  let labelmap3d = getters.labelmap3D(element, props.labelId);
+  setters.colorLUTIndexForLabelmap3D(labelmap3d, props.labelId);
+  if (cb) {
+    cb();
+  }
+}
 
 /**
- * Register custom MultiFrame ImageLoader
- * @instance
- * @function registerMultiFrameImageLoader
+ * Activate a specific labelmap through its labelId
+ * @param {Number} labelId - The labelmap id to activate
+ * @param {String} elementId - The target html element id
  */
-export const registerMultiFrameImageLoader = function () {
-  cornerstone.registerImageLoader("multiFrameLoader", loadMultiFrameImage);
-};
+export function setActiveLabelmap(labelId, elementId) {
+  let element = document.getElementById(elementId);
+  setters.activeLabelmapIndex(element, labelId);
+}
 
 /**
- * Update the allSeriesStack object using wadoImageLoader fileManager
- * @instance
- * @function updateLoadedStack
- * @param {Object} seriesData - Cornerstone series object
- * @param {String} allSeriesStack - Dict containing all series objects
+ * Activate a specific segment through its index
+ * @param {Number} segmentIndex - The segment index to activate
+ * @param {String} elementId - The target html element id
  */
-export const updateLoadedStack = function (seriesData, allSeriesStack) {
-  let sid = seriesData.metadata.seriesUID;
-  let ssid = seriesData.metadata.studyUID;
-  let iid = seriesData.metadata.instanceUID;
-  let seriesDescription = seriesData.metadata.seriesDescription;
-  let numberOfFrames = seriesData.metadata["x00280008"];
-  let modality = seriesData.metadata["x00080060"];
-  let isMultiframe = numberOfFrames > 1 ? true : false;
-  let color = cornerstoneWADOImageLoader.isColorImage(
-    seriesData.metadata["x00280004"]
+export function setActiveSegment(segmentIndex, elementId) {
+  let element = document.getElementById(elementId);
+  setters.activeSegmentIndex(element, segmentIndex);
+}
+
+/**
+ * Change opacity for active label
+ * @param {Number} opacity - The desired opacity value
+ */
+export function setActiveLabelOpacity(opacity) {
+  segModule.configuration.fillAlpha = opacity;
+  forceRender();
+}
+
+/**
+ * Change opacity for inactive labels
+ * @param {Number} opacity - The desired opacity value
+ */
+export function setInactiveLabelOpacity(opacity) {
+  segModule.configuration.fillAlphaInactive = opacity;
+  forceRender();
+}
+
+/**
+ * Toggle between 'contours mode' and 'filled mode'
+ * @param {Bool} toggle - Contour mode enabled if true
+ */
+export function toggleContourMode(toggle) {
+  if (toggle) {
+    segModule.configuration.fillAlpha = 0.0;
+    segModule.configuration.fillAlphaInactive = 0.0;
+    segModule.configuration.outlineAlpha = 1.0;
+    segModule.configuration.outlineAlphaInactive = 1.0;
+    segModule.configuration.outlineWidth = 3;
+  } else {
+    segModule.configuration.fillAlpha = config.fillAlpha;
+    segModule.configuration.fillAlphaInactive = config.fillAlphaInactive;
+    segModule.configuration.outlineAlpha = config.outlineAlpha;
+    segModule.configuration.outlineAlphaInactive = config.outlineAlphaInactive;
+    segModule.configuration.outlineWidth = config.outlineWidth;
+  }
+  forceRender();
+}
+
+/**
+ * Set mask appearance props
+ * @param {String} tag - The mask tag
+ * @param {Integer} mode - [0=filled, 1=contour, 2=hidden]
+ * @param {Float} alpha - Opacity value (if mode=0), between 0 and 1
+ */
+export function setMaskProps(props) {
+  // Lut index and segment values are hardcoded because they will depend on design choices:
+  // eg single/multiple volumes for segmentations
+  let lutIndex = props.labelId;
+  let labelIndex = props.labelId;
+  // let segmentValue = MAP_VALUES[props.id];
+  let segmentValue = 1; // binary mask, segment 1 is the only to be affected by color &amp; opacity
+  let currentColor = getters.colorForSegmentIndexColorLUT(
+    props.labelId,
+    segmentValue
   );
-  // initialize series stack
-  if (!allSeriesStack[sid]) {
-    allSeriesStack[sid] = {
-      currentImageIdIndex: 0,
-      imageIds: [], // (ordered)
-      instanceUIDs: {}, // instanceUID: imageId (ordered)
-      instances: {},
-      seriesDescription: seriesDescription,
-      larvitarSeriesInstanceUID: sid,
-      seriesUID: sid,
-      studyUID: ssid,
-      numberOfImages: 0,
-      numberOfFrames: numberOfFrames,
-      isMultiframe: isMultiframe,
-      modality: modality,
-      color: color,
-      bytes: 0
-    };
+  let htmlelement = document.getElementById("axial");
+
+  let newColor = currentColor;
+  switch (props.visualization) {
+    // full
+    case 0:
+      segModule.configuration.renderOutline = true;
+      getters.isSegmentVisible(htmlelement, segmentValue, labelIndex)
+        ? null
+        : setters.toggleSegmentVisibility(
+            htmlelement,
+            segmentValue,
+            labelIndex
+          );
+      newColor[3] = Math.round(props.opacity * 255);
+      setters.colorForSegmentIndexOfColorLUT(lutIndex, segmentValue, newColor);
+      break;
+    // contours
+    case 1:
+      segModule.configuration.renderOutline = true;
+      getters.isSegmentVisible(htmlelement, segmentValue, labelIndex)
+        ? null
+        : setters.toggleSegmentVisibility(
+            htmlelement,
+            segmentValue,
+            labelIndex
+          );
+      newColor[3] = 0;
+      setters.colorForSegmentIndexOfColorLUT(lutIndex, segmentValue, newColor);
+      break;
+    // hidden
+    case 2:
+      setters.toggleSegmentVisibility(htmlelement, segmentValue, labelIndex);
+      break;
   }
-
-  // if the parsed file is a new series instance, keep it
-  if (isNewInstance(allSeriesStack[sid].instances, iid)) {
-    // generate an imageId for the file and store it
-    // in allSeriesStack imageIds array, used by
-    // cornerstoneWADOImageLoader to display the stack of images
-    let imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(
-      seriesData.file
-    );
-
-    allSeriesStack[sid].imageIds.push(imageId);
-    allSeriesStack[sid].numberOfImages += 1;
-    allSeriesStack[sid].bytes += seriesData.file.size;
-    // store needed instance tags
-    allSeriesStack[sid].instances[imageId] = {
-      metadata: seriesData.metadata,
-      file: seriesData.file,
-      dataSet: seriesData.dataSet
-    };
-    // order images in stack
-    allSeriesStack[sid].imageIds = getSortedStack(
-      allSeriesStack[sid],
-      ["imagePosition"],
-      true
-    );
-    // populate the ordered dictionary of instanceUIDs
-    allSeriesStack[sid].instanceUIDs = getSortedUIDs(allSeriesStack[sid]);
-    larvitar_store.addSeriesIds(sid, allSeriesStack[sid].imageIds);
-  }
-};
-
-/* Internal module functions */
+  forceRender();
+}
 
 /**
- * Check if the instance is new or not
- * @inner
- * @function isNewInstance
- * @param {Object} instances - instances already loaded
- * @param {String} iid - instance uid to check
- * @return {Bool} True if is new instance, false if already present
+ * Clear state for segmentation module
  */
-let isNewInstance = function (instances, iid) {
-  let isNewInstance = true;
-  forEach(instances, function (instance) {
-    if (instance.metadata.instanceUID === iid) {
-      isNewInstance = false;
-    }
-  });
-  return isNewInstance;
-};
+export function clearSegmentationState() {
+  segModule.state.series = {};
+}
+
+/**
+ * Enable brushing
+ * @param {Number} dimension - The initial brush radius
+ */
+export function enableBrushTool(dimension, thresholds) {
+  segModule.configuration.radius = dimension;
+  segModule.configuration.thresholds = thresholds;
+  setToolActive("ThresholdsBrush");
+}
+
+/**
+ * Disable brushing
+ * @param {String} toolToActivate - The name of the tool to activate after removing the brush
+ */
+export function disableBrushTool(toolToActivate) {
+  setToolDisabled("Brush");
+  setToolActive(toolToActivate);
+}
+
+/**
+ * Change the brush props
+ * @param {Object} props - The new brush props {radius: number[px], thresholds: array[min,max]}
+ */
+export function setBrushProps(props) {
+  extend(segModule.configuration, props);
+  forceRender();
+}
+
+/**
+ * Retrieve the buffer that represents the current active mask
+ */
+export function getActiveLabelmapBuffer() {
+  let element = document.getElementById("axial");
+  let object = segModule.getters.activeLabelmapBuffer(element);
+  return object.buffer;
+}
+
+/**
+ * Undo last brush operation (stroke)
+ */
+export function undoLastStroke(elementId) {
+  let element = document.getElementById(elementId);
+  let activeLabelMapIndex = segModule.getters.activeLabelmapIndex(element);
+  setters.undo(element, activeLabelMapIndex);
+}
+
+/**
+ * Redo last brush operation (stroke)
+ */
+export function redoLastStroke(elementId) {
+  let element = document.getElementById(elementId);
+  let activeLabelMapIndex = segModule.getters.activeLabelmapIndex(element);
+  setters.redo(element, activeLabelMapIndex);
+}
+
+/**
+ * Delete mask from state
+ */
+export function deleteMask(labelId) {
+  let masks = values(segModule.state.series)[0].labelmaps3D;
+  delete masks[labelId];
+  forceRender();
+}
 </code></pre>
         </article>
     </section>

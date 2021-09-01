@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>image_loading.js - Larvitar</title>
+    <title>monitors/memory.js - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -40,7 +40,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">image_loading.js</h1>
+    <h1 class="page-title">monitors/memory.js</h1>
     
 
     
@@ -50,209 +50,110 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** @module imaging/loading
- *  @desc This file provides functionalities for
- *        initialize, configure and update WadoImageLoader
+            <pre class="prettyprint source linenums"><code>/** @module monitors/memory
+ *  @desc This file provides utility functions for
+ *        monitoring memory usage
  */
 
-// external libraries
-import cornerstone from "cornerstone-core";
-import dicomParser from "dicom-parser";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import cornerstoneWebImageLoader from "cornerstone-web-image-loader";
-import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
-import { forEach } from "lodash";
-
-// internal libraries
-import { larvitar_store } from "./image_store";
-import { getSortedStack, getSortedUIDs } from "./image_utils";
-import { loadNrrdImage } from "./loaders/nrrdLoader";
-import { loadReslicedImage } from "./loaders/resliceLoader";
-import { loadMultiFrameImage } from "./loaders/multiframeLoader";
-
-/**
- * Global standard configuration
- * @inner
- * @var {Object} globalConfig
- * @property {Number} maxWebWorkers - number of maximum web workers
- * @property {String} webWorkerPath - path to default WADO web worker
- * @property {} - see https://github.com/cornerstonejs/cornerstoneWADOImageLoader/blob/master/docs/WebWorkers.md
- */
-const globalConfig = {
-  maxWebWorkers: navigator.hardwareConcurrency || 1,
-  webWorkerPath: "/cornerstoneWADOImageLoaderWebWorker.js",
-  startWebWorkersOnDemand: true,
-  taskConfiguration: {
-    decodeTask: {
-      loadCodecsOnStartup: true,
-      initializeCodecsOnStartup: false,
-      codecsPath: "/cornerstoneWADOImageLoaderCodecs.js",
-      usePDFJS: false
-    }
-  }
-};
+// global module variables
+const backingMemory = 100 * 1048576; // 100 MB
+var customMemoryLimit = null;
 
 /*
  * This module provides the following functions to be exported:
- * initializeImageLoader(config)
- * initializeWebImageLoader()
- * initializeFileImageLoader()
- * registerNRRDImageLoader()
- * registerResliceLoader()
- * updateLoadedStack(seriesData, allSeriesStack)
+ * checkMemoryAllocation()
+ * getUsedMemory()
+ * getAvailableMemory()
+ * setAvailableMemory()
  */
 
 /**
- * Configure cornerstoneWADOImageLoader
+ * Check memory allocation and returns false if js Heap size has reached its limit
  * @instance
- * @function initializeImageLoader
- * @param {Object} config - Custom config @default globalConfig
+ * @function checkMemoryAllocation
+ * @param {Number} - Number of bytes to allocate
+ * @return {Boolean} - Returns a boolean flag to warn the user about memory allocation limit
  */
-export const initializeImageLoader = function (config) {
-  let imageLoaderConfig = config ? config : globalConfig;
-  cornerstoneWADOImageLoader.webWorkerManager.initialize(imageLoaderConfig);
-  cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-  cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
-};
-
-/**
- * Configure cornerstoneWebImageLoader
- * @instance
- * @function initializeWebImageLoader
- */
-export const initializeWebImageLoader = function () {
-  cornerstoneWebImageLoader.external.cornerstone = cornerstone;
-  cornerstoneWebImageLoader.configure({
-    beforeSend: function () {
-      // add xhr as function arg
-      // Add custom headers here (e.g. auth tokens)
-      // xhr.setRequestHeader('x-auth-token', 'my auth token');
+export const checkMemoryAllocation = function (bytes) {
+  if (checkMemorySupport()) {
+    let usedMemory = getUsedMemory();
+    let availableMemory = getAvailableMemory();
+    let isEnough = availableMemory - bytes - usedMemory > 0 ? true : false;
+    if (!isEnough) {
+      console.log("Total Memory Available is: ", getMB(availableMemory), " MB");
+      console.log("Currently Used Memory is: ", getMB(usedMemory), " MB");
+      console.log(
+        "New memory requested allocation is: ",
+        getMB(usedMemory + bytes),
+        " MB"
+      );
     }
-  });
-};
-
-/**
- * Configure cornerstoneFileImageLoader
- * @instance
- * @function initializeFileImageLoader
- */
-export const initializeFileImageLoader = function () {
-  cornerstoneFileImageLoader.external.cornerstone = cornerstone;
-};
-
-/**
- * Register custom NRRD ImageLoader
- * @instance
- * @function registerNRRDImageLoader
- */
-export const registerNRRDImageLoader = function () {
-  cornerstone.registerImageLoader("nrrdLoader", loadNrrdImage);
-};
-
-/**
- * Register custom Reslice ImageLoader
- * @instance
- * @function registerResliceLoader
- */
-export const registerResliceLoader = function () {
-  cornerstone.registerImageLoader("resliceLoader", loadReslicedImage);
-};
-
-/**
- * Register custom MultiFrame ImageLoader
- * @instance
- * @function registerMultiFrameImageLoader
- */
-export const registerMultiFrameImageLoader = function () {
-  cornerstone.registerImageLoader("multiFrameLoader", loadMultiFrameImage);
-};
-
-/**
- * Update the allSeriesStack object using wadoImageLoader fileManager
- * @instance
- * @function updateLoadedStack
- * @param {Object} seriesData - Cornerstone series object
- * @param {String} allSeriesStack - Dict containing all series objects
- */
-export const updateLoadedStack = function (seriesData, allSeriesStack) {
-  let sid = seriesData.metadata.seriesUID;
-  let ssid = seriesData.metadata.studyUID;
-  let iid = seriesData.metadata.instanceUID;
-  let seriesDescription = seriesData.metadata.seriesDescription;
-  let numberOfFrames = seriesData.metadata["x00280008"];
-  let modality = seriesData.metadata["x00080060"];
-  let isMultiframe = numberOfFrames > 1 ? true : false;
-  let color = cornerstoneWADOImageLoader.isColorImage(
-    seriesData.metadata["x00280004"]
-  );
-  // initialize series stack
-  if (!allSeriesStack[sid]) {
-    allSeriesStack[sid] = {
-      currentImageIdIndex: 0,
-      imageIds: [], // (ordered)
-      instanceUIDs: {}, // instanceUID: imageId (ordered)
-      instances: {},
-      seriesDescription: seriesDescription,
-      larvitarSeriesInstanceUID: sid,
-      seriesUID: sid,
-      studyUID: ssid,
-      numberOfImages: 0,
-      numberOfFrames: numberOfFrames,
-      isMultiframe: isMultiframe,
-      modality: modality,
-      color: color,
-      bytes: 0
-    };
+    return isEnough;
+  } else {
+    console.warn("Check Memory Allocation is not supported");
+    return true;
   }
+};
 
-  // if the parsed file is a new series instance, keep it
-  if (isNewInstance(allSeriesStack[sid].instances, iid)) {
-    // generate an imageId for the file and store it
-    // in allSeriesStack imageIds array, used by
-    // cornerstoneWADOImageLoader to display the stack of images
-    let imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(
-      seriesData.file
-    );
+/**
+ * Check performance.memory browser support and returns used Js Heap Size in Mb
+ * @instance
+ * @function getUsedMemory
+ * @return {Number} - Returns used JSHeapSize in bytes or NaN if not supported
+ */
+export const getUsedMemory = function () {
+  return checkMemorySupport() ? performance.memory.usedJSHeapSize : NaN;
+};
 
-    allSeriesStack[sid].imageIds.push(imageId);
-    allSeriesStack[sid].numberOfImages += 1;
-    allSeriesStack[sid].bytes += seriesData.file.size;
-    // store needed instance tags
-    allSeriesStack[sid].instances[imageId] = {
-      metadata: seriesData.metadata,
-      file: seriesData.file,
-      dataSet: seriesData.dataSet
-    };
-    // order images in stack
-    allSeriesStack[sid].imageIds = getSortedStack(
-      allSeriesStack[sid],
-      ["imagePosition"],
-      true
-    );
-    // populate the ordered dictionary of instanceUIDs
-    allSeriesStack[sid].instanceUIDs = getSortedUIDs(allSeriesStack[sid]);
-    larvitar_store.addSeriesIds(sid, allSeriesStack[sid].imageIds);
+/**
+ * Check performance.memory browser support and returns available Js Heap Size in Mb
+ * @instance
+ * @function getAvailableMemory
+ * @return {Number} - Returns available JSHeapSize in bytes or NaN if not supported
+ */
+export const getAvailableMemory = function () {
+  if (checkMemorySupport()) {
+    return customMemoryLimit
+      ? customMemoryLimit
+      : performance.memory.jsHeapSizeLimit - backingMemory;
+  } else {
+    return NaN;
   }
+};
+
+/**
+ * Check performance.memory browser support and returns available Js Heap Size in Mb
+ * @instance
+ * @function setAvailableMemory
+ * @param {Number} - Number of GB to set as maximum custom memory limit
+ */
+export const setAvailableMemory = function (value) {
+  customMemoryLimit = value * 1024 * 1024 * 1024;
 };
 
 /* Internal module functions */
 
 /**
- * Check if the instance is new or not
- * @inner
- * @function isNewInstance
- * @param {Object} instances - instances already loaded
- * @param {String} iid - instance uid to check
- * @return {Bool} True if is new instance, false if already present
+ * Check Browser support.
+ * Firefox and Safari are not supported
+ * See: https://developer.mozilla.org/en-US/docs/Web/API/Performance/memory
+ * @instance
+ * @function checkMemorySupport
+ * @return {Boolean} - Returns memory object or false if not supported
  */
-let isNewInstance = function (instances, iid) {
-  let isNewInstance = true;
-  forEach(instances, function (instance) {
-    if (instance.metadata.instanceUID === iid) {
-      isNewInstance = false;
-    }
-  });
-  return isNewInstance;
+const checkMemorySupport = function () {
+  return performance.memory ? performance.memory : false;
+};
+
+/**
+ * Check Browser support.
+ * @instance
+ * @function getMB
+ * @param {Number} bytes - Memory in bytes
+ * @return {Number} - Memory in MB
+ */
+const getMB = function (bytes) {
+  return bytes / 1048576;
 };
 </code></pre>
         </article>
