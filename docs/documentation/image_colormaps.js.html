@@ -141,19 +141,36 @@ export function fillPixelData(canvas, colormapId) {
  * @instance
  * @function applyColorMap
  * @param {String} colormapId - the colormap name
+ * @param {Array} viewportNames - List of viewports where to apply preset
  */
-export function applyColorMap(colormapId) {
-  let enabledElements = cornerstone.getEnabledElements();
+export function applyColorMap(colormapId, viewportNames) {
+  // for retro-compatibility
+  if (!viewportNames) {
+    viewportNames = cornerstone.getEnabledElements().map(e => e.element.id);
+  }
   let colormap = cornerstone.colors.getColormap(colormapId);
 
-  each(enabledElements, el => {
-    // HACK to bypass cornerstone bug
-    el.options = {};
-    const viewport = cornerstone.getViewport(el.element);
+  each(viewportNames, viewportName => {
+    let element = document.getElementById(viewportName);
+    let enabledElement;
+
+    try {
+      enabledElement = cornerstone.getEnabledElement(element);
+    } catch {
+      console.warn("No enabledElement with id", viewportName);
+      return;
+    }
+
+    enabledElement.options = {}; // HACK to bypass cornerstone bug
+
+    if (!enabledElement) {
+    }
+
+    const viewport = cornerstone.getViewport(element);
     if (viewport) {
       viewport.colormap = colormap;
-      cornerstone.setViewport(el.element, viewport);
-      cornerstone.updateImage(el.element, true);
+      cornerstone.setViewport(element, viewport);
+      cornerstone.updateImage(element, true);
     }
   });
 
