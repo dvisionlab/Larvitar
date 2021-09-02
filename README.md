@@ -6,11 +6,11 @@
 
 ## Dicom Image Toolkit for CornestoneJS
 
-### Current version: 0.17.2
+### Current version: 0.17.3
 
-### Latest Stable version: 0.17.2
+### Latest Stable version: 0.17.3
 
-### Latest Published Release: 0.17.2
+### Latest Published Release: 0.17.3
 
 This library provides common dicom functionalities to be used in web-applications. Multiplanar reformat on axial, sagittal and coronal viewports is included as well as custom loader/exporter for nrrd files and orthogonal reslice.
 

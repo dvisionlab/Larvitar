@@ -342,7 +342,6 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
     series = null;
     data = null;
   });
-
   csToolsCreateStack(element, series.imageIds, data.imageIndex - 1);
   toggleMouseToolsListeners(elementId);
 };

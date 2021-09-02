@@ -114,6 +114,7 @@ import {
 
 import {
   csToolsCreateStack,
+  csToolsUpdateImageIds,
   csToolsUpdateImageIndex,
   initializeCSTools,
   setToolsStyle,
@@ -331,6 +332,7 @@ export {
   setSegmentationConfig,
   // tools.main
   csToolsCreateStack,
+  csToolsUpdateImageIds,
   csToolsUpdateImageIndex,
   initializeCSTools,
   setToolsStyle,
