@@ -175,9 +175,14 @@ export const registerMultiFrameImageLoader = function () {
  * @instance
  * @function updateLoadedStack
  * @param {Object} seriesData - Cornerstone series object
- * @param {String} allSeriesStack - Dict containing all series objects
+ * @param {Object} allSeriesStack - Dict containing all series objects
+ * @param {String} customId - Optional custom id to overwrite seriesUID as default one
  */
-export const updateLoadedStack = function (seriesData, allSeriesStack) {
+export const updateLoadedStack = function (
+  seriesData,
+  allSeriesStack,
+  customId
+) {
   let sid = seriesData.metadata.seriesUID;
   let ssid = seriesData.metadata.studyUID;
   let iid = seriesData.metadata.instanceUID;
@@ -188,9 +193,10 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
   let color = cornerstoneWADOImageLoader.isColorImage(
     seriesData.metadata["x00280004"]
   );
+  let id = customId || sid;
   // initialize series stack
-  if (!allSeriesStack[sid]) {
-    allSeriesStack[sid] = {
+  if (!allSeriesStack[id]) {
+    allSeriesStack[id] = {
       currentImageIdIndex: 0,
       imageIds: [], // (ordered)
       instanceUIDs: {}, // instanceUID: imageId (ordered)
@@ -209,7 +215,7 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
   }
 
   // if the parsed file is a new series instance, keep it
-  if (isNewInstance(allSeriesStack[sid].instances, iid)) {
+  if (isNewInstance(allSeriesStack[id].instances, iid)) {
     // generate an imageId for the file and store it
     // in allSeriesStack imageIds array, used by
     // cornerstoneWADOImageLoader to display the stack of images
@@ -217,24 +223,24 @@ export const updateLoadedStack = function (seriesData, allSeriesStack) {
       seriesData.file
     );
 
-    allSeriesStack[sid].imageIds.push(imageId);
-    allSeriesStack[sid].numberOfImages += 1;
-    allSeriesStack[sid].bytes += seriesData.file.size;
+    allSeriesStack[id].imageIds.push(imageId);
+    allSeriesStack[id].numberOfImages += 1;
+    allSeriesStack[id].bytes += seriesData.file.size;
     // store needed instance tags
-    allSeriesStack[sid].instances[imageId] = {
+    allSeriesStack[id].instances[imageId] = {
       metadata: seriesData.metadata,
       file: seriesData.file,
       dataSet: seriesData.dataSet
     };
     // order images in stack
-    allSeriesStack[sid].imageIds = getSortedStack(
-      allSeriesStack[sid],
+    allSeriesStack[id].imageIds = getSortedStack(
+      allSeriesStack[id],
       ["imagePosition"],
       true
     );
     // populate the ordered dictionary of instanceUIDs
-    allSeriesStack[sid].instanceUIDs = getSortedUIDs(allSeriesStack[sid]);
-    larvitar_store.addSeriesIds(sid, allSeriesStack[sid].imageIds);
+    allSeriesStack[id].instanceUIDs = getSortedUIDs(allSeriesStack[id]);
+    larvitar_store.addSeriesIds(id, allSeriesStack[id].imageIds);
   }
 };
 

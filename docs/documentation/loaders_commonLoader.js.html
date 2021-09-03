@@ -87,17 +87,18 @@ var imageTracker = null;
  * @instance
  * @function updateLarvitarManager
  * @param {Object} imageObject The single dicom object
+ * @param {String} customId - Optional custom id to overwrite seriesUID as default one
  */
-export const updateLarvitarManager = function (imageObject) {
+export const updateLarvitarManager = function (imageObject, customId) {
   if (larvitarManager === null) {
     larvitarManager = {};
   }
-  let seriesId = imageObject.seriesUID;
+  let seriesId = customId || imageObject.seriesUID;
   let data = { ...imageObject };
   if (data.isMultiframe) {
     buildMultiFrameImage(seriesId, data);
   } else {
-    updateLoadedStack(data, larvitarManager);
+    updateLoadedStack(data, larvitarManager, customId);
   }
   return larvitarManager;
 };
