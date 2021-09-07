@@ -68,11 +68,15 @@ const csToolsCreateStack = function (element, imageIds, currentImageIndex) {
   cornerstoneTools.addToolState(element, "stack", stack);
 };
 
-export function csToolsUpdateImageIds(elementId, imageIds) {
+export function csToolsUpdateImageIds(elementId, imageIds, imageIdIndex) {
   const element = document.getElementById(elementId);
   const stackState = cornerstoneTools.getToolState(element, "stack");
   const stackData = stackState.data[0];
   stackData.imageIds = imageIds;
+  stackData.currentImageIdIndex =
+    stackData.currentImageIdIndex < imageIdIndex
+      ? stackData.currentImageIdIndex
+      : (stackData.currentImageIdIndex += 1);
 }
 
 /**
