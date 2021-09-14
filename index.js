@@ -359,5 +359,6 @@ export {
   setActiveLabelmap,
   setActiveSegment,
   undoLastStroke,
-  redoLastStroke
+  redoLastStroke,
+  setBrushProps
 };
