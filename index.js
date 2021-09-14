@@ -139,7 +139,8 @@ import {
   setActiveLabelmap,
   setActiveSegment,
   undoLastStroke,
-  redoLastStroke
+  redoLastStroke,
+  setBrushProps
 } from "./imaging/tools/tools.segmentation";
 
 import {
