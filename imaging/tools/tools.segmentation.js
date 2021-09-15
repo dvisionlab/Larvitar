@@ -113,8 +113,10 @@ function HSVtoRGB([h, s, v]) {
  * Force cs tools refresh on all enabled images
  */
 export function forceRender() {
-  let enabledElement = cornerstone.getEnabledElements().slice().pop();
-  cornerstone.updateImage(enabledElement.element);
+  let enabledElements = cornerstone.getEnabledElements();
+  enabledElements.forEach(enEl => {
+    cornerstone.updateImage(enEl.element);
+  });
 }
 
 /**
@@ -129,8 +131,6 @@ function generateLUT(opacity) {
 
   return lut;
 }
-
-window.generateLUT = generateLUT;
 
 /**
  * Generate the custom LUT - multiple volume version
