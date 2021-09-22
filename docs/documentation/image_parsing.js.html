@@ -87,7 +87,9 @@ var t0 = null; // t0 variable for timing debugging purpose
 export const clearImageParsing = function (seriesStack) {
   each(seriesStack, function (stack) {
     each(stack.instances, function (instance) {
-      instance.dataSet.byteArray = null;
+      if (instance.dataSet) {
+        instance.dataSet.byteArray = null;
+      }
       instance.dataSet = null;
       instance.file = null;
       instance.metadata = null;
