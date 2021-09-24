@@ -39,14 +39,67 @@
           <button class="btn btn-primary m-1" onclick="undo()">Undo</button><button class="btn btn-primary m-1" onclick="redo()">Redo</button>
           <code class="javascript" style="background-color: #000000">
           <p style="font-size:0.6vw;">
+            let demoFiles = [];
+            let counter = 0;
+
+            const getDemoFileNames = function () {
+              let demoFileList = [];
+              for (let i = 1; i < 25; i++) {
+                let filename = "anon" + i;
+                demoFileList.push(filename);
+              }
+              return demoFileList;
+            };
+
+            // init all
+            larvitar.initLarvitarStore();
+            larvitar.initializeImageLoader();
+            larvitar.initializeCSTools();
+            larvitar.larvitar_store.addViewport("viewer");
+            larvitar.registerNRRDImageLoader();
+
+            async function createFile(fileName, cb) {
+              let response = await fetch("./demo/" + fileName);
+              let data = await response.blob();
+              let file = new File([data], fileName);
+              demoFiles.push(file);
+              counter++;
+              if (counter == 24) {
+                cb();
+              }
+            }
+
+            function renderSerie() {
+              larvitar.resetLarvitarManager();
+              larvitar.readFiles(demoFiles, function (seriesStack, err) {
+                if (seriesStack) {
+                  // render the first series of the study
+                  let seriesId = _.keys(seriesStack)[0];
+                  let serie = seriesStack[seriesId];
+                  larvitar.renderImage(serie, "viewer").then(function () {
+                    larvitar.addDefaultTools();
+                    demoFiles = [];
+                    loadMasks();
+                  });
+                } else {
+                  console.log(err);
+                }
+              });
+            }
+
+            let demoFileList = getDemoFileNames();
+
+            _.each(demoFileList, function (demoFile) {
+              createFile(demoFile, renderSerie);
+            });
+
             /**
-              * Load an image as in base example, then:
-              *
-              */
+            * Load an image as in base example, then:
+            **/
 
             async function loadMasks() {
               larvitar.initSegmentationModule();
-      
+
               // fetch data
               let response = await fetch("./demo/" + "segmentation.nrrd");
               let data = await response.blob();
@@ -57,10 +110,9 @@
               reader.onload = function () {
                 // create volume
                 let volume = larvitar.importNRRDImage(reader.result);
-                volume.data = volume.data.map(e => e * 100);
                 // define mask properties
                 let properties = {
-                  color: "#00ff00", // optional
+                  // color: "#00ff00",
                   opacity: 0.2,
                   labelId: 0
                 };
@@ -70,16 +122,33 @@
                   volume.data,
                   "viewer",
                   () => {
-                    // wait for render image to complete
-                    setTimeout(() => {
-                      // activate brush on this labelmap
-                      larvitar.setActiveLabelmap(0, "viewer");
-                      larvitar.setToolActive("Brush");
-                    }, 100);
+                    // activate brush on this labelmap
+                    larvitar.setActiveLabelmap(0, "viewer");
+                    larvitar.setToolActive("Brush");
                   }
                 );
               };
-            } 
+            }
+
+            let activeLabel = 1;
+            function switchLabel() {
+              let nextLabel = activeLabel == 1 ? 2 : 1;
+              larvitar.setActiveSegment(nextLabel, "viewer");
+              activeLabel = nextLabel;
+              let btn = document.getElementById("btn-label");
+              let btnClass = btn.className;
+              if (activeLabel == 1) {
+                btn.className = btnClass.replace("warning", "danger");
+              } else {
+                btn.className = btnClass.replace("danger", "warning");
+              }
+            }
+            function undo() {
+              larvitar.undoLastStroke("viewer");
+            }
+            function redo() {
+              larvitar.redoLastStroke("viewer");
+            }
 
             /**
             * Undo: larvitar.undoLastStroke("viewer");
@@ -133,11 +202,11 @@
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
-            larvitar.renderImage(serie, "viewer");
-            larvitar.addDefaultTools();
-
-            demoFiles = [];
-            loadMasks();
+            larvitar.renderImage(serie, "viewer").then(function () {
+              larvitar.addDefaultTools();
+              demoFiles = [];
+              loadMasks();
+            });
           } else {
             console.log(err);
           }
@@ -179,12 +248,9 @@
             volume.data,
             "viewer",
             () => {
-              // wait for render image to complete
-              setTimeout(() => {
-                // activate brush on this labelmap
-                larvitar.setActiveLabelmap(0, "viewer");
-                larvitar.setToolActive("Brush");
-              }, 200);
+              // activate brush on this labelmap
+              larvitar.setActiveLabelmap(0, "viewer");
+              larvitar.setToolActive("Brush");
             }
           );
         };
