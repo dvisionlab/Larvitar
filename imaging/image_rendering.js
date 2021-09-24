@@ -245,6 +245,7 @@ export const resizeViewport = function (elementId) {
  * @param {Object} seriesStack - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {Object} defaultProps - Optional default props
+ * @return {Promise} Return a promise when the image has been rendered succesfully
  */
 export const renderImage = function (seriesStack, elementId, defaultProps) {
   let t0 = performance.now();
@@ -271,79 +272,91 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
     return;
   }
 
-  // load and display one image (imageId)
-  cornerstone.loadImage(data.imageId).then(function (image) {
-    cornerstone.displayImage(element, image);
+  let renderPromise = new Promise(resolve => {
+    // load and display one image (imageId)
+    cornerstone.loadImage(data.imageId).then(function (image) {
+      cornerstone.displayImage(element, image);
 
-    if (series.layer) {
-      // assign the image to its layer and return its id
-      series.layer.id = cornerstone.addLayer(
-        element,
+      if (series.layer) {
+        // assign the image to its layer and return its id
+        series.layer.id = cornerstone.addLayer(
+          element,
+          image,
+          series.layer.options
+        );
+      }
+
+      let viewport = cornerstone.getViewport(element);
+
+      // window width and window level
+      // are stored in specific dicom tags
+      // (x00281050 and x00281051)
+      // if not present check in image object
+      data.ww = data.ww ? data.ww : image.windowWidth;
+      data.wc = data.wc ? data.wc : image.windowCenter;
+      data.defaultWW = data.defaultWW ? data.defaultWW : data.ww;
+      data.defaultWC = data.defaultWC ? data.defaultWC : data.wc;
+
+      cornerstone.fitToWindow(element);
+
+      if (defaultProps && has(defaultProps, "scale")) {
+        viewport.scale = defaultProps["scale"];
+        cornerstone.setViewport(element, viewport);
+      }
+
+      if (
+        defaultProps &&
+        has(defaultProps, "tr_x") &&
+        has(defaultProps, "tr_y")
+      ) {
+        viewport.translation.x = defaultProps["tr_x"];
+        viewport.translation.y = defaultProps["tr_y"];
+        cornerstone.setViewport(element, viewport);
+      }
+
+      // color maps
+      if (
+        defaultProps &&
+        has(defaultProps, "colormap") &&
+        image.color == false
+      ) {
+        applyColorMap(defaultProps["colormap"]);
+      }
+
+      let storedViewport = cornerstone.getViewport(element);
+      storeViewportData(
         image,
-        series.layer.options
+        elementId,
+        data.imageIndex,
+        data.numberOfSlices,
+        data.rows,
+        data.cols,
+        data.spacing_x,
+        data.spacing_y,
+        data.thickness,
+        storedViewport,
+        data.defaultWW,
+        data.defaultWC
       );
-    }
+      larvitar_store.set("renderingStatus", [elementId, true]);
+      let t1 = performance.now();
+      console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
-    let viewport = cornerstone.getViewport(element);
-
-    // window width and window level
-    // are stored in specific dicom tags
-    // (x00281050 and x00281051)
-    // if not present check in image object
-    data.ww = data.ww ? data.ww : image.windowWidth;
-    data.wc = data.wc ? data.wc : image.windowCenter;
-    data.defaultWW = data.defaultWW ? data.defaultWW : data.ww;
-    data.defaultWC = data.defaultWC ? data.defaultWC : data.wc;
-
-    cornerstone.fitToWindow(element);
-
-    if (defaultProps && has(defaultProps, "scale")) {
-      viewport.scale = defaultProps["scale"];
-      cornerstone.setViewport(element, viewport);
-    }
-
-    if (
-      defaultProps &&
-      has(defaultProps, "tr_x") &&
-      has(defaultProps, "tr_y")
-    ) {
-      viewport.translation.x = defaultProps["tr_x"];
-      viewport.translation.y = defaultProps["tr_y"];
-      cornerstone.setViewport(element, viewport);
-    }
-
-    // color maps
-    if (defaultProps && has(defaultProps, "colormap") && image.color == false) {
-      applyColorMap(defaultProps["colormap"]);
-    }
-
-    let storedViewport = cornerstone.getViewport(element);
-    storeViewportData(
-      image,
-      elementId,
-      data.imageIndex,
-      data.numberOfSlices,
-      data.rows,
-      data.cols,
-      data.spacing_x,
-      data.spacing_y,
-      data.thickness,
-      storedViewport,
-      data.defaultWW,
-      data.defaultWC
-    );
-    larvitar_store.set("renderingStatus", [elementId, true]);
-    let t1 = performance.now();
-    console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
-
-    let uri = cornerstoneWADOImageLoader.wadouri.parseImageId(data.imageId).url;
-    cornerstoneWADOImageLoader.wadouri.dataSetCacheManager.unload(uri);
-    image = null;
-    series = null;
-    data = null;
+      let uri = cornerstoneWADOImageLoader.wadouri.parseImageId(
+        data.imageId
+      ).url;
+      cornerstoneWADOImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      image = null;
+      series = null;
+      data = null;
+      resolve();
+    });
   });
+
   csToolsCreateStack(element, series.imageIds, data.imageIndex - 1);
   toggleMouseToolsListeners(elementId);
+
+  return renderPromise;
 };
 
 /**
