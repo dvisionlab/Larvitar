@@ -21,7 +21,6 @@ import { each, range } from "lodash";
  * @param {Array} viewports - Viewport array ids
  * @returns {Number} Number of array elements consumed
  */
-
 export const parseContours = function (
   contoursData,
   pointBatchSize,
