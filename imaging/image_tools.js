@@ -22,7 +22,7 @@ import { isElement } from "./image_utils";
 /*
  * This module provides the following functions to be exported:
  * csToolsCreateStack(element)
- * addDefaultTools()
+ * addDefaultTools(toolToActivate)
  * clearMeasurements()
  * addContoursTool(rawContours, maskName)
  * addMaskEditingTool(seriesId,mask,setConfig,callback, targetViewport)
@@ -48,7 +48,7 @@ import { isElement } from "./image_utils";
  * @function addDefaultTools
  * @deprecated (OBSOLETE)
  */
-export const addDefaultTools = function (toolToActivate, cb) {
+export const addDefaultTools = function (toolToActivate) {
   // for each default tool
   each(DEFAULT_TOOLS, tool => {
     // check if already added
@@ -99,10 +99,6 @@ export const addDefaultTools = function (toolToActivate, cb) {
     allowSkipping: false, // default true
     invert: false
   });
-
-  if (cb) {
-    cb();
-  }
 };
 
 /**
@@ -146,8 +142,8 @@ export const addContoursTool = function (rawContours, maskName) {
  * Add mask editing tool
  * @function addMaskEditingTool
  * @param {Array} mask - The mask data.
- * @param {String} targetViewport - The target hmtl element id.
  * @param {Function} callback - The tool initialization callback
+ * @param {String} targetViewport - The target hmtl element id.
  */
 export const addMaskEditingTool = function (mask, callback, targetViewport) {
   let enabledElements = cornerstone.getEnabledElements();
@@ -260,7 +256,7 @@ export const addSeedsTool = function (preLoadSeeds, initViewport) {
  * Delete all measurements from tools state, for tools that have the "cleaneable" prop set to true in tools.default.js
  * @function clearMeasurements
  */
-export const clearMeasurements = function (cb) {
+export const clearMeasurements = function () {
   let enabledElements = cornerstone.getEnabledElements();
   let clenableTools = filter(DEFAULT_TOOLS, "cleanable");
 
@@ -272,10 +268,6 @@ export const clearMeasurements = function (cb) {
   each(enabledElements, el => {
     cornerstone.updateImage(el.element);
   });
-
-  if (cb) {
-    cb();
-  }
 };
 
 /**

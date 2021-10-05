@@ -71,22 +71,25 @@ export const buildHeader = function (series) {
  * Get cached pixel data
  * @function getCachedPixelData
  * @param {String} imageId - ImageId of the cached image
- * @returns {Array} Pixel data array or null if not cached
+ * @returns {Promise} A promise which will resolve to a pixel data array or fail if an error occurs
  */
 
-export const getCachedPixelData = function (imageId, callback) {
+export const getCachedPixelData = function (imageId) {
   let cachedImage = find(cornerstone.imageCache.cachedImages, [
     "imageId",
     imageId
   ]);
-  if (cachedImage && cachedImage.image) {
-    callback(cachedImage.image.getPixelData());
-  } else {
-    cornerstone.loadAndCacheImage(imageId).then(function (image) {
-      callback(image.getPixelData());
-      cornerstone.imageCache.removeImageLoadObject(imageId);
-    });
-  }
+  let promise = new Promise((resolve, reject) => {
+    if (cachedImage && cachedImage.image) {
+      resolve(cachedImage.image.getPixelData());
+    } else {
+      cornerstone
+        .loadImage(imageId)
+        .then(image => resolve(image.getPixelData()))
+        .catch(err => reject(err));
+    }
+  });
+  return promise;
 };
 
 /**
@@ -122,7 +125,7 @@ export const buildData = function (series, useSeriesData) {
     } else {
       larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
       forEach(series.imageIds, function (imageId) {
-        getCachedPixelData(imageId, function (sliceData) {
+        getCachedPixelData(imageId).then(sliceData => {
           data.set(sliceData, offsetData);
           offsetData += sliceData.length;
         });
@@ -166,7 +169,7 @@ export const buildDataAsync = function (series, time, resolve, reject) {
     function runFillPixelData(data) {
       let imageId = imageIds.shift();
       if (imageId) {
-        getCachedPixelData(imageId, function (sliceData) {
+        getCachedPixelData(imageId).then(sliceData => {
           data.set(sliceData, offsetData);
           offsetData += sliceData.length;
           // this does the trick: delay next computation to next tick

@@ -6,9 +6,9 @@
 
 ## Dicom Image Toolkit for CornestoneJS
 
-### Current version: 0.20.0
+### Current version: 1.0.0
 
-### Latest Stable version: 0.20.0
+### Latest Stable version: 1.0.0
 
 ### Latest Published Release: 0.20.0
 

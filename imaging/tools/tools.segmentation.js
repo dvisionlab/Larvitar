@@ -158,21 +158,23 @@ export function initSegmentationModule() {
  * Add segmentation mask to segmentation module
  * @param {Number} labelId - The label index (must be unique)
  * @param {TypedArray} - The mask data array
+ * @returns {Promise} - Return a promise which will resolve when segmentation mask is added
  */
-export function addSegmentationMask(props, data, elementId, cb) {
-  let element = document.getElementById(elementId);
-  setters.labelmap3DForElement(element, data.buffer, props.labelId);
-  // if user set a color property, use that color for all segments on the labelmap
-  let lut = props.color
-    ? generateUniformLUT(props.color, props.opacity)
-    : generateLUT(props.opacity);
-  setters.colorLUT(props.labelId, lut);
-  // bind labelmap to colorLUT
-  let labelmap3d = getters.labelmap3D(element, props.labelId);
-  setters.colorLUTIndexForLabelmap3D(labelmap3d, props.labelId);
-  if (cb) {
-    cb();
-  }
+export function addSegmentationMask(props, data, elementId) {
+  let promise = new Promise(resolve => {
+    let element = document.getElementById(elementId);
+    setters.labelmap3DForElement(element, data.buffer, props.labelId);
+    // if user set a color property, use that color for all segments on the labelmap
+    let lut = props.color
+      ? generateUniformLUT(props.color, props.opacity)
+      : generateLUT(props.opacity);
+    setters.colorLUT(props.labelId, lut);
+    // bind labelmap to colorLUT
+    let labelmap3d = getters.labelmap3D(element, props.labelId);
+    setters.colorLUTIndexForLabelmap3D(labelmap3d, props.labelId);
+    resolve();
+  });
+  return promise;
 }
 
 /**
