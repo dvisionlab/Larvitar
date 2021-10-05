@@ -19,7 +19,7 @@ import { isElement } from "./image_utils";
 /*
  * This module provides the following functions to be exported:
  * clearImageCache(seriesId)
- * loadAndCacheImages(seriesData, callback)
+ * loadAndCacheImages(seriesData)
  * renderFileImage(file, elementId)
  * renderWebImage(url, elementId)
  * disableViewport(elementId)
@@ -121,9 +121,9 @@ export function loadAndCacheImages(series, callback) {
  * @function renderWebImage
  * @param {Object} file - The image File object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {Function} callback - Optional callback function with image object
+ * @returns {Promise} - Return a promise which will resolve when image is displayed
  */
-export const renderFileImage = function (file, elementId, callback) {
+export const renderFileImage = function (file, elementId) {
   let element = isElement(elementId)
     ? elementId
     : document.getElementById(elementId);
@@ -136,23 +136,23 @@ export const renderFileImage = function (file, elementId, callback) {
     cornerstone.enable(element);
   }
 
-  // check if imageId is already stored in fileManager
-  const imageId = getFileImageId(file);
-  if (imageId) {
-    cornerstone.loadImage(imageId).then(function (image) {
-      cornerstone.displayImage(element, image);
-      let viewport = cornerstone.getViewport(element);
-      viewport.displayedArea.brhc.x = image.width;
-      viewport.displayedArea.brhc.y = image.height;
-      cornerstone.setViewport(element, viewport);
-      cornerstone.fitToWindow(element);
-
-      csToolsCreateStack(element);
-      if (callback) {
-        callback(image);
-      }
-    });
-  }
+  let renderPromise = new Promise(resolve => {
+    // check if imageId is already stored in fileManager
+    const imageId = getFileImageId(file);
+    if (imageId) {
+      cornerstone.loadImage(imageId).then(function (image) {
+        cornerstone.displayImage(element, image);
+        let viewport = cornerstone.getViewport(element);
+        viewport.displayedArea.brhc.x = image.width;
+        viewport.displayedArea.brhc.y = image.height;
+        cornerstone.setViewport(element, viewport);
+        cornerstone.fitToWindow(element);
+        csToolsCreateStack(element);
+        resolve(image);
+      });
+    }
+  });
+  return renderPromise;
 };
 
 /**
@@ -161,6 +161,7 @@ export const renderFileImage = function (file, elementId, callback) {
  * @function renderWebImage
  * @param {String} url - The image data url
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @returns {Promise} - Return a promise which will resolve when image is displayed
  */
 export const renderWebImage = function (url, elementId) {
   let element = isElement(elementId)
@@ -170,12 +171,15 @@ export const renderWebImage = function (url, elementId) {
     console.error("invalid html element: " + elementId);
     return;
   }
-
-  cornerstone.enable(element);
-  cornerstone.loadImage(url).then(function (image) {
-    cornerstone.displayImage(element, image);
-    csToolsCreateStack(element);
+  let renderPromise = new Promise(resolve => {
+    cornerstone.enable(element);
+    cornerstone.loadImage(url).then(function (image) {
+      cornerstone.displayImage(element, image);
+      csToolsCreateStack(element);
+      resolve(image);
+    });
   });
+  return renderPromise;
 };
 
 /**
@@ -245,7 +249,7 @@ export const resizeViewport = function (elementId) {
  * @param {Object} seriesStack - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {Object} defaultProps - Optional default props
- * @return {Promise} Return a promise when the image has been rendered succesfully
+ * @return {Promise} Return a promise which will resolve when image is displayed
  */
 export const renderImage = function (seriesStack, elementId, defaultProps) {
   let t0 = performance.now();
