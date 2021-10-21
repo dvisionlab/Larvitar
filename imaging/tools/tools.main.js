@@ -204,7 +204,8 @@ function tryUpdateImage(element) {
  * @param {Boolean} doNotSetInStore - Flag to avoid setting in store (useful on tools initialization eg in addDefaultTools). NOTE: This is just a hack, we must rework tools/ui sync.
  */
 const setToolActive = function (toolName, options, viewports, doNotSetInStore) {
-  let defaultOpt = DEFAULT_TOOLS[toolName].options;
+  let defaultOpt = { ...DEFAULT_TOOLS[toolName].options }; // deep copy obj because otherwise cornerstone tools will modify it
+
   extend(defaultOpt, options);
 
   if (viewports && viewports.length > 0) {
@@ -224,10 +225,19 @@ const setToolActive = function (toolName, options, viewports, doNotSetInStore) {
   }
 
   // set active tool in larvitar store
-  if (!doNotSetInStore) {
-    defaultOpt.mouseButtonMask && defaultOpt.mouseButtonMask == 1
-      ? larvitar_store.set("leftActiveTool", toolName)
-      : larvitar_store.set("rightActiveTool", toolName);
+  // mouseButtonMask is now an array, thanks to cs tools "setToolActiveForElement",
+  // but only if it has a rendered image in the viewport (!)
+  // so we must check the type anyway for type coherence
+  if (!doNotSetInStore && defaultOpt.mouseButtonMask) {
+    if (typeof defaultOpt.mouseButtonMask == "number") {
+      defaultOpt.mouseButtonMask = [defaultOpt.mouseButtonMask];
+    }
+    if (defaultOpt.mouseButtonMask.includes(1)) {
+      larvitar_store.set("leftActiveTool", toolName);
+    }
+    if (defaultOpt.mouseButtonMask.includes(2)) {
+      larvitar_store.set("rightActiveTool", toolName);
+    }
   }
 };
 

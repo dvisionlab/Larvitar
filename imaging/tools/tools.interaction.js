@@ -146,7 +146,7 @@ export const toggleMouseToolsListeners = function (elementId, disable) {
         ? larvitar_store.get("leftActiveTool")
         : larvitar_store.get("rightActiveTool");
     updateViewportData(evt.srcElement.id, evt.detail.viewport, activeTool);
-  }, 500);
+  }, 250);
 
   // mouse wheel handler
   function mouseWheelHandler(evt) {
