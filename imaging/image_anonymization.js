@@ -4,13 +4,12 @@
  */
 
 // external libraries
+import aes from "crypto-js/aes";
 import sha256 from "crypto-js/sha256";
 import Hex from "crypto-js/enc-hex";
 import { forEach } from "lodash";
 
-// internal libraries
-
-//
+// global vars
 const TAGS = [
   "x00080014", // Instance Creator UID
   "x00080018", // SOP Instance UID
@@ -65,11 +64,12 @@ const TAGS = [
 
 /*
  * This module provides the following functions to be exported:
- *
+ * anonymize(series)
+ * encrypt(series, passphrase)
  */
 
 /**
- * Anonymize DICOM series' metadata
+ * Anonymize DICOM series' metadata using sha256
  * @function anonymize
  * @param {Object} series - Cornerstone series object
  * @returns {Object} anonymized_series: Cornerstone anonymized series object
@@ -106,6 +106,56 @@ export const anonymize = function (series) {
   series.seriesUID = sha256(series.seriesUID).toString(Hex);
   series.seriesDescription = sha256(series.seriesDescription).toString(Hex);
   series.studyUID = sha256(series.studyUID).toString(Hex);
+
+  return series;
+};
+
+/**
+ * Encrypt DICOM series' metadata using AES
+ * @function encrypt
+ * @param {Object} series - Cornerstone series object
+ * @param {String} passphrase - AES passphrase
+ * @returns {Object} anonymized_series: Cornerstone encrypted series object
+ */
+export const encrypt = function (series, passphrase) {
+  if (!passphrase) {
+    return "Error, provide a valid passphrase";
+  }
+  forEach(series.instances, function (instance) {
+    forEach(TAGS, function (tag) {
+      if (tag in instance.metadata) {
+        let anonymized_value = aes
+          .encrypt(instance.metadata[tag], passphrase)
+          .toString();
+        instance.metadata[tag] = anonymized_value;
+      }
+    });
+    instance.metadata.seriesUID = instance.metadata["x0020000e"];
+    instance.metadata.instanceUID = instance.metadata["x00080018"];
+    instance.metadata.studyUID = instance.metadata["x0020000d"];
+    instance.metadata.accessionNumber = instance.metadata["x00080050"];
+    instance.metadata.studyDescription = instance.metadata["x00081030"];
+    instance.metadata.patientName = instance.metadata["x00100010"];
+    instance.metadata.patientBirthdate = instance.metadata["x00100030"];
+    instance.metadata.seriesDescription = instance.metadata["x0008103e"];
+  });
+
+  delete series["instanceUIDs"];
+  series.instanceUIDs = {};
+
+  forEach(series.imageIds, function (imageId) {
+    series.instanceUIDs[series.instances[imageId].metadata.instanceUID] =
+      imageId;
+  });
+
+  series.larvitarSeriesInstanceUID = aes
+    .encrypt(series.larvitarSeriesInstanceUID, passphrase)
+    .toString();
+  series.seriesUID = aes.encrypt(series.seriesUID, passphrase).toString();
+  series.seriesDescription = aes
+    .encrypt(series.seriesDescription, passphrase)
+    .toString();
+  series.studyUID = aes.encrypt(series.studyUID, passphrase).toString();
 
   return series;
 };
