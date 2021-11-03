@@ -416,7 +416,7 @@ const DEFAULT_STYLE = {
  */
 const DEFAULT_SETTINGS = {
   mouseEnabled: true,
-  touchEnabled: false, // TODO
+  touchEnabled: true,
   showSVGCursors: true,
   globalToolSyncEnabled: false,
   autoResizeViewports: true,

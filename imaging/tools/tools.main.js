@@ -2,6 +2,7 @@
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
 import cornerstoneMath from "cornerstone-math";
+import Hammer from "hammerjs";
 
 import { each, extend } from "lodash";
 
@@ -28,7 +29,7 @@ import { larvitar_store } from "../image_store";
 const initializeCSTools = function (settings, style) {
   cornerstoneTools.external.cornerstone = cornerstone;
   cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
-  // cornerstoneTools.external.Hammer = Hammer;
+  cornerstoneTools.external.Hammer = Hammer;
   extend(DEFAULT_SETTINGS, settings);
 
   // hack to fix warning on init() - but breaks labelmap 0 auto generation

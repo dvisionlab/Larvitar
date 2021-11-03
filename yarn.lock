@@ -131,10 +131,10 @@ concat-map@0.0.1:
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
   integrity sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=
 
-cornerstone-core@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/cornerstone-core/-/cornerstone-core-2.3.0.tgz#b16430b0dc3883c795fbbd5f64d0f6357f91c889"
-  integrity sha512-1LiCfRIlQvR1j8OhF7/3pvvQvvnTYZUywEkuoEo5K5mMrlKdrQMS75uW1uXb/nXShQDJyyjtTCQSVGgv2yHA+w==
+cornerstone-core@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/cornerstone-core/-/cornerstone-core-2.6.0.tgz#6f7d97fe98ed462254d55557ffa13568592c211c"
+  integrity sha512-3sMy4Q2UZ9H4f2rYRAd3s4cntDutwSZQ3QlcYgsahoUxInb68MdmeLOKe8yyguwRT9LJ4CbgvOr2WsS8dOba4g==
 
 cornerstone-file-image-loader@^0.3.0:
   version "0.3.0"
@@ -148,18 +148,18 @@ cornerstone-math@0.1.7:
   resolved "https://registry.yarnpkg.com/cornerstone-math/-/cornerstone-math-0.1.7.tgz#7c55536f02e7221b05fc49a4c780bb82c234ce39"
   integrity sha512-svsDSoqLNFM9niCV2AtV2DNmRkYztT1v80lVdbA5hkgdGdpWg5/h2On794zbqBK+aI3hNOHufERDsI4wdXGknA==
 
-cornerstone-tools@^5.1.4:
-  version "5.1.4"
-  resolved "https://registry.yarnpkg.com/cornerstone-tools/-/cornerstone-tools-5.1.4.tgz#9b5b65eff622fa143f2d4814099f1a384383c0a7"
-  integrity sha512-kpINjdt/gQmizP2C3olA8VGgiCtHYo7kT7JWcnTZLgD85HtoUMavtv2LaDEOfmBdBcB5q+KUEESy6FJQwTJxdg==
+cornerstone-tools@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/cornerstone-tools/-/cornerstone-tools-5.3.0.tgz#dd203389dc88d7d7ee0827efe20f07ead12e4c53"
+  integrity sha512-KvNlQod1huBuObVgcmcl6i2PLhNG517nIw/kAU3jIBRFzeqYOlJeMM8PWfGAHQ/7z8/iboVrh6qTcEYKpP/auQ==
   dependencies:
     "@babel/runtime" "7.1.2"
     cornerstone-math "0.1.7"
 
-cornerstone-wado-image-loader@^3.0.6:
-  version "3.0.6"
-  resolved "https://registry.yarnpkg.com/cornerstone-wado-image-loader/-/cornerstone-wado-image-loader-3.0.6.tgz#7b2be91f8f658de3a7474e029aa8314a35725132"
-  integrity sha512-1luWOh1GzkboZ3uxfu4T8vh7K9nlDiiEbQ4dYIY9oobRZVZQbQiLT8wEZPbb4JTUe7UWJISHPCNgtAU8UE9DNw==
+cornerstone-wado-image-loader@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/cornerstone-wado-image-loader/-/cornerstone-wado-image-loader-3.3.2.tgz#da27db9024ecc943ca87dd2384eb9731bc2b039d"
+  integrity sha512-Yy0DtfSMlflMS5RMQhX9YnXiYYkZz99nnXG2qtBRvzvSdwqiElIpE13sKw0Ohi4mqNwrWRx0xt8utk0HKnAXyw==
   dependencies:
     dicom-parser "^1.8.3"
     pako "^1.0.10"
@@ -184,7 +184,12 @@ dicom-character-set@^1.0.3:
   resolved "https://registry.yarnpkg.com/dicom-character-set/-/dicom-character-set-1.0.3.tgz#406d3cbe562ea66c7a834627f33c95dbdce7457e"
   integrity sha512-nfP6WTWX6L4rGAG8ydTnl8STqlSDdkkSZuNYjd9ynWmH3QU5KRmv6aATJfTHAWrzyJz/TwYIs/h+IvSZYxlopQ==
 
-dicom-parser@^1.8.3, dicom-parser@^1.8.4:
+dicom-parser@^1.8.11:
+  version "1.8.11"
+  resolved "https://registry.yarnpkg.com/dicom-parser/-/dicom-parser-1.8.11.tgz#ffd86289a6b85bb0047379084b57fcc1b28fe7f8"
+  integrity sha512-KbxEDqv4Stynv5AxDh90+jY7MtPvI2uyOG62yD8zKu/pcZqoQYfPX44rB0ULjpxt6YIfXfajrs7B1L97RbjNsg==
+
+dicom-parser@^1.8.3:
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/dicom-parser/-/dicom-parser-1.8.5.tgz#626aab3f3aa3d54452c302b2628248f27b351f22"
   integrity sha512-gaUOcyPkJ3ykOvSf1nQdNoTnIT4s/evXSaHHOH2OejmVxU3BGjjx1hXBy2zs57gH6ouMEa1TEhLXo4JEiSc1SA==
@@ -428,13 +433,6 @@ picomatch@^2.2.2:
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.2.2.tgz#21f333e9b6b8eaff02468f5146ea406d345f4dad"
   integrity sha512-q0M/9eZHzmr0AulXyPwNfZjtwZ/RBZlbN3K3CErVrk50T2ASYI7Bye0EvekFY3IP1Nt2DHu0re+V2ZHIpMkuWg==
 
-randombytes@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/randombytes/-/randombytes-2.1.0.tgz#df6f84372f0270dc65cdf6291349ab7a473d4f2a"
-  integrity sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==
-  dependencies:
-    safe-buffer "^5.1.0"
-
 regenerator-runtime@^0.12.0:
   version "0.12.1"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.12.1.tgz#fa1a71544764c036f8c49b13a08b2594c9f8a0de"
@@ -480,22 +478,10 @@ rollup@^2.39.0:
   optionalDependencies:
     fsevents "~2.3.1"
 
-safe-buffer@^5.1.0:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.2.1.tgz#1eaf9fa9bdb1fdd4ec75f58f9cdb4e6b7827eec6"
-  integrity sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==
-
 serialize-javascript@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-2.1.2.tgz#ecec53b0e0317bdc95ef76ab7074b7384785fa61"
   integrity sha512-rs9OggEUF0V4jUSecXazOYsLfu7OGK2qIn3c7IPBiffz32XniEp/TX9Xmc9LQfK2nQ2QKHvZ2oygKUGU0lG4jQ==
-
-serialize-javascript@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-3.1.0.tgz#8bf3a9170712664ef2561b44b691eafe399214ea"
-  integrity sha512-JIJT1DGiWmIKhzRsG91aS6Ze4sFUrYbltlkg2onR5OrnNM02Kl/hnY/T4FN2omvyeBbQmMJv+K4cPOpGzOTFBg==
-  dependencies:
-    randombytes "^2.1.0"
 
 sourcemap-codec@^1.4.4:
   version "1.4.8"
