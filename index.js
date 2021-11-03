@@ -69,7 +69,7 @@ import {
 import {
   readFile,
   readFiles,
-  dumpDataSet,
+  parseDataSet,
   clearImageParsing
 } from "./imaging/image_parsing";
 
@@ -255,7 +255,7 @@ export {
   // image_parsing
   readFile,
   readFiles,
-  dumpDataSet,
+  parseDataSet,
   clearImageParsing,
   // image_rendering
   clearImageCache,

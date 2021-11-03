@@ -143,6 +143,7 @@ let parseNextFile = function (parsingQueue, allSeriesStack, resolve, reject) {
     let t1 = performance.now();
     console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
     resolve(allSeriesStack);
+    return;
   }
 
   // remove and return first item from queue
@@ -156,6 +157,7 @@ let parseNextFile = function (parsingQueue, allSeriesStack, resolve, reject) {
     console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
     file = null;
     reject(allSeriesStack, "Available memory is not enough");
+    return;
   } else {
     // parse the file and wait for results
     parseFile(file)

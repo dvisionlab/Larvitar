@@ -8,7 +8,7 @@ import {
   getLarvitarImageTracker,
   getLarvitarManager
 } from "./commonLoader";
-import { dumpDataSet } from "../image_parsing";
+import { parseDataSet } from "../image_parsing";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -84,7 +84,7 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       // EXTRACT MULTIFRAME METADATA (x52009230) Per-frame Functional Groups Sequence
       let frameMetadata = { ...metadata };
 
-      dumpDataSet(dataSet, frameMetadata, {
+      parseDataSet(dataSet, frameMetadata, {
         tags: ["x52009230"],
         frameId: frameNumber
       });
