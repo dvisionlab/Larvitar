@@ -47,6 +47,8 @@ import {
   importNRRDImage
 } from "./imaging/image_io";
 
+import { anonymize, encrypt } from "./imaging/image_anonymization";
+
 import {
   buildLayer,
   updateLayer,
@@ -83,7 +85,6 @@ import {
   updateImage,
   resetViewports,
   updateViewportData,
-  // toggleMouseHandlers,
   storeViewportData,
   invertImage,
   flipImageHorizontal,
@@ -235,6 +236,9 @@ export {
   buildData,
   buildDataAsync,
   importNRRDImage,
+  // image_anonymization
+  anonymize,
+  encrypt,
   // image_layers
   buildLayer,
   updateLayer,
@@ -265,7 +269,6 @@ export {
   updateImage,
   resetViewports,
   updateViewportData,
-  // toggleMouseHandlers,
   toggleMouseToolsListeners,
   storeViewportData,
   invertImage,
