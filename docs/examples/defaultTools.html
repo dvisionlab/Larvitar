@@ -164,27 +164,32 @@
       }
 
       function renderSerie() {
-        larvitar.readFiles(demoFiles, function (seriesStack, err) {
-          let seriesId = _.keys(seriesStack)[0];
-          let serie = seriesStack[seriesId];
-          larvitar.renderImage(serie, "viewer");
-          larvitar.addDefaultTools();
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            larvitar.renderImage(serie, "viewer").then(() => {
+              console.log("Image has been rendered");
+            });
+            larvitar.addDefaultTools();
 
-          let mouseConfig = {
-            keyboard_shortcuts: {
-              KEY_A: "Angle",
-              KEY_L: "Length"
-            },
-            mouse_button_right: {
-              ctrl: "Pan",
-              default: "Zoom"
-            },
-            debug: true
-          };
+            let mouseConfig = {
+              keyboard_shortcuts: {
+                KEY_A: "Angle",
+                KEY_L: "Length"
+              },
+              mouse_button_right: {
+                ctrl: "Pan",
+                default: "Zoom"
+              },
+              debug: true
+            };
 
-          // NOTE: this also activate the tools marked as default for each mouse button
-          larvitar.addMouseKeyHandlers(mouseConfig, ["viewer"]);
-        });
+            // NOTE: this also activate the tools marked as default for each mouse button
+            larvitar.addMouseKeyHandlers(mouseConfig, ["viewer"]);
+          })
+          .catch(err => console.log(err));
       }
 
       let demoFileList = getDemoFileNames();

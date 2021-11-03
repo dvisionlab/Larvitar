@@ -99,7 +99,7 @@
 
             async function loadMasks() {
               larvitar.initSegmentationModule();
-
+      
               // fetch data
               let response = await fetch("./demo/" + "segmentation.nrrd");
               let data = await response.blob();
@@ -117,19 +117,16 @@
                   labelId: 0
                 };
                 // add to viewport
-                larvitar.addSegmentationMask(
-                  properties,
-                  volume.data,
-                  "viewer",
-                  () => {
+                larvitar
+                  .addSegmentationMask(properties, volume.data, "viewer")
+                  .then(() => {
                     // activate brush on this labelmap
                     larvitar.setActiveLabelmap(0, "viewer");
                     larvitar.setToolActive("Brush");
-                  }
-                );
+                  });
               };
             }
-
+      
             let activeLabel = 1;
             function switchLabel() {
               let nextLabel = activeLabel == 1 ? 2 : 1;
@@ -197,20 +194,19 @@
 
       function renderSerie() {
         larvitar.resetLarvitarManager();
-        larvitar.readFiles(demoFiles, function (seriesStack, err) {
-          if (seriesStack) {
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
-            larvitar.renderImage(serie, "viewer").then(function () {
+            larvitar.renderImage(serie, "viewer").then(() => {
               larvitar.addDefaultTools();
               demoFiles = [];
               loadMasks();
             });
-          } else {
-            console.log(err);
-          }
-        });
+          })
+          .catch(err => console.log(err));
       }
 
       let demoFileList = getDemoFileNames();
@@ -243,16 +239,13 @@
             labelId: 0
           };
           // add to viewport
-          larvitar.addSegmentationMask(
-            properties,
-            volume.data,
-            "viewer",
-            () => {
+          larvitar
+            .addSegmentationMask(properties, volume.data, "viewer")
+            .then(() => {
               // activate brush on this labelmap
               larvitar.setActiveLabelmap(0, "viewer");
               larvitar.setToolActive("Brush");
-            }
-          );
+            });
         };
       }
 

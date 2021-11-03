@@ -69,22 +69,29 @@
               }
 
               function renderSerie() {
-                larvitar.readFiles(demoFiles, function (seriesStack, err) {
-                  // render the first series of the study
-                  let seriesId = _.keys(seriesStack)[0];
-                  let serie = seriesStack[seriesId];
-                  larvitar.populateLarvitarManager(seriesId, serie);
-                  larvitar.renderImage(serie, "viewer-base");
-                  larvitar.cacheImages(serie, function(resp) {
-                    if (resp.loading == 100) {
-                      larvitar.resliceSeries(serie, "coronal", function (data) {
-                        larvitar.renderImage(data, "viewer-reslice");
-                        larvitar.addDefaultTools();
-                        larvitar.setToolActive("Wwwc");
-                      });
-                    }
-                  });
-                });
+                larvitar
+                  .readFiles(demoFiles)
+                  .then(seriesStack => {
+                    // render the first series of the study
+                    let seriesId = _.keys(seriesStack)[0];
+                    let serie = seriesStack[seriesId];
+                    larvitar.populateLarvitarManager(seriesId, serie);
+                    larvitar.renderImage(serie, "viewer-base").then(() => {
+                      console.log("Image axial has been rendered");
+                    });
+                    larvitar.cacheImages(serie, function (resp) {
+                      if (resp.loading == 100) {
+                        larvitar.resliceSeries(serie, "coronal").then(data => {
+                          larvitar.renderImage(data, "viewer-reslice").then(() => {
+                            console.log("Image resliced has been rendered");
+                          });
+                          larvitar.addDefaultTools();
+                          larvitar.setToolActive("Wwwc");
+                        });
+                      }
+                    });
+                  })
+                  .catch(err => console.log(err));
               }
 
               let demoFileList = getDemoFileNames();
@@ -133,22 +140,29 @@
       }
 
       function renderSerie() {
-        larvitar.readFiles(demoFiles, function (seriesStack, err) {
-          // render the first series of the study
-          let seriesId = _.keys(seriesStack)[0];
-          let serie = seriesStack[seriesId];
-          larvitar.populateLarvitarManager(seriesId, serie);
-          larvitar.renderImage(serie, "viewer-base");
-          larvitar.cacheImages(serie, function (resp) {
-            if (resp.loading == 100) {
-              larvitar.resliceSeries(serie, "coronal", function (data) {
-                larvitar.renderImage(data, "viewer-reslice");
-                larvitar.addDefaultTools();
-                larvitar.setToolActive("Wwwc");
-              });
-            }
-          });
-        });
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            // render the first series of the study
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            larvitar.populateLarvitarManager(seriesId, serie);
+            larvitar.renderImage(serie, "viewer-base").then(() => {
+              console.log("Image axial has been rendered");
+            });
+            larvitar.cacheImages(serie, function (resp) {
+              if (resp.loading == 100) {
+                larvitar.resliceSeries(serie, "coronal").then(data => {
+                  larvitar.renderImage(data, "viewer-reslice").then(() => {
+                    console.log("Image resliced has been rendered");
+                  });
+                  larvitar.addDefaultTools();
+                  larvitar.setToolActive("Wwwc");
+                });
+              }
+            });
+          })
+          .catch(err => console.log(err));
       }
 
       let demoFileList = getDemoFileNames();

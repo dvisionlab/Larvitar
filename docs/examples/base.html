@@ -62,12 +62,15 @@
 
             function renderSerie() {
               larvitar.resetLarvitarManager();
-              larvitar.readFiles(demoFiles, function (seriesStack, err) {
-                if (seriesStack) {
+              larvitar
+                .readFiles(demoFiles)
+                .then(seriesStack => {
                   // render the first series of the study
                   let seriesId = _.keys(seriesStack)[0];
                   let serie = seriesStack[seriesId];
-                  larvitar.renderImage(serie, "viewer");
+                  larvitar.renderImage(serie, "viewer").then(() => {
+                    console.log("Image has been rendered");
+                  });
                   // optionally cache the series
                   larvitar.populateLarvitarManager(seriesId, serie);
                   larvitar.cacheImages(serie, function (resp) {
@@ -82,13 +85,11 @@
                   });
                   larvitar.addDefaultTools();
                   larvitar.setToolActive("Wwwc");
-                } else {
-                  console.log(err);
-                }
-              });
+                })
+                .catch(err => console.log(err));
             }
-            let demoFileList = getDemoFileNames();
 
+            let demoFileList = getDemoFileNames();
             _.each(demoFileList, function (demoFile) {
               createFile(demoFile, renderSerie);
             });
@@ -133,12 +134,15 @@
 
       function renderSerie() {
         larvitar.resetLarvitarManager();
-        larvitar.readFiles(demoFiles, function (seriesStack, err) {
-          if (seriesStack) {
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
-            larvitar.renderImage(serie, "viewer");
+            larvitar.renderImage(serie, "viewer").then(() => {
+              console.log("Image has been rendered");
+            });
             // optionally cache the series
             larvitar.populateLarvitarManager(seriesId, serie);
             larvitar.cacheImages(serie, function (resp) {
@@ -153,13 +157,11 @@
             });
             larvitar.addDefaultTools();
             larvitar.setToolActive("Wwwc");
-          } else {
-            console.log(err);
-          }
-        });
+          })
+          .catch(err => console.log(err));
       }
-      let demoFileList = getDemoFileNames();
 
+      let demoFileList = getDemoFileNames();
       _.each(demoFileList, function (demoFile) {
         createFile(demoFile, renderSerie);
       });

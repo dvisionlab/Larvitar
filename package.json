@@ -4,11 +4,7 @@
     "dicom",
     "imaging"
   ],
-<<<<<<< HEAD
-  "version": "0.19.0",
-=======
   "version": "1.0.0",
->>>>>>> feat: initialized refactoring w/ promises
   "description": "javascript library for loading, rendering and interact with DICOM images",
   "repository": {
     "url": "https://github.com/dvisionlab/Larvitar.git",
