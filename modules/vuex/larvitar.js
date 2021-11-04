@@ -74,6 +74,12 @@ export default {
       }
 
       Vue.set(state.viewports, id, { ...state.viewports[id], ...d });
+    },
+    leftActiveTool: (state, { d }) => {
+      state.leftActiveTool = d.value;
+    },
+    rightActiveTool: (state, { d }) => {
+      state.rightActiveTool = d.value;
     }
   },
   actions: {
@@ -85,8 +91,12 @@ export default {
     deleteViewport: ({ state }, viewportId) =>
       Vue.delete(state.viewports, viewportId),
     setManager: ({ state }, value) => (state.manager = value),
-    setLeftActiveTool: ({ state }, value) => (state.leftActiveTool = value),
-    setRightActiveTool: ({ state }, value) => (state.rightActiveTool = value),
+    setLeftActiveTool: ({ commit }, value) => {
+      commit("leftActiveTool", { d: { value } });
+    },
+    setRightActiveTool: ({ commit }, value) => {
+      commit("rightActiveTool", { d: { value } });
+    },
     removeSeriesIds: ({ state }, seriesId) =>
       Vue.delete(state.series, seriesId),
     setErrorLog: () => {}, // TODO LT pass elementId
