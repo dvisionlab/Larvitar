@@ -1,9 +1,15 @@
+/** @module imaging/tools/custom/diameter_tool
+ *  @desc  This file provides functionalities for
+ *         a custom diameter cornestone tool
+ */
+
+// external libraries
 import csTools from "cornerstone-tools";
-
 const BidirectionalTool = csTools.BidirectionalTool;
-
-import { addToolStateSingleSlice } from "../image_tools";
 import { each } from "lodash";
+
+// internal libraries
+import { addToolStateSingleSlice } from "../../image_tools";
 
 /**
  * @public

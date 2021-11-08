@@ -1,3 +1,9 @@
+/** @module imaging/tools/custom/edit_mask_tool
+ *  @desc  This file provides functionalities for
+ *         a custom mask cornestone tool
+ */
+
+// external libraries
 import csTools from "cornerstone-tools";
 const external = csTools.external;
 const BaseBrushTool = csTools.importInternal("base/BaseBrushTool");
@@ -95,7 +101,7 @@ export class EditMaskTool extends BaseBrushTool {
   }
 
   preventCtrl() {
-    this.__proto__.__proto__._isCtrlDown = function() {
+    this.__proto__.__proto__._isCtrlDown = function () {
       return false;
     };
   }

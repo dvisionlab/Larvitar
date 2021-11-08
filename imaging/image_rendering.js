@@ -9,9 +9,9 @@ import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { each, has } from "lodash";
 
 // internal libraries
-import { getFileImageId } from "./loaders/fileLoader";
-import { csToolsCreateStack } from "./tools/tools.main";
-import { toggleMouseToolsListeners } from "./tools/tools.interaction";
+import { getFileImageId } from "./loaders/file_loader";
+import { csToolsCreateStack } from "./tools/main";
+import { toggleMouseToolsListeners } from "./tools/interaction";
 import { larvitar_store } from "./image_store";
 import { applyColorMap } from "./image_colormaps";
 import { isElement } from "./image_utils";

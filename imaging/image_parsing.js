@@ -128,7 +128,6 @@ export const parseDataSet = function (dataSet, metadata, customFilter) {
  * @param {Object} allSeriesStack - Series stack object to be populated
  * @param {Function} resolve - Promise resolve function
  * @param {Function} reject - Promise reject function
- * @returns {Promise} - Return a promise which will resolve to a image object list or fail if an error occurs
  */
 let parseNextFile = function (parsingQueue, allSeriesStack, resolve, reject) {
   // initialize t0 on first file of the queue

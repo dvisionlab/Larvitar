@@ -7,7 +7,7 @@ import {
   getImageFrame,
   getLarvitarImageTracker,
   getLarvitarManager
-} from "./commonLoader";
+} from "./common_loader";
 import { parseDataSet } from "../image_parsing";
 
 // global module variables

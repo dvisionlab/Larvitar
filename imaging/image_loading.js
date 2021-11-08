@@ -14,9 +14,9 @@ import { forEach } from "lodash";
 // internal libraries
 import { larvitar_store } from "./image_store";
 import { getSortedStack, getSortedUIDs } from "./image_utils";
-import { loadNrrdImage } from "./loaders/nrrdLoader";
-import { loadReslicedImage } from "./loaders/resliceLoader";
-import { loadMultiFrameImage } from "./loaders/multiframeLoader";
+import { loadNrrdImage } from "./loaders/nrrd_loader";
+import { loadReslicedImage } from "./loaders/reslice_loader";
+import { loadMultiFrameImage } from "./loaders/multiframe_loader";
 
 /**
  * Global standard configuration

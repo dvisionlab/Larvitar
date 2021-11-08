@@ -1,5 +1,11 @@
-import cornerstoneTools from "cornerstone-tools";
+/** @module imaging/tools/custom/threshold_brush_tool
+ *  @desc  This file provides functionalities for
+ *         a brush tool with thresholds using a
+ *         custom cornestone tool
+ */
 
+// external libraries
+import cornerstoneTools from "cornerstone-tools";
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(

@@ -126,13 +126,13 @@ import {
   setToolEnabled,
   setToolPassive,
   exportAnnotations
-} from "./imaging/tools/tools.main";
+} from "./imaging/tools/main";
 
 import {
   DEFAULT_TOOLS,
   getDefaultToolsByType,
   setDefaultToolsProps
-} from "./imaging/tools/tools.default";
+} from "./imaging/tools/default";
 
 import {
   initSegmentationModule,
@@ -142,7 +142,7 @@ import {
   undoLastStroke,
   redoLastStroke,
   setBrushProps
-} from "./imaging/tools/tools.segmentation";
+} from "./imaging/tools/segmentation";
 
 import {
   updateLarvitarManager,
@@ -153,7 +153,7 @@ import {
   removeSeriesFromLarvitarManager,
   getSeriesDataFromLarvitarManager,
   getImageFrame
-} from "./imaging/loaders/commonLoader";
+} from "./imaging/loaders/common_loader";
 
 import {
   buildNrrdImage,
@@ -162,18 +162,18 @@ import {
   getImageIdFromSlice,
   getSliceNumberFromImageId,
   getNrrdSerieDimensions
-} from "./imaging/loaders/nrrdLoader";
+} from "./imaging/loaders/nrrd_loader";
 
-import { getDicomImageId, cacheImages } from "./imaging/loaders/dicomLoader";
+import { getDicomImageId, cacheImages } from "./imaging/loaders/dicom_loader";
 
-import { loadReslicedImage } from "./imaging/loaders/resliceLoader";
+import { loadReslicedImage } from "./imaging/loaders/reslice_loader";
 
 import {
   loadMultiFrameImage,
   buildMultiFrameImage,
   getMultiFrameImageId,
   clearMultiFrameCache
-} from "./imaging/loaders/multiframeLoader";
+} from "./imaging/loaders/multiframe_loader";
 
 import {
   fileManager,
@@ -181,7 +181,7 @@ import {
   resetFileManager,
   populateFileManager,
   getFileImageId
-} from "./imaging/loaders/fileLoader";
+} from "./imaging/loaders/file_loader";
 
 import {
   getColormapsList,
@@ -191,12 +191,12 @@ import {
   HSVToRGB
 } from "./imaging/image_colormaps";
 
-import { saveAnnotations, loadAnnotations } from "./imaging/tools/tools.io";
+import { saveAnnotations, loadAnnotations } from "./imaging/tools/io";
 
 import {
   addMouseKeyHandlers,
   toggleMouseToolsListeners
-} from "./imaging/tools/tools.interaction";
+} from "./imaging/tools/interaction";
 
 export {
   VERSION,
@@ -286,7 +286,7 @@ export {
   HSVToRGB,
   // image_contours
   parseContours,
-  // loaders/commonLoader
+  // loaders/common_loader
   updateLarvitarManager,
   populateLarvitarManager,
   getLarvitarManager,
@@ -295,24 +295,24 @@ export {
   removeSeriesFromLarvitarManager,
   getSeriesDataFromLarvitarManager,
   getImageFrame,
-  // loaders/nrrdLoader
+  // loaders/nrrd_loader
   buildNrrdImage,
   getNrrdImageId,
   loadNrrdImage,
   getImageIdFromSlice,
   getSliceNumberFromImageId,
   getNrrdSerieDimensions,
-  // loaders/resliceLoader
+  // loaders/reslice_loader
   loadReslicedImage,
-  // loaders/dicomLoader
+  // loaders/dicom_loader
   getDicomImageId,
   cacheImages,
-  // loaders/multiFrameLoader
+  // loaders/multiframe_loader
   loadMultiFrameImage,
   buildMultiFrameImage,
   getMultiFrameImageId,
   clearMultiFrameCache,
-  // loaders/fileLoader
+  // loaders/file_loader
   fileManager,
   resetFileLoader,
   resetFileManager,
@@ -334,7 +334,7 @@ export {
   syncToolStack,
   updateStackToolState,
   setSegmentationConfig,
-  // tools.main
+  // tools/main
   csToolsCreateStack,
   csToolsUpdateImageIds,
   csToolsUpdateImageIndex,
@@ -347,16 +347,16 @@ export {
   setToolEnabled,
   setToolPassive,
   exportAnnotations,
-  // tools.default
+  // tools/default
   DEFAULT_TOOLS,
   getDefaultToolsByType,
   setDefaultToolsProps,
-  // tools.io
+  // tools/io
   saveAnnotations,
   loadAnnotations,
-  // tools.interaction
+  // tools/interaction
   addMouseKeyHandlers,
-  // tools.segmentation
+  // tools/segmentation
   initSegmentationModule,
   addSegmentationMask,
   setActiveLabelmap,

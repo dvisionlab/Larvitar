@@ -15,7 +15,7 @@
 This library provides common dicom functionalities to be used in web-applications. Multiplanar reformat on axial, sagittal and coronal viewports is included as well as custom loader/exporter for nrrd files and orthogonal reslice.
 
 - `index` main file
-- `dataDictionary` json file for dicom tags
+- `data_dictionary` json file for dicom tags
 - `image_colormaps` provides color maps functionalities
 - `image_contours` using to populate cornerstone tool for segmentation contours on 2D images
 - `image_io` import a dicom image in .nrrd format and build contiguous array for exporting data as volume
@@ -28,23 +28,23 @@ This library provides common dicom functionalities to be used in web-application
 - `image_store` provides data storage functionalities, vuex support is integrated
 - `image_tools` using to handle standard and custom cornerstone tools
 - `image_utils` utility functions on pixels and metadata tags
-- `loaders/commonLoader` common functionalities for custom loaders
-- `loaders/dicomLoader` custom loader for DICOM files with support for multiplanar reformat (axial, sagittal and coronal planes)
-- `loaders/fileLoader` custom loader for png/jpg files
-- `loaders/nrrdLoader`custom loader for nrrd files with support for multiplanar reformat (axial, sagittal and coronal planes)
-- `loaders/resliceLoader` custom loader for resliced data
-- `loaders/multiFrameLoader` custom loader for multiFrame data
+- `loaders/common_loader` common functionalities for custom loaders
+- `loaders/dicom_loader` custom loader for DICOM files with support for multiplanar reformat (axial, sagittal and coronal planes)
+- `loaders/file_loader` custom loader for png/jpg files
+- `loaders/nrrd_loader`custom loader for nrrd files with support for multiplanar reformat (axial, sagittal and coronal planes)
+- `loaders/reslice_loader` custom loader for resliced data
+- `loaders/multiFrame_loader` custom loader for multiFrame data
 - `parsers/nrrd` custom parser for nrrd data
-- `tools/contourTool` is a custom cornerstone tool for 2D visualization of segmented images
-- `tools/diameterTool` is a custom cornerstone tool for 2D visualization of diameter widgets
-- `tools/editMaskTool` is a custom cornerstone tool for 2D visualization of segmentation masks with brush functionalities
-- `tools/seedTool` is a custom cornerstone tool for 2D interactive seeding with custom colors and labels
-- `tools/thresholdsBrushTool` is a custom cornerstone tool for handling thresholds in a brush tool
-- `tools/tools.default` default tools map and configuration
-- `tools/tools.io` import and export functionalities for tools
-- `tools/tools.main` tools main functionalities
-- `tools/tools.state` tools state management
-- `tools/tools.segmentation` segmentation masks management
+- `tools/custom/contour_tool` is a custom cornerstone tool for 2D visualization of segmented images
+- `tools/custom/diameter_tool` is a custom cornerstone tool for 2D visualization of diameter widgets
+- `tools/custom/edit_mask_tool` is a custom cornerstone tool for 2D visualization of segmentation masks with brush functionalities
+- `tools/custom/seed_tool` is a custom cornerstone tool for 2D interactive seeding with custom colors and labels
+- `tools/custom/thresholds_brush_tool` is a custom cornerstone tool for handling thresholds in a brush tool
+- `tools/default` default tools map and configuration
+- `tools/io` import and export functionalities for tools
+- `tools/main` tools main functionalities
+- `tools/state` tools state management
+- `tools/segmentation` segmentation masks management
 - `modules/vuex/larvitar.js` optional vuex state module
 
 <br>

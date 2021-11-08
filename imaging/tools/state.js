@@ -1,8 +1,14 @@
+/** @module imaging/tools/state
+ *  @desc  This file provides functionalities
+ *         for handling tools' state
+ */
+
 // external libraries
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
-
 import { each } from "lodash";
+
+// internal libraries
 import { state_example } from "./cstools_state_example.js";
 
 /**

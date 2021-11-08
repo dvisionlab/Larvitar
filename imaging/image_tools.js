@@ -9,13 +9,13 @@ import cornerstoneTools from "cornerstone-tools";
 import { each, extend, filter, remove, cloneDeep } from "lodash";
 
 // internal libraries
-import { DEFAULT_TOOLS } from "./tools/tools.default";
-// import { SeedsTool } from "./tools/seedTool";
-import { ContoursTool } from "./tools/contourTool";
-import { EditMaskTool } from "./tools/editMaskTool";
-import { DiameterTool } from "./tools/diameterTool";
-import { getImageIdFromSlice } from "./loaders/nrrdLoader";
-import { getSeriesDataFromLarvitarManager } from "./loaders/commonLoader";
+import { DEFAULT_TOOLS } from "./tools/default";
+// import { SeedsTool } from "./tools/custom/seedTool";
+import { ContoursTool } from "./tools/custom/contour_tool";
+import { EditMaskTool } from "./tools/custom/edit_mask_tool";
+import { DiameterTool } from "./tools/custom/diameter_tool";
+import { getImageIdFromSlice } from "./loaders/nrrd_loader";
+import { getSeriesDataFromLarvitarManager } from "./loaders/common_loader";
 import { parseContours } from "./image_contours";
 import { isElement } from "./image_utils";
 
@@ -44,7 +44,7 @@ import { isElement } from "./image_utils";
  */
 
 /**
- * Add all default tools, as listed in tools.default.js
+ * Add all default tools, as listed in tools/default.js
  * @function addDefaultTools
  * @deprecated (OBSOLETE)
  */
@@ -253,7 +253,7 @@ export const addSeedsTool = function (preLoadSeeds, initViewport) {
 };
 
 /**
- * Delete all measurements from tools state, for tools that have the "cleaneable" prop set to true in tools.default.js
+ * Delete all measurements from tools state, for tools that have the "cleaneable" prop set to true in tools/default.js
  * @function clearMeasurements
  */
 export const clearMeasurements = function () {
@@ -274,7 +274,7 @@ export const clearMeasurements = function () {
  * Set Tool "active" on all elements (ie, rendered and manipulable) & refresh cornerstone elements
  * @function setToolActive
  * @param {String} toolName - The tool name.
- * @param {Object} options - The custom options. @default from tools.default.js
+ * @param {Object} options - The custom options. @default from tools/default.js
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  */

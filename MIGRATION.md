@@ -20,5 +20,5 @@ We chose to migrate all functions using callback to promise. Promises are JavaSc
    -  *renderImage* now returns a promise which will resolve when image is displayed
 -  image_reslice module
    -  *resliceImage* now returns a promise which will resolve when reslice data is available
--  tools.segmentation module
+-  tools/segmentation module
    -  *addSegmentationMask* now returns a promise which will resolve when segmentation mask is added

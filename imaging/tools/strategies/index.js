@@ -1,2 +1,2 @@
-export { eraseInsideFreehand, eraseOutsideFreehand } from "./eraseFreehand";
-export { fillInsideFreehand, fillOutsideFreehand } from "./fillFreehand";
+export { eraseInsideFreehand, eraseOutsideFreehand } from "./erase_freehand";
+export { fillInsideFreehand, fillOutsideFreehand } from "./fill_freehand";

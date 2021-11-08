@@ -22,8 +22,8 @@ import cornerstone from "cornerstone-core";
 import { convertBytes } from "dicom-character-set";
 
 // internal libraries
-import { getDicomImageId } from "./loaders/dicomLoader";
-import TAG_DICT from "./dataDictionary.json";
+import { getDicomImageId } from "./loaders/dicom_loader";
+import TAG_DICT from "./data_dictionary.json";
 
 // global module variables
 // variables used to manage the reslice functionality

@@ -1,4 +1,4 @@
-/** @module loaders/dicomLoader
+/** @module loaders/dicom_loader
  *  @desc This file provides functionalities for
  *        custom DICOM Loader
  */

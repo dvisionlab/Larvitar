@@ -1,4 +1,4 @@
-/** @module loaders/fileLoader
+/** @module loaders/file_loader
  *  @desc This file provides functionalities for
  *        custom File Loader
  */

@@ -1,14 +1,21 @@
+/** @module imaging/tools/custom/polygon_scissors_tool
+ *  @desc  This file provides functionalities for
+ *         a custom polyline scissors cornestone tool
+ */
+
+// external libraries
 import cornerstoneTools from "cornerstone-tools";
+const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
+const { rectangleRoiCursor } = cornerstoneTools.importInternal("tools/cursors");
+
+// internal libraries
 import {
   fillInsideFreehand,
   fillOutsideFreehand,
   eraseOutsideFreehand,
   eraseInsideFreehand
-} from "./strategies"; // cannot import strategies in other way 🤷
-import polygonSegmentationMixin from "./polygonSegmentationMixin";
-
-const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
-const { rectangleRoiCursor } = cornerstoneTools.importInternal("tools/cursors");
+} from "../strategies"; // cannot import strategies in other way 🤷
+import polygonSegmentationMixin from "../polygon_segmentation_mixin";
 
 // Register custom mixin
 cornerstoneTools.register(

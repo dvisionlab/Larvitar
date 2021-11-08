@@ -1,14 +1,18 @@
+/** @module imaging/tools/segmentation
+ *  @desc  This file provides functionalities
+ *         for handling masks and luts
+ */
+
 // external libraries
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
-// tools
-import { setToolActive, setToolDisabled } from "./tools.main";
-// utils
 import { cloneDeep, extend, values } from "lodash";
-
 const segModule = cornerstoneTools.getModule("segmentation");
 const setters = segModule.setters;
 const getters = segModule.getters;
+
+// internal libraries
+import { setToolActive, setToolDisabled } from "./main";
 
 /**
  * THIS MODULE IS A WIP

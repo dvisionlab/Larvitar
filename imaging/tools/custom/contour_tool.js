@@ -1,10 +1,16 @@
+/** @module imaging/tools/custom/contour_tool
+ *  @desc  This file provides functionalities for
+ *         rendering segmentation contours with a
+ *         custom cornestone tool
+ */
+
 // external libraries
 import cornerstone from "cornerstone-core";
 import csTools from "cornerstone-tools";
 import { each, map } from "lodash";
 
 // internal libraries
-import { addToolStateSingleSlice } from "../image_tools";
+import { addToolStateSingleSlice } from "../../image_tools";
 
 // cornerstone tools imports
 const external = csTools.external;
@@ -99,19 +105,16 @@ export class ContoursTool extends BaseAnnotationTool {
     this._drawingMouseMoveCallback = this._drawingMouseMoveCallback.bind(this);
     this._drawingMouseDragCallback = this._drawingMouseDragCallback.bind(this);
     this._drawingMouseUpCallback = this._drawingMouseUpCallback.bind(this);
-    this._drawingMouseDoubleClickCallback = this._drawingMouseDoubleClickCallback.bind(
-      this
-    );
+    this._drawingMouseDoubleClickCallback =
+      this._drawingMouseDoubleClickCallback.bind(this);
     this._editMouseUpCallback = this._editMouseUpCallback.bind(this);
     this._editMouseDragCallback = this._editMouseDragCallback.bind(this);
 
-    this._drawingTouchStartCallback = this._drawingTouchStartCallback.bind(
-      this
-    );
+    this._drawingTouchStartCallback =
+      this._drawingTouchStartCallback.bind(this);
     this._drawingTouchDragCallback = this._drawingTouchDragCallback.bind(this);
-    this._drawingDoubleTapClickCallback = this._drawingDoubleTapClickCallback.bind(
-      this
-    );
+    this._drawingDoubleTapClickCallback =
+      this._drawingDoubleTapClickCallback.bind(this);
     this._editTouchDragCallback = this._editTouchDragCallback.bind(this);
 
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
@@ -1340,11 +1343,12 @@ export class ContoursTool extends BaseAnnotationTool {
 
     data.canComplete = false;
 
-    const mouseAtOriginHandle = this._isDistanceSmallerThanCompleteSpacingCanvas(
-      element,
-      points[0],
-      mousePoint
-    );
+    const mouseAtOriginHandle =
+      this._isDistanceSmallerThanCompleteSpacingCanvas(
+        element,
+        points[0],
+        mousePoint
+      );
 
     if (
       mouseAtOriginHandle &&
@@ -1398,11 +1402,12 @@ export class ContoursTool extends BaseAnnotationTool {
     const mousePoint = config.mouseLocation.handles.start;
     const points = data.handles.points;
 
-    const mouseAtOriginHandle = this._isDistanceSmallerThanCompleteSpacingCanvas(
-      element,
-      points[0],
-      mousePoint
-    );
+    const mouseAtOriginHandle =
+      this._isDistanceSmallerThanCompleteSpacingCanvas(
+        element,
+        points[0],
+        mousePoint
+      );
 
     if (mouseAtOriginHandle) {
       data.canComplete = true;

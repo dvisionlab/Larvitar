@@ -1,4 +1,4 @@
-/** @module loaders/resliceLoader
+/** @module loaders/reslice_loader
  *  @desc This file provides functionalities for
  *        custom Reslice Loader
  */
@@ -12,7 +12,7 @@ import {
   getImageFrame,
   getLarvitarImageTracker,
   getLarvitarManager
-} from "./commonLoader";
+} from "./common_loader";
 
 /*
  * This module provides the following functions to be exported:

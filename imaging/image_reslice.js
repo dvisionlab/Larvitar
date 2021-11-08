@@ -12,7 +12,7 @@ import { getReslicedMetadata, getReslicedPixeldata } from "./image_utils";
 import {
   getLarvitarImageTracker,
   getLarvitarManager
-} from "./loaders/commonLoader";
+} from "./loaders/common_loader";
 import { larvitar_store } from "./image_store";
 
 /*

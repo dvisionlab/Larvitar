@@ -1,4 +1,4 @@
-/** @module loaders/nrrdLoader
+/** @module loaders/nrrd_loader
  *  @desc This file provides functionalities for
  *        custom NRRD Loader
  */
@@ -20,7 +20,7 @@ import {
   getImageFrame,
   getLarvitarImageTracker,
   getLarvitarManager
-} from "./commonLoader";
+} from "./common_loader";
 
 // global module variables
 let customImageLoaderCounter = 0;

@@ -3,9 +3,9 @@
 // import { each, cloneDeep } from "lodash";
 
 // // internal libraries
-// import { remapVoxel } from "../image_utils";
-// import { addToolStateSingleSlice, setToolEnabled } from "../image_tools";
-// import { getSliceNumberFromImageId } from "../loaders/nrrdLoader";
+// import { remapVoxel } from "../../image_utils";
+// import { addToolStateSingleSlice, setToolEnabled } from "../../image_tools";
+// import { getSliceNumberFromImageId } from "../../loaders/nrrd_loader";
 
 // // cornerstone tools imports
 // const BaseAnnotationTool = csTools.importInternal("base/BaseAnnotationTool");

@@ -1,4 +1,4 @@
-/** @module loaders/commonLoader
+/** @module loaders/common_loader
  *  @desc This file provides functionalities for
  *        custom WadoImageLoaders
  */
@@ -9,7 +9,10 @@ import { each } from "lodash";
 import { updateLoadedStack } from "../image_loading";
 
 // internal libraries
-import { buildMultiFrameImage, clearMultiFrameCache } from "./multiframeLoader";
+import {
+  buildMultiFrameImage,
+  clearMultiFrameCache
+} from "./multiframe_loader";
 
 // global variables
 var larvitarManager = null;

@@ -1,11 +1,18 @@
-import { DEFAULT_MOUSE_KEYS } from "./tools.default";
-import { setToolActive } from "./tools.main";
+/** @module imaging/tools/interaction
+ *  @desc  This file provides functionalities for
+ *         tools interactions
+ */
+
+// external libraries
+import { throttle } from "lodash";
+import * as keyCodes from "keycode-js";
+
+// internal libraries
+import { DEFAULT_MOUSE_KEYS } from "./default";
+import { setToolActive } from "./main";
 import { isElement } from "../image_utils";
 import { larvitar_store } from "../image_store";
 import { updateViewportData } from "../image_rendering";
-
-import { throttle } from "lodash";
-import * as keyCodes from "keycode-js";
 
 /**
  * TOOLS INTERACTIONS TODOS:
@@ -21,7 +28,7 @@ import * as keyCodes from "keycode-js";
  * - "restore previous active tool" instead of passed "default" tool
  * - manage left button (an idea could be to cycle over object keys for both buttons)
  * - possibility to change modifier keys
- * @param {Object} config - see tools.default
+ * @param {Object} config - see tools/default
  * @param {Array} viewports - The hmtl element ids to be used for tool activation.
  */
 

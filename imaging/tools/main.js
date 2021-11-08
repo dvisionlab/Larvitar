@@ -1,29 +1,30 @@
+/** @module imaging/tools/main
+ *  @desc  This file provides functionalities
+ *         for initializing tools and stacks
+ */
+
 // external libraries
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
 import cornerstoneMath from "cornerstone-math";
 import Hammer from "hammerjs";
-
 import { each, extend } from "lodash";
 
-import {
-  saveAnnotations,
-  loadAnnotations,
-  exportAnnotations
-} from "./tools.io";
+// internal libraries
+import { saveAnnotations, loadAnnotations, exportAnnotations } from "./io";
 import {
   DEFAULT_TOOLS,
   DEFAULT_STYLE,
   DEFAULT_SETTINGS,
   dvTools
-} from "./tools.default";
+} from "./default";
 import { larvitar_store } from "../image_store";
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
  * @function initializeCSTools
- * @param {Object} settings - the settings object (see tools.default.js)
- * @param {Object} settings - the style object (see tools.default.js)
+ * @param {Object} settings - the settings object (see tools/default.js)
+ * @param {Object} settings - the style object (see tools/default.js)
  * @example larvitar.initializeCSTools({showSVGCursors:false}, {color: "0000FF"});
  */
 const initializeCSTools = function (settings, style) {
@@ -137,7 +138,7 @@ const addTool = function (toolName, customConfig, targetElementId) {
 };
 
 /**
- * Add all default tools, as listed in tools.default.js
+ * Add all default tools, as listed in tools/default.js
  * @function addDefaultTools
  */
 export const addDefaultTools = function (elementId) {
@@ -200,7 +201,7 @@ function tryUpdateImage(element) {
  * Set Tool "active" on all elements (ie, rendered and manipulable) & refresh cornerstone elements
  * @function setToolActive
  * @param {String} toolName - The tool name.
- * @param {Object} options - The custom options. @default from tools.default.js
+ * @param {Object} options - The custom options. @default from tools/default.js
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  * @param {Boolean} doNotSetInStore - Flag to avoid setting in store (useful on tools initialization eg in addDefaultTools). NOTE: This is just a hack, we must rework tools/ui sync.
  */
@@ -327,7 +328,7 @@ const setToolPassive = function (toolName, viewports) {
 /**
  * Set cornerstone tools custom configuration (extend default configuration)
  * @function setToolsStyle
- * @param {Object} style - the style object (see tools.defaults.js)
+ * @param {Object} style - the style object (see tools/defaults.js)
  */
 const setToolsStyle = function (style) {
   extend(DEFAULT_STYLE, style);

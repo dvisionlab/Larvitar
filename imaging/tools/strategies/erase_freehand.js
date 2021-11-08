@@ -1,28 +1,27 @@
+/** @module imaging/strategies/erase_freehand
+ *  @desc  This file provides functionalities for
+ *         erasing pixels
+ */
+
+// external libraries
 import cornerstoneTools from "cornerstone-tools";
-
-const {
-  getBoundingBoxAroundPolygon,
-  fillInsideShape,
-  fillOutsideShape
-} = cornerstoneTools.importInternal("util/segmentationUtils");
-
+const { getBoundingBoxAroundPolygon, eraseInsideShape, eraseOutsideShape } =
+  cornerstoneTools.importInternal("util/segmentationUtils");
 const isPointInPolygon = cornerstoneTools.importInternal(
   "util/isPointInPolygon"
 );
-
 const getLogger = cornerstoneTools.importInternal("util/getLogger");
-
-const logger = getLogger("util:segmentation:operations:fillInsideFreehand");
+const logger = getLogger("util:segmentation:operations:eraseInsideFreehand");
 
 /**
- * Fill all pixels inside/outside the region defined by
- * `operationData.points` with the `activeSegmentIndex` value.
+ * Erase all pixels labeled with the activeSegmentIndex,
+ * in the region defined by evt.operationData.points.
  * @param  {} evt The Cornerstone event.
  * @param  {} operationData An object containing the `pixelData` to
  *                          modify, the `segmentIndex` and the `points` array.
  * @returns {null}
  */
-function fillFreehand(evt, operationData, inside = true) {
+function eraseFreehand(evt, operationData, inside = true) {
   const { points, segmentationMixinType } = operationData;
 
   if (segmentationMixinType !== `freehandSegmentationMixin`) {
@@ -33,22 +32,19 @@ function fillFreehand(evt, operationData, inside = true) {
     return;
   }
 
-  // Obtain the bounding box of the entire drawing so that
-  // we can subset our search. Outside of the bounding box,
-  // everything is outside of the polygon.
   const { image } = evt.detail;
   const vertices = points.map(a => [a.x, a.y]);
   const [topLeft, bottomRight] = getBoundingBoxAroundPolygon(vertices, image);
 
   inside
-    ? fillInsideShape(
+    ? eraseInsideShape(
         evt,
         operationData,
         point => isPointInPolygon([point.x, point.y], vertices),
         topLeft,
         bottomRight
       )
-    : fillOutsideShape(
+    : eraseOutsideShape(
         evt,
         operationData,
         point => isPointInPolygon([point.x, point.y], vertices),
@@ -58,23 +54,23 @@ function fillFreehand(evt, operationData, inside = true) {
 }
 
 /**
- * Fill all pixels inside/outside the region defined by `operationData.points`.
+ * Erase all pixels inside/outside the region defined by `operationData.points`.
  * @param  {} evt The Cornerstone event.
  * @param {}  operationData An object containing the `pixelData` to
  *                          modify, the `segmentIndex` and the `points` array.
  * @returns {null}
  */
-export function fillInsideFreehand(evt, operationData) {
-  fillFreehand(evt, operationData, true);
+export function eraseInsideFreehand(evt, operationData) {
+  eraseFreehand(evt, operationData, true);
 }
 
 /**
- * Fill all pixels outside the region defined by `operationData.points`.
+ * Erase all pixels outside the region defined by `operationData.points`.
  * @param  {} evt The Cornerstone event.
  * @param  {} operationData An object containing the `pixelData` to
  *                          modify, the `segmentIndex` and the `points` array.
  * @returns {null}
  */
-export function fillOutsideFreehand(evt, operationData) {
-  fillFreehand(evt, operationData, false);
+export function eraseOutsideFreehand(evt, operationData) {
+  eraseFreehand(evt, operationData, false);
 }

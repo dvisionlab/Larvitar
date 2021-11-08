@@ -1,3 +1,10 @@
+/** @module imaging/tools/default
+ *  @desc  This file provides definitions
+ *         for default tools
+ */
+
+// external libraries
+
 /** @module tools/default */
 
 /* DEFINE DEFAULT TOOLS
@@ -19,8 +26,8 @@
  */
 
 import { filter, isArray } from "lodash";
-import ThresholdsBrushTool from "./thresholdsBrushTool";
-import PolylineScissorsTool from "./polylineScissorsTool";
+import ThresholdsBrushTool from "./custom/thresholds_brush_tool";
+import PolylineScissorsTool from "./polyline_scissors_tool";
 
 /**
  * These tools are added with `addDefaultTools()`
