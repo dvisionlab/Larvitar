@@ -220,6 +220,18 @@
             "OrientationMarkers",
             "ScaleOverlay"
           );
+          // remove not working tools for the live example
+          // see open issue
+          tools = _.without(
+            tools,
+            "Brush",
+            "ThresholdsBrush",
+            "RectangleScissors",
+            "FreehandScissors",
+            "CircleScissors",
+            "CorrectionScissors",
+            "PolylineScissors"
+          );
           let increment = e.shiftKey ? -1 : 1;
           tool_counter =
             tool_counter == tools.length - 1 ? 0 : tool_counter + increment;
