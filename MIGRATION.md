@@ -8,17 +8,17 @@ We chose to migrate all functions using callback to promise. Promises are JavaSc
 
 # Breaking changes
 
-- image_io module:
+- imageIo module:
   -  *getCachedPixelData* now returns a promise which will resolve to a pixel data array or fail if an error occurs
-- image_parsing module
+- imageParsing module
   - *readFiles* now returns a promise which will resolve to an image object list or fail if an error occurs
   - *readFile* now returns a promise which will resolve to an image object or fail if an error occurs
   - *dumpDataset* has been renamed to parseDataset [internal API]
   - *dumpFiles* has been renamed to parseFiles [internal API]
   - *dumpFile* has been renamed to parseFile [internal API]
--  image_rendering module
+-  imageRendering module
    -  *renderImage* now returns a promise which will resolve when image is displayed
--  image_reslice module
+-  imageReslice module
    -  *resliceImage* now returns a promise which will resolve when reslice data is available
 -  tools/segmentation module
    -  *addSegmentationMask* now returns a promise which will resolve when segmentation mask is added

@@ -18,7 +18,7 @@ import {
   DEFAULT_SETTINGS,
   dvTools
 } from "./default";
-import { larvitar_store } from "../image_store";
+import { larvitar_store } from "../imageStore";
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)

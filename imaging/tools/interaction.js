@@ -10,9 +10,9 @@ import * as keyCodes from "keycode-js";
 // internal libraries
 import { DEFAULT_MOUSE_KEYS } from "./default";
 import { setToolActive } from "./main";
-import { isElement } from "../image_utils";
-import { larvitar_store } from "../image_store";
-import { updateViewportData } from "../image_rendering";
+import { isElement } from "../imageUtils";
+import { larvitar_store } from "../imageStore";
+import { updateViewportData } from "../imageRendering";
 
 /**
  * TOOLS INTERACTIONS TODOS:

@@ -26,8 +26,8 @@
  */
 
 import { filter, isArray } from "lodash";
-import ThresholdsBrushTool from "./custom/thresholds_brush_tool";
-import PolylineScissorsTool from "./custom/polyline_scissors_tool";
+import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
+import PolylineScissorsTool from "./custom/polylineScissorsTool";
 
 /**
  * These tools are added with `addDefaultTools()`

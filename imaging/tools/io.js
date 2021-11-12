@@ -10,7 +10,7 @@ import { each, map, assign, invert } from "lodash";
 import { unparse } from "papaparse";
 
 // internal libraries
-import { setToolEnabled } from "../image_tools";
+import { setToolEnabled } from "../imageTools";
 
 // DEV
 // import { saved_state_2 } from "./cstools_state_example.js";
