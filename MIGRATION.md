@@ -1,6 +1,6 @@
 # Introduction
 
-This guide is primarily for user with prior Larvitar v0.x experience who want to learn about the new features and changes in Larvitar v1.x. While it looks like a lot has changed, a lot of what you know and love abut Larvitar is still the same; but we wanted to be as thorough as possibile and provide detailed explanations or examples for every documented change.
+This guide is primarily for user with prior Larvitar v0.x experience who want to learn about the new features and changes in Larvitar v1.x. While it looks like a lot has changed, a lot of what you know and love about Larvitar is still the same; but we wanted to be as thorough as possibile and provide detailed explanations or examples for every documented change.
 
 # Notable new features
 
