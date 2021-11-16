@@ -1,3 +1,7 @@
+/** @module loaders/multiframeLoader
+ *  @desc This file is a custom wado loader for multiframe images
+ */
+
 // external libraries
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { each, range } from "lodash";
@@ -8,7 +12,7 @@ import {
   getLarvitarImageTracker,
   getLarvitarManager
 } from "./commonLoader";
-import { dumpDataSet } from "../image_parsing";
+import { parseDataSet } from "../imageParsing";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -84,7 +88,7 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       // EXTRACT MULTIFRAME METADATA (x52009230) Per-frame Functional Groups Sequence
       let frameMetadata = { ...metadata };
 
-      dumpDataSet(dataSet, frameMetadata, {
+      parseDataSet(dataSet, frameMetadata, {
         tags: ["x52009230"],
         frameId: frameNumber
       });

@@ -44,90 +44,97 @@
           <p style="font-size:0.6vw;">
             let demoFiles = [];
             let counter = 0;
-
+      
             const getDemoFileNames = function () {
-                let demoFileList = [];
-                for (let i = 1; i < 25; i++) {
+              let demoFileList = [];
+              for (let i = 1; i < 25; i++) {
                 let filename = "anon" + i;
                 demoFileList.push(filename);
-                }
-                return demoFileList;
+              }
+              return demoFileList;
             };
-
+      
             // init all
             larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
             larvitar.initializeCSTools();
             larvitar.larvitar_store.addViewport("viewer");
-
+      
             async function createFile(fileName, cb) {
-                let response = await fetch("./demo/" + fileName);
-                let data = await response.blob();
-                let file = new File([data], fileName);
-                demoFiles.push(file);
-                counter++;
-                if (counter == 24) {
+              let response = await fetch("./demo/" + fileName);
+              let data = await response.blob();
+              let file = new File([data], fileName);
+              demoFiles.push(file);
+              counter++;
+              if (counter == 24) {
                 cb();
-                }
+              }
             }
-
+      
             let layer_1, layer_2;
-
+      
             function renderSerie() {
-                larvitar.readFiles(demoFiles, function (seriesStack, err) {
-                let seriesId = _.keys(seriesStack)[0];
-
-                let serie_1 = { ...seriesStack[seriesId] };
-                let serie_2 = { ...seriesStack[seriesId] };
-
-                layer_1 = larvitar.buildLayer(serie_1, "main");
-                layer_2 = larvitar.buildLayer(serie_2, "colored", {
+              larvitar
+                .readFiles(demoFiles)
+                .then(seriesStack => {
+                  let seriesId = _.keys(seriesStack)[0];
+      
+                  let serie_1 = { ...seriesStack[seriesId] };
+                  let serie_2 = { ...seriesStack[seriesId] };
+      
+                  layer_1 = larvitar.buildLayer(serie_1, "main");
+                  layer_2 = larvitar.buildLayer(serie_2, "colored", {
                     opacity: 0.25,
                     colormap: "hotIron"
-                });
-
-                // define a layer into the series object to be rendered
-                serie_1.layer = layer_1;
-                serie_2.layer = layer_2;
-
-                larvitar.renderImage(serie_1, "viewer");
-                larvitar.renderImage(serie_2, "viewer");
-
-                $("#active-layer").html("Active Layer: main");
-                $("#opacity").html("Opacity: 1.0");
-
-                larvitar.addDefaultTools();
-                });
+                  });
+      
+                  // define a layer into the series object to be rendered
+                  serie_1.layer = layer_1;
+                  serie_2.layer = layer_2;
+      
+                  larvitar.renderImage(serie_1, "viewer").then(() => {
+                    console.log("Image 1 has been rendered");
+                  });
+                  larvitar.renderImage(serie_2, "viewer").then(() => {
+                    console.log("Image 2 has been rendered");
+                  });
+      
+                  $("#active-layer").html("Active Layer: main");
+                  $("#opacity").html("Opacity: 1.0");
+      
+                  larvitar.addDefaultTools();
+                })
+                .catch(err => console.log(err));
             }
             let demoFileList = getDemoFileNames();
             _.each(demoFileList, function (demoFile) {
-                createFile(demoFile, renderSerie);
+              createFile(demoFile, renderSerie);
             });
-
+      
             document.onkeypress = function (e) {
-                e = e || window.event;
-                if (e.keyCode == 97) {
+              e = e || window.event;
+              if (e.keyCode == 97) {
                 let activeLayer = larvitar.getActiveLayer("viewer");
                 let newActiveLayer =
-                    activeLayer.layerId == layer_1.id ? layer_2 : layer_1;
-
+                  activeLayer.layerId == layer_1.id ? layer_2 : layer_1;
+      
                 larvitar.setActiveLayer("viewer", newActiveLayer.id);
                 $("#active-layer").html(
-                    "Active Layer: " + newActiveLayer.options.name
+                  "Active Layer: " + newActiveLayer.options.name
                 );
                 $("#opacity").html("Opacity: " + newActiveLayer.options.opacity);
-                }
-                if (e.keyCode == 111) {
+              }
+              if (e.keyCode == 111) {
                 let activeLayer = larvitar.getActiveLayer("viewer");
                 let opacity =
-                    activeLayer.options.opacity == 1.0
+                  activeLayer.options.opacity == 1.0
                     ? 0.0
                     : activeLayer.options.opacity + 0.25;
                 larvitar.updateLayer("viewer", activeLayer.layerId, {
-                    opacity: opacity
+                  opacity: opacity
                 });
                 $("#opacity").html("Opacity: " + opacity);
-                }
+              }
             };
           </p>
           </code>
@@ -176,30 +183,37 @@
       let layer_1, layer_2;
 
       function renderSerie() {
-        larvitar.readFiles(demoFiles, function (seriesStack, err) {
-          let seriesId = _.keys(seriesStack)[0];
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            let seriesId = _.keys(seriesStack)[0];
 
-          let serie_1 = { ...seriesStack[seriesId] };
-          let serie_2 = { ...seriesStack[seriesId] };
+            let serie_1 = { ...seriesStack[seriesId] };
+            let serie_2 = { ...seriesStack[seriesId] };
 
-          layer_1 = larvitar.buildLayer(serie_1, "main");
-          layer_2 = larvitar.buildLayer(serie_2, "colored", {
-            opacity: 0.25,
-            colormap: "hotIron"
-          });
+            layer_1 = larvitar.buildLayer(serie_1, "main");
+            layer_2 = larvitar.buildLayer(serie_2, "colored", {
+              opacity: 0.25,
+              colormap: "hotIron"
+            });
 
-          // define a layer into the series object to be rendered
-          serie_1.layer = layer_1;
-          serie_2.layer = layer_2;
+            // define a layer into the series object to be rendered
+            serie_1.layer = layer_1;
+            serie_2.layer = layer_2;
 
-          larvitar.renderImage(serie_1, "viewer");
-          larvitar.renderImage(serie_2, "viewer");
+            larvitar.renderImage(serie_1, "viewer").then(() => {
+              console.log("Image 1 has been rendered");
+            });
+            larvitar.renderImage(serie_2, "viewer").then(() => {
+              console.log("Image 2 has been rendered");
+            });
 
-          $("#active-layer").html("Active Layer: main");
-          $("#opacity").html("Opacity: 1.0");
+            $("#active-layer").html("Active Layer: main");
+            $("#opacity").html("Opacity: 1.0");
 
-          larvitar.addDefaultTools();
-        });
+            larvitar.addDefaultTools();
+          })
+          .catch(err => console.log(err));
       }
       let demoFileList = getDemoFileNames();
       _.each(demoFileList, function (demoFile) {

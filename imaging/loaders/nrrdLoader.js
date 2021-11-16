@@ -14,7 +14,7 @@ import {
   getNormalOrientation,
   getPixelRepresentation,
   getTypedArrayFromDataType
-} from "../image_utils";
+} from "../imageUtils";
 
 import {
   getImageFrame,
@@ -243,7 +243,11 @@ export const loadNrrdImage = function (imageId) {
  * @param {String} seriesId The series id
  * @return {String} image id
  */
-export function getImageIdFromSlice(sliceNumber, orientation, seriesId) {
+export const getImageIdFromSlice = function (
+  sliceNumber,
+  orientation,
+  seriesId
+) {
   var prefix = "nrrdLoader://";
   var serieImageTracker;
   let imageTracker = getLarvitarImageTracker();
@@ -266,7 +270,7 @@ export function getImageIdFromSlice(sliceNumber, orientation, seriesId) {
   var imageId = prefix.concat(imageIndex.toString());
 
   return imageId;
-}
+};
 
 /**
  * Retrieve slice number for a the given orientation
@@ -277,7 +281,7 @@ export function getImageIdFromSlice(sliceNumber, orientation, seriesId) {
  * @param {String} seriesId The series id
  * @return {Integer} The image slice number
  */
-export function getSliceNumberFromImageId(imageId, orientation) {
+export const getSliceNumberFromImageId = function (imageId, orientation) {
   let imageTracker = getLarvitarImageTracker();
   var firstImageId = findKey(imageTracker, entry => {
     return entry[1] == orientation;
@@ -289,7 +293,7 @@ export function getSliceNumberFromImageId(imageId, orientation) {
     parseInt(imageNumber) - parseInt(firstImageId.split("//").pop());
 
   return imageIndex;
-}
+};
 
 /**
  * Get series dimension for each view
@@ -297,7 +301,7 @@ export function getSliceNumberFromImageId(imageId, orientation) {
  * @function getNrrdSerieDimensions
  * @return {Object} Series dimension for each view
  */
-export function getNrrdSerieDimensions() {
+export const getNrrdSerieDimensions = function () {
   let imageTracker = getLarvitarImageTracker();
   var dim_axial = filter(imageTracker, img => {
     return img[1] == "axial";
@@ -314,7 +318,7 @@ export function getNrrdSerieDimensions() {
     coronal: [dim_sagittal.length, dim_axial.length, dim_coronal.length],
     sagittal: [dim_coronal.length, dim_axial.length, dim_sagittal.length]
   };
-}
+};
 
 /* Internal functions */
 

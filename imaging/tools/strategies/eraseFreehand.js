@@ -1,17 +1,16 @@
+/** @module imaging/strategies/eraseFreehand
+ *  @desc  This file provides functionalities for
+ *         erasing pixels
+ */
+
+// external libraries
 import cornerstoneTools from "cornerstone-tools";
-
-const {
-  getBoundingBoxAroundPolygon,
-  eraseInsideShape,
-  eraseOutsideShape
-} = cornerstoneTools.importInternal("util/segmentationUtils");
-
+const { getBoundingBoxAroundPolygon, eraseInsideShape, eraseOutsideShape } =
+  cornerstoneTools.importInternal("util/segmentationUtils");
 const isPointInPolygon = cornerstoneTools.importInternal(
   "util/isPointInPolygon"
 );
-
 const getLogger = cornerstoneTools.importInternal("util/getLogger");
-
 const logger = getLogger("util:segmentation:operations:eraseInsideFreehand");
 
 /**

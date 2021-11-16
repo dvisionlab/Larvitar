@@ -8,8 +8,8 @@ import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { has } from "lodash";
 
 // internal libraries
-import { clearImageCache } from "../image_rendering";
-import { clearCornerstoneElements } from "../image_tools";
+import { clearImageCache } from "../imageRendering";
+import { clearCornerstoneElements } from "../imageTools";
 
 // global variables
 export var fileManager = {};

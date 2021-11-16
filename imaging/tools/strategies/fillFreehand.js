@@ -1,17 +1,16 @@
+/** @module imaging/strategies/fillFreehand
+ *  @desc  This file provides functionalities for
+ *         filling pixels
+ */
+
+// external libraries
 import cornerstoneTools from "cornerstone-tools";
-
-const {
-  getBoundingBoxAroundPolygon,
-  fillInsideShape,
-  fillOutsideShape
-} = cornerstoneTools.importInternal("util/segmentationUtils");
-
+const { getBoundingBoxAroundPolygon, fillInsideShape, fillOutsideShape } =
+  cornerstoneTools.importInternal("util/segmentationUtils");
 const isPointInPolygon = cornerstoneTools.importInternal(
   "util/isPointInPolygon"
 );
-
 const getLogger = cornerstoneTools.importInternal("util/getLogger");
-
 const logger = getLogger("util:segmentation:operations:fillInsideFreehand");
 
 /**

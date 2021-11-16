@@ -4,7 +4,7 @@
  */
 
 // internal libraries
-import { loadAndCacheImages } from "../image_rendering";
+import { loadAndCacheImages } from "../imageRendering";
 
 /*
  * This module provides the following functions to be exported:

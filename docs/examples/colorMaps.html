@@ -67,14 +67,19 @@
             }
 
             function renderSerie() {
-              larvitar.readFiles(demoFiles, function (seriesStack, err) {
-                // render the first series of the study
-                let seriesId = _.keys(seriesStack)[0];
-                let serie = seriesStack[seriesId];
-                larvitar.renderImage(serie, "viewer");
-                larvitar.addDefaultTools();
-                larvitar.setToolActive("Wwwc");
-              });
+              larvitar
+                .readFiles(demoFiles)
+                .then(seriesStack => {
+                  // render the first series of the study
+                  let seriesId = _.keys(seriesStack)[0];
+                  let serie = seriesStack[seriesId];
+                  larvitar.renderImage(serie, "viewer").then(() => {
+                    console.log("Image has been rendered");
+                  });
+                  larvitar.addDefaultTools();
+                  larvitar.setToolActive("Wwwc");
+                })
+                .catch(err => console.log(err));
             }
 
             let demoFileList = getDemoFileNames();
@@ -139,14 +144,19 @@
       }
 
       function renderSerie() {
-        larvitar.readFiles(demoFiles, function (seriesStack, err) {
-          // render the first series of the study
-          let seriesId = _.keys(seriesStack)[0];
-          let serie = seriesStack[seriesId];
-          larvitar.renderImage(serie, "viewer");
-          larvitar.addDefaultTools();
-          larvitar.setToolActive("Wwwc");
-        });
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            // render the first series of the study
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            larvitar.renderImage(serie, "viewer").then(() => {
+              console.log("Image has been rendered");
+            });
+            larvitar.addDefaultTools();
+            larvitar.setToolActive("Wwwc");
+          })
+          .catch(err => console.log(err));
       }
 
       let demoFileList = getDemoFileNames();

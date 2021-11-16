@@ -14,15 +14,15 @@ import {
   getAvailableMemory
 } from "./imaging/monitors/memory";
 
-import { initLarvitarStore, larvitar_store } from "./imaging/image_store";
+import { initLarvitarStore, larvitar_store } from "./imaging/imageStore";
 
-import { parseContours } from "./imaging/image_contours";
+import { parseContours } from "./imaging/imageContours";
 
 import {
   getImagePresets,
   setImagePreset,
   setImageCustomPreset
-} from "./imaging/image_presets";
+} from "./imaging/imagePresets";
 
 import {
   getNormalOrientation,
@@ -37,7 +37,7 @@ import {
   getReslicedMetadata,
   getReslicedPixeldata,
   getDistanceBetweenSlices
-} from "./imaging/image_utils";
+} from "./imaging/imageUtils";
 
 import {
   buildHeader,
@@ -45,16 +45,16 @@ import {
   buildData,
   buildDataAsync,
   importNRRDImage
-} from "./imaging/image_io";
+} from "./imaging/imageIo";
 
-import { anonymize, encrypt } from "./imaging/image_anonymization";
+import { anonymize, encrypt } from "./imaging/imageAnonymization";
 
 import {
   buildLayer,
   updateLayer,
   getActiveLayer,
   setActiveLayer
-} from "./imaging/image_layers";
+} from "./imaging/imageLayers";
 
 import {
   initializeImageLoader,
@@ -64,14 +64,14 @@ import {
   registerResliceLoader,
   registerMultiFrameImageLoader,
   updateLoadedStack
-} from "./imaging/image_loading";
+} from "./imaging/imageLoading";
 
 import {
   readFile,
   readFiles,
-  dumpDataSet,
+  parseDataSet,
   clearImageParsing
-} from "./imaging/image_parsing";
+} from "./imaging/imageParsing";
 
 import {
   clearImageCache,
@@ -91,9 +91,9 @@ import {
   flipImageVertical,
   rotateImageLeft,
   rotateImageRight
-} from "./imaging/image_rendering";
+} from "./imaging/imageRendering";
 
-import { resliceSeries } from "./imaging/image_reslice";
+import { resliceSeries } from "./imaging/imageReslice";
 
 import {
   addDiameterTool,
@@ -111,7 +111,7 @@ import {
   syncToolStack,
   updateStackToolState,
   setSegmentationConfig
-} from "./imaging/image_tools";
+} from "./imaging/imageTools";
 
 import {
   csToolsCreateStack,
@@ -126,13 +126,13 @@ import {
   setToolEnabled,
   setToolPassive,
   exportAnnotations
-} from "./imaging/tools/tools.main";
+} from "./imaging/tools/main";
 
 import {
   DEFAULT_TOOLS,
   getDefaultToolsByType,
   setDefaultToolsProps
-} from "./imaging/tools/tools.default";
+} from "./imaging/tools/default";
 
 import {
   initSegmentationModule,
@@ -142,7 +142,7 @@ import {
   undoLastStroke,
   redoLastStroke,
   setBrushProps
-} from "./imaging/tools/tools.segmentation";
+} from "./imaging/tools/segmentation";
 
 import {
   updateLarvitarManager,
@@ -189,14 +189,14 @@ import {
   addColorMap,
   fillPixelData,
   HSVToRGB
-} from "./imaging/image_colormaps";
+} from "./imaging/imageColormaps";
 
-import { saveAnnotations, loadAnnotations } from "./imaging/tools/tools.io";
+import { saveAnnotations, loadAnnotations } from "./imaging/tools/io";
 
 import {
   addMouseKeyHandlers,
   toggleMouseToolsListeners
-} from "./imaging/tools/tools.interaction";
+} from "./imaging/tools/interaction";
 
 export {
   VERSION,
@@ -210,14 +210,14 @@ export {
   checkMemoryAllocation,
   getUsedMemory,
   getAvailableMemory,
-  // larvitar store
+  // larvitarStore
   initLarvitarStore,
   larvitar_store,
-  // image_presets
+  // imagePresets
   getImagePresets,
   setImagePreset,
   setImageCustomPreset,
-  // image_utils
+  // imageUtils
   getNormalOrientation,
   getMinPixelValue,
   getMaxPixelValue,
@@ -230,21 +230,21 @@ export {
   getReslicedMetadata,
   getReslicedPixeldata,
   getDistanceBetweenSlices,
-  // image_io
+  // imageIo
   buildHeader,
   getCachedPixelData,
   buildData,
   buildDataAsync,
   importNRRDImage,
-  // image_anonymization
+  // imageAnonymization
   anonymize,
   encrypt,
-  // image_layers
+  // imageLayers
   buildLayer,
   updateLayer,
   getActiveLayer,
   setActiveLayer,
-  // image_loading
+  // imageLoading
   initializeImageLoader,
   initializeWebImageLoader,
   initializeFileImageLoader,
@@ -252,12 +252,12 @@ export {
   registerResliceLoader,
   registerMultiFrameImageLoader,
   updateLoadedStack,
-  // image_parsing
+  // imageParsing
   readFile,
   readFiles,
-  dumpDataSet,
+  parseDataSet,
   clearImageParsing,
-  // image_rendering
+  // imageRendering
   clearImageCache,
   loadAndCacheImages,
   renderFileImage,
@@ -276,15 +276,15 @@ export {
   flipImageVertical,
   rotateImageLeft,
   rotateImageRight,
-  // image_reslice
+  // imageReslice
   resliceSeries,
-  // image_colormaps
+  // imageColormaps
   getColormapsList,
   applyColorMap,
   addColorMap,
   fillPixelData,
   HSVToRGB,
-  // image_contours
+  // imageContours
   parseContours,
   // loaders/commonLoader
   updateLarvitarManager,
@@ -307,7 +307,7 @@ export {
   // loaders/dicomLoader
   getDicomImageId,
   cacheImages,
-  // loaders/multiFrameLoader
+  // loaders/multiframeLoader
   loadMultiFrameImage,
   buildMultiFrameImage,
   getMultiFrameImageId,
@@ -318,7 +318,7 @@ export {
   resetFileManager,
   populateFileManager,
   getFileImageId,
-  // image_tools
+  // imageTools
   addDiameterTool,
   addContoursTool,
   addMaskEditingTool,
@@ -334,7 +334,7 @@ export {
   syncToolStack,
   updateStackToolState,
   setSegmentationConfig,
-  // tools.main
+  // tools/main
   csToolsCreateStack,
   csToolsUpdateImageIds,
   csToolsUpdateImageIndex,
@@ -347,16 +347,16 @@ export {
   setToolEnabled,
   setToolPassive,
   exportAnnotations,
-  // tools.default
+  // tools/default
   DEFAULT_TOOLS,
   getDefaultToolsByType,
   setDefaultToolsProps,
-  // tools.io
+  // tools/io
   saveAnnotations,
   loadAnnotations,
-  // tools.interaction
+  // tools/interaction
   addMouseKeyHandlers,
-  // tools.segmentation
+  // tools/segmentation
   initSegmentationModule,
   addSegmentationMask,
   setActiveLabelmap,

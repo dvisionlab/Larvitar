@@ -6,7 +6,7 @@
 // external libraries
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { each } from "lodash";
-import { updateLoadedStack } from "../image_loading";
+import { updateLoadedStack } from "../imageLoading";
 
 // internal libraries
 import { buildMultiFrameImage, clearMultiFrameCache } from "./multiframeLoader";
