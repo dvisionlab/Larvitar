@@ -13,10 +13,6 @@ const { getters, setters } = segModule;
 // internal libraries
 import { setToolActive, setToolDisabled } from "./main";
 
-/**
- * THIS MODULE IS A WIP
- */
-
 // DEV
 window.segModule = segModule;
 window.cornerstone = cornerstone;
@@ -174,11 +170,12 @@ export function getLabelColor(labelId) {
 
 /**
  * A function to group all settings to load before masks
- * TODO add a param to override config
+ * @param {Object} customConfig - Object containing override values for segmentation module config
  */
-export function initSegmentationModule() {
+export function initSegmentationModule(customConfig) {
   // set configuration
   segModule.configuration = cloneDeep(config);
+  extend(segModule.configuration, customConfig);
 }
 
 /**
