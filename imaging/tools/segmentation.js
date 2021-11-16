@@ -8,8 +8,7 @@ import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
 import { cloneDeep, extend, values } from "lodash";
 const segModule = cornerstoneTools.getModule("segmentation");
-const setters = segModule.setters;
-const getters = segModule.getters;
+const { getters, setters } = segModule;
 
 // internal libraries
 import { setToolActive, setToolDisabled } from "./main";
@@ -191,6 +190,21 @@ export function setActiveLabelmap(labelId, elementId) {
   setters.activeLabelmapIndex(element, labelId);
 }
 
+// check if there is an active labelmap for target element
+/**
+ * Get active labelmap for target element
+ * @param {String} elementId
+ * @returns {Object} The active labelmap object that contains the buffer
+ */
+export function getActiveLabelmapBuffer(elementId) {
+  if (!elementId) {
+    console.error(
+      "getActivelabelmapBuffer now needs elementId as param and returns the buffer parent object"
+    );
+  }
+  return getters.activeLabelmapBuffer(document.getElementById(elementId));
+}
+
 /**
  * Activate a specific segment through its index
  * @param {Number} segmentIndex - The segment index to activate
@@ -328,15 +342,6 @@ export function disableBrushTool(toolToActivate) {
 export function setBrushProps(props) {
   extend(segModule.configuration, props);
   forceRender();
-}
-
-/**
- * Retrieve the buffer that represents the current active mask
- */
-export function getActiveLabelmapBuffer() {
-  let element = document.getElementById("axial");
-  let object = segModule.getters.activeLabelmapBuffer(element);
-  return object.buffer;
 }
 
 /**
