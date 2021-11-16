@@ -181,6 +181,34 @@ export function addSegmentationMask(props, data, elementId) {
 }
 
 /**
+ * Set a new mask slice into the labelmap buffer
+ * @param {String} elementId
+ * @param {Number} sliceIndex
+ * @param {ArrayBuffer} pixelData
+ * @returns
+ */
+export function loadMaskSlice(elementId, sliceIndex, pixelData) {
+  // optimization: if pixelData contains no labels, return
+  if (sum(pixelData) === 0) {
+    return;
+  }
+
+  let element = document.getElementById(elementId);
+  let volumeId = 0;
+  // get labelmap buffer
+  let labelmaps2D = getters.labelmap3D(element, volumeId).labelmaps2D;
+
+  // add if not alresdy present
+  if (!labelmaps2D[sliceIndex]) {
+    labelmaps2D[sliceIndex] = {};
+  }
+
+  labelmaps2D[sliceIndex].pixelData = pixelData;
+  setters.updateSegmentsOnLabelmap2D(labelmaps2D[sliceIndex]);
+  cornerstone.updateImage(element);
+}
+
+/**
  * Activate a specific labelmap through its labelId
  * @param {Number} labelId - The labelmap id to activate
  * @param {String} elementId - The target html element id
