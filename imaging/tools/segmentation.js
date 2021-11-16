@@ -6,7 +6,7 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
-import { cloneDeep, extend, values } from "lodash";
+import { cloneDeep, extend, values, sum } from "lodash";
 const segModule = cornerstoneTools.getModule("segmentation");
 const { getters, setters } = segModule;
 
@@ -149,6 +149,30 @@ function generateUniformLUT(hex_color, opacity) {
 }
 
 /**
+ * Set color for label
+ * @param {Number} labelId
+ * @param {String} color in hex format
+ */
+export function setLabelColor(labelId, color) {
+  let volumeId = 0; // TODO MULTIVOLUME
+  let rgb = hexToRgb(color);
+  let rgba = [...rgb, 128];
+  setters.colorForSegmentIndexOfColorLUT(volumeId, labelId, rgba);
+  // force render ? depends on image visualization (render all ?)
+}
+
+/**
+ * Get color from label
+ * @param {Number} labelId
+ * @returns {String} Color in hex format
+ */
+export function getLabelColor(labelId) {
+  let volumeId = 0; // TODO MULTIVOLUME
+  let rgba = getters.colorForSegmentIndexColorLUT(volumeId, labelId);
+  return rgbToHex(rgba);
+}
+
+/**
  * A function to group all settings to load before masks
  * TODO add a param to override config
  */
@@ -217,7 +241,6 @@ export function setActiveLabelmap(labelId, elementId) {
   setters.activeLabelmapIndex(element, labelId);
 }
 
-// check if there is an active labelmap for target element
 /**
  * Get active labelmap for target element
  * @param {String} elementId
