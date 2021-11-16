@@ -185,7 +185,6 @@ export function addSegmentationMask(props, data, elementId) {
  * @param {String} elementId
  * @param {Number} sliceIndex
  * @param {ArrayBuffer} pixelData
- * @returns
  */
 export function loadMaskSlice(elementId, sliceIndex, pixelData) {
   // optimization: if pixelData contains no labels, return
@@ -194,7 +193,7 @@ export function loadMaskSlice(elementId, sliceIndex, pixelData) {
   }
 
   let element = document.getElementById(elementId);
-  let volumeId = 0;
+  let volumeId = 0; // TODO for multivolume
   // get labelmap buffer
   let labelmaps2D = getters.labelmap3D(element, volumeId).labelmaps2D;
 
@@ -259,6 +258,18 @@ export function setActiveLabelOpacity(opacity) {
 export function setInactiveLabelOpacity(opacity) {
   segModule.configuration.fillAlphaInactive = opacity;
   forceRender();
+}
+
+/**
+ * Toggle mask visibility
+ * @param {String} elementId
+ * @param {Number} labelId
+ */
+export function toggleVisibility(elementId, labelId) {
+  let element = document.getElementById(elementId);
+  let volumeId = 0; // TODO MULTIVOLUME
+  setters.toggleSegmentVisibility(element, labelId, volumeId);
+  cornerstone.updateImage(element);
 }
 
 /**
