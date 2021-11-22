@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>imageRendering.js - Larvitar</title>
+    
+    <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
+    
+        <meta name="keywords" content="imaging, dataviz, medical, cornerstone" />
+        <meta name="keyword" content="imaging, dataviz, medical, cornerstone" />
+    
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/dvisionlab/Larvitar" target="_blank" class="menu-item" id="repository" >Github repo</a></h2><h3>Classes</h3><ul><li><a href="module-imaging_imageStore-Larvitar_Store.html">imaging/imageStore~Larvitar_Store</a></li><li><a href="module-imaging_tools_custom_polygonScissorsTool.html">imaging/tools/custom/polygonScissorsTool</a></li><li><a href="Tools.Annotation.ContoursTool.html">Tools.Annotation.ContoursTool</a></li><li><a href="Tools.Annotation.DiameterTool.html">Tools.Annotation.DiameterTool</a></li><li><a href="Tools.Brush.BrushTool.html">Tools.Brush.BrushTool</a></li><li><a href="Tools.Brush.ThresholdsBrushTool.html">Tools.Brush.ThresholdsBrushTool</a></li><li><a href="Tools.PolylineScissorsTool.html">Tools.PolylineScissorsTool</a></li></ul><h3>Modules</h3><ul><li><a href="module-imaging_imageAnonymization.html">imaging/imageAnonymization</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageAnonymization.html#~anonymize">anonymize</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageAnonymization.html#~encrypt">encrypt</a></li></ul></li><li><a href="module-imaging_imageColormaps.html">imaging/imageColormaps</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageColormaps.html#.HSVToRGB">HSVToRGB</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageColormaps.html#addColorMap">addColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageColormaps.html#applyColorMap">applyColorMap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageColormaps.html#fillPixelData">fillPixelData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageColormaps.html#getColormapsList">getColormapsList</a></li></ul></li><li><a href="module-imaging_imageContours.html">imaging/imageContours</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageContours.html#extractSlicePoints">extractSlicePoints</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageContours.html#populateContoursObject">populateContoursObject</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageContours.html#~parseContours">parseContours</a></li></ul></li><li><a href="module-imaging_imageIo.html">imaging/imageIo</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageIo.html#~buildData">buildData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageIo.html#~buildDataAsync">buildDataAsync</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageIo.html#~buildHeader">buildHeader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageIo.html#~getCachedPixelData">getCachedPixelData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageIo.html#~importNRRDImage">importNRRDImage</a></li></ul></li><li><a href="module-imaging_imageLayers.html">imaging/imageLayers</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageLayers.html#getActiveLayer">getActiveLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageLayers.html#setActiveLayer">setActiveLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageLayers.html#updateLayer">updateLayer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageLayers.html#~buildLayers">buildLayers</a></li></ul></li><li><a href="module-imaging_imageLoading.html">imaging/imageLoading</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageLoading.html#initializeFileImageLoader">initializeFileImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageLoading.html#initializeImageLoader">initializeImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageLoading.html#initializeWebImageLoader">initializeWebImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageLoading.html#registerMultiFrameImageLoader">registerMultiFrameImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageLoading.html#registerNRRDImageLoader">registerNRRDImageLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageLoading.html#registerResliceLoader">registerResliceLoader</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageLoading.html#updateLoadedStack">updateLoadedStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageLoading.html#~isNewInstance">isNewInstance</a></li></ul></li><li><a href="module-imaging_imageParsing.html">imaging/imageParsing</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageParsing.html#clearImageParsing">clearImageParsing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageParsing.html#parseDataSet">parseDataSet</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageParsing.html#readFile">readFile</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageParsing.html#readFiles">readFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageParsing.html#~parseFile">parseFile</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageParsing.html#~parseFiles">parseFiles</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageParsing.html#~parseNextFile">parseNextFile</a></li></ul></li><li><a href="module-imaging_imagePresets.html">imaging/imagePresets</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imagePresets.html#getImagePresets">getImagePresets</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imagePresets.html#setImageCustomPreset">setImageCustomPreset</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imagePresets.html#setImagePreset">setImagePreset</a></li></ul></li><li><a href="module-imaging_imageRendering.html">imaging/imageRendering</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#clearImageCache">clearImageCache</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#disableViewport">disableViewport</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#flipImageHorizontal">flipImageHorizontal</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#flipImageVertical">flipImageVertical</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#getSeriesData">getSeriesData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#invertImage">invertImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#loadAndCacheImages">loadAndCacheImages</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#renderImage">renderImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#renderWebImage">renderWebImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#renderWebImage">renderWebImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#resetViewports">resetViewports</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#resizeViewport">resizeViewport</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#rotateImageLeft">rotateImageLeft</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#rotateImageRight">rotateImageRight</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#storeViewportData">storeViewportData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#unloadViewport">unloadViewport</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#updateImage">updateImage</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageRendering.html#updateViewportData">updateViewportData</a></li></ul></li><li><a href="module-imaging_imageReslice.html">imaging/imageReslice</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageReslice.html#resliceSeries">resliceSeries</a></li></ul></li><li><a href="module-imaging_imageStore.html">imaging/imageStore</a><ul class='members'><li data-type='member' style='display: none;'><a href="module-imaging_imageStore.html#.larvitar_store">larvitar_store</a></li></ul><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageStore.html#.initLarvitarStore">initLarvitarStore</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageStore.html#~addSeriesIds">addSeriesIds</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageStore.html#~addViewport">addViewport</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageStore.html#~deleteViewport">deleteViewport</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageStore.html#~disableVuex">disableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageStore.html#~enableVuex">enableVuex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageStore.html#~get">get</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageStore.html#~removeSeriesIds">removeSeriesIds</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageStore.html#~set">set</a></li></ul></li><li><a href="module-imaging_imageTools.html">imaging/imageTools</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addContoursTool">addContoursTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addDefaultTools">addDefaultTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addDiameterTool">addDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addMaskEditingTool">addMaskEditingTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addSeedsTool">addSeedsTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addStackStateToElement">addStackStateToElement</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addToolStateSingleSlice">addToolStateSingleSlice</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~clearCornerstoneElements">clearCornerstoneElements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~clearMeasurements">clearMeasurements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~clearToolStateByName">clearToolStateByName</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~getCurrentMaskData">getCurrentMaskData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~getToolState">getToolState</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~isToolMissing">isToolMissing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~setSegmentationConfig">setSegmentationConfig</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~setToolEnabled">setToolEnabled</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~setToolPassive">setToolPassive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~syncToolStack">syncToolStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~updateDiameterTool">updateDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~updateStackToolState">updateStackToolState</a></li></ul></li><li><a href="module-imaging_imageUtils.html">imaging/imageUtils</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#formatDate">formatDate</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#formatDateTime">formatDateTime</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getCmprMetadata">getCmprMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getDICOMTag">getDICOMTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getDICOMTagCode">getDICOMTagCode</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getDistanceBetweenSlices">getDistanceBetweenSlices</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getMaxPixelValue">getMaxPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getMeanValue">getMeanValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getMinPixelValue">getMinPixelValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getNormalOrientation">getNormalOrientation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getPixelRepresentation">getPixelRepresentation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getPixelTypedArray">getPixelTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getReslicedIOP">getReslicedIOP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getReslicedIPP">getReslicedIPP</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getReslicedMetadata">getReslicedMetadata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getReslicedPixeldata">getReslicedPixeldata</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getReslicedSliceLocation">getReslicedSliceLocation</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getSortedStack">getSortedStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getSortedUIDs">getSortedUIDs</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getTagValue">getTagValue</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getTypedArray">getTypedArray</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#getTypedArrayFromDataType">getTypedArrayFromDataType</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#isElement">isElement</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#isNegativeSign">isNegativeSign</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#isStringVr">isStringVr</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#isValidDate">isValidDate</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#parseAgeTag">parseAgeTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#parseDateTag">parseDateTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#parseDateTimeTag">parseDateTimeTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#parseDICOMFileIDTag">parseDICOMFileIDTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#parsePatientNameTag">parsePatientNameTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#parseTag">parseTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#parseTimeTag">parseTimeTag</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#permuteSignedArrays">permuteSignedArrays</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#permuteValues">permuteValues</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#rand">rand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#randomId">randomId</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#sortStackCallback">sortStackCallback</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageUtils.html#spacingArray">spacingArray</a></li></ul></li><li><a href="module-imaging_strategies_eraseFreehand.html">imaging/strategies/eraseFreehand</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_strategies_eraseFreehand.html#.eraseInsideFreehand">eraseInsideFreehand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_strategies_eraseFreehand.html#.eraseOutsideFreehand">eraseOutsideFreehand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_strategies_eraseFreehand.html#~eraseFreehand">eraseFreehand</a></li></ul></li><li><a href="module-imaging_strategies_fillFreehand.html">imaging/strategies/fillFreehand</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_strategies_fillFreehand.html#.fillInsideFreehand">fillInsideFreehand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_strategies_fillFreehand.html#.fillOutsideFreehand">fillOutsideFreehand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_strategies_fillFreehand.html#~fillFreehand">fillFreehand</a></li></ul></li><li><a href="module-imaging_tools_custom_contourTool.html">imaging/tools/custom/contourTool</a></li><li><a href="module-imaging_tools_custom_diameterTool.html">imaging/tools/custom/diameterTool</a></li><li><a href="module-imaging_tools_custom_editMaskTool.html">imaging/tools/custom/editMaskTool</a></li><li><a href="module-imaging_tools_custom_polygonScissorsTool.html">imaging/tools/custom/polygonScissorsTool</a></li><li><a href="module-imaging_tools_custom_thresholdBrushTool.html">imaging/tools/custom/thresholdBrushTool</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools_custom_thresholdBrushTool.html#_paint">_paint</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_custom_thresholdBrushTool.html#~getCircleWithThreshold">getCircleWithThreshold</a></li></ul></li><li><a href="module-imaging_tools_default.html">imaging/tools/default</a></li><li><a href="module-imaging_tools_interaction.html">imaging/tools/interaction</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools_interaction.html#.addMouseKeyHandlers">addMouseKeyHandlers</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_interaction.html#toggleMouseHandlers">toggleMouseHandlers</a></li></ul></li><li><a href="module-imaging_tools_io.html">imaging/tools/io</a><ul class='members'><li data-type='member' style='display: none;'><a href="module-imaging_tools_io.html#.exportAnnotations">exportAnnotations</a></li><li data-type='member' style='display: none;'><a href="module-imaging_tools_io.html#.loadAnnotations">loadAnnotations</a></li><li data-type='member' style='display: none;'><a href="module-imaging_tools_io.html#.saveAnnotations">saveAnnotations</a></li></ul><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools_io.html#.generateCSV">generateCSV</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_io.html#~download">download</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_io.html#~extractToolInfo">extractToolInfo</a></li></ul></li><li><a href="module-imaging_tools_main.html">imaging/tools/main</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools_main.html#.csToolsUpdateImageIndex">csToolsUpdateImageIndex</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_main.html#~addDefaultTools">addDefaultTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_main.html#~addTool">addTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_main.html#~csToolsCreateStack">csToolsCreateStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_main.html#~initializeCSTools">initializeCSTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_main.html#~isToolMissing">isToolMissing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_main.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_main.html#~setToolDisabled">setToolDisabled</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_main.html#~setToolEnabled">setToolEnabled</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_main.html#~setToolPassive">setToolPassive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_main.html#~setToolsStyle">setToolsStyle</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_main.html#~tryUpdateImage">tryUpdateImage</a></li></ul></li><li><a href="module-imaging_tools_polygonSegmentationMixin.html">imaging/tools/polygonSegmentationMixin</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools_polygonSegmentationMixin.html#~_checkIfDrawing">_checkIfDrawing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_polygonSegmentationMixin.html#~renderToolData">renderToolData</a></li></ul></li><li><a href="module-imaging_tools_segmentation.html">imaging/tools/segmentation</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.addSegmentationMask">addSegmentationMask</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.clearSegmentationState">clearSegmentationState</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.deleteMask">deleteMask</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.disableBrushTool">disableBrushTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.enableBrushTool">enableBrushTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.forceRender">forceRender</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.getActiveLabelmapBuffer">getActiveLabelmapBuffer</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.initSegmentationModule">initSegmentationModule</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.redoLastStroke">redoLastStroke</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.setActiveLabelmap">setActiveLabelmap</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.setActiveLabelOpacity">setActiveLabelOpacity</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.setActiveSegment">setActiveSegment</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.setBrushProps">setBrushProps</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.setInactiveLabelOpacity">setInactiveLabelOpacity</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.setMaskProps">setMaskProps</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.toggleContourMode">toggleContourMode</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#.undoLastStroke">undoLastStroke</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#~generateLUT">generateLUT</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#~generateUniformLUT">generateUniformLUT</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_segmentation.html#~HSVtoRGB">HSVtoRGB</a></li></ul></li><li><a href="module-imaging_tools_state.html">imaging/tools/state</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools_state.html#~restoreToolState">restoreToolState</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_state.html#~saveToolState">saveToolState</a></li></ul></li><li><a href="module-loaders_commonLoader.html">loaders/commonLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getImageFrame">getImageFrame</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getLarvitarImageTracker">getLarvitarImageTracker</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getLarvitarManager">getLarvitarManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#getSeriesDataFromLarvitarManager">getSeriesDataFromLarvitarManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#populateLarvitarManager">populateLarvitarManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#removeSeriesFromLarvitarManager">removeSeriesFromLarvitarManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#resetLarvitarManager">resetLarvitarManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_commonLoader.html#updateLarvitarManager">updateLarvitarManager</a></li></ul></li><li><a href="module-loaders_dicomLoader.html">loaders/dicomLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#cacheImages">cacheImages</a></li><li data-type='method' style='display: none;'><a href="module-loaders_dicomLoader.html#getDicomImageId">getDicomImageId</a></li></ul></li><li><a href="module-loaders_fileLoader.html">loaders/fileLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#getFileImageId">getFileImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#populateFileManager">populateFileManager</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#resetFileLoader">resetFileLoader</a></li><li data-type='method' style='display: none;'><a href="module-loaders_fileLoader.html#resetFileManager">resetFileManager</a></li></ul></li><li><a href="module-loaders_multiframeLoader.html">loaders/multiframeLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_multiframeLoader.html#clearMultiFrameCache">clearMultiFrameCache</a></li><li data-type='method' style='display: none;'><a href="module-loaders_multiframeLoader.html#createCustomImage">createCustomImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_multiframeLoader.html#getMultiFrameImageId">getMultiFrameImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_multiframeLoader.html#setPixelDataType">setPixelDataType</a></li><li data-type='method' style='display: none;'><a href="module-loaders_multiframeLoader.html#~buildMultiFrameImage">buildMultiFrameImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_multiframeLoader.html#~loadMultiFrameImage">loadMultiFrameImage</a></li></ul></li><li><a href="module-loaders_niftiLoader.html">loaders/niftiLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_niftiLoader.html#buildNiftiImage">buildNiftiImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_niftiLoader.html#getNiftiImageId">getNiftiImageId</a></li></ul></li><li><a href="module-loaders_nrrdLoader.html">loaders/nrrdLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#buildNrrdImage">buildNrrdImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#createCustomImage">createCustomImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getImageIdFromSlice">getImageIdFromSlice</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getNrrdImageId">getNrrdImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getNrrdSerieDimensions">getNrrdSerieDimensions</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#getSliceNumberFromImageId">getSliceNumberFromImageId</a></li><li data-type='method' style='display: none;'><a href="module-loaders_nrrdLoader.html#loadNrrdImage">loadNrrdImage</a></li></ul></li><li><a href="module-loaders_resliceLoader.html">loaders/resliceLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_resliceLoader.html#createCustomImage">createCustomImage</a></li><li data-type='method' style='display: none;'><a href="module-loaders_resliceLoader.html#loadReslicedImage">loadReslicedImage</a></li></ul></li><li><a href="module-monitors_memory.html">monitors/memory</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-monitors_memory.html#checkMemoryAllocation">checkMemoryAllocation</a></li><li data-type='method' style='display: none;'><a href="module-monitors_memory.html#checkMemorySupport">checkMemorySupport</a></li><li data-type='method' style='display: none;'><a href="module-monitors_memory.html#getAvailableMemory">getAvailableMemory</a></li><li data-type='method' style='display: none;'><a href="module-monitors_memory.html#getMB">getMB</a></li><li data-type='method' style='display: none;'><a href="module-monitors_memory.html#getUsedMemory">getUsedMemory</a></li><li data-type='method' style='display: none;'><a href="module-monitors_memory.html#setAvailableMemory">setAvailableMemory</a></li></ul></li><li><a href="module-tools_default.html">tools/default</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-tools_default.html#~getDefaultToolsByType">getDefaultToolsByType</a></li><li data-type='method' style='display: none;'><a href="module-tools_default.html#~setDefaultToolsProps">setDefaultToolsProps</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingDoubleTapClickCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingDoubleTapClickCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingMouseDoubleClickCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingMouseDoubleClickCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingMouseDownCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingMouseDownCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingMouseDragCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingMouseDragCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingMouseMoveCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingMouseMoveCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingMouseUpCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingMouseUpCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingTouchDragCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingTouchDragCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingTouchStartCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingTouchStartCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_editMouseDragCallback">imaging/tools/custom/contourTool.ContoursTool#_editMouseDragCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_editTouchDragCallback">imaging/tools/custom/contourTool.ContoursTool#_editTouchDragCallback</a></li></ul><h3>Mixins</h3><ul><li><a href="Mixins.polygonSegmentationMixin%2520-%2520segmentation%2520operations%2520for%2520polyline.html">Mixins.polygonSegmentationMixin - segmentation operations for polyline</a></li></ul><h3>Global</h3><ul><li><a href="global.html#NRRD_TYPES_TO_TYPEDARRAY">NRRD_TYPES_TO_TYPEDARRAY</a></li><li><a href="global.html">parse</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">imageRendering.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module imaging/imageRendering
+ *  @desc  This file provides functionalities for
+ *         rendering images in html canvas using cornerstone
+ */
+
+// external libraries
+import cornerstone from "cornerstone-core";
+import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import { each, has } from "lodash";
+
+// internal libraries
+import { getFileImageId } from "./loaders/fileLoader";
+import { csToolsCreateStack } from "./tools/main";
+import { toggleMouseToolsListeners } from "./tools/interaction";
+import { larvitar_store } from "./imageStore";
+import { applyColorMap } from "./imageColormaps";
+import { isElement } from "./imageUtils";
+
+/*
+ * This module provides the following functions to be exported:
+ * clearImageCache(seriesId)
+ * loadAndCacheImages(seriesData)
+ * renderFileImage(file, elementId)
+ * renderWebImage(url, elementId)
+ * disableViewport(elementId)
+ * unloadViewport(elementId, seriesId)
+ * resizeViewport(elementId)
+ * renderImage(series, elementId, defaultProps)
+ * updateImage(series, elementId, imageIndex)
+ * resetViewports([elementIds])
+ * updateViewportData(elementId)
+ * toggleMouseHandlers(elementId, disableFlag)
+ * storeViewportData(params...)
+ * invertImage(elementId)
+ * flipImageHorizontal(elementId)
+ * flipImageVertical(elementId)
+ * rotateImageLeft(elementId)
+ * rotateImageRight(elementId)
+ */
+
+/**
+ * Purge the cornestone internal cache
+ * If seriesId is passed as argument only imageIds of the series are purged from internal cache
+ * @instance
+ * @function clearImageCache
+ * @param {String} seriesId - The id of the serie
+ */
+export const clearImageCache = function (seriesId) {
+  if (seriesId) {
+    let series = larvitar_store.get("series");
+    if (has(series, seriesId)) {
+      each(series[seriesId].imageIds, function (imageId) {
+        if (cornerstone.imageCache.cachedImages.length > 0) {
+          try {
+            cornerstone.imageCache.removeImageLoadObject(imageId);
+          } catch (e) {
+            console.warn("no cached image");
+          }
+        } else {
+          let uri =
+            cornerstoneWADOImageLoader.wadouri.parseImageId(imageId).url;
+          cornerstoneWADOImageLoader.wadouri.dataSetCacheManager.unload(uri);
+        }
+      });
+
+      larvitar_store.removeSeriesIds(seriesId);
+      console.log("Uncached images for ", seriesId);
+    }
+  } else {
+    cornerstone.imageCache.purgeCache();
+  }
+};
+
+/**
+ * Load and cache all serie's images
+ * Add series's imageIds into store
+ * @instance
+ * @function loadAndCacheImages
+ * @param {Object} series the parsed series data
+ * @param {Function} callback a callback function
+ */
+export function loadAndCacheImages(series, callback) {
+  let t0 = performance.now();
+  let cachingCounter = 0;
+  if (series.isMultiframe) {
+    // console.warn("Do not cache multiframe images for performance issues");
+    return;
+  }
+  let response = {
+    seriesId: series.seriesUID,
+    loading: 0,
+    series: {}
+  };
+  callback(response);
+  // add serie's imageIds into store
+  larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
+  // add serie's caching progress into store
+  larvitar_store.set("progress", [series.seriesUID, 0]);
+  each(series.imageIds, function (imageId) {
+    cornerstone.loadAndCacheImage(imageId).then(function () {
+      cachingCounter += 1;
+      let cachingPercentage = Math.floor(
+        (cachingCounter / series.imageIds.length) * 100
+      );
+      response.loading = cachingPercentage;
+      larvitar_store.set("progress", [series.seriesUID, cachingPercentage]);
+      if (cachingCounter == series.imageIds.length) {
+        let t1 = performance.now();
+        console.log(`Call to cacheImages took ${t1 - t0} milliseconds.`);
+        console.log("Cached images for ", series.seriesUID);
+        response.series = series;
+      }
+      callback(response);
+    });
+  });
+}
+
+/**
+ * Render an image (png or jpg) from File on a html div using cornerstone
+ * @instance
+ * @function renderWebImage
+ * @param {Object} file - The image File object
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @returns {Promise} - Return a promise which will resolve when image is displayed
+ */
+export const renderFileImage = function (file, elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+
+  if (cornerstone.getEnabledElements().length == 0) {
+    cornerstone.enable(element);
+  }
+
+  let renderPromise = new Promise(resolve => {
+    // check if imageId is already stored in fileManager
+    const imageId = getFileImageId(file);
+    if (imageId) {
+      cornerstone.loadImage(imageId).then(function (image) {
+        cornerstone.displayImage(element, image);
+        let viewport = cornerstone.getViewport(element);
+        viewport.displayedArea.brhc.x = image.width;
+        viewport.displayedArea.brhc.y = image.height;
+        cornerstone.setViewport(element, viewport);
+        cornerstone.fitToWindow(element);
+        csToolsCreateStack(element);
+        resolve(image);
+      });
+    }
+  });
+  return renderPromise;
+};
+
+/**
+ * Render an image (png or jpg) from web url on a html div using cornerstone
+ * @instance
+ * @function renderWebImage
+ * @param {String} url - The image data url
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @returns {Promise} - Return a promise which will resolve when image is displayed
+ */
+export const renderWebImage = function (url, elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let renderPromise = new Promise(resolve => {
+    cornerstone.enable(element);
+    cornerstone.loadImage(url).then(function (image) {
+      cornerstone.displayImage(element, image);
+      csToolsCreateStack(element);
+      resolve(image);
+    });
+  });
+  return renderPromise;
+};
+
+/**
+ * Unrender an image on a html div using cornerstone
+ * @instance
+ * @function disableViewport
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const disableViewport = function (elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  // toggleMouseHandlers(elementId, true); // flagged true to disable handlers
+  toggleMouseToolsListeners(elementId, true);
+  cornerstone.disable(element);
+};
+
+/**
+ * Unrender an image on a html div using cornerstone
+ * Remove image from cornerstone cache and remove from store
+ * @instance
+ * @function unloadViewport
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {String} seriesId - The id of the serie
+ */
+export const unloadViewport = function (elementId, seriesId) {
+  disableViewport(elementId);
+
+  if (!seriesId) {
+    console.warn(
+      "seriesId not provided, use disableViewport if you do not want to uncache images"
+    );
+  }
+  // remove images from cornerstone cache
+  if (seriesId &amp;&amp; has(larvitar_store.get("series"), seriesId)) {
+    clearImageCache(seriesId);
+  }
+  larvitar_store.deleteViewport(elementId);
+};
+
+/**
+ * Resize a viewport using cornerstone resize
+ * And forcing fit to window
+ * @instance
+ * @function resizeViewport
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const resizeViewport = function (elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  cornerstone.resize(element, true); // true flag forces fitToWindow
+};
+
+/**
+ * Cache image and render it in a html div using cornerstone
+ * @instance
+ * @function renderImage
+ * @param {Object} seriesStack - The original series data object
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Object} defaultProps - Optional default props
+ * @return {Promise} Return a promise which will resolve when image is displayed
+ */
+export const renderImage = function (seriesStack, elementId, defaultProps) {
+  let t0 = performance.now();
+
+  // get element and enable it
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  cornerstone.enable(element);
+
+  let series = { ...seriesStack };
+
+  // default to 0 if multiframe and frameId is null
+  // let frameId = series.isMultiframe ? 1 : null;
+
+  larvitar_store.set("renderingStatus", [elementId, false]);
+  let data = getSeriesData(series, defaultProps);
+  if (!data.imageId) {
+    console.warn("Error during renderImage: imageId has not been loaded yet.");
+    return;
+  }
+
+  let renderPromise = new Promise(resolve => {
+    // load and display one image (imageId)
+    cornerstone.loadImage(data.imageId).then(function (image) {
+      cornerstone.displayImage(element, image);
+
+      if (series.layer) {
+        // assign the image to its layer and return its id
+        series.layer.id = cornerstone.addLayer(
+          element,
+          image,
+          series.layer.options
+        );
+      }
+
+      let viewport = cornerstone.getViewport(element);
+
+      // window width and window level
+      // are stored in specific dicom tags
+      // (x00281050 and x00281051)
+      // if not present check in image object
+      data.ww = data.ww ? data.ww : image.windowWidth;
+      data.wc = data.wc ? data.wc : image.windowCenter;
+      data.defaultWW = data.defaultWW ? data.defaultWW : data.ww;
+      data.defaultWC = data.defaultWC ? data.defaultWC : data.wc;
+
+      cornerstone.fitToWindow(element);
+
+      if (defaultProps &amp;&amp; has(defaultProps, "scale")) {
+        viewport.scale = defaultProps["scale"];
+        cornerstone.setViewport(element, viewport);
+      }
+
+      if (
+        defaultProps &amp;&amp;
+        has(defaultProps, "tr_x") &amp;&amp;
+        has(defaultProps, "tr_y")
+      ) {
+        viewport.translation.x = defaultProps["tr_x"];
+        viewport.translation.y = defaultProps["tr_y"];
+        cornerstone.setViewport(element, viewport);
+      }
+
+      // color maps
+      if (
+        defaultProps &amp;&amp;
+        has(defaultProps, "colormap") &amp;&amp;
+        image.color == false
+      ) {
+        applyColorMap(defaultProps["colormap"]);
+      }
+
+      let storedViewport = cornerstone.getViewport(element);
+      storeViewportData(
+        image,
+        elementId,
+        data.imageIndex,
+        data.numberOfSlices,
+        data.rows,
+        data.cols,
+        data.spacing_x,
+        data.spacing_y,
+        data.thickness,
+        storedViewport,
+        data.defaultWW,
+        data.defaultWC
+      );
+      larvitar_store.set("renderingStatus", [elementId, true]);
+      let t1 = performance.now();
+      console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
+
+      let uri = cornerstoneWADOImageLoader.wadouri.parseImageId(
+        data.imageId
+      ).url;
+      cornerstoneWADOImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      image = null;
+      series = null;
+      data = null;
+      resolve();
+    });
+  });
+
+  csToolsCreateStack(element, series.imageIds, data.imageIndex - 1);
+  toggleMouseToolsListeners(elementId);
+
+  return renderPromise;
+};
+
+/**
+ * Update the cornerstone image with new imageIndex
+ * @instance
+ * @function updateImage
+ * @param {Object} series - The original series data object
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Number} imageIndex - The index of the image to be rendered
+ * @param {Boolean} cacheImage - A flag to handle image cache
+ */
+export const updateImage = function (
+  series,
+  elementId,
+  imageIndex,
+  cacheImage
+) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.log("not element");
+    return;
+  }
+  let index = imageIndex == 0 ? imageIndex : imageIndex - 1;
+  if (cacheImage) {
+    cornerstone
+      .loadAndCacheImage(series.imageIds[index])
+      .then(function (image) {
+        cornerstone.displayImage(element, image);
+      });
+  } else {
+    cornerstone.loadImage(series.imageIds[index]).then(function (image) {
+      cornerstone.displayImage(element, image);
+    });
+  }
+};
+
+/**
+ * Reset viewport values (scale, translation and wwwc)
+ * @instance
+ * @function resetViewports
+ * @param {Array} elementIds - The array of hmtl div ids
+ */
+export const resetViewports = function (elementIds) {
+  each(elementIds, function (elementId) {
+    let element = document.getElementById(elementId);
+    if (!element) {
+      console.error("invalid html element: " + elementId);
+      return;
+    }
+    let viewport = cornerstone.getViewport(element);
+    viewport.scale = larvitar_store.get(
+      "viewports",
+      elementId,
+      "default",
+      "scale"
+    );
+
+    viewport.rotation = larvitar_store.get(
+      "viewports",
+      elementId,
+      "default",
+      "rotation"
+    );
+    viewport.translation.x = larvitar_store.get(
+      "viewports",
+      elementId,
+      "default",
+      "translation",
+      "x"
+    );
+    viewport.translation.y = larvitar_store.get(
+      "viewports",
+      elementId,
+      "default",
+      "translation",
+      "y"
+    );
+    viewport.voi.windowWidth = larvitar_store.get(
+      "viewports",
+      elementId,
+      "default",
+      "voi",
+      "windowWidth"
+    );
+    viewport.voi.windowCenter = larvitar_store.get(
+      "viewports",
+      elementId,
+      "default",
+      "voi",
+      "windowCenter"
+    );
+
+    viewport.hflip = false;
+    viewport.vflip = false;
+    viewport.invert = false;
+
+    cornerstone.setViewport(element, viewport);
+    cornerstone.fitToWindow(element);
+    cornerstone.updateImage(element);
+
+    larvitar_store.set("scale", [elementId, viewport.scale]);
+    larvitar_store.set("rotation", [elementId, viewport.rotation]);
+    larvitar_store.set("translation", [
+      elementId,
+      viewport.translation.x,
+      viewport.translation.y
+    ]);
+    larvitar_store.set("contrast", [
+      elementId,
+      viewport.voi.windowWidth,
+      viewport.voi.windowCenter
+    ]);
+  });
+};
+
+/**
+ * Update viewport data in store
+ * @instance
+ * @function updateViewportData
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Object} viewportData - The new viewport data
+ */
+export const updateViewportData = function (
+  elementId,
+  viewportData,
+  activeTool
+) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  switch (activeTool) {
+    case "Wwwc":
+    case "WwwcRegion":
+      // sync viewports if needed
+      let elements = cornerstone.getEnabledElements();
+      each(elements, function (el) {
+        larvitar_store.set("contrast", [
+          el.element.id,
+          viewportData.voi.windowWidth,
+          viewportData.voi.windowCenter
+        ]);
+      });
+      break;
+    case "Pan":
+      larvitar_store.set("translation", [
+        elementId,
+        viewportData.translation.x,
+        viewportData.translation.y
+      ]);
+      break;
+    case "Zoom":
+      larvitar_store.set("scale", [elementId, viewportData.scale]);
+      break;
+    case "Rotate":
+      larvitar_store.set("rotation", [elementId, viewportData.rotation]);
+      break;
+    default:
+      break;
+  }
+};
+
+/**
+ * Store the viewport data into internal storage
+ * @instance
+ * @function storeViewportData
+ * @param {Object} image - The cornerstone image frame
+ * @param {String} elementId - The html div id used for rendering
+ * @param {Number} imageIndex - The index of the image
+ * @param {Number} numberOfSlices - The number of slices of the series
+ * @param {Number} rows - The number of rows of the image
+ * @param {Number} cols - The number of columns of the image
+ * @param {Number} spacing_x - The spacing value for x axis
+ * @param {Number} spacing_y - The spacing value for y direction
+ * @param {Number} thickness - The thickness value between slices
+ * @param {String} viewport - The viewport tag name
+ * @param {Number} defaultWW - The default WW value
+ * @param {Number} defaultWC - The default WC value
+ */
+export const storeViewportData = function (
+  image,
+  elementId,
+  imageIndex,
+  numberOfSlices,
+  rows,
+  cols,
+  spacing_x,
+  spacing_y,
+  thickness,
+  viewport,
+  defaultWW,
+  defaultWC
+) {
+  larvitar_store.set("dimensions", [elementId, rows, cols]);
+  larvitar_store.set("spacing", [elementId, spacing_x, spacing_y]);
+  larvitar_store.set("thickness", [elementId, thickness]);
+  larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
+  larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
+  larvitar_store.set("minSliceId", [elementId, 1]);
+  larvitar_store.set("sliceId", [elementId, imageIndex]);
+  larvitar_store.set("maxSliceId", [elementId, numberOfSlices]);
+  larvitar_store.set("defaultViewport", [
+    elementId,
+    viewport.scale,
+    viewport.rotation,
+    viewport.translation.x,
+    viewport.translation.y,
+    defaultWW,
+    defaultWC
+  ]);
+  larvitar_store.set("scale", [elementId, viewport.scale]);
+  larvitar_store.set("rotation", [elementId, viewport.rotation]);
+  larvitar_store.set("translation", [
+    elementId,
+    viewport.translation.x,
+    viewport.translation.y
+  ]);
+  larvitar_store.set("contrast", [
+    elementId,
+    viewport.voi.windowWidth,
+    viewport.voi.windowCenter
+  ]);
+};
+
+/**
+ * Invert pixels of an image
+ * @instance
+ * @function invertImage
+ * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const invertImage = function (elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let viewport = cornerstone.getViewport(element);
+  viewport.invert = !viewport.invert;
+  cornerstone.setViewport(element, viewport);
+};
+
+/**
+ * Flip image around horizontal axis
+ * @instance
+ * @function flipImageHorizontal
+ * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const flipImageHorizontal = function (elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let viewport = cornerstone.getViewport(element);
+  viewport.hflip = !viewport.hflip;
+  cornerstone.setViewport(element, viewport);
+};
+
+/**
+ * Flip image around vertical axis
+ * @instance
+ * @function flipImageVertical
+ * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const flipImageVertical = function (elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let viewport = cornerstone.getViewport(element);
+  viewport.vflip = !viewport.vflip;
+  cornerstone.setViewport(element, viewport);
+};
+
+/**
+ * Rotate image by 90° in left direction
+ * @instance
+ * @function rotateImageLeft
+ * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const rotateImageLeft = function (elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let viewport = cornerstone.getViewport(element);
+  viewport.rotation -= 90;
+  cornerstone.setViewport(element, viewport);
+};
+
+/**
+ * Rotate image by 90° in right direction
+ * @instance
+ * @function rotateImageRight
+ * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const rotateImageRight = function (elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  let viewport = cornerstone.getViewport(element);
+  viewport.rotation += 90;
+  cornerstone.setViewport(element, viewport);
+};
+
+/* Internal module functions */
+
+/**
+ * Get series metadata from default props and series' metadata
+ * @instance
+ * @function getSeriesData
+ * @param {Object} series - The parsed data series
+ * @param {Object} defaultProps - Optional default properties
+ * @return {Object} data - A data dictionary with parsed tags' values
+ */
+let getSeriesData = function (series, defaultProps) {
+  let data = {};
+  // image index
+  if (series.isMultiframe) {
+    data.numberOfSlices = series.imageIds.length;
+    data.imageIndex = 1;
+    data.imageId = series.imageIds[0];
+  } else {
+    data.numberOfSlices =
+      defaultProps &amp;&amp; has(defaultProps, "numberOfSlices")
+        ? defaultProps["numberOfSlices"]
+        : series.imageIds.length;
+
+    data.imageIndex =
+      defaultProps &amp;&amp;
+      has(defaultProps, "sliceNumber") &amp;&amp;
+      defaultProps["sliceNumber"] &lt;= data.numberOfSlices
+        ? defaultProps["sliceNumber"]
+        : Math.floor(data.numberOfSlices / 2);
+
+    data.imageId =
+      data.imageIndex > 0
+        ? series.imageIds[data.imageIndex - 1]
+        : series.imageIds[0];
+  }
+
+  // rows, cols and x y z spacing
+  data.rows = series.instances[series.imageIds[0]].metadata["x00280010"];
+  data.cols = series.instances[series.imageIds[0]].metadata["x00280011"];
+  data.thickness = series.instances[series.imageIds[0]].metadata["x00180050"];
+  data.spacing_x = series.instances[series.imageIds[0]].metadata["x00280030"]
+    ? series.instances[series.imageIds[0]].metadata["x00280030"][0]
+    : null;
+  data.spacing_y = series.instances[series.imageIds[0]].metadata["x00280030"]
+    ? series.instances[series.imageIds[0]].metadata["x00280030"][1]
+    : null;
+
+  // window center and window width
+  data.wc =
+    defaultProps &amp;&amp; has(defaultProps, "wc")
+      ? defaultProps["wc"]
+      : series.instances[series.imageIds[0]].metadata["x00281050"];
+
+  data.ww =
+    defaultProps &amp;&amp; has(defaultProps, "ww")
+      ? defaultProps["ww"]
+      : series.instances[series.imageIds[0]].metadata["x00281051"];
+
+  // default values for reset
+  data.defaultWW =
+    defaultProps &amp;&amp; has(defaultProps, "defaultWW")
+      ? defaultProps["defaultWW"]
+      : data.ww;
+  data.defaultWC =
+    defaultProps &amp;&amp; has(defaultProps, "defaultWC")
+      ? defaultProps["defaultWC"]
+      : data.wc;
+
+  if (data.rows == null || data.cols == null) {
+    console.error("invalid image metadata");
+    larvitar_store.set("errorLog", "Invalid Image Metadata");
+    return;
+  } else {
+    larvitar_store.set("errorLog", "");
+  }
+
+  return data;
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+</body>
+</html>
