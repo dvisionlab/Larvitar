@@ -13,21 +13,6 @@ const { getters, setters } = segModule;
 // internal libraries
 import { setToolActive, setToolDisabled } from "./main";
 
-// DEV
-window.segModule = segModule;
-window.cornerstone = cornerstone;
-window.cornerstoneTools = cornerstoneTools;
-
-/**
- * NOTES ON CS TOOLS SEGMENTATION MODULE
- * The value in the mask (binary) define which color will be used from the LUT map
- * The different masks are 'labelmap', while different values in the same mask are 'segments'
- * Segments get the color from the lutmap (up to 2^16 segments) and can be shown/hidden one by one
- * > setters.toggleSegmentVisibility(htmlelement,segmentvalue,labelmapid)
- * > setters.colorForSegmentIndexOfColorLUT(colorLutIndex, segmentValue, colorRGBAarray)
- * Labelmaps are linked to a colormap and can be active / inactive
- * */
-
 // General segmentation cs tools module configuration
 const config = {
   arrayType: 0,

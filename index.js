@@ -5,6 +5,7 @@ console.log(`LARVITAR v${VERSION}`);
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+const segModule = cornerstoneTools.getModule("segmentation");
 
 import larvitarModule from "./modules/vuex/larvitar";
 
@@ -203,6 +204,7 @@ export {
   // global cornerstone variables
   cornerstone,
   cornerstoneTools,
+  segModule,
   cornerstoneWADOImageLoader,
   // vuex module
   larvitarModule,
