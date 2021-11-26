@@ -8,7 +8,7 @@
 
 ### Current version: 1.1.0
 
-### Latest Stable version: 1.0.0
+### Latest Stable version: 1.1.0
 
 ### Latest Published Release: 0.20.0
 

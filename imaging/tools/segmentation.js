@@ -12,6 +12,7 @@ const { getters, setters } = segModule;
 
 // internal libraries
 import { setToolActive, setToolDisabled } from "./main";
+import { isElement } from "../imageUtils";
 
 // General segmentation cs tools module configuration
 const config = {
@@ -165,13 +166,20 @@ export function initSegmentationModule(customConfig) {
 
 /**
  * Add segmentation mask to segmentation module
- * @param {Number} labelId - The label index (must be unique)
+ * @param {Object} maskProps - The mask properties (labelId, color and opacity)
  * @param {TypedArray} - The mask data array
+ * @param {String} elementId - The target html element Id or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when segmentation mask is added
  */
 export function addSegmentationMask(props, data, elementId) {
   let promise = new Promise(resolve => {
-    let element = document.getElementById(elementId);
+    let element = isElement(elementId)
+      ? elementId
+      : document.getElementById(elementId);
+    if (!element) {
+      console.error("invalid html element: " + elementId);
+      return;
+    }
     setters.labelmap3DForElement(element, data.buffer, props.labelId);
     // if user set a color property, use that color for all segments on the labelmap
     let lut = props.color
@@ -188,9 +196,9 @@ export function addSegmentationMask(props, data, elementId) {
 
 /**
  * Set a new mask slice into the labelmap buffer
- * @param {String} elementId
- * @param {Number} sliceIndex
- * @param {ArrayBuffer} pixelData
+ * @param {String} elementId - The target html element Id or its DOM HTMLElement
+ * @param {Number} sliceIndex - the index of the new mask slice
+ * @param {ArrayBuffer} pixelData - the pixelData array
  */
 export function loadMaskSlice(elementId, sliceIndex, pixelData) {
   // optimization: if pixelData contains no labels, return
@@ -198,7 +206,13 @@ export function loadMaskSlice(elementId, sliceIndex, pixelData) {
     return;
   }
 
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
   let volumeId = 0; // TODO for multivolume
   // get labelmap buffer
   let labelmaps2D = getters.labelmap3D(element, volumeId).labelmaps2D;
@@ -216,34 +230,48 @@ export function loadMaskSlice(elementId, sliceIndex, pixelData) {
 /**
  * Activate a specific labelmap through its labelId
  * @param {Number} labelId - The labelmap id to activate
- * @param {String} elementId - The target html element id
+ * @param {String} elementId - The target html element Id or its DOM HTMLElement
  */
 export function setActiveLabelmap(labelId, elementId) {
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
   setters.activeLabelmapIndex(element, labelId);
 }
 
 /**
  * Get active labelmap for target element
- * @param {String} elementId
+ * @param {String} elementId - The target html element Id or its DOM HTMLElement
  * @returns {Object} The active labelmap object that contains the buffer
  */
 export function getActiveLabelmapBuffer(elementId) {
-  if (!elementId) {
-    console.error(
-      "getActivelabelmapBuffer now needs elementId as param and returns the buffer parent object"
-    );
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
   }
-  return getters.activeLabelmapBuffer(document.getElementById(elementId));
+  return getters.activeLabelmapBuffer(element);
 }
 
 /**
  * Activate a specific segment through its index
  * @param {Number} segmentIndex - The segment index to activate
- * @param {String} elementId - The target html element id
+ * @param {String} elementId - The target html element Id or its DOM HTMLElement
  */
 export function setActiveSegment(segmentIndex, elementId) {
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
   setters.activeSegmentIndex(element, segmentIndex);
 }
 
@@ -267,11 +295,17 @@ export function setInactiveLabelOpacity(opacity) {
 
 /**
  * Toggle mask visibility
- * @param {String} elementId
- * @param {Number} labelId
+ * @param {String} elementId - The target html element Id or its DOM HTMLElement
+ * @param {Number} labelId - The id of the mask label
  */
 export function toggleVisibility(elementId, labelId) {
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
   let volumeId = 0; // TODO MULTIVOLUME
   setters.toggleSegmentVisibility(element, labelId, volumeId);
   cornerstone.updateImage(element);
@@ -300,9 +334,7 @@ export function toggleContourMode(toggle) {
 
 /**
  * Set mask appearance props
- * @param {String} tag - The mask tag
- * @param {Integer} mode - [0=filled, 1=contour, 2=hidden]
- * @param {Float} alpha - Opacity value (if mode=0), between 0 and 1
+ * @param {Object} maskProps - The mask appearance props (labelId, visualization [0=filled, 1=contour, 2=hidden], opacity (if mode=0), between 0 and 1)
  */
 export function setMaskProps(props) {
   // Lut index and segment values are hardcoded because they will depend on design choices:
@@ -363,6 +395,7 @@ export function clearSegmentationState() {
 /**
  * Enable brushing
  * @param {Number} dimension - The initial brush radius
+ * @param {Array} thresholds - The threshold values (min and max)
  */
 export function enableBrushTool(dimension, thresholds) {
   segModule.configuration.radius = dimension;
@@ -390,24 +423,39 @@ export function setBrushProps(props) {
 
 /**
  * Undo last brush operation (stroke)
+ * @param {String} elementId - The target html element Id or its DOM HTMLElement
  */
 export function undoLastStroke(elementId) {
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
   let activeLabelMapIndex = segModule.getters.activeLabelmapIndex(element);
   setters.undo(element, activeLabelMapIndex);
 }
 
 /**
  * Redo last brush operation (stroke)
+ * @param {String} elementId - The target html element Id or its DOM HTMLElement
  */
 export function redoLastStroke(elementId) {
-  let element = document.getElementById(elementId);
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
   let activeLabelMapIndex = segModule.getters.activeLabelmapIndex(element);
   setters.redo(element, activeLabelMapIndex);
 }
 
 /**
  * Delete mask from state
+ * @param {Number} labelId - The labelmap id to activate
  */
 export function deleteMask(labelId) {
   let masks = values(segModule.state.series)[0].labelmaps3D;
