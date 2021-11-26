@@ -22,3 +22,4 @@ We chose to migrate all functions using callback to promise. Promises are JavaSc
    -  *resliceImage* now returns a promise which will resolve when reslice data is available
 -  tools/segmentation module
    -  *addSegmentationMask* now returns a promise which will resolve when segmentation mask is added
+   -  *getActivelabelmapBuffer* now needs elementId (or its DOM HTMLElement) as param and returns the buffer parent object"
