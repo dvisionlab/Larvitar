@@ -291,7 +291,7 @@ let parseFile = function (file) {
           }
         }
       } catch (err) {
-        console.err(err);
+        console.error(err);
         reject("can not read this file");
       }
     };
