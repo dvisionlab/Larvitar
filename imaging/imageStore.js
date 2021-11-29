@@ -259,15 +259,16 @@ class Larvitar_Store {
 
 /**
  * Instancing the store
- * @param {Object} vuex_store - The app vuex store [optional]
- * @param {String} vuex_module - The name of the vuex store module, can be null
+ * @param {Object} vuexStore - The app vuex store [optional]
+ * @param {String} vuexModule - The name of the vuex store module, can be null
+ * @param {Boolean} registerModule - If true, the module is registered under Vuex global store
  */
 
-export function initLarvitarStore(vuex_store, vuex_module, registerModule) {
-  if (vuex_store) {
-    larvitar_store = new Larvitar_Store(vuex_store, vuex_module);
+export function initLarvitarStore(vuexStore, vuexModule, registerModule) {
+  if (vuexStore) {
+    larvitar_store = new Larvitar_Store(vuexStore, vuexModule);
     if (registerModule) {
-      vuex_store.registerModule(vuex_module, larvitar);
+      vuexStore.registerModule(vuexModule, larvitar);
     }
   } else {
     larvitar_store = new Larvitar_Store();

@@ -1,4 +1,4 @@
-// Larvitare storage
+// Larvitar Vuex storage
 
 import Vue from "vue";
 
