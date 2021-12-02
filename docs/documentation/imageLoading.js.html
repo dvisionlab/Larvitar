@@ -81,16 +81,19 @@ import { loadMultiFrameImage } from "./loaders/multiframeLoader";
  * @property {String} webWorkerPath - path to default WADO web worker
  * @property {} - see https://github.com/cornerstonejs/cornerstoneWADOImageLoader/blob/master/docs/WebWorkers.md
  */
+
 const globalConfig = {
   maxWebWorkers: navigator.hardwareConcurrency || 1,
-  webWorkerPath: "/cornerstoneWADOImageLoaderWebWorker.js",
   startWebWorkersOnDemand: true,
+  webWorkerTaskPaths: [
+    "https://unpkg.com/cornerstone-wado-image-loader@4.1.0/dist/610.bundle.min.worker.js",
+    "https://unpkg.com/cornerstone-wado-image-loader@4.1.0/dist/888.bundle.min.worker.js"
+  ],
   taskConfiguration: {
     decodeTask: {
       loadCodecsOnStartup: true,
       initializeCodecsOnStartup: false,
-      codecsPath: "/cornerstoneWADOImageLoaderCodecs.js",
-      usePDFJS: false
+      strict: true
     }
   }
 };
