@@ -6,13 +6,14 @@
 
 ## Dicom Image Toolkit for CornestoneJS
 
-### Current version: 1.1.1
+### Current version: 1.1.2
 
-### Latest Stable version: 1.1.1
+### Latest Stable version: 1.1.2
 
-### Latest Published Release: 0.20.0
+### Latest Published Release: 1.1.2
 
-This library provides common dicom functionalities to be used in web-applications. Multiplanar reformat on axial, sagittal and coronal viewports is included as well as custom loader/exporter for nrrd files and orthogonal reslice.
+This library provides common DICOM functionalities to be used in web-applications: it's wrapper that simplifies the use of cornestone-js environment.
+Orthogonal multiplanar reformat is included as well as custom loader/exporter for nrrd files and [Vuex](https://vuex.vuejs.org/) custom integration.
 
 - `index` main file
 - `dataDictionary` json file for dicom tags
@@ -58,7 +59,7 @@ import store from "@/store/index";
 initLarvitarStore(store); // Calling this without parameters makes Larvitar use its internal store.
 ```
 
-Full documentation is available at http://www.dvisionlab.com/Larvitar/.
+Full documentation and examples are available at http://www.dvisionlab.com/Larvitar/.
 
 <br>
 
