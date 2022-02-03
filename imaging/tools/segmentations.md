@@ -30,3 +30,9 @@ TODO
 # Larvitar segmentation API
 
 TODO
+
+# Customization
+
+Some function in larvitar overrides the default behaviour of cornerstone tools, here is a list of them:
+
+- `setters.labelmap3DForElement` is overridden to have a non-blocking behaviour, the custom code is in ./setLabelMap3D.js, same as original code in cs tools repo.
