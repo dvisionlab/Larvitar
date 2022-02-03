@@ -18,7 +18,6 @@ import { isElement } from "../imageUtils";
 import { setLabelmap3DForElement } from "./setLabelMap3D";
 // override function
 setters.labelmap3DForElement = setLabelmap3DForElement;
-window.setters = setters;
 
 // General segmentation cs tools module configuration
 const config = {
