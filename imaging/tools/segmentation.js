@@ -14,6 +14,12 @@ const { getters, setters } = segModule;
 import { setToolActive, setToolDisabled } from "./main";
 import { isElement } from "../imageUtils";
 
+// custom code
+import { setLabelmap3DForElement } from "./setLabelMap3D";
+// override function
+setters.labelmap3DForElement = setLabelmap3DForElement;
+window.setters = setters;
+
 // General segmentation cs tools module configuration
 const config = {
   arrayType: 0,
@@ -172,7 +178,7 @@ export function initSegmentationModule(customConfig) {
  * @returns {Promise} - Return a promise which will resolve when segmentation mask is added
  */
 export function addSegmentationMask(props, data, elementId) {
-  let promise = new Promise(resolve => {
+  let promise = new Promise(async resolve => {
     let element = isElement(elementId)
       ? elementId
       : document.getElementById(elementId);
@@ -180,7 +186,12 @@ export function addSegmentationMask(props, data, elementId) {
       console.error("invalid html element: " + elementId);
       return;
     }
-    setters.labelmap3DForElement(element, data.buffer, props.labelId);
+
+    const res = await setters.labelmap3DForElement(
+      element,
+      data.buffer,
+      props.labelId
+    );
     // if user set a color property, use that color for all segments on the labelmap
     let lut = props.color
       ? generateUniformLUT(props.color, props.opacity)
