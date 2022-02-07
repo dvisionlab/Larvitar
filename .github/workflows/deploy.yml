@@ -30,17 +30,8 @@ jobs:
           cd ${{ github.workspace }}
           rm -rf docs
 
-      # Install npm-cli-login
-      - name: Install npm-cli-login
-        run: |
-          npm install -g npm-cli-login
-
-      # Login to npm
-      - name: Login to npm
-        run: |
-          npm-cli-login -u '${{ secrets.NPM_USERNAME }}' -p '${{ secrets.NPM_PASSWORD }}' -e '${{ secrets.NPM_EMAIL }}'
-
       # Publish to npm
       - name: Publish to npm
         run: |
           npm publish
+        env: NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
