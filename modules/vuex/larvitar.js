@@ -99,6 +99,7 @@ export default {
     },
     removeSeriesIds: ({ state }, seriesId) =>
       Vue.delete(state.series, seriesId),
+    resetSeriesIds: ({ state }) => Vue.set(state.series, {}),
     setErrorLog: () => {}, // TODO LT pass elementId
 
     // Series fields setters
