@@ -172,6 +172,22 @@ class Larvitar_Store {
   }
 
   /**
+   * Removes all the series from the store
+   * @function resetSeriesIds
+   */
+  resetSeriesIds(seriesId) {
+    if (this.VUEX_STORE) {
+      let dispatch = "resetSeriesIds";
+      let route = this.vuex_module
+        ? this.vuex_module + "/" + dispatch
+        : dispatch;
+      this.vuex_store.dispatch(route, seriesId);
+    } else {
+      delete this.state.series[seriesId];
+    }
+  }
+
+  /**
    * Set a value into store
    * @function set
    * @param {field} field - The name of the field to be updated
