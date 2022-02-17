@@ -38,10 +38,14 @@ export const updateLarvitarManager = function (imageObject, customId) {
   if (larvitarManager === null) {
     larvitarManager = {};
   }
+
   let seriesId = customId || imageObject.seriesUID;
   let data = { ...imageObject };
-  if (data.isMultiframe) {
-    buildMultiFrameImage(seriesId, data);
+
+  if (data.metadata.isMultiframe) {
+    seriesId = customId || imageObject.metadata.seriesUID;
+    updateLoadedStack(data, larvitarManager, customId);
+    buildMultiFrameImage(seriesId, larvitarManager[seriesId]);
   } else {
     updateLoadedStack(data, larvitarManager, customId);
   }
