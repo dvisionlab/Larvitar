@@ -333,6 +333,7 @@ let parseFile = function (file) {
               imageObject.metadata.frameTime = metadata["x00181063"];
               imageObject.metadata.frameDelay = metadata["x00181066"];
             }
+            imageObject.metadata.isMultiframe = isMultiframe;
             imageObject.metadata.windowCenter = metadata["x00281050"];
             imageObject.metadata.windowWidth = metadata["x00281051"];
             imageObject.metadata.minPixelValue = metadata["x00280106"];
