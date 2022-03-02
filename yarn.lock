@@ -25,9 +25,9 @@
   integrity sha512-qgm6BuVAy5mNP8SJ+A6+VbmPnqgj8jPvJrw4HbUoAzndmf9/VHjTYwawn3kmZWya5ErFAsXQ6c0U0noB1LKAiA==
 
 "@cornerstonejs/codec-openjpeg@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@cornerstonejs/codec-openjpeg/-/codec-openjpeg-0.1.0.tgz#5bca10ae2980ff681ebcdace2074a0adaf12ad86"
-  integrity sha512-9mwseBidYPQ1rGPcUU8JriQnzUi5Bgtontqca7gw47uzxC4Zamoc1Kuho5LUpbS1LSnOLePOkDrg/LCYhJIq8g==
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@cornerstonejs/codec-openjpeg/-/codec-openjpeg-0.1.1.tgz#5bd1c52a33a425299299e970312731fa0cc2711b"
+  integrity sha512-HOMMOLV6xy8O/agNGGvrl0a8DwShpBvWxAzEzv2pqq12d3r5z/3MyIgNA3Oj/8bIBVvvVXxh9RX7rMDRHJdowg==
 
 "@rollup/plugin-commonjs@^17.1.0":
   version "17.1.0"
@@ -171,10 +171,10 @@ cornerstone-tools@^6.0.6:
     "@babel/runtime" "7.1.2"
     cornerstone-math "0.1.9"
 
-cornerstone-wado-image-loader@^4.0.1:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/cornerstone-wado-image-loader/-/cornerstone-wado-image-loader-4.1.0.tgz#a85c206eb23e188181ed3f1dcf3ec715e65efcb4"
-  integrity sha512-QRoMqBE5xEc1Jttg3eH6RB4jFY2aIEjd9rcbvJszefl0isow+JwcLv2kh1xkSvqGfHGozcz+F4mrORyTNNLuFQ==
+cornerstone-wado-image-loader@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/cornerstone-wado-image-loader/-/cornerstone-wado-image-loader-4.1.2.tgz#89527e6793c7e2b66a4d8a5db2ca5c51b52fb1bd"
+  integrity sha512-9dtCgU6Lidp5wY914rNUckLqNHmjvIzL3uYU8b3EMqb9+tfTRQINm0kJq/rgchiyxnc1AW3FhrDf9DYgcfspyQ==
   dependencies:
     "@cornerstonejs/codec-charls" "^0.1.1"
     "@cornerstonejs/codec-libjpeg-turbo-8bit" "^0.0.7"
@@ -202,10 +202,10 @@ dicom-character-set@^1.0.3:
   resolved "https://registry.yarnpkg.com/dicom-character-set/-/dicom-character-set-1.0.3.tgz#406d3cbe562ea66c7a834627f33c95dbdce7457e"
   integrity sha512-nfP6WTWX6L4rGAG8ydTnl8STqlSDdkkSZuNYjd9ynWmH3QU5KRmv6aATJfTHAWrzyJz/TwYIs/h+IvSZYxlopQ==
 
-dicom-parser@^1.8.11, dicom-parser@^1.8.9:
-  version "1.8.11"
-  resolved "https://registry.yarnpkg.com/dicom-parser/-/dicom-parser-1.8.11.tgz#ffd86289a6b85bb0047379084b57fcc1b28fe7f8"
-  integrity sha512-KbxEDqv4Stynv5AxDh90+jY7MtPvI2uyOG62yD8zKu/pcZqoQYfPX44rB0ULjpxt6YIfXfajrs7B1L97RbjNsg==
+dicom-parser@^1.8.13, dicom-parser@^1.8.9:
+  version "1.8.13"
+  resolved "https://registry.yarnpkg.com/dicom-parser/-/dicom-parser-1.8.13.tgz#ce1122bf4363f21b09450e5a47e85ad323926daa"
+  integrity sha512-8M53FPHS4zM3zvu5fdIWdatqrjpiG2+2M6RJ0IxwqLF4gvCYRsqUIusxYaOiNU0sWaptUpnXeZiXunP0LOIcQw==
 
 docdash@^1.2.0:
   version "1.2.0"

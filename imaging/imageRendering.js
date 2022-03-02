@@ -328,20 +328,7 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
       }
 
       let storedViewport = cornerstone.getViewport(element);
-      storeViewportData(
-        image,
-        elementId,
-        data.imageIndex,
-        data.numberOfSlices,
-        data.rows,
-        data.cols,
-        data.spacing_x,
-        data.spacing_y,
-        data.thickness,
-        storedViewport,
-        data.defaultWW,
-        data.defaultWC
-      );
+      storeViewportData(image, elementId, storedViewport, data);
       larvitar_store.set("renderingStatus", [elementId, true]);
       let t1 = performance.now();
       console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
@@ -534,47 +521,26 @@ export const updateViewportData = function (
  * @function storeViewportData
  * @param {Object} image - The cornerstone image frame
  * @param {String} elementId - The html div id used for rendering
- * @param {Number} imageIndex - The index of the image
- * @param {Number} numberOfSlices - The number of slices of the series
- * @param {Number} rows - The number of rows of the image
- * @param {Number} cols - The number of columns of the image
- * @param {Number} spacing_x - The spacing value for x axis
- * @param {Number} spacing_y - The spacing value for y direction
- * @param {Number} thickness - The thickness value between slices
  * @param {String} viewport - The viewport tag name
- * @param {Number} defaultWW - The default WW value
- * @param {Number} defaultWC - The default WC value
+ * @param {Object} data - The viewport data object
  */
-export const storeViewportData = function (
-  image,
-  elementId,
-  imageIndex,
-  numberOfSlices,
-  rows,
-  cols,
-  spacing_x,
-  spacing_y,
-  thickness,
-  viewport,
-  defaultWW,
-  defaultWC
-) {
-  larvitar_store.set("dimensions", [elementId, rows, cols]);
-  larvitar_store.set("spacing", [elementId, spacing_x, spacing_y]);
-  larvitar_store.set("thickness", [elementId, thickness]);
+export const storeViewportData = function (image, elementId, viewport, data) {
+  larvitar_store.set("dimensions", [elementId, data.rows, data.cols]);
+  larvitar_store.set("spacing", [elementId, data.spacing_x, data.spacing_y]);
+  larvitar_store.set("thickness", [elementId, data.thickness]);
   larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
   larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
   larvitar_store.set("minSliceId", [elementId, 1]);
-  larvitar_store.set("sliceId", [elementId, imageIndex]);
-  larvitar_store.set("maxSliceId", [elementId, numberOfSlices]);
+  larvitar_store.set("sliceId", [elementId, data.imageIndex]);
+  larvitar_store.set("maxSliceId", [elementId, data.numberOfSlices]);
   larvitar_store.set("defaultViewport", [
     elementId,
     viewport.scale,
     viewport.rotation,
     viewport.translation.x,
     viewport.translation.y,
-    defaultWW,
-    defaultWC
+    data.defaultWW,
+    data.defaultWC
   ]);
   larvitar_store.set("scale", [elementId, viewport.scale]);
   larvitar_store.set("rotation", [elementId, viewport.rotation]);
@@ -588,6 +554,9 @@ export const storeViewportData = function (
     viewport.voi.windowWidth,
     viewport.voi.windowCenter
   ]);
+  larvitar_store.set("isColor", [elementId, data.isColor]);
+  larvitar_store.set("isMultiframe", [elementId, data.isMultiframe]);
+  larvitar_store.set("isTimeserie", [elementId, data.isTimeserie]);
 };
 
 /**
@@ -699,10 +668,12 @@ let getSeriesData = function (series, defaultProps) {
   let data = {};
   // image index
   if (series.isMultiframe) {
+    data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;
     data.imageIndex = 1;
     data.imageId = series.imageIds[0];
   } else {
+    data.isMultiframe = false;
     data.numberOfSlices =
       defaultProps && has(defaultProps, "numberOfSlices")
         ? defaultProps["numberOfSlices"]
@@ -720,6 +691,8 @@ let getSeriesData = function (series, defaultProps) {
         ? series.imageIds[data.imageIndex - 1]
         : series.imageIds[0];
   }
+  data.isColor = series.color;
+  data.isTimeserie = false; // TODO 4D
 
   // rows, cols and x y z spacing
   data.rows = series.instances[series.imageIds[0]].metadata["x00280010"];
