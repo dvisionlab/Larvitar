@@ -77,6 +77,9 @@ const DEFAULT_VIEWPORT = {
   thickness: 0.0,
   minPixelValue: 0,
   maxPixelValue: 0,
+  isColor: false,
+  isMultiframe: false,
+  isTimeserie: false,
   viewport: {
     scale: 0.0,
     rotation: 0.0,
@@ -121,7 +124,6 @@ class Larvitar_Store {
     this.vuex_store = vuex_store;
     this.vuex_module = vuex_module;
     this.state = {
-      manager: null,
       series: {}, // seriesUID: {imageIds:[], progress:value}
       leftActiveTool: "Wwwc",
       rightActiveTool: "Zoom",
@@ -285,6 +287,12 @@ class Larvitar_Store {
         this.state["viewports"][data[0]]["maxSliceId"] = data[1];
       } else if (field == "sliceId") {
         this.state["viewports"][data[0]]["sliceId"] = data[1];
+      } else if (field == "isColor") {
+        this.state["viewports"][data[0]]["isColor"] = data[1];
+      } else if (field == "isMultiframe") {
+        this.state["viewports"][data[0]]["isMultiframe"] = data[1];
+      } else if (field == "isTimeserie") {
+        this.state["viewports"][data[0]]["isTimeserie"] = data[1];
       } else if (field == "defaultViewport") {
         this.state["viewports"][data[0]]["default"]["scale"] = data[1];
         this.state["viewports"][data[0]]["default"]["rotation"] = data[2];
@@ -298,8 +306,6 @@ class Larvitar_Store {
           data[6];
       } else if (field == "progress") {
         this.state.series[data[0]]["progress"] = data[1];
-      } else if (field == "manager") {
-        this.state.manager = data;
       } else {
         if (Array.isArray(data)) {
           this.state[field][data[0]] = data[1];
