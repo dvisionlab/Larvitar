@@ -15,6 +15,9 @@ const DEFAULT_VIEWPORT = {
   thickness: 0.0,
   minPixelValue: 0,
   maxPixelValue: 0,
+  isColor: false,
+  isMultiframe: false,
+  isTimeserie: false,
   viewport: {
     scale: 0.0,
     rotation: 0.0,
@@ -46,7 +49,6 @@ export default {
     colormapId: "gray",
     leftActiveTool: "Wwwc",
     rightActiveTool: "Wwwc",
-    manager: null,
     series: {}, // seriesUID: {imageIds:[], progress:value}
     viewports: {}
   },
@@ -90,7 +92,6 @@ export default {
     },
     deleteViewport: ({ state }, viewportId) =>
       Vue.delete(state.viewports, viewportId),
-    setManager: ({ state }, value) => (state.manager = value),
     setLeftActiveTool: ({ commit }, value) => {
       commit("leftActiveTool", { d: { value } });
     },
@@ -127,6 +128,12 @@ export default {
       commit("viewport", { id, d: { maxSliceId } }),
     setSliceId: ({ commit }, [id, sliceId]) =>
       commit("viewport", { id, d: { sliceId } }),
+    setIsColor: ({ commit }, [id, isColor]) =>
+      commit("viewport", { id, d: { isColor } }),
+    setIsMultiframe: ({ commit }, [id, isMultiframe]) =>
+      commit("viewport", { id, d: { isMultiframe } }),
+    setIsTimeserie: ({ commit }, [id, isTimeserie]) =>
+      commit("viewport", { id, d: { isTimeserie } }),
     setDefaultViewport: (
       { commit },
       [id, scale, rotation, x, y, windowWidth, windowCenter]
