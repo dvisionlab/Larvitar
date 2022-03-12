@@ -253,7 +253,6 @@ export const resizeViewport = function (elementId) {
  */
 export const renderImage = function (seriesStack, elementId, defaultProps) {
   let t0 = performance.now();
-
   // get element and enable it
   let element = isElement(elementId)
     ? elementId
@@ -265,9 +264,6 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
   cornerstone.enable(element);
 
   let series = { ...seriesStack };
-
-  // default to 0 if multiframe and frameId is null
-  // let frameId = series.isMultiframe ? 1 : null;
 
   larvitar_store.set("renderingStatus", [elementId, false]);
   let data = getSeriesData(series, defaultProps);
@@ -372,17 +368,23 @@ export const updateImage = function (
     console.log("not element");
     return;
   }
-  let index = imageIndex == 0 ? imageIndex : imageIndex - 1;
-  if (cacheImage) {
-    cornerstone
-      .loadAndCacheImage(series.imageIds[index])
-      .then(function (image) {
+  let imageId = series.imageIds[imageIndex];
+  if (imageId) {
+    if (cacheImage) {
+      cornerstone.loadAndCacheImage(imageId).then(function (image) {
         cornerstone.displayImage(element, image);
+        larvitar_store.set("sliceId", [elementId, imageIndex]);
       });
+    } else {
+      cornerstone.loadImage(imageId).then(function (image) {
+        cornerstone.displayImage(element, image);
+        larvitar_store.set("sliceId", [elementId, imageIndex]);
+      });
+    }
   } else {
-    cornerstone.loadImage(series.imageIds[index]).then(function (image) {
-      cornerstone.displayImage(element, image);
-    });
+    console.warn(
+      `Error: wrong image index ${imageIndex}, no imageId available`
+    );
   }
 };
 
@@ -530,9 +532,10 @@ export const storeViewportData = function (image, elementId, viewport, data) {
   larvitar_store.set("thickness", [elementId, data.thickness]);
   larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
   larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
-  larvitar_store.set("minSliceId", [elementId, 1]);
+  // slice id from 0 to n - 1
+  larvitar_store.set("minSliceId", [elementId, 0]);
   larvitar_store.set("sliceId", [elementId, data.imageIndex]);
-  larvitar_store.set("maxSliceId", [elementId, data.numberOfSlices]);
+  larvitar_store.set("maxSliceId", [elementId, data.numberOfSlices - 1]);
   larvitar_store.set("defaultViewport", [
     elementId,
     viewport.scale,
@@ -666,12 +669,11 @@ export const rotateImageRight = function (elementId) {
  */
 let getSeriesData = function (series, defaultProps) {
   let data = {};
-  // image index
   if (series.isMultiframe) {
     data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;
-    data.imageIndex = 1;
-    data.imageId = series.imageIds[0];
+    data.imageIndex = 0;
+    data.imageId = series.imageIds[data.imageIndex];
   } else {
     data.isMultiframe = false;
     data.numberOfSlices =
@@ -682,14 +684,12 @@ let getSeriesData = function (series, defaultProps) {
     data.imageIndex =
       defaultProps &&
       has(defaultProps, "sliceNumber") &&
-      defaultProps["sliceNumber"] <= data.numberOfSlices
+      defaultProps["sliceNumber"] >= 0 && // slice number between 0 and n-1
+      defaultProps["sliceNumber"] < data.numberOfSlices
         ? defaultProps["sliceNumber"]
         : Math.floor(data.numberOfSlices / 2);
 
-    data.imageId =
-      data.imageIndex > 0
-        ? series.imageIds[data.imageIndex - 1]
-        : series.imageIds[0];
+    data.imageId = series.imageIds[data.imageIndex];
   }
   data.isColor = series.color;
   data.isTimeserie = false; // TODO 4D
