@@ -61,7 +61,7 @@
                     larvitar.populateLarvitarManager(seriesId, serie);
                     let manager = larvitar.getLarvitarManager();
                     let multiFrameSerie = manager[seriesId];
-                    let frameId = 1;
+                    let frameId = 0;
                     larvitar
                       .renderImage(multiFrameSerie, "viewer", frameId)
                       .then(() => {
@@ -87,10 +87,13 @@
                           animationId = setInterval(function () {
                             let series =
                               larvitar.getSeriesDataFromLarvitarManager(seriesId);
-                            frameId = frameId == numberOfFrames ? 1 : frameId + 1;
+                            frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
                             larvitar.updateImage(series, "viewer", frameId, true);
                             $("#current-frame").html(
-                              "Current Frame: " + frameId + " of " + numberOfFrames
+                              "Current Frame: " +
+                                parseInt(frameId + 1) +
+                                " of " +
+                                numberOfFrames
                             );
                           }, frameRate);
                         } else {
@@ -118,6 +121,7 @@
     </div>
 
     <script src="./larvitar.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
@@ -145,7 +149,7 @@
             larvitar.populateLarvitarManager(seriesId, serie);
             let manager = larvitar.getLarvitarManager();
             let multiFrameSerie = manager[seriesId];
-            let frameId = 1;
+            let frameId = 0;
             larvitar
               .renderImage(multiFrameSerie, "viewer", frameId)
               .then(() => {
@@ -171,10 +175,13 @@
                   animationId = setInterval(function () {
                     let series =
                       larvitar.getSeriesDataFromLarvitarManager(seriesId);
-                    frameId = frameId == numberOfFrames ? 1 : frameId + 1;
-                    larvitar.updateImage(series, "viewer", frameId, true);
+                    frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+                    larvitar.updateImage(series, "viewer", frameId, false);
                     $("#current-frame").html(
-                      "Current Frame: " + frameId + " of " + numberOfFrames
+                      "Current Frame: " +
+                        parseInt(frameId + 1) +
+                        " of " +
+                        numberOfFrames
                     );
                   }, frameRate);
                 } else {
