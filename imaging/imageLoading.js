@@ -27,8 +27,12 @@ import { loadMultiFrameImage } from "./loaders/multiframeLoader";
  * @property {} - see https://github.com/cornerstonejs/cornerstoneWADOImageLoader/blob/master/docs/WebWorkers.md
  */
 
+const MAX_CONCURRENCY = 6;
 const globalConfig = {
-  maxWebWorkers: navigator.hardwareConcurrency || 1,
+  maxWebWorkers: Math.max(
+    Math.min(navigator.hardwareConcurrency - 1, MAX_CONCURRENCY),
+    1
+  ),
   startWebWorkersOnDemand: true,
   webWorkerTaskPaths: [
     "https://unpkg.com/cornerstone-wado-image-loader@4.1.0/dist/610.bundle.min.worker.js",
