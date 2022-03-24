@@ -142,7 +142,9 @@ import {
   setActiveSegment,
   undoLastStroke,
   redoLastStroke,
-  setBrushProps
+  setBrushProps,
+  hexToRgb,
+  rgbToHex
 } from "./imaging/tools/segmentation";
 
 import {
@@ -365,5 +367,7 @@ export {
   setActiveSegment,
   undoLastStroke,
   redoLastStroke,
-  setBrushProps
+  setBrushProps,
+  hexToRgb,
+  rgbToHex
 };
