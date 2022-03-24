@@ -13,6 +13,8 @@ const { getters, setters } = segModule;
 // internal libraries
 import { setToolActive, setToolDisabled } from "./main";
 import { isElement } from "../imageUtils";
+import { larvitar_store } from "../imageStore";
+import { updateStackToolState } from "../imageTools";
 
 // custom code
 import { setLabelmap3DForElement } from "./setLabelMap3D";
@@ -199,6 +201,19 @@ export function addSegmentationMask(props, data, elementId) {
     // bind labelmap to colorLUT
     let labelmap3d = getters.labelmap3D(element, props.labelId);
     setters.colorLUTIndexForLabelmap3D(labelmap3d, props.labelId);
+
+    // set current imageIdIndex in tool state
+    let currentImageIdIndex = larvitar_store.get(
+      "viewports",
+      elementId,
+      "sliceId"
+    );
+    if (currentImageIdIndex !== "error" && currentImageIdIndex >= 0) {
+      updateStackToolState(elementId, currentImageIdIndex);
+    } else {
+      console.error("Cannot get currentImageIdIndex");
+    }
+
     resolve();
   });
   return promise;
