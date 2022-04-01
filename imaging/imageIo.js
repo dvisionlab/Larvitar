@@ -122,18 +122,25 @@ export const buildData = function (series, useSeriesData) {
         data.set(sliceData, offsetData);
         offsetData += sliceData.length;
       });
+      let t1 = performance.now();
+      console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
+      return data;
     } else {
       larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
+      let image_counter = 0;
       forEach(series.imageIds, function (imageId) {
         getCachedPixelData(imageId).then(sliceData => {
           data.set(sliceData, offsetData);
           offsetData += sliceData.length;
+          image_counter += 1;
+          if (image_counter == series.imageIds.length) {
+            let t1 = performance.now();
+            console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
+            return data;
+          }
         });
       });
     }
-    let t1 = performance.now();
-    console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
-    return data;
   } else {
     throw new Error("Data has not been builded: not enough memory");
   }
