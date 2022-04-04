@@ -139,6 +139,9 @@ export const updateLoadedStack = function (
   let ssid = seriesData.metadata.studyUID;
   let iid = seriesData.metadata.instanceUID;
   let seriesDescription = seriesData.metadata.seriesDescription;
+  let numberOfSlices = seriesData.metadata["x00540081"]
+    ? seriesData.metadata["x00540081"]
+    : seriesData.metadata["x00201002"];
   let numberOfFrames = seriesData.metadata["x00280008"];
   let modality = seriesData.metadata["x00080060"];
   let isMultiframe = numberOfFrames > 1 ? true : false;
@@ -158,6 +161,7 @@ export const updateLoadedStack = function (
       seriesUID: sid,
       studyUID: ssid,
       numberOfImages: 0,
+      numberOfSlices: numberOfSlices,
       numberOfFrames: numberOfFrames,
       isMultiframe: isMultiframe,
       modality: modality,
