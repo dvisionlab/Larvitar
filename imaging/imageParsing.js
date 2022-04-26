@@ -155,7 +155,7 @@ let parseNextFile = function (parsingQueue, allSeriesStack, resolve, reject) {
     let t1 = performance.now();
     console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
     file = null;
-    reject(allSeriesStack, "Available memory is not enough");
+    reject("Available memory is not enough");
     return;
   } else {
     // parse the file and wait for results
@@ -292,7 +292,7 @@ let parseFile = function (file) {
           }
         }
       } catch (err) {
-        console.error(err);
+        console.warn(err);
         reject("can not read this file");
       }
     };
