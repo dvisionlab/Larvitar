@@ -5,6 +5,7 @@
 // external libraries
 import { parseDicom } from "dicom-parser";
 import { forEach, each, has, pick } from "lodash";
+import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
 import { getPixelRepresentation, randomId, parseTag } from "./imageUtils.js";
@@ -126,10 +127,17 @@ export const parseDataSet = function (dataSet, metadata, customFilter) {
  * @function parseNextFile
  * @param {Array} parsingQueue - Array of queued files to be parsed
  * @param {Object} allSeriesStack - Series stack object to be populated
+ * @param {string} uuid - Series uuid to be used if series instance uuid is missing
  * @param {Function} resolve - Promise resolve function
  * @param {Function} reject - Promise reject function
  */
-let parseNextFile = function (parsingQueue, allSeriesStack, resolve, reject) {
+let parseNextFile = function (
+  parsingQueue,
+  allSeriesStack,
+  uuid,
+  resolve,
+  reject
+) {
   // initialize t0 on first file of the queue
   if (
     Object.keys(allSeriesStack).length === 0 &&
@@ -161,16 +169,18 @@ let parseNextFile = function (parsingQueue, allSeriesStack, resolve, reject) {
     // parse the file and wait for results
     parseFile(file)
       .then(seriesData => {
+        // use generated series uid if not found in dicom file
+        seriesData.metadata.seriesUID = seriesData.metadata.seriesUID || uuid;
         // add file to cornerstoneWADOImageLoader file manager
         updateLoadedStack(seriesData, allSeriesStack);
         // proceed with the next file to parse
-        parseNextFile(parsingQueue, allSeriesStack, resolve, reject);
+        parseNextFile(parsingQueue, allSeriesStack, uuid, resolve, reject);
         seriesData = null;
         file = null;
       })
       .catch(err => {
         console.warn(err);
-        parseNextFile(parsingQueue, allSeriesStack, resolve, reject);
+        parseNextFile(parsingQueue, allSeriesStack, uuid, resolve, reject);
         file = null;
       });
   }
@@ -193,7 +203,8 @@ let parseFiles = function (fileList) {
     }
   });
   return new Promise((resolve, reject) => {
-    parseNextFile(parsingQueue, allSeriesStack, resolve, reject);
+    const uuid = uuidv4();
+    parseNextFile(parsingQueue, allSeriesStack, uuid, resolve, reject);
   });
 };
 
