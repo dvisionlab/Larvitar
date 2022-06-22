@@ -374,11 +374,15 @@ export const updateImage = function (
       cornerstone.loadAndCacheImage(imageId).then(function (image) {
         cornerstone.displayImage(element, image);
         larvitar_store.set("sliceId", [elementId, imageIndex]);
+        larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
+        larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
       });
     } else {
       cornerstone.loadImage(imageId).then(function (image) {
         cornerstone.displayImage(element, image);
         larvitar_store.set("sliceId", [elementId, imageIndex]);
+        larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
+        larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
       });
     }
   } else {
@@ -536,6 +540,17 @@ export const storeViewportData = function (image, elementId, viewport, data) {
   larvitar_store.set("minSliceId", [elementId, 0]);
   larvitar_store.set("sliceId", [elementId, data.imageIndex]);
   larvitar_store.set("maxSliceId", [elementId, data.numberOfSlices - 1]);
+
+  if (data.isTimeserie) {
+    larvitar_store.set("minTimeId", [elementId, 0]);
+    larvitar_store.set("timeId", [elementId, data.timeIndex]);
+    larvitar_store.set("maxTimeId", [
+      elementId,
+      data.numberOfTemporalPositions - 1
+    ]);
+    larvitar_store.set("timestamp", [elementId, data.timestamp]);
+  }
+
   larvitar_store.set("defaultViewport", [
     elementId,
     viewport.scale,
@@ -674,6 +689,15 @@ let getSeriesData = function (series, defaultProps) {
     data.numberOfSlices = series.imageIds.length;
     data.imageIndex = 0;
     data.imageId = series.imageIds[data.imageIndex];
+  } else if (series.is4D) {
+    data.isMultiframe = false;
+    data.isTimeserie = true;
+    data.numberOfSlices = series.numberOfImages;
+    data.numberOfTemporalPositions = series.numberOfTemporalPositions;
+    data.imageIndex = 0;
+    data.timeIndex = 0;
+    data.timestamp = series.instances[series.imageIds[0]].metadata["x00080033"];
+    data.imageId = series.imageIds[data.imageIndex];
   } else {
     data.isMultiframe = false;
     data.numberOfSlices =
@@ -692,7 +716,6 @@ let getSeriesData = function (series, defaultProps) {
     data.imageId = series.imageIds[data.imageIndex];
   }
   data.isColor = series.color;
-  data.isTimeserie = false; // TODO 4D
 
   // rows, cols and x y z spacing
   data.rows = series.instances[series.imageIds[0]].metadata["x00280010"];

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
+    <title>Larvitar - 4D rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-8 h-100"
+        style="background-color: black"
+      ></div>
+
+      <p
+        id="image-slice"
+        style="position: absolute; top: 20px; color: white"
+      ></p>
+      <p
+        id="image-time"
+        style="position: absolute; top: 40px; color: white"
+      ></p>
+      <p id="timestamp" style="position: absolute; top: 60px; color: white"></p>
+
+      <div class="col-4 h-100">
+        <pre class="h-100">
+          <code class="javascript" style="background-color: #000000">
+          <p style="font-size:0.6vw;">
+            
+          </p>
+          </code>
+        </pre>
+      </div>
+    </div>
+
+    <script src="../../dist/larvitar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      let demoFiles = [];
+      let counter = 0;
+
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 1165; i++) {
+          let filename = "image_(" + i + ").dcm";
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+
+      // init all
+      larvitar.initLarvitarStore();
+      larvitar.initializeImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.larvitar_store.addViewport("viewer");
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/4d/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 1164) {
+          cb();
+        }
+      }
+
+      function renderSerie() {
+        larvitar.resetLarvitarManager();
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            // render the first series of the study
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            console.log(serie);
+            larvitar.renderImage(serie, "viewer").then(() => {
+              console.log("Image has been rendered");
+
+              $("#image-slice").html(
+                "Image Slice Id: " +
+                  larvitar.larvitar_store.state.viewports.viewer.sliceId +
+                  " of " +
+                  larvitar.larvitar_store.state.viewports.viewer.maxSliceId
+              );
+              $("#image-time").html(
+                "Image Time Id: " +
+                  larvitar.larvitar_store.state.viewports.viewer.timeId +
+                  " of " +
+                  larvitar.larvitar_store.state.viewports.viewer.maxTimeId
+              );
+              $("#timestamp").html(
+                "Image Time: " +
+                  larvitar.larvitar_store.state.viewports.viewer.timestamp
+              );
+            });
+
+            // sistemare in image rendering il set nello store durante
+            // update image e capire come gestire update image
+
+            // verificare come gestire la cache nel manager
+            // navigare tra gli indici (updateImageIndex da sistemare)
+            // infine capire come gestire il cstool
+
+            document.onkeypress = function (e) {
+              console.log(e);
+              e = e || window.event;
+              if (e.keyCode == 115) {
+                // s
+                console.log(larvitar.larvitar_store);
+              }
+              if (e.keyCode == 84) {
+                // t
+              }
+            };
+            larvitar.addDefaultTools();
+            larvitar.setToolActive("Wwwc");
+          })
+          .catch(err => console.log(err));
+      }
+
+      let demoFileList = getDemoFileNames();
+      _.each(demoFileList, function (demoFile) {
+        createFile(demoFile, renderSerie);
+      });
+    </script>
+  </body>
+</html>

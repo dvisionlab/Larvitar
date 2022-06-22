@@ -868,14 +868,15 @@ let sortStackCallback = function (seriesData, imageId, method) {
       return instanceNumber;
 
     case "contentTime":
-      var cardiacNumberOfImages =
-        seriesData.instances[imageId].metadata.x00181090;
+      // var cardiacNumberOfImages =
+      //   seriesData.instances[imageId].metadata.x00181090;
       var contentTime = seriesData.instances[imageId].metadata.x00080033;
-      if (cardiacNumberOfImages && cardiacNumberOfImages > 1 && contentTime) {
-        return contentTime;
-      } else {
-        throw "Not a time series: cardiacNumberOfImages tag not available or <= 1.";
-      }
+      return contentTime;
+    // if (cardiacNumberOfImages && cardiacNumberOfImages > 1 && contentTime) {
+    //   return contentTime;
+    // } else {
+    //   throw "Not a time series: cardiacNumberOfImages tag not available or <= 1.";
+    // }
 
     case "imagePosition":
       var p = seriesData.instances[imageId].metadata.imagePosition;
