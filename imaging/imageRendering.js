@@ -369,7 +369,16 @@ export const updateImage = function (
     return;
   }
   let imageId = series.imageIds[imageIndex];
+
   if (imageId) {
+    if (series.is4D) {
+      const timestamp = series.instances[imageId].metadata.contentTime;
+      const timeId =
+        series.instances[imageId].metadata.temporalPositionIdentifier - 1; // timeId from 0 to N
+      larvitar_store.set("timeId", [elementId, timeId]);
+      larvitar_store.set("timestamp", [elementId, timestamp]);
+    }
+
     if (cacheImage) {
       cornerstone.loadAndCacheImage(imageId).then(function (image) {
         cornerstone.displayImage(element, image);
@@ -516,6 +525,26 @@ export const updateViewportData = function (
     case "Rotate":
       larvitar_store.set("rotation", [elementId, viewportData.rotation]);
       break;
+    case "mouseWheel":
+      const isTimeserie = larvitar_store.get(
+        "viewports",
+        elementId,
+        "isTimeserie"
+      );
+      if (isTimeserie) {
+        const index = viewportData.newImageIdIndex;
+        const timeId = larvitar_store.get("viewports", elementId, "timeIds")[
+          index
+        ];
+        const timestamp = larvitar_store.get(
+          "viewports",
+          elementId,
+          "timestamps"
+        )[index];
+        larvitar_store.set("timeId", [elementId, timeId]);
+        larvitar_store.set("timestamp", [elementId, timestamp]);
+      }
+      break;
     default:
       break;
   }
@@ -549,6 +578,8 @@ export const storeViewportData = function (image, elementId, viewport, data) {
       data.numberOfTemporalPositions - 1
     ]);
     larvitar_store.set("timestamp", [elementId, data.timestamp]);
+    larvitar_store.set("timestamps", [elementId, data.timestamps]);
+    larvitar_store.set("timeIds", [elementId, data.timeIds]);
   }
 
   larvitar_store.set("defaultViewport", [
@@ -698,6 +729,14 @@ let getSeriesData = function (series, defaultProps) {
     data.timeIndex = 0;
     data.timestamp = series.instances[series.imageIds[0]].metadata["x00080033"];
     data.imageId = series.imageIds[data.imageIndex];
+    data.timestamps = [];
+    data.timeIds = [];
+    each(series.imageIds, function (imageId) {
+      data.timestamps.push(series.instances[imageId].metadata.contentTime);
+      data.timeIds.push(
+        series.instances[imageId].metadata.temporalPositionIdentifier - 1 // timeId from 0 to N
+      );
+    });
   } else {
     data.isMultiframe = false;
     data.numberOfSlices =

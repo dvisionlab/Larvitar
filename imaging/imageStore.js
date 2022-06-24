@@ -19,6 +19,8 @@ const DEFAULT_VIEWPORT = {
   maxTimeId: 0,
   timeId: 0,
   timestamp: 0,
+  timestamps: [],
+  timeIds: [],
   rows: 0,
   cols: 0,
   spacing_x: 0.0,
@@ -244,6 +246,10 @@ class Larvitar_Store {
         this.state["viewports"][data[0]]["timeId"] = data[1];
       } else if (field == "timestamp") {
         this.state["viewports"][data[0]]["timestamp"] = data[1];
+      } else if (field == "timestamps") {
+        this.state["viewports"][data[0]]["timestamps"] = data[1];
+      } else if (field == "timeIds") {
+        this.state["viewports"][data[0]]["timeIds"] = data[1];
       } else if (field == "isColor") {
         this.state["viewports"][data[0]]["isColor"] = data[1];
       } else if (field == "isMultiframe") {

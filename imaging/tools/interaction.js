@@ -158,6 +158,7 @@ export const toggleMouseToolsListeners = function (elementId, disable) {
   // mouse wheel handler
   function mouseWheelHandler(evt) {
     larvitar_store.set("sliceId", [evt.target.id, evt.detail.newImageIdIndex]);
+    updateViewportData(evt.srcElement.id, evt.detail, "mouseWheel");
   }
 
   if (disable) {
