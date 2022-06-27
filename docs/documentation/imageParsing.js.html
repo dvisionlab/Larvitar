@@ -286,6 +286,14 @@ let parseFile = function (file) {
         let metadata = {};
         parseDataSet(dataSet, metadata);
 
+        let temporalPositionIdentifier = metadata["x00200100"]; // Temporal order of a dynamic or functional set of Images.
+        let numberOfTemporalPositions = metadata["x00200105"]; // Total number of temporal positions prescribed.
+        const is4D =
+          (temporalPositionIdentifier !== undefined) &amp;
+          (numberOfTemporalPositions != undefined)
+            ? true
+            : false;
+
         let numberOfFrames = metadata["x00280008"];
         let isMultiframe = numberOfFrames > 1 ? true : false;
         // Overwrite SOPInstanceUID to manage multiframes.
@@ -345,6 +353,14 @@ let parseFile = function (file) {
               imageObject.metadata.frameDelay = metadata["x00181066"];
             }
             imageObject.metadata.isMultiframe = isMultiframe;
+            if (is4D) {
+              imageObject.metadata.temporalPositionIdentifier =
+                metadata["x00200100"];
+              imageObject.metadata.numberOfTemporalPositions =
+                metadata["x00200105"];
+              imageObject.metadata.contentTime = metadata["x00080033"];
+            }
+            imageObject.metadata.is4D = is4D;
             imageObject.metadata.windowCenter = metadata["x00281050"];
             imageObject.metadata.windowWidth = metadata["x00281051"];
             imageObject.metadata.minPixelValue = metadata["x00280106"];

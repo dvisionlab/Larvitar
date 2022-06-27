@@ -200,6 +200,10 @@ export const updateLoadedStack = function (
   let numberOfFrames = seriesData.metadata["x00280008"];
   let modality = seriesData.metadata["x00080060"];
   let isMultiframe = numberOfFrames > 1 ? true : false;
+  let numberOfTemporalPositions = seriesData.metadata["x00200105"];
+  let acquisitionNumberAttribute = seriesData.metadata["x00200012"];
+  let is4D = seriesData.metadata.is4D;
+
   let color = cornerstoneWADOImageLoader.isColorImage(
     seriesData.metadata["x00280004"]
   );
@@ -215,15 +219,21 @@ export const updateLoadedStack = function (
       larvitarSeriesInstanceUID: sid,
       seriesUID: sid,
       studyUID: ssid,
-      numberOfImages: 0,
+      numberOfImages: is4D ? acquisitionNumberAttribute : 0,
       numberOfSlices: numberOfSlices,
       numberOfFrames: numberOfFrames,
+      numberOfTemporalPositions: numberOfTemporalPositions,
       isMultiframe: isMultiframe,
+      is4D: is4D,
       modality: modality,
       color: color,
       bytes: 0
     };
   }
+
+  const sortMethods = is4D
+    ? ["imagePosition", "contentTime"]
+    : ["imagePosition"];
 
   // if the parsed file is a new series instance, keep it
   if (isNewInstance(allSeriesStack[id].instances, iid)) {
@@ -235,7 +245,9 @@ export const updateLoadedStack = function (
     );
 
     allSeriesStack[id].imageIds.push(imageId);
-    allSeriesStack[id].numberOfImages += 1;
+    if (is4D === false) {
+      allSeriesStack[id].numberOfImages += 1;
+    }
     allSeriesStack[id].bytes += seriesData.file.size;
     // store needed instance tags
     allSeriesStack[id].instances[imageId] = {
@@ -246,7 +258,7 @@ export const updateLoadedStack = function (
     // order images in stack
     allSeriesStack[id].imageIds = getSortedStack(
       allSeriesStack[id],
-      ["imagePosition"],
+      sortMethods,
       true
     );
     // populate the ordered dictionary of instanceUIDs

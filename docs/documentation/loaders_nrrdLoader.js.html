@@ -117,33 +117,35 @@ export const buildNrrdImage = function (volume, seriesId, custom_header) {
   // need to extract header from nrrd file format
   // sizes, spaceDirections and spaceOrigin
 
+  const index = volume.header.kinds[0] == "domain" ? 0 : 1;
+
   let spacing_x = Math.sqrt(
-    volume.header["space directions"][0][0] *
-      volume.header["space directions"][0][0] +
-      volume.header["space directions"][0][1] *
-        volume.header["space directions"][0][1] +
-      volume.header["space directions"][0][2] *
-        volume.header["space directions"][0][2]
+    volume.header["space directions"][index + 0][0] *
+      volume.header["space directions"][index + 0][0] +
+      volume.header["space directions"][index + 0][1] *
+        volume.header["space directions"][index + 0][1] +
+      volume.header["space directions"][index + 0][2] *
+        volume.header["space directions"][index + 0][2]
   );
   let spacing_y = Math.sqrt(
-    volume.header["space directions"][1][0] *
-      volume.header["space directions"][1][0] +
-      volume.header["space directions"][1][1] *
-        volume.header["space directions"][1][1] +
-      volume.header["space directions"][1][2] *
-        volume.header["space directions"][1][2]
+    volume.header["space directions"][index + 1][0] *
+      volume.header["space directions"][index + 1][0] +
+      volume.header["space directions"][index + 1][1] *
+        volume.header["space directions"][index + 1][1] +
+      volume.header["space directions"][index + 1][2] *
+        volume.header["space directions"][index + 1][2]
   );
   let spacing_z = Math.sqrt(
-    volume.header["space directions"][2][0] *
-      volume.header["space directions"][2][0] +
-      volume.header["space directions"][2][1] *
-        volume.header["space directions"][2][1] +
-      volume.header["space directions"][2][2] *
-        volume.header["space directions"][2][2]
+    volume.header["space directions"][index + 2][0] *
+      volume.header["space directions"][index + 2][0] +
+      volume.header["space directions"][index + 2][1] *
+        volume.header["space directions"][index + 2][1] +
+      volume.header["space directions"][index + 2][2] *
+        volume.header["space directions"][index + 2][2]
   );
-  header.volume.rows = volume.header.sizes[1];
-  header.volume.cols = volume.header.sizes[0];
-  header.volume.numberOfSlices = volume.header.sizes[2];
+  header.volume.rows = volume.header.sizes[index + 1];
+  header.volume.cols = volume.header.sizes[index + 0];
+  header.volume.numberOfSlices = volume.header.sizes[index + 2];
   header.volume.imagePosition = volume.header["space origin"];
   header.volume.pixelSpacing = [spacing_x, spacing_y];
   header.volume.sliceThickness = spacing_z;
@@ -162,11 +164,11 @@ export const buildNrrdImage = function (volume, seriesId, custom_header) {
     ? custom_header.acquisition_date
     : "";
 
-  let rows = volume.header.sizes[1];
-  let cols = volume.header.sizes[0];
-  let frames = volume.header.sizes[2];
-  let iop = volume.header["space directions"][0].concat(
-    volume.header["space directions"][1]
+  let rows = volume.header.sizes[index + 1];
+  let cols = volume.header.sizes[index + 0];
+  let frames = volume.header.sizes[index + 2];
+  let iop = volume.header["space directions"][index + 0].concat(
+    volume.header["space directions"][index + 1]
   );
   let firstIpp = header.volume.imagePosition;
   let w = getNormalOrientation(iop);
