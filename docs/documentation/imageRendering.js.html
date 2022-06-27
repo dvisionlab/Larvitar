@@ -632,10 +632,9 @@ export const storeViewportData = function (image, elementId, viewport, data) {
       elementId,
       data.numberOfTemporalPositions - 1
     ]);
-    larvitar_store.set("maxSliceId", [
-      elementId,
-      data.numberOfSlices * data.numberOfTemporalPositions - 1
-    ]);
+    let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
+    larvitar_store.set("maxSliceId", [elementId, maxSliceId]);
+
     larvitar_store.set("timestamp", [elementId, data.timestamp]);
     larvitar_store.set("timestamps", [elementId, data.timestamps]);
     larvitar_store.set("timeIds", [elementId, data.timeIds]);
@@ -783,8 +782,7 @@ let getSeriesData = function (series, defaultProps) {
     data.isMultiframe = false;
     data.isTimeserie = true;
     // check with real indices
-    data.numberOfSlices =
-      series.imageIds.length / series.numberOfTemporalPositions;
+    data.numberOfSlices = series.numberOfImages;
     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
     data.imageIndex = 0;
     data.timeIndex = 0;
