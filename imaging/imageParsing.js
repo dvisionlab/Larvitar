@@ -235,7 +235,7 @@ let parseFile = function (file) {
         let numberOfTemporalPositions = metadata["x00200105"]; // Total number of temporal positions prescribed.
         const is4D =
           (temporalPositionIdentifier !== undefined) &
-          (numberOfTemporalPositions != undefined)
+          (numberOfTemporalPositions > 1)
             ? true
             : false;
 

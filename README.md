@@ -6,11 +6,11 @@
 
 ## Dicom Image Toolkit for CornestoneJS
 
-### Current version: 1.3.0
+### Current version: 1.3.1
 
-### Latest Stable version: 1.3.0
+### Latest Stable version: 1.3.1
 
-### Latest Published Release: 1.3.0
+### Latest Published Release: 1.3.1
 
 This library provides common DICOM functionalities to be used in web-applications: it's wrapper that simplifies the use of cornestone-js environment.
 Orthogonal multiplanar reformat is included as well as custom loader/exporter for nrrd files and [Vuex](https://vuex.vuejs.org/) custom integration.
