@@ -8,6 +8,12 @@ const DEFAULT_VIEWPORT = {
   minSliceId: 0,
   maxSliceId: 0,
   sliceId: 0,
+  minTimeId: 0,
+  maxTimeId: 0,
+  timeId: 0,
+  timestamp: 0,
+  timestamps: [],
+  timeIds: [],
   rows: 0,
   cols: 0,
   spacing_x: 0.0,
@@ -128,6 +134,18 @@ export default {
       commit("viewport", { id, d: { maxSliceId } }),
     setSliceId: ({ commit }, [id, sliceId]) =>
       commit("viewport", { id, d: { sliceId } }),
+    setMinTimeId: ({ commit }, [id, minTimeId]) =>
+      commit("viewport", { id, d: { minTimeId } }),
+    setMaxTimeId: ({ commit }, [id, maxTimeId]) =>
+      commit("viewport", { id, d: { maxTimeId } }),
+    setTimeId: ({ commit }, [id, timeId]) =>
+      commit("viewport", { id, d: { timeId } }),
+    setTimestamp: ({ commit }, [id, timestamp]) =>
+      commit("viewport", { id, d: { timestamp } }),
+    setTimestamps: ({ commit }, [id, timestamps]) =>
+      commit("viewport", { id, d: { timestamps } }),
+    setTimeIds: ({ commit }, [id, timeIds]) =>
+      commit("viewport", { id, d: { timeIds } }),
     setIsColor: ({ commit }, [id, isColor]) =>
       commit("viewport", { id, d: { isColor } }),
     setIsMultiframe: ({ commit }, [id, isMultiframe]) =>

@@ -369,16 +369,29 @@ export const updateImage = function (
     return;
   }
   let imageId = series.imageIds[imageIndex];
+
   if (imageId) {
+    if (series.is4D) {
+      const timestamp = series.instances[imageId].metadata.contentTime;
+      const timeId =
+        series.instances[imageId].metadata.temporalPositionIdentifier - 1; // timeId from 0 to N
+      larvitar_store.set("timeId", [elementId, timeId]);
+      larvitar_store.set("timestamp", [elementId, timestamp]);
+    }
+
     if (cacheImage) {
       cornerstone.loadAndCacheImage(imageId).then(function (image) {
         cornerstone.displayImage(element, image);
         larvitar_store.set("sliceId", [elementId, imageIndex]);
+        larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
+        larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
       });
     } else {
       cornerstone.loadImage(imageId).then(function (image) {
         cornerstone.displayImage(element, image);
         larvitar_store.set("sliceId", [elementId, imageIndex]);
+        larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
+        larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
       });
     }
   } else {
@@ -512,6 +525,26 @@ export const updateViewportData = function (
     case "Rotate":
       larvitar_store.set("rotation", [elementId, viewportData.rotation]);
       break;
+    case "mouseWheel":
+      const isTimeserie = larvitar_store.get(
+        "viewports",
+        elementId,
+        "isTimeserie"
+      );
+      if (isTimeserie) {
+        const index = viewportData.newImageIdIndex;
+        const timeId = larvitar_store.get("viewports", elementId, "timeIds")[
+          index
+        ];
+        const timestamp = larvitar_store.get(
+          "viewports",
+          elementId,
+          "timestamps"
+        )[index];
+        larvitar_store.set("timeId", [elementId, timeId]);
+        larvitar_store.set("timestamp", [elementId, timestamp]);
+      }
+      break;
     default:
       break;
   }
@@ -536,6 +569,19 @@ export const storeViewportData = function (image, elementId, viewport, data) {
   larvitar_store.set("minSliceId", [elementId, 0]);
   larvitar_store.set("sliceId", [elementId, data.imageIndex]);
   larvitar_store.set("maxSliceId", [elementId, data.numberOfSlices - 1]);
+
+  if (data.isTimeserie) {
+    larvitar_store.set("minTimeId", [elementId, 0]);
+    larvitar_store.set("timeId", [elementId, data.timeIndex]);
+    larvitar_store.set("maxTimeId", [
+      elementId,
+      data.numberOfTemporalPositions - 1
+    ]);
+    larvitar_store.set("timestamp", [elementId, data.timestamp]);
+    larvitar_store.set("timestamps", [elementId, data.timestamps]);
+    larvitar_store.set("timeIds", [elementId, data.timeIds]);
+  }
+
   larvitar_store.set("defaultViewport", [
     elementId,
     viewport.scale,
@@ -674,6 +720,23 @@ let getSeriesData = function (series, defaultProps) {
     data.numberOfSlices = series.imageIds.length;
     data.imageIndex = 0;
     data.imageId = series.imageIds[data.imageIndex];
+  } else if (series.is4D) {
+    data.isMultiframe = false;
+    data.isTimeserie = true;
+    data.numberOfSlices = series.numberOfImages;
+    data.numberOfTemporalPositions = series.numberOfTemporalPositions;
+    data.imageIndex = 0;
+    data.timeIndex = 0;
+    data.timestamp = series.instances[series.imageIds[0]].metadata["x00080033"];
+    data.imageId = series.imageIds[data.imageIndex];
+    data.timestamps = [];
+    data.timeIds = [];
+    each(series.imageIds, function (imageId) {
+      data.timestamps.push(series.instances[imageId].metadata.contentTime);
+      data.timeIds.push(
+        series.instances[imageId].metadata.temporalPositionIdentifier - 1 // timeId from 0 to N
+      );
+    });
   } else {
     data.isMultiframe = false;
     data.numberOfSlices =
@@ -692,7 +755,6 @@ let getSeriesData = function (series, defaultProps) {
     data.imageId = series.imageIds[data.imageIndex];
   }
   data.isColor = series.color;
-  data.isTimeserie = false; // TODO 4D
 
   // rows, cols and x y z spacing
   data.rows = series.instances[series.imageIds[0]].metadata["x00280010"];

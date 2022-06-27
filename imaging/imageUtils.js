@@ -205,8 +205,8 @@ export const getPixelTypedArray = function (dataSet, pixelDataElement) {
  * @instance
  * @function getSortedStack
  * @param {Object} seriesData - The dataset
- * @param {Array} sortPriorities - TODO
- * @param {Bool} returnSuccessMethod - TODO ask @SZ
+ * @param {Array} sortPriorities - An array which represents the priority tasks
+ * @param {Bool} returnSuccessMethod - Boolean for returning the success method
  * @return {Object} The sorted stack
  */
 export const getSortedStack = function (
@@ -868,14 +868,7 @@ let sortStackCallback = function (seriesData, imageId, method) {
       return instanceNumber;
 
     case "contentTime":
-      var cardiacNumberOfImages =
-        seriesData.instances[imageId].metadata.x00181090;
-      var contentTime = seriesData.instances[imageId].metadata.x00080033;
-      if (cardiacNumberOfImages && cardiacNumberOfImages > 1 && contentTime) {
-        return contentTime;
-      } else {
-        throw "Not a time series: cardiacNumberOfImages tag not available or <= 1.";
-      }
+      return seriesData.instances[imageId].metadata.x00080033;
 
     case "imagePosition":
       var p = seriesData.instances[imageId].metadata.imagePosition;
