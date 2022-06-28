@@ -138,13 +138,20 @@ import {
 import {
   initSegmentationModule,
   addSegmentationMask,
+  clearSegmentationState,
+  deleteMask,
   setActiveLabelmap,
   setActiveSegment,
+  enableBrushTool,
+  disableBrushTool,
   undoLastStroke,
   redoLastStroke,
   setBrushProps,
+  toggleContourMode,
+  toggleVisibility,
   hexToRgb,
-  rgbToHex
+  rgbToHex,
+  getActiveLabelmapBuffer
 } from "./imaging/tools/segmentation";
 
 import {
@@ -369,5 +376,12 @@ export {
   redoLastStroke,
   setBrushProps,
   hexToRgb,
-  rgbToHex
+  rgbToHex,
+  clearSegmentationState,
+  deleteMask,
+  enableBrushTool,
+  disableBrushTool,
+  toggleContourMode,
+  toggleVisibility,
+  getActiveLabelmapBuffer
 };

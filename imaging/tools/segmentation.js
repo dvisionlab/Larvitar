@@ -480,7 +480,7 @@ export function redoLastStroke(elementId) {
 
 /**
  * Delete mask from state
- * @param {Number} labelId - The labelmap id to activate
+ * @param {Number} labelId - The labelmap id to delete
  */
 export function deleteMask(labelId) {
   let masks = values(segModule.state.series)[0].labelmaps3D;
