@@ -4,7 +4,7 @@
 
 # Larvitar
 
-## Dicom Image Toolkit for CornestoneJS
+## Dicom Image Toolkit for CornerstoneJS
 
 ### Current version: 1.3.3
 
@@ -12,7 +12,7 @@
 
 ### Latest Published Release: 1.3.3
 
-This library provides common DICOM functionalities to be used in web-applications: it's wrapper that simplifies the use of cornestone-js environment.
+This library provides common DICOM functionalities to be used in web-applications: it's wrapper that simplifies the use of cornerstone-js environment.
 Orthogonal multiplanar reformat is included as well as custom loader/exporter for nrrd files and [Vuex](https://vuex.vuejs.org/) custom integration.
 
 - `index` main file
@@ -22,7 +22,7 @@ Orthogonal multiplanar reformat is included as well as custom loader/exporter fo
 - `imageIo` import a dicom image in .nrrd format and build contiguous array for exporting data as volume
 - `imageLayers` provide support for multi-layer cornerstone fusion renderer
 - `imageLoading` initialize loader and custom loaders
-- `imageParsing` parse dicom files and return a cornestone data structure ready to be used for rendering
+- `imageParsing` parse dicom files and return a cornerstone data structure ready to be used for rendering
 - `imagePresets` provides default image CT presets and set functionality
 - `imageRendering` provides rendering functionalities
 - `imageReslice` provides reslice functionalities
