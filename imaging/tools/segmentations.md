@@ -29,7 +29,7 @@ TODO
 
 # Larvitar segmentation API
 
-TODO
+To enable brush tools, user can call directly the `setToolActive` / `setToolDisabled` api, in this case he has to handle brush type (thresholds or not), props (radius etc) and tool switching. Otherwise, Larvitar implements the utility functions `enableBrushTool` and `disableBrushTool` that internally handle brush type and props with a single call.
 
 # Customization
 

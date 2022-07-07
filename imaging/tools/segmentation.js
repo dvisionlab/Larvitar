@@ -18,6 +18,7 @@ import { updateStackToolState } from "../imageTools";
 
 // custom code
 import { setLabelmap3DForElement } from "./setLabelMap3D";
+import { each } from "hammerjs";
 // override function
 setters.labelmap3DForElement = setLabelmap3DForElement;
 
@@ -419,22 +420,37 @@ export function clearSegmentationState() {
 
 /**
  * Enable brushing
- * @param {Number} dimension - The initial brush radius
- * @param {Array} thresholds - The threshold values (min and max)
+ * NOTE: if options contains `thresholds`, ThresholdsBrush is activated, otherwise BrushTool is activated.
+ * Anyway, the activated tool name is returned
+ * @param {Object} options - An object containing configuration values (eg radius, thresholds, etc...)
  */
-export function enableBrushTool(dimension, thresholds) {
-  segModule.configuration.radius = dimension;
-  segModule.configuration.thresholds = thresholds;
-  setToolActive("ThresholdsBrush");
+export function enableBrushTool(viewports, options) {
+  console.log("enable", options);
+  setBrushProps(options);
+  const brushType = "thresholds" in options ? "ThresholdsBrush" : "Brush";
+  setToolActive(brushType, viewports);
+  return brushType;
 }
 
 /**
  * Disable brushing
- * @param {String} toolToActivate - The name of the tool to activate after removing the brush
+ * This function disables both brush tools, if found active on `viewports`
+ * @param {String} toolToActivate - The name of the tool to activate after removing the brush @optional
  */
-export function disableBrushTool(toolToActivate) {
-  setToolDisabled("Brush");
-  setToolActive(toolToActivate);
+export function disableBrushTool(viewports, toolToActivate) {
+  each(viewports, viewport => {
+    const el = document.getElementById(viewport);
+    if (cornerstoneTools.isToolActiveForElement(el, "ThresholdsBrush")) {
+      setToolDisabled("ThresholdsBrush", [viewport]);
+    }
+    if (cornerstoneTools.isToolActiveForElement(el, "Brush")) {
+      setToolDisabled("Brush", [viewport]);
+    }
+  });
+
+  if (toolToActivate) {
+    setToolActive(toolToActivate);
+  }
 }
 
 /**
