@@ -78,11 +78,10 @@ export const readFile = function (entry) {
  * @instance
  * @function parseDataSet
  * @param {Object} dataSet - dicom parser dataSet object
- * @param {Array} metadata - Initialized metadata object
+ * @param {Object} metadata - Initialized metadata object
  * @param {Array} customFilter - Optional filter: {tags:[], frameId: 0}
  */
-// This function iterates through dataSet recursively and adds new HTML strings
-// to the output array passed into it
+// This function iterates through dataSet recursively and store tag values into metadata object
 export const parseDataSet = function (dataSet, metadata, customFilter) {
   // customFilter= {tags:[], frameId:xxx}
   // the dataSet.elements object contains properties for each element parsed.  The name of the property
@@ -113,7 +112,18 @@ export const parseDataSet = function (dataSet, metadata, customFilter) {
         }
       } else {
         let tagValue = parseTag(dataSet, propertyName, element);
-        metadata[propertyName] = tagValue;
+
+        // identify duplicated tags (keep the first occurency and store the others in another tag eg x00280010_uuid)
+        if (metadata[propertyName] !== undefined) {
+          console.debug(
+            `Identified duplicated tag "${propertyName}", values are:`,
+            metadata[propertyName],
+            tagValue
+          );
+          metadata[propertyName + "_" + uuidv4()] = tagValue;
+        } else {
+          metadata[propertyName] = tagValue;
+        }
       }
     }
   } catch (err) {
