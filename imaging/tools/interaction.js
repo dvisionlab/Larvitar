@@ -44,6 +44,13 @@ export function addMouseKeyHandlers(config) {
     config = DEFAULT_MOUSE_KEYS;
   }
 
+  if (onKeyDownFn) {
+    document.removeEventListener("keydown", onKeyDownFn);
+  }
+  if (onKeyUpFn) {
+    document.removeEventListener("keyup", onKeyUpFn);
+  }
+
   // Prevent context menu on right click
   document.addEventListener("contextmenu", evt => {
     evt.preventDefault();
