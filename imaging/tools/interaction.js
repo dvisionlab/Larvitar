@@ -22,17 +22,24 @@ import { updateViewportData } from "../imageRendering";
  */
 
 /**
- * Setup mouse handler modifiers and keyboard shortcuts
- * NOTE: at the moment only mouse right button is affected
+ * Global event callbacks
+ */
+let onKeyDownFn = null;
+let onKeyUpFn = null;
+
+/**
+ * Setup mouse handler modifiers and keyboard shortcuts:
+ * register a tool on right button and another one
+ * when pressing a modifier (ctrl/shift/alt) + right button
+ * The activation take place on all active viewports
  * Improvements could be:
  * - "restore previous active tool" instead of passed "default" tool
  * - manage left button (an idea could be to cycle over object keys for both buttons)
  * - possibility to change modifier keys
  * @param {Object} config - see tools/default
- * @param {Array} viewports - The hmtl element ids to be used for tool activation.
  */
 
-export function addMouseKeyHandlers(config, viewports) {
+export function addMouseKeyHandlers(config) {
   if (!config) {
     config = DEFAULT_MOUSE_KEYS;
   }
@@ -43,6 +50,7 @@ export function addMouseKeyHandlers(config, viewports) {
     return false;
   });
 
+  // Define behaviour on key down: activate registered tool
   function onKeyDown(evt) {
     // keyboard shortcuts (activate on left mouse button)
     let codes = config.keyboard_shortcuts
@@ -56,11 +64,7 @@ export function addMouseKeyHandlers(config, viewports) {
         .filter(key => keyCodes[key] == evt.keyCode)
         .pop();
       if (config.debug) console.log("active", config.keyboard_shortcuts[key]);
-      setToolActive(
-        config.keyboard_shortcuts[key],
-        { mouseButtonMask: 1 },
-        viewports
-      );
+      setToolActive(config.keyboard_shortcuts[key], { mouseButtonMask: 1 });
       document.addEventListener("keydown", onKeyDown, { once: true });
     }
     // right drag + shift
@@ -70,11 +74,7 @@ export function addMouseKeyHandlers(config, viewports) {
       evt.keyCode == keyCodes.KEY_SHIFT
     ) {
       if (config.debug) console.log("active", config.mouse_button_right.shift);
-      setToolActive(
-        config.mouse_button_right.shift,
-        { mouseButtonMask: 2 },
-        viewports
-      );
+      setToolActive(config.mouse_button_right.shift, { mouseButtonMask: 2 });
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
     // right drag + ctrl
@@ -84,11 +84,7 @@ export function addMouseKeyHandlers(config, viewports) {
       evt.keyCode == keyCodes.KEY_CONTROL
     ) {
       if (config.debug) console.log("active", config.mouse_button_right.ctrl);
-      setToolActive(
-        config.mouse_button_right.ctrl,
-        { mouseButtonMask: 2 },
-        viewports
-      );
+      setToolActive(config.mouse_button_right.ctrl, { mouseButtonMask: 2 });
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
     // leave default
@@ -98,36 +94,36 @@ export function addMouseKeyHandlers(config, viewports) {
     }
   }
 
+  // Define behaviour on key up: restore original tool
   function onKeyUp(e) {
     if (config.debug)
       console.log("active default", config.mouse_button_right.default);
-    setToolActive(
-      config.mouse_button_right.default,
-      { mouseButtonMask: 2 },
-      viewports
-    );
+    setToolActive(config.mouse_button_right.default, { mouseButtonMask: 2 });
     document.addEventListener("keydown", onKeyDown, { once: true });
   }
 
   // activate default, if any
-
   if (config.mouse_button_right && config.mouse_button_right.default) {
-    setToolActive(
-      config.mouse_button_right.default,
-      { mouseButtonMask: 2 },
-      viewports
-    );
+    setToolActive(config.mouse_button_right.default, { mouseButtonMask: 2 });
   }
 
   if (config.mouse_button_left && config.mouse_button_left.default) {
-    setToolActive(
-      config.mouse_button_left.default,
-      { mouseButtonMask: 1 },
-      viewports
-    );
+    setToolActive(config.mouse_button_left.default, { mouseButtonMask: 1 });
   }
 
   document.addEventListener("keydown", onKeyDown, { once: true });
+
+  onKeyDownFn = onKeyDown;
+  onKeyUpFn = onKeyUp;
+}
+
+/**
+ *
+ */
+export function removeMouseKeyHandlers() {
+  document.removeEventListener("keydown", onKeyDownFn);
+  onKeyDownFn = null;
+  onKeyUpFn = null;
 }
 
 /**

@@ -6,11 +6,9 @@
 
 ## Dicom Image Toolkit for CornerstoneJS
 
-### Current version: 1.3.5
+### Current version: 1.4.0
 
-### Latest Stable version: 1.3.5
-
-### Latest Published Release: 1.3.5
+### Latest Published Release: 1.4.0
 
 This library provides common DICOM functionalities to be used in web-applications: it's wrapper that simplifies the use of cornerstone-js environment.
 Orthogonal multiplanar reformat is included as well as custom loader/exporter for nrrd files and [Vuex](https://vuex.vuejs.org/) custom integration.
@@ -90,3 +88,9 @@ Full documentation and examples are available at http://www.dvisionlab.com/Larvi
 # Build package
 
 `yarn build-lib`
+
+# Development
+
+Use `yarn dev-lib` to have `rollup` hot-reload (live recompiling the library).
+In order to test functionalities you can modify the library import path in an example (see the `docs/examples` folder) to use the recompiled bundle in `dist/`, then serve the .html file with VSCode extension [LiveServer](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) or other similar tools.
+Once you are done, upgrade the version, build the library and commit the bundle along with the src files. Docs will be compiled by the Github action.

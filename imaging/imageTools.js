@@ -1,6 +1,9 @@
 /** @module imaging/imageTools
  *  @desc This file provides functionalities for
  *        interacting with cornerstone tools
+ *        DEPRECATION WARNING: these are legacy functions
+ *        that will be removed soon. Use the corresponding
+ *        functions in /tools/main.js instead.
  */
 
 // external libraries
@@ -277,6 +280,7 @@ export const clearMeasurements = function () {
  * @param {Object} options - The custom options. @default from tools/default.js
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
+ * @deprecated (OBSOLETE)
  */
 export const setToolActive = function (
   toolName,
@@ -304,10 +308,11 @@ export const setToolActive = function (
 
 /**
  * Set Tool "disabled" on all elements (ie, not rendered) & refresh cornerstone elements
- * @function setToolActive
+ * @function setToolDisabled
  * @param {String} toolName - The tool name.
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
+ * @deprecated (OBSOLETE)
  */
 export const setToolDisabled = function (toolName, activeViewport, viewports) {
   cornerstoneTools.setToolDisabled(toolName);
@@ -332,6 +337,7 @@ export const setToolDisabled = function (toolName, activeViewport, viewports) {
  * @param {String} toolName - The tool name.
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
+ * @deprecated (OBSOLETE)
  */
 export const setToolEnabled = function (toolName, activeViewport, viewports) {
   cornerstoneTools.setToolEnabled(toolName);
@@ -356,6 +362,7 @@ export const setToolEnabled = function (toolName, activeViewport, viewports) {
  * @param {String} toolName - The tool name.
  * @param {String} activeViewport - The active viewport (if "all", viewports array will be used)
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
+ * @deprecated (OBSOLETE)
  */
 export const setToolPassive = function (toolName, activeViewport, viewports) {
   cornerstoneTools.setToolPassive(toolName);
