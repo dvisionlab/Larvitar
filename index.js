@@ -205,6 +205,7 @@ import { saveAnnotations, loadAnnotations } from "./imaging/tools/io";
 
 import {
   addMouseKeyHandlers,
+  removeMouseKeyHandlers,
   toggleMouseToolsListeners
 } from "./imaging/tools/interaction";
 
@@ -367,6 +368,7 @@ export {
   loadAnnotations,
   // tools/interaction
   addMouseKeyHandlers,
+  removeMouseKeyHandlers,
   // tools/segmentation
   initSegmentationModule,
   addSegmentationMask,
