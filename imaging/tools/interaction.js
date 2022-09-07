@@ -6,6 +6,8 @@
 // external libraries
 import { throttle } from "lodash";
 import * as keyCodes from "keycode-js";
+import cornerstone from "cornerstone-core";
+import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
 
 // internal libraries
 import { DEFAULT_MOUSE_KEYS } from "./default";
@@ -40,6 +42,7 @@ let onKeyUpFn = null;
  */
 
 export function addMouseKeyHandlers(config) {
+  console.log("addMouse");
   if (!config) {
     config = DEFAULT_MOUSE_KEYS;
   }
@@ -57,6 +60,14 @@ export function addMouseKeyHandlers(config) {
     return false;
   });
 
+  // get all enabled viewports. Then, filter only viewport in which the target tool had been added previously.
+  let allViewports = cornerstone.getEnabledElements().map(enel => enel.element);
+  console.log(allViewports);
+
+  // if (allViewports.length === 0) {
+  //   setTimeout(addMouseKeyHandlers, 300, config);
+  // }
+
   // Define behaviour on key down: activate registered tool
   function onKeyDown(evt) {
     // keyboard shortcuts (activate on left mouse button)
@@ -71,7 +82,18 @@ export function addMouseKeyHandlers(config) {
         .filter(key => keyCodes[key] == evt.keyCode)
         .pop();
       if (config.debug) console.log("active", config.keyboard_shortcuts[key]);
-      setToolActive(config.keyboard_shortcuts[key], { mouseButtonMask: 1 });
+      const viewports = allViewports.filter(viewport =>
+        cornerstoneTools.getToolForElement(
+          viewport,
+          config.keyboard_shortcuts[key]
+        )
+      );
+      console.log("viewports", viewports);
+      setToolActive(
+        config.keyboard_shortcuts[key],
+        { mouseButtonMask: 1 },
+        viewports
+      );
       document.addEventListener("keydown", onKeyDown, { once: true });
     }
     // right drag + shift
@@ -81,7 +103,18 @@ export function addMouseKeyHandlers(config) {
       evt.keyCode == keyCodes.KEY_SHIFT
     ) {
       if (config.debug) console.log("active", config.mouse_button_right.shift);
-      setToolActive(config.mouse_button_right.shift, { mouseButtonMask: 2 });
+      const viewports = allViewports.filter(viewport =>
+        cornerstoneTools.getToolForElement(
+          viewport,
+          config.mouse_button_right.shift
+        )
+      );
+      console.log("viewports", viewports);
+      setToolActive(
+        config.mouse_button_right.shift,
+        { mouseButtonMask: 2 },
+        viewports
+      );
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
     // right drag + ctrl
@@ -91,7 +124,18 @@ export function addMouseKeyHandlers(config) {
       evt.keyCode == keyCodes.KEY_CONTROL
     ) {
       if (config.debug) console.log("active", config.mouse_button_right.ctrl);
-      setToolActive(config.mouse_button_right.ctrl, { mouseButtonMask: 2 });
+      const viewports = allViewports.filter(viewport =>
+        cornerstoneTools.getToolForElement(
+          viewport,
+          config.mouse_button_right.ctrl
+        )
+      );
+      console.log("viewports", viewports);
+      setToolActive(
+        config.mouse_button_right.ctrl,
+        { mouseButtonMask: 2 },
+        viewports
+      );
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
     // leave default
