@@ -33,7 +33,8 @@ let onKeyUpFn = null;
  * Setup mouse handler modifiers and keyboard shortcuts:
  * register a tool on right button and another one
  * when pressing a modifier (ctrl/shift/alt) + right button
- * The activation take place on all active viewports
+ * The activation take place on all active viewports (we added a check to activate only on viewports
+ * in which the tool has been added previously)
  * Improvements could be:
  * - "restore previous active tool" instead of passed "default" tool
  * - manage left button (an idea could be to cycle over object keys for both buttons)
@@ -42,7 +43,6 @@ let onKeyUpFn = null;
  */
 
 export function addMouseKeyHandlers(config) {
-  console.log("addMouse");
   if (!config) {
     config = DEFAULT_MOUSE_KEYS;
   }
@@ -62,11 +62,6 @@ export function addMouseKeyHandlers(config) {
 
   // get all enabled viewports. Then, filter only viewport in which the target tool had been added previously.
   let allViewports = cornerstone.getEnabledElements().map(enel => enel.element);
-  console.log(allViewports);
-
-  // if (allViewports.length === 0) {
-  //   setTimeout(addMouseKeyHandlers, 300, config);
-  // }
 
   // Define behaviour on key down: activate registered tool
   function onKeyDown(evt) {
@@ -88,11 +83,10 @@ export function addMouseKeyHandlers(config) {
           config.keyboard_shortcuts[key]
         )
       );
-      console.log("viewports", viewports);
       setToolActive(
         config.keyboard_shortcuts[key],
         { mouseButtonMask: 1 },
-        viewports
+        viewports.map(v => v.id)
       );
       document.addEventListener("keydown", onKeyDown, { once: true });
     }
@@ -109,11 +103,11 @@ export function addMouseKeyHandlers(config) {
           config.mouse_button_right.shift
         )
       );
-      console.log("viewports", viewports);
+
       setToolActive(
         config.mouse_button_right.shift,
         { mouseButtonMask: 2 },
-        viewports
+        viewports.map(v => v.id)
       );
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
@@ -130,11 +124,11 @@ export function addMouseKeyHandlers(config) {
           config.mouse_button_right.ctrl
         )
       );
-      console.log("viewports", viewports);
+
       setToolActive(
         config.mouse_button_right.ctrl,
         { mouseButtonMask: 2 },
-        viewports
+        viewports.map(v => v.id)
       );
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
@@ -149,17 +143,48 @@ export function addMouseKeyHandlers(config) {
   function onKeyUp(e) {
     if (config.debug)
       console.log("active default", config.mouse_button_right.default);
-    setToolActive(config.mouse_button_right.default, { mouseButtonMask: 2 });
+    const viewports = allViewports.filter(viewport =>
+      cornerstoneTools.getToolForElement(
+        viewport,
+        config.mouse_button_right.default
+      )
+    );
+    setToolActive(
+      config.mouse_button_right.default,
+      { mouseButtonMask: 2 },
+      viewports.map(v => v.id)
+    );
     document.addEventListener("keydown", onKeyDown, { once: true });
   }
 
-  // activate default, if any
+  // activate default on mouse right, if any
   if (config.mouse_button_right && config.mouse_button_right.default) {
-    setToolActive(config.mouse_button_right.default, { mouseButtonMask: 2 });
+    const viewports = allViewports.filter(viewport =>
+      cornerstoneTools.getToolForElement(
+        viewport,
+        config.mouse_button_right.default
+      )
+    );
+    setToolActive(
+      config.mouse_button_right.default,
+      { mouseButtonMask: 2 },
+      viewports.map(v => v.id)
+    );
   }
 
+  // activate default on mouse left, if any
   if (config.mouse_button_left && config.mouse_button_left.default) {
-    setToolActive(config.mouse_button_left.default, { mouseButtonMask: 1 });
+    const viewports = allViewports.filter(viewport =>
+      cornerstoneTools.getToolForElement(
+        viewport,
+        config.mouse_button_left.default
+      )
+    );
+    setToolActive(
+      config.mouse_button_left.default,
+      { mouseButtonMask: 1 },
+      viewports.map(v => v.id)
+    );
   }
 
   document.addEventListener("keydown", onKeyDown, { once: true });
