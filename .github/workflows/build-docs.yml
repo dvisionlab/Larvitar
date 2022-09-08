@@ -4,7 +4,7 @@ name: CI-docs
 # events but only for the master branch
 on:
   push:
-    branches: [master]
+    branches: [fix-docs-workflow] #TODO restore master
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -18,6 +18,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Clone repo
         uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+          ref: ${{ github.ref }}
+          token: ${{ secrets.GIT_TOKEN }}
 
       # Setup node environment
       - name: Setup Node.js environment
@@ -44,8 +48,16 @@ jobs:
 
       # Commit Package and Docs
       - name: Commit docs
-        run: |
-          git config --global user.name 'Mattia-gh-action'
-          git config --global user.email 'ronzim@users.noreply.github.com'
-          git commit --allow-empty -am "Automated docs generation"
-          git push
+          # git config --global user.name 'Mattia-gh-action'
+          # git config --global user.email 'ronzim@users.noreply.github.com'
+        # run: |
+        #   git commit --allow-empty -am "Automated docs generation"
+        #   git push 
+
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          message: "Update docs"
+          branch: ${{ github.ref }}
+          empty: true 
+          
