@@ -55,12 +55,6 @@ jobs:
 
       # Commit Package and Docs
       - name: Commit docs
-          # git config --global user.name 'Mattia-gh-action'
-          # git config --global user.email 'ronzim@users.noreply.github.com'
-        # run: |
-        #   git commit --allow-empty -am "Automated docs generation"
-        #   git push 
-
         uses: actions-js/push@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
