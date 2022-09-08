@@ -55,7 +55,7 @@ jobs:
 
       # Print & pull
       - name: Print & pull 
-        run: / 
+        run: |
           echo head ref ${{ github.head_ref }}
           git pull origin ${{ github.head_ref }}
 
