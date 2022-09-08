@@ -54,8 +54,9 @@ jobs:
           yarn generate-docs
 
       - name: Print 
-        run: echo ref name ${{ github.ref_name }}
-
+        run: /
+          echo ref name ${{ github.ref_name }}
+          echo ref name ${GITHUB_REF#refs/heads/}
 
       # Commit Package and Docs
       - name: Commit docs
