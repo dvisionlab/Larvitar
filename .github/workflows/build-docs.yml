@@ -55,8 +55,7 @@ jobs:
 
       # Print
       - name: Print 
-        run: /
-          echo head ref ${{ github.head_ref }}
+        run: echo head ref ${{ github.head_ref }}
 
       # Commit Package and Docs
       - name: Commit docs
