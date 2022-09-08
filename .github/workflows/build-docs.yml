@@ -54,10 +54,10 @@ jobs:
           yarn generate-docs
 
       # Print & pull
-      - name: Print & pull 
+      - name: Print
         run: |
           echo head ref ${{ github.head_ref }}
-          git pull origin ${{ github.head_ref }}
+          git branch
 
       # Commit Package and Docs
       - name: Commit docs
