@@ -53,6 +53,10 @@ jobs:
         run: |
           yarn generate-docs
 
+      - name: Print 
+        run: echo ref name ${{ github.ref_name }}
+
+
       # Commit Package and Docs
       - name: Commit docs
         uses: actions-js/push@master
@@ -61,4 +65,5 @@ jobs:
           message: "Update docs"
           branch: ${{ github.ref }}
           empty: true 
+      
 
