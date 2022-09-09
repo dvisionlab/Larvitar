@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>imaging/tools/interaction - Larvitar</title>
+    <title>tools/setLabelMap3D.js - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -43,598 +43,267 @@
 
 <div id="main">
     
-    <h1 class="page-title">imaging/tools/interaction</h1>
-    
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        
-            
-        
-    
-</header>
-
-<article>
-    
-        <div class="container-overview">
-        
-            
-                <div class="description usertext"><p>This file provides functionalities for<br>
-tools interactions</p></div>
-            
-
-            
-                
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>This file provides functionalities for<br>
-tools interactions</p></li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tools_interaction.js.html">tools/interaction.js</a>, <a href="tools_interaction.js.html#line1">line 1</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-        
-        </div>
-    
-
-    
-
-    
-
-    
-    
-    
-
-     
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="~onKeyDownFn"><span class="type-signature">(inner) </span>onKeyDownFn<span class="type-signature"></span></h4>
-
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Global event callbacks</p></li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tools_interaction.js.html">tools/interaction.js</a>, <a href="tools_interaction.js.html#line29">line 29</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>Global event callbacks</p>
-</div>
-
-
-
-
-
-
-
-
-        
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id=".addMouseKeyHandlers"><span class="type-signature">(static) </span>addMouseKeyHandlers<span class="signature">(config)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Setup mouse handler modifiers and keyboard shortcuts:<br>
-register a tool on right button and another one<br>
-when pressing a modifier (ctrl/shift/alt) + right button<br>
-The activation take place on all active viewports (we added a check to activate only on viewports<br>
-in which the tool has been added previously)<br>
-Improvements could be:</p>
-<ul>
-<li>&quot;restore previous active tool&quot; instead of passed &quot;default&quot; tool</li>
-<li>manage left button (an idea could be to cycle over object keys for both buttons)</li>
-<li>possibility to change modifier keys</li>
-</ul></li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tools_interaction.js.html">tools/interaction.js</a>, <a href="tools_interaction.js.html#line45">line 45</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>see tools/default</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id=".removeMouseKeyHandlers"><span class="type-signature">(static) </span>removeMouseKeyHandlers<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tools_interaction.js.html">tools/interaction.js</a>, <a href="tools_interaction.js.html#line199">line 199</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="toggleMouseHandlers"><span class="type-signature"></span>toggleMouseHandlers<span class="signature">(elementId, disable)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Add event handlers to mouse move</p></li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tools_interaction.js.html">tools/interaction.js</a>, <a href="tools_interaction.js.html#line205">line 205</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>elementId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The html div id used for rendering or its DOM HTMLElement</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>disable</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>If true disable handlers, default is false</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <h1 class="page-title">tools/setLabelMap3D.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * This is a custom version of setLabelMap3D from cs tools source code
+ * This let us implement a non-blocking version of the for loop that loads 3d labelmaps on a volume
+ * @ronzim
+ */
+
+// import getElement from "./getElement";
+// import { getToolState } from "../../../stateManagement/toolState.js";
+// import state from "./state";
+// import getSegmentsOnPixelData from "./getSegmentsOnPixeldata";
+// import { triggerLabelmapModifiedEvent } from "../../../util/segmentation";
+// import ARRAY_TYPES from "./arrayTypes";
+// import { getModule } from "../../index.js";
+
+const ARRAY_TYPES = {
+  UINT_16_ARRAY: 0,
+  FLOAT_32_ARRAY: 1
+};
+const { UINT_16_ARRAY, FLOAT_32_ARRAY } = ARRAY_TYPES;
+
+import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
+const { triggerLabelmapModifiedEvent } = cornerstoneTools.importInternal(
+  "util/segmentationUtils"
+);
+const getModule = cornerstoneTools.getModule;
+const getToolState = cornerstoneTools.getToolState;
+const storeGetters = cornerstoneTools.store.getters;
+const state = getModule("segmentation").state;
+
+/**
+ * These function are reported since they are not exposed by cs tools
+ *
+ */
+
+// from getSegmentsOnPixelData.js
+function getSegmentsOnPixelData(pixelData) {
+  return [...new Set(pixelData)];
+}
+
+// from getElement.js
+function getElement(elementOrEnabledElementUID) {
+  if (elementOrEnabledElementUID instanceof HTMLElement) {
+    return elementOrEnabledElementUID;
+  }
+
+  return storeGetters.enabledElementByUID(elementOrEnabledElementUID);
+}
+
+/**
+ * Takes a 16-bit encoded `ArrayBuffer` and stores it as a `Labelmap3D` for the
+ * `BrushStackState` associated with the element.
+ *
+ * @param  {HTMLElement|string} elementOrEnabledElementUID The cornerstone
+ *                                                  enabled element or its UUID.
+ * @param  {ArrayBuffer} buffer
+ * @param  {number} labelmapIndex The index to store the labelmap under.
+ * @param  {Object[]} metadata = [] Any metadata about the segments.
+ * @param  {number[][]} [segmentsOnLabelmapArray] An array of array of segments on each imageIdIndex.
+ *                       If not present, is calculated.
+ * @param  {colorLUTIndex} [colorLUTIndex = 0] The index of the colorLUT to use to render the segmentation.
+ * @returns {null}
+ */
+async function setLabelmap3DForElement(
+  elementOrEnabledElementUID,
+  buffer,
+  labelmapIndex,
+  metadata = [],
+  segmentsOnLabelmapArray,
+  colorLUTIndex = 0
+) {
+  const element = getElement(elementOrEnabledElementUID);
+
+  if (!element) {
+    return;
+  }
+
+  const stackState = getToolState(element, "stack");
+  const numberOfFrames = stackState.data[0].imageIds.length;
+  const firstImageId = stackState.data[0].imageIds[0];
+
+  const res = await setLabelmap3DByFirstImageId(
+    firstImageId,
+    buffer,
+    labelmapIndex,
+    metadata,
+    numberOfFrames,
+    segmentsOnLabelmapArray,
+    colorLUTIndex
+  );
+
+  triggerLabelmapModifiedEvent(element, labelmapIndex);
+
+  return res;
+}
+
+/**
+ * Takes an 16-bit encoded `ArrayBuffer` and stores it as a `Labelmap3D` for
+ * the `BrushStackState` associated with the firstImageId.
+ *
+ * @param  {HTMLElement|string} firstImageId  The firstImageId of the series to
+ *                                            store the segmentation on.
+ * @param  {ArrayBuffer} buffer
+ * @param  {number} labelmapIndex The index to store the labelmap under.
+ * @param  {Object[]} metadata = [] Any metadata about the segments.
+ * @param  {number} numberOfFrames The number of frames, required to set up the
+ *                                 relevant labelmap2D views.
+ * @param  {number[][]} [segmentsOnLabelmapArray] An array of array of segments on each imageIdIndex.
+ *                       If not present, is calculated.
+ * @param  {colorLUTIndex} [colorLUTIndex = 0] The index of the colorLUT to use to render the segmentation.
+ * @returns {null}
+ */
+function setLabelmap3DByFirstImageId(
+  firstImageId,
+  buffer,
+  labelmapIndex,
+  metadata = [],
+  numberOfFrames,
+  segmentsOnLabelmapArray,
+  colorLUTIndex = 0
+) {
+  const { configuration } = getModule("segmentation");
+
+  let brushStackState = state.series[firstImageId];
+
+  if (!brushStackState) {
+    state.series[firstImageId] = {
+      activeLabelmapIndex: labelmapIndex,
+      labelmaps3D: []
+    };
+
+    brushStackState = state.series[firstImageId];
+  }
+
+  brushStackState.labelmaps3D[labelmapIndex] = {
+    buffer,
+    labelmaps2D: [],
+    metadata,
+    activeSegmentIndex: 1,
+    colorLUTIndex,
+    segmentsHidden: [],
+    undo: [],
+    redo: []
+  };
+
+  const labelmaps2D = brushStackState.labelmaps3D[labelmapIndex].labelmaps2D;
+  const slicelengthInBytes = buffer.byteLength / numberOfFrames;
+
+  /* non-blocking implementation by @ronzim */
+
+  return new Promise(resolve => {
+    function setSingleSlice(i, numberOfFrames) {
+      var pixelData = void 0;
+
+      switch (configuration.arrayType) {
+        case UINT_16_ARRAY:
+          pixelData = new Uint16Array(
+            buffer,
+            slicelengthInBytes * i, // 2 bytes/voxel
+            slicelengthInBytes / 2
+          );
+          break;
+
+        case FLOAT_32_ARRAY:
+          pixelData = new Float32Array(
+            buffer,
+            slicelengthInBytes * i,
+            slicelengthInBytes / 4
+          );
+          break;
+
+        default:
+          throw new Error(
+            "Unsupported Array Type ".concat(configuration.arrayType)
+          );
+      }
+
+      var segmentsOnLabelmap = segmentsOnLabelmapArray
+        ? segmentsOnLabelmapArray[i]
+        : getSegmentsOnPixelData(pixelData);
+
+      if (
+        segmentsOnLabelmap &amp;&amp;
+        segmentsOnLabelmap.some(function (segment) {
+          return segment;
+        })
+      ) {
+        labelmaps2D[i] = {
+          pixelData: pixelData,
+          segmentsOnLabelmap: segmentsOnLabelmap
+        };
+      }
+
+      ++i;
+
+      if (i &lt; numberOfFrames) {
+        setTimeout(() => {
+          setSingleSlice(i, numberOfFrames);
+        }, 0);
+      } else {
+        resolve("OK");
+      }
+    }
+
+    setSingleSlice(0, numberOfFrames);
+  });
+
+  /* original implementation 
+
+  for (let i = 0; i &lt; numberOfFrames; i++) {
+    let pixelData;
+
+    switch (configuration.arrayType) {
+      case UINT_16_ARRAY:
+        pixelData = new Uint16Array(
+          buffer,
+          slicelengthInBytes * i, // 2 bytes/voxel
+          slicelengthInBytes / 2
+        );
+
+        break;
+
+      case FLOAT_32_ARRAY:
+        pixelData = new Float32Array(
+          buffer,
+          slicelengthInBytes * i,
+          slicelengthInBytes / 4
+        );
+        break;
+
+      default:
+        throw new Error(`Unsupported Array Type ${configuration.arrayType}`);
+    }
+
+    const segmentsOnLabelmap = segmentsOnLabelmapArray
+      ? segmentsOnLabelmapArray[i]
+      : getSegmentsOnPixelData(pixelData);
+
+    if (segmentsOnLabelmap &amp;&amp; segmentsOnLabelmap.some(segment => segment)) {
+      labelmaps2D[i] = {
+        pixelData,
+        segmentsOnLabelmap
+      };
+    }
+  }
+  */
+}
+
+export { setLabelmap3DByFirstImageId, setLabelmap3DForElement };
+</code></pre>
+        </article>
+    </section>
 
 
 
