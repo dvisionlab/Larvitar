@@ -147,6 +147,7 @@ export const renderDICOMPDF = function (seriesStack, elementId) {
         '<object data="' +
         fileURL +
         '" type="application/pdf" width="100%" height="100%"></object>';
+      larvitar_store.set("isPDF", [elementId, true]);
       let t1 = performance.now();
       console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
       image = null;
@@ -656,6 +657,7 @@ export const storeViewportData = function (image, elementId, viewport, data) {
   larvitar_store.set("isColor", [elementId, data.isColor]);
   larvitar_store.set("isMultiframe", [elementId, data.isMultiframe]);
   larvitar_store.set("isTimeserie", [elementId, data.isTimeserie]);
+  larvitar_store.set("isPDF", [elementId, false]);
 };
 
 /**
@@ -806,6 +808,7 @@ let getSeriesData = function (series, defaultProps) {
     data.imageId = series.imageIds[data.imageIndex];
   }
   data.isColor = series.color;
+  data.isPDF = series.isPDF;
 
   // rows, cols and x y z spacing
   data.rows = series.instances[series.imageIds[0]].metadata["x00280010"];

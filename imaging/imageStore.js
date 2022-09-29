@@ -31,6 +31,7 @@ const DEFAULT_VIEWPORT = {
   isColor: false,
   isMultiframe: false,
   isTimeserie: false,
+  isPDF: false,
   viewport: {
     scale: 0.0,
     rotation: 0.0,
@@ -254,6 +255,8 @@ class Larvitar_Store {
         this.state["viewports"][data[0]]["isColor"] = data[1];
       } else if (field == "isMultiframe") {
         this.state["viewports"][data[0]]["isMultiframe"] = data[1];
+      } else if (field == "isPDF") {
+        this.state["viewports"][data[0]]["isPDF"] = data[1];
       } else if (field == "isTimeserie") {
         this.state["viewports"][data[0]]["isTimeserie"] = data[1];
       } else if (field == "defaultViewport") {
