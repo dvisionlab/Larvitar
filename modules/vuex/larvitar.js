@@ -23,6 +23,7 @@ const DEFAULT_VIEWPORT = {
   maxPixelValue: 0,
   isColor: false,
   isMultiframe: false,
+  isPDF: false,
   isTimeserie: false,
   viewport: {
     scale: 0.0,
@@ -150,6 +151,8 @@ export default {
       commit("viewport", { id, d: { isColor } }),
     setIsMultiframe: ({ commit }, [id, isMultiframe]) =>
       commit("viewport", { id, d: { isMultiframe } }),
+    setIsPDF: ({ commit }, [id, isPDF]) =>
+      commit("viewport", { id, d: { isPDF } }),
     setIsTimeserie: ({ commit }, [id, isTimeserie]) =>
       commit("viewport", { id, d: { isTimeserie } }),
     setDefaultViewport: (
