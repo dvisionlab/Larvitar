@@ -116,6 +116,44 @@ export function loadAndCacheImages(series, callback) {
 }
 
 /**
+ * Render a PDF from a DICOM Encapsulated PDF
+ * @instance
+ * @function renderDICOMPDF
+ * @param {Object} image - The image PDF object
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @returns {Promise} - Return a promise which will resolve when image is displayed
+ */
+export const renderDICOMPDF = function (image, elementId) {
+  let element = isElement(elementId)
+    ? elementId
+    : document.getElementById(elementId);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return;
+  }
+  const SOPUID = image.dataSet.string("x00080016");
+  if (SOPUID === "1.2.840.10008.5.1.4.1.1.104.1") {
+    let fileTag = image.dataSet.elements.x00420011;
+    let pdfByteArray = image.dataSet.byteArray.slice(
+      fileTag.dataOffset,
+      fileTag.dataOffset + fileTag.length
+    );
+    let PDF = new Blob([pdfByteArray], { type: "application/pdf" });
+    let fileURL = URL.createObjectURL(PDF);
+    element.innerHTML =
+      '<object data="' +
+      fileURL +
+      '" type="application/pdf" width="100%" height="100%"></object>';
+    fileTag = null;
+    pdfByteArray = null;
+    PDF = null;
+    fileURL = null;
+  } else {
+    throw new Error("This is not a DICOM with a PDF");
+  }
+};
+
+/**
  * Render an image (png or jpg) from File on a html div using cornerstone
  * @instance
  * @function renderWebImage
