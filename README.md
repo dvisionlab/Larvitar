@@ -6,9 +6,9 @@
 
 ## Dicom Image Toolkit for CornerstoneJS
 
-### Current version: 1.5.0
+### Current version: 1.5.1
 
-### Latest Published Release: 1.5.0
+### Latest Published Release: 1.5.1
 
 This library provides common DICOM functionalities to be used in web-applications: it's wrapper that simplifies the use of cornerstone-js environment.
 Orthogonal multiplanar reformat is included as well as custom loader/exporter for nrrd files and [Vuex](https://vuex.vuejs.org/) custom integration.
