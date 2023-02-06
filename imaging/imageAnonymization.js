@@ -9,13 +9,31 @@ import sha256 from "crypto-js/sha256";
 import Hex from "crypto-js/enc-hex";
 import { forEach } from "lodash";
 
+const SH = [
+  "x00080050", // Accession Number,
+  "x00080094", // Referring Physician's Telephone numbers
+  "x00081010", // Station Name,
+  "x00102160", // Ethnic Group
+  "x00102180" // Occupation
+];
+
+const OPTIONAL = [
+  "x00100030" // Patient's Birth Date
+];
+
+const REMOVE = [
+  "x00100030", // Patient's Birth Date
+  "x00100032", // Patient's Birth Time
+  "x00101010", // Patient's Age
+  "x00101020", // Patient's Size
+  "x00101030" // Patient's Weight
+];
+
 // global vars
 const TAGS = [
   "x00080014", // Instance Creator UID
-  "x00080018", // SOP Instance UID
   "x00080050", // Accession Number
   "x00080080", // Institution Name
-  "x00080081", // Institution Address
   "x00080081", // Institution Address
   "x00080090", // Referring Physician's Name
   "x00080092", // Referring Physician's Address
@@ -29,7 +47,6 @@ const TAGS = [
   "x00081060", // Name of Physician(s) Reading study
   "x00081070", // Operator's Name
   "x00081080", // Admitting Diagnoses Description
-  "x00081155", // Referenced SOP Instance UID
   "x00082111", // Derivation Description
   "x00100010", // Patient's Name
   "x00100020", // Patient ID
@@ -48,8 +65,6 @@ const TAGS = [
   "x00104000", // Patient Comments
   "x00181000", // Device Serial Number
   "x00181030", // Protocol Name
-  "x0020000d", // Study Instance UID
-  "x0020000e", // Series Instance UID
   "x00200010", // Study ID
   "x00200052", // Frame of Reference UID
   "x00200200", // Synchronization Frame of Reference UID
@@ -79,7 +94,22 @@ export const anonymize = function (series) {
     forEach(TAGS, function (tag) {
       if (tag in instance.metadata) {
         let anonymized_value = sha256(instance.metadata[tag]).toString(Hex);
-        instance.metadata[tag] = anonymized_value;
+        switch (tag) {
+          case "x00100010":
+            instance.metadata[tag] =
+              "Anonymized^" + anonymized_value.substring(0, 6);
+            break;
+          case tag in SH:
+            instance.metadata[tag] = anonymized_value.substring(0, 16);
+            break;
+          case tag in OPTIONAL:
+            instance.metadata[tag] = "";
+          case tag in REMOVE:
+            delete instance.metadata[tag];
+          default:
+            instance.metadata[tag] = anonymized_value;
+            break;
+        }
       }
     });
     instance.metadata.seriesUID = instance.metadata["x0020000e"];
@@ -92,20 +122,7 @@ export const anonymize = function (series) {
     instance.metadata.seriesDescription = instance.metadata["x0008103e"];
   });
 
-  delete series["instanceUIDs"];
-  series.instanceUIDs = {};
-
-  forEach(series.imageIds, function (imageId) {
-    series.instanceUIDs[series.instances[imageId].metadata.instanceUID] =
-      imageId;
-  });
-
-  series.larvitarSeriesInstanceUID = sha256(
-    series.larvitarSeriesInstanceUID
-  ).toString(Hex);
-  series.seriesUID = sha256(series.seriesUID).toString(Hex);
   series.seriesDescription = sha256(series.seriesDescription).toString(Hex);
-  series.studyUID = sha256(series.studyUID).toString(Hex);
 
   return series;
 };
