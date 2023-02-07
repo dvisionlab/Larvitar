@@ -48,7 +48,7 @@ import {
   importNRRDImage
 } from "./imaging/imageIo";
 
-import { anonymize, encrypt } from "./imaging/imageAnonymization";
+import { anonymize } from "./imaging/imageAnonymization";
 
 import {
   buildLayer,
@@ -251,7 +251,6 @@ export {
   importNRRDImage,
   // imageAnonymization
   anonymize,
-  encrypt,
   // imageLayers
   buildLayer,
   updateLayer,
