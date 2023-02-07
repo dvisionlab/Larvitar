@@ -38,6 +38,12 @@ jobs:
           repository: clenemt/docdash
           path: ./template/docdash/
 
+      # Install docdash node modules
+      - name: Install node modules
+        working-directory: ./template/docdash/
+        run: |
+          yarn install
+
       # Generate docs
       - name: Generate docs
         run: |
@@ -50,6 +56,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           message: "Update docs"
           branch: ${{ github.head_ref }}
-          empty: true 
-      
-
+          empty: true

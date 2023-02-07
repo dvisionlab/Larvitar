@@ -175,6 +175,15 @@ export const clearMultiFrameCache = function (seriesId) {
  * @returns {Object} custom image object
  */
 let createCustomImage = function (id, imageId, frameIndex, metadata) {
+  let options = {};
+  // always preScale the pixel array unless it is asked not to
+  options.preScale = {
+    enabled:
+      options.preScale && options.preScale.enabled !== undefined
+        ? options.preScale.enabled
+        : false
+  };
+
   let dataSet = multiframeDatasetCache[id].dataSet;
   let pixelDataElement = dataSet.elements.x7fe00010;
   // Extract pixelData of the required frame
@@ -203,11 +212,27 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
       ? window.document.getElementsByTagName("canvas")[0]
       : window.document.createElement("canvas");
 
+  // Get the scaling parameters from the metadata
+  if (options.preScale.enabled) {
+    const scalingParameters = cornerstoneWADOImageLoader.getScalingParameters(
+      cornerstone.metaData,
+      imageId
+    );
+
+    if (scalingParameters) {
+      options.preScale = {
+        ...options.preScale,
+        scalingParameters
+      };
+    }
+  }
+
   const decodePromise = cornerstoneWADOImageLoader.decodeImageFrame(
     imageFrame,
     transferSyntax,
     pixelData,
-    canvas
+    canvas,
+    options
   );
 
   let promise = new Promise((resolve, reject) => {
