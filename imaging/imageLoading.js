@@ -150,6 +150,7 @@ export const updateLoadedStack = function (
   let is4D = seriesData.metadata.is4D;
   let SOPUID = seriesData.metadata["x00080016"];
   let isPDF = SOPUID == "1.2.840.10008.5.1.4.1.1.104.1" ? true : false;
+  let anonymized = seriesData.metadata.anonymized;
 
   let color = cornerstoneWADOImageLoader.isColorImage(
     seriesData.metadata["x00280004"]
@@ -173,6 +174,7 @@ export const updateLoadedStack = function (
       isMultiframe: isMultiframe,
       is4D: is4D,
       isPDF: isPDF,
+      anonymized: anonymized,
       modality: modality,
       color: color,
       bytes: 0

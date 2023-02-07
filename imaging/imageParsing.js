@@ -280,6 +280,7 @@ let parseFile = function (file) {
               dataSet: dataSet
             };
             imageObject.metadata = metadata;
+            imageObject.metadata.anonymized = false;
             imageObject.metadata.seriesUID = seriesInstanceUID;
             imageObject.metadata.instanceUID = instanceUID;
             imageObject.metadata.studyUID = metadata["x0020000d"];
