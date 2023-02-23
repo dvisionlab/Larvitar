@@ -15,7 +15,9 @@
   "scripts": {
     "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json",
     "build-lib": "rollup -c",
-    "dev-lib": "rollup -c -w"
+    "dev-lib": "rollup -c -w",
+    "build-deps": "cp -R node_modules/cornerstone-wado-image-loader/dist/dynamic-import/* dist/",
+    "build-examples": "cp dist/* docs/examples"
   },
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
   "contributors": [

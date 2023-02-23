@@ -6,7 +6,7 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import dicomParser from "dicom-parser";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/dynamic-import/cornerstoneWADOImageLoader.min.js";
 import cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { forEach } from "lodash";
@@ -34,10 +34,6 @@ const globalConfig = {
     1
   ),
   startWebWorkersOnDemand: true,
-  webWorkerTaskPaths: [
-    `${window.location.origin}/workers/610.bundle.min.worker.js`,
-    `${window.location.origin}/workers/888.bundle.min.worker.js`
-  ],
   taskConfiguration: {
     decodeTask: {
       loadCodecsOnStartup: true,

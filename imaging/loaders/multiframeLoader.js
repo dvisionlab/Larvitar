@@ -3,7 +3,7 @@
  */
 
 // external libraries
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/dynamic-import/cornerstoneWADOImageLoader.min.js";
 import { each, range } from "lodash";
 
 // internal libraries

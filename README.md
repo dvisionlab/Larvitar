@@ -89,6 +89,8 @@ Full documentation and examples are available at http://www.dvisionlab.com/Larvi
 # Build package
 
 `yarn build-lib`
+`yarn build-deps`
+`yarn build-examples`
 
 # Development
 

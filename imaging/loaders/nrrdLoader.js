@@ -5,7 +5,7 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/dynamic-import/cornerstoneWADOImageLoader.min.js";
 import { each, clone, range, findKey, filter, pickBy } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
