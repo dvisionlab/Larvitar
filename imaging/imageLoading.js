@@ -35,8 +35,8 @@ const globalConfig = {
   ),
   startWebWorkersOnDemand: true,
   webWorkerTaskPaths: [
-    "https://unpkg.com/cornerstone-wado-image-loader@4.8.0/dist/610.bundle.min.worker.js",
-    "https://unpkg.com/cornerstone-wado-image-loader@4.8.0/dist/888.bundle.min.worker.js"
+    `${window.location.origin}/workers/610.bundle.min.worker.js`,
+    `${window.location.origin}/workers/888.bundle.min.worker.js`
   ],
   taskConfiguration: {
     decodeTask: {
