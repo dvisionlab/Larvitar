@@ -73,8 +73,8 @@
 </p>
 <h1 id="larvitar">Larvitar</h1>
 <h2 id="dicom-image-toolkit-for-cornerstonejs">Dicom Image Toolkit for CornerstoneJS</h2>
-<h3 id="current-version%3A-1.5.4">Current version: 1.5.4</h3>
-<h3 id="latest-published-release%3A-1.5.4">Latest Published Release: 1.5.4</h3>
+<h3 id="current-version%3A-1.5.5">Current version: 1.5.5</h3>
+<h3 id="latest-published-release%3A-1.5.5">Latest Published Release: 1.5.5</h3>
 <p>This library provides common DICOM functionalities to be used in web-applications: it's wrapper that simplifies the use of cornerstone-js environment.<br>
 Orthogonal multiplanar reformat is included as well as custom loader/exporter for nrrd files and <a href="https://vuex.vuejs.org/">Vuex</a> custom integration.</p>
 <ul>
@@ -143,7 +143,9 @@ initLarvitarStore(store); // Calling this without parameters makes Larvitar use 
 <h1 id="installation">Installation</h1>
 <p><code>yarn add larvitar</code></p>
 <h1 id="build-package">Build package</h1>
-<p><code>yarn build-lib</code></p>
+<p><code>yarn build-lib</code><br>
+<code>yarn build-deps</code><br>
+<code>yarn build-examples</code></p>
 <h1 id="development">Development</h1>
 <p>Use <code>yarn dev-lib</code> to have <code>rollup</code> hot-reload (live recompiling the library).<br>
 In order to test functionalities you can modify the library import path in an example (see the <code>docs/examples</code> folder) to use the recompiled bundle in <code>dist/</code>, then serve the .html file with VSCode extension <a href="https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer">LiveServer</a> or other similar tools.<br>
