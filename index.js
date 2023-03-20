@@ -37,7 +37,8 @@ import {
   getMeanValue,
   getReslicedMetadata,
   getReslicedPixeldata,
-  getDistanceBetweenSlices
+  getDistanceBetweenSlices,
+  getImageMetadata
 } from "./imaging/imageUtils";
 
 import {
@@ -243,6 +244,7 @@ export {
   getReslicedMetadata,
   getReslicedPixeldata,
   getDistanceBetweenSlices,
+  getImageMetadata,
   // imageIo
   buildHeader,
   getCachedPixelData,
