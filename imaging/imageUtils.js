@@ -9,6 +9,8 @@ import {
   sortBy,
   clone,
   find,
+  filter,
+  keys,
   has,
   max,
   map,
@@ -24,6 +26,7 @@ import { convertBytes } from "dicom-character-set";
 // internal libraries
 import { getDicomImageId } from "./loaders/dicomLoader";
 import TAG_DICT from "./dataDictionary.json";
+import { getSeriesDataFromLarvitarManager } from "./loaders/commonLoader";
 
 // global module variables
 // variables used to manage the reslice functionality
@@ -51,6 +54,7 @@ const resliceTable = {
  * getDistanceBetweenSlices(seriesData, sliceIndex1, sliceIndex2)
  * parseTag(dataSet, propertyName, element)
  * isElement(o)
+ * getImageMetadata(dataSet, imageId)
  */
 
 /**
@@ -846,6 +850,43 @@ export const parseTag = function (dataSet, propertyName, element) {
     value = "no display code for VR " + vr;
   }
   return value;
+};
+
+/**
+ * @instance
+ * @function getImageMetadata
+ * @param {String} seriesId - The seriesUID
+ * @param {String} instanceUID - The SOPInstanceUID
+ * @return {Array} - List of metadata objects: tag, name and value
+ */
+export const getImageMetadata = function (seriesId, instanceUID) {
+  const seriesData = getSeriesDataFromLarvitarManager(seriesId);
+  const imageId = seriesData.instanceUIDs[instanceUID];
+  let metadata = seriesData.instances[imageId].metadata;
+  // get elements from metadata where the key starts with x and is length 7
+  let metadata_keys = filter(keys(metadata), function (key) {
+    return key.length === 9 && key[0] === "x";
+  });
+  // loop metadata using metadata_keys and return list of key value pairs
+  let metadata_list = map(metadata_keys, function (key) {
+    // if value is a dictionary return empty string
+    const value = metadata[key].constructor == Object ? "" : metadata[key];
+    // convert key removing x and adding comma at position 4
+    const tagKey = (
+      "(" +
+      key.slice(1, 5) +
+      "," +
+      key.slice(5) +
+      ")"
+    ).toUpperCase();
+    const name = TAG_DICT[tagKey] ? TAG_DICT[tagKey].name : "";
+    return {
+      tag: tagKey,
+      name: name,
+      value: value
+    };
+  });
+  return metadata_list;
 };
 
 /* Internal module functions */
