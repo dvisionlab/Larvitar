@@ -861,7 +861,16 @@ export const parseTag = function (dataSet, propertyName, element) {
  */
 export const getImageMetadata = function (seriesId, instanceUID) {
   const seriesData = getSeriesDataFromLarvitarManager(seriesId);
+  if (seriesData === undefined || seriesData === null) {
+    console.log(`Invalid Series ID: ${seriesId}`);
+    return [];
+  }
   const imageId = seriesData.instanceUIDs[instanceUID];
+  if (imageId === undefined) {
+    console.log(`Invalid InstanceUID ID: ${instanceUID}`);
+    return [];
+  }
+
   let metadata = seriesData.instances[imageId].metadata;
   // get elements from metadata where the key starts with x and is length 7
   let metadata_keys = filter(keys(metadata), function (key) {
@@ -870,7 +879,8 @@ export const getImageMetadata = function (seriesId, instanceUID) {
   // loop metadata using metadata_keys and return list of key value pairs
   let metadata_list = map(metadata_keys, function (key) {
     // if value is a dictionary return empty string
-    const value = metadata[key].constructor == Object ? "" : metadata[key];
+    const value =
+      metadata[key] && metadata[key].constructor == Object ? "" : metadata[key];
     // convert key removing x and adding comma at position 4
     const tagKey = (
       "(" +
