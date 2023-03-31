@@ -1,5 +1,5 @@
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+// const CopyWebpackPlugin = require("copy-webpack-plugin");
+// const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const { merge } = require("webpack-merge");
 const commonConfiguration = require("./webpack.common.js");
@@ -11,20 +11,19 @@ const infoColor = _message => {
 };
 
 module.exports = merge(commonConfiguration, {
-  entry: path.resolve(__dirname, "../dev/app.ts"),
+  entry: path.resolve(__dirname, "../index.ts"),
   devtool: "inline-source-map",
   stats: "errors-warnings",
   mode: "development",
-  plugins: [
-    new CopyWebpackPlugin({
-      patterns: [{ from: path.resolve(__dirname, "../static") }]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, "../dev/index.html"),
-      minify: true
-    }),
-    new MiniCSSExtractPlugin()
-  ],
+  // plugins: [
+  //   new CopyWebpackPlugin({
+  //     patterns: [{ from: path.resolve(__dirname, "../static") }]
+  //   }),
+  //   new HtmlWebpackPlugin({
+  //     template: path.resolve(__dirname, "../index.html"),
+  //     minify: true
+  //   })
+  // ],
   infrastructureLogging: {
     level: "warn"
   },

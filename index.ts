@@ -7,7 +7,7 @@ import cornerstoneTools from "cornerstone-tools";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 const segModule = cornerstoneTools.getModule("segmentation");
 
-import larvitarModule from "./modules/vuex/larvitar";
+// import larvitarModule from "./modules/vuex/larvitar";
 
 import {
   checkMemoryAllocation,
@@ -219,7 +219,7 @@ export {
   segModule,
   cornerstoneWADOImageLoader,
   // vuex module
-  larvitarModule,
+  // larvitarModule,
   // memory module
   checkMemoryAllocation,
   getUsedMemory,

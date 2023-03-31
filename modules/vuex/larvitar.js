@@ -1,6 +1,10 @@
+// TODO remove
 // Larvitar Vuex storage
 
-import Vue from "vue";
+const Vue = {
+  delete: () => {},
+  set: () => {}
+};
 
 // default viewport store object
 const DEFAULT_VIEWPORT = {

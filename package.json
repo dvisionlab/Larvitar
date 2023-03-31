@@ -40,17 +40,21 @@
     "lodash": "^4.17.15",
     "pako": "^1.0.10",
     "papaparse": "^5.3.0",
-    "uuid": "^8.3.2",
-    "vue": "^3.2.47"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/cornerstone-core": "^2.3.0",
     "babel-loader": "^9.1.2",
+    "copy-webpack-plugin": "^11.0.0",
     "fs": "^0.0.1-security",
+    "html-webpack-plugin": "^5.5.0",
+    "ip": "^1.1.8",
     "jsdoc": "^3.6.4",
+    "portfinder-sync": "^0.0.2",
     "ts-loader": "^9.4.2",
     "typescript": "^5.0.2",
     "webpack": "^5.76.3",
-    "webpack-cli": "^5.0.1"
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.1"
   }
 }
