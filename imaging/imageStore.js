@@ -305,12 +305,14 @@ class Larvitar_Store {
  * @param {Object} vuexStore - The app vuex store [optional]
  * @param {String} vuexModule - The name of the vuex store module, can be null
  * @param {Boolean} registerModule - If true, the module is registered under Vuex global store
+ * @param {Object} _Vue - The Vue instance
  */
 
-export function initLarvitarStore(vuexStore, vuexModule, registerModule) {
+export function initLarvitarStore(vuexStore, vuexModule, registerModule, _Vue) {
   if (vuexStore) {
     larvitar_store = new Larvitar_Store(vuexStore, vuexModule);
     if (registerModule) {
+      larvitar.defineVue(_Vue);
       vuexStore.registerModule(vuexModule, larvitar);
     }
   } else {
