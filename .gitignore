@@ -24,3 +24,6 @@ template/docdash/
 
 # Boundles
 /dist
+
+# TS coverage reports
+/coverage-ts

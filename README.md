@@ -4,6 +4,8 @@
 
 # Larvitar
 
+[![type-coverage](https://img.shields.io/badge/dynamic/json.svg?label=type-coverage&prefix=%E2%89%A5&suffix=%&query=$.typeCoverage.atLeast&uri=https%3A%2F%2Fraw.githubusercontent.com%2Fplantain-00%2Ftype-coverage%2Fmaster%2Fpackage.json)](https://github.com/dvisionlab/Larvitar)
+
 ## Dicom Image Toolkit for CornerstoneJS
 
 ### Current version: 1.5.7
@@ -95,3 +97,7 @@ Full documentation and examples are available at http://www.dvisionlab.com/Larvi
 Use `yarn dev` to have `webpack` hot-reload (live recompiling the library).
 In order to test functionalities you can modify the library import path in an example (see the `docs/examples` folder) to use the recompiled bundle in `dist/`, then serve the .html file with VSCode extension [LiveServer](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) or other similar tools.
 Once you are done, upgrade the version, build the library and copy it to the `docs/examples` folder. This file must be included into the commit, while docs will be compiled by the Github action.
+
+# Coverage
+
+Use `yarn coverage` to generate type coverage report.
