@@ -12,7 +12,7 @@ import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { forEach } from "lodash";
 
 // internal libraries
-import { larvitar_store } from "./imageStore";
+import store from "./imageStore";
 import { getSortedStack, getSortedUIDs } from "./imageUtils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
@@ -209,7 +209,7 @@ export const updateLoadedStack = function (
     );
     // populate the ordered dictionary of instanceUIDs
     allSeriesStack[id].instanceUIDs = getSortedUIDs(allSeriesStack[id]);
-    larvitar_store.addSeriesIds(id, allSeriesStack[id].imageIds);
+    store.addSeriesIds(id, allSeriesStack[id].imageIds);
   }
 };
 

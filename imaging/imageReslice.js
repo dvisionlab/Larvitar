@@ -13,7 +13,7 @@ import {
   getLarvitarImageTracker,
   getLarvitarManager
 } from "./loaders/commonLoader";
-import { larvitar_store } from "./imageStore";
+import store from "./imageStore";
 
 /*
  * This module provides the following functions to be exported:
@@ -60,7 +60,7 @@ export function resliceSeries(seriesData, orientation) {
         );
         imageTracker[imageId] = reslicedSeriesId;
       });
-      larvitar_store.addSeriesIds(reslicedSeriesId, reslicedSeries.imageIds);
+      store.addSeriesIds(reslicedSeriesId, reslicedSeries.imageIds);
       reslicedSeries.numberOfImages = reslicedSeries.imageIds.length;
       reslicedSeries.seriesUID = reslicedSeriesId;
       reslicedSeries.seriesDescription = seriesData.seriesDescription;

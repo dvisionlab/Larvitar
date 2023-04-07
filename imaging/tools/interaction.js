@@ -13,7 +13,7 @@ import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
 import { DEFAULT_MOUSE_KEYS } from "./default";
 import { setToolActive } from "./main";
 import { isElement } from "../imageUtils";
-import { larvitar_store } from "../imageStore";
+import store, { set as setStore } from "../imageStore";
 import { updateViewportData } from "../imageRendering";
 
 /**
@@ -222,14 +222,14 @@ export const toggleMouseToolsListeners = function (elementId, disable) {
   let mouseMoveHandler = throttle(function (evt) {
     let activeTool =
       evt.detail.buttons == 1
-        ? larvitar_store.get("leftActiveTool")
-        : larvitar_store.get("rightActiveTool");
+        ? store.get("leftActiveTool")
+        : store.get("rightActiveTool");
     updateViewportData(evt.srcElement.id, evt.detail.viewport, activeTool);
   }, 250);
 
   // mouse wheel handler
   function mouseWheelHandler(evt) {
-    larvitar_store.set("sliceId", [evt.target.id, evt.detail.newImageIdIndex]);
+    setStore("sliceId", [evt.target.id, evt.detail.newImageIdIndex]);
     updateViewportData(evt.srcElement.id, evt.detail, "mouseWheel");
   }
 

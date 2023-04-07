@@ -8,7 +8,7 @@ import cornerstone from "cornerstone-core";
 import { each, find } from "lodash";
 
 // internal libraries
-import { larvitar_store } from "./imageStore";
+import { set as setStore } from "./imageStore";
 
 /**
  * Object used to list image presets
@@ -76,7 +76,7 @@ export const setImagePreset = function (viewportNames, preset_name) {
     viewport.voi.windowCenter = image_preset.wl;
     cornerstone.setViewport(element, viewport);
     // sync ww and wc values in store
-    larvitar_store.set("contrast", [
+    setStore("contrast", [
       viewportName,
       viewport.voi.windowWidth,
       viewport.voi.windowCenter
@@ -114,7 +114,7 @@ export const setImageCustomPreset = function (viewportNames, customValues) {
     viewport.voi.windowCenter = customValues.wl;
     cornerstone.setViewport(element, viewport);
     // sync ww and wc values in store
-    larvitar_store.set("contrast", [
+    setStore("contrast", [
       viewportName,
       viewport.voi.windowWidth,
       viewport.voi.windowCenter

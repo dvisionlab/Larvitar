@@ -18,7 +18,7 @@ import {
   DEFAULT_SETTINGS,
   dvTools
 } from "./default";
-import { larvitar_store } from "../imageStore";
+import { set as setStore } from "../imageStore";
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
@@ -235,10 +235,10 @@ const setToolActive = function (toolName, options, viewports, doNotSetInStore) {
       defaultOpt.mouseButtonMask = [defaultOpt.mouseButtonMask];
     }
     if (defaultOpt.mouseButtonMask.includes(1)) {
-      larvitar_store.set("leftActiveTool", toolName);
+      setStore("leftActiveTool", toolName);
     }
     if (defaultOpt.mouseButtonMask.includes(2)) {
-      larvitar_store.set("rightActiveTool", toolName);
+      setStore("rightActiveTool", toolName);
     }
   }
 };
