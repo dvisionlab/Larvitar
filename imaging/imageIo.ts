@@ -12,9 +12,10 @@ import {
   getDistanceBetweenSlices,
   getTypedArrayFromDataType
 } from "./imageUtils.js";
-import { larvitar_store } from "./imageStore";
-import { parse } from "./parsers/nrrd";
-import { checkMemoryAllocation } from "./monitors/memory";
+import { larvitar_store } from "./imageStore.js";
+import { parse } from "./parsers/nrrd.js";
+import { checkMemoryAllocation } from "./monitors/memory.js";
+import { Series, Header, Volume } from "./types.js";
 
 /*
  * This module provides the following functions to be exported:
@@ -30,41 +31,51 @@ import { checkMemoryAllocation } from "./monitors/memory";
  * @param {Object} series - Cornerstone series object
  * @returns {Object} header: image metadata
  */
-export const buildHeader = function (series) {
-  let header = {};
-  header.volume = {};
-  header.volume.imageIds = series.imageIds;
-  header.volume.seriesId =
-    series.instances[series.imageIds[0]].metadata.seriesUID;
-  header.volume.rows =
-    series.instances[series.imageIds[0]].metadata.rows ||
-    series.instances[series.imageIds[0]].metadata.x00280010;
-  header.volume.cols =
-    series.instances[series.imageIds[0]].metadata.cols ||
-    series.instances[series.imageIds[0]].metadata.x00280011;
-  header.volume.slope = series.instances[series.imageIds[0]].metadata.slope;
-  header.volume.repr = series.instances[series.imageIds[0]].metadata.repr;
-  header.volume.intercept =
-    series.instances[series.imageIds[0]].metadata.intercept;
-  header.volume.imagePosition =
-    series.instances[series.imageIds[0]].metadata.imagePosition;
-  header.volume.numberOfSlices = series.imageIds.length;
-
-  header.volume.imageOrientation = getMeanValue(
-    series,
-    "imageOrientation",
-    true
-  );
-
-  header.volume.pixelSpacing = getMeanValue(series, "pixelSpacing", true);
-  // header.volume.maxPixelValue = getMeanValue(series, "maxPixelValue", false);
-  // header.volume.minPixelValue = getMeanValue(series, "minPixelValue", false);
-  header.volume.sliceThickness = getDistanceBetweenSlices(series, 0, 1);
+export const buildHeader = function (series: Series) {
+  let header: Partial<Header> = {};
 
   forEach(series.imageIds, function (imageId) {
     header[imageId] = series.instances[imageId].metadata;
   });
-  return header;
+
+  let volume: Partial<Volume> = {};
+
+  volume.imageIds = series.imageIds;
+  volume.seriesId = series.instances[series.imageIds[0]].metadata
+    .seriesUID as string;
+  volume.rows =
+    (series.instances[series.imageIds[0]].metadata.rows as number) ||
+    (series.instances[series.imageIds[0]].metadata.x00280010 as number);
+  volume.cols =
+    (series.instances[series.imageIds[0]].metadata.cols as number) ||
+    (series.instances[series.imageIds[0]].metadata.x00280011 as number);
+  volume.slope = series.instances[series.imageIds[0]].metadata.slope as number;
+  volume.repr = series.instances[series.imageIds[0]].metadata.repr as string;
+  volume.intercept = series.instances[series.imageIds[0]].metadata
+    .intercept as number;
+  volume.imagePosition = series.instances[series.imageIds[0]].metadata
+    .imagePosition as [number, number];
+  volume.numberOfSlices = series.imageIds.length as number;
+
+  // @ts-ignore
+  volume.imageOrientation = getMeanValue(
+    series,
+    "imageOrientation",
+    true
+  ) as number[];
+
+  // @ts-ignore
+  volume.pixelSpacing = getMeanValue(series, "pixelSpacing", true) as [
+    number,
+    number
+  ];
+  // volume.maxPixelValue = getMeanValue(series, "maxPixelValue", false);
+  // volume.minPixelValue = getMeanValue(series, "minPixelValue", false);
+  volume.sliceThickness = getDistanceBetweenSlices(series, 0, 1);
+
+  header.volume = volume as Volume;
+
+  return header as Header;
 };
 
 /**
@@ -74,12 +85,12 @@ export const buildHeader = function (series) {
  * @returns {Promise} A promise which will resolve to a pixel data array or fail if an error occurs
  */
 
-export const getCachedPixelData = function (imageId) {
+export const getCachedPixelData = function (imageId: string) {
   let cachedImage = find(cornerstone.imageCache.cachedImages, [
     "imageId",
     imageId
   ]);
-  let promise = new Promise((resolve, reject) => {
+  let promise = new Promise<number[]>((resolve, reject) => {
     if (cachedImage && cachedImage.image) {
       resolve(cachedImage.image.getPixelData());
     } else {
@@ -99,16 +110,16 @@ export const getCachedPixelData = function (imageId) {
  * @param {Bool} useSeriesData - Flag to force using "series" data instead of cached ones
  * @returns {Array} Contiguous pixel array
  */
-export const buildData = function (series, useSeriesData) {
+export const buildData = function (series: Series, useSeriesData: boolean) {
   if (checkMemoryAllocation(series.bytes)) {
     let t0 = performance.now();
     let repr = series.instances[series.imageIds[0]].metadata.repr;
     let rows =
-      series.instances[series.imageIds[0]].metadata.rows ||
-      series.instances[series.imageIds[0]].metadata.x00280010;
+      (series.instances[series.imageIds[0]].metadata.rows as number) ||
+      (series.instances[series.imageIds[0]].metadata.x00280010 as number);
     let cols =
-      series.instances[series.imageIds[0]].metadata.cols ||
-      series.instances[series.imageIds[0]].metadata.x00280011;
+      (series.instances[series.imageIds[0]].metadata.cols as number) ||
+      (series.instances[series.imageIds[0]].metadata.x00280011 as number);
     let len = rows * cols * series.imageIds.length;
 
     let typedArray = getTypedArrayFromDataType(repr);
@@ -126,10 +137,15 @@ export const buildData = function (series, useSeriesData) {
       console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
       return data;
     } else {
+      if (!larvitar_store) {
+        throw new Error("Larvitar store not initialized");
+      }
+
+      // @ts-ignore TODO-ts type larvitar_store
       larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
       let image_counter = 0;
       forEach(series.imageIds, function (imageId) {
-        getCachedPixelData(imageId).then(sliceData => {
+        getCachedPixelData(imageId).then((sliceData: number[]) => {
           data.set(sliceData, offsetData);
           offsetData += sliceData.length;
           image_counter += 1;
@@ -154,26 +170,33 @@ export const buildData = function (series, useSeriesData) {
  * @param {Function} resolve - Promise resolve function
  * @param {Function} reject - Promise reject function
  */
-export const buildDataAsync = function (series, time, resolve, reject) {
+export const buildDataAsync = function (
+  series: Series,
+  time: number,
+  resolve: Function, // TODO-ts type
+  reject: Function // TODO-ts type
+) {
   const memoryAllocation = checkMemoryAllocation(series.bytes);
   if (memoryAllocation) {
     let t0 = performance.now();
     let repr = series.instances[series.imageIds[0]].metadata.repr;
     let rows =
-      series.instances[series.imageIds[0]].metadata.rows ||
-      series.instances[series.imageIds[0]].metadata.x00280010;
+      (series.instances[series.imageIds[0]].metadata.rows as number) ||
+      (series.instances[series.imageIds[0]].metadata.x00280010 as number);
     let cols =
-      series.instances[series.imageIds[0]].metadata.cols ||
-      series.instances[series.imageIds[0]].metadata.x00280011;
+      (series.instances[series.imageIds[0]].metadata.cols as number) ||
+      (series.instances[series.imageIds[0]].metadata.x00280011 as number);
     let len = rows * cols * series.imageIds.length;
     let typedArray = getTypedArrayFromDataType(repr);
     let data = new typedArray(len);
     let offsetData = 0;
 
     let imageIds = series.imageIds.slice();
+    // @ts-ignore TODO-ts type larvitar_store
     larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
 
-    function runFillPixelData(data) {
+    // TODO-ts type check
+    function runFillPixelData(data: Uint16Array) {
       let imageId = imageIds.shift();
       if (imageId) {
         getCachedPixelData(imageId).then(sliceData => {
@@ -207,8 +230,8 @@ export const buildDataAsync = function (series, time, resolve, reject) {
  * @param {ArrayBuffer} bufferArray - buffer array from nrrd file
  * @returns {Array} Parsed pixel data array
  */
-export const importNRRDImage = function (bufferArray) {
+export const importNRRDImage = function (bufferArray: ArrayBuffer) {
   // get the data
-  let volume = parse(bufferArray, {});
+  let volume = parse(bufferArray, { headerOnly: false });
   return volume;
 };
