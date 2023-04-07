@@ -1,7 +1,7 @@
 const path = require("path");
 const { merge } = require("webpack-merge");
 const commonConfiguration = require("./webpack.common.js");
-// const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = merge(commonConfiguration, {
   entry: path.resolve(__dirname, "../index.ts"),
@@ -11,6 +11,6 @@ module.exports = merge(commonConfiguration, {
     library: "larvitar",
     libraryTarget: "umd"
   },
-  mode: "production"
-  // plugins: [new CleanWebpackPlugin()]
+  mode: "production",
+  plugins: [new CleanWebpackPlugin()]
 });

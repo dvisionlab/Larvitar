@@ -88,10 +88,10 @@ Full documentation and examples are available at http://www.dvisionlab.com/Larvi
 
 # Build package
 
-`yarn build-lib`
+`yarn build`
 
 # Development
 
-Use `yarn dev-lib` to have `rollup` hot-reload (live recompiling the library).
+Use `yarn dev` to have `webpack` hot-reload (live recompiling the library).
 In order to test functionalities you can modify the library import path in an example (see the `docs/examples` folder) to use the recompiled bundle in `dist/`, then serve the .html file with VSCode extension [LiveServer](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) or other similar tools.
 Once you are done, upgrade the version, build the library and copy it to the `docs/examples` folder. This file must be included into the commit, while docs will be compiled by the Github action.

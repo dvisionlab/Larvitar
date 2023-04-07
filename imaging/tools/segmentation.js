@@ -174,11 +174,12 @@ export function initSegmentationModule(customConfig) {
 
 /**
  * Add segmentation mask to segmentation module
- * @param {Object} maskProps - The mask properties (labelId, color and opacity)
+ * @param {Object} props - The mask properties (labelId, color and opacity)
  * @param {TypedArray} - The mask data array
  * @param {String} elementId - The target html element Id or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when segmentation mask is added
  */
+
 export function addSegmentationMask(props, data, elementId) {
   let promise = new Promise(async resolve => {
     let element = isElement(elementId)

@@ -1,5 +1,5 @@
 import pkg from "./package.json";
-const VERSION = pkg.version;
+const VERSION: string = pkg.version + "ciccio";
 console.log(`LARVITAR v${VERSION}`);
 
 import cornerstone from "cornerstone-core";
