@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@types/cornerstone-core": "^2.3.0",
+    "@types/crypto-js": "^4.1.1",
     "@types/lodash": "^4.14.192",
     "babel-loader": "^9.1.2",
     "clean-webpack-plugin": "^4.0.0",
