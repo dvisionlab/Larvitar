@@ -1,10 +1,5 @@
-// TODO remove
-// Larvitar Vuex storage
-
-const Vue = {
-  delete: () => {},
-  set: () => {}
-};
+// Larvitar Vuex instance
+var Vue = null;
 
 // default viewport store object
 const DEFAULT_VIEWPORT = {
@@ -184,4 +179,9 @@ export default {
     setContrast: ({ commit }, [id, windowWidth, windowCenter]) =>
       commit("canvas", { id, d: { voi: { windowWidth, windowCenter } } })
   }
+};
+
+// define Vue instance from outside dependency
+export const defineVue = _Vue => {
+  Vue = _Vue;
 };
