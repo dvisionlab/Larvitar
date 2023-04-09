@@ -1,7 +1,7 @@
 import { vec2 } from "cornerstone-core";
 
 // TODO-ts: differentiate each single metadata
-export type MetadataValue = string | number | string[] | number[] | boolean;
+export type MetadataValue = string | number | string[] | number[] | boolean | null | undefined; // null or undefined is only for nrrd
 
 export type Instance = {
   metadata: { [key: string]: MetadataValue };
@@ -15,6 +15,8 @@ export type Series = {
   anonymized?: boolean;
   bytes: number;
   seriesUID: string;
+  currentImageIdIndex: number;
+  numberOfImages: number;
 };
 
 export type Contours = {
@@ -45,4 +47,12 @@ export type Volume = {
   imageOrientation: [number, number, number];
   pixelSpacing: [number, number];
   sliceThickness: number;
+  phase?: string;
+  study_description?: string;
+  series_description?: string;
+  acquisition_date?: string;
 };
+
+export type LarvitarManager = {
+   [key: string]: NrrdSeries ;
+}
