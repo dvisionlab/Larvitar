@@ -13,13 +13,14 @@ import {
   getLarvitarManager
 } from "./commonLoader";
 import { parseDataSet } from "../imageParsing";
+import { Image, ImageFrame, ImageObject, LarvitarManager, MetadataValue, Series } from "../types";
 
 // global module variables
 let customImageLoaderCounter = 0;
 
 // Local cache used to store multiframe datasets to avoid reading and parsing
 // the whole file to show a single frame.
-let multiframeDatasetCache = null;
+let multiframeDatasetCache: {[key:string]: Series | null } | null = null;
 /*
  * This module provides the following functions to be exported:
  * loadMultiFrameImage(elementId)
@@ -35,20 +36,28 @@ let multiframeDatasetCache = null;
  * @param {String} imageId - ImageId tag
  * @returns {Function} Custom Image Creation Function
  */
-export const loadMultiFrameImage = function (imageId) {
+export const loadMultiFrameImage = function (imageId: string) {
   let parsedImageId = cornerstoneWADOImageLoader.wadouri.parseImageId(imageId);
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
   let imageTracker = getLarvitarImageTracker();
   let seriesId = imageTracker[rootImageId];
-  let manager = getLarvitarManager();
+  let manager = getLarvitarManager() as LarvitarManager;
   if (multiframeDatasetCache === null) {
     multiframeDatasetCache = {};
   }
-  multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId]
-    ? multiframeDatasetCache[rootImageId]
-    : manager[seriesId];
+
+  if (multiframeDatasetCache[rootImageId]) {
+    multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId]
+  }
+  else if (manager) {
+    multiframeDatasetCache[rootImageId] = manager[seriesId];
+  }
+  else {
+    throw new Error("No multiframe dataset found for seriesId: " + seriesId);
+  }
+
   let metadata =
-    multiframeDatasetCache[rootImageId].instances[imageId].metadata;
+    multiframeDatasetCache[rootImageId]?.instances[imageId].metadata;
   return createCustomImage(rootImageId, imageId, parsedImageId.frame, metadata);
 };
 
@@ -59,7 +68,7 @@ export const loadMultiFrameImage = function (imageId) {
  * @param {String} seriesId - SeriesId tag
  * @param {Object} serie - parsed serie object
  */
-export const buildMultiFrameImage = function (seriesId, serie) {
+export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
   let t0 = performance.now();
   let manager = getLarvitarManager();
   let imageTracker = getLarvitarImageTracker();
@@ -72,6 +81,7 @@ export const buildMultiFrameImage = function (seriesId, serie) {
 
   each(serie.imageIds, function (instanceId) {
     let dataSet = serie.instances[instanceId].dataSet;
+
     let metadata = serie.instances[instanceId].metadata;
     let imageId = getMultiFrameImageId("multiFrameLoader");
     imageTracker[imageId] = seriesId;
@@ -83,15 +93,15 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       manager[seriesId].instances = {};
     }
 
-    each(range(numberOfFrames), function (frameNumber) {
+    each(range(numberOfFrames as number), function (frameNumber) {
       let frameImageId = imageId + "?frame=" + frameNumber;
       // EXTRACT MULTIFRAME METADATA (x52009230) Per-frame Functional Groups Sequence
       let frameMetadata = { ...metadata };
 
-      parseDataSet(dataSet, frameMetadata, {
+      parseDataSet(dataSet!, frameMetadata, {
         tags: ["x52009230"],
         frameId: frameNumber
-      });
+      } as any); //TODO-ts change any to proper type when available
 
       // store file references
       manager[seriesId].seriesUID = seriesId;
@@ -129,7 +139,7 @@ export const buildMultiFrameImage = function (seriesId, serie) {
  * @param {String} customLoaderName The custom loader name
  * @return {String} the custom image id
  */
-export const getMultiFrameImageId = function (customLoaderName) {
+export const getMultiFrameImageId = function (customLoaderName: string) {
   let imageId = customLoaderName + "://" + customImageLoaderCounter;
   customImageLoaderCounter++;
   return imageId;
@@ -141,20 +151,26 @@ export const getMultiFrameImageId = function (customLoaderName) {
  * @function clearMultiFrameCache
  * @param {String} seriesId - SeriesId tag
  */
-export const clearMultiFrameCache = function (seriesId) {
+export const clearMultiFrameCache = function (seriesId: string) {
   each(multiframeDatasetCache, function (image, imageId) {
+    if (!image) {
+      return;
+    }
     if (seriesId == image.seriesUID || !seriesId) {
       if (image.dataSet) {
+        // @ts-ignore: modify external type ? 
         image.dataSet.byteArray = null;
       }
       image.dataSet = null;
       image.elements = null;
       each(image.instances, function (instance) {
+        // @ts-ignore: is needed to clear the cache ?
         instance.metadata = null;
       });
+      // @ts-ignore: is needed to clear the cache ?
       image.instances = null;
-      multiframeDatasetCache[imageId] = null;
-      delete multiframeDatasetCache[imageId];
+      multiframeDatasetCache![imageId] = null;
+      delete multiframeDatasetCache![imageId];
     }
   });
   if (!seriesId) {
@@ -174,8 +190,8 @@ export const clearMultiFrameCache = function (seriesId) {
  * @param {Object} dataSet dataset object
  * @returns {Object} custom image object
  */
-let createCustomImage = function (id, imageId, frameIndex, metadata) {
-  let options = {};
+let createCustomImage = function (id: string, imageId: string, frameIndex: number, metadata?: { [key: string]: MetadataValue }) {
+  let options: {[key: string]: any} = {}; //TODO-ts change any to proper type when available
   // always preScale the pixel array unless it is asked not to
   options.preScale = {
     enabled:
@@ -184,10 +200,19 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
         : false
   };
 
-  let dataSet = multiframeDatasetCache[id].dataSet;
+  if (multiframeDatasetCache === null || !multiframeDatasetCache[id]) {
+    throw new Error("No multiframe dataset found for id: " + id);
+  }
+
+  let dataSet = (multiframeDatasetCache as { [key: string]: Series })[id].dataSet;
+  
+  if (!dataSet) {
+    throw new Error("No dataset found for id: " + id);
+  }
+
   let pixelDataElement = dataSet.elements.x7fe00010;
   // Extract pixelData of the required frame
-  let pixelData;
+  let pixelData: number[];
   try {
     if (pixelDataElement.encapsulatedPixelData) {
       pixelData = cornerstoneWADOImageLoader.wadouri.getEncapsulatedImageFrame(
@@ -201,7 +226,11 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
       );
     }
   } catch (error) {
-    console.error(error);
+    throw new Error("No pixel data for id: " + id);
+  }
+
+  if (!metadata) {
+    throw new Error("No metadata for id: " + id);
   }
 
   let imageFrame = getImageFrame(metadata, dataSet);
@@ -236,7 +265,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
   );
 
   let promise = new Promise((resolve, reject) => {
-    decodePromise.then(function handleDecodeResponse(imageFrame) {
+    decodePromise.then(function handleDecodeResponse(imageFrame: ImageFrame) {
       let lastImageIdDrawn = "";
 
       // This function uses the pixelData received as argument without manipulating
@@ -260,35 +289,37 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
         );
       }
 
-      let image = {
+      let image: Partial<Image> = {
         imageId: imageId,
         color: cornerstoneWADOImageLoader.isColorImage(
           imageFrame.photometricInterpretation
         ),
-        columnPixelSpacing: pixelSpacing[1] ? pixelSpacing[1] : pixelSpacing, // check for specific spacing value
+        columnPixelSpacing: (pixelSpacing as number[])[1] ? (pixelSpacing as number[])[1] : pixelSpacing as number, // check for specific spacing value
         columns: imageFrame.columns,
-        data: dataSet,
+        data: dataSet ? dataSet : undefined,
         height: imageFrame.rows,
         floatPixelData: undefined,
-        intercept: rescaleIntercept ? rescaleIntercept : 0,
+        intercept: rescaleIntercept as number ? rescaleIntercept as number : 0,
         invert: imageFrame.photometricInterpretation === "MONOCHROME1",
         minPixelValue: imageFrame.smallestPixelValue,
         maxPixelValue: imageFrame.largestPixelValue,
         render: undefined, // set below
-        rowPixelSpacing: pixelSpacing[0] ? pixelSpacing[0] : pixelSpacing, // check for specific spacing value
+        rowPixelSpacing: (pixelSpacing as number[])[0] ? (pixelSpacing as number[])[0] : pixelSpacing as number, // check for specific spacing value
         rows: imageFrame.rows,
         sizeInBytes: getSizeInBytes(),
-        slope: rescaleSlope ? rescaleSlope : 1,
+        slope: rescaleSlope as number ? rescaleSlope as number : 1,
         width: imageFrame.columns,
-        windowCenter: windowCenter,
-        windowWidth: windowWidth,
+        windowCenter: windowCenter as number,
+        windowWidth: windowWidth as number,
         decodeTimeInMS: undefined, // TODO
         loadTimeInMS: undefined, // TODO
-        render: undefined
       };
       // add function to return pixel data
       image.getPixelData = function () {
-        return imageFrame.pixelData;
+        if (imageFrame.pixelData === undefined) {
+          throw new Error("No pixel data for image " + imageId);
+        }
+        return Array.from(imageFrame.pixelData);
       };
 
       // convert color space if not isJPEGBaseline8BitColor
@@ -304,6 +335,10 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
         canvas.width = imageFrame.columns;
 
         let context = canvas.getContext("2d");
+
+        if (!context) {
+          throw new Error("Unable to get canvas context");
+        }
 
         let imageData = context.createImageData(
           imageFrame.columns,
@@ -322,10 +357,13 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
           if (lastImageIdDrawn === imageId) {
             return canvas;
           }
-          canvas.height = image.rows;
-          canvas.width = image.columns;
+          canvas.height = image.rows || 0;
+          canvas.width = image.columns || 0;
           let context = canvas.getContext("2d");
-          context.putImageData(imageFrame.imageData, 0, 0);
+          if (!context) {
+            throw new Error("Unable to get canvas context");
+          }
+          context.putImageData(imageFrame.imageData!, 0, 0);
           lastImageIdDrawn = imageId;
           return canvas;
         };
@@ -346,7 +384,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
         if (image.color) {
           image.windowWidth = 255;
           image.windowCenter = 128;
-        } else {
+        } else if (image.maxPixelValue && image.minPixelValue && image.slope && image.intercept){
           let maxVoi = image.maxPixelValue * image.slope + image.intercept;
           let minVoi = image.minPixelValue * image.slope + image.intercept;
           image.windowWidth = maxVoi - minVoi;
@@ -371,14 +409,14 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
  * @function setPixelDataType
  * @param {Object} imageFrame The Id of the image
  */
-const setPixelDataType = function (imageFrame) {
+const setPixelDataType = function (imageFrame: ImageFrame) {
   if (imageFrame.bitsAllocated === 16) {
     if (imageFrame.pixelRepresentation === 0) {
-      imageFrame.pixelData = new Uint16Array(imageFrame.pixelData);
+      imageFrame.pixelData = new Uint16Array(imageFrame.pixelData as Uint16Array);
     } else {
-      imageFrame.pixelData = new Int16Array(imageFrame.pixelData);
+      imageFrame.pixelData = new Int16Array(imageFrame.pixelData as Int16Array);
     }
   } else {
-    imageFrame.pixelData = new Uint8Array(imageFrame.pixelData);
+    imageFrame.pixelData = new Uint8Array(imageFrame.pixelData as Uint8Array);
   }
 };

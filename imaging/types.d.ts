@@ -4,9 +4,21 @@ import { DataSet } from "dicom-parser";
 // TODO-ts: differentiate each single metadata
 export type MetadataValue = string | number | string[] | number[] | boolean | null | undefined; // null or undefined is only for nrrd
 
+
+export interface Image extends cornerstone.Image {
+  render?: Function;
+  decodeTimeInMS?: number;
+  loadTimeInMS?: number;
+  webWorkerTimeInMS?: number;
+  metadata: {[key: string]: MetadataValue};
+  data?: DataSet;
+  floatPixelData?: Float32Array;
+}
+
 export type Instance = {
-  metadata: { [key: string]: MetadataValue };
+  metadata: { [key: string]: MetadataValue};
   pixelData: Uint16Array; //TODO-ts: check if this is correct
+  dataSet?: DataSet;
 };
 
 export type Series = {
@@ -20,7 +32,7 @@ export type Series = {
   numberOfImages: number;
   isMultiframe: boolean;
   color?: boolean;
-  dataSet: DataSet; 
+  dataSet: DataSet | null; 
   frameDelay?: number;
   frameTime?: number;
   instanceUIDs: { [key: string]: string };
@@ -32,6 +44,8 @@ export type Series = {
   numberOfTemporalPositions: number;
   studyUID: string;
   larvitarSeriesInstanceUID: string;
+  elements?: { [key: string]: any } | null;
+
 };
 
 export type Contours = {
@@ -73,7 +87,7 @@ export type LarvitarManager = {
 } | null;
 
 export type ImageFrame = {
-  pixelData: Uint8ClampedArray;
+  pixelData?: Uint8ClampedArray | Uint16Array | Int16Array | Uint8Array;
   bitsAllocated: number;
   rows: number;           
   columns: number;
@@ -81,7 +95,8 @@ export type ImageFrame = {
   samplesPerPixel: number;
   smallestPixelValue: number;
   largestPixelValue: number;
-  imageData: ImageData;
+  imageData?: ImageData;
+  pixelRepresentation: number;
 }
 
 export type ImageTracker = {

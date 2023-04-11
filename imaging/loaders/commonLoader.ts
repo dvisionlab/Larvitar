@@ -222,6 +222,7 @@ export const getImageFrame = function (metadata: {[key:string]: MetadataValue}, 
       imagePixelModule.greenPaletteColorLookupTableData,
     bluePaletteColorLookupTableData:
       imagePixelModule.bluePaletteColorLookupTableData,
-    pixelData: undefined // populated later after decoding
+    pixelData: undefined, // populated later after decoding,
+    ImageData: undefined
   };
 };

@@ -22,7 +22,7 @@ import {
   getLarvitarImageTracker,
   getLarvitarManager
 } from "./commonLoader";
-import { Instance, MetadataValue, Volume, LarvitarManager, ImageFrame, ImageTracker } from "../types";
+import { Image, Instance, MetadataValue, Volume, LarvitarManager, ImageFrame, ImageTracker } from "../types";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -110,13 +110,6 @@ type NrrdInstance = {
 //   webWorkerTimeInMS?: number;
 //   metadata: {[key: string]: MetadataValue};
 // }
-
-interface Image extends cornerstone.Image {
-  render?: Function;
-  decodeTimeInMS?: number;
-  webWorkerTimeInMS?: number;
-  metadata: {[key: string]: MetadataValue};
-}
 
 /**
  * Build the data structure for the provided image orientation
@@ -259,6 +252,9 @@ export const buildNrrdImage = function (volume: NrrdInputVolume, seriesId: strin
     metadata.x00281051 = ww;
 
     let imageId = getNrrdImageId("nrrdLoader");
+    if (!imageTracker) {
+      throw new Error("Image tracker not initialized");
+    }
     imageTracker[imageId] = seriesId;
 
     // store file references
@@ -271,7 +267,7 @@ export const buildNrrdImage = function (volume: NrrdInputVolume, seriesId: strin
       instanceId: uuidv4(),
       frame: sliceIndex,
       metadata: frameMetadata,
-      pixelData: pixelData
+      pixelData: pixelData,
     };
 
   });
@@ -283,6 +279,10 @@ export const buildNrrdImage = function (volume: NrrdInputVolume, seriesId: strin
   image.customLoader = "nrrdLoader";
   header.volume.imageIds = image.imageIds;
   image.nrrdHeader = header as NrrdHeader;
+
+  if (!manager) {
+    throw new Error("Larvitar manager not initialized");
+  }
 
   manager[seriesId] = image as NrrdSeries;
 
@@ -314,6 +314,9 @@ export const getNrrdImageId = function (customLoaderName: string) {
 export const loadNrrdImage: ImageLoader = function (imageId: string) {
   let manager = getLarvitarManager() as LarvitarManager;
   let imageTracker = getLarvitarImageTracker() as ImageTracker;
+  if (!manager || !imageTracker) {
+    throw new Error("Larvitar manager or image tracker not initialized");
+  }
   let seriesId = imageTracker[imageId];
   let instance = manager[seriesId].instances[imageId];
   return createCustomImage(imageId, instance.metadata, instance.pixelData);
@@ -488,7 +491,7 @@ let createCustomImage = function (imageId: string, metadata: {[key: string]: Met
 
   // add function to return pixel data
   image.getPixelData = function () {
-    return Array.from(imageFrame.pixelData);
+    return Array.from(imageFrame.pixelData ? imageFrame.pixelData : []);
   };
 
   // convert color space
@@ -527,7 +530,7 @@ let createCustomImage = function (imageId: string, metadata: {[key: string]: Met
       if (!context) {
         throw new Error("Unable to get canvas context");
       }
-      context.putImageData(imageFrame.imageData, 0, 0);
+      context.putImageData(imageFrame.imageData!, 0, 0);
       lastImageIdDrawn = imageId;
       return canvas;
     };
