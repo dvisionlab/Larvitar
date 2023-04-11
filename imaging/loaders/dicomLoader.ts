@@ -5,6 +5,7 @@
 
 // internal libraries
 import { loadAndCacheImages } from "../imageRendering";
+import { Series, CachingResponse } from "../types";
 
 /*
  * This module provides the following functions to be exported:
@@ -21,8 +22,10 @@ let imageLoaderCounter = 0;
  * @param {Object} seriesData The series data
  * @param {Function} callback An optional callback function
  */
-export const cacheImages = function (seriesData, callback) {
-  loadAndCacheImages(seriesData, function (resp) {
+
+
+export const cacheImages = function (seriesData: Series, callback: Function) {
+  loadAndCacheImages(seriesData, function (resp: CachingResponse) {
     if (resp.loading == 100) {
       imageLoaderCounter += seriesData.imageIds.length;
     }
@@ -39,7 +42,7 @@ export const cacheImages = function (seriesData, callback) {
  * @param {String} dicomLoaderName dicom loader name
  * @return {String} current dicom image id
  */
-export const getDicomImageId = function (dicomLoaderName) {
+export const getDicomImageId = function (dicomLoaderName: string) {
   let imageId = dicomLoaderName + ":" + imageLoaderCounter;
   imageLoaderCounter++;
   return imageId;

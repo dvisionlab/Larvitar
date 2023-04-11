@@ -95,3 +95,9 @@ export type ImageObject = {
   metadata: { [key: string]: MetadataValue };
   dataSet: DataSet;
 }
+
+export type CachingResponse = {
+  seriesId: string,
+  loading: number,
+  series: Partial<Series>
+}
