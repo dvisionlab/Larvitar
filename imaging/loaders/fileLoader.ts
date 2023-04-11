@@ -12,7 +12,9 @@ import { clearImageCache } from "../imageRendering";
 import { clearCornerstoneElements } from "../imageTools";
 
 // global variables
-export var fileManager = {};
+export var fileManager: {
+  [key: string]: string;
+} = {};
 
 /*
  * This module provides the following functions to be exported:
@@ -48,7 +50,7 @@ export const resetFileManager = function () {
  * @function populateFileManager
  * @return {String} current file image id
  */
-export const populateFileManager = function (file) {
+export const populateFileManager = function (file: File) {
   let uuid = file.webkitRelativePath || file.name;
   if (!has(fileManager, uuid)) {
     const imageId = cornerstoneFileImageLoader.fileManager.add(file);
@@ -62,10 +64,9 @@ export const populateFileManager = function (file) {
  * @function getFileImageId
  * @return {String} current file image id
  */
-export const getFileImageId = function (file) {
+export const getFileImageId = function (file: File) {
   let uuid = file.webkitRelativePath || file.name;
   const imageId = has(fileManager, uuid) ? fileManager[uuid] : null;
   return imageId;
 };
 
-/* Internal module functions */
