@@ -56,3 +56,15 @@ export type Volume = {
 export type LarvitarManager = {
    [key: string]: NrrdSeries ;
 }
+
+export type ImageFrame = {
+  pixelData: Uint8ClampedArray;
+  bitsAllocated: number;
+  rows: number;           
+  columns: number;
+  photometricInterpretation: string;  
+  samplesPerPixel: number;
+  smallestPixelValue: number;
+  largestPixelValue: number;
+  imageData: ImageData;
+}
