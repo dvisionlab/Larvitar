@@ -1,4 +1,5 @@
 import { vec2 } from "cornerstone-core";
+import { DataSet } from "dicom-parser";
 
 // TODO-ts: differentiate each single metadata
 export type MetadataValue = string | number | string[] | number[] | boolean | null | undefined; // null or undefined is only for nrrd
@@ -17,6 +18,20 @@ export type Series = {
   seriesUID: string;
   currentImageIdIndex: number;
   numberOfImages: number;
+  isMultiframe: boolean;
+  color?: boolean;
+  dataSet: DataSet; 
+  frameDelay?: number;
+  frameTime?: number;
+  instanceUIDs: { [key: string]: string };
+  is4D: boolean;
+  isPDF: boolean;
+  modality: string;
+  numberOfFrames: number;
+  numberOfSlices: number;
+  numberOfTemporalPositions: number;
+  studyUID: string;
+  larvitarSeriesInstanceUID: string;
 };
 
 export type Contours = {
@@ -55,7 +70,7 @@ export type Volume = {
 
 export type LarvitarManager = {
    [key: string]: NrrdSeries ;
-}
+} | null;
 
 export type ImageFrame = {
   pixelData: Uint8ClampedArray;
@@ -67,4 +82,16 @@ export type ImageFrame = {
   smallestPixelValue: number;
   largestPixelValue: number;
   imageData: ImageData;
+}
+
+export type ImageTracker = {
+  [key: string]: string;
+} | null;
+
+// the result of readFile
+export type ImageObject = {
+  file: File;
+  instanceUID: string;
+  metadata: { [key: string]: MetadataValue };
+  dataSet: DataSet;
 }

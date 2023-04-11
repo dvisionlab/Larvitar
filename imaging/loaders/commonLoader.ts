@@ -5,15 +5,17 @@
 
 // external libraries
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import { DataSet } from "dicom-parser";
 import { each } from "lodash";
 import { updateLoadedStack } from "../imageLoading";
+import { ImageObject, ImageTracker, LarvitarManager, MetadataValue, Series } from "../types";
 
 // internal libraries
 import { buildMultiFrameImage, clearMultiFrameCache } from "./multiframeLoader";
 
 // global variables
-var larvitarManager = null;
-var imageTracker = null;
+var larvitarManager: LarvitarManager = null;
+var imageTracker: ImageTracker = null;
 
 /*
  * This module provides the following functions to be exported:
@@ -34,18 +36,17 @@ var imageTracker = null;
  * @param {Object} imageObject The single dicom object
  * @param {String} customId - Optional custom id to overwrite seriesUID as default one
  */
-export const updateLarvitarManager = function (imageObject, customId) {
+export const updateLarvitarManager = function (imageObject: ImageObject, customId?: string) {
   if (larvitarManager === null) {
     larvitarManager = {};
   }
 
-  let seriesId = customId || imageObject.seriesUID;
   let data = { ...imageObject };
 
-  if (data.metadata.isMultiframe) {
-    seriesId = customId || imageObject.metadata.seriesUID;
+  if (data.metadata?.isMultiframe) {
+    let seriesId = customId || imageObject.metadata.seriesUID;
     updateLoadedStack(data, larvitarManager, customId);
-    buildMultiFrameImage(seriesId, larvitarManager[seriesId]);
+    buildMultiFrameImage(seriesId as string, larvitarManager[seriesId as string]);
   } else {
     updateLoadedStack(data, larvitarManager, customId);
   }
@@ -60,7 +61,7 @@ export const updateLarvitarManager = function (imageObject, customId) {
  * @param {Object} seriesData The series data
  * @returns {manager} the Larvitar manager
  */
-export const populateLarvitarManager = function (seriesId, seriesData) {
+export const populateLarvitarManager = function (seriesId: string, seriesData: Series) {
   if (larvitarManager === null) {
     larvitarManager = {};
   }
@@ -133,7 +134,7 @@ export const resetLarvitarManager = function () {
  * @function removeSeriesFromLarvitarManager
  * @param {String} seriesId The Id of the series
  */
-export const removeSeriesFromLarvitarManager = function (seriesId) {
+export const removeSeriesFromLarvitarManager = function (seriesId: string) {
   if (larvitarManager && larvitarManager[seriesId]) {
     if (larvitarManager[seriesId].isMultiframe) {
       larvitarManager[seriesId].dataSet.byteArray = null;
@@ -161,7 +162,7 @@ export const removeSeriesFromLarvitarManager = function (seriesId) {
  * @param {String} seriesId The Id of the series
  * @return {Object} larvitar manager data
  */
-export const getSeriesDataFromLarvitarManager = function (seriesId) {
+export const getSeriesDataFromLarvitarManager = function (seriesId: string) {
   return larvitarManager ? larvitarManager[seriesId] : null;
 };
 
@@ -173,7 +174,7 @@ export const getSeriesDataFromLarvitarManager = function (seriesId) {
  * @param {Object} dataSet dicom dataset
  * @returns {Object} specific image frame
  */
-export const getImageFrame = function (metadata, dataSet) {
+export const getImageFrame = function (metadata: {[key:string]: MetadataValue}, dataSet: DataSet) {
   let imagePixelModule;
 
   if (dataSet) {

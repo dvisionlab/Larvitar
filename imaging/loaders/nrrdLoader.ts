@@ -22,7 +22,7 @@ import {
   getLarvitarImageTracker,
   getLarvitarManager
 } from "./commonLoader";
-import { Instance, MetadataValue, Volume, LarvitarManager, ImageFrame } from "../types";
+import { Instance, MetadataValue, Volume, LarvitarManager, ImageFrame, ImageTracker } from "../types";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -83,10 +83,6 @@ type NrrdInstance = {
   patientName: string;
   bitsAllocated: number;
   pixelRepresentation: string;
-}
-
-type ImageTracker = {
-  [key: string]: string;
 }
 
 // TODO-ts: why it's different from cornerstone type ?
