@@ -122,6 +122,10 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
       (series.instances[series.imageIds[0]].metadata.x00280011 as number);
     let len = rows * cols * series.imageIds.length;
 
+    if (!repr) {
+      throw new Error("Image representation metadata not found");
+    }
+
     let typedArray = getTypedArrayFromDataType(repr);
     let data = new typedArray(len);
     let offsetData = 0;
@@ -187,6 +191,11 @@ export const buildDataAsync = function (
       (series.instances[series.imageIds[0]].metadata.cols as number) ||
       (series.instances[series.imageIds[0]].metadata.x00280011 as number);
     let len = rows * cols * series.imageIds.length;
+
+    if (!repr) {
+      throw new Error("Image representation metadata not found");
+    }
+
     let typedArray = getTypedArrayFromDataType(repr);
     let data = new typedArray(len);
     let offsetData = 0;

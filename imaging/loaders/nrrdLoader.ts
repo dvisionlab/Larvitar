@@ -22,7 +22,15 @@ import {
   getLarvitarImageTracker,
   getLarvitarManager
 } from "./commonLoader";
-import { Image, Instance, MetadataValue, Volume, LarvitarManager, ImageFrame, ImageTracker } from "../types";
+import {
+  Image,
+  Instance,
+  MetadataValue,
+  Volume,
+  LarvitarManager,
+  ImageFrame,
+  ImageTracker
+} from "../types";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -40,13 +48,13 @@ let customImageLoaderCounter = 0;
 type NrrdInputVolume = {
   header: {
     sizes: number[];
-    'space directions': number[][]; // a property with a space in the name ?? Seriously ??
-    'space origin': [number, number]; 
+    "space directions": number[][]; // a property with a space in the name ?? Seriously ??
+    "space origin": [number, number];
     kinds: string[];
     type: string;
   };
   data: Uint16Array; // TODO-ts: other typed arrays ?
-}
+};
 
 interface NrrdImage extends Instance {
   instanceId: string;
@@ -62,7 +70,7 @@ type NrrdSeries = {
   seriesUID: string;
   customLoader: string;
   nrrdHeader: NrrdHeader;
-}
+};
 
 type NrrdHeader = {
   volume: Volume;
@@ -73,8 +81,8 @@ type NrrdHeader = {
   study_description: string;
   series_description: string;
   acquisition_date: string;
-  [imageId: string]: string | number | Volume | NrrdInstance // TODO-ts: fix this: we need just NrrdInstance
-}
+  [imageId: string]: string | number | Volume | NrrdInstance; // TODO-ts: fix this: we need just NrrdInstance
+};
 
 type NrrdInstance = {
   instanceUID: string;
@@ -83,7 +91,7 @@ type NrrdInstance = {
   patientName: string;
   bitsAllocated: number;
   pixelRepresentation: string;
-}
+};
 
 // TODO-ts: why it's different from cornerstone type ?
 // type Image = {
@@ -120,7 +128,12 @@ type NrrdInstance = {
  * @param {Object} custom_header A custom header object
  * @return {Object} volume data
  */
-export const buildNrrdImage = function (volume: NrrdInputVolume, seriesId: string, custom_header: NrrdHeader) { //TODO-ts: better definition
+export const buildNrrdImage = function (
+  volume: NrrdInputVolume,
+  seriesId: string,
+  custom_header: NrrdHeader
+) {
+  //TODO-ts: better definition
   let t0 = performance.now();
   // standard image structure
   let image: Partial<NrrdSeries> = {};
@@ -229,8 +242,12 @@ export const buildNrrdImage = function (volume: NrrdInputVolume, seriesId: strin
 
   // compute default ww/wl values here to use them also for resliced images
   let minMax = cornerstoneWADOImageLoader.getMinMax(volume.data);
-  let maxVoi = minMax.max * (metadata.x00281053 as number[])[0] + (metadata.x00281052 as number[])[0];
-  let minVoi = minMax.min * (metadata.x00281053 as number[])[0] + (metadata.x00281052 as number[])[0];
+  let maxVoi =
+    minMax.max * (metadata.x00281053 as number[])[0] +
+    (metadata.x00281052 as number[])[0];
+  let minVoi =
+    minMax.min * (metadata.x00281053 as number[])[0] +
+    (metadata.x00281052 as number[])[0];
   let ww = maxVoi - minVoi;
   let wl = (maxVoi + minVoi) / 2;
 
@@ -259,7 +276,7 @@ export const buildNrrdImage = function (volume: NrrdInputVolume, seriesId: strin
 
     // store file references
     image.imageIds!.push(imageId);
-    let frameMetadata: {[key: string]: MetadataValue} = clone(metadata);
+    let frameMetadata: { [key: string]: MetadataValue } = clone(metadata);
     frameMetadata.x00200032 = firstIpp.map(function (val, i) {
       return val + thickness * sliceIndex * w[i];
     });
@@ -267,9 +284,8 @@ export const buildNrrdImage = function (volume: NrrdInputVolume, seriesId: strin
       instanceId: uuidv4(),
       frame: sliceIndex,
       metadata: frameMetadata,
-      pixelData: pixelData,
+      pixelData: pixelData
     };
-
   });
 
   let middleSlice = Math.floor(image.imageIds.length / 2);
@@ -355,12 +371,11 @@ export const getImageIdFromSlice = function (
   let firstImageId = firstImageIdStr?.split("//").pop();
 
   if (firstImageId == undefined) {
-    console.error('cannot find imageId for orientation: ' + orientation );
+    console.error("cannot find imageId for orientation: " + orientation);
     return "";
   }
 
-  var imageIndex =
-    parseInt(firstImageId) + parseInt(sliceNumber.toString());
+  var imageIndex = parseInt(firstImageId) + parseInt(sliceNumber.toString());
 
   var imageId = prefix.concat(imageIndex.toString());
 
@@ -376,14 +391,17 @@ export const getImageIdFromSlice = function (
  * @param {String} seriesId The series id
  * @return {Integer} The image slice number
  */
-export const getSliceNumberFromImageId = function (imageId: string, orientation: string) {
+export const getSliceNumberFromImageId = function (
+  imageId: string,
+  orientation: string
+) {
   let imageTracker = getLarvitarImageTracker() as ImageTracker;
   var firstImageIdStr = findKey(imageTracker, entry => {
     return entry[1] == orientation;
   });
 
   if (firstImageIdStr == undefined) {
-    console.error('cannot find imageId for orientation: ' + orientation );
+    console.error("cannot find imageId for orientation: " + orientation);
     return 0;
   }
 
@@ -391,12 +409,11 @@ export const getSliceNumberFromImageId = function (imageId: string, orientation:
   let firstImageId = firstImageIdStr.split("//").pop();
 
   if (firstImageId == undefined) {
-    console.error('cannot find imageId for orientation: ' + orientation );
+    console.error("cannot find imageId for orientation: " + orientation);
     return 0;
   }
 
-  var imageIndex =
-    parseInt(imageNumber) - parseInt(firstImageId);
+  var imageIndex = parseInt(imageNumber) - parseInt(firstImageId);
 
   return imageIndex;
 };
@@ -438,7 +455,13 @@ export const getNrrdSerieDimensions = function () {
  * @param {Object} dataSet The dataset
  * @return {String} The image id
  */
-let createCustomImage = function (imageId: string, metadata: {[key: string]: MetadataValue}, pixelData: Uint8ClampedArray, dataSet?: any) { //TODO-ts check this
+let createCustomImage = function (
+  imageId: string,
+  metadata: { [key: string]: MetadataValue },
+  pixelData: Uint8ClampedArray,
+  dataSet?: any
+) {
+  //TODO-ts check this
   let canvas = window.document.createElement("canvas");
   let lastImageIdDrawn = "";
 
@@ -470,7 +493,9 @@ let createCustomImage = function (imageId: string, metadata: {[key: string]: Met
     color: cornerstoneWADOImageLoader.isColorImage(
       imageFrame.photometricInterpretation
     ),
-    columnPixelSpacing: pixelSpacing ? (pixelSpacing as number[])[1] : undefined,
+    columnPixelSpacing: pixelSpacing
+      ? (pixelSpacing as number[])[1]
+      : undefined,
     columns: imageFrame.columns,
     height: imageFrame.rows,
     intercept: rescaleIntercept ? (rescaleIntercept as number[])[0] : 0,
@@ -478,12 +503,12 @@ let createCustomImage = function (imageId: string, metadata: {[key: string]: Met
     minPixelValue: imageFrame.smallestPixelValue,
     maxPixelValue: imageFrame.largestPixelValue,
     render: undefined, // set below
-    rowPixelSpacing: pixelSpacing ? (pixelSpacing  as number[])[0] : undefined,
+    rowPixelSpacing: pixelSpacing ? (pixelSpacing as number[])[0] : undefined,
     rows: imageFrame.rows,
     sizeInBytes: getSizeInBytes(),
-    slope: rescaleSlope ? (rescaleSlope  as number[])[0] : 1,
+    slope: rescaleSlope ? (rescaleSlope as number[])[0] : 1,
     width: imageFrame.columns,
-    windowCenter: windowCenter ? (windowCenter  as number[])[0]: undefined,
+    windowCenter: windowCenter ? (windowCenter as number[])[0] : undefined,
     windowWidth: windowWidth ? (windowWidth as number[])[0] : undefined,
     decodeTimeInMS: undefined,
     webWorkerTimeInMS: undefined
@@ -491,7 +516,11 @@ let createCustomImage = function (imageId: string, metadata: {[key: string]: Met
 
   // add function to return pixel data
   image.getPixelData = function () {
-    return Array.from(imageFrame.pixelData ? imageFrame.pixelData : []);
+    if (!imageFrame.pixelData) {
+      console.warn('no pixel data for imageId "' + imageId);
+      return [];
+    }
+    return Array.from(imageFrame.pixelData);
   };
 
   // convert color space
@@ -502,8 +531,8 @@ let createCustomImage = function (imageId: string, metadata: {[key: string]: Met
 
     let context = canvas.getContext("2d");
 
-    if(!context) {
-      throw new Error('Unable to get canvas context');
+    if (!context) {
+      throw new Error("Unable to get canvas context");
     }
 
     let imageData = context.createImageData(
@@ -550,11 +579,21 @@ let createCustomImage = function (imageId: string, metadata: {[key: string]: Met
     if (image.color) {
       image.windowWidth = 255;
       image.windowCenter = 128;
-    } else if (image.maxPixelValue && image.minPixelValue && image.slope && image.intercept){
+    } else if (
+      image.maxPixelValue &&
+      image.minPixelValue &&
+      image.slope &&
+      image.intercept
+    ) {
       let maxVoi = image.maxPixelValue * image.slope + image.intercept;
       let minVoi = image.minPixelValue * image.slope + image.intercept;
       image.windowWidth = maxVoi - minVoi;
       image.windowCenter = (maxVoi + minVoi) / 2;
+    } else {
+      console.error(
+        "Unable to calculate default window width/center for imageId: " +
+          imageId
+      );
     }
   }
 
