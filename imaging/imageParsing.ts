@@ -3,7 +3,7 @@
  */
 
 // external libraries
-import { parseDicom } from "dicom-parser";
+import { DataSet, parseDicom } from "dicom-parser";
 import { forEach, each, has, pick } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
@@ -11,9 +11,10 @@ import { v4 as uuidv4 } from "uuid";
 import { getPixelRepresentation, randomId, parseTag } from "./imageUtils.js";
 import { updateLoadedStack } from "./imageLoading.js";
 import { checkMemoryAllocation } from "./monitors/memory.js";
+import { ImageObject, MetadataValue, Series } from "./types.js";
 
 // global module variables
-var t0 = null; // t0 variable for timing debugging purpose
+var t0: number; // t0 variable for timing debugging purpose
 
 /*
  * This module provides the following functions to be exported:
@@ -29,14 +30,20 @@ var t0 = null; // t0 variable for timing debugging purpose
  * @function clearImageParsing
  * @param {Object} seriesStack - Parsed series stack object
  */
-export const clearImageParsing = function (seriesStack) {
+export const clearImageParsing = function (
+  seriesStack: {
+    [key: string]: Series;
+  } | null
+) {
   each(seriesStack, function (stack) {
     each(stack.instances, function (instance) {
       if (instance.dataSet) {
+        // @ts-ignore
         instance.dataSet.byteArray = null;
       }
       instance.dataSet = null;
       instance.file = null;
+      // @ts-ignore
       instance.metadata = null;
     });
   });
@@ -50,7 +57,7 @@ export const clearImageParsing = function (seriesStack) {
  * @param {Array} entries - List of file objects
  * @returns {Promise} - Return a promise which will resolve to a image object list or fail if an error occurs
  */
-export const readFiles = function (entries) {
+export const readFiles = function (entries: File[]) {
   let promise = new Promise((resolve, reject) => {
     parseFiles(entries).then(resolve).catch(reject);
   });
@@ -64,7 +71,7 @@ export const readFiles = function (entries) {
  * @param {File} entry - File object
  * @returns {Promise} - Return a promise which will resolve to a image object or fail if an error occurs
  */
-export const readFile = function (entry) {
+export const readFile = function (entry: File) {
   let promise = new Promise((resolve, reject) => {
     parseFile(entry).then(resolve).catch(reject);
   });
@@ -82,7 +89,11 @@ export const readFile = function (entry) {
  * @param {Array} customFilter - Optional filter: {tags:[], frameId: 0}
  */
 // This function iterates through dataSet recursively and store tag values into metadata object
-export const parseDataSet = function (dataSet, metadata, customFilter) {
+export const parseDataSet = function (
+  dataSet: DataSet,
+  metadata: { [key: string]: MetadataValue },
+  customFilter?: { tags: string[]; frameId: number }
+) {
   // customFilter= {tags:[], frameId:xxx}
   // the dataSet.elements object contains properties for each element parsed.  The name of the property
   // is based on the elements tag and looks like 'xGGGGEEEE' where GGGG is the group number and EEEE is the
@@ -104,10 +115,10 @@ export const parseDataSet = function (dataSet, metadata, customFilter) {
         // and recursively call this function
         if (customFilter && has(customFilter, "frameId")) {
           let item = element.items[customFilter.frameId];
-          parseDataSet(item.dataSet, metadata);
+          parseDataSet(item.dataSet!, metadata);
         } else {
           element.items.forEach(function (item) {
-            parseDataSet(item.dataSet, metadata);
+            parseDataSet(item.dataSet!, metadata);
           });
         }
       } else {
@@ -142,11 +153,11 @@ export const parseDataSet = function (dataSet, metadata, customFilter) {
  * @param {Function} reject - Promise reject function
  */
 let parseNextFile = function (
-  parsingQueue,
-  allSeriesStack,
-  uuid,
-  resolve,
-  reject
+  parsingQueue: File[],
+  allSeriesStack: { [key: string]: Series },
+  uuid: string,
+  resolve: Function,
+  reject: Function
 ) {
   // initialize t0 on first file of the queue
   if (
@@ -164,7 +175,12 @@ let parseNextFile = function (
   }
 
   // remove and return first item from queue
-  let file = parsingQueue.shift();
+  let file = parsingQueue.shift() as File | undefined | null;
+
+  if (!file) {
+    console.warn("File is undefined or null");
+    return;
+  }
 
   // Check if there is enough memory to parse the file
   if (checkMemoryAllocation(file.size) === false) {
@@ -178,7 +194,7 @@ let parseNextFile = function (
   } else {
     // parse the file and wait for results
     parseFile(file)
-      .then(seriesData => {
+      .then((seriesData: ImageObject | null) => {
         // use generated series uid if not found in dicom file
         seriesData.metadata.seriesUID = seriesData.metadata.seriesUID || uuid;
         // add file to cornerstoneWADOImageLoader file manager
@@ -225,32 +241,38 @@ let parseFiles = function (fileList) {
  * @param {File} file - File object to be parsed
  * @returns {Promise} - Return a promise which will resolve to a image object or fail if an error occurs
  */
-let parseFile = function (file) {
-  let parsePromise = new Promise((resolve, reject) => {
+let parseFile = function (file: File) {
+  let parsePromise: Promise<ImageObject> = new Promise((resolve, reject) => {
     let reader = new FileReader();
     reader.onload = function () {
       let arrayBuffer = reader.result;
       // Here we have the file data as an ArrayBuffer.
       // dicomParser requires as input a Uint8Array so we create that here.
-      let byteArray = new Uint8Array(arrayBuffer);
+
+      if (!arrayBuffer || typeof arrayBuffer === "string") {
+        reject("Error reading file");
+        return;
+      }
+
+      let byteArray: Uint8Array | null = new Uint8Array(arrayBuffer);
       let dataSet;
 
       try {
         dataSet = parseDicom(byteArray);
         byteArray = null;
-        let metadata = {};
+        let metadata: Partial<{ [key: string]: MetadataValue }> = {};
         parseDataSet(dataSet, metadata);
 
         let temporalPositionIdentifier = metadata["x00200100"]; // Temporal order of a dynamic or functional set of Images.
         let numberOfTemporalPositions = metadata["x00200105"]; // Total number of temporal positions prescribed.
         const is4D =
-          (temporalPositionIdentifier !== undefined) &
-          (numberOfTemporalPositions > 1)
+          temporalPositionIdentifier !== undefined &&
+          (numberOfTemporalPositions as number) > 1
             ? true
             : false;
 
         let numberOfFrames = metadata["x00280008"];
-        let isMultiframe = numberOfFrames > 1 ? true : false;
+        let isMultiframe = (numberOfFrames as number) > 1 ? true : false;
         // Overwrite SOPInstanceUID to manage multiframes.
         // Usually different SeriesInstanceUID means different series and that value
         // is used into the application to group different instances into the same series,
@@ -274,7 +296,7 @@ let parseFile = function (file) {
           if (pixelDataElement) {
             // done, pixelDataElement found
             let instanceUID = metadata["x00080018"] || randomId();
-            let imageObject = {
+            let imageObject: Partial<ImageObject> = {
               // data needed for rendering
               file: file,
               dataSet: dataSet
@@ -290,8 +312,9 @@ let parseFile = function (file) {
             imageObject.metadata.patientBirthdate = metadata["x00100030"];
             imageObject.metadata.seriesDescription = metadata["x0008103e"];
             imageObject.metadata.seriesDate = metadata["x00080021"];
-            imageObject.metadata.seriesModality =
-              metadata["x00080060"].toLowerCase();
+            imageObject.metadata.seriesModality = metadata["x00080060"]
+              ?.toString()
+              .toLowerCase();
             imageObject.metadata.intercept = metadata["x00281052"];
             imageObject.metadata.slope = metadata["x00281053"];
             imageObject.metadata.pixelSpacing = pixelSpacing;
@@ -323,30 +346,32 @@ let parseFile = function (file) {
             imageObject.metadata.maxPixelValue = metadata["x00280107"];
             imageObject.metadata.length = pixelDataElement.length;
             imageObject.metadata.repr = getPixelRepresentation(dataSet);
-            resolve(imageObject);
+            resolve(imageObject as ImageObject);
           } else if (SOPUID == "1.2.840.10008.5.1.4.1.1.104.1") {
-            let pdfObject = {
+            let pdfObject: Partial<ImageObject> = {
               // data needed for rendering
               file: file,
               dataSet: dataSet
             };
             pdfObject.metadata = metadata;
             pdfObject.metadata.seriesUID = seriesInstanceUID;
-            pdfObject.instanceUID = metadata["x00080018"] || randomId();
+            pdfObject.instanceUID =
+              metadata["x00080018"]?.toString() || randomId();
             pdfObject.metadata.studyUID = metadata["x0020000d"];
             pdfObject.metadata.accessionNumber = metadata["x00080050"];
             pdfObject.metadata.studyDescription = metadata["x00081030"];
             pdfObject.metadata.patientName = metadata["x00100010"];
             pdfObject.metadata.patientBirthdate = metadata["x00100030"];
             pdfObject.metadata.seriesDate = metadata["x00080021"];
-            pdfObject.metadata.seriesModality =
-              metadata["x00080060"].toLowerCase();
+            pdfObject.metadata.seriesModality = metadata["x00080060"]
+              ?.toString()
+              .toLowerCase();
             pdfObject.metadata.mimeType = metadata["x00420012"];
             pdfObject.metadata.is4D = false;
             pdfObject.metadata.numberOfFrames = 0;
             pdfObject.metadata.numberOfSlices = 0;
             pdfObject.metadata.numberOfTemporalPositions = 0;
-            resolve(pdfObject);
+            resolve(pdfObject as ImageObject);
           } else {
             // done, no pixelData
             reject("no pixelData");

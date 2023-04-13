@@ -8,7 +8,13 @@ import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { DataSet } from "dicom-parser";
 import { each } from "lodash";
 import { updateLoadedStack } from "../imageLoading";
-import { ImageObject, ImageTracker, LarvitarManager, MetadataValue, Series } from "../types";
+import {
+  ImageObject,
+  ImageTracker,
+  LarvitarManager,
+  MetadataValue,
+  Series
+} from "../types";
 
 // internal libraries
 import { buildMultiFrameImage, clearMultiFrameCache } from "./multiframeLoader";
@@ -36,7 +42,10 @@ var imageTracker: ImageTracker = null;
  * @param {Object} imageObject The single dicom object
  * @param {String} customId - Optional custom id to overwrite seriesUID as default one
  */
-export const updateLarvitarManager = function (imageObject: ImageObject, customId?: string) {
+export const updateLarvitarManager = function (
+  imageObject: ImageObject,
+  customId?: string
+) {
   if (larvitarManager === null) {
     larvitarManager = {};
   }
@@ -46,7 +55,10 @@ export const updateLarvitarManager = function (imageObject: ImageObject, customI
   if (data.metadata?.isMultiframe) {
     let seriesId = customId || imageObject.metadata.seriesUID;
     updateLoadedStack(data, larvitarManager, customId);
-    buildMultiFrameImage(seriesId as string, larvitarManager[seriesId as string]);
+    buildMultiFrameImage(
+      seriesId as string,
+      larvitarManager[seriesId as string]
+    );
   } else {
     updateLoadedStack(data, larvitarManager, customId);
   }
@@ -61,7 +73,10 @@ export const updateLarvitarManager = function (imageObject: ImageObject, customI
  * @param {Object} seriesData The series data
  * @returns {manager} the Larvitar manager
  */
-export const populateLarvitarManager = function (seriesId: string, seriesData: Series) {
+export const populateLarvitarManager = function (
+  seriesId: string,
+  seriesData: Series
+) {
   if (larvitarManager === null) {
     larvitarManager = {};
   }
@@ -174,7 +189,10 @@ export const getSeriesDataFromLarvitarManager = function (seriesId: string) {
  * @param {Object} dataSet dicom dataset
  * @returns {Object} specific image frame
  */
-export const getImageFrame = function (metadata: {[key:string]: MetadataValue}, dataSet: DataSet) {
+export const getImageFrame = function (
+  metadata: { [key: string]: MetadataValue },
+  dataSet: DataSet
+) {
   let imagePixelModule;
 
   if (dataSet) {

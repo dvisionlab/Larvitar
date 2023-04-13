@@ -17,6 +17,7 @@ import { getSortedStack, getSortedUIDs } from "./imageUtils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
 import { loadMultiFrameImage } from "./loaders/multiframeLoader";
+import { ImageObject, Series } from "./types";
 
 /**
  * Global standard configuration
@@ -59,7 +60,8 @@ const globalConfig = {
  * @function initializeImageLoader
  * @param {Object} config - Custom config @default globalConfig
  */
-export const initializeImageLoader = function (config: Object) { //TODO-ts better definition
+export const initializeImageLoader = function (config: Object) {
+  //TODO-ts better definition
   let imageLoaderConfig = config ? config : globalConfig;
   cornerstoneWADOImageLoader.webWorkerManager.initialize(imageLoaderConfig);
   cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
@@ -127,9 +129,9 @@ export const registerMultiFrameImageLoader = function () {
  * @param {String} customId - Optional custom id to overwrite seriesUID as default one
  */
 export const updateLoadedStack = function (
-  seriesData,
-  allSeriesStack,
-  customId
+  seriesData: ImageObject,
+  allSeriesStack: { [key: string]: ImageObject },
+  customId?: string
 ) {
   let sid = seriesData.metadata.seriesUID;
   let ssid = seriesData.metadata.studyUID;

@@ -181,6 +181,7 @@ export const buildDataAsync = function (
   reject: Function // TODO-ts type
 ) {
   const memoryAllocation = checkMemoryAllocation(series.bytes);
+
   if (memoryAllocation) {
     let t0 = performance.now();
     let repr = series.instances[series.imageIds[0]].metadata.repr;

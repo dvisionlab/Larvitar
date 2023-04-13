@@ -261,6 +261,11 @@ export const buildNrrdImage = function (
       sliceSize * sliceIndex,
       sliceSize * (sliceIndex + 1)
     );
+
+    if (!metadata) {
+      throw new Error("Metadata not found");
+    }
+
     let r = getPixelRepresentation(metadata);
     let typedArray = getTypedArrayFromDataType(r);
     let pixelData = new typedArray(sliceBuffer);
