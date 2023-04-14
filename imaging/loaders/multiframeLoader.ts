@@ -13,14 +13,21 @@ import {
   getLarvitarManager
 } from "./commonLoader";
 import { parseDataSet } from "../imageParsing";
-import { Image, ImageFrame, ImageObject, LarvitarManager, MetadataValue, Series } from "../types";
+import {
+  Image,
+  ImageFrame,
+  ImageObject,
+  LarvitarManager,
+  MetadataValue,
+  Series
+} from "../types";
 
 // global module variables
 let customImageLoaderCounter = 0;
 
 // Local cache used to store multiframe datasets to avoid reading and parsing
 // the whole file to show a single frame.
-let multiframeDatasetCache: {[key:string]: Series | null } | null = null;
+let multiframeDatasetCache: { [key: string]: Series | null } | null = null;
 /*
  * This module provides the following functions to be exported:
  * loadMultiFrameImage(elementId)
@@ -47,12 +54,10 @@ export const loadMultiFrameImage = function (imageId: string) {
   }
 
   if (multiframeDatasetCache[rootImageId]) {
-    multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId]
-  }
-  else if (manager) {
+    multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId];
+  } else if (manager) {
     multiframeDatasetCache[rootImageId] = manager[seriesId];
-  }
-  else {
+  } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
   }
 
@@ -158,7 +163,7 @@ export const clearMultiFrameCache = function (seriesId: string) {
     }
     if (seriesId == image.seriesUID || !seriesId) {
       if (image.dataSet) {
-        // @ts-ignore: modify external type ? 
+        // @ts-ignore: modify external type ?
         image.dataSet.byteArray = null;
       }
       image.dataSet = null;
@@ -190,8 +195,13 @@ export const clearMultiFrameCache = function (seriesId: string) {
  * @param {Object} dataSet dataset object
  * @returns {Object} custom image object
  */
-let createCustomImage = function (id: string, imageId: string, frameIndex: number, metadata?: { [key: string]: MetadataValue }) {
-  let options: {[key: string]: any} = {}; //TODO-ts change any to proper type when available
+let createCustomImage = function (
+  id: string,
+  imageId: string,
+  frameIndex: number,
+  metadata?: { [key: string]: MetadataValue }
+) {
+  let options: { [key: string]: any } = {}; //TODO-ts change any to proper type when available
   // always preScale the pixel array unless it is asked not to
   options.preScale = {
     enabled:
@@ -204,8 +214,9 @@ let createCustomImage = function (id: string, imageId: string, frameIndex: numbe
     throw new Error("No multiframe dataset found for id: " + id);
   }
 
-  let dataSet = (multiframeDatasetCache as { [key: string]: Series })[id].dataSet;
-  
+  let dataSet = (multiframeDatasetCache as { [key: string]: Series })[id]
+    .dataSet;
+
   if (!dataSet) {
     throw new Error("No dataset found for id: " + id);
   }
@@ -264,7 +275,7 @@ let createCustomImage = function (id: string, imageId: string, frameIndex: numbe
     options
   );
 
-  let promise = new Promise((resolve, reject) => {
+  let promise: Promise<Image> = new Promise((resolve, reject) => {
     decodePromise.then(function handleDecodeResponse(imageFrame: ImageFrame) {
       let lastImageIdDrawn = "";
 
@@ -294,25 +305,31 @@ let createCustomImage = function (id: string, imageId: string, frameIndex: numbe
         color: cornerstoneWADOImageLoader.isColorImage(
           imageFrame.photometricInterpretation
         ),
-        columnPixelSpacing: (pixelSpacing as number[])[1] ? (pixelSpacing as number[])[1] : pixelSpacing as number, // check for specific spacing value
+        columnPixelSpacing: (pixelSpacing as number[])[1]
+          ? (pixelSpacing as number[])[1]
+          : (pixelSpacing as number), // check for specific spacing value
         columns: imageFrame.columns,
         data: dataSet ? dataSet : undefined,
         height: imageFrame.rows,
         floatPixelData: undefined,
-        intercept: rescaleIntercept as number ? rescaleIntercept as number : 0,
+        intercept: (rescaleIntercept as number)
+          ? (rescaleIntercept as number)
+          : 0,
         invert: imageFrame.photometricInterpretation === "MONOCHROME1",
         minPixelValue: imageFrame.smallestPixelValue,
         maxPixelValue: imageFrame.largestPixelValue,
         render: undefined, // set below
-        rowPixelSpacing: (pixelSpacing as number[])[0] ? (pixelSpacing as number[])[0] : pixelSpacing as number, // check for specific spacing value
+        rowPixelSpacing: (pixelSpacing as number[])[0]
+          ? (pixelSpacing as number[])[0]
+          : (pixelSpacing as number), // check for specific spacing value
         rows: imageFrame.rows,
         sizeInBytes: getSizeInBytes(),
-        slope: rescaleSlope as number ? rescaleSlope as number : 1,
+        slope: (rescaleSlope as number) ? (rescaleSlope as number) : 1,
         width: imageFrame.columns,
         windowCenter: windowCenter as number,
         windowWidth: windowWidth as number,
         decodeTimeInMS: undefined, // TODO
-        loadTimeInMS: undefined, // TODO
+        loadTimeInMS: undefined // TODO
       };
       // add function to return pixel data
       image.getPixelData = function () {
@@ -384,7 +401,12 @@ let createCustomImage = function (id: string, imageId: string, frameIndex: numbe
         if (image.color) {
           image.windowWidth = 255;
           image.windowCenter = 128;
-        } else if (image.maxPixelValue && image.minPixelValue && image.slope && image.intercept){
+        } else if (
+          image.maxPixelValue &&
+          image.minPixelValue &&
+          image.slope &&
+          image.intercept
+        ) {
           let maxVoi = image.maxPixelValue * image.slope + image.intercept;
           let minVoi = image.minPixelValue * image.slope + image.intercept;
           image.windowWidth = maxVoi - minVoi;
@@ -392,7 +414,7 @@ let createCustomImage = function (id: string, imageId: string, frameIndex: numbe
         }
       }
 
-      resolve(image);
+      resolve(image as Image);
     }, reject);
   });
 
@@ -412,7 +434,9 @@ let createCustomImage = function (id: string, imageId: string, frameIndex: numbe
 const setPixelDataType = function (imageFrame: ImageFrame) {
   if (imageFrame.bitsAllocated === 16) {
     if (imageFrame.pixelRepresentation === 0) {
-      imageFrame.pixelData = new Uint16Array(imageFrame.pixelData as Uint16Array);
+      imageFrame.pixelData = new Uint16Array(
+        imageFrame.pixelData as Uint16Array
+      );
     } else {
       imageFrame.pixelData = new Int16Array(imageFrame.pixelData as Int16Array);
     }

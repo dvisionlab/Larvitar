@@ -117,7 +117,7 @@ export const anonymize = function (series: Series) {
     forEach(TAGS, function (tag) {
       if (tag in instance.metadata) {
         let anonymized_value = sha256(
-          instance.metadata[tag].toString()
+          (instance.metadata[tag] || "").toString()
         ).toString(Hex);
         // Patient Tag Anonymization
         if (tag === "x00100010") {

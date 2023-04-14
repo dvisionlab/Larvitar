@@ -52,9 +52,8 @@ let createCustomImage = function (
   imageId: string,
   metadata: { [key: string]: MetadataValue },
   pixelData: Uint8ClampedArray,
-  dataSet?: any
+  dataSet?: any // TODO-ts check this
 ) {
-  // TODO-ts check this
   let canvas = window.document.createElement("canvas");
   let lastImageIdDrawn = "";
 
@@ -193,8 +192,8 @@ let createCustomImage = function (
   // function to store custom image pixelData and metadata.
   image.metadata = metadata;
 
-  let promise = new Promise(function (resolve) {
-    resolve(image);
+  let promise: Promise<Image> = new Promise(function (resolve) {
+    resolve(image as Image);
   });
 
   // Return an object containing the Promise to cornerstone so it can setup callbacks to be

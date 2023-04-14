@@ -17,7 +17,7 @@ import { getSortedStack, getSortedUIDs } from "./imageUtils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
 import { loadMultiFrameImage } from "./loaders/multiframeLoader";
-import { ImageObject, Series } from "./types";
+import { ImageObject, Instance, Series } from "./types";
 
 /**
  * Global standard configuration
@@ -130,19 +130,20 @@ export const registerMultiFrameImageLoader = function () {
  */
 export const updateLoadedStack = function (
   seriesData: ImageObject,
-  allSeriesStack: { [key: string]: ImageObject },
+  allSeriesStack: { [key: string]: Series },
   customId?: string
 ) {
   let sid = seriesData.metadata.seriesUID;
   let ssid = seriesData.metadata.studyUID;
-  let iid = seriesData.metadata.instanceUID;
+  let iid = seriesData.metadata.instanceUID as string;
   let seriesDescription = seriesData.metadata.seriesDescription;
   let numberOfSlices = seriesData.metadata["x00540081"]
     ? seriesData.metadata["x00540081"]
     : seriesData.metadata["x00201002"];
   let numberOfFrames = seriesData.metadata["x00280008"];
   let modality = seriesData.metadata["x00080060"];
-  let isMultiframe = numberOfFrames > 1 ? true : false;
+  let isMultiframe =
+    numberOfFrames && (numberOfFrames as number) > 1 ? true : false;
   let numberOfTemporalPositions = seriesData.metadata["x00200105"];
   let acquisitionNumberAttribute = seriesData.metadata["x00200012"];
   let is4D = seriesData.metadata.is4D;
@@ -152,31 +153,37 @@ export const updateLoadedStack = function (
 
   let color = cornerstoneWADOImageLoader.isColorImage(
     seriesData.metadata["x00280004"]
-  );
-  let id = customId || sid;
+  ) as boolean;
+  let id = customId || sid?.toString();
+
+  if (!id) {
+    throw new Error("Series UID is not defined");
+  }
+
   // initialize series stack
   if (!allSeriesStack[id]) {
-    allSeriesStack[id] = {
+    let series: Partial<Series> = {
       currentImageIdIndex: 0,
       imageIds: [], // (ordered)
       instanceUIDs: {}, // instanceUID: imageId (ordered)
       instances: {},
-      seriesDescription: seriesDescription,
-      larvitarSeriesInstanceUID: sid,
-      seriesUID: sid,
-      studyUID: ssid,
-      numberOfImages: is4D ? acquisitionNumberAttribute : 0,
-      numberOfSlices: numberOfSlices,
-      numberOfFrames: numberOfFrames,
-      numberOfTemporalPositions: numberOfTemporalPositions,
+      seriesDescription: seriesDescription as string,
+      larvitarSeriesInstanceUID: sid as string,
+      seriesUID: sid as string,
+      studyUID: ssid as string,
+      numberOfImages: is4D ? (acquisitionNumberAttribute as number) : 0,
+      numberOfSlices: numberOfSlices as number,
+      numberOfFrames: numberOfFrames as number,
+      numberOfTemporalPositions: numberOfTemporalPositions as number,
       isMultiframe: isMultiframe,
-      is4D: is4D,
-      isPDF: isPDF,
-      anonymized: anonymized,
-      modality: modality,
+      is4D: is4D as boolean,
+      isPDF: isPDF as boolean,
+      anonymized: anonymized as boolean,
+      modality: modality as string,
       color: color,
       bytes: 0
     };
+    allSeriesStack[id] = series as Series;
   }
 
   const sortMethods = is4D
@@ -190,7 +197,7 @@ export const updateLoadedStack = function (
     // cornerstoneWADOImageLoader to display the stack of images
     let imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(
       seriesData.file
-    );
+    ) as string;
 
     allSeriesStack[id].imageIds.push(imageId);
     if (is4D === false) {
@@ -201,17 +208,27 @@ export const updateLoadedStack = function (
     allSeriesStack[id].instances[imageId] = {
       metadata: seriesData.metadata,
       file: seriesData.file,
-      dataSet: seriesData.dataSet
+      dataSet: seriesData.dataSet,
+      pixelData: new Uint16Array() // TODO-ts check if this initialization is ok
     };
     // order images in stack
     allSeriesStack[id].imageIds = getSortedStack(
       allSeriesStack[id],
       sortMethods,
       true
-    );
+    ) as string[]; //TODO-ts: remove casting when getSortedStack is typed
+
     // populate the ordered dictionary of instanceUIDs
-    allSeriesStack[id].instanceUIDs = getSortedUIDs(allSeriesStack[id]);
-    larvitar_store.addSeriesIds(id, allSeriesStack[id].imageIds);
+    allSeriesStack[id].instanceUIDs = getSortedUIDs(allSeriesStack[id]) as {
+      [key: string]: string;
+    }; //TODO-ts: remove casting when getSortedStack is typed
+
+    if (!larvitar_store) {
+      throw new Error("Larvitar store not initialized");
+    }
+
+    // TODO-ts remove casting when larvitar_store is typed
+    (larvitar_store as any).addSeriesIds(id, allSeriesStack[id].imageIds);
   }
 };
 
@@ -225,7 +242,10 @@ export const updateLoadedStack = function (
  * @param {String} iid - instance uid to check
  * @return {Bool} True if is new instance, false if already present
  */
-let isNewInstance = function (instances, iid) {
+let isNewInstance = function (
+  instances: { [key: string]: Instance },
+  iid: string
+) {
   let isNewInstance = true;
   forEach(instances, function (instance) {
     if (instance.metadata.instanceUID === iid) {

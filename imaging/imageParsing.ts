@@ -8,8 +8,8 @@ import { forEach, each, has, pick } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
-import { getPixelRepresentation, randomId, parseTag } from "./imageUtils.js";
-import { updateLoadedStack } from "./imageLoading.js";
+import { getPixelRepresentation, randomId, parseTag } from "./imageUtils";
+import { updateLoadedStack } from "./imageLoading";
 import { checkMemoryAllocation } from "./monitors/memory.js";
 import { ImageObject, MetadataValue, Series } from "./types.js";
 
@@ -196,9 +196,9 @@ let parseNextFile = function (
     parseFile(file)
       .then((seriesData: ImageObject | null) => {
         // use generated series uid if not found in dicom file
-        seriesData.metadata.seriesUID = seriesData.metadata.seriesUID || uuid;
+        seriesData!.metadata.seriesUID = seriesData!.metadata.seriesUID || uuid;
         // add file to cornerstoneWADOImageLoader file manager
-        updateLoadedStack(seriesData, allSeriesStack);
+        updateLoadedStack(seriesData!, allSeriesStack);
         // proceed with the next file to parse
         parseNextFile(parsingQueue, allSeriesStack, uuid, resolve, reject);
         seriesData = null;
@@ -219,9 +219,9 @@ let parseNextFile = function (
  * @param {Array} fileList - Array of file objects
  * @returns {Promise} - Return a promise which will resolve to a image object list or fail if an error occurs
  */
-let parseFiles = function (fileList) {
+let parseFiles = function (fileList: File[]) {
   let allSeriesStack = {};
-  let parsingQueue = [];
+  let parsingQueue: File[] = [];
 
   forEach(fileList, function (file) {
     if (!file.name.startsWith(".") && !file.name.startsWith("DICOMDIR")) {
