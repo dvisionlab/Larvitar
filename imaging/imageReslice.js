@@ -13,7 +13,7 @@ import {
   getLarvitarImageTracker,
   getLarvitarManager
 } from "./loaders/commonLoader";
-import { store } from "./imageStore";
+import store from "./imageStore";
 
 /*
  * This module provides the following functions to be exported:

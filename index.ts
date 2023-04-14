@@ -7,15 +7,14 @@ import cornerstoneTools from "cornerstone-tools";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 const segModule = cornerstoneTools.getModule("segmentation");
 
-// import larvitarModule from "./modules/vuex/larvitar";
-
 import {
   checkMemoryAllocation,
   getUsedMemory,
   getAvailableMemory
 } from "./imaging/monitors/memory";
 
-import { initLarvitarStore, larvitar_store } from "./imaging/imageStore";
+import store from "./imaging/imageStore";
+console.log(store);
 
 import { parseContours } from "./imaging/imageContours";
 
@@ -218,15 +217,12 @@ export {
   cornerstoneTools,
   segModule,
   cornerstoneWADOImageLoader,
-  // vuex module
-  // larvitarModule,
   // memory module
   checkMemoryAllocation,
   getUsedMemory,
   getAvailableMemory,
   // larvitarStore
-  initLarvitarStore,
-  larvitar_store,
+  store,
   // imagePresets
   getImagePresets,
   setImagePreset,
