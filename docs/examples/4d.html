@@ -53,10 +53,10 @@
             };
 
             // init all
-            larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
             larvitar.initializeCSTools();
-            larvitar.larvitar_store.addViewport("viewer");
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
 
             async function createFile(fileName, cb) {
               let response = await fetch("./demo/4d/" + fileName);
@@ -84,13 +84,13 @@
 
                     $("#image-time").html(
                       "Image Time Id: " +
-                        larvitar.larvitar_store.state.viewports.viewer.timeId +
+                        larvitar.store.get(["viewports", "viewer", "timeId"]) +
                         " of " +
-                        larvitar.larvitar_store.state.viewports.viewer.maxTimeId
+                        larvitar.store.get(["viewports", "viewer", "maxTimeId"])
                     );
                     $("#timestamp").html(
                       "Image Time: " +
-                        larvitar.larvitar_store.state.viewports.viewer.timestamp
+                        larvitar.store.get(["viewports", "viewer", "timestamp"])
                     );
                   });
 
@@ -100,20 +100,23 @@
                     if (e.keyCode == 112) {
                       animation = !animation;
                       if (animation) {
-                        sliceId =
-                          larvitar.larvitar_store.state.viewports.viewer.sliceId;
+                        sliceId = larvitar.store.get([
+                          "viewports",
+                          "viewer",
+                          "sliceId"
+                        ]);
                         animationId = setInterval(function () {
                           sliceId = sliceId == 193 ? 0 : sliceId + 1;
                           larvitar.updateImage(serie, "viewer", sliceId, false);
                           $("#image-time").html(
                             "Image Time Id: " +
-                              larvitar.larvitar_store.state.viewports.viewer.timeId +
+                              larvitar.store.get(["viewports", "viewer", "timeId"]) +
                               " of " +
-                              larvitar.larvitar_store.state.viewports.viewer.maxTimeId
+                              larvitar.store.get(["viewports", "viewer", "maxTimeId"])
                           );
                           $("#timestamp").html(
                             "Image Time: " +
-                              larvitar.larvitar_store.state.viewports.viewer.timestamp
+                              larvitar.store.get(["viewports", "viewer", "timestamp"])
                           );
                         }, 100);
                       } else {
@@ -159,10 +162,10 @@
       };
 
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
-      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/4d/" + fileName);
@@ -190,13 +193,13 @@
 
               $("#image-time").html(
                 "Image Time Id: " +
-                  larvitar.larvitar_store.state.viewports.viewer.timeId +
+                  larvitar.store.get(["viewports", "viewer", "timeId"]) +
                   " of " +
-                  larvitar.larvitar_store.state.viewports.viewer.maxTimeId
+                  larvitar.store.get(["viewports", "viewer", "maxTimeId"])
               );
               $("#timestamp").html(
                 "Image Time: " +
-                  larvitar.larvitar_store.state.viewports.viewer.timestamp
+                  larvitar.store.get(["viewports", "viewer", "timestamp"])
               );
             });
 
@@ -206,20 +209,23 @@
               if (e.keyCode == 112) {
                 animation = !animation;
                 if (animation) {
-                  sliceId =
-                    larvitar.larvitar_store.state.viewports.viewer.sliceId;
+                  sliceId = larvitar.store.get([
+                    "viewports",
+                    "viewer",
+                    "sliceId"
+                  ]);
                   animationId = setInterval(function () {
                     sliceId = sliceId == 193 ? 0 : sliceId + 1;
                     larvitar.updateImage(serie, "viewer", sliceId, false);
                     $("#image-time").html(
                       "Image Time Id: " +
-                        larvitar.larvitar_store.state.viewports.viewer.timeId +
+                        larvitar.store.get(["viewports", "viewer", "timeId"]) +
                         " of " +
-                        larvitar.larvitar_store.state.viewports.viewer.maxTimeId
+                        larvitar.store.get(["viewports", "viewer", "maxTimeId"])
                     );
                     $("#timestamp").html(
                       "Image Time: " +
-                        larvitar.larvitar_store.state.viewports.viewer.timestamp
+                        larvitar.store.get(["viewports", "viewer", "timestamp"])
                     );
                   }, 100);
                 } else {

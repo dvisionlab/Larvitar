@@ -34,9 +34,9 @@
             let demoFiles = [];
 
             // init all
-            larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
-            larvitar.larvitar_store.addViewport("viewer");
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
 
             function renderPDF() {
               larvitar.resetLarvitarManager();
@@ -73,19 +73,17 @@
       let demoFiles = [];
 
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
-      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
       function renderPDF() {
         larvitar.resetLarvitarManager();
         larvitar
           .readFile(demoFiles[0])
           .then(image => {
-            console.log(image)
             larvitar.updateLarvitarManager(image);
             let manager = larvitar.getLarvitarManager();
-            console.log(manager)
             let serie =
               manager["1.2.276.0.7230010.3.1.3.296485376.1.1664404001.305752"];
             larvitar.renderDICOMPDF(serie, "viewer");

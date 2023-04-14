@@ -45,11 +45,11 @@
               let demoFiles = [];
 
               // init all
-              larvitar.initLarvitarStore();
               larvitar.initializeImageLoader();
               larvitar.registerMultiFrameImageLoader();
               larvitar.initializeCSTools();
-              larvitar.larvitar_store.addViewport("viewer");
+              larvitar.store.initialize();
+              larvitar.store.addViewport("viewer");
 
               function renderSerie() {
                 larvitar
@@ -82,8 +82,11 @@
                       if (e.keyCode == 112) {
                         animation = !animation;
                         if (animation) {
-                          frameId =
-                            larvitar.larvitar_store.state.viewports.viewer.sliceId;
+                          frameId = larvitar.store.get([
+                            "viewports",
+                            "viewer",
+                            "sliceId"
+                          ]);
                           animationId = setInterval(function () {
                             let series =
                               larvitar.getSeriesDataFromLarvitarManager(seriesId);
@@ -133,11 +136,11 @@
       let demoFiles = [];
 
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
       larvitar.registerMultiFrameImageLoader();
       larvitar.initializeCSTools();
-      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
       function renderSerie() {
         larvitar
@@ -170,8 +173,11 @@
               if (e.keyCode == 112) {
                 animation = !animation;
                 if (animation) {
-                  frameId =
-                    larvitar.larvitar_store.state.viewports.viewer.sliceId;
+                  frameId = larvitar.store.get([
+                    "viewports",
+                    "viewer",
+                    "sliceId"
+                  ]);
                   animationId = setInterval(function () {
                     let series =
                       larvitar.getSeriesDataFromLarvitarManager(seriesId);
