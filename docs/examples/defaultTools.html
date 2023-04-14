@@ -50,10 +50,10 @@
             };
 
             // init all
-            larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
             larvitar.initializeCSTools();
-            larvitar.larvitar_store.addViewport("viewer");
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
 
             async function createFile(fileName, cb) {
               let response = await fetch("./demo/" + fileName);
@@ -67,38 +67,43 @@
             }
 
             function renderSerie() {
-              larvitar.readFiles(demoFiles, function (seriesStack, err) {
-                let seriesId = _.keys(seriesStack)[0];
-                let serie = seriesStack[seriesId];
-                larvitar.renderImage(serie, "viewer");
-                larvitar.addDefaultTools();
-      
-                let mouseConfig = {
-                  keyboard_shortcuts: {
-                    KEY_A: "Angle",
-                    KEY_L: "Length"
-                  },
-                  mouse_button_left: {
-                    ctrl: "Pan",
-                    default: "Wwwc"
-                  },
-                  mouse_button_right: {
-                    ctrl: "Pan",
-                    default: "Zoom"
-                  },
-                  debug: true
-                };
-      
-                // NOTE: this also activate the tools marked as default for each mouse button
-                larvitar.addMouseKeyHandlers(mouseConfig, ["viewer"]);
-              });
+              larvitar
+                .readFiles(demoFiles)
+                .then(seriesStack => {
+                  let seriesId = _.keys(seriesStack)[0];
+                  let serie = seriesStack[seriesId];
+                  larvitar.renderImage(serie, "viewer").then(() => {
+                    console.log("Image has been rendered");
+                  });
+                  larvitar.addDefaultTools();
+
+                  let mouseConfig = {
+                    keyboard_shortcuts: {
+                      KEY_A: "Angle",
+                      KEY_L: "Length"
+                    },
+                    mouse_button_left: {
+                      ctrl: "Pan",
+                      default: "Wwwc"
+                    },
+                    mouse_button_right: {
+                      ctrl: "Pan",
+                      default: "Zoom"
+                    },
+                    debug: true
+                  };
+
+                  // NOTE: this also activate the tools marked as default for each mouse button
+                  larvitar.addMouseKeyHandlers(mouseConfig);
+                })
+                .catch(err => console.log(err));
             }
-      
+
             let demoFileList = getDemoFileNames();
             _.each(demoFileList, function (demoFile) {
               createFile(demoFile, renderSerie);
             });
-      
+
             let tool_counter = 0;
             document.onkeypress = function (e) {
               e = e || window.event;
@@ -113,6 +118,18 @@
                   "PanMultiTouch",
                   "OrientationMarkers",
                   "ScaleOverlay"
+                );
+                // remove not working tools for the live example
+                // see open issue
+                tools = _.without(
+                  tools,
+                  "Brush",
+                  "ThresholdsBrush",
+                  "RectangleScissors",
+                  "FreehandScissors",
+                  "CircleScissors",
+                  "CorrectionScissors",
+                  "PolylineScissors"
                 );
                 let increment = e.shiftKey ? -1 : 1;
                 tool_counter =
@@ -151,10 +168,10 @@
       };
 
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
-      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);

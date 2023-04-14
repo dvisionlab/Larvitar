@@ -34,9 +34,9 @@
             let demoFiles = [];
 
             // init all
-            larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
-            larvitar.larvitar_store.addViewport("viewer");
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
 
             function renderPDF() {
               larvitar.resetLarvitarManager();
@@ -73,9 +73,9 @@
       let demoFiles = [];
 
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
-      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
       function renderPDF() {
         larvitar.resetLarvitarManager();

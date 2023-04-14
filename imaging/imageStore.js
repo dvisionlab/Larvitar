@@ -11,13 +11,12 @@ let STORE = undefined;
 
 // default initial store object
 const INITIAL_STORE_DATA = {
-  series: {}, // seriesUID: {imageIds:[], progress:value}
+  colormapId: "gray",
+  errorLog: null,
   leftActiveTool: "Wwwc",
   rightActiveTool: "Zoom",
-  colormapId: "gray",
-  viewports: {},
-  errorLog: null,
-  temp: {}
+  series: {}, // seriesUID: {imageIds:[], progress:value}
+  viewports: {}
 };
 
 // default viewport object
@@ -232,27 +231,45 @@ const initializeStore = name => {
   STORE = setup(name);
 };
 
+const validateStore = () => {
+  if (!STORE) {
+    throw "Larvitar store does not exists. Initialize it with the 'initializeStore' function.";
+  }
+};
+
 export const set = (field, payload) => setValue(STORE, field, payload);
 
-// TODO check !store
-// TODO update examples
 export default {
   initialize: initializeStore,
   // add/remove viewports
-  addViewport: name => (STORE.viewports[name] = DEFAULT_VIEWPORT),
-  deleteViewport: name => delete STORE.viewports[name],
+  addViewport: name => {
+    validateStore();
+    STORE.viewports[name] = DEFAULT_VIEWPORT;
+  },
+  deleteViewport: name => {
+    validateStore();
+    delete STORE.viewports[name];
+  },
   // add/remove series instances ids
   addSeriesIds: (seriesId, imageIds) => {
+    validateStore();
     if (!STORE.series[seriesId]) {
       STORE.series[seriesId] = {};
     }
     STORE.series[seriesId].imageIds = imageIds;
   },
-  removeSeriesIds: seriesId => delete STORE.series[seriesId],
-  // get and set
-  get: props => _get(STORE, props),
+  removeSeriesIds: seriesId => {
+    validateStore();
+    delete STORE.series[seriesId];
+  },
+  // get and watch values
+  get: props => {
+    validateStore();
+    return _get(STORE, props);
+  },
   // TODO multiple watchs
   watch: (cb, name = "store") => {
+    validateStore();
     document.addEventListener(name, event => cb(event.detail));
   }
 };

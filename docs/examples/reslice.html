@@ -50,12 +50,12 @@
               };
 
               // init all
-              larvitar.initLarvitarStore();
               larvitar.initializeImageLoader();
               larvitar.registerResliceLoader();
               larvitar.initializeCSTools();
-              larvitar.larvitar_store.addViewport("viewer-base");
-              larvitar.larvitar_store.addViewport("viewer-reslice");
+              larvitar.store.initialize();
+              larvitar.store.addViewport("viewer-base");
+              larvitar.store.addViewport("viewer-reslice");
 
               async function createFile(fileName, cb) {
                 let response = await fetch("./demo/" + fileName);
@@ -121,12 +121,12 @@
       };
 
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
       larvitar.registerResliceLoader();
       larvitar.initializeCSTools();
-      larvitar.larvitar_store.addViewport("viewer-base");
-      larvitar.larvitar_store.addViewport("viewer-reslice");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer-base");
+      larvitar.store.addViewport("viewer-reslice");
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);

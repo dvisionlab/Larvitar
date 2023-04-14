@@ -50,10 +50,10 @@
             };
 
             // init all
-            larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
             larvitar.initializeCSTools();
-            larvitar.larvitar_store.addViewport("viewer");
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
 
             async function createFile(fileName, cb) {
               let response = await fetch("./demo/" + fileName);
@@ -127,10 +127,10 @@
       };
 
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
-      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
