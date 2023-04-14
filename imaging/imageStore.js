@@ -3,12 +3,23 @@
  *        for data config store.
  */
 
-// import larvitar from "../modules/vuex/larvitar";
-
 // external libraries
 import { get as _get } from "lodash";
 
-// default viewport store object
+// Larvitar store object
+let STORE = undefined;
+
+// default initial store object
+const INITIAL_STORE_DATA = {
+  colormapId: "gray",
+  errorLog: null,
+  leftActiveTool: "Wwwc",
+  rightActiveTool: "Zoom",
+  series: {}, // seriesUID: {imageIds:[], progress:value}
+  viewports: {}
+};
+
+// default viewport object
 const DEFAULT_VIEWPORT = {
   loading: 0, // from 0 to 100 (%)
   ready: false, // true when currentImageId is rendered
@@ -60,262 +71,204 @@ const DEFAULT_VIEWPORT = {
 };
 
 /**
- * The Larvitar Internal Store
+ * Set a value into store
+ * @function setValue
+ * @param {field} field - The name of the field to be updated
+ * @param {Object} data - The data object
  */
-export let larvitar_store = null;
+const setValue = (store, field, data) => {
+  let k, v;
 
-/** Class representing the Larvitar Store. */
-class Larvitar_Store {
-  /**
-   * Create the Larvitar Store
-   * @param {Obj} vuex_store - The Vuex store
-   * @param {String} vuex_module - The name of the vuex store module, can be null
-   */
-  constructor(vuex_store, vuex_module) {
-    this.VUEX_STORE = vuex_store ? true : false;
-    this.vuex_store = vuex_store;
-    this.vuex_module = vuex_module;
-    this.state = {
-      series: {}, // seriesUID: {imageIds:[], progress:value}
-      leftActiveTool: "Wwwc",
-      rightActiveTool: "Zoom",
-      colormapId: "gray",
-      viewports: {},
-      errorLog: null,
-      temp: {}
-    };
+  if (Array.isArray(data)) {
+    [k, ...v] = data;
+  } else {
+    v = [data];
   }
 
-  /**
-   * Enable the VUEX storage method
-   * @function enableVuex
-   * @param {String} vuex_module - The name of the vuex store module, can be null
-   */
-  enableVuex(vuex_module) {
-    // VUEX IS ENABLED BY DEFAULT
-    this.VUEX_STORE = true;
-    this.vuex_module = vuex_module;
+  let viewport = store.viewports[k];
+
+  // rename field
+  switch (field) {
+    case "renderingStatus":
+      field = "ready";
+      break;
+
+    case "loadingProgress":
+      field = "loading";
+      break;
+
+    default:
+      break;
   }
 
-  /**
-   * Disable the VUEX storage method
-   * @function disableVuex
-   */
-  disableVuex() {
-    // VUEX IS ENABLED BY DEFAULT
-    this.VUEX_STORE = false;
-    this.vuex_module = null;
-  }
+  // assign values
+  switch (field) {
+    case "progress":
+      store.series[k][field] = v[0];
+      break;
 
-  /**
-   * Add a viewport into the store
-   * @function addViewport
-   * @param {String} viewportId - The viewport id
-   */
-  addViewport(viewportId) {
-    if (this.VUEX_STORE) {
-      let dispatch = "addViewport";
-      let route = this.vuex_module
-        ? this.vuex_module + "/" + dispatch
-        : dispatch;
-      this.vuex_store.dispatch(route, viewportId);
-    } else {
-      this.state.viewports[viewportId] = {};
-      this.state.viewports[viewportId] = DEFAULT_VIEWPORT;
-    }
-  }
+    case "isColor":
+    case "isMultiframe":
+    case "isPDF":
+    case "isTimeserie":
+    case "loading":
+    case "minPixelValue":
+    case "maxPixelValue":
+    case "minSliceId":
+    case "maxSliceId":
+    case "minTimeId":
+    case "maxTimeId":
+    case "ready":
+    case "sliceId":
+    case "timeId":
+    case "timestamp":
+    case "timestamps":
+    case "timeIds":
+      viewport[field] = v[0];
+      break;
 
-  /**
-   * Delete a viewport from the store
-   * @function deleteViewport
-   * @param {String} viewportId - The viewport id
-   */
-  deleteViewport(viewportId) {
-    if (this.VUEX_STORE) {
-      let dispatch = "deleteViewport";
-      let route = this.vuex_module
-        ? this.vuex_module + "/" + dispatch
-        : dispatch;
-      this.vuex_store.dispatch(route, viewportId);
-    } else {
-      delete this.state.viewports[viewportId];
-    }
-  }
+    case "rotation":
+    case "scale":
+    case "translation":
+    case "thickness":
+      viewport.viewport[field] = v[0];
+      break;
 
-  /**
-   * Add a serie into the store
-   * @function addSeriesIds
-   * @param {String} seriesId - The serie's id
-   * @param {Array} imageIds - The array of image ids
-   */
-  addSeriesIds(seriesId, imageIds) {
-    if (this.VUEX_STORE) {
-      let dispatch = "addSeriesIds";
-      let route = this.vuex_module
-        ? this.vuex_module + "/" + dispatch
-        : dispatch;
-      this.vuex_store.dispatch(route, [seriesId, imageIds]);
-    } else {
-      if (this.state.series[seriesId] == null) {
-        this.state.series[seriesId] = {};
-      }
-      this.state.series[seriesId]["imageIds"] = imageIds;
-    }
-  }
+    case "contrast":
+      viewport.viewport.voi.windowWidth = v[0];
+      viewport.viewport.voi.windowCenter = v[0];
+      break;
 
-  /**
-   * Remove a serie from the store
-   * @function removeSeriesIds
-   * @param {String} seriesId - The serie's id
-   */
-  removeSeriesIds(seriesId) {
-    if (this.VUEX_STORE) {
-      let dispatch = "removeSeriesIds";
-      let route = this.vuex_module
-        ? this.vuex_module + "/" + dispatch
-        : dispatch;
-      this.vuex_store.dispatch(route, seriesId);
-    } else {
-      delete this.state.series[seriesId];
-    }
-  }
+    case "dimensions":
+      viewport.viewport.rows = v[0];
+      viewport.viewport.cols = v[1];
+      break;
 
-  /**
-   * Removes all the series from the store
-   * @function resetSeriesIds
-   */
-  resetSeriesIds(seriesId) {
-    if (this.VUEX_STORE) {
-      let dispatch = "resetSeriesIds";
-      let route = this.vuex_module
-        ? this.vuex_module + "/" + dispatch
-        : dispatch;
-      this.vuex_store.dispatch(route, seriesId);
-    } else {
-      delete this.state.series[seriesId];
-    }
-  }
+    case "spacing":
+      viewport.viewport.spacing_x = v[0];
+      viewport.viewport.spacing_y = v[1];
+      break;
 
-  /**
-   * Set a value into store
-   * @function set
-   * @param {field} field - The name of the field to be updated
-   * @param {Object} data - The data object
-   */
-  set(field, data) {
-    if (this.VUEX_STORE) {
-      let dispatch = "set" + field[0].toUpperCase() + field.slice(1);
-      let route = this.vuex_module
-        ? this.vuex_module + "/" + dispatch
-        : dispatch;
-      this.vuex_store.dispatch(route, data);
-    } else {
-      if (field == "scale" || field == "rotation" || field == "translation") {
-        this.state["viewports"][data[0]]["viewport"][field] = data[1];
-      } else if (field == "contrast") {
-        this.state["viewports"][data[0]]["viewport"]["voi"]["windowWidth"] =
-          data[1];
-        this.state["viewports"][data[0]]["viewport"]["voi"]["windowCenter"] =
-          data[2];
-      } else if (field == "dimensions") {
-        this.state["viewports"][data[0]]["rows"] = data[1];
-        this.state["viewports"][data[0]]["cols"] = data[2];
-      } else if (field == "spacing") {
-        this.state["viewports"][data[0]]["spacing_x"] = data[1];
-        this.state["viewports"][data[0]]["spacing_y"] = data[2];
-      } else if (field == "thickness") {
-        this.state["viewports"][data[0]]["thickness"] = data[1];
-      } else if (field == "minPixelValue") {
-        this.state["viewports"][data[0]]["minPixelValue"] = data[1];
-      } else if (field == "maxPixelValue") {
-        this.state["viewports"][data[0]]["maxPixelValue"] = data[1];
-      } else if (field == "renderingStatus") {
-        this.state["viewports"][data[0]]["ready"] = data[1];
-      } else if (field == "loadingProgress") {
-        this.state["viewports"][data[0]]["loading"] = data[1];
-      } else if (field == "minSliceId") {
-        this.state["viewports"][data[0]]["minSliceId"] = data[1];
-      } else if (field == "maxSliceId") {
-        this.state["viewports"][data[0]]["maxSliceId"] = data[1];
-      } else if (field == "sliceId") {
-        this.state["viewports"][data[0]]["sliceId"] = data[1];
-      } else if (field == "minTimeId") {
-        this.state["viewports"][data[0]]["minTimeId"] = data[1];
-      } else if (field == "maxTimeId") {
-        this.state["viewports"][data[0]]["maxTimeId"] = data[1];
-      } else if (field == "timeId") {
-        this.state["viewports"][data[0]]["timeId"] = data[1];
-      } else if (field == "timestamp") {
-        this.state["viewports"][data[0]]["timestamp"] = data[1];
-      } else if (field == "timestamps") {
-        this.state["viewports"][data[0]]["timestamps"] = data[1];
-      } else if (field == "timeIds") {
-        this.state["viewports"][data[0]]["timeIds"] = data[1];
-      } else if (field == "isColor") {
-        this.state["viewports"][data[0]]["isColor"] = data[1];
-      } else if (field == "isMultiframe") {
-        this.state["viewports"][data[0]]["isMultiframe"] = data[1];
-      } else if (field == "isPDF") {
-        this.state["viewports"][data[0]]["isPDF"] = data[1];
-      } else if (field == "isTimeserie") {
-        this.state["viewports"][data[0]]["isTimeserie"] = data[1];
-      } else if (field == "defaultViewport") {
-        this.state["viewports"][data[0]]["default"]["scale"] = data[1];
-        this.state["viewports"][data[0]]["default"]["rotation"] = data[2];
-        this.state["viewports"][data[0]]["default"]["translation"]["x"] =
-          data[3];
-        this.state["viewports"][data[0]]["default"]["translation"]["y"] =
-          data[4];
-        this.state["viewports"][data[0]]["default"]["voi"]["windowWidth"] =
-          data[5];
-        this.state["viewports"][data[0]]["default"]["voi"]["windowCenter"] =
-          data[6];
-      } else if (field == "progress") {
-        this.state.series[data[0]]["progress"] = data[1];
+    case "defaultViewport":
+      viewport.default.scale = v[0];
+      viewport.default.rotation = v[1];
+      viewport.default.translation.x = v[2];
+      viewport.default.translation.y = v[3];
+      viewport.default.voi.windowWidth = v[4];
+      viewport.default.voi.windowCenter = v[5];
+      break;
+
+    default:
+      if (k) {
+        store[field][k] = v[0];
       } else {
-        if (Array.isArray(data)) {
-          this.state[field][data[0]] = data[1];
-        } else {
-          this.state[field] = data;
-        }
+        store[field] = v[0];
       }
-    }
+      break;
   }
-
-  /**
-   * Get a value from the store
-   * @function get
-   * @param {Array} args - The array of arguments
-   * @return {Object} - The stored value
-   */
-  get(...args) {
-    if (this.VUEX_STORE) {
-      if (this.vuex_module) {
-        args.unshift(this.vuex_module);
-      }
-      return _get(this.vuex_store.state, args, "error");
-    } else {
-      return _get(this.state, args, "error");
-    }
-  }
-}
+};
 
 /**
  * Instancing the store
- * @param {Object} vuexStore - The app vuex store [optional]
- * @param {String} vuexModule - The name of the vuex store module, can be null
- * @param {Boolean} registerModule - If true, the module is registered under Vuex global store
- * @param {Object} _Vue - The Vue instance
  */
+const setup = (name = "store", data = { ...INITIAL_STORE_DATA }) => {
+  /**
+   * Emit a custom event
+   * @param  {String} type   The event type
+   * @param  {*}      detail Any details to pass along with the event
+   */
+  const emit = (type, detail) => {
+    // Create a new event
+    const event = new CustomEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      detail
+    });
 
-export function initLarvitarStore(vuexStore, vuexModule, registerModule, _Vue) {
-  if (vuexStore) {
-    larvitar_store = new Larvitar_Store(vuexStore, vuexModule);
-    if (registerModule) {
-      larvitar.defineVue(_Vue);
-      vuexStore.registerModule(vuexModule, larvitar);
-    }
-  } else {
-    larvitar_store = new Larvitar_Store();
+    // Dispatch the event
+    return document.dispatchEvent(event);
+  };
+
+  /**
+   * Create the Proxy handler object
+   * @param  {String} name The namespace
+   * @param  {Object} data The data object
+   * @return {Object}      The Proxy handler
+   */
+  const handler = (name, data) => {
+    return {
+      get: (obj, prop) => {
+        if (prop === "_isProxy") return true;
+        if (
+          ["object", "array"].includes(
+            Object.prototype.toString.call(obj[prop]).slice(8, -1).toLowerCase()
+          ) &&
+          !obj[prop]._isProxy
+        ) {
+          obj[prop] = new Proxy(obj[prop], handler(name, data));
+        }
+        return obj[prop];
+      },
+      set: (obj, prop, value) => {
+        // console.warn("SET", obj, prop, value);
+        if (obj[prop] === value) return true;
+        obj[prop] = value;
+        emit(name, data); // TODO multiple emits
+        return true;
+      },
+      deleteProperty: (obj, prop) => {
+        delete obj[prop];
+        emit(name, data);
+        return true;
+      }
+    };
+  };
+
+  return new Proxy(data, handler(name, data));
+};
+
+const initializeStore = name => {
+  STORE = setup(name);
+};
+
+const validateStore = () => {
+  if (!STORE) {
+    throw "Larvitar store does not exists. Initialize it with the 'initializeStore' function.";
   }
-}
+};
+
+export const set = (field, payload) => setValue(STORE, field, payload);
+
+export default {
+  initialize: initializeStore,
+  // add/remove viewports
+  addViewport: name => {
+    STORE.viewports[name] = DEFAULT_VIEWPORT;
+  },
+  deleteViewport: name => {
+    validateStore();
+    delete STORE.viewports[name];
+  },
+  // add/remove series instances ids
+  addSeriesIds: (seriesId, imageIds) => {
+    validateStore();
+    if (!STORE.series[seriesId]) {
+      STORE.series[seriesId] = {};
+    }
+    STORE.series[seriesId].imageIds = imageIds;
+  },
+  removeSeriesIds: seriesId => {
+    validateStore();
+    delete STORE.series[seriesId];
+  },
+  // get and watch values
+  get: props => {
+    validateStore();
+    return _get(STORE, props);
+  },
+  // TODO multiple watchs
+  watch: (cb, name = "store") => {
+    validateStore();
+    document.addEventListener(name, event => cb(event.detail));
+  }
+};

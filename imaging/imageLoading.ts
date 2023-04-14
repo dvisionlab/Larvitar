@@ -12,7 +12,7 @@ import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { forEach } from "lodash";
 
 // internal libraries
-import { larvitar_store } from "./imageStore";
+import store from "./imageStore";
 import { getSortedStack, getSortedUIDs } from "./imageUtils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
@@ -223,12 +223,8 @@ export const updateLoadedStack = function (
       [key: string]: string;
     }; //TODO-ts: remove casting when getSortedStack is typed
 
-    if (!larvitar_store) {
-      throw new Error("Larvitar store not initialized");
-    }
-
-    // TODO-ts remove casting when larvitar_store is typed
-    (larvitar_store as any).addSeriesIds(id, allSeriesStack[id].imageIds);
+    // TODO-ts remove casting when store is typed
+    (store as any).addSeriesIds(id, allSeriesStack[id].imageIds);
   }
 };
 

@@ -12,7 +12,7 @@ import {
   getDistanceBetweenSlices,
   getTypedArrayFromDataType
 } from "./imageUtils.js";
-import { larvitar_store } from "./imageStore.js";
+import store from "./imageStore.js";
 import { parse } from "./parsers/nrrd.js";
 import { checkMemoryAllocation } from "./monitors/memory.js";
 import { Series, Header, Volume } from "./types.js";
@@ -141,12 +141,8 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
       console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
       return data;
     } else {
-      if (!larvitar_store) {
-        throw new Error("Larvitar store not initialized");
-      }
-
-      // @ts-ignore TODO-ts type larvitar_store
-      larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
+      // @ts-ignore TODO-ts type store
+      store.addSeriesIds(series.seriesUID, series.imageIds);
       let image_counter = 0;
       forEach(series.imageIds, function (imageId) {
         getCachedPixelData(imageId).then((sliceData: number[]) => {
@@ -202,8 +198,8 @@ export const buildDataAsync = function (
     let offsetData = 0;
 
     let imageIds = series.imageIds.slice();
-    // @ts-ignore TODO-ts type larvitar_store
-    larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
+    // @ts-ignore TODO-ts type store
+    store.addSeriesIds(series.seriesUID, series.imageIds);
 
     // TODO-ts type check
     function runFillPixelData(data: Uint16Array) {

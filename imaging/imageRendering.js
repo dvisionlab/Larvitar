@@ -12,7 +12,7 @@ import { each, has } from "lodash";
 import { getFileImageId } from "./loaders/fileLoader";
 import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
-import { larvitar_store } from "./imageStore";
+import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
 import { isElement } from "./imageUtils";
 
@@ -45,9 +45,9 @@ import { isElement } from "./imageUtils";
  * @function clearImageCache
  * @param {String} seriesId - The id of the serie
  */
-export const clearImageCache = function (seriesId = undefined) {
+export const clearImageCache = function (seriesId) {
   if (seriesId) {
-    let series = larvitar_store.get("series");
+    let series = store.get("series");
     if (has(series, seriesId)) {
       each(series[seriesId].imageIds, function (imageId) {
         if (cornerstone.imageCache.cachedImages.length > 0) {
@@ -63,7 +63,7 @@ export const clearImageCache = function (seriesId = undefined) {
         }
       });
 
-      larvitar_store.removeSeriesIds(seriesId);
+      store.removeSeriesIds(seriesId);
       console.log("Uncached images for ", seriesId);
     }
   } else {
@@ -93,9 +93,9 @@ export function loadAndCacheImages(series, callback) {
   };
   callback(response);
   // add serie's imageIds into store
-  larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
+  store.addSeriesIds(series.seriesUID, series.imageIds);
   // add serie's caching progress into store
-  larvitar_store.set("progress", [series.seriesUID, 0]);
+  setStore("progress", [series.seriesUID, 0]);
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function () {
       cachingCounter += 1;
@@ -103,7 +103,7 @@ export function loadAndCacheImages(series, callback) {
         (cachingCounter / series.imageIds.length) * 100
       );
       response.loading = cachingPercentage;
-      larvitar_store.set("progress", [series.seriesUID, cachingPercentage]);
+      setStore("progress", [series.seriesUID, cachingPercentage]);
       if (cachingCounter == series.imageIds.length) {
         let t1 = performance.now();
         console.log(`Call to cacheImages took ${t1 - t0} milliseconds.`);
@@ -147,7 +147,7 @@ export const renderDICOMPDF = function (seriesStack, elementId) {
         '<object data="' +
         fileURL +
         '" type="application/pdf" width="100%" height="100%"></object>';
-      larvitar_store.set("isPDF", [elementId, true]);
+      setStore("isPDF", [elementId, true]);
       let t1 = performance.now();
       console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
       image = null;
@@ -266,10 +266,10 @@ export const unloadViewport = function (elementId, seriesId) {
     );
   }
   // remove images from cornerstone cache
-  if (seriesId && has(larvitar_store.get("series"), seriesId)) {
+  if (seriesId && has(store.get("series"), seriesId)) {
     clearImageCache(seriesId);
   }
-  larvitar_store.deleteViewport(elementId);
+  store.deleteViewport(elementId);
 };
 
 /**
@@ -313,7 +313,7 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
 
   let series = { ...seriesStack };
 
-  larvitar_store.set("renderingStatus", [elementId, false]);
+  setStore("renderingStatus", [elementId, false]);
   let data = getSeriesData(series, defaultProps);
   if (!data.imageId) {
     console.warn("Error during renderImage: imageId has not been loaded yet.");
@@ -373,7 +373,7 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
 
       let storedViewport = cornerstone.getViewport(element);
       storeViewportData(image, elementId, storedViewport, data);
-      larvitar_store.set("renderingStatus", [elementId, true]);
+      setStore("renderingStatus", [elementId, true]);
       let t1 = performance.now();
       console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
@@ -423,23 +423,23 @@ export const updateImage = function (
       const timestamp = series.instances[imageId].metadata.contentTime;
       const timeId =
         series.instances[imageId].metadata.temporalPositionIdentifier - 1; // timeId from 0 to N
-      larvitar_store.set("timeId", [elementId, timeId]);
-      larvitar_store.set("timestamp", [elementId, timestamp]);
+      setStore("timeId", [elementId, timeId]);
+      setStore("timestamp", [elementId, timestamp]);
     }
 
     if (cacheImage) {
       cornerstone.loadAndCacheImage(imageId).then(function (image) {
         cornerstone.displayImage(element, image);
-        larvitar_store.set("sliceId", [elementId, imageIndex]);
-        larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
-        larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
+        setStore("sliceId", [elementId, imageIndex]);
+        setStore("minPixelValue", [elementId, image.minPixelValue]);
+        setStore("maxPixelValue", [elementId, image.maxPixelValue]);
       });
     } else {
       cornerstone.loadImage(imageId).then(function (image) {
         cornerstone.displayImage(element, image);
-        larvitar_store.set("sliceId", [elementId, imageIndex]);
-        larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
-        larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
+        setStore("sliceId", [elementId, imageIndex]);
+        setStore("minPixelValue", [elementId, image.minPixelValue]);
+        setStore("maxPixelValue", [elementId, image.maxPixelValue]);
       });
     }
   } else {
@@ -462,49 +462,16 @@ export const resetViewports = function (elementIds) {
       console.error("invalid html element: " + elementId);
       return;
     }
+
+    const defaultViewport = store.get(["viewports", elementId, "default"]);
+
     let viewport = cornerstone.getViewport(element);
-    viewport.scale = larvitar_store.get(
-      "viewports",
-      elementId,
-      "default",
-      "scale"
-    );
-
-    viewport.rotation = larvitar_store.get(
-      "viewports",
-      elementId,
-      "default",
-      "rotation"
-    );
-    viewport.translation.x = larvitar_store.get(
-      "viewports",
-      elementId,
-      "default",
-      "translation",
-      "x"
-    );
-    viewport.translation.y = larvitar_store.get(
-      "viewports",
-      elementId,
-      "default",
-      "translation",
-      "y"
-    );
-    viewport.voi.windowWidth = larvitar_store.get(
-      "viewports",
-      elementId,
-      "default",
-      "voi",
-      "windowWidth"
-    );
-    viewport.voi.windowCenter = larvitar_store.get(
-      "viewports",
-      elementId,
-      "default",
-      "voi",
-      "windowCenter"
-    );
-
+    viewport.scale = defaultViewport.scale;
+    viewport.rotation = defaultViewport.rotation;
+    viewport.translation.x = defaultViewport.translation.x;
+    viewport.translation.y = defaultViewport.translation.y;
+    viewport.voi.windowWidth = defaultViewport.voi.windowWidth;
+    viewport.voi.windowCenter = defaultViewport.voi.windowCenter;
     viewport.hflip = false;
     viewport.vflip = false;
     viewport.invert = false;
@@ -513,14 +480,14 @@ export const resetViewports = function (elementIds) {
     cornerstone.fitToWindow(element);
     cornerstone.updateImage(element);
 
-    larvitar_store.set("scale", [elementId, viewport.scale]);
-    larvitar_store.set("rotation", [elementId, viewport.rotation]);
-    larvitar_store.set("translation", [
+    setStore("scale", [elementId, viewport.scale]);
+    setStore("rotation", [elementId, viewport.rotation]);
+    setStore("translation", [
       elementId,
       viewport.translation.x,
       viewport.translation.y
     ]);
-    larvitar_store.set("contrast", [
+    setStore("contrast", [
       elementId,
       viewport.voi.windowWidth,
       viewport.voi.windowCenter
@@ -553,7 +520,7 @@ export const updateViewportData = function (
       // sync viewports if needed
       let elements = cornerstone.getEnabledElements();
       each(elements, function (el) {
-        larvitar_store.set("contrast", [
+        setStore("contrast", [
           el.element.id,
           viewportData.voi.windowWidth,
           viewportData.voi.windowCenter
@@ -561,36 +528,27 @@ export const updateViewportData = function (
       });
       break;
     case "Pan":
-      larvitar_store.set("translation", [
+      setStore("translation", [
         elementId,
         viewportData.translation.x,
         viewportData.translation.y
       ]);
       break;
     case "Zoom":
-      larvitar_store.set("scale", [elementId, viewportData.scale]);
+      setStore("scale", [elementId, viewportData.scale]);
       break;
     case "Rotate":
-      larvitar_store.set("rotation", [elementId, viewportData.rotation]);
+      setStore("rotation", [elementId, viewportData.rotation]);
       break;
     case "mouseWheel":
-      const isTimeserie = larvitar_store.get(
-        "viewports",
-        elementId,
-        "isTimeserie"
-      );
+      const viewport = store.get(["viewports", elementId]);
+      const isTimeserie = viewport.isTimeserie;
       if (isTimeserie) {
         const index = viewportData.newImageIdIndex;
-        const timeId = larvitar_store.get("viewports", elementId, "timeIds")[
-          index
-        ];
-        const timestamp = larvitar_store.get(
-          "viewports",
-          elementId,
-          "timestamps"
-        )[index];
-        larvitar_store.set("timeId", [elementId, timeId]);
-        larvitar_store.set("timestamp", [elementId, timestamp]);
+        const timeId = viewport.timeIds[index];
+        const timestamp = viewport.timestamps[index];
+        setStore("timeId", [elementId, timeId]);
+        setStore("timestamp", [elementId, timestamp]);
       }
       break;
     default:
@@ -608,32 +566,29 @@ export const updateViewportData = function (
  * @param {Object} data - The viewport data object
  */
 export const storeViewportData = function (image, elementId, viewport, data) {
-  larvitar_store.set("dimensions", [elementId, data.rows, data.cols]);
-  larvitar_store.set("spacing", [elementId, data.spacing_x, data.spacing_y]);
-  larvitar_store.set("thickness", [elementId, data.thickness]);
-  larvitar_store.set("minPixelValue", [elementId, image.minPixelValue]);
-  larvitar_store.set("maxPixelValue", [elementId, image.maxPixelValue]);
+  setStore("dimensions", [elementId, data.rows, data.cols]);
+  setStore("spacing", [elementId, data.spacing_x, data.spacing_y]);
+  setStore("thickness", [elementId, data.thickness]);
+  setStore("minPixelValue", [elementId, image.minPixelValue]);
+  setStore("maxPixelValue", [elementId, image.maxPixelValue]);
   // slice id from 0 to n - 1
-  larvitar_store.set("minSliceId", [elementId, 0]);
-  larvitar_store.set("sliceId", [elementId, data.imageIndex]);
-  larvitar_store.set("maxSliceId", [elementId, data.numberOfSlices - 1]);
+  setStore("minSliceId", [elementId, 0]);
+  setStore("sliceId", [elementId, data.imageIndex]);
+  setStore("maxSliceId", [elementId, data.numberOfSlices - 1]);
 
   if (data.isTimeserie) {
-    larvitar_store.set("minTimeId", [elementId, 0]);
-    larvitar_store.set("timeId", [elementId, data.timeIndex]);
-    larvitar_store.set("maxTimeId", [
-      elementId,
-      data.numberOfTemporalPositions - 1
-    ]);
+    setStore("minTimeId", [elementId, 0]);
+    setStore("timeId", [elementId, data.timeIndex]);
+    setStore("maxTimeId", [elementId, data.numberOfTemporalPositions - 1]);
     let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
-    larvitar_store.set("maxSliceId", [elementId, maxSliceId]);
+    setStore("maxSliceId", [elementId, maxSliceId]);
 
-    larvitar_store.set("timestamp", [elementId, data.timestamp]);
-    larvitar_store.set("timestamps", [elementId, data.timestamps]);
-    larvitar_store.set("timeIds", [elementId, data.timeIds]);
+    setStore("timestamp", [elementId, data.timestamp]);
+    setStore("timestamps", [elementId, data.timestamps]);
+    setStore("timeIds", [elementId, data.timeIds]);
   }
 
-  larvitar_store.set("defaultViewport", [
+  setStore("defaultViewport", [
     elementId,
     viewport.scale,
     viewport.rotation,
@@ -642,22 +597,22 @@ export const storeViewportData = function (image, elementId, viewport, data) {
     data.defaultWW,
     data.defaultWC
   ]);
-  larvitar_store.set("scale", [elementId, viewport.scale]);
-  larvitar_store.set("rotation", [elementId, viewport.rotation]);
-  larvitar_store.set("translation", [
+  setStore("scale", [elementId, viewport.scale]);
+  setStore("rotation", [elementId, viewport.rotation]);
+  setStore("translation", [
     elementId,
     viewport.translation.x,
     viewport.translation.y
   ]);
-  larvitar_store.set("contrast", [
+  setStore("contrast", [
     elementId,
     viewport.voi.windowWidth,
     viewport.voi.windowCenter
   ]);
-  larvitar_store.set("isColor", [elementId, data.isColor]);
-  larvitar_store.set("isMultiframe", [elementId, data.isMultiframe]);
-  larvitar_store.set("isTimeserie", [elementId, data.isTimeserie]);
-  larvitar_store.set("isPDF", [elementId, false]);
+  setStore("isColor", [elementId, data.isColor]);
+  setStore("isMultiframe", [elementId, data.isMultiframe]);
+  setStore("isTimeserie", [elementId, data.isTimeserie]);
+  setStore("isPDF", [elementId, false]);
 };
 
 /**
@@ -844,10 +799,10 @@ let getSeriesData = function (series, defaultProps) {
 
   if (data.rows == null || data.cols == null) {
     console.error("invalid image metadata");
-    larvitar_store.set("errorLog", "Invalid Image Metadata");
+    setStore("errorLog", "Invalid Image Metadata");
     return;
   } else {
-    larvitar_store.set("errorLog", "");
+    setStore("errorLog", "");
   }
 
   return data;
