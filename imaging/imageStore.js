@@ -243,7 +243,6 @@ export default {
   initialize: initializeStore,
   // add/remove viewports
   addViewport: name => {
-    validateStore();
     STORE.viewports[name] = DEFAULT_VIEWPORT;
   },
   deleteViewport: name => {

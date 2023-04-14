@@ -14,8 +14,8 @@
   },
   "scripts": {
     "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json",
-    "build-lib": "rollup -c",
-    "dev-lib": "rollup -c -w"
+    "build": "webpack --config ./bundler/webpack.prod.js",
+    "dev": "webpack serve --config ./bundler/webpack.dev.js"
   },
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
   "contributors": [
@@ -43,15 +43,18 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^11.2.0",
+    "@types/cornerstone-core": "^2.3.0",
+    "babel-loader": "^9.1.2",
+    "copy-webpack-plugin": "^11.0.0",
     "fs": "^0.0.1-security",
+    "html-webpack-plugin": "^5.5.0",
+    "ip": "^1.1.8",
     "jsdoc": "^3.6.4",
-    "rollup": "^2.39.0",
-    "rollup-plugin-node-resolve": "^5.2.0"
-  },
-  "common": "dist/larvitar.cjs.js",
-  "module": "dist/larvitar.js",
-  "browser": "dist/larvitar.js",
-  "type": "module"
+    "portfinder-sync": "^0.0.2",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.0.2",
+    "webpack": "^5.76.3",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.1"
+  }
 }
