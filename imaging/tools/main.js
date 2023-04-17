@@ -46,7 +46,7 @@ const initializeCSTools = function (settings, style) {
  * Create stack object to sync stack tools
  * @function csToolsCreateStack
  * @param {HTMLElement} element - The target hmtl element.
- * @param {Array} imageIds - Stack image ids.
+ * @param {Array?} imageIds - Stack image ids.
  * @param {String} currentImageId - The current image id.
  */
 const csToolsCreateStack = function (element, imageIds, currentImageIndex) {

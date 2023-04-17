@@ -206,7 +206,7 @@ export function removeMouseKeyHandlers() {
  * Add event handlers to mouse move
  * @instance
  * @function toggleMouseHandlers
- * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {String | HTMLElement} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {Boolean} disable - If true disable handlers, default is false
  */
 export const toggleMouseToolsListeners = function (elementId, disable) {

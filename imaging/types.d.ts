@@ -52,7 +52,16 @@ export type Series = {
   studyUID: string;
   larvitarSeriesInstanceUID: string;
   elements?: { [key: string]: any } | null;
+  layer: Layer;
 };
+
+export interface Layer extends cornerstone.EnabledElementLayer {
+  id: string;
+}
+
+export interface Viewport extends cornerstone.Viewport {
+  newImageIdIndex: number;
+}
 
 export type Contours = {
   [key: string]: {

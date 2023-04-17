@@ -6,7 +6,7 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import { each, has } from "lodash";
+import { each, has, reject } from "lodash";
 
 // internal libraries
 import { getFileImageId } from "./loaders/fileLoader";
@@ -15,6 +15,7 @@ import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
 import { isElement } from "./imageUtils";
+import { Image, Instance, Series, Viewport } from "./types";
 
 /*
  * This module provides the following functions to be exported:
@@ -45,7 +46,7 @@ import { isElement } from "./imageUtils";
  * @function clearImageCache
  * @param {String} seriesId - The id of the serie
  */
-export const clearImageCache = function (seriesId) {
+export const clearImageCache = function (seriesId: string) {
   if (seriesId) {
     let series = store.get("series");
     if (has(series, seriesId)) {
@@ -79,7 +80,8 @@ export const clearImageCache = function (seriesId) {
  * @param {Object} series the parsed series data
  * @param {Function} callback a callback function
  */
-export function loadAndCacheImages(series, callback) {
+export function loadAndCacheImages(series: Series, callback: Function) {
+  // TODO-ts: better type for callback
   let t0 = performance.now();
   let cachingCounter = 0;
   if (series.isMultiframe) {
@@ -123,25 +125,44 @@ export function loadAndCacheImages(series, callback) {
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when pdf is displayed
  */
-export const renderDICOMPDF = function (seriesStack, elementId) {
+export const renderDICOMPDF = function (
+  seriesStack: Series,
+  elementId: string | HTMLElement
+) {
   let t0 = performance.now();
-  let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
-  let renderPromise = new Promise((resolve, reject) => {
-    let image = seriesStack.instances[seriesStack.imageIds[0]];
-    const SOPUID = image.dataSet.string("x00080016");
+  let element: HTMLElement | null = isElement(elementId)
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
+
+  let renderPromise = new Promise<void>((resolve, reject) => {
+    let image: Instance | null = seriesStack.instances[seriesStack.imageIds[0]];
+    const SOPUID = image.dataSet?.string("x00080016");
+
     if (SOPUID === "1.2.840.10008.5.1.4.1.1.104.1") {
-      let fileTag = image.dataSet.elements.x00420011;
-      let pdfByteArray = image.dataSet.byteArray.slice(
+      let fileTag = image.dataSet?.elements.x00420011;
+
+      if (!fileTag) {
+        throw new Error("No file tag found");
+      }
+
+      let pdfByteArray = image.dataSet?.byteArray.slice(
         fileTag.dataOffset,
         fileTag.dataOffset + fileTag.length
       );
-      let PDF = new Blob([pdfByteArray], { type: "application/pdf" });
+
+      if (!pdfByteArray) {
+        console.error("No pdf byte array found");
+        return;
+      }
+
+      if (!element) {
+        console.error("invalid html element: " + elementId);
+        return;
+      }
+
+      let PDF: Blob | null = new Blob([pdfByteArray], {
+        type: "application/pdf"
+      });
       let fileURL = URL.createObjectURL(PDF);
       element.innerHTML =
         '<object data="' +
@@ -151,10 +172,9 @@ export const renderDICOMPDF = function (seriesStack, elementId) {
       let t1 = performance.now();
       console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
       image = null;
-      fileTag = null;
-      pdfByteArray = null;
+      fileTag = undefined;
+      pdfByteArray = undefined;
       PDF = null;
-      fileURL = null;
       resolve();
     } else {
       reject("This is not a DICOM with a PDF");
@@ -171,10 +191,14 @@ export const renderDICOMPDF = function (seriesStack, elementId) {
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when image is displayed
  */
-export const renderFileImage = function (file, elementId) {
+export const renderFileImage = function (
+  file: File,
+  elementId: string | HTMLElement
+) {
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
+
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
@@ -189,13 +213,26 @@ export const renderFileImage = function (file, elementId) {
     const imageId = getFileImageId(file);
     if (imageId) {
       cornerstone.loadImage(imageId).then(function (image) {
+        if (!element) {
+          console.error("invalid html element: " + elementId);
+          return;
+        }
         cornerstone.displayImage(element, image);
         let viewport = cornerstone.getViewport(element);
+
+        if (!viewport) {
+          console.error("invalid viewport");
+          return;
+        }
+
+        // @ts-ignore: displayArea is not defined in the type definition TODO-ts check this
         viewport.displayedArea.brhc.x = image.width;
+        // @ts-ignore
         viewport.displayedArea.brhc.y = image.height;
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
-        csToolsCreateStack(element);
+        // TODO-ts fix this when csToolsCreateStack is typed
+        csToolsCreateStack(element, null, null);
         resolve(image);
       });
     }
@@ -211,19 +248,29 @@ export const renderFileImage = function (file, elementId) {
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when image is displayed
  */
-export const renderWebImage = function (url, elementId) {
+export const renderWebImage = function (
+  url: string,
+  elementId: string | HTMLElement
+) {
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return;
-  }
-  let renderPromise = new Promise(resolve => {
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
+  let renderPromise = new Promise<cornerstone.Image>((resolve, reject) => {
+    if (!element) {
+      console.error("invalid html element: " + elementId);
+      reject("invalid html element: " + elementId);
+      return;
+    }
     cornerstone.enable(element);
     cornerstone.loadImage(url).then(function (image) {
+      if (!element) {
+        console.error("invalid html element: " + elementId);
+        reject("invalid html element: " + elementId);
+        return;
+      }
       cornerstone.displayImage(element, image);
-      csToolsCreateStack(element);
+      // TODO-ts fix this when csToolsCreateStack is typed
+      csToolsCreateStack(element, null, null);
       resolve(image);
     });
   });
@@ -236,10 +283,10 @@ export const renderWebImage = function (url, elementId) {
  * @function disableViewport
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  */
-export const disableViewport = function (elementId) {
+export const disableViewport = function (elementId: string | HTMLElement) {
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
@@ -257,7 +304,10 @@ export const disableViewport = function (elementId) {
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {String} seriesId - The id of the serie
  */
-export const unloadViewport = function (elementId, seriesId) {
+export const unloadViewport = function (
+  elementId: string | HTMLElement,
+  seriesId: string
+) {
   disableViewport(elementId);
 
   if (!seriesId) {
@@ -279,10 +329,10 @@ export const unloadViewport = function (elementId, seriesId) {
  * @function resizeViewport
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  */
-export const resizeViewport = function (elementId) {
+export const resizeViewport = function (elementId: string | HTMLElement) {
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
@@ -299,12 +349,22 @@ export const resizeViewport = function (elementId) {
  * @param {Object} defaultProps - Optional default props
  * @return {Promise} Return a promise which will resolve when image is displayed
  */
-export const renderImage = function (seriesStack, elementId, defaultProps) {
+export const renderImage = function (
+  seriesStack: Series,
+  elementId: string | HTMLElement,
+  // defaultProps: cornerstone.Viewport
+  defaultProps: {
+    scale?: number;
+    colormap?: string;
+    tr_x?: number;
+    tr_y?: number;
+  }
+) {
   let t0 = performance.now();
   // get element and enable it
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
@@ -314,15 +374,23 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
   let series = { ...seriesStack };
 
   setStore("renderingStatus", [elementId, false]);
-  let data = getSeriesData(series, defaultProps);
+  let data = getSeriesData(series, defaultProps) as {
+    [key: string]: number | string | boolean;
+  }; //TODO-ts improve this
   if (!data.imageId) {
     console.warn("Error during renderImage: imageId has not been loaded yet.");
     return;
   }
 
-  let renderPromise = new Promise(resolve => {
+  let renderPromise = new Promise<void>((resolve, reject) => {
     // load and display one image (imageId)
-    cornerstone.loadImage(data.imageId).then(function (image) {
+    cornerstone.loadImage(data.imageId as string).then(function (image) {
+      if (!element) {
+        console.error("invalid html element: " + elementId);
+        reject();
+        return;
+      }
+
       cornerstone.displayImage(element, image);
 
       if (series.layer) {
@@ -336,6 +404,12 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
 
       let viewport = cornerstone.getViewport(element);
 
+      if (!viewport) {
+        console.error("viewport not found");
+        reject();
+        return;
+      }
+
       // window width and window level
       // are stored in specific dicom tags
       // (x00281050 and x00281051)
@@ -347,15 +421,15 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
 
       cornerstone.fitToWindow(element);
 
-      if (defaultProps && has(defaultProps, "scale")) {
+      if (defaultProps && defaultProps.scale !== undefined) {
         viewport.scale = defaultProps["scale"];
         cornerstone.setViewport(element, viewport);
       }
 
       if (
         defaultProps &&
-        has(defaultProps, "tr_x") &&
-        has(defaultProps, "tr_y")
+        defaultProps.tr_x !== undefined &&
+        defaultProps.tr_y !== undefined
       ) {
         viewport.translation.x = defaultProps["tr_x"];
         viewport.translation.y = defaultProps["tr_y"];
@@ -363,17 +437,20 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
       }
 
       // color maps
-      if (
-        defaultProps &&
-        has(defaultProps, "colormap") &&
-        image.color == false
-      ) {
+      if (defaultProps && defaultProps.colormap && image.color == false) {
         applyColorMap(defaultProps["colormap"]);
       }
 
       let storedViewport = cornerstone.getViewport(element);
-      storeViewportData(image, elementId, storedViewport, data);
-      setStore("renderingStatus", [elementId, true]);
+
+      if (!storedViewport) {
+        console.error("storedViewport not found");
+        reject();
+        return;
+      }
+
+      storeViewportData(image, element.id, storedViewport as Viewport, data);
+      setStore("renderingStatus", [element.id, true]);
       let t1 = performance.now();
       console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
@@ -381,15 +458,18 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
         data.imageId
       ).url;
       cornerstoneWADOImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      //@ts-ignore
       image = null;
+      //@ts-ignore
       series = null;
+      //@ts-ignore
       data = null;
       resolve();
     });
   });
 
-  csToolsCreateStack(element, series.imageIds, data.imageIndex - 1);
-  toggleMouseToolsListeners(elementId);
+  csToolsCreateStack(element, series.imageIds, (data.imageIndex as number) - 1);
+  toggleMouseToolsListeners(elementId, false);
 
   return renderPromise;
 };
@@ -404,31 +484,32 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
  * @param {Boolean} cacheImage - A flag to handle image cache
  */
 export const updateImage = function (
-  series,
-  elementId,
-  imageIndex,
-  cacheImage
+  series: Series,
+  elementId: string | HTMLElement,
+  imageIndex: number,
+  cacheImage: boolean
 ) {
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
-  if (!element) {
-    console.log("not element");
-    return;
-  }
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
   let imageId = series.imageIds[imageIndex];
 
   if (imageId) {
     if (series.is4D) {
       const timestamp = series.instances[imageId].metadata.contentTime;
       const timeId =
-        series.instances[imageId].metadata.temporalPositionIdentifier - 1; // timeId from 0 to N
+        (series.instances[imageId].metadata
+          .temporalPositionIdentifier as number) - 1; // timeId from 0 to N
       setStore("timeId", [elementId, timeId]);
       setStore("timestamp", [elementId, timestamp]);
     }
 
     if (cacheImage) {
       cornerstone.loadAndCacheImage(imageId).then(function (image) {
+        if (!element) {
+          console.log("not element");
+          return;
+        }
         cornerstone.displayImage(element, image);
         setStore("sliceId", [elementId, imageIndex]);
         setStore("minPixelValue", [elementId, image.minPixelValue]);
@@ -436,6 +517,10 @@ export const updateImage = function (
       });
     } else {
       cornerstone.loadImage(imageId).then(function (image) {
+        if (!element) {
+          console.log("not element");
+          return;
+        }
         cornerstone.displayImage(element, image);
         setStore("sliceId", [elementId, imageIndex]);
         setStore("minPixelValue", [elementId, image.minPixelValue]);
@@ -455,7 +540,7 @@ export const updateImage = function (
  * @function resetViewports
  * @param {Array} elementIds - The array of hmtl div ids
  */
-export const resetViewports = function (elementIds) {
+export const resetViewports = function (elementIds: string[]) {
   each(elementIds, function (elementId) {
     let element = document.getElementById(elementId);
     if (!element) {
@@ -466,6 +551,11 @@ export const resetViewports = function (elementIds) {
     const defaultViewport = store.get(["viewports", elementId, "default"]);
 
     let viewport = cornerstone.getViewport(element);
+
+    if (!viewport) {
+      throw new Error("viewport not found");
+    }
+
     viewport.scale = defaultViewport.scale;
     viewport.rotation = defaultViewport.rotation;
     viewport.translation.x = defaultViewport.translation.x;
@@ -503,13 +593,13 @@ export const resetViewports = function (elementIds) {
  * @param {Object} viewportData - The new viewport data
  */
 export const updateViewportData = function (
-  elementId,
-  viewportData,
-  activeTool
+  elementId: string | HTMLElement,
+  viewportData: Viewport,
+  activeTool: string
 ) {
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
@@ -522,16 +612,16 @@ export const updateViewportData = function (
       each(elements, function (el) {
         setStore("contrast", [
           el.element.id,
-          viewportData.voi.windowWidth,
-          viewportData.voi.windowCenter
+          viewportData.voi?.windowWidth,
+          viewportData.voi?.windowCenter
         ]);
       });
       break;
     case "Pan":
       setStore("translation", [
         elementId,
-        viewportData.translation.x,
-        viewportData.translation.y
+        viewportData.translation?.x,
+        viewportData.translation?.y
       ]);
       break;
     case "Zoom":
@@ -565,7 +655,12 @@ export const updateViewportData = function (
  * @param {String} viewport - The viewport tag name
  * @param {Object} data - The viewport data object
  */
-export const storeViewportData = function (image, elementId, viewport, data) {
+export const storeViewportData = function (
+  image: cornerstone.Image,
+  elementId: string,
+  viewport: Viewport,
+  data: { [key: string]: any } // TODO-ts what is this?
+) {
   setStore("dimensions", [elementId, data.rows, data.cols]);
   setStore("spacing", [elementId, data.spacing_x, data.spacing_y]);
   setStore("thickness", [elementId, data.thickness]);
@@ -592,8 +687,8 @@ export const storeViewportData = function (image, elementId, viewport, data) {
     elementId,
     viewport.scale,
     viewport.rotation,
-    viewport.translation.x,
-    viewport.translation.y,
+    viewport.translation?.x,
+    viewport.translation?.y,
     data.defaultWW,
     data.defaultWC
   ]);
@@ -601,13 +696,13 @@ export const storeViewportData = function (image, elementId, viewport, data) {
   setStore("rotation", [elementId, viewport.rotation]);
   setStore("translation", [
     elementId,
-    viewport.translation.x,
-    viewport.translation.y
+    viewport.translation?.x,
+    viewport.translation?.y
   ]);
   setStore("contrast", [
     elementId,
-    viewport.voi.windowWidth,
-    viewport.voi.windowCenter
+    viewport.voi?.windowWidth,
+    viewport.voi?.windowCenter
   ]);
   setStore("isColor", [elementId, data.isColor]);
   setStore("isMultiframe", [elementId, data.isMultiframe]);
@@ -621,15 +716,20 @@ export const storeViewportData = function (image, elementId, viewport, data) {
  * @function invertImage
  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
  */
-export const invertImage = function (elementId) {
+export const invertImage = function (elementId: string | HTMLElement) {
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
   }
   let viewport = cornerstone.getViewport(element);
+
+  if (!viewport) {
+    throw new Error("Viewport is undefined");
+  }
+
   viewport.invert = !viewport.invert;
   cornerstone.setViewport(element, viewport);
 };
@@ -640,15 +740,20 @@ export const invertImage = function (elementId) {
  * @function flipImageHorizontal
  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
  */
-export const flipImageHorizontal = function (elementId) {
+export const flipImageHorizontal = function (elementId: string | HTMLElement) {
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
   }
   let viewport = cornerstone.getViewport(element);
+
+  if (!viewport) {
+    throw new Error("Viewport is undefined");
+  }
+
   viewport.hflip = !viewport.hflip;
   cornerstone.setViewport(element, viewport);
 };
@@ -659,15 +764,20 @@ export const flipImageHorizontal = function (elementId) {
  * @function flipImageVertical
  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
  */
-export const flipImageVertical = function (elementId) {
+export const flipImageVertical = function (elementId: string | HTMLElement) {
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
   }
   let viewport = cornerstone.getViewport(element);
+
+  if (!viewport) {
+    throw new Error("Viewport is undefined");
+  }
+
   viewport.vflip = !viewport.vflip;
   cornerstone.setViewport(element, viewport);
 };
@@ -678,15 +788,20 @@ export const flipImageVertical = function (elementId) {
  * @function rotateImageLeft
  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
  */
-export const rotateImageLeft = function (elementId) {
+export const rotateImageLeft = function (elementId: string | HTMLElement) {
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
   }
   let viewport = cornerstone.getViewport(element);
+
+  if (!viewport) {
+    throw new Error("Viewport is undefined");
+  }
+
   viewport.rotation -= 90;
   cornerstone.setViewport(element, viewport);
 };
@@ -697,15 +812,20 @@ export const rotateImageLeft = function (elementId) {
  * @function rotateImageRight
  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
  */
-export const rotateImageRight = function (elementId) {
+export const rotateImageRight = function (elementId: string | HTMLElement) {
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
   }
   let viewport = cornerstone.getViewport(element);
+
+  if (!viewport) {
+    throw new Error("Viewport is undefined");
+  }
+
   viewport.rotation += 90;
   cornerstone.setViewport(element, viewport);
 };
@@ -720,8 +840,11 @@ export const rotateImageRight = function (elementId) {
  * @param {Object} defaultProps - Optional default properties
  * @return {Object} data - A data dictionary with parsed tags' values
  */
-let getSeriesData = function (series, defaultProps) {
-  let data = {};
+let getSeriesData = function (
+  series: Series,
+  defaultProps: { [key: string]: number | string | boolean }
+) {
+  let data: { [key: string]: number | string | boolean | Array<any> } = {}; // TODO-ts better type definition
   if (series.isMultiframe) {
     data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;
@@ -735,14 +858,19 @@ let getSeriesData = function (series, defaultProps) {
     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
     data.imageIndex = 0;
     data.timeIndex = 0;
-    data.timestamp = series.instances[series.imageIds[0]].metadata["x00080033"];
+    data.timestamp = series.instances[series.imageIds[0]].metadata[
+      "x00080033"
+    ] as number;
     data.imageId = series.imageIds[data.imageIndex];
     data.timestamps = [];
     data.timeIds = [];
     each(series.imageIds, function (imageId) {
-      data.timestamps.push(series.instances[imageId].metadata.contentTime);
-      data.timeIds.push(
-        series.instances[imageId].metadata.temporalPositionIdentifier - 1 // timeId from 0 to N
+      (data.timestamps as any[]).push(
+        series.instances[imageId].metadata.contentTime
+      );
+      (data.timeIds as any[]).push(
+        (series.instances[imageId].metadata
+          .temporalPositionIdentifier as number) - 1 // timeId from 0 to N
       );
     });
   } else {
@@ -755,37 +883,43 @@ let getSeriesData = function (series, defaultProps) {
     data.imageIndex =
       defaultProps &&
       has(defaultProps, "sliceNumber") &&
-      defaultProps["sliceNumber"] >= 0 && // slice number between 0 and n-1
+      (defaultProps["sliceNumber"] as number) >= 0 && // slice number between 0 and n-1
       defaultProps["sliceNumber"] < data.numberOfSlices
         ? defaultProps["sliceNumber"]
-        : Math.floor(data.numberOfSlices / 2);
+        : Math.floor((data.numberOfSlices as number) / 2);
 
-    data.imageId = series.imageIds[data.imageIndex];
+    data.imageId = series.imageIds[data.imageIndex as number];
   }
-  data.isColor = series.color;
+  data.isColor = series.color as boolean;
   data.isPDF = series.isPDF;
 
   // rows, cols and x y z spacing
-  data.rows = series.instances[series.imageIds[0]].metadata["x00280010"];
-  data.cols = series.instances[series.imageIds[0]].metadata["x00280011"];
-  data.thickness = series.instances[series.imageIds[0]].metadata["x00180050"];
-  data.spacing_x = series.instances[series.imageIds[0]].metadata["x00280030"]
-    ? series.instances[series.imageIds[0]].metadata["x00280030"][0]
-    : null;
-  data.spacing_y = series.instances[series.imageIds[0]].metadata["x00280030"]
-    ? series.instances[series.imageIds[0]].metadata["x00280030"][1]
-    : null;
+  data.rows = series.instances[series.imageIds[0]].metadata[
+    "x00280010"
+  ] as number;
+  data.cols = series.instances[series.imageIds[0]].metadata[
+    "x00280011"
+  ] as number;
+  data.thickness = series.instances[series.imageIds[0]].metadata[
+    "x00180050"
+  ] as number;
+
+  let spacing = series.instances[series.imageIds[0]].metadata[
+    "x00280030"
+  ] as number[];
+  data.spacing_x = spacing[0];
+  data.spacing_y = spacing[1];
 
   // window center and window width
   data.wc =
-    defaultProps && has(defaultProps, "wc")
+    defaultProps && defaultProps.wc !== undefined
       ? defaultProps["wc"]
-      : series.instances[series.imageIds[0]].metadata["x00281050"];
+      : (series.instances[series.imageIds[0]].metadata["x00281050"] as number);
 
   data.ww =
-    defaultProps && has(defaultProps, "ww")
+    defaultProps && defaultProps.ww !== undefined
       ? defaultProps["ww"]
-      : series.instances[series.imageIds[0]].metadata["x00281051"];
+      : (series.instances[series.imageIds[0]].metadata["x00281051"] as number);
 
   // default values for reset
   data.defaultWW =
@@ -798,9 +932,8 @@ let getSeriesData = function (series, defaultProps) {
       : data.wc;
 
   if (data.rows == null || data.cols == null) {
-    console.error("invalid image metadata");
+    console.error("invalid image metadata (rows or cols is null)");
     setStore("errorLog", "Invalid Image Metadata");
-    return;
   } else {
     setStore("errorLog", "");
   }
