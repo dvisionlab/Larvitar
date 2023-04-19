@@ -53,6 +53,7 @@ export type Series = {
   larvitarSeriesInstanceUID: string;
   elements?: { [key: string]: any } | null;
   layer: Layer;
+  orientation?: "axial" | "coronal" | "sagittal"; // this is needed for legacy reslice
 };
 
 export interface Layer extends cornerstone.EnabledElementLayer {
