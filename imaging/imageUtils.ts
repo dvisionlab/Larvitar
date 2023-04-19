@@ -27,10 +27,23 @@ import { convertBytes } from "dicom-character-set";
 import { getDicomImageId } from "./loaders/dicomLoader";
 import TAG_DICT from "./dataDictionary.json";
 import { getSeriesDataFromLarvitarManager } from "./loaders/commonLoader";
+import {
+  CustomDataSet,
+  Instance,
+  Orientation,
+  ReslicedInstance,
+  Series,
+  Volume
+} from "./types";
+import { DataSet } from "dicom-parser";
 
 // global module variables
 // variables used to manage the reslice functionality
-const resliceTable = {
+const resliceTable: {
+  [key: string]: {
+    [key: string]: [number, number, number];
+  };
+} = {
   sagittal: { coronal: [-2, 1, 0], axial: [-2, 0, -1] },
   coronal: { sagittal: [2, 1, -0], axial: [0, 2, -1] },
   axial: { sagittal: [1, -2, -0], coronal: [0, -2, 1] }
@@ -70,7 +83,9 @@ const resliceTable = {
  * @function getNormalOrientation
  * @param {Array} el - The image_orientation dicom tag
  */
-export const getNormalOrientation = function (el) {
+export const getNormalOrientation = function (
+  el: [number, number, number, number, number, number]
+) {
   let a = [el[0], el[1], el[2]];
   let b = [el[3], el[4], el[5]];
 
@@ -90,7 +105,10 @@ export const getNormalOrientation = function (el) {
  * @param {Number} value - The min value
  * @param {Array} pixelData - Pixel data array
  */
-export const getMinPixelValue = function (value, pixelData) {
+export const getMinPixelValue = function (
+  value: number,
+  pixelData: Uint16Array
+) {
   if (value !== undefined) {
     return value;
   }
@@ -110,7 +128,10 @@ export const getMinPixelValue = function (value, pixelData) {
  * @param {Number} value - The max value
  * @param {Array} pixelData - Pixel data array
  */
-export const getMaxPixelValue = function (value, pixelData) {
+export const getMaxPixelValue = function (
+  value: string,
+  pixelData: Uint16Array
+) {
   if (value !== undefined) {
     return value;
   }
@@ -131,7 +152,7 @@ export const getMaxPixelValue = function (value, pixelData) {
  * @param {Object} dataSet - The dataset
  * @returns {String} The pixel representation in the form Sint / Uint + bytelength
  */
-export const getPixelRepresentation = function (dataSet) {
+export const getPixelRepresentation = function (dataSet: CustomDataSet) {
   if (dataSet.repr) {
     return dataSet.repr;
   } else {
@@ -156,8 +177,8 @@ export const getPixelRepresentation = function (dataSet) {
  * @param {Object} dataType - The data type
  * @returns {TypedArray} The typed array
  */
-export const getTypedArrayFromDataType = function (dataType) {
-  let repr = dataType.toLowerCase();
+export const getTypedArrayFromDataType = function (dataType: string) {
+  let repr = dataType.toLowerCase() as keyof typeof TYPES_TO_TYPEDARRAY;
   let typedArray = has(TYPES_TO_TYPEDARRAY, repr)
     ? TYPES_TO_TYPEDARRAY[repr]
     : null;
@@ -175,7 +196,11 @@ export const getTypedArrayFromDataType = function (dataType) {
  * @param {Object} pixelDataElement - The dataset metadata (dataSet.elements.x7fe00010)
  * @returns {TypedArray} The pixel array as proper typed array
  */
-export const getPixelTypedArray = function (dataSet, pixelDataElement) {
+export const getPixelTypedArray = function (
+  dataSet: CustomDataSet,
+  pixelDataElement: any
+) {
+  //TODO-ts type (arrayBuffer?)
   let buffer = dataSet.byteArray.buffer;
   let offset = pixelDataElement.dataOffset;
   let r = getPixelRepresentation(dataSet);
@@ -197,6 +222,9 @@ export const getPixelTypedArray = function (dataSet, pixelDataElement) {
       length = pixelDataElement.length;
       break;
   }
+  if (!typedArray) {
+    throw new Error("invalid data type: " + r);
+  }
   return new typedArray(buffer, offset, length);
 };
 
@@ -214,16 +242,16 @@ export const getPixelTypedArray = function (dataSet, pixelDataElement) {
  * @return {Object} The sorted stack
  */
 export const getSortedStack = function (
-  seriesData,
-  sortPriorities,
-  returnSuccessMethod
+  seriesData: Series,
+  sortPriorities: string[], // TODO-ts better type
+  returnSuccessMethod: boolean
 ) {
-  let tryToSort = function (data, methods) {
+  let tryToSort = function (data: Series, methods: string[]): string[] {
     if (isEmpty(methods)) {
       if (returnSuccessMethod === true) {
-        return sorted;
+        return sorted!;
       } else {
-        return sorted;
+        return sorted!;
       }
     }
 
@@ -254,10 +282,12 @@ export const getSortedStack = function (
  * @param {Object} seriesData - The dataset
  * @return {Object} The sorted instanceUIDs
  */
-export const getSortedUIDs = function (seriesData) {
-  let instanceUIDs = {};
+export const getSortedUIDs = function (seriesData: Series) {
+  let instanceUIDs: { [key: string]: string } = {};
   forEach(seriesData.imageIds, function (imageId) {
-    instanceUIDs[seriesData.instances[imageId].metadata.instanceUID] = imageId;
+    let instanceUID = seriesData.instances[imageId].metadata
+      .instanceUID as string;
+    instanceUIDs[instanceUID] = imageId;
   });
   return instanceUIDs;
 };
@@ -281,35 +311,47 @@ export const randomId = function () {
  * @param {Bool} isArray - True if tag value is an array
  * @return {Number} - Tag mean value
  */
-export const getMeanValue = function (series, tag, isArray) {
-  let meanValue = isArray ? [] : 0;
+export const getMeanValue = function (
+  series: Series,
+  tag: string,
+  isArray: boolean
+) {
+  let meanValue = isArray ? ([] as number[]) : (0 as number);
 
   forEach(series.imageIds, function (imageId) {
-    const tagValue = series.instances[imageId].metadata[tag];
-    if (tagValue.length === 2) {
-      meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
-      meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
-    } else if (tagValue.length === 3) {
-      meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
-      meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
-      meanValue[2] = meanValue[2] ? meanValue[2] + tagValue[2] : tagValue[2];
-    } else if (tagValue.length === 6) {
-      meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
-      meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
-      meanValue[2] = meanValue[2] ? meanValue[2] + tagValue[2] : tagValue[2];
-      meanValue[3] = meanValue[3] ? meanValue[3] + tagValue[3] : tagValue[3];
-      meanValue[4] = meanValue[4] ? meanValue[4] + tagValue[4] : tagValue[4];
-      meanValue[5] = meanValue[5] ? meanValue[5] + tagValue[5] : tagValue[5];
+    let tagValue = series.instances[imageId].metadata[tag];
+    if (Array.isArray(tagValue)) {
+      meanValue = meanValue as number[];
+      tagValue = tagValue.map(v => parseFloat(v as string));
+      if (tagValue.length === 2) {
+        meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
+        meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
+      } else if (tagValue.length === 3) {
+        meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
+        meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
+        meanValue[2] = meanValue[2] ? meanValue[2] + tagValue[2] : tagValue[2];
+      } else if (tagValue.length === 6) {
+        meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
+        meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
+        meanValue[2] = meanValue[2] ? meanValue[2] + tagValue[2] : tagValue[2];
+        meanValue[3] = meanValue[3] ? meanValue[3] + tagValue[3] : tagValue[3];
+        meanValue[4] = meanValue[4] ? meanValue[4] + tagValue[4] : tagValue[4];
+        meanValue[5] = meanValue[5] ? meanValue[5] + tagValue[5] : tagValue[5];
+      }
     } else {
+      meanValue = meanValue as number;
+      tagValue = parseFloat(tagValue as string);
       meanValue += tagValue;
     }
   });
 
   if (isArray) {
+    meanValue = meanValue as number[];
     for (let i = 0; i < meanValue.length; i++) {
       meanValue[i] /= series.imageIds.length;
     }
   } else {
+    meanValue = meanValue as number;
     meanValue /= series.imageIds.length;
   }
   return meanValue;
@@ -327,11 +369,11 @@ export const getMeanValue = function (series, tag, isArray) {
  * @return {Object} - Cornerstone series object, filled only with metadata
  */
 export const getReslicedMetadata = function (
-  reslicedSeriesId,
-  fromOrientation,
-  toOrientation,
-  seriesData,
-  imageLoaderName
+  reslicedSeriesId: string,
+  fromOrientation: string, // TODO-ts a better type is possible ? "axial" | "coronal" | "sagittal" ?
+  toOrientation: string, // TODO-ts a better type is possible ? "axial" | "coronal" | "sagittal" ?
+  seriesData: Series,
+  imageLoaderName: string
 ) {
   // get reslice metadata and apply the reslice algorithm
   let permuteTable = resliceTable[fromOrientation][toOrientation];
@@ -340,8 +382,8 @@ export const getReslicedMetadata = function (
   });
 
   // orthogonal reslice algorithm
-  let reslicedImageIds = [];
-  let reslicedInstances = {};
+  let reslicedImageIds: string[] = [];
+  let reslicedInstances: { [key: string]: ReslicedInstance } = {};
 
   let sampleMetadata = seriesData.instances[seriesData.imageIds[0]].metadata;
 
@@ -413,9 +455,10 @@ export const getReslicedMetadata = function (
       // new image orientation
       x00200037: reslicedIOP,
       // new image position
-      x00200032: reslicedIPP,
-      x00280106: sampleMetadata.x00280106,
-      x00280107: sampleMetadata.x00280107
+      x00200032: reslicedIPP
+      // TODO-ts : why duplicated ?
+      // x00280106: sampleMetadata.x00280106,
+      // x00280107: sampleMetadata.x00280107
     });
 
     // set human readable metadata
@@ -454,12 +497,12 @@ export const getReslicedMetadata = function (
  * @return {Object} - Cornerstone series object, filled only with metadata
  */
 export const getCmprMetadata = function (
-  reslicedSeriesId,
-  imageLoaderName,
-  header
+  reslicedSeriesId: string,
+  imageLoaderName: string,
+  header: any // TODO-ts : type
 ) {
-  let reslicedImageIds = [];
-  let reslicedInstances = {};
+  let reslicedImageIds: string[] = [];
+  let reslicedInstances: { [key: string]: ReslicedInstance } = {};
 
   for (let f = 0; f < header.frames_number; f++) {
     let reslicedImageId = getDicomImageId(imageLoaderName);
@@ -536,27 +579,30 @@ export const getCmprMetadata = function (
  * @return {Object} - A single resliced slice pixel array
  */
 export const getReslicedPixeldata = function (
-  imageId,
-  originalData,
-  reslicedData
+  imageId: string,
+  originalData: Series,
+  reslicedData: Series
 ) {
   // resliced metadata must be already available
-  let reslicedInstance = reslicedData.instances[imageId];
+  let reslicedInstance = reslicedData.instances[imageId] as ReslicedInstance;
   let reslicedMetadata = reslicedInstance.metadata;
+  if (!reslicedInstance.permuteTable) {
+    throw new Error("Resliced permuteTable not available");
+  }
   let permuteAbsTable = reslicedInstance.permuteTable.map(function (v) {
     return Math.abs(v);
   });
 
   // compute resliced series pixelData, use the correct typedarray
-  let rows = reslicedMetadata.x00280010;
-  let cols = reslicedMetadata.x00280011;
+  let rows = reslicedMetadata.x00280010 as number;
+  let cols = reslicedMetadata.x00280011 as number;
   let reslicedSlice = getTypedArray(reslicedMetadata, rows * cols);
 
   let frame = indexOf(reslicedData.imageIds, imageId);
   let originalInstance = originalData.instances[originalData.imageIds[0]];
-  let fromCols = originalInstance.metadata.x00280011;
+  let fromCols = originalInstance.metadata.x00280011 as number;
 
-  function getPixelValue(ijf) {
+  function getPixelValue(ijf: [number, number, number]) {
     let i = ijf[0];
     let j = ijf[1];
     let f = ijf[2];
@@ -577,7 +623,7 @@ export const getReslicedPixeldata = function (
 
   for (let j = 0; j < rows; j++) {
     for (let i = 0; i < cols; i++) {
-      let ijf = [0, 0, 0];
+      let ijf: [number, number, number] = [0, 0, 0];
       ijf[permuteAbsTable[0]] = i;
       ijf[permuteAbsTable[1]] = j;
       ijf[permuteAbsTable[2]] = frame;
@@ -607,9 +653,9 @@ export const getReslicedPixeldata = function (
  * @return {Number} - The distance value
  */
 export const getDistanceBetweenSlices = function (
-  seriesData,
-  sliceIndex1,
-  sliceIndex2
+  seriesData: Series,
+  sliceIndex1: number,
+  sliceIndex2: number
 ) {
   if (seriesData.imageIds.length <= 1) {
     return 0;
@@ -619,11 +665,18 @@ export const getDistanceBetweenSlices = function (
   let instance1 = seriesData.instances[imageId1];
   let metadata1 = instance1.metadata;
   let imageOrientation = metadata1.imageOrientation
-    ? metadata1.imageOrientation
-    : metadata1.x00200037;
+    ? (metadata1.imageOrientation as [
+        number,
+        number,
+        number,
+        number,
+        number,
+        number
+      ])
+    : (metadata1.x00200037 as [number, number, number, number, number, number]);
   let imagePosition = metadata1.imagePosition
-    ? metadata1.imagePosition
-    : metadata1.x00200032;
+    ? (metadata1.imagePosition as [number, number, number])
+    : (metadata1.x00200032 as [number, number, number]);
 
   if (imageOrientation && imagePosition) {
     let normal = getNormalOrientation(imageOrientation);
@@ -636,8 +689,8 @@ export const getDistanceBetweenSlices = function (
     let instance2 = seriesData.instances[imageId2];
     let metadata2 = instance2.metadata;
     let imagePosition2 = metadata2.imagePosition
-      ? metadata2.imagePosition
-      : metadata2.x00200032;
+      ? (metadata2.imagePosition as [number, number, number])
+      : (metadata2.x00200032 as [number, number, number]);
 
     let d2 =
       normal[0] * imagePosition2[0] +

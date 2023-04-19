@@ -28,6 +28,12 @@ export type Instance = {
   file?: File | null;
 };
 
+export type ReslicedInstance = {
+  metadata: { [key: string]: MetadataValue };
+  instanceId?: string;
+  permuteTable?: [number, number, number];
+};
+
 export type Series = {
   imageIds: string[];
   instances: { [key: string]: Instance };
@@ -132,3 +138,9 @@ export type CachingResponse = {
   loading: number;
   series: Partial<Series>;
 };
+
+export interface CustomDataSet extends DataSet {
+  repr?: string;
+}
+
+type Orientation = "axial" | "coronal" | "sagittal";
