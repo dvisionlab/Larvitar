@@ -32,6 +32,8 @@ export var fileManager: {
 export const resetFileLoader = function () {
   clearCornerstoneElements();
   resetFileManager();
+  // TODO-ts remove this
+  // @ts-ignore
   clearImageCache();
 };
 
@@ -69,4 +71,3 @@ export const getFileImageId = function (file: File) {
   const imageId = has(fileManager, uuid) ? fileManager[uuid] : null;
   return imageId;
 };
-

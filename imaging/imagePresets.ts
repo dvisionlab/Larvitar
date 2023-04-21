@@ -8,7 +8,7 @@ import cornerstone from "cornerstone-core";
 import { each, find } from "lodash";
 
 // internal libraries
-import { larvitar_store } from "./imageStore";
+import { set as setStore } from "./imageStore";
 
 /**
  * Object used to list image presets
@@ -48,7 +48,10 @@ export const getImagePresets = function () {
  * @param {Array} viewportNames - List of viewports where to apply preset
  * @param {String} preset_name - The image preset name
  */
-export const setImagePreset = function (viewportNames, preset_name) {
+export const setImagePreset = function (
+  viewportNames: string[],
+  preset_name: string
+) {
   if (!Array.isArray(viewportNames)) {
     console.error(
       "Invalid parameter, viewportNames has to be an array of viewport names."
@@ -56,13 +59,20 @@ export const setImagePreset = function (viewportNames, preset_name) {
     return;
   }
   let image_preset = find(IMAGE_PRESETS, { name: preset_name });
+
   if (!image_preset) {
     console.error("Invalid image preset");
     return;
   }
+
   each(viewportNames, function (viewportName) {
     let element = document.getElementById(viewportName);
     let enabledElement;
+
+    if (!element) {
+      console.warn("No element with id", viewportName);
+      return;
+    }
 
     try {
       enabledElement = cornerstone.getEnabledElement(element);
@@ -72,11 +82,17 @@ export const setImagePreset = function (viewportNames, preset_name) {
     }
 
     let viewport = cornerstone.getViewport(element);
-    viewport.voi.windowWidth = image_preset.ww;
-    viewport.voi.windowCenter = image_preset.wl;
+
+    if (!viewport) {
+      console.warn("No viewport with id", viewportName);
+      return;
+    }
+
+    viewport.voi.windowWidth = image_preset!.ww;
+    viewport.voi.windowCenter = image_preset!.wl;
     cornerstone.setViewport(element, viewport);
     // sync ww and wc values in store
-    larvitar_store.set("contrast", [
+    setStore("contrast", [
       viewportName,
       viewport.voi.windowWidth,
       viewport.voi.windowCenter
@@ -91,7 +107,10 @@ export const setImagePreset = function (viewportNames, preset_name) {
  * @param {Array} viewportNames - List of viewports where to apply preset
  * @param {Object} customValues - {wl: value, ww: value}
  */
-export const setImageCustomPreset = function (viewportNames, customValues) {
+export const setImageCustomPreset = function (
+  viewportNames: string[],
+  customValues: { wl: number; ww: number }
+) {
   if (!Array.isArray(viewportNames)) {
     console.error(
       "Invalid parameter, viewportNames has to be an array of viewport names."
@@ -102,6 +121,11 @@ export const setImageCustomPreset = function (viewportNames, customValues) {
     let element = document.getElementById(viewportName);
     let enabledElement;
 
+    if (!element) {
+      console.warn("No element with id", viewportName);
+      return;
+    }
+
     try {
       enabledElement = cornerstone.getEnabledElement(element);
     } catch {
@@ -110,11 +134,17 @@ export const setImageCustomPreset = function (viewportNames, customValues) {
     }
 
     let viewport = cornerstone.getViewport(element);
+
+    if (!viewport) {
+      console.warn("No viewport with id", viewportName);
+      return;
+    }
+
     viewport.voi.windowWidth = customValues.ww;
     viewport.voi.windowCenter = customValues.wl;
     cornerstone.setViewport(element, viewport);
     // sync ww and wc values in store
-    larvitar_store.set("contrast", [
+    setStore("contrast", [
       viewportName,
       viewport.voi.windowWidth,
       viewport.voi.windowCenter

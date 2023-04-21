@@ -18,8 +18,7 @@ import {
   DEFAULT_SETTINGS,
   dvTools
 } from "./default";
-import { larvitar_store } from "../imageStore";
-
+import { set as setStore } from "../imageStore";
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
  * @function initializeCSTools
@@ -47,7 +46,7 @@ const initializeCSTools = function (settings, style) {
  * Create stack object to sync stack tools
  * @function csToolsCreateStack
  * @param {HTMLElement} element - The target hmtl element.
- * @param {Array} imageIds - Stack image ids.
+ * @param {Array?} imageIds - Stack image ids.
  * @param {String} currentImageId - The current image id.
  */
 const csToolsCreateStack = function (element, imageIds, currentImageIndex) {
@@ -235,10 +234,10 @@ const setToolActive = function (toolName, options, viewports, doNotSetInStore) {
       defaultOpt.mouseButtonMask = [defaultOpt.mouseButtonMask];
     }
     if (defaultOpt.mouseButtonMask.includes(1)) {
-      larvitar_store.set("leftActiveTool", toolName);
+      setStore("leftActiveTool", toolName);
     }
     if (defaultOpt.mouseButtonMask.includes(2)) {
-      larvitar_store.set("rightActiveTool", toolName);
+      setStore("rightActiveTool", toolName);
     }
   }
 };

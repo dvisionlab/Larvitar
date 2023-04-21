@@ -11,11 +11,11 @@ import {
   getMeanValue,
   getDistanceBetweenSlices,
   getTypedArrayFromDataType
-} from "./imageUtils.js";
-import { larvitar_store } from "./imageStore.js";
-import { parse } from "./parsers/nrrd.js";
-import { checkMemoryAllocation } from "./monitors/memory.js";
-import { Series, Header, Volume } from "./types.js";
+} from "./imageUtils";
+import store from "./imageStore";
+import { parse } from "./parsers/nrrd";
+import { checkMemoryAllocation } from "./monitors/memory";
+import { Series, Header, Volume, TypedArray } from "./types";
 
 /*
  * This module provides the following functions to be exported:
@@ -126,7 +126,12 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
       throw new Error("Image representation metadata not found");
     }
 
-    let typedArray = getTypedArrayFromDataType(repr);
+    let typedArray = getTypedArrayFromDataType(repr as string);
+
+    if (!typedArray) {
+      throw new Error("Image representation not supported");
+    }
+
     let data = new typedArray(len);
     let offsetData = 0;
 
@@ -141,12 +146,8 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
       console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
       return data;
     } else {
-      if (!larvitar_store) {
-        throw new Error("Larvitar store not initialized");
-      }
-
-      // @ts-ignore TODO-ts type larvitar_store
-      larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
+      // @ts-ignore TODO-ts type store
+      store.addSeriesIds(series.seriesUID, series.imageIds);
       let image_counter = 0;
       forEach(series.imageIds, function (imageId) {
         getCachedPixelData(imageId).then((sliceData: number[]) => {
@@ -197,16 +198,21 @@ export const buildDataAsync = function (
       throw new Error("Image representation metadata not found");
     }
 
-    let typedArray = getTypedArrayFromDataType(repr);
+    let typedArray = getTypedArrayFromDataType(repr as string);
+
+    if (!typedArray) {
+      throw new Error("Image representation not supported");
+    }
+
     let data = new typedArray(len);
     let offsetData = 0;
 
     let imageIds = series.imageIds.slice();
-    // @ts-ignore TODO-ts type larvitar_store
-    larvitar_store.addSeriesIds(series.seriesUID, series.imageIds);
+    // @ts-ignore TODO-ts type store
+    store.addSeriesIds(series.seriesUID, series.imageIds);
 
     // TODO-ts type check
-    function runFillPixelData(data: Uint16Array) {
+    function runFillPixelData(data: TypedArray) {
       let imageId = imageIds.shift();
       if (imageId) {
         getCachedPixelData(imageId).then(sliceData => {

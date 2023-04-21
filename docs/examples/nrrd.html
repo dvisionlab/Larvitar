@@ -32,11 +32,11 @@
           <code class="javascript" style="background-color: #000000">
           <p style="font-size:0.6vw;">
             // init all
-            larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
             larvitar.registerNRRDImageLoader();
             larvitar.initializeCSTools();
-            larvitar.larvitar_store.addViewport("viewer");
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
 
             createFile("example.nrrd", function (nrrd_file) {
               let reader = new FileReader();
@@ -67,11 +67,11 @@
 
     <script>
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
       larvitar.registerNRRDImageLoader();
       larvitar.initializeCSTools();
-      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
       createFile("example.nrrd", function (nrrd_file) {
         let reader = new FileReader();

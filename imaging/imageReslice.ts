@@ -13,7 +13,8 @@ import {
   getLarvitarImageTracker,
   getLarvitarManager
 } from "./loaders/commonLoader";
-import { larvitar_store } from "./imageStore";
+import store from "./imageStore";
+import { Instance, Series } from "./types";
 
 /*
  * This module provides the following functions to be exported:
@@ -26,12 +27,14 @@ import { larvitar_store } from "./imageStore";
  * @function resliceSeries
  * @param {Object} seriesData the original series data
  * @param {String} orientation the reslice orientation [coronal or sagittal]
- * @param {String} seriesId the series id
  * @returns {Promise} - Return a promise which will resolve when data is available
  */
-export function resliceSeries(seriesData, orientation) {
+export function resliceSeries(
+  seriesData: Series,
+  orientation: "axial" | "coronal" | "sagittal"
+) {
   let reslicePromise = new Promise(resolve => {
-    let reslicedSeries = {};
+    let reslicedSeries: Partial<Series> = {};
     let reslicedSeriesId = uuidv4();
     let reslicedMetaData = getReslicedMetadata(
       reslicedSeriesId,
@@ -42,13 +45,18 @@ export function resliceSeries(seriesData, orientation) {
     );
 
     reslicedSeries.imageIds = reslicedMetaData.imageIds;
+    // @ts-ignore fix incompatibilities between these types
     reslicedSeries.instances = reslicedMetaData.instances;
 
     reslicedSeries.currentImageIdIndex = Math.floor(
       reslicedSeries.imageIds.length / 2
     );
 
-    function computeReslice(seriesData, reslicedSeriesId, reslicedSeries) {
+    function computeReslice(
+      seriesData: Series,
+      reslicedSeriesId: string,
+      reslicedSeries: Series
+    ) {
       let t0 = performance.now();
       let imageTracker = getLarvitarImageTracker();
       let manager = getLarvitarManager();
@@ -57,10 +65,10 @@ export function resliceSeries(seriesData, orientation) {
           imageId,
           seriesData,
           reslicedSeries
-        );
+        ) as Uint16Array;
         imageTracker[imageId] = reslicedSeriesId;
       });
-      larvitar_store.addSeriesIds(reslicedSeriesId, reslicedSeries.imageIds);
+      store.addSeriesIds(reslicedSeriesId, reslicedSeries.imageIds);
       reslicedSeries.numberOfImages = reslicedSeries.imageIds.length;
       reslicedSeries.seriesUID = reslicedSeriesId;
       reslicedSeries.seriesDescription = seriesData.seriesDescription;
@@ -72,7 +80,7 @@ export function resliceSeries(seriesData, orientation) {
       resolve(reslicedSeries);
     }
     // reslice the data
-    computeReslice(seriesData, reslicedSeriesId, reslicedSeries);
+    computeReslice(seriesData, reslicedSeriesId, reslicedSeries as Series);
   });
   return reslicePromise;
 }

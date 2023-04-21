@@ -10,8 +10,8 @@ import { v4 as uuidv4 } from "uuid";
 // internal libraries
 import { getPixelRepresentation, randomId, parseTag } from "./imageUtils";
 import { updateLoadedStack } from "./imageLoading";
-import { checkMemoryAllocation } from "./monitors/memory.js";
-import { ImageObject, MetadataValue, Series } from "./types.js";
+import { checkMemoryAllocation } from "./monitors/memory";
+import { ImageObject, MetadataValue, Series } from "./types";
 
 // global module variables
 var t0: number; // t0 variable for timing debugging purpose
@@ -131,8 +131,10 @@ export const parseDataSet = function (
             metadata[propertyName],
             tagValue
           );
+          // @ts-ignore fix MetadataValue type
           metadata[propertyName + "_" + uuidv4()] = tagValue;
         } else {
+          // @ts-ignore fix MetadataValue type
           metadata[propertyName] = tagValue;
         }
       }

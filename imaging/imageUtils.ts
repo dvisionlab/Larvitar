@@ -17,7 +17,8 @@ import {
   forEach,
   extend,
   indexOf,
-  random
+  random,
+  sample
 } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import cornerstone from "cornerstone-core";
@@ -27,10 +28,24 @@ import { convertBytes } from "dicom-character-set";
 import { getDicomImageId } from "./loaders/dicomLoader";
 import TAG_DICT from "./dataDictionary.json";
 import { getSeriesDataFromLarvitarManager } from "./loaders/commonLoader";
+import {
+  CustomDataSet,
+  Instance,
+  MetadataValue,
+  Orientation,
+  ReslicedInstance,
+  Series,
+  Volume
+} from "./types";
+import { DataSet } from "dicom-parser";
 
 // global module variables
 // variables used to manage the reslice functionality
-const resliceTable = {
+const resliceTable: {
+  [key: string]: {
+    [key: string]: [number, number, number];
+  };
+} = {
   sagittal: { coronal: [-2, 1, 0], axial: [-2, 0, -1] },
   coronal: { sagittal: [2, 1, -0], axial: [0, 2, -1] },
   axial: { sagittal: [1, -2, -0], coronal: [0, -2, 1] }
@@ -70,7 +85,9 @@ const resliceTable = {
  * @function getNormalOrientation
  * @param {Array} el - The image_orientation dicom tag
  */
-export const getNormalOrientation = function (el) {
+export const getNormalOrientation = function (
+  el: [number, number, number, number, number, number]
+) {
   let a = [el[0], el[1], el[2]];
   let b = [el[3], el[4], el[5]];
 
@@ -90,7 +107,10 @@ export const getNormalOrientation = function (el) {
  * @param {Number} value - The min value
  * @param {Array} pixelData - Pixel data array
  */
-export const getMinPixelValue = function (value, pixelData) {
+export const getMinPixelValue = function (
+  value: number,
+  pixelData: Uint16Array
+) {
   if (value !== undefined) {
     return value;
   }
@@ -110,7 +130,10 @@ export const getMinPixelValue = function (value, pixelData) {
  * @param {Number} value - The max value
  * @param {Array} pixelData - Pixel data array
  */
-export const getMaxPixelValue = function (value, pixelData) {
+export const getMaxPixelValue = function (
+  value: string,
+  pixelData: Uint16Array
+) {
   if (value !== undefined) {
     return value;
   }
@@ -131,7 +154,7 @@ export const getMaxPixelValue = function (value, pixelData) {
  * @param {Object} dataSet - The dataset
  * @returns {String} The pixel representation in the form Sint / Uint + bytelength
  */
-export const getPixelRepresentation = function (dataSet) {
+export const getPixelRepresentation = function (dataSet: CustomDataSet) {
   if (dataSet.repr) {
     return dataSet.repr;
   } else {
@@ -156,8 +179,8 @@ export const getPixelRepresentation = function (dataSet) {
  * @param {Object} dataType - The data type
  * @returns {TypedArray} The typed array
  */
-export const getTypedArrayFromDataType = function (dataType) {
-  let repr = dataType.toLowerCase();
+export const getTypedArrayFromDataType = function (dataType: string) {
+  let repr = dataType.toLowerCase() as keyof typeof TYPES_TO_TYPEDARRAY;
   let typedArray = has(TYPES_TO_TYPEDARRAY, repr)
     ? TYPES_TO_TYPEDARRAY[repr]
     : null;
@@ -175,7 +198,11 @@ export const getTypedArrayFromDataType = function (dataType) {
  * @param {Object} pixelDataElement - The dataset metadata (dataSet.elements.x7fe00010)
  * @returns {TypedArray} The pixel array as proper typed array
  */
-export const getPixelTypedArray = function (dataSet, pixelDataElement) {
+export const getPixelTypedArray = function (
+  dataSet: CustomDataSet,
+  pixelDataElement: any
+) {
+  //TODO-ts type (arrayBuffer?)
   let buffer = dataSet.byteArray.buffer;
   let offset = pixelDataElement.dataOffset;
   let r = getPixelRepresentation(dataSet);
@@ -197,6 +224,9 @@ export const getPixelTypedArray = function (dataSet, pixelDataElement) {
       length = pixelDataElement.length;
       break;
   }
+  if (!typedArray) {
+    throw new Error("invalid data type: " + r);
+  }
   return new typedArray(buffer, offset, length);
 };
 
@@ -214,23 +244,23 @@ export const getPixelTypedArray = function (dataSet, pixelDataElement) {
  * @return {Object} The sorted stack
  */
 export const getSortedStack = function (
-  seriesData,
-  sortPriorities,
-  returnSuccessMethod
+  seriesData: Series,
+  sortPriorities: string[], // TODO-ts better type
+  returnSuccessMethod: boolean
 ) {
-  let tryToSort = function (data, methods) {
+  let tryToSort = function (data: Series, methods: string[]): string[] {
     if (isEmpty(methods)) {
       if (returnSuccessMethod === true) {
-        return sorted;
+        return sorted!;
       } else {
-        return sorted;
+        return sorted!;
       }
     }
 
     let sortMethod = methods.shift();
     try {
       var sorted = sortBy(data.imageIds, function (imageId) {
-        return sortStackCallback(data, imageId, sortMethod);
+        return sortStackCallback(data, imageId, sortMethod!);
       });
       if (returnSuccessMethod === true) {
         return sorted;
@@ -254,10 +284,12 @@ export const getSortedStack = function (
  * @param {Object} seriesData - The dataset
  * @return {Object} The sorted instanceUIDs
  */
-export const getSortedUIDs = function (seriesData) {
-  let instanceUIDs = {};
+export const getSortedUIDs = function (seriesData: Series) {
+  let instanceUIDs: { [key: string]: string } = {};
   forEach(seriesData.imageIds, function (imageId) {
-    instanceUIDs[seriesData.instances[imageId].metadata.instanceUID] = imageId;
+    let instanceUID = seriesData.instances[imageId].metadata
+      .instanceUID as string;
+    instanceUIDs[instanceUID] = imageId;
   });
   return instanceUIDs;
 };
@@ -281,35 +313,47 @@ export const randomId = function () {
  * @param {Bool} isArray - True if tag value is an array
  * @return {Number} - Tag mean value
  */
-export const getMeanValue = function (series, tag, isArray) {
-  let meanValue = isArray ? [] : 0;
+export const getMeanValue = function (
+  series: Series,
+  tag: string,
+  isArray: boolean
+) {
+  let meanValue = isArray ? ([] as number[]) : (0 as number);
 
   forEach(series.imageIds, function (imageId) {
-    const tagValue = series.instances[imageId].metadata[tag];
-    if (tagValue.length === 2) {
-      meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
-      meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
-    } else if (tagValue.length === 3) {
-      meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
-      meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
-      meanValue[2] = meanValue[2] ? meanValue[2] + tagValue[2] : tagValue[2];
-    } else if (tagValue.length === 6) {
-      meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
-      meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
-      meanValue[2] = meanValue[2] ? meanValue[2] + tagValue[2] : tagValue[2];
-      meanValue[3] = meanValue[3] ? meanValue[3] + tagValue[3] : tagValue[3];
-      meanValue[4] = meanValue[4] ? meanValue[4] + tagValue[4] : tagValue[4];
-      meanValue[5] = meanValue[5] ? meanValue[5] + tagValue[5] : tagValue[5];
+    let tagValue = series.instances[imageId].metadata[tag];
+    if (Array.isArray(tagValue)) {
+      meanValue = meanValue as number[];
+      tagValue = tagValue.map(v => parseFloat(v as string));
+      if (tagValue.length === 2) {
+        meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
+        meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
+      } else if (tagValue.length === 3) {
+        meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
+        meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
+        meanValue[2] = meanValue[2] ? meanValue[2] + tagValue[2] : tagValue[2];
+      } else if (tagValue.length === 6) {
+        meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
+        meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
+        meanValue[2] = meanValue[2] ? meanValue[2] + tagValue[2] : tagValue[2];
+        meanValue[3] = meanValue[3] ? meanValue[3] + tagValue[3] : tagValue[3];
+        meanValue[4] = meanValue[4] ? meanValue[4] + tagValue[4] : tagValue[4];
+        meanValue[5] = meanValue[5] ? meanValue[5] + tagValue[5] : tagValue[5];
+      }
     } else {
+      meanValue = meanValue as number;
+      tagValue = parseFloat(tagValue as string);
       meanValue += tagValue;
     }
   });
 
   if (isArray) {
+    meanValue = meanValue as number[];
     for (let i = 0; i < meanValue.length; i++) {
       meanValue[i] /= series.imageIds.length;
     }
   } else {
+    meanValue = meanValue as number;
     meanValue /= series.imageIds.length;
   }
   return meanValue;
@@ -327,11 +371,11 @@ export const getMeanValue = function (series, tag, isArray) {
  * @return {Object} - Cornerstone series object, filled only with metadata
  */
 export const getReslicedMetadata = function (
-  reslicedSeriesId,
-  fromOrientation,
-  toOrientation,
-  seriesData,
-  imageLoaderName
+  reslicedSeriesId: string,
+  fromOrientation: string, // TODO-ts a better type is possible ? "axial" | "coronal" | "sagittal" ?
+  toOrientation: string, // TODO-ts a better type is possible ? "axial" | "coronal" | "sagittal" ?
+  seriesData: Series,
+  imageLoaderName: string
 ) {
   // get reslice metadata and apply the reslice algorithm
   let permuteTable = resliceTable[fromOrientation][toOrientation];
@@ -340,20 +384,30 @@ export const getReslicedMetadata = function (
   });
 
   // orthogonal reslice algorithm
-  let reslicedImageIds = [];
-  let reslicedInstances = {};
+  let reslicedImageIds: string[] = [];
+  let reslicedInstances: { [key: string]: ReslicedInstance } = {};
 
   let sampleMetadata = seriesData.instances[seriesData.imageIds[0]].metadata;
 
   let fromSize = [
-    sampleMetadata.x00280011,
-    sampleMetadata.x00280010,
+    sampleMetadata.x00280011 as number,
+    sampleMetadata.x00280010 as number,
     seriesData.imageIds.length
   ];
   let toSize = permuteValues(permuteAbsTable, fromSize);
   let fromSpacing = spacingArray(seriesData, sampleMetadata);
   let toSpacing = permuteValues(permuteAbsTable, fromSpacing);
-  let reslicedIOP = getReslicedIOP(sampleMetadata.x00200037, permuteTable);
+  let reslicedIOP = getReslicedIOP(
+    sampleMetadata.x00200037 as [
+      number,
+      number,
+      number,
+      number,
+      number,
+      number
+    ],
+    permuteTable
+  );
 
   for (let f = 0; f < toSize[2]; f++) {
     let reslicedImageId = getDicomImageId(imageLoaderName);
@@ -361,8 +415,15 @@ export const getReslicedMetadata = function (
 
     let instanceId = uuidv4();
     let reslicedIPP = getReslicedIPP(
-      sampleMetadata.x00200032,
-      sampleMetadata.x00200037,
+      sampleMetadata.x00200032 as [number, number, number],
+      sampleMetadata.x00200037 as [
+        number,
+        number,
+        number,
+        number,
+        number,
+        number
+      ],
       reslicedIOP,
       permuteTable,
       f,
@@ -413,9 +474,10 @@ export const getReslicedMetadata = function (
       // new image orientation
       x00200037: reslicedIOP,
       // new image position
-      x00200032: reslicedIPP,
-      x00280106: sampleMetadata.x00280106,
-      x00280107: sampleMetadata.x00280107
+      x00200032: reslicedIPP
+      // TODO-ts : why duplicated ?
+      // x00280106: sampleMetadata.x00280106,
+      // x00280107: sampleMetadata.x00280107
     });
 
     // set human readable metadata
@@ -454,12 +516,12 @@ export const getReslicedMetadata = function (
  * @return {Object} - Cornerstone series object, filled only with metadata
  */
 export const getCmprMetadata = function (
-  reslicedSeriesId,
-  imageLoaderName,
-  header
+  reslicedSeriesId: string,
+  imageLoaderName: string,
+  header: any // TODO-ts : type
 ) {
-  let reslicedImageIds = [];
-  let reslicedInstances = {};
+  let reslicedImageIds: string[] = [];
+  let reslicedInstances: { [key: string]: ReslicedInstance } = {};
 
   for (let f = 0; f < header.frames_number; f++) {
     let reslicedImageId = getDicomImageId(imageLoaderName);
@@ -536,27 +598,30 @@ export const getCmprMetadata = function (
  * @return {Object} - A single resliced slice pixel array
  */
 export const getReslicedPixeldata = function (
-  imageId,
-  originalData,
-  reslicedData
+  imageId: string,
+  originalData: Series,
+  reslicedData: Series
 ) {
   // resliced metadata must be already available
-  let reslicedInstance = reslicedData.instances[imageId];
+  let reslicedInstance = reslicedData.instances[imageId] as ReslicedInstance;
   let reslicedMetadata = reslicedInstance.metadata;
+  if (!reslicedInstance.permuteTable) {
+    throw new Error("Resliced permuteTable not available");
+  }
   let permuteAbsTable = reslicedInstance.permuteTable.map(function (v) {
     return Math.abs(v);
   });
 
   // compute resliced series pixelData, use the correct typedarray
-  let rows = reslicedMetadata.x00280010;
-  let cols = reslicedMetadata.x00280011;
-  let reslicedSlice = getTypedArray(reslicedMetadata, rows * cols);
+  let rows = reslicedMetadata.x00280010 as number;
+  let cols = reslicedMetadata.x00280011 as number;
+  let reslicedSlice = getTypedArray(reslicedMetadata as any, rows * cols); // TODO-ts : type of reslicedMetadata?
 
   let frame = indexOf(reslicedData.imageIds, imageId);
   let originalInstance = originalData.instances[originalData.imageIds[0]];
-  let fromCols = originalInstance.metadata.x00280011;
+  let fromCols = originalInstance.metadata.x00280011 as number;
 
-  function getPixelValue(ijf) {
+  function getPixelValue(ijf: [number, number, number]) {
     let i = ijf[0];
     let j = ijf[1];
     let f = ijf[2];
@@ -577,7 +642,7 @@ export const getReslicedPixeldata = function (
 
   for (let j = 0; j < rows; j++) {
     for (let i = 0; i < cols; i++) {
-      let ijf = [0, 0, 0];
+      let ijf: [number, number, number] = [0, 0, 0];
       ijf[permuteAbsTable[0]] = i;
       ijf[permuteAbsTable[1]] = j;
       ijf[permuteAbsTable[2]] = frame;
@@ -607,9 +672,9 @@ export const getReslicedPixeldata = function (
  * @return {Number} - The distance value
  */
 export const getDistanceBetweenSlices = function (
-  seriesData,
-  sliceIndex1,
-  sliceIndex2
+  seriesData: Series,
+  sliceIndex1: number,
+  sliceIndex2: number
 ) {
   if (seriesData.imageIds.length <= 1) {
     return 0;
@@ -619,11 +684,18 @@ export const getDistanceBetweenSlices = function (
   let instance1 = seriesData.instances[imageId1];
   let metadata1 = instance1.metadata;
   let imageOrientation = metadata1.imageOrientation
-    ? metadata1.imageOrientation
-    : metadata1.x00200037;
+    ? (metadata1.imageOrientation as [
+        number,
+        number,
+        number,
+        number,
+        number,
+        number
+      ])
+    : (metadata1.x00200037 as [number, number, number, number, number, number]);
   let imagePosition = metadata1.imagePosition
-    ? metadata1.imagePosition
-    : metadata1.x00200032;
+    ? (metadata1.imagePosition as [number, number, number])
+    : (metadata1.x00200032 as [number, number, number]);
 
   if (imageOrientation && imagePosition) {
     let normal = getNormalOrientation(imageOrientation);
@@ -636,8 +708,8 @@ export const getDistanceBetweenSlices = function (
     let instance2 = seriesData.instances[imageId2];
     let metadata2 = instance2.metadata;
     let imagePosition2 = metadata2.imagePosition
-      ? metadata2.imagePosition
-      : metadata2.x00200032;
+      ? (metadata2.imagePosition as [number, number, number])
+      : (metadata2.x00200032 as [number, number, number]);
 
     let d2 =
       normal[0] * imagePosition2[0] +
@@ -657,7 +729,13 @@ export const getDistanceBetweenSlices = function (
  * @param {Object} element - The parsed dataset element
  * @return {String} - The DICOM Tag value
  */
-export const parseTag = function (dataSet, propertyName, element) {
+
+// TODO-ts check carefully this function
+export const parseTag = function (
+  dataSet: DataSet,
+  propertyName: string,
+  element: { [key: string]: any } // TODO-ts better type
+) {
   // GET VR
   var tagData = dataSet.elements[propertyName] || {};
   var vr = tagData.vr;
@@ -671,7 +749,8 @@ export const parseTag = function (dataSet, propertyName, element) {
     }
   }
 
-  var value;
+  var valueIn: string;
+  var valueOut: string | number | number[];
 
   if (isStringVr(vr)) {
     // We ask the dataset to give us the element's data in string form.
@@ -686,7 +765,7 @@ export const parseTag = function (dataSet, propertyName, element) {
       // (i.e. attribute is of type 2 or 3) so we only display the string if it has
       // data. Note that the length of the element will be 0 to indicate "no data"
       // so we don't put anything here for the value in that case.
-      value = str;
+      valueIn = str;
     }
 
     // A string of characters representing an Integer in base-10 (decimal),
@@ -695,7 +774,7 @@ export const parseTag = function (dataSet, propertyName, element) {
     // are not allowed. The integer, n, represented shall be in the range:
     // -231 <= n <= (231 - 1).
     if (vr === "IS") {
-      value = parseInt(value);
+      valueOut = parseInt(valueIn);
     }
     // A string of characters representing either a fixed point number
     // or a floating point number. A fixed point number shall contain only
@@ -705,30 +784,30 @@ export const parseTag = function (dataSet, propertyName, element) {
     // of the exponent. Decimal Strings may be padded with leading or trailing spaces.
     // Embedded spaces are not allowed.
     else if (vr === "DS") {
-      value = value.split("\\").map(Number);
+      valueOut = valueIn.split("\\").map(Number);
       if (propertyName == "x00281050" || propertyName == "x00281051") {
-        value = value.length > 0 ? value[0] : value;
+        valueOut = valueOut.length > 0 ? valueOut[0] : valueOut;
       } else {
-        value = value.length == 1 ? value[0] : value;
+        valueOut = valueOut.length == 1 ? valueOut[0] : valueOut;
       }
     }
     // A string of characters of the format YYYYMMDD; where YYYY shall contain year,
     // MM shall contain the month, and DD shall contain the day,
     // interpreted as a date of the Gregorian calendar system.
     else if (vr === "DA") {
-      value = parseDateTag(value, false);
+      valueOut = parseDateTag(valueIn);
     }
     // A concatenated date-time character string in the format:
     // YYYYMMDDHHMMSS.FFFFFF
     else if (vr === "DT") {
-      value = parseDateTimeTag(value);
+      valueOut = parseDateTimeTag(valueIn);
     }
     // A string of characters of the format HHMMSS.FFFFFF; where HH contains hours
     // (range "00" - "23"), MM contains minutes (range "00" - "59"),
     // SS contains seconds (range "00" - "60"), and FFFFFF contains a fractional
     // part of a second as small as 1 millionth of a second (range "000000" - "999999").
     else if (vr === "TM") {
-      value = parseTimeTag(value);
+      valueOut = parseTimeTag(valueIn);
     }
     // Specific Character Set (0008,0005) identifies the Character Set that expands or
     // replaces the Basic Graphic Set (ISO 646) for values of Data Elements that have
@@ -752,12 +831,12 @@ export const parseTag = function (dataSet, propertyName, element) {
       let characterSet = dataSet.string("x00080005");
       if (characterSet) {
         let data = dataSet.elements[propertyName];
-        let arr = new Uint8Array(
+        let arr: Uint8Array | null = new Uint8Array(
           dataSet.byteArray.buffer,
           data.dataOffset,
           data.length
         );
-        value = convertBytes(characterSet, arr, {
+        valueIn = convertBytes(characterSet, arr, {
           vr: vr
         });
         arr = null;
@@ -768,39 +847,39 @@ export const parseTag = function (dataSet, propertyName, element) {
         // any of the three components, just leave it empty.
         // Actually you may even append a name prefix (^professor) and
         // a name suffix (^senior) so you have a maximum of 5 components.
-        value = parsePatientNameTag(value);
+        valueIn = parsePatientNameTag(valueIn);
       }
-      value = value.replace(/\0/g, ""); // remove null char (\u0000)
+      valueOut = valueIn.replace(/\0/g, ""); // remove null char (\u0000)
     }
     // A string of characters with one of the following formats
     // -- nnnD, nnnW, nnnM, nnnY; where nnn shall contain the number of days for D,
     // weeks for W, months for M, or years for Y.
     else if (vr == "AS") {
-      value = parseAgeTag(value);
+      valueOut = parseAgeTag(valueIn);
     }
 
     // A string of characters with leading or trailing spaces (20H) being non-significant.
     else if (vr === "CS") {
       if (propertyName === "x00041500") {
-        value = parseDICOMFileIDTag(value);
+        valueOut = parseDICOMFileIDTag(valueIn);
       } else {
-        value = value.split("\\").join(", ");
+        valueOut = valueIn.split("\\").join(", ");
       }
     }
   } else if (vr === "US") {
-    value = dataSet.uint16(propertyName);
+    valueOut = dataSet.uint16(propertyName);
   } else if (vr === "SS") {
-    value = dataSet.int16(propertyName);
+    valueOut = dataSet.int16(propertyName);
   } else if (vr === "US|SS") {
-    value = dataSet.int16(propertyName);
+    valueOut = dataSet.int16(propertyName);
   } else if (vr === "UL") {
-    value = dataSet.uint32(propertyName);
+    valueOut = dataSet.uint32(propertyName);
   } else if (vr === "SL") {
-    value = dataSet.int32(propertyName);
+    valueOut = dataSet.int32(propertyName);
   } else if (vr == "FD") {
-    value = dataSet.double(propertyName);
+    valueOut = dataSet.double(propertyName);
   } else if (vr == "FL") {
-    value = dataSet.float(propertyName);
+    valueOut = dataSet.float(propertyName);
   } else if (
     vr === "OB" ||
     vr === "OW" ||
@@ -812,19 +891,19 @@ export const parseTag = function (dataSet, propertyName, element) {
   ) {
     // If it is some other length and we have no string
     if (element.length === 2) {
-      value =
+      valueOut =
         "binary data of length " +
         element.length +
         " as uint16: " +
         dataSet.uint16(propertyName);
     } else if (element.length === 4) {
-      value =
+      valueOut =
         "binary data of length " +
         element.length +
         " as uint32: " +
         dataSet.uint32(propertyName);
     } else {
-      value = "binary data of length " + element.length + " and VR " + vr;
+      valueOut = "binary data of length " + element.length + " and VR " + vr;
     }
   } else if (vr === "AT") {
     var group = dataSet.uint16(propertyName, 0);
@@ -832,24 +911,24 @@ export const parseTag = function (dataSet, propertyName, element) {
       var groupHexStr = ("0000" + group.toString(16)).substr(-4);
       var elm = dataSet.uint16(propertyName, 1);
       var elmHexStr = ("0000" + elm.toString(16)).substr(-4);
-      value = "x" + groupHexStr + elmHexStr;
+      valueOut = "x" + groupHexStr + elmHexStr;
     } else {
-      value = "";
+      valueOut = "";
     }
   } else if (vr === "SQ") {
     // parse the nested tags
-    var subTags = map(element, function (obj) {
+    var subTags: any = map(element, function (obj) {
       return map(obj, function (v, k) {
         return parseTag(dataSet, k, v);
       });
     });
 
-    value = subTags;
+    valueOut = subTags;
   } else {
     // If it is some other length and we have no string
-    value = "no display code for VR " + vr;
+    valueOut = "no display code for VR " + vr;
   }
-  return value;
+  return valueOut!;
 };
 
 /**
@@ -859,7 +938,10 @@ export const parseTag = function (dataSet, propertyName, element) {
  * @param {String} instanceUID - The SOPInstanceUID
  * @return {Array} - List of metadata objects: tag, name and value
  */
-export const getImageMetadata = function (seriesId, instanceUID) {
+export const getImageMetadata = function (
+  seriesId: string,
+  instanceUID: string
+) {
   const seriesData = getSeriesDataFromLarvitarManager(seriesId);
   if (seriesData === undefined || seriesData === null) {
     console.log(`Invalid Series ID: ${seriesId}`);
@@ -889,7 +971,14 @@ export const getImageMetadata = function (seriesId, instanceUID) {
       key.slice(5) +
       ")"
     ).toUpperCase();
-    const name = TAG_DICT[tagKey] ? TAG_DICT[tagKey].name : "";
+
+    if (!Object.keys(TAG_DICT).includes(tagKey)) {
+      throw new Error(`Invalid tag key: ${tagKey}`);
+    }
+    // force type to keyof typeof TAG_DICT after having checked that it is a valid key
+    const name = TAG_DICT[tagKey as keyof typeof TAG_DICT]
+      ? TAG_DICT[tagKey as keyof typeof TAG_DICT].name
+      : "";
     return {
       tag: tagKey,
       name: name,
@@ -911,29 +1000,34 @@ export const getImageMetadata = function (seriesId, instanceUID) {
  * @param {String} method - Orientation target
  * @return {Number} - The sorting value (float)
  */
-let sortStackCallback = function (seriesData, imageId, method) {
+let sortStackCallback = function (
+  seriesData: Series,
+  imageId: string,
+  method: string
+) {
   switch (method) {
     case "instanceNumber":
-      var instanceNumber = seriesData.instances[imageId].metadata.x00200013;
-      instanceNumber = parseInt(instanceNumber);
-      return instanceNumber;
+      var instanceNumber = seriesData.instances[imageId].metadata
+        .x00200013 as string;
+      return parseInt(instanceNumber);
 
     case "contentTime":
       return seriesData.instances[imageId].metadata.x00080033;
 
     case "imagePosition":
-      var p = seriesData.instances[imageId].metadata.imagePosition;
-
-      p = map(p, function (value) {
+      let pStr = seriesData.instances[imageId].metadata
+        .imagePosition as string[];
+      let p = map(pStr, function (value) {
         return parseFloat(value);
       });
 
-      var o = seriesData.instances[imageId].metadata.imageOrientation;
-      o = map(o, function (value) {
+      let oStr = seriesData.instances[imageId].metadata
+        .imageOrientation as string[];
+      let o = map(oStr, function (value) {
         return parseFloat(value);
       });
 
-      var v1, v2, v3;
+      var v1, v2, v3: number;
       v1 = o[0] * o[0] + o[3] * o[3];
       v2 = o[1] * o[1] + o[4] * o[4];
       v3 = o[2] * o[2] + o[5] * o[5];
@@ -948,6 +1042,11 @@ let sortStackCallback = function (seriesData, imageId, method) {
       if (v3 <= v1 && v3 <= v2) {
         sortIndex = 2;
       }
+
+      if (!sortIndex) {
+        throw new Error("Invalid sort index");
+      }
+
       return p[sortIndex];
     default:
       break;
@@ -961,7 +1060,7 @@ let sortStackCallback = function (seriesData, imageId, method) {
  * @param {String} dicomTag - The original DICOM tag code
  * @return {String} - The human readable DICOM tag code
  */
-let getDICOMTagCode = function (code) {
+let getDICOMTagCode = function (code: string) {
   let re = /x(\w{4})(\w{4})/;
   let result = re.exec(code);
   if (!result) {
@@ -979,9 +1078,13 @@ let getDICOMTagCode = function (code) {
  * @param {String} dicomTagCode - The original DICOM tag code
  * @return {String} - The human readable DICOM tag
  */
-let getDICOMTag = function (code) {
+let getDICOMTag = function (code: string) {
   let newCode = getDICOMTagCode(code);
-  let tag = TAG_DICT[newCode];
+  if (!Object.keys(TAG_DICT).includes(newCode)) {
+    throw new Error(`Invalid tag key: ${newCode}`);
+  }
+  // force type to keyof typeof TAG_DICT after having checked that it is a valid key
+  let tag = TAG_DICT[newCode as keyof typeof TAG_DICT];
   return tag;
 };
 
@@ -992,7 +1095,7 @@ let getDICOMTag = function (code) {
  * @param {Date} dicomDate - A date from a DICOM tag
  * @return {String} - The human readable date
  */
-let formatDate = function (date) {
+let formatDate = function (date: string) {
   let yyyy = date.slice(0, 4);
   let mm = date.slice(4, 6);
   let dd = date.slice(6, 8);
@@ -1008,7 +1111,7 @@ let formatDate = function (date) {
  * @param {Date} dicomDateTime - A dateTime from a DICOM tag
  * @return {String} - The human readable dateTime
  */
-let formatDateTime = function (date) {
+let formatDateTime = function (date: string) {
   let yyyy = date.slice(0, 4);
   let mm = date.slice(4, 6);
   let dd = date.slice(6, 8);
@@ -1049,7 +1152,7 @@ let rand = function () {
  * @param {Array} sourceArray - The source array
  * @return {Array} - The converted array
  */
-let permuteValues = function (convertArray, sourceArray) {
+let permuteValues = function (convertArray: number[], sourceArray: number[]) {
   let outputArray = new Array(convertArray.length);
   for (let i = 0; i < convertArray.length; i++) {
     outputArray[i] = sourceArray[convertArray[i]];
@@ -1065,7 +1168,7 @@ let permuteValues = function (convertArray, sourceArray) {
  * @param {Number} x - The number to check
  * @return {Boolean} - Is negative boolean response
  */
-let isNegativeSign = function (x) {
+let isNegativeSign = function (x: number) {
   return 1 / x !== 1 / Math.abs(x);
 };
 
@@ -1077,9 +1180,12 @@ let isNegativeSign = function (x) {
  * @param {Number} size - The size of the array
  * @return {Array} - The typed array
  */
-let getTypedArray = function (tags, size) {
+let getTypedArray = function (tags: CustomDataSet, size: number) {
   let r = getPixelRepresentation(tags);
   let typedArray = getTypedArrayFromDataType(r);
+  if (!typedArray) {
+    throw new Error("Invalid typed array");
+  }
   return new typedArray(size);
 };
 
@@ -1091,7 +1197,10 @@ let getTypedArray = function (tags, size) {
  * @param {Array} permuteTable - The matrix transformation
  * @return {Array} - The resliced image orientation array
  */
-let getReslicedIOP = function (iop, permuteTable) {
+let getReslicedIOP = function (
+  iop: [number, number, number, number, number, number],
+  permuteTable: number[]
+) {
   if (!iop) {
     return null;
   }
@@ -1126,14 +1235,14 @@ let getReslicedIOP = function (iop, permuteTable) {
  * @return {Array} - The resliced image position array
  */
 let getReslicedIPP = function (
-  ipp,
-  iop,
-  reslicedIOP,
-  permuteTable,
-  imageIndex,
-  fromSize,
-  toSize,
-  fromSpacing
+  ipp: [number, number, number],
+  iop: [number, number, number, number, number, number],
+  reslicedIOP: [number, number, number, number, number, number],
+  permuteTable: number[],
+  imageIndex: number,
+  fromSize: number[],
+  toSize: number[],
+  fromSpacing: number[]
 ) {
   // compute resliced ipp
   let reslicedIPP = [];
@@ -1161,10 +1270,11 @@ let getReslicedIPP = function (
   if (isNegativeSign(permuteTable[1])) {
     ipp = ipp.map(function (val, i) {
       return val + fromSize[2] * fromSpacing[2] * w[i];
-    });
+    }) as [number, number, number];
   }
 
-  let spacing, versor;
+  let spacing: number;
+  let versor: number[];
   // to sagittal
   if (majorIndex == 0) {
     // original x spacing
@@ -1203,7 +1313,7 @@ let getReslicedIPP = function (
     return val + index * spacing * versor[i];
   });
 
-  return reslicedIPP;
+  return reslicedIPP as [number, number, number];
 };
 
 /**
@@ -1214,7 +1324,10 @@ let getReslicedIPP = function (
  * @param {Array} reslicedIPP - The resliced image position array
  * @return {Array} - The slice location as normal orientation vector
  */
-let getReslicedSliceLocation = function (reslicedIOP, reslicedIPP) {
+let getReslicedSliceLocation = function (
+  reslicedIOP: [number, number, number, number, number, number],
+  reslicedIPP: [number, number, number]
+) {
   let normalReslicedIop = getNormalOrientation(reslicedIOP);
   normalReslicedIop = map(normalReslicedIop, function (v) {
     return Math.abs(v);
@@ -1232,7 +1345,10 @@ let getReslicedSliceLocation = function (reslicedIOP, reslicedIPP) {
  * @param {Object} sampleMetadata - The medatata object
  * @return {Array} - The spacing array
  */
-let spacingArray = function (seriesData, sampleMetadata) {
+let spacingArray = function (
+  seriesData: Series,
+  sampleMetadata: { [key: string]: MetadataValue }
+) {
   // the spacingArray is as follows:
   // [0]: column pixelSpacing value (x00280030[1])
   // [1]: row pixelSpacing value (x00280030[0])
@@ -1243,11 +1359,9 @@ let spacingArray = function (seriesData, sampleMetadata) {
     ? sampleMetadata.x00180050
     : getDistanceBetweenSlices(seriesData, 0, 1);
 
-  return [
-    sampleMetadata.x00280030[1],
-    sampleMetadata.x00280030[0],
-    distanceBetweenSlices
-  ];
+  let spacing = sampleMetadata.x00280030 as number[];
+
+  return [spacing[1], spacing[0], distanceBetweenSlices as number];
 };
 
 /**
@@ -1258,7 +1372,10 @@ let spacingArray = function (seriesData, sampleMetadata) {
  * @param {Array} sourceArray - The source array
  * @return {Array} - The permuted array array
  */
-let permuteSignedArrays = function (convertArray, sourceArray) {
+let permuteSignedArrays = function (
+  convertArray: number[],
+  sourceArray: number[][]
+) {
   let outputArray = new Array(convertArray.length);
   for (let i = 0; i < convertArray.length; i++) {
     let sourceIndex = Math.abs(convertArray[i]);
@@ -1281,7 +1398,8 @@ let permuteSignedArrays = function (convertArray, sourceArray) {
  * @param {Date} d - The date object to be checked
  * @return {Boolean} - Boolean result
  */
-const isValidDate = function (d) {
+const isValidDate = function (d: Date) {
+  // @ts-ignore TODO-ts TS doesn't like the isNaN check
   return d instanceof Date && !isNaN(d);
 };
 
@@ -1292,7 +1410,7 @@ const isValidDate = function (d) {
  * @param {String} vr - The string to be checked
  * @return {Boolean} - Boolean result
  */
-const isStringVr = function (vr) {
+const isStringVr = function (vr: string) {
   // vr can be a string of concatenated vrs
   vr = vr || "";
   vr = vr.split("|")[0];
@@ -1322,12 +1440,12 @@ const isStringVr = function (vr) {
  * @param {String} tagValue - The string to be parsed
  * @return {String} - The parsed result
  */
-const parseDateTag = function (tagValue) {
-  if (!tagValue) return;
+const parseDateTag = function (tagValue: string) {
+  if (!tagValue) return "";
   let year = tagValue.substring(0, 4);
   let month = tagValue.substring(4, 6);
   let day = tagValue.substring(6, 8);
-  let date = new Date(year, month - 1, day);
+  let date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
   if (isValidDate(date) === true) {
     return date.toISOString();
   } else {
@@ -1342,8 +1460,8 @@ const parseDateTag = function (tagValue) {
  * @param {String} tagValue - The string to be parsed
  * @return {String} - The parsed result
  */
-const parseDateTimeTag = function (tagValue) {
-  if (!tagValue) return;
+const parseDateTimeTag = function (tagValue: string) {
+  if (!tagValue) return "";
   let year = tagValue.substring(0, 4);
   let month = tagValue.substring(4, 6);
   let day = tagValue.substring(6, 8);
@@ -1351,7 +1469,15 @@ const parseDateTimeTag = function (tagValue) {
   let min = tagValue.substring(10, 12);
   let sec = tagValue.substring(12, 14);
   let msec = tagValue.substring(15, 21);
-  let date = new Date(year, month - 1, day, hour, min, sec, msec);
+  let date = new Date(
+    parseInt(year),
+    parseInt(month) - 1,
+    parseInt(day),
+    parseInt(hour),
+    parseInt(min),
+    parseInt(sec),
+    parseInt(sec)
+  );
   if (isValidDate(date) === true) {
     return date.toISOString();
   } else {
@@ -1366,8 +1492,8 @@ const parseDateTimeTag = function (tagValue) {
  * @param {String} tagValue - The string to be parsed
  * @return {String} - The parsed result
  */
-const parseTimeTag = function (tagValue) {
-  if (!tagValue) return;
+const parseTimeTag = function (tagValue: string) {
+  if (!tagValue) return "";
   let hour = tagValue.substring(0, 2);
   let min = tagValue.substring(2, 4);
   let sec = tagValue.substring(4, 6);
@@ -1383,8 +1509,8 @@ const parseTimeTag = function (tagValue) {
  * @param {String} tagValue - The string to be parsed
  * @return {String} - The parsed result
  */
-const parsePatientNameTag = function (tagValue) {
-  if (!tagValue) return;
+const parsePatientNameTag = function (tagValue: string) {
+  if (!tagValue) return "";
   return tagValue.replace(/\^/gi, " ");
 };
 
@@ -1395,11 +1521,13 @@ const parsePatientNameTag = function (tagValue) {
  * @param {String} tagValue - The string to be parsed
  * @return {String} - The parsed result
  */
-const parseAgeTag = function (tagValue) {
-  if (!tagValue) return;
+const parseAgeTag = function (tagValue: string) {
+  if (!tagValue) return "";
   let regs = /(\d{3})(D|W|M|Y)/gim.exec(tagValue);
   if (regs) {
     return parseInt(regs[1]) + " " + regs[2];
+  } else {
+    return "";
   }
 };
 
@@ -1410,14 +1538,15 @@ const parseAgeTag = function (tagValue) {
  * @param {String} tagValue - The string to be parsed
  * @return {String} - The parsed result
  */
-const parseDICOMFileIDTag = function (tagValue) {
+const parseDICOMFileIDTag = function (tagValue: string) {
   // The DICOM File Service does not specify any "separator" between
   // the Components of the File ID. This is a Value Representation issue that
   // may be addressed in a specific manner by each Media Format Layer.
   // In DICOM IODs, File ID Components are generally handled as multiple
   // Values and separated by "backslashes".
   // There is no requirement that Media Format Layers use this separator.
-  if (!tagValue) return;
+  if (!tagValue) return "";
+  // @ts-ignore //TODO this can't work!
   return tagValue.split("\\").join(path.sep);
 };
 
@@ -1430,7 +1559,7 @@ const parseDICOMFileIDTag = function (tagValue) {
  * @param {String} tag - the desired tag key
  * @return {Number | Array | String} - the desired tag value
  */
-const getTagValue = function (dataSet, tag) {
+const getTagValue = function (dataSet: DataSet, tag: string) {
   // tag value rapresentation
   if (!getDICOMTag(tag)) {
     return null;
@@ -1438,7 +1567,9 @@ const getTagValue = function (dataSet, tag) {
   let vr = getDICOMTag(tag).vr;
 
   // parse value according to vr map
-  let vrParsingMap = {
+  let vrParsingMap: {
+    [key: string]: () => any;
+  } = {
     // Date
     // string of characters of the format YYYYMMDD; where YYYY shall contain year,
     // MM shall contain the month, and DD shall contain the day,
@@ -1558,7 +1689,7 @@ const TYPES_TO_TYPEDARRAY = {
  * @param {Object} o - The div tag
  * @return {Boolean} - True if is an element otherwise returns False
  */
-export const isElement = function (o) {
+export const isElement = function (o: any) {
   return typeof HTMLElement === "object"
     ? o instanceof HTMLElement //DOM2
     : o &&

@@ -29,7 +29,8 @@ import {
   Volume,
   LarvitarManager,
   ImageFrame,
-  ImageTracker
+  ImageTracker,
+  CustomDataSet
 } from "../types";
 
 // global module variables
@@ -201,9 +202,13 @@ export const buildNrrdImage = function (
   let rows = volume.header.sizes[index + 1];
   let cols = volume.header.sizes[index + 0];
   let frames = volume.header.sizes[index + 2];
-  let iop = volume.header["space directions"][index + 0].concat(
+  let iopArr = volume.header["space directions"][index + 0].concat(
     volume.header["space directions"][index + 1]
   );
+  if (iopArr.length == 6) {
+    throw new Error("Invalid Image Orientation");
+  }
+  let iop = iopArr as [number, number, number, number, number, number];
   let firstIpp = header.volume.imagePosition;
   let w = getNormalOrientation(iop);
   let ps = header.volume.pixelSpacing;
@@ -266,8 +271,15 @@ export const buildNrrdImage = function (
       throw new Error("Metadata not found");
     }
 
+    // @ts-ignore: TODO this is concepptually wrong, we already know the Pixel Representation
+    // (see above, line 241), this function just returns the same value again
     let r = getPixelRepresentation(metadata);
     let typedArray = getTypedArrayFromDataType(r);
+
+    if (!typedArray) {
+      throw new Error("Typed array not found");
+    }
+
     let pixelData = new typedArray(sliceBuffer);
     // assign these values to the metadata of all images
     metadata.x00281050 = wl;

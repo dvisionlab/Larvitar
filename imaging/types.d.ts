@@ -23,9 +23,15 @@ export interface Image extends cornerstone.Image {
 
 export type Instance = {
   metadata: { [key: string]: MetadataValue };
-  pixelData: Uint16Array; //TODO-ts: check if this is correct
+  pixelData: TypedArray;
   dataSet?: DataSet | null;
   file?: File | null;
+};
+
+export type ReslicedInstance = {
+  metadata: { [key: string]: MetadataValue };
+  instanceId?: string;
+  permuteTable?: [number, number, number];
 };
 
 export type Series = {
@@ -52,7 +58,17 @@ export type Series = {
   studyUID: string;
   larvitarSeriesInstanceUID: string;
   elements?: { [key: string]: any } | null;
+  layer: Layer;
+  orientation?: "axial" | "coronal" | "sagittal"; // this is needed for legacy reslice
 };
+
+export interface Layer extends cornerstone.EnabledElementLayer {
+  id: string;
+}
+
+export interface Viewport extends cornerstone.Viewport {
+  newImageIdIndex: number;
+}
 
 export type Contours = {
   [key: string]: {
@@ -122,3 +138,19 @@ export type CachingResponse = {
   loading: number;
   series: Partial<Series>;
 };
+
+export interface CustomDataSet extends DataSet {
+  repr?: string;
+}
+
+type Orientation = "axial" | "coronal" | "sagittal";
+
+type TypedArray =
+  | Float64Array
+  | Uint8Array
+  | Int8Array
+  | Uint16Array
+  | Int16Array
+  | Int32Array
+  | Uint32Array
+  | Float32Array;

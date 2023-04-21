@@ -99,7 +99,7 @@ export function fillPixelData(canvas: HTMLCanvasElement, colormapId: string) {
  */
 export function applyColorMap(
   colormapId: string,
-  viewportNames: Array<string>
+  viewportNames?: Array<string>
 ) {
   // for retro-compatibility
   if (!viewportNames) {
