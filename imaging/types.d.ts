@@ -23,7 +23,7 @@ export interface Image extends cornerstone.Image {
 
 export type Instance = {
   metadata: { [key: string]: MetadataValue };
-  pixelData: Uint16Array; //TODO-ts: check if this is correct
+  pixelData: TypedArray;
   dataSet?: DataSet | null;
   file?: File | null;
 };
@@ -144,3 +144,13 @@ export interface CustomDataSet extends DataSet {
 }
 
 type Orientation = "axial" | "coronal" | "sagittal";
+
+type TypedArray =
+  | Float64Array
+  | Uint8Array
+  | Int8Array
+  | Uint16Array
+  | Int16Array
+  | Int32Array
+  | Uint32Array
+  | Float32Array;

@@ -338,7 +338,7 @@ export default {
     delete STORE!.series[seriesId];
   },
   // get and watch values
-  get: (props: string) => {
+  get: (props: string | string[]) => {
     validateStore();
     return _get(STORE, props);
   },

@@ -42,9 +42,10 @@ export function resliceSeries(
       orientation,
       seriesData,
       "resliceLoader"
-    ) as { imageIds: string[]; instances: { [key: string]: Instance } }; // TODO: fix this when getReslicedMetadata is typed
+    );
 
     reslicedSeries.imageIds = reslicedMetaData.imageIds;
+    // @ts-ignore fix incompatibilities between these types
     reslicedSeries.instances = reslicedMetaData.instances;
 
     reslicedSeries.currentImageIdIndex = Math.floor(

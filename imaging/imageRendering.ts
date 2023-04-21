@@ -304,10 +304,7 @@ export const disableViewport = function (elementId: string | HTMLElement) {
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {String} seriesId - The id of the serie
  */
-export const unloadViewport = function (
-  elementId: string | HTMLElement,
-  seriesId: string
-) {
+export const unloadViewport = function (elementId: string, seriesId: string) {
   disableViewport(elementId);
 
   if (!seriesId) {
@@ -593,13 +590,11 @@ export const resetViewports = function (elementIds: string[]) {
  * @param {Object} viewportData - The new viewport data
  */
 export const updateViewportData = function (
-  elementId: string | HTMLElement,
+  elementId: string,
   viewportData: Viewport,
   activeTool: string
 ) {
-  let element = isElement(elementId)
-    ? (elementId as HTMLElement)
-    : document.getElementById(elementId as string);
+  let element = document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;

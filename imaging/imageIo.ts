@@ -11,11 +11,11 @@ import {
   getMeanValue,
   getDistanceBetweenSlices,
   getTypedArrayFromDataType
-} from "./imageUtils.js";
-import store from "./imageStore.js";
-import { parse } from "./parsers/nrrd.js";
-import { checkMemoryAllocation } from "./monitors/memory.js";
-import { Series, Header, Volume } from "./types.js";
+} from "./imageUtils";
+import store from "./imageStore";
+import { parse } from "./parsers/nrrd";
+import { checkMemoryAllocation } from "./monitors/memory";
+import { Series, Header, Volume, TypedArray } from "./types";
 
 /*
  * This module provides the following functions to be exported:
@@ -126,7 +126,12 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
       throw new Error("Image representation metadata not found");
     }
 
-    let typedArray = getTypedArrayFromDataType(repr);
+    let typedArray = getTypedArrayFromDataType(repr as string);
+
+    if (!typedArray) {
+      throw new Error("Image representation not supported");
+    }
+
     let data = new typedArray(len);
     let offsetData = 0;
 
@@ -193,7 +198,12 @@ export const buildDataAsync = function (
       throw new Error("Image representation metadata not found");
     }
 
-    let typedArray = getTypedArrayFromDataType(repr);
+    let typedArray = getTypedArrayFromDataType(repr as string);
+
+    if (!typedArray) {
+      throw new Error("Image representation not supported");
+    }
+
     let data = new typedArray(len);
     let offsetData = 0;
 
@@ -202,7 +212,7 @@ export const buildDataAsync = function (
     store.addSeriesIds(series.seriesUID, series.imageIds);
 
     // TODO-ts type check
-    function runFillPixelData(data: Uint16Array) {
+    function runFillPixelData(data: TypedArray) {
       let imageId = imageIds.shift();
       if (imageId) {
         getCachedPixelData(imageId).then(sliceData => {
