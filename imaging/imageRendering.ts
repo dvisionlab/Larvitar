@@ -902,8 +902,8 @@ let getSeriesData = function (
   let spacing = series.instances[series.imageIds[0]].metadata[
     "x00280030"
   ] as number[];
-  data.spacing_x = spacing[0];
-  data.spacing_y = spacing[1];
+  data.spacing_x = spacing ? spacing[0] : 1;
+  data.spacing_y = spacing ? spacing[1] : 1;
 
   // window center and window width
   data.wc =

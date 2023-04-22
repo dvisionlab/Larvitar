@@ -205,7 +205,7 @@ export function addSegmentationMask(props, data, elementId) {
     setters.colorLUTIndexForLabelmap3D(labelmap3d, props.labelId);
 
     // set current imageIdIndex in tool state
-    let currentImageIdIndex = store.get("viewports", elementId, "sliceId");
+    let currentImageIdIndex = store.get(["viewports", elementId, "sliceId"]);
     if (currentImageIdIndex !== "error" && currentImageIdIndex >= 0) {
       updateStackToolState(elementId, currentImageIdIndex);
     } else {

@@ -1,6 +1,10 @@
 import pkg from "./package.json";
-const VERSION: string = pkg.version + "ciccio";
-console.log(`LARVITAR v${VERSION}`);
+const VERSION: string = pkg.version;
+console.groupCollapsed(
+  `%cLARVITAR %cv${VERSION}`,
+  "color: #404888; background: #209A71; font-weight: 900;",
+  "color: #BED730; background: #209A71; font-weight: 900;"
+);
 
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
@@ -15,6 +19,7 @@ import {
 
 import store from "./imaging/imageStore";
 console.log(store);
+console.groupEnd();
 
 import { parseContours } from "./imaging/imageContours";
 

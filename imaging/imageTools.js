@@ -4,6 +4,7 @@
  *        DEPRECATION WARNING: these are legacy functions
  *        that will be removed soon. Use the corresponding
  *        functions in /tools/main.js instead.
+ *        For this reason, this file will not be translated to TypeScript.
  */
 
 // external libraries
