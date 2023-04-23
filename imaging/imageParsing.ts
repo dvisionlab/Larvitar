@@ -8,7 +8,8 @@ import { forEach, each, has, pick } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
-import { getPixelRepresentation, randomId, parseTag } from "./imageUtils";
+import { getPixelRepresentation, randomId } from "./imageUtils";
+import { parseTag } from "./imageTags";
 import { updateLoadedStack } from "./imageLoading";
 import { checkMemoryAllocation } from "./monitors/memory";
 import { ImageObject, MetadataValue, Series } from "./types";

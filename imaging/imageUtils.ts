@@ -17,12 +17,10 @@ import {
   forEach,
   extend,
   indexOf,
-  random,
-  sample
+  random
 } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import cornerstone from "cornerstone-core";
-import { convertBytes } from "dicom-character-set";
 
 // internal libraries
 import { getDicomImageId } from "./loaders/dicomLoader";
@@ -30,17 +28,11 @@ import TAG_DICT from "./dataDictionary.json";
 import { getSeriesDataFromLarvitarManager } from "./loaders/commonLoader";
 import {
   CustomDataSet,
-  Instance,
   MetadataValue,
-  Orientation,
   ReslicedInstance,
-  Series,
-  Volume
+  Series
 } from "./types";
-import { DataSet } from "dicom-parser";
-
-import { parseTag } from "./tagParsing";
-export { parseTag };
+import { getTagValue } from "./imageTags";
 
 // global module variables
 // variables used to manage the reslice functionality
@@ -70,7 +62,6 @@ const resliceTable: {
  * getCmprMetadata(reslicedSeriesId, imageLoaderName, header)
  * getReslicedPixeldata(imageId, originalData, reslicedData)
  * getDistanceBetweenSlices(seriesData, sliceIndex1, sliceIndex2)
- * parseTag(dataSet, propertyName, element)
  * isElement(o)
  * getImageMetadata(dataSet, imageId)
  */
@@ -849,89 +840,6 @@ let sortStackCallback = function (
 };
 
 /**
- * Get the dicom tag code from dicom image
- * @instance
- * @function getDICOMTagCode
- * @param {String} dicomTag - The original DICOM tag code
- * @return {String} - The human readable DICOM tag code
- */
-export function getDICOMTagCode(code: string) {
-  let re = /x(\w{4})(\w{4})/;
-  let result = re.exec(code);
-  if (!result) {
-    return code;
-  }
-  let newCode = "(" + result[1] + "," + result[2] + ")";
-  newCode = newCode.toUpperCase();
-  return newCode;
-}
-
-/**
- * Get the dicom tag from dicom tag code
- * @instance
- * @function getDICOMTag
- * @param {String} dicomTagCode - The original DICOM tag code
- * @return {String} - The human readable DICOM tag
- */
-export function getDICOMTag(code: string) {
-  let newCode = getDICOMTagCode(code);
-
-  if (!Object.keys(TAG_DICT).includes(newCode)) {
-    console.debug(`Invalid tag key: ${newCode}`);
-    return null;
-  }
-  // force type to keyof typeof TAG_DICT after having checked that it is a valid key
-  let tag = TAG_DICT[newCode as keyof typeof TAG_DICT];
-  return tag;
-}
-
-/**
- * Convert date from dicom tag
- * @instance
- * @function formatDate
- * @param {Date} dicomDate - A date from a DICOM tag
- * @return {String} - The human readable date
- */
-let formatDate = function (date: string) {
-  let yyyy = date.slice(0, 4);
-  let mm = date.slice(4, 6);
-  let dd = date.slice(6, 8);
-  return (
-    yyyy + "-" + (mm[1] ? mm : "0" + mm[0]) + "-" + (dd[1] ? dd : "0" + dd[0])
-  );
-};
-
-/**
- * Convert datetime from dicom tag
- * @instance
- * @function formatDateTime
- * @param {Date} dicomDateTime - A dateTime from a DICOM tag
- * @return {String} - The human readable dateTime
- */
-let formatDateTime = function (date: string) {
-  let yyyy = date.slice(0, 4);
-  let mm = date.slice(4, 6);
-  let dd = date.slice(6, 8);
-  let hh = date.slice(8, 10);
-  let m = date.slice(10, 12);
-  let ss = date.slice(12, 14);
-
-  return (
-    yyyy +
-    "-" +
-    (mm[1] ? mm : "0" + mm[0]) +
-    "-" +
-    (dd[1] ? dd : "0" + dd[0]) +
-    "/" +
-    hh +
-    ":" +
-    m +
-    ":" +
-    ss
-  );
-};
-
-/**
  * Generate a random number and convert it to base 36 (0-9a-z)
  * @instance
  * @function rand
@@ -1186,254 +1094,6 @@ let permuteSignedArrays = function (
   }
 
   return outputArray;
-};
-
-/**
- * Check if argument is a valid Date Object
- * @instance
- * @function isValidDate
- * @param {Date} d - The date object to be checked
- * @return {Boolean} - Boolean result
- */
-const isValidDate = function (d: Date) {
-  // @ts-ignore TODO-ts TS doesn't like the isNaN check
-  return d instanceof Date && !isNaN(d);
-};
-
-/**
- * Check if argument is a string of concatenated vrs
- * @instance
- * @function isStringVr
- * @param {String} vr - The string to be checked
- * @return {Boolean} - Boolean result
- */
-export const isStringVr = function (vr: string) {
-  // vr can be a string of concatenated vrs
-  vr = vr || "";
-  vr = vr.split("|")[0];
-
-  if (
-    vr === "AT" ||
-    vr === "FL" ||
-    vr === "FD" ||
-    vr === "OB" ||
-    vr === "OF" ||
-    vr === "OW" ||
-    vr === "SI" ||
-    vr === "SQ" ||
-    vr === "SS" ||
-    vr === "UL" ||
-    vr === "US"
-  ) {
-    return false;
-  }
-  return true;
-};
-
-/**
- * Parse a dicom date tag into human readable format
- * @instance
- * @function parseDateTag
- * @param {String} tagValue - The string to be parsed
- * @return {String} - The parsed result
- */
-export const parseDateTag = function (tagValue: string) {
-  if (!tagValue) return "";
-  let year = tagValue.substring(0, 4);
-  let month = tagValue.substring(4, 6);
-  let day = tagValue.substring(6, 8);
-  let date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-  if (isValidDate(date) === true) {
-    return date.toISOString();
-  } else {
-    return tagValue;
-  }
-};
-
-/**
- * Parse a dicom datetime tag into human readable format
- * @instance
- * @function parseDateTimeTag
- * @param {String} tagValue - The string to be parsed
- * @return {String} - The parsed result
- */
-export const parseDateTimeTag = function (tagValue: string) {
-  if (!tagValue) return "";
-  let year = tagValue.substring(0, 4);
-  let month = tagValue.substring(4, 6);
-  let day = tagValue.substring(6, 8);
-  let hour = tagValue.substring(8, 10);
-  let min = tagValue.substring(10, 12);
-  let sec = tagValue.substring(12, 14);
-  let msec = tagValue.substring(15, 21);
-  let date = new Date(
-    parseInt(year),
-    parseInt(month) - 1,
-    parseInt(day),
-    parseInt(hour),
-    parseInt(min),
-    parseInt(sec),
-    parseInt(sec)
-  );
-  if (isValidDate(date) === true) {
-    return date.toISOString();
-  } else {
-    return tagValue;
-  }
-};
-
-/**
- * Parse a dicom time tag into human readable format
- * @instance
- * @function parseTimeTag
- * @param {String} tagValue - The string to be parsed
- * @return {String} - The parsed result
- */
-export const parseTimeTag = function (tagValue: string) {
-  if (!tagValue) return "";
-  let hour = tagValue.substring(0, 2);
-  let min = tagValue.substring(2, 4);
-  let sec = tagValue.substring(4, 6);
-  let msec = tagValue.substring(7, 13) ? tagValue.substring(7, 13) : "0";
-  let result = hour + ":" + min + ":" + sec + "." + msec;
-  return result;
-};
-
-/**
- * Parse a dicom patient tag into human readable format
- * @instance
- * @function parsePatientNameTag
- * @param {String} tagValue - The string to be parsed
- * @return {String} - The parsed result
- */
-export const parsePatientNameTag = function (tagValue: string) {
-  if (!tagValue) return "";
-  return tagValue.replace(/\^/gi, " ");
-};
-
-/**
- * Parse a dicom age tag into human readable format
- * @instance
- * @function parseAgeTag
- * @param {String} tagValue - The string to be parsed
- * @return {String} - The parsed result
- */
-export const parseAgeTag = function (tagValue: string) {
-  if (!tagValue) return "";
-  let regs = /(\d{3})(D|W|M|Y)/gim.exec(tagValue);
-  if (regs) {
-    return parseInt(regs[1]) + " " + regs[2];
-  } else {
-    return "";
-  }
-};
-
-/**
- * Parse a dicom fileID tag into human readable format
- * @instance
- * @function parseDICOMFileIDTag
- * @param {String} tagValue - The string to be parsed
- * @return {String} - The parsed result
- */
-export const parseDICOMFileIDTag = function (tagValue: string) {
-  // The DICOM File Service does not specify any "separator" between
-  // the Components of the File ID. This is a Value Representation issue that
-  // may be addressed in a specific manner by each Media Format Layer.
-  // In DICOM IODs, File ID Components are generally handled as multiple
-  // Values and separated by "backslashes".
-  // There is no requirement that Media Format Layers use this separator.
-  if (!tagValue) return "";
-  // @ts-ignore //TODO this can't work!
-  return tagValue.split("\\").join(path.sep);
-};
-
-/**
- * Extract tag value according to its value rapresentation, see
- * {@link http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_6.2.html}
- * @instance
- * @function getTagValue
- * @param {Object} dataSet - the dataset
- * @param {String} tag - the desired tag key
- * @return {Number | Array | String} - the desired tag value
- */
-const getTagValue = function (dataSet: DataSet, tag: string) {
-  let tagObj = getDICOMTag(tag);
-  // tag value rapresentation
-  if (!tagObj) {
-    return null;
-  }
-  let vr = tagObj.vr;
-
-  // parse value according to vr map
-  let vrParsingMap: {
-    [key: string]: () => any;
-  } = {
-    // Date
-    // string of characters of the format YYYYMMDD; where YYYY shall contain year,
-    // MM shall contain the month, and DD shall contain the day,
-    // interpreted as a date of the Gregorian calendar system.
-    DA: function () {
-      let dateString = dataSet.string(tag);
-      return dateString ? formatDate(dateString) : "";
-    },
-    // Decimal String
-    // A string of characters representing either a fixed point number
-    // or a floating point number.
-    DS: function () {
-      let array = dataSet.string(tag)
-        ? dataSet.string(tag).split("\\").map(Number)
-        : null;
-      if (!array) {
-        return null;
-      }
-      return array.length === 1 ? array[0] : array;
-    },
-    // Date Time
-    // A concatenated date-time character string in the format:
-    // YYYYMMDDHHMMSS.FFFFFF&ZZXX
-    DT: function () {
-      let dateString = dataSet.string(tag);
-      return formatDateTime(dateString);
-    },
-    // Person Name
-    // A character string encoded using a 5 component convention.
-    // The character code 5CH (the BACKSLASH "\" in ISO-IR 6) shall
-    // not be present, as it is used as the delimiter between values
-    // in multiple valued data elements. The string may be padded
-    // with trailing spaces. For human use, the five components
-    // in their order of occurrence are: family name complex,
-    // given name complex, middle name, name prefix, name suffix.
-    PN: function () {
-      let pn = dataSet.string(tag) ? dataSet.string(tag).split("^") : null;
-      if (!pn) {
-        return null;
-      }
-
-      let pns = [pn[3], pn[0], pn[1], pn[2], pn[4]];
-      return pns.join(" ").trim();
-    },
-    // Signed Short
-    // Signed binary integer 16 bits long in 2's complement form
-    SS: function () {
-      return dataSet.uint16(tag);
-    },
-    // Unique Identifier
-    // A character string containing a UID that is used to uniquely
-    // identify a wide letiety of items. The UID is a series of numeric
-    // components separated by the period "." character.
-    UI: function () {
-      return dataSet.string(tag);
-    },
-    // Unsigned Short
-    // Unsigned binary integer 16 bits long.
-    US: function () {
-      return dataSet.uint16(tag);
-    },
-    "US|SS": function () {
-      return dataSet.uint16(tag);
-    }
-  };
-  return vrParsingMap[vr] ? vrParsingMap[vr]() : dataSet.string(tag);
 };
 
 /**
