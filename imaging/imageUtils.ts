@@ -255,9 +255,7 @@ export const getSortedStack = function (
     // TODO this try-catch is needed ? It brokes multiframe example
     // try {
     var sorted = sortBy(data.imageIds, function (imageId) {
-      let ciccio = sortStackCallback(data, imageId, sortMethod!);
-      console.log("ciccio", ciccio);
-      return ciccio;
+      return sortStackCallback(data, imageId, sortMethod!);
     });
     if (returnSuccessMethod === true) {
       return sorted;

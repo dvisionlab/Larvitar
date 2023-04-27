@@ -472,10 +472,6 @@ export const parseTag = function (
     valueOut = "no display code for VR " + vr;
   }
 
-  valueOut !== undefined
-    ? console.log(propertyName, vr, valueOut)
-    : console.warn(propertyName, vr, valueOut);
-
   return valueOut;
 };
 

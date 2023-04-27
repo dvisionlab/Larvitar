@@ -198,7 +198,6 @@ let parseNextFile = function (
     // parse the file and wait for results
     parseFile(file)
       .then((seriesData: ImageObject | null) => {
-        console.log(seriesData);
         // use generated series uid if not found in dicom file
         seriesData!.metadata.seriesUID = seriesData!.metadata.seriesUID || uuid;
         // add file to cornerstoneWADOImageLoader file manager
