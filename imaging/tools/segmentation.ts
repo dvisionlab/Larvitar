@@ -21,7 +21,7 @@ import { setLabelmap3DForElement } from "./custom/setLabelMap3D";
 import {
   BrushProperties,
   MaskProperties,
-  MaskVisualizations,
+  MaskVisualizations, // TODO-ts: why enums importing (and use) break the build ?
   SegmentationConfig
 } from "./types";
 import { TypedArray } from "../types";
@@ -389,6 +389,7 @@ export function toggleContourMode(toggle: boolean) {
  * Set mask appearance props
  * @param {Object} maskProps - The mask appearance props (labelId, visualization [0=filled, 1=contour, 2=hidden], opacity (if mode=0), between 0 and 1)
  */
+
 export function setMaskProps(props: MaskProperties) {
   // Lut index and segment values are hardcoded because they will depend on design choices:
   // eg single/multiple volumes for segmentations
@@ -405,7 +406,8 @@ export function setMaskProps(props: MaskProperties) {
   let newColor = currentColor;
   switch (props.visualization) {
     // full
-    case MaskVisualizations.FILL:
+    // case MaskVisualizations.FILL:
+    case 0:
       segModule.configuration.renderOutline = true;
       getters.isSegmentVisible(htmlelement, segmentValue, labelIndex)
         ? null
@@ -418,7 +420,8 @@ export function setMaskProps(props: MaskProperties) {
       setters.colorForSegmentIndexOfColorLUT(lutIndex, segmentValue, newColor);
       break;
     // contours
-    case MaskVisualizations.CONTOUR:
+    // case MaskVisualizations.CONTOUR:
+    case 1:
       segModule.configuration.renderOutline = true;
       getters.isSegmentVisible(htmlelement, segmentValue, labelIndex)
         ? null
@@ -431,7 +434,8 @@ export function setMaskProps(props: MaskProperties) {
       setters.colorForSegmentIndexOfColorLUT(lutIndex, segmentValue, newColor);
       break;
     // hidden
-    case MaskVisualizations.HIDDEN:
+    // case MaskVisualizations.HIDDEN:
+    case 2:
       setters.toggleSegmentVisibility(htmlelement, segmentValue, labelIndex);
       break;
   }
