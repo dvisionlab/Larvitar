@@ -19,6 +19,7 @@ import {
   dvTools
 } from "./default";
 import { set as setStore } from "../imageStore";
+
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
  * @function initializeCSTools
