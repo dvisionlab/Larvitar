@@ -8,14 +8,13 @@ import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { each } from "lodash";
 
-// internal libraries
-import { state_example } from "./cstools_state_example.js";
+import { ToolState } from "./types";
 
 /**
  *
  * @param {*} elementId
  */
-const saveToolState = function (elementId) {
+const saveToolState = function (elementId: string) {
   const elementToolStateManager = cornerstoneTools.getElementToolStateManager(
     document.getElementById(elementId)
   );
@@ -30,7 +29,7 @@ const saveToolState = function (elementId) {
  * @param {*} elementId
  * @param {*} allToolState
  */
-const restoreToolState = function (elementId, allToolState) {
+const restoreToolState = function (elementId: string, allToolState: ToolState) {
   const elementToolStateManager = cornerstoneTools.getElementToolStateManager(
     document.getElementById(elementId)
   );
@@ -46,7 +45,7 @@ const restoreToolState = function (elementId, allToolState) {
 
 // EXAMPLE OF CORRECT USE OF TOOL STATE MANAGER
 
-export const example = function () {
+/*
   // Declare state manager
   const stateManager = cornerstoneTools.newImageIdSpecificToolStateManager();
 
@@ -62,11 +61,8 @@ export const example = function () {
 
   // Setup with some initial data
   const toolType = "EllipticalRoi";
-  // stateManager.restoreImageIdToolState(imageId, {
-  //   [toolType]: { data: ["initialData"] }
-  // });
   stateManager.restoreImageIdToolState(imageId, {
-    [toolType]: { data: state_example[imageId] }
+    [toolType]: { data: state_to_load[imageId] }
   });
 
   // Add more data
@@ -74,6 +70,6 @@ export const example = function () {
 
   // Check the results
   const allToolState = stateManager.saveToolState();
-};
-
+}
+*/
 export { saveToolState, restoreToolState };
