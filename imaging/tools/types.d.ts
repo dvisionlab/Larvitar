@@ -78,7 +78,22 @@ export type ToolState = {
   };
 };
 
-export type SegmentationConfig = any; // TODO-ts define
+export type SegmentationConfig = {
+  arrayType: number;
+  renderOutline: boolean;
+  renderFill: boolean;
+  shouldRenderInactiveLabelmaps: boolean;
+  radius: number;
+  minRadius: number;
+  maxRadius: number;
+  segmentsPerLabelmap: number;
+  fillAlpha: number;
+  fillAlphaInactive: number;
+  outlineAlpha: number;
+  outlineAlphaInactive: number;
+  outlineWidth: number;
+  storeHistory: boolean;
+};
 
 export enum MaskVisualizations {
   FILL,

@@ -18,20 +18,18 @@ import { updateStackToolState } from "../imageTools";
 
 // custom code
 import { setLabelmap3DForElement } from "./custom/setLabelMap3D";
-import { each } from "hammerjs";
 import {
   BrushProperties,
   MaskProperties,
   MaskVisualizations,
-  SegmentationConfig,
-  ToolOptions
+  SegmentationConfig
 } from "./types";
 import { TypedArray } from "../types";
 // override function
 setters.labelmap3DForElement = setLabelmap3DForElement;
 
 // General segmentation cs tools module configuration
-const config = {
+const config: SegmentationConfig = {
   arrayType: 0,
   renderOutline: false,
   renderFill: true,
