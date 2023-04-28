@@ -225,7 +225,7 @@ function tryUpdateImage(element: HTMLElement) {
  */
 const setToolActive = function (
   toolName: string,
-  options: Partial<ToolConfig["options"]>,
+  options?: Partial<ToolConfig["options"]>,
   viewports?: string[],
   doNotSetInStore?: boolean
 ) {

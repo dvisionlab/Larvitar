@@ -77,3 +77,23 @@ export type ToolState = {
     };
   };
 };
+
+export type SegmentationConfig = any; // TODO-ts define
+
+export enum MaskVisualizations {
+  FILL,
+  CONTOUR,
+  HIDDEN
+}
+
+export type MaskProperties = {
+  color: string;
+  labelId: number;
+  opacity: number;
+  visualization: MaskVisualizations;
+};
+
+export type BrushProperties = {
+  radius: number; // px
+  thresholds: [number, number]; // [min, max] in px
+};

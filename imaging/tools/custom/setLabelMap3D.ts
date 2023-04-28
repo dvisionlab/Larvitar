@@ -4,21 +4,15 @@
  * @ronzim
  */
 
-// import getElement from "./getElement";
-// import { getToolState } from "../../../stateManagement/toolState.js";
-// import state from "./state";
-// import getSegmentsOnPixelData from "./getSegmentsOnPixeldata";
-// import { triggerLabelmapModifiedEvent } from "../../../util/segmentation";
-// import ARRAY_TYPES from "./arrayTypes";
-// import { getModule } from "../../index.js";
-
 const ARRAY_TYPES = {
   UINT_16_ARRAY: 0,
   FLOAT_32_ARRAY: 1
 };
 const { UINT_16_ARRAY, FLOAT_32_ARRAY } = ARRAY_TYPES;
 
-import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
+import cornerstoneTools from "cornerstone-tools";
+import { TypedArray } from "../../types";
+import { EnabledElement } from "cornerstone-core";
 const { triggerLabelmapModifiedEvent } = cornerstoneTools.importInternal(
   "util/segmentationUtils"
 );
@@ -33,12 +27,12 @@ const state = getModule("segmentation").state;
  */
 
 // from getSegmentsOnPixelData.js
-function getSegmentsOnPixelData(pixelData) {
+function getSegmentsOnPixelData(pixelData: TypedArray) {
   return [...new Set(pixelData)];
 }
 
 // from getElement.js
-function getElement(elementOrEnabledElementUID) {
+function getElement(elementOrEnabledElementUID: EnabledElement | string) {
   if (elementOrEnabledElementUID instanceof HTMLElement) {
     return elementOrEnabledElementUID;
   }
@@ -61,11 +55,11 @@ function getElement(elementOrEnabledElementUID) {
  * @returns {null}
  */
 async function setLabelmap3DForElement(
-  elementOrEnabledElementUID,
-  buffer,
-  labelmapIndex,
-  metadata = [],
-  segmentsOnLabelmapArray,
+  elementOrEnabledElementUID: EnabledElement | string,
+  buffer: ArrayBuffer,
+  labelmapIndex: number,
+  metadata: Object[] = [],
+  segmentsOnLabelmapArray: number[][],
   colorLUTIndex = 0
 ) {
   const element = getElement(elementOrEnabledElementUID);
@@ -110,13 +104,13 @@ async function setLabelmap3DForElement(
  * @returns {null}
  */
 function setLabelmap3DByFirstImageId(
-  firstImageId,
-  buffer,
-  labelmapIndex,
-  metadata = [],
-  numberOfFrames,
-  segmentsOnLabelmapArray,
-  colorLUTIndex = 0
+  firstImageId: string,
+  buffer: ArrayBuffer,
+  labelmapIndex: number,
+  metadata: Object[] = [],
+  numberOfFrames: number,
+  segmentsOnLabelmapArray: number[][],
+  colorLUTIndex: number = 0
 ) {
   const { configuration } = getModule("segmentation");
 
@@ -148,8 +142,8 @@ function setLabelmap3DByFirstImageId(
   /* non-blocking implementation by @ronzim */
 
   return new Promise(resolve => {
-    function setSingleSlice(i, numberOfFrames) {
-      var pixelData = void 0;
+    function setSingleSlice(i: number, numberOfFrames: number) {
+      var pixelData: TypedArray | undefined = void 0;
 
       switch (configuration.arrayType) {
         case UINT_16_ARRAY:
