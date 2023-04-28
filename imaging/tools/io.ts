@@ -10,29 +10,31 @@ import { each, map, assign, invert } from "lodash";
 import { unparse } from "papaparse";
 
 // internal libraries
-import { setToolEnabled } from "../imageTools";
+import { setToolEnabled } from "./main";
 
-// DEV
-// import { saved_state_2 } from "./cstools_state_example.js";
-// import { devState } from "./devState.js";
+import { ToolState } from "./types";
+
+declare global {
+  interface Document {
+    documentMode?: any;
+  }
+  interface Navigator {
+    msSaveBlob?: (blob: any, defaultName?: string) => boolean;
+  }
+}
 
 /**
  * Load annotation from json object
  * @param {Object} jsonData - The previously saved tools state
  */
-export const loadAnnotations = function (jsonData) {
-  // DEV
-  // if (!jsonData) {
-  //   jsonData = saved_state_2;
-  // }
-
+export const loadAnnotations = function (jsonData: ToolState) {
   // restore saved tool state
   cornerstoneTools.globalImageIdSpecificToolStateManager.restoreToolState(
     jsonData
   );
 
   // set all found tools to passive
-  let toolsInState = new Set();
+  let toolsInState: Set<string> = new Set();
   for (let imageId in jsonData) {
     for (let toolName in jsonData[imageId]) {
       toolsInState.add(toolName);
@@ -40,7 +42,7 @@ export const loadAnnotations = function (jsonData) {
   }
 
   toolsInState.forEach(toolName => {
-    setToolEnabled(toolName);
+    setToolEnabled(toolName, [null]); // TODO-ts fix 'null' this after setToolEnabled is typed
   });
 
   let enabledElementIds = map(
@@ -50,7 +52,12 @@ export const loadAnnotations = function (jsonData) {
 
   // FIXME error if called when image is not loaded
   for (let elementId of enabledElementIds) {
-    cornerstone.updateImage(document.getElementById(elementId));
+    let element = document.getElementById(elementId);
+    if (!element) {
+      console.warn(`Element ${elementId} not found`);
+      continue;
+    }
+    cornerstone.updateImage(element);
   }
 };
 
@@ -59,13 +66,16 @@ export const loadAnnotations = function (jsonData) {
  * @param {bool} download - True to download json
  * @param {string} filename - The json file name, @default state.json
  */
-export const saveAnnotations = function (toDownload, filename = "state.json") {
+export const saveAnnotations = function (
+  download: boolean,
+  filename = "state.json"
+) {
   let currentToolState =
     cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
-  if (toDownload) {
+  if (download) {
     // Convert JSON Array to string.
     var json_string = JSON.stringify(currentToolState);
-    download(json_string, filename);
+    downloadFile(json_string, filename);
   }
 
   return currentToolState;
@@ -76,14 +86,14 @@ export const saveAnnotations = function (toDownload, filename = "state.json") {
  * containing only useful informations for user
  */
 export const exportAnnotations = function (
-  fileManager,
+  fileManager: any, // TODO-ts what is this object?
   filename = "annotations.csv"
 ) {
   let currentToolState =
     cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
-  let csvdata = generateCSV(fileManager, currentToolState);
-  let csvstring = unparse(csvdata);
-  download(csvstring, filename);
+  let { fieldsArr: fields, data } = generateCSV(fileManager, currentToolState);
+  let csvstring = unparse({ fields, data });
+  downloadFile(csvstring, filename);
 };
 
 /**
@@ -91,13 +101,12 @@ export const exportAnnotations = function (
  * @param {*} stringContent
  * @param {*} filename
  */
-function download(stringContent, filename) {
+function downloadFile(stringContent: string, filename: string) {
   // Convert string to BLOB.
-  stringContent = [stringContent];
-  var blob = new Blob(stringContent, { type: "text/plain;charset=utf-8" });
+  var blob = new Blob([stringContent], { type: "text/plain;charset=utf-8" });
   //Check the Browser.
   var isIE = false || !!document.documentMode;
-  if (isIE) {
+  if (isIE && window.navigator.msSaveBlob) {
     window.navigator.msSaveBlob(blob, filename);
   } else {
     var url = window.URL || window.webkitURL;
@@ -115,11 +124,14 @@ function download(stringContent, filename) {
  *
  * @param {*} allToolState
  */
-export function generateCSV(fileManager, allToolState) {
-  let fields = new Set();
+export function generateCSV(
+  fileManager: any, // TODO-ts what is this object?
+  allToolState: ToolState
+) {
+  let fields: Set<string> = new Set();
   fields.add("imagePath");
   fields.add("toolName");
-  let data = [];
+  let data: Object[] = [];
   each(allToolState, (imageToolState, imageId) => {
     // convert imageId to imagePath
     let imagePath = invert(fileManager)[imageId];
@@ -134,10 +146,10 @@ export function generateCSV(fileManager, allToolState) {
     });
   });
 
-  fields = Array.from(fields);
+  let fieldsArr: string[] = Array.from(fields);
 
   return {
-    fields,
+    fieldsArr,
     data
   };
 }
@@ -146,8 +158,11 @@ export function generateCSV(fileManager, allToolState) {
  *
  * @param {*} toolData
  */
-function extractToolInfo(toolName, toolData) {
-  let dataArray = [];
+function extractToolInfo(
+  toolName: string,
+  toolData: ToolState["imageId"]["toolName"]["data"]
+) {
+  let dataArray: Object[] = [];
   switch (toolName) {
     case "RectangleRoi":
     case "EllipticalRoi":

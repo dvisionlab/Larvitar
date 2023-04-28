@@ -7,7 +7,7 @@
 import { throttle } from "lodash";
 import * as keyCodes from "keycode-js";
 import cornerstone from "cornerstone-core";
-import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
+import cornerstoneTools from "cornerstone-tools";
 
 // internal libraries
 import { DEFAULT_MOUSE_KEYS } from "./default";
@@ -15,6 +15,8 @@ import { setToolActive } from "./main";
 import { isElement } from "../imageUtils";
 import store, { set as setStore } from "../imageStore";
 import { updateViewportData } from "../imageRendering";
+
+import { ToolMouseKeys } from "./types";
 
 /**
  * TOOLS INTERACTIONS TODOS:
@@ -26,8 +28,8 @@ import { updateViewportData } from "../imageRendering";
 /**
  * Global event callbacks
  */
-let onKeyDownFn = null;
-let onKeyUpFn = null;
+let onKeyDownFn: ((evt: KeyboardEvent) => void) | null = null;
+let onKeyUpFn: ((evt: KeyboardEvent) => void) | null = null;
 
 /**
  * Setup mouse handler modifiers and keyboard shortcuts:
@@ -42,7 +44,7 @@ let onKeyUpFn = null;
  * @param {Object} config - see tools/default
  */
 
-export function addMouseKeyHandlers(config) {
+export function addMouseKeyHandlers(config: ToolMouseKeys) {
   if (!config) {
     config = DEFAULT_MOUSE_KEYS;
   }
@@ -64,30 +66,43 @@ export function addMouseKeyHandlers(config) {
   let allViewports = cornerstone.getEnabledElements().map(enel => enel.element);
 
   // Define behaviour on key down: activate registered tool
-  function onKeyDown(evt) {
+  function onKeyDown(evt: KeyboardEvent) {
     // keyboard shortcuts (activate on left mouse button)
     let codes = config.keyboard_shortcuts
-      ? Object.keys(config.keyboard_shortcuts).map(key => keyCodes[key])
+      ? Object.keys(config.keyboard_shortcuts).map(
+          // @ts-ignore
+          key => keyCodes[key]
+        )
       : [];
 
     if (codes.includes(evt.keyCode) && evt.altKey) {
       evt.preventDefault(); // avoid browser menu selections
 
       let key = Object.keys(config.keyboard_shortcuts)
-        .filter(key => keyCodes[key] == evt.keyCode)
+        // @ts-ignore
+        .filter(key => keyCodes[key] == evt.keyCode) // TODO keyCode is deprecated
         .pop();
-      if (config.debug) console.log("active", config.keyboard_shortcuts[key]);
+
+      if (!key) {
+        console.warn("Key not found in config.keyboard_shortcuts");
+        return;
+      }
+
+      let toolName = config.keyboard_shortcuts[key];
+
+      if (config.debug) console.log("active", toolName);
+
       const viewports = allViewports.filter(viewport =>
-        cornerstoneTools.getToolForElement(
-          viewport,
-          config.keyboard_shortcuts[key]
-        )
+        cornerstoneTools.getToolForElement(viewport, toolName)
       );
+
       setToolActive(
-        config.keyboard_shortcuts[key],
+        toolName,
         { mouseButtonMask: 1 },
-        viewports.map(v => v.id)
+        viewports.map(v => v.id),
+        false
       );
+
       document.addEventListener("keydown", onKeyDown, { once: true });
     }
     // right drag + shift
@@ -107,7 +122,8 @@ export function addMouseKeyHandlers(config) {
       setToolActive(
         config.mouse_button_right.shift,
         { mouseButtonMask: 2 },
-        viewports.map(v => v.id)
+        viewports.map(v => v.id),
+        false
       );
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
@@ -128,7 +144,8 @@ export function addMouseKeyHandlers(config) {
       setToolActive(
         config.mouse_button_right.ctrl,
         { mouseButtonMask: 2 },
-        viewports.map(v => v.id)
+        viewports.map(v => v.id),
+        false
       );
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
@@ -140,7 +157,7 @@ export function addMouseKeyHandlers(config) {
   }
 
   // Define behaviour on key up: restore original tool
-  function onKeyUp(e) {
+  function onKeyUp(e: KeyboardEvent) {
     if (config.debug)
       console.log("active default", config.mouse_button_right.default);
     const viewports = allViewports.filter(viewport =>
@@ -152,7 +169,8 @@ export function addMouseKeyHandlers(config) {
     setToolActive(
       config.mouse_button_right.default,
       { mouseButtonMask: 2 },
-      viewports.map(v => v.id)
+      viewports.map(v => v.id),
+      false
     );
     document.addEventListener("keydown", onKeyDown, { once: true });
   }
@@ -168,7 +186,8 @@ export function addMouseKeyHandlers(config) {
     setToolActive(
       config.mouse_button_right.default,
       { mouseButtonMask: 2 },
-      viewports.map(v => v.id)
+      viewports.map(v => v.id),
+      false
     );
   }
 
@@ -183,7 +202,8 @@ export function addMouseKeyHandlers(config) {
     setToolActive(
       config.mouse_button_left.default,
       { mouseButtonMask: 1 },
-      viewports.map(v => v.id)
+      viewports.map(v => v.id),
+      false
     );
   }
 
@@ -197,6 +217,7 @@ export function addMouseKeyHandlers(config) {
  *
  */
 export function removeMouseKeyHandlers() {
+  if (!onKeyDownFn) return;
   document.removeEventListener("keydown", onKeyDownFn);
   onKeyDownFn = null;
   onKeyUpFn = null;
@@ -209,10 +230,13 @@ export function removeMouseKeyHandlers() {
  * @param {String | HTMLElement} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {Boolean} disable - If true disable handlers, default is false
  */
-export const toggleMouseToolsListeners = function (elementId, disable) {
+export const toggleMouseToolsListeners = function (
+  elementId: string | HTMLElement,
+  disable: boolean
+) {
   let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
     return;
@@ -228,7 +252,8 @@ export const toggleMouseToolsListeners = function (elementId, disable) {
   }, 250);
 
   // mouse wheel handler
-  function mouseWheelHandler(evt) {
+  function mouseWheelHandler(evt: any) {
+    // TODO-ts fix type (should be a cornerstoneTools event type)
     setStore("sliceId", [evt.target.id, evt.detail.newImageIdIndex]);
     updateViewportData(evt.srcElement.id, evt.detail, "mouseWheel");
   }
