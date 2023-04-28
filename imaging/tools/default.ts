@@ -400,7 +400,9 @@ const DEFAULT_TOOLS: {
 /**
  * D/Vision Lab custom tools
  */
-const dvTools = {
+const dvTools: {
+  [key: string]: any; // TODO-ts tools class type
+} = {
   ThresholdsBrushTool: ThresholdsBrushTool,
   PolylineScissorsTool: PolylineScissorsTool
 };
@@ -461,7 +463,7 @@ const DEFAULT_MOUSE_KEYS: ToolMouseKeys = {
  * Get available tools by type (useful to populate menus)
  * @param {String} type
  */
-const getDefaultToolsByType = function (type: ToolConfig["type"]) {
+const getDefaultToolsByType = function (type: NonNullable<ToolConfig["type"]>) {
   return filter(DEFAULT_TOOLS, ["type", type]);
 };
 

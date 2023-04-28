@@ -42,7 +42,7 @@ export const loadAnnotations = function (jsonData: ToolState) {
   }
 
   toolsInState.forEach(toolName => {
-    setToolEnabled(toolName, [null]); // TODO-ts fix 'null' this after setToolEnabled is typed
+    setToolEnabled(toolName); // TODO-ts fix 'null' this after setToolEnabled is typed
   });
 
   let enabledElementIds = map(

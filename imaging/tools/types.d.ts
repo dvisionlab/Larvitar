@@ -1,8 +1,28 @@
+type ToolOptionsKeys =
+  | "mouseButtonMask"
+  | "supportedInteractionTypes"
+  | "loop"
+  | "allowSkipping"
+  | "invert"
+  | string;
+
+// TODO-ts: which one is better ?
+
+// type ToolOptions = {
+//   mouseButtonMask?: number;
+//   supportedInteractionTypes?: string[];
+//   loop?: boolean;
+//   allowSkipping?: boolean;
+//   invert?: boolean;
+// };
+
+type ToolOptions = Record<ToolOptionsKeys, any>;
+
 export type ToolConfig = {
   name: string;
   viewports: string | string[];
   configuration: Object;
-  options: Object;
+  options: ToolOptions;
   class: string;
   sync?: string;
   cleanable?: boolean;

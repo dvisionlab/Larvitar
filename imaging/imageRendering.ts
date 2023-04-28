@@ -231,8 +231,7 @@ export const renderFileImage = function (
         viewport.displayedArea.brhc.y = image.height;
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
-        // TODO-ts fix this when csToolsCreateStack is typed
-        csToolsCreateStack(element, null, null);
+        csToolsCreateStack(element);
         resolve(image);
       });
     }
@@ -269,8 +268,7 @@ export const renderWebImage = function (
         return;
       }
       cornerstone.displayImage(element, image);
-      // TODO-ts fix this when csToolsCreateStack is typed
-      csToolsCreateStack(element, null, null);
+      csToolsCreateStack(element);
       resolve(image);
     });
   });

@@ -99,8 +99,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
       setToolActive(
         toolName,
         { mouseButtonMask: 1 },
-        viewports.map(v => v.id),
-        false
+        viewports.map(v => v.id)
       );
 
       document.addEventListener("keydown", onKeyDown, { once: true });
@@ -122,8 +121,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
       setToolActive(
         config.mouse_button_right.shift,
         { mouseButtonMask: 2 },
-        viewports.map(v => v.id),
-        false
+        viewports.map(v => v.id)
       );
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
@@ -144,8 +142,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
       setToolActive(
         config.mouse_button_right.ctrl,
         { mouseButtonMask: 2 },
-        viewports.map(v => v.id),
-        false
+        viewports.map(v => v.id)
       );
       document.addEventListener("keyup", onKeyUp, { once: true });
     }
@@ -169,8 +166,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
     setToolActive(
       config.mouse_button_right.default,
       { mouseButtonMask: 2 },
-      viewports.map(v => v.id),
-      false
+      viewports.map(v => v.id)
     );
     document.addEventListener("keydown", onKeyDown, { once: true });
   }
@@ -186,8 +182,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
     setToolActive(
       config.mouse_button_right.default,
       { mouseButtonMask: 2 },
-      viewports.map(v => v.id),
-      false
+      viewports.map(v => v.id)
     );
   }
 
@@ -202,8 +197,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
     setToolActive(
       config.mouse_button_left.default,
       { mouseButtonMask: 1 },
-      viewports.map(v => v.id),
-      false
+      viewports.map(v => v.id)
     );
   }
 

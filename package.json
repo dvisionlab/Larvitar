@@ -47,6 +47,7 @@
   "devDependencies": {
     "@types/cornerstone-core": "^2.3.0",
     "@types/crypto-js": "^4.1.1",
+    "@types/hammerjs": "^2.0.41",
     "@types/lodash": "^4.14.192",
     "@types/papaparse": "^5.3.7",
     "@types/uuid": "^9.0.1",

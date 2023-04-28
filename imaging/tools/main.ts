@@ -5,7 +5,7 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
+import cornerstoneTools from "cornerstone-tools";
 import cornerstoneMath from "cornerstone-math";
 import Hammer from "hammerjs";
 import { each, extend } from "lodash";
@@ -19,6 +19,7 @@ import {
   dvTools
 } from "./default";
 import { set as setStore } from "../imageStore";
+import { ToolConfig, ToolSettings, ToolStyle } from "./types";
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
@@ -27,7 +28,7 @@ import { set as setStore } from "../imageStore";
  * @param {Object} settings - the style object (see tools/default.js)
  * @example larvitar.initializeCSTools({showSVGCursors:false}, {color: "0000FF"});
  */
-const initializeCSTools = function (settings, style) {
+const initializeCSTools = function (settings: ToolSettings, style: ToolStyle) {
   cornerstoneTools.external.cornerstone = cornerstone;
   cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
   cornerstoneTools.external.Hammer = Hammer;
@@ -50,7 +51,11 @@ const initializeCSTools = function (settings, style) {
  * @param {Array?} imageIds - Stack image ids.
  * @param {String} currentImageId - The current image id.
  */
-const csToolsCreateStack = function (element, imageIds, currentImageIndex) {
+const csToolsCreateStack = function (
+  element: HTMLElement,
+  imageIds?: string[],
+  currentImageIndex?: number
+) {
   let stack;
   if (imageIds) {
     stack = {
@@ -70,7 +75,11 @@ const csToolsCreateStack = function (element, imageIds, currentImageIndex) {
   cornerstoneTools.addToolState(element, "stack", stack);
 };
 
-export function csToolsUpdateImageIds(elementId, imageIds, imageIdIndex) {
+export function csToolsUpdateImageIds(
+  elementId: string,
+  imageIds: string[],
+  imageIdIndex: number
+) {
   const element = document.getElementById(elementId);
   if (element) {
     const stackState = cornerstoneTools.getToolState(element, "stack");
@@ -88,7 +97,7 @@ export function csToolsUpdateImageIds(elementId, imageIds, imageIdIndex) {
  * @param {String} elementId - The target html element id
  * @param {String} imageId - The imageId in the form xxxxxx//:imageIndex
  */
-export function csToolsUpdateImageIndex(elementId, imageId) {
+export function csToolsUpdateImageIndex(elementId: string, imageId: string) {
   let currentImageIdIndex = parseInt(imageId.split(":")[1]);
   const element = document.getElementById(elementId);
   const stackState = cornerstoneTools.getToolState(element, "stack");
@@ -100,7 +109,7 @@ export function csToolsUpdateImageIndex(elementId, imageId) {
  *
  * @param {*} toolName
  */
-const isToolMissing = function (toolName) {
+const isToolMissing = function (toolName: string) {
   let elements = cornerstone.getEnabledElements();
   let isToolMissing = false;
   // TODO check only target viewports
@@ -120,7 +129,11 @@ const isToolMissing = function (toolName) {
  * @param {*} targetElementId
  * @example larvitar.addTool("ScaleOverlay", {configuration:{minorTickLength: 10, majorTickLength: 25}}, "viewer")
  */
-const addTool = function (toolName, customConfig, targetElementId) {
+const addTool = function (
+  toolName: string,
+  customConfig: Partial<ToolConfig>,
+  targetElementId?: string
+) {
   // extend defaults with user custom props
   let defaultConfig = DEFAULT_TOOLS[toolName];
   extend(defaultConfig, customConfig);
@@ -141,11 +154,16 @@ const addTool = function (toolName, customConfig, targetElementId) {
  * Add all default tools, as listed in tools/default.js
  * @function addDefaultTools
  */
-export const addDefaultTools = function (elementId) {
+export const addDefaultTools = function (elementId: string) {
   let elements = cornerstone.getEnabledElements();
 
   if (elements.length == 0) {
     let element = document.getElementById(elementId);
+    if (!element) {
+      throw new Error(
+        `Element with id ${elementId} not found. Cannot add default tools.`
+      );
+    }
     cornerstone.enable(element);
   }
 
@@ -189,7 +207,7 @@ export const addDefaultTools = function (elementId) {
  * Try to update image, catching errors if image is not loaded yet
  * @param {HTMLObject} element
  */
-function tryUpdateImage(element) {
+function tryUpdateImage(element: HTMLElement) {
   try {
     cornerstone.updateImage(element);
   } catch (err) {
@@ -205,7 +223,12 @@ function tryUpdateImage(element) {
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  * @param {Boolean} doNotSetInStore - Flag to avoid setting in store (useful on tools initialization eg in addDefaultTools). NOTE: This is just a hack, we must rework tools/ui sync.
  */
-const setToolActive = function (toolName, options, viewports, doNotSetInStore) {
+const setToolActive = function (
+  toolName: string,
+  options: Partial<ToolConfig["options"]>,
+  viewports?: string[],
+  doNotSetInStore?: boolean
+) {
   let defaultOpt = { ...DEFAULT_TOOLS[toolName].options }; // deep copy obj because otherwise cornerstone tools will modify it
 
   extend(defaultOpt, options);
@@ -215,7 +238,9 @@ const setToolActive = function (toolName, options, viewports, doNotSetInStore) {
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       cornerstoneTools.setToolActiveForElement(el, toolName, defaultOpt);
-      tryUpdateImage(el);
+      if (el) {
+        tryUpdateImage(el);
+      }
     });
   } else {
     // activate and update all
@@ -249,11 +274,15 @@ const setToolActive = function (toolName, options, viewports, doNotSetInStore) {
  * @param {String} toolName - The tool name.
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  */
-const setToolDisabled = function (toolName, viewports) {
+const setToolDisabled = function (toolName: string, viewports?: string[]) {
   if (viewports && viewports.length > 0) {
     // activate and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
+      if (!el) {
+        console.warn("setToolDisabled: element not found:", elementId);
+        return;
+      }
       cornerstoneTools.setToolDisabledForElement(el, toolName);
       // restore native cursor
       el.style.cursor = "initial";
@@ -277,11 +306,15 @@ const setToolDisabled = function (toolName, viewports) {
  * @param {String} toolName - The tool name.
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  */
-const setToolEnabled = function (toolName, viewports) {
+const setToolEnabled = function (toolName: string, viewports?: string[]) {
   if (viewports && viewports.length > 0) {
     // activate and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
+      if (!el) {
+        console.warn("setToolDisabled: element not found:", elementId);
+        return;
+      }
       cornerstoneTools.setToolEnabledForElement(el, toolName);
       // restore native cursor
       el.style.cursor = "initial";
@@ -305,11 +338,15 @@ const setToolEnabled = function (toolName, viewports) {
  * @param {String} toolName - The tool name.
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  */
-const setToolPassive = function (toolName, viewports) {
+const setToolPassive = function (toolName: string, viewports?: string[]) {
   if (viewports && viewports.length > 0) {
     // activate and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
+      if (!el) {
+        console.warn("setToolDisabled: element not found:", elementId);
+        return;
+      }
       cornerstoneTools.setToolPassiveForElement(el, toolName);
       tryUpdateImage(el);
     });
@@ -330,7 +367,7 @@ const setToolPassive = function (toolName, viewports) {
  * @function setToolsStyle
  * @param {Object} style - the style object (see tools/defaults.js)
  */
-const setToolsStyle = function (style) {
+const setToolsStyle = function (style: ToolStyle) {
   extend(DEFAULT_STYLE, style);
 
   let fontFamily = DEFAULT_STYLE.fontFamily;
@@ -339,7 +376,7 @@ const setToolsStyle = function (style) {
   cornerstoneTools.toolStyle.setToolWidth(DEFAULT_STYLE.width);
   cornerstoneTools.toolColors.setToolColor(DEFAULT_STYLE.color);
   cornerstoneTools.toolColors.setActiveColor(DEFAULT_STYLE.activeColor);
-  cornerstoneTools.toolColors.setFillColor(DEFAULT_STYLE.fillColor); // used only by FreehandRoiTool indide handles
+  cornerstoneTools.toolColors.setFillColor(DEFAULT_STYLE.fillColor); // used only by FreehandRoiTool inside handles
   cornerstoneTools.textStyle.setFont(`${fontSize}px ${fontFamily}`);
   cornerstoneTools.textStyle.setBackgroundColor(DEFAULT_STYLE.backgroundColor);
 };
