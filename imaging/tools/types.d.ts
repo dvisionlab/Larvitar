@@ -95,14 +95,11 @@ export type SegmentationConfig = {
   storeHistory: boolean;
 };
 
-// TODO-ts: why enums break the build ?
-// export enum MaskVisualizations {
-//   FILL,
-//   CONTOUR,
-//   HIDDEN
-// }
-
-type MaskVisualizations = 0 | 1 | 2;
+export const enum MaskVisualizations {
+  FILL,
+  CONTOUR,
+  HIDDEN
+}
 
 export type MaskProperties = {
   color: string;

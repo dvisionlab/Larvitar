@@ -406,8 +406,7 @@ export function setMaskProps(props: MaskProperties) {
   let newColor = currentColor;
   switch (props.visualization) {
     // full
-    // case MaskVisualizations.FILL:
-    case 0:
+    case MaskVisualizations.FILL:
       segModule.configuration.renderOutline = true;
       getters.isSegmentVisible(htmlelement, segmentValue, labelIndex)
         ? null
@@ -420,8 +419,7 @@ export function setMaskProps(props: MaskProperties) {
       setters.colorForSegmentIndexOfColorLUT(lutIndex, segmentValue, newColor);
       break;
     // contours
-    // case MaskVisualizations.CONTOUR:
-    case 1:
+    case MaskVisualizations.CONTOUR:
       segModule.configuration.renderOutline = true;
       getters.isSegmentVisible(htmlelement, segmentValue, labelIndex)
         ? null
@@ -434,8 +432,7 @@ export function setMaskProps(props: MaskProperties) {
       setters.colorForSegmentIndexOfColorLUT(lutIndex, segmentValue, newColor);
       break;
     // hidden
-    // case MaskVisualizations.HIDDEN:
-    case 2:
+    case MaskVisualizations.HIDDEN:
       setters.toggleSegmentVisibility(htmlelement, segmentValue, labelIndex);
       break;
   }
