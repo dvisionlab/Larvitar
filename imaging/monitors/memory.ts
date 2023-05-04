@@ -3,9 +3,14 @@
  *        monitoring memory usage
  */
 
+// Custom types for chrome
+interface Performance {
+  memory?: any;
+}
+
 // global module variables
 const backingMemory = 100 * 1048576; // 100 MB
-var customMemoryLimit = null;
+var customMemoryLimit: number | null = null;
 
 /*
  * This module provides the following functions to be exported:
@@ -22,7 +27,7 @@ var customMemoryLimit = null;
  * @param {Number} - Number of bytes to allocate
  * @return {Boolean} - Returns a boolean flag to warn the user about memory allocation limit
  */
-export const checkMemoryAllocation = function (bytes) {
+export const checkMemoryAllocation = function (bytes: number) {
   if (checkMemorySupport()) {
     let usedMemory = getUsedMemory();
     let availableMemory = getAvailableMemory();
@@ -50,7 +55,9 @@ export const checkMemoryAllocation = function (bytes) {
  * @return {Number} - Returns used JSHeapSize in bytes or NaN if not supported
  */
 export const getUsedMemory = function () {
-  return checkMemorySupport() ? performance.memory.usedJSHeapSize : NaN;
+  return checkMemorySupport()
+    ? (performance as Performance).memory.usedJSHeapSize
+    : NaN;
 };
 
 /**
@@ -63,7 +70,7 @@ export const getAvailableMemory = function () {
   if (checkMemorySupport()) {
     return customMemoryLimit
       ? customMemoryLimit
-      : performance.memory.jsHeapSizeLimit - backingMemory;
+      : (performance as Performance).memory.jsHeapSizeLimit - backingMemory;
   } else {
     return NaN;
   }
@@ -75,7 +82,7 @@ export const getAvailableMemory = function () {
  * @function setAvailableMemory
  * @param {Number} - Number of GB to set as maximum custom memory limit
  */
-export const setAvailableMemory = function (value) {
+export const setAvailableMemory = function (value: number) {
   customMemoryLimit = value * 1024 * 1024 * 1024;
 };
 
@@ -90,7 +97,9 @@ export const setAvailableMemory = function (value) {
  * @return {Boolean} - Returns memory object or false if not supported
  */
 const checkMemorySupport = function () {
-  return performance.memory ? performance.memory : false;
+  return (performance as Performance).memory
+    ? (performance as Performance).memory
+    : false;
 };
 
 /**
@@ -100,6 +109,6 @@ const checkMemorySupport = function () {
  * @param {Number} bytes - Memory in bytes
  * @return {Number} - Memory in MB
  */
-const getMB = function (bytes) {
+const getMB = function (bytes: number) {
   return bytes / 1048576;
 };
