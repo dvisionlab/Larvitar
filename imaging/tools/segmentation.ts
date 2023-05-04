@@ -21,7 +21,7 @@ import { setLabelmap3DForElement } from "./custom/setLabelMap3D";
 import {
   BrushProperties,
   MaskProperties,
-  MaskVisualizations, // TODO-ts: why enums importing (and use) break the build ?
+  MaskVisualizations,
   SegmentationConfig
 } from "./types";
 import { TypedArray } from "../types";
