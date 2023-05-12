@@ -231,8 +231,7 @@ export const renderFileImage = function (
         viewport.displayedArea.brhc.y = image.height;
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
-        // TODO-ts fix this when csToolsCreateStack is typed
-        csToolsCreateStack(element, null, null);
+        csToolsCreateStack(element);
         resolve(image);
       });
     }
@@ -269,8 +268,7 @@ export const renderWebImage = function (
         return;
       }
       cornerstone.displayImage(element, image);
-      // TODO-ts fix this when csToolsCreateStack is typed
-      csToolsCreateStack(element, null, null);
+      csToolsCreateStack(element);
       resolve(image);
     });
   });
@@ -902,8 +900,8 @@ let getSeriesData = function (
   let spacing = series.instances[series.imageIds[0]].metadata[
     "x00280030"
   ] as number[];
-  data.spacing_x = spacing[0];
-  data.spacing_y = spacing[1];
+  data.spacing_x = spacing ? spacing[0] : 1;
+  data.spacing_y = spacing ? spacing[1] : 1;
 
   // window center and window width
   data.wc =

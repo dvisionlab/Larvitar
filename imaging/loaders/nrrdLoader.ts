@@ -205,7 +205,7 @@ export const buildNrrdImage = function (
   let iopArr = volume.header["space directions"][index + 0].concat(
     volume.header["space directions"][index + 1]
   );
-  if (iopArr.length == 6) {
+  if (iopArr.length !== 6) {
     throw new Error("Invalid Image Orientation");
   }
   let iop = iopArr as [number, number, number, number, number, number];
@@ -597,10 +597,10 @@ let createCustomImage = function (
       image.windowWidth = 255;
       image.windowCenter = 128;
     } else if (
-      image.maxPixelValue &&
-      image.minPixelValue &&
-      image.slope &&
-      image.intercept
+      image.maxPixelValue != null &&
+      image.minPixelValue != null &&
+      image.slope != null &&
+      image.intercept != null
     ) {
       let maxVoi = image.maxPixelValue * image.slope + image.intercept;
       let minVoi = image.minPixelValue * image.slope + image.intercept;

@@ -211,20 +211,17 @@ export const updateLoadedStack = function (
       dataSet: seriesData.dataSet,
       pixelData: new Uint16Array() // TODO-ts check if this initialization is ok
     };
+
     // order images in stack
     allSeriesStack[id].imageIds = getSortedStack(
       allSeriesStack[id],
       sortMethods,
       true
-    ) as string[]; //TODO-ts: remove casting when getSortedStack is typed
+    );
 
     // populate the ordered dictionary of instanceUIDs
-    allSeriesStack[id].instanceUIDs = getSortedUIDs(allSeriesStack[id]) as {
-      [key: string]: string;
-    }; //TODO-ts: remove casting when getSortedStack is typed
-
-    // TODO-ts remove casting when store is typed
-    (store as any).addSeriesId(id, allSeriesStack[id].imageIds);
+    allSeriesStack[id].instanceUIDs = getSortedUIDs(allSeriesStack[id]);
+    store.addSeriesId(id, allSeriesStack[id].imageIds);
   }
 };
 

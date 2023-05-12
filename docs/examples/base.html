@@ -99,7 +99,7 @@
       </div>
     </div>
 
-    <script src="./larvitar.js"></script>
+    <script src="../../dist/larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>
@@ -108,8 +108,8 @@
 
       const getDemoFileNames = function () {
         let demoFileList = [];
-        for (let i = 1; i < 25; i++) {
-          let filename = "anon" + i;
+        for (let i = 1; i < 12; i++) {
+          let filename = "cropped" + i;
           demoFileList.push(filename);
         }
         return demoFileList;
@@ -127,7 +127,7 @@
         let file = new File([data], fileName);
         demoFiles.push(file);
         counter++;
-        if (counter == 24) {
+        if (counter == 11) {
           cb();
         }
       }

@@ -22,8 +22,5 @@ yarn-error.log*
 # JsDocs templates directory
 template/docdash/
 
-# Boundles
-/dist
-
 # TS coverage reports
 /coverage-ts
