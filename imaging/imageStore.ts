@@ -326,21 +326,28 @@ export default {
     delete STORE!.viewports[name];
   },
   // add/remove series instances ids
-  addSeriesIds: (seriesId: string, imageIds: string[]) => {
+  addSeriesId: (seriesId: string, imageIds: string[]) => {
     validateStore();
     if (!STORE!.series[seriesId]) {
       STORE!.series[seriesId] = {} as { imageIds: string[]; progress: number };
     }
     STORE!.series[seriesId].imageIds = imageIds;
   },
-  removeSeriesIds: (seriesId: string) => {
+  removeSeriesId: (seriesId: string) => {
     validateStore();
     delete STORE!.series[seriesId];
   },
+  resetSeriesIds: () => (STORE!.series = {}),
   // get and watch values
   get: (props: string | string[]) => {
     validateStore();
     return _get(STORE, props);
+  },
+  setSliceId: (elementId: string, imageIndex: number) => {
+    set("sliceId", [elementId, imageIndex]);
+  },
+  setMaxSliceId: (elementId: string, imageIndex: number) => {
+    set("maxSliceId", [elementId, imageIndex]);
   },
   // TODO multiple watchs
   watch: (cb: Function, name = "store") => {

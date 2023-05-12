@@ -64,7 +64,7 @@ export const clearImageCache = function (seriesId: string) {
         }
       });
 
-      store.removeSeriesIds(seriesId);
+      store.removeSeriesId(seriesId);
       console.log("Uncached images for ", seriesId);
     }
   } else {
@@ -95,7 +95,7 @@ export function loadAndCacheImages(series: Series, callback: Function) {
   };
   callback(response);
   // add serie's imageIds into store
-  store.addSeriesIds(series.seriesUID, series.imageIds);
+  store.addSeriesId(series.seriesUID, series.imageIds);
   // add serie's caching progress into store
   setStore("progress", [series.seriesUID, 0]);
   each(series.imageIds, function (imageId) {

@@ -224,7 +224,7 @@ export const updateLoadedStack = function (
     }; //TODO-ts: remove casting when getSortedStack is typed
 
     // TODO-ts remove casting when store is typed
-    (store as any).addSeriesIds(id, allSeriesStack[id].imageIds);
+    (store as any).addSeriesId(id, allSeriesStack[id].imageIds);
   }
 };
 

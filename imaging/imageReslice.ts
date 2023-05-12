@@ -68,7 +68,7 @@ export function resliceSeries(
         ) as Uint16Array;
         imageTracker[imageId] = reslicedSeriesId;
       });
-      store.addSeriesIds(reslicedSeriesId, reslicedSeries.imageIds);
+      store.addSeriesId(reslicedSeriesId, reslicedSeries.imageIds);
       reslicedSeries.numberOfImages = reslicedSeries.imageIds.length;
       reslicedSeries.seriesUID = reslicedSeriesId;
       reslicedSeries.seriesDescription = seriesData.seriesDescription;

@@ -146,8 +146,7 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
       console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
       return data;
     } else {
-      // @ts-ignore TODO-ts type store
-      store.addSeriesIds(series.seriesUID, series.imageIds);
+      store.addSeriesId(series.seriesUID, series.imageIds);
       let image_counter = 0;
       forEach(series.imageIds, function (imageId) {
         getCachedPixelData(imageId).then((sliceData: number[]) => {
@@ -208,8 +207,7 @@ export const buildDataAsync = function (
     let offsetData = 0;
 
     let imageIds = series.imageIds.slice();
-    // @ts-ignore TODO-ts type store
-    store.addSeriesIds(series.seriesUID, series.imageIds);
+    store.addSeriesId(series.seriesUID, series.imageIds);
 
     // TODO-ts type check
     function runFillPixelData(data: TypedArray) {
