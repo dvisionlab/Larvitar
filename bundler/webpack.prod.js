@@ -12,5 +12,8 @@ module.exports = merge(commonConfiguration, {
     libraryTarget: "umd"
   },
   mode: "production",
-  plugins: [new CleanWebpackPlugin()]
+  plugins: [new CleanWebpackPlugin()],
+  optimization: {
+    minimize: false
+  }
 });

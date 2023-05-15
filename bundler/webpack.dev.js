@@ -16,5 +16,8 @@ module.exports = merge(commonConfiguration, {
   watch: true,
   watchOptions: {
     ignored: /node_modules/
+  },
+  optimization: {
+    minimize: false
   }
 });
