@@ -90,6 +90,6 @@ declare const _default: {
         imageIds: string[];
         progress: number;
     }) => {}) => void;
-    removeSeriesListenser: (seriesId: string) => void;
+    removeSeriesListener: (seriesId: string) => void;
 };
 export default _default;
