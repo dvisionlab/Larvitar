@@ -1,0 +1,53 @@
+/** @module imaging/imageLoading
+ *  @desc This file provides functionalities for
+ *        initialize, configure and update WadoImageLoader
+ */
+import { ImageObject, Series } from "./types";
+/**
+ * Configure cornerstoneWADOImageLoader
+ * @instance
+ * @function initializeImageLoader
+ * @param {Object} config - Custom config @default globalConfig
+ */
+export declare const initializeImageLoader: (config: Object) => void;
+/**
+ * Configure cornerstoneWebImageLoader
+ * @instance
+ * @function initializeWebImageLoader
+ */
+export declare const initializeWebImageLoader: () => void;
+/**
+ * Configure cornerstoneFileImageLoader
+ * @instance
+ * @function initializeFileImageLoader
+ */
+export declare const initializeFileImageLoader: () => void;
+/**
+ * Register custom NRRD ImageLoader
+ * @instance
+ * @function registerNRRDImageLoader
+ */
+export declare const registerNRRDImageLoader: () => void;
+/**
+ * Register custom Reslice ImageLoader
+ * @instance
+ * @function registerResliceLoader
+ */
+export declare const registerResliceLoader: () => void;
+/**
+ * Register custom MultiFrame ImageLoader
+ * @instance
+ * @function registerMultiFrameImageLoader
+ */
+export declare const registerMultiFrameImageLoader: () => void;
+/**
+ * Update the allSeriesStack object using wadoImageLoader fileManager
+ * @instance
+ * @function updateLoadedStack
+ * @param {Object} seriesData - Cornerstone series object
+ * @param {Object} allSeriesStack - Dict containing all series objects
+ * @param {String} customId - Optional custom id to overwrite seriesUID as default one
+ */
+export declare const updateLoadedStack: (seriesData: ImageObject, allSeriesStack: {
+    [key: string]: Series;
+}, customId?: string) => void;

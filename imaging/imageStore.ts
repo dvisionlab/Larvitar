@@ -5,7 +5,6 @@
 
 // external libraries
 import { get as _get } from "lodash";
-import { Series, Viewport } from "./types";
 
 type Store = {
   colormapId: string;
@@ -19,7 +18,13 @@ type Store = {
 };
 
 // Larvitar store object
-let STORE: Store | undefined = undefined; // TODO: fix this when store is typed
+let STORE: Store | undefined = undefined; // TODO-ts: fix this when store is typed
+
+// Data listeners
+let storeListener: ((data: Store) => {}) | undefined = undefined;
+const viewportsListeners = {} as {
+  [elementId: string]: (data: typeof DEFAULT_VIEWPORT) => {};
+};
 
 // default initial store object
 const INITIAL_STORE_DATA = {
@@ -140,6 +145,16 @@ const DEFAULT_VIEWPORT: {
   }
 };
 
+// Trigger store listeners
+const triggerStoreListener = (data: Store) =>
+  storeListener ? storeListener(data) : undefined;
+
+const triggerViewportListener = (elementId: string) => {
+  if (viewportsListeners[elementId] && STORE?.viewports[elementId]) {
+    viewportsListeners[elementId](STORE.viewports[elementId]);
+  }
+};
+
 /**
  * Set a value into store
  * @function setValue
@@ -194,8 +209,10 @@ const setValue = (store: Store, field: string, data: Object) => {
     case "timestamp":
     case "timestamps":
     case "timeIds":
-      // @ts-ignore TODO fix this
+      // TODO-ts
+      // @ts-ignore
       viewport[field] = v[0];
+      triggerViewportListener(k);
       break;
 
     case "rotation":
@@ -203,21 +220,25 @@ const setValue = (store: Store, field: string, data: Object) => {
     case "translation":
     case "thickness":
       viewport.viewport[field] = v[0];
+      triggerViewportListener(k);
       break;
 
     case "contrast":
       viewport.viewport.voi.windowWidth = v[0];
       viewport.viewport.voi.windowCenter = v[0];
+      triggerViewportListener(k);
       break;
 
     case "dimensions":
       viewport.viewport.rows = v[0];
       viewport.viewport.cols = v[1];
+      triggerViewportListener(k);
       break;
 
     case "spacing":
       viewport.viewport.spacing_x = v[0];
       viewport.viewport.spacing_y = v[1];
+      triggerViewportListener(k);
       break;
 
     case "defaultViewport":
@@ -227,6 +248,7 @@ const setValue = (store: Store, field: string, data: Object) => {
       viewport.default.translation.y = v[3];
       viewport.default.voi.windowWidth = v[4];
       viewport.default.voi.windowCenter = v[5];
+      triggerViewportListener(k);
       break;
 
     default:
@@ -243,23 +265,6 @@ const setValue = (store: Store, field: string, data: Object) => {
  * Instancing the store
  */
 const setup = (name = "store", data = { ...INITIAL_STORE_DATA }) => {
-  /**
-   * Emit a custom event
-   * @param  {String} type   The event type
-   * @param  {*}      detail Any details to pass along with the event
-   */
-  const emit = (type: string, detail: unknown) => {
-    // Create a new event
-    const event = new CustomEvent(type, {
-      bubbles: true,
-      cancelable: true,
-      detail
-    });
-
-    // Dispatch the event
-    return document.dispatchEvent(event);
-  };
-
   /**
    * Create the Proxy handler object
    * @param  {String} name The namespace
@@ -285,12 +290,12 @@ const setup = (name = "store", data = { ...INITIAL_STORE_DATA }) => {
         // console.warn("SET", obj, prop, value);
         if (obj[prop] === value) return true;
         obj[prop] = value;
-        emit(name, data); // TODO multiple emits
+        triggerStoreListener(data);
         return true;
       },
       deleteProperty: (obj: any, prop: any) => {
         delete obj[prop];
-        emit(name, data);
+        triggerStoreListener(data);
         return true;
       }
     };
@@ -309,7 +314,7 @@ const validateStore = () => {
   }
 };
 
-export const set = (field: string, payload: any) => {
+export const set = (field: string, payload: string | Array<unknown>) => {
   validateStore();
   setValue(STORE!, field, payload);
 };
@@ -337,22 +342,34 @@ export default {
     validateStore();
     delete STORE!.series[seriesId];
   },
-  resetSeriesIds: () => (STORE!.series = {}),
-  // get and watch values
-  get: (props: string | string[]) => {
+  resetSeriesIds: () => {
     validateStore();
-    return _get(STORE, props);
+    STORE!.series = {};
   },
+  // expose useful sets
   setSliceId: (elementId: string, imageIndex: number) => {
     set("sliceId", [elementId, imageIndex]);
   },
   setMaxSliceId: (elementId: string, imageIndex: number) => {
     set("maxSliceId", [elementId, imageIndex]);
   },
-  // TODO multiple watchs
-  watch: (cb: Function, name = "store") => {
+  // get
+  get: (props: string | string[]) => {
     validateStore();
-    // @ts-ignore: Property 'detail' does not exist on type 'Event'
-    document.addEventListener(name, (event: Event) => cb(event.detail));
+    return _get(STORE, props);
+  },
+  // watch store
+  addStoreListener: (listener: (data: Store) => {}) =>
+    (storeListener = listener),
+  removeStoreListener: () => (storeListener = undefined),
+  // watch single viewport
+  addViewportListener: (
+    elementId: string,
+    listener: (data: typeof DEFAULT_VIEWPORT) => {}
+  ) => {
+    viewportsListeners[elementId] = listener;
+  },
+  removeViewportListener: (elementId: string) => {
+    delete viewportsListeners[elementId];
   }
 };
