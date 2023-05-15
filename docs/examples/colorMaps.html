@@ -126,11 +126,32 @@
         return demoFileList;
       };
 
+      const customColorMap = function () {
+        let array = [[0, 0, 0, 255]];
+
+        for (let i = 1; i < 255; i++) {
+          let rgb;
+          rgb = larvitar.HSVToRGB(i / 360, 1, 1);
+          rgb[0] = Math.floor(rgb[0] * 255);
+          rgb[1] = Math.floor(rgb[1] * 255);
+          rgb[2] = Math.floor(rgb[2] * 255);
+          rgb[3] = 255;
+
+          array.push(rgb);
+        }
+
+        array.push([0, 0, 0, 255]);
+        return array;
+      };
+
       // init all
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      // add a custom color map
+      larvitar.addColorMap("custom", "CUSTOM", customColorMap());
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);

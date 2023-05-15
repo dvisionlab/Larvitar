@@ -39,7 +39,7 @@ export function addColorMap(
   colormapName: string,
   colors: Array<Array<number>>
 ) {
-  const colormap = cornerstone.colors.getColormap(colormapId, {});
+  const colormap = cornerstone.colors.getColormap(colormapId, null);
   colormap.setColorSchemeName(colormapName);
   let noc = colors.length;
   colormap.setNumberOfColors(noc);

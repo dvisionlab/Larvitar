@@ -208,7 +208,7 @@ let parseNextFile = function (
         file = null;
       })
       .catch(err => {
-        console.warn(err);
+        console.error(err);
         parseNextFile(parsingQueue, allSeriesStack, uuid, resolve, reject);
         file = null;
       });
@@ -260,130 +260,132 @@ let parseFile = function (file: File) {
       let byteArray: Uint8Array | null = new Uint8Array(arrayBuffer);
       let dataSet;
 
-      // try {
-      dataSet = parseDicom(byteArray);
-      byteArray = null;
-      let metadata: Partial<{ [key: string]: MetadataValue }> = {};
-      parseDataSet(dataSet, metadata);
+      // this try-catch is used to handle non-DICOM files: log error but continue parsing the other files
+      try {
+        dataSet = parseDicom(byteArray);
+        byteArray = null;
+        let metadata: Partial<{ [key: string]: MetadataValue }> = {};
+        parseDataSet(dataSet, metadata);
 
-      let temporalPositionIdentifier = metadata["x00200100"]; // Temporal order of a dynamic or functional set of Images.
-      let numberOfTemporalPositions = metadata["x00200105"]; // Total number of temporal positions prescribed.
-      const is4D =
-        temporalPositionIdentifier !== undefined &&
-        (numberOfTemporalPositions as number) > 1
-          ? true
-          : false;
+        let temporalPositionIdentifier = metadata["x00200100"]; // Temporal order of a dynamic or functional set of Images.
+        let numberOfTemporalPositions = metadata["x00200105"]; // Total number of temporal positions prescribed.
+        const is4D =
+          temporalPositionIdentifier !== undefined &&
+          (numberOfTemporalPositions as number) > 1
+            ? true
+            : false;
 
-      let numberOfFrames = metadata["x00280008"];
-      let isMultiframe = (numberOfFrames as number) > 1 ? true : false;
-      // Overwrite SOPInstanceUID to manage multiframes.
-      // Usually different SeriesInstanceUID means different series and that value
-      // is used into the application to group different instances into the same series,
-      // but if a DICOM file contains a multiframe series, then the SeriesInstanceUID
-      // can be shared by other files of the same study.
-      // In multiframe cases, the SOPInstanceUID (unique) is used as SeriesInstanceUID.
-      let seriesInstanceUID = isMultiframe
-        ? metadata["x00080018"]
-        : metadata["x0020000e"];
-      let pixelSpacing = metadata["x00280030"];
-      let imageOrientation = metadata["x00200037"];
-      let imagePosition = metadata["x00200032"];
-      let sliceThickness = metadata["x00180050"];
+        let numberOfFrames = metadata["x00280008"];
+        let isMultiframe = (numberOfFrames as number) > 1 ? true : false;
+        // Overwrite SOPInstanceUID to manage multiframes.
+        // Usually different SeriesInstanceUID means different series and that value
+        // is used into the application to group different instances into the same series,
+        // but if a DICOM file contains a multiframe series, then the SeriesInstanceUID
+        // can be shared by other files of the same study.
+        // In multiframe cases, the SOPInstanceUID (unique) is used as SeriesInstanceUID.
+        let seriesInstanceUID = isMultiframe
+          ? metadata["x00080018"]
+          : metadata["x0020000e"];
+        let pixelSpacing = metadata["x00280030"];
+        let imageOrientation = metadata["x00200037"];
+        let imagePosition = metadata["x00200032"];
+        let sliceThickness = metadata["x00180050"];
 
-      if (dataSet.warnings.length > 0) {
-        // warnings
-        reject(dataSet.warnings);
-      } else {
-        let pixelDataElement = dataSet.elements.x7fe00010;
-        let SOPUID = metadata["x00080016"];
-        if (pixelDataElement) {
-          // done, pixelDataElement found
-          let instanceUID = metadata["x00080018"] || randomId();
-          let imageObject: Partial<ImageObject> = {
-            // data needed for rendering
-            file: file,
-            dataSet: dataSet
-          };
-          imageObject.metadata = metadata;
-          imageObject.metadata.anonymized = false;
-          imageObject.metadata.seriesUID = seriesInstanceUID;
-          imageObject.metadata.instanceUID = instanceUID;
-          imageObject.metadata.studyUID = metadata["x0020000d"];
-          imageObject.metadata.accessionNumber = metadata["x00080050"];
-          imageObject.metadata.studyDescription = metadata["x00081030"];
-          imageObject.metadata.patientName = metadata["x00100010"];
-          imageObject.metadata.patientBirthdate = metadata["x00100030"];
-          imageObject.metadata.seriesDescription = metadata["x0008103e"];
-          imageObject.metadata.seriesDate = metadata["x00080021"];
-          imageObject.metadata.seriesModality = metadata["x00080060"]
-            ?.toString()
-            .toLowerCase();
-          imageObject.metadata.intercept = metadata["x00281052"];
-          imageObject.metadata.slope = metadata["x00281053"];
-          imageObject.metadata.pixelSpacing = pixelSpacing;
-          imageObject.metadata.sliceThickness = sliceThickness;
-          imageObject.metadata.imageOrientation = imageOrientation;
-          imageObject.metadata.imagePosition = imagePosition;
-          imageObject.metadata.rows = metadata["x00280010"];
-          imageObject.metadata.cols = metadata["x00280011"];
-          imageObject.metadata.numberOfSlices = metadata["x00540081"]
-            ? metadata["x00540081"] // number of slices
-            : metadata["x00201002"]; // number of instances
-          imageObject.metadata.numberOfFrames = numberOfFrames;
-          if (isMultiframe) {
-            imageObject.metadata.frameTime = metadata["x00181063"];
-            imageObject.metadata.frameDelay = metadata["x00181066"];
-          }
-          imageObject.metadata.isMultiframe = isMultiframe;
-          if (is4D) {
-            imageObject.metadata.temporalPositionIdentifier =
-              metadata["x00200100"];
-            imageObject.metadata.numberOfTemporalPositions =
-              metadata["x00200105"];
-            imageObject.metadata.contentTime = metadata["x00080033"];
-          }
-          imageObject.metadata.is4D = is4D;
-          imageObject.metadata.windowCenter = metadata["x00281050"];
-          imageObject.metadata.windowWidth = metadata["x00281051"];
-          imageObject.metadata.minPixelValue = metadata["x00280106"];
-          imageObject.metadata.maxPixelValue = metadata["x00280107"];
-          imageObject.metadata.length = pixelDataElement.length;
-          imageObject.metadata.repr = getPixelRepresentation(dataSet);
-          resolve(imageObject as ImageObject);
-        } else if (SOPUID == "1.2.840.10008.5.1.4.1.1.104.1") {
-          let pdfObject: Partial<ImageObject> = {
-            // data needed for rendering
-            file: file,
-            dataSet: dataSet
-          };
-          pdfObject.metadata = metadata;
-          pdfObject.metadata.seriesUID = seriesInstanceUID;
-          pdfObject.instanceUID =
-            metadata["x00080018"]?.toString() || randomId();
-          pdfObject.metadata.studyUID = metadata["x0020000d"];
-          pdfObject.metadata.accessionNumber = metadata["x00080050"];
-          pdfObject.metadata.studyDescription = metadata["x00081030"];
-          pdfObject.metadata.patientName = metadata["x00100010"];
-          pdfObject.metadata.patientBirthdate = metadata["x00100030"];
-          pdfObject.metadata.seriesDate = metadata["x00080021"];
-          pdfObject.metadata.seriesModality = metadata["x00080060"]
-            ?.toString()
-            .toLowerCase();
-          pdfObject.metadata.mimeType = metadata["x00420012"];
-          pdfObject.metadata.is4D = false;
-          pdfObject.metadata.numberOfFrames = 0;
-          pdfObject.metadata.numberOfSlices = 0;
-          pdfObject.metadata.numberOfTemporalPositions = 0;
-          resolve(pdfObject as ImageObject);
+        if (dataSet.warnings.length > 0) {
+          // warnings
+          reject(dataSet.warnings);
         } else {
-          // done, no pixelData
-          reject("no pixelData");
+          let pixelDataElement = dataSet.elements.x7fe00010;
+          let SOPUID = metadata["x00080016"];
+          if (pixelDataElement) {
+            // done, pixelDataElement found
+            let instanceUID = metadata["x00080018"] || randomId();
+            let imageObject: Partial<ImageObject> = {
+              // data needed for rendering
+              file: file,
+              dataSet: dataSet
+            };
+            imageObject.metadata = metadata;
+            imageObject.metadata.anonymized = false;
+            imageObject.metadata.seriesUID = seriesInstanceUID;
+            imageObject.metadata.instanceUID = instanceUID;
+            imageObject.metadata.studyUID = metadata["x0020000d"];
+            imageObject.metadata.accessionNumber = metadata["x00080050"];
+            imageObject.metadata.studyDescription = metadata["x00081030"];
+            imageObject.metadata.patientName = metadata["x00100010"];
+            imageObject.metadata.patientBirthdate = metadata["x00100030"];
+            imageObject.metadata.seriesDescription = metadata["x0008103e"];
+            imageObject.metadata.seriesDate = metadata["x00080021"];
+            imageObject.metadata.seriesModality = metadata["x00080060"]
+              ?.toString()
+              .toLowerCase();
+            imageObject.metadata.intercept = metadata["x00281052"];
+            imageObject.metadata.slope = metadata["x00281053"];
+            imageObject.metadata.pixelSpacing = pixelSpacing;
+            imageObject.metadata.sliceThickness = sliceThickness;
+            imageObject.metadata.imageOrientation = imageOrientation;
+            imageObject.metadata.imagePosition = imagePosition;
+            imageObject.metadata.rows = metadata["x00280010"];
+            imageObject.metadata.cols = metadata["x00280011"];
+            imageObject.metadata.numberOfSlices = metadata["x00540081"]
+              ? metadata["x00540081"] // number of slices
+              : metadata["x00201002"]; // number of instances
+            imageObject.metadata.numberOfFrames = numberOfFrames;
+            if (isMultiframe) {
+              imageObject.metadata.frameTime = metadata["x00181063"];
+              imageObject.metadata.frameDelay = metadata["x00181066"];
+            }
+            imageObject.metadata.isMultiframe = isMultiframe;
+            if (is4D) {
+              imageObject.metadata.temporalPositionIdentifier =
+                metadata["x00200100"];
+              imageObject.metadata.numberOfTemporalPositions =
+                metadata["x00200105"];
+              imageObject.metadata.contentTime = metadata["x00080033"];
+            }
+            imageObject.metadata.is4D = is4D;
+            imageObject.metadata.windowCenter = metadata["x00281050"];
+            imageObject.metadata.windowWidth = metadata["x00281051"];
+            imageObject.metadata.minPixelValue = metadata["x00280106"];
+            imageObject.metadata.maxPixelValue = metadata["x00280107"];
+            imageObject.metadata.length = pixelDataElement.length;
+            imageObject.metadata.repr = getPixelRepresentation(dataSet);
+            resolve(imageObject as ImageObject);
+          } else if (SOPUID == "1.2.840.10008.5.1.4.1.1.104.1") {
+            let pdfObject: Partial<ImageObject> = {
+              // data needed for rendering
+              file: file,
+              dataSet: dataSet
+            };
+            pdfObject.metadata = metadata;
+            pdfObject.metadata.seriesUID = seriesInstanceUID;
+            pdfObject.instanceUID =
+              metadata["x00080018"]?.toString() || randomId();
+            pdfObject.metadata.studyUID = metadata["x0020000d"];
+            pdfObject.metadata.accessionNumber = metadata["x00080050"];
+            pdfObject.metadata.studyDescription = metadata["x00081030"];
+            pdfObject.metadata.patientName = metadata["x00100010"];
+            pdfObject.metadata.patientBirthdate = metadata["x00100030"];
+            pdfObject.metadata.seriesDate = metadata["x00080021"];
+            pdfObject.metadata.seriesModality = metadata["x00080060"]
+              ?.toString()
+              .toLowerCase();
+            pdfObject.metadata.mimeType = metadata["x00420012"];
+            pdfObject.metadata.is4D = false;
+            pdfObject.metadata.numberOfFrames = 0;
+            pdfObject.metadata.numberOfSlices = 0;
+            pdfObject.metadata.numberOfTemporalPositions = 0;
+            resolve(pdfObject as ImageObject);
+          } else {
+            // done, no pixelData
+            reject("no pixelData");
+          }
         }
+      } catch (err) {
+        reject(
+          `Larvitar: can not read file "${file.name}" \nParsing error: ${err}`
+        );
       }
-      // } catch (err) {
-      //   console.warn(err);
-      //   reject("can not read this file");
-      // }
     };
     reader.readAsArrayBuffer(file);
   });
