@@ -6,6 +6,7 @@
 // external libraries
 import { get as _get } from "lodash";
 
+// TODO-ts get from imageStore.d.ts
 type Store = {
   colormapId: string;
   errorLog: any;
@@ -22,6 +23,9 @@ let STORE: Store | undefined = undefined; // TODO-ts: fix this when store is typ
 
 // Data listeners
 let storeListener: ((data: Store) => {}) | undefined = undefined;
+const seriesListeners = {} as {
+  [seriesId: string]: (data: { imageIds: string[]; progress: number }) => {};
+};
 const viewportsListeners = {} as {
   [elementId: string]: (data: typeof DEFAULT_VIEWPORT) => {};
 };
@@ -155,6 +159,12 @@ const triggerViewportListener = (elementId: string) => {
   }
 };
 
+const triggerSeriesListener = (seriesId: string) => {
+  if (seriesListeners[seriesId] && STORE?.series[seriesId]) {
+    seriesListeners[seriesId](STORE.series[seriesId]);
+  }
+};
+
 /**
  * Set a value into store
  * @function setValue
@@ -190,6 +200,7 @@ const setValue = (store: Store, field: string, data: Object) => {
   switch (field) {
     case "progress":
       store.series[k][field] = v[0];
+      triggerSeriesListener(k);
       break;
 
     case "isColor":
@@ -337,6 +348,7 @@ export default {
       STORE!.series[seriesId] = {} as { imageIds: string[]; progress: number };
     }
     STORE!.series[seriesId].imageIds = imageIds;
+    triggerSeriesListener(seriesId);
   },
   removeSeriesId: (seriesId: string) => {
     validateStore();
@@ -371,5 +383,16 @@ export default {
   },
   removeViewportListener: (elementId: string) => {
     delete viewportsListeners[elementId];
+  },
+  // watch single series
+  // TODO-ts extract series type
+  addSeriesListener: (
+    seriesId: string,
+    listener: (data: { imageIds: string[]; progress: number }) => {}
+  ) => {
+    seriesListeners[seriesId] = listener;
+  },
+  removeSeriesListenser: (seriesId: string) => {
+    delete seriesListeners[seriesId];
   }
 };
