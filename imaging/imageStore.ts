@@ -392,7 +392,7 @@ export default {
   ) => {
     seriesListeners[seriesId] = listener;
   },
-  removeSeriesListenser: (seriesId: string) => {
+  removeSeriesListener: (seriesId: string) => {
     delete seriesListeners[seriesId];
   }
 };
