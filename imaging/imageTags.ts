@@ -76,8 +76,7 @@ let formatDateTime = function (date: string) {
  * @return {Boolean} - Boolean result
  */
 const isValidDate = function (d: Date) {
-  // @ts-ignore TODO-ts TS doesn't like the isNaN check
-  return d instanceof Date && !isNaN(d);
+  return d instanceof Date && !isNaN(d.getTime());
 };
 
 /**
@@ -89,10 +88,10 @@ const isValidDate = function (d: Date) {
  */
 const parseDateTag = function (tagValue: string) {
   if (!tagValue) return "";
-  let year = tagValue.substring(0, 4);
-  let month = tagValue.substring(4, 6);
-  let day = tagValue.substring(6, 8);
-  let date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  const year = tagValue.substring(0, 4);
+  const month = tagValue.substring(4, 6);
+  const day = tagValue.substring(6, 8);
+  const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
   if (isValidDate(date) === true) {
     return date.toISOString();
   } else {
@@ -109,14 +108,14 @@ const parseDateTag = function (tagValue: string) {
  */
 const parseDateTimeTag = function (tagValue: string) {
   if (!tagValue) return "";
-  let year = tagValue.substring(0, 4);
-  let month = tagValue.substring(4, 6);
-  let day = tagValue.substring(6, 8);
-  let hour = tagValue.substring(8, 10);
-  let min = tagValue.substring(10, 12);
-  let sec = tagValue.substring(12, 14);
-  let msec = tagValue.substring(15, 21);
-  let date = new Date(
+  const year = tagValue.substring(0, 4);
+  const month = tagValue.substring(4, 6);
+  const day = tagValue.substring(6, 8);
+  const hour = tagValue.substring(8, 10);
+  const min = tagValue.substring(10, 12);
+  const sec = tagValue.substring(12, 14);
+  // const msec = tagValue.substring(15, 21);
+  const date = new Date(
     parseInt(year),
     parseInt(month) - 1,
     parseInt(day),

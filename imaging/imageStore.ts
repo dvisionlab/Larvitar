@@ -6,37 +6,67 @@
 // external libraries
 import { get as _get } from "lodash";
 
-// TODO-ts get from imageStore.d.ts
+type StoreSeries = { imageIds: string[]; progress: number };
+
 type Store = {
   colormapId: string;
-  errorLog: any;
+  errorLog: string; // TODO review this, should be an array?
   leftActiveTool: string;
   rightActiveTool: string;
-  series: { [seriesUID: string]: { imageIds: string[]; progress: number } };
+  series: { [seriesUID: string]: StoreSeries };
   viewports: { [key: string]: typeof DEFAULT_VIEWPORT };
   // fallback for any other field
   [key: string]: any;
 };
 
+type SetPayload =
+  | [string, string]
+  | ["progress", string, number]
+  | [
+      "isColor" | "isMultiframe" | "isPDF" | "isTimeserie" | "ready",
+      string,
+      boolean
+    ]
+  | [
+      (
+        | "loading"
+        | "minPixelValue"
+        | "maxPixelValue"
+        | "minSliceId"
+        | "maxSliceId"
+        | "minTimeId"
+        | "maxTimeId"
+        | "sliceId"
+        | "timeId"
+        | "timestamp"
+      ),
+      string,
+      number
+    ]
+  | ["timestamps" | "timeIds", string, number[]]
+  | ["contrast", string, number, number]
+  | ["translation", string, { x: number; y: number }]
+  | ["defaultViewport", string, number, number, number, number, number, number];
+
 // Larvitar store object
-let STORE: Store | undefined = undefined; // TODO-ts: fix this when store is typed
+let STORE: Store;
 
 // Data listeners
 let storeListener: ((data: Store) => {}) | undefined = undefined;
 const seriesListeners = {} as {
-  [seriesId: string]: (data: { imageIds: string[]; progress: number }) => {};
+  [seriesId: string]: (data: StoreSeries) => {};
 };
 const viewportsListeners = {} as {
   [elementId: string]: (data: typeof DEFAULT_VIEWPORT) => {};
 };
 
 // default initial store object
-const INITIAL_STORE_DATA = {
+const INITIAL_STORE_DATA: Store = {
   colormapId: "gray",
-  errorLog: null,
+  errorLog: "",
   leftActiveTool: "Wwwc",
   rightActiveTool: "Zoom",
-  series: {}, // seriesUID: {imageIds:[], progress:value}
+  series: {},
   viewports: {}
 };
 
@@ -171,16 +201,18 @@ const triggerSeriesListener = (seriesId: string) => {
  * @param {field} field - The name of the field to be updated
  * @param {Object} data - The data object
  */
-const setValue = (store: Store, field: string, data: Object) => {
-  let k, v;
+const setValue = (store: Store, data: SetPayload) => {
+  let field = data[0];
 
-  if (Array.isArray(data)) {
-    [k, ...v] = data;
-  } else {
-    v = [data];
+  if (!Array.isArray(data)) {
+    store[field] = data;
+    return;
   }
 
-  let viewport = store.viewports[k];
+  const k = data[1];
+  let [_1, _2, ...v] = data;
+
+  const viewport = store.viewports[k];
 
   // rename field
   switch (field) {
@@ -199,7 +231,7 @@ const setValue = (store: Store, field: string, data: Object) => {
   // assign values
   switch (field) {
     case "progress":
-      store.series[k][field] = v[0];
+      store.series[k][field] = (v as [number])[0];
       triggerSeriesListener(k);
       break;
 
@@ -207,6 +239,11 @@ const setValue = (store: Store, field: string, data: Object) => {
     case "isMultiframe":
     case "isPDF":
     case "isTimeserie":
+    case "ready":
+      viewport[field] = (v as [boolean])[0];
+      triggerViewportListener(k);
+      break;
+
     case "loading":
     case "minPixelValue":
     case "maxPixelValue":
@@ -214,45 +251,54 @@ const setValue = (store: Store, field: string, data: Object) => {
     case "maxSliceId":
     case "minTimeId":
     case "maxTimeId":
-    case "ready":
     case "sliceId":
     case "timeId":
     case "timestamp":
+      viewport[field] = (v as [number])[0];
+      triggerViewportListener(k);
+      break;
+
     case "timestamps":
     case "timeIds":
-      // TODO-ts
-      // @ts-ignore
-      viewport[field] = v[0];
+      viewport[field] = (v as [[number]])[0];
       triggerViewportListener(k);
       break;
 
     case "rotation":
     case "scale":
-    case "translation":
     case "thickness":
-      viewport.viewport[field] = v[0];
+      viewport.viewport[field] = (v as [number])[0];
+      triggerViewportListener(k);
+      break;
+
+    case "translation":
+      viewport.viewport[field] = (v as [{ x: number; y: number }])[0];
       triggerViewportListener(k);
       break;
 
     case "contrast":
+      v = v as [number, number];
       viewport.viewport.voi.windowWidth = v[0];
-      viewport.viewport.voi.windowCenter = v[0];
+      viewport.viewport.voi.windowCenter = v[1];
       triggerViewportListener(k);
       break;
 
     case "dimensions":
+      v = v as [number, number];
       viewport.viewport.rows = v[0];
       viewport.viewport.cols = v[1];
       triggerViewportListener(k);
       break;
 
     case "spacing":
+      v = v as [number, number];
       viewport.viewport.spacing_x = v[0];
       viewport.viewport.spacing_y = v[1];
       triggerViewportListener(k);
       break;
 
     case "defaultViewport":
+      v = v as [number, number, number, number, number, number];
       viewport.default.scale = v[0];
       viewport.default.rotation = v[1];
       viewport.default.translation.x = v[2];
@@ -263,11 +309,7 @@ const setValue = (store: Store, field: string, data: Object) => {
       break;
 
     default:
-      if (k) {
-        store[field][k] = v[0];
-      } else {
-        store[field] = v[0];
-      }
+      store[field][k] = v[0];
       break;
   }
 };
@@ -275,48 +317,45 @@ const setValue = (store: Store, field: string, data: Object) => {
 /**
  * Instancing the store
  */
-const setup = (name = "store", data = { ...INITIAL_STORE_DATA }) => {
+const setup = (data = { ...INITIAL_STORE_DATA }) => {
   /**
    * Create the Proxy handler object
    * @param  {String} name The namespace
    * @param  {Object} data The data object
    * @return {Object}      The Proxy handler
    */
-  // TODO-ts fix this
-  const handler = (name: string, data: any) => {
-    return {
-      get: (obj: any, prop: any) => {
-        if (prop === "_isProxy") return true;
-        if (
-          ["object", "array"].includes(
-            Object.prototype.toString.call(obj[prop]).slice(8, -1).toLowerCase()
-          ) &&
-          !obj[prop]._isProxy
-        ) {
-          obj[prop] = new Proxy(obj[prop], handler(name, data));
-        }
-        return obj[prop];
-      },
-      set: (obj: any, prop: any, value: any) => {
-        // console.warn("SET", obj, prop, value);
-        if (obj[prop] === value) return true;
-        obj[prop] = value;
-        triggerStoreListener(data);
-        return true;
-      },
-      deleteProperty: (obj: any, prop: any) => {
-        delete obj[prop];
-        triggerStoreListener(data);
-        return true;
+  const handler: ProxyHandler<Store> = {
+    get: (obj, prop: string) => {
+      if (prop === "_isProxy") return true;
+      if (
+        ["object", "array"].includes(
+          Object.prototype.toString.call(obj[prop]).slice(8, -1).toLowerCase()
+        ) &&
+        !obj[prop]._isProxy
+      ) {
+        obj[prop] = new Proxy<Store>(obj[prop], handler);
       }
-    };
+      return obj[prop];
+    },
+    set: (obj, prop: string, value) => {
+      // console.warn("SET", obj, prop, value);
+      if (obj[prop] === value) return true;
+      obj[prop] = value;
+      triggerStoreListener(data);
+      return true;
+    },
+    deleteProperty: (obj, prop: string) => {
+      delete obj[prop];
+      triggerStoreListener(data);
+      return true;
+    }
   };
 
-  return new Proxy(data, handler(name, data));
+  return new Proxy<Store>(data, handler);
 };
 
-const initializeStore = (name: string) => {
-  STORE = setup(name);
+const initializeStore = () => {
+  STORE = setup();
 };
 
 const validateStore = () => {
@@ -325,9 +364,12 @@ const validateStore = () => {
   }
 };
 
-export const set = (field: string, payload: string | Array<unknown>) => {
+export const set = (
+  field: string,
+  payload: string | Array<string | number | boolean> // TODO-ts use SetPayload type here
+) => {
   validateStore();
-  setValue(STORE!, field, payload);
+  setValue(STORE!, [field, payload] as SetPayload);
 };
 
 export default {
@@ -345,7 +387,7 @@ export default {
   addSeriesId: (seriesId: string, imageIds: string[]) => {
     validateStore();
     if (!STORE!.series[seriesId]) {
-      STORE!.series[seriesId] = {} as { imageIds: string[]; progress: number };
+      STORE!.series[seriesId] = {} as StoreSeries;
     }
     STORE!.series[seriesId].imageIds = imageIds;
     triggerSeriesListener(seriesId);
@@ -385,10 +427,9 @@ export default {
     delete viewportsListeners[elementId];
   },
   // watch single series
-  // TODO-ts extract series type
   addSeriesListener: (
     seriesId: string,
-    listener: (data: { imageIds: string[]; progress: number }) => {}
+    listener: (data: StoreSeries) => {}
   ) => {
     seriesListeners[seriesId] = listener;
   },

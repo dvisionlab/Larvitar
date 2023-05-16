@@ -80,18 +80,24 @@ export const clearImageCache = function (seriesId: string) {
  * @param {Object} series the parsed series data
  * @param {Function} callback a callback function
  */
-export function loadAndCacheImages(series: Series, callback: Function) {
-  // TODO-ts: better type for callback
-  let t0 = performance.now();
+export function loadAndCacheImages(
+  series: Series,
+  callback: (payload: {
+    seriesId: string;
+    loading: number;
+    series: Series;
+  }) => any
+) {
+  const t0 = performance.now();
   let cachingCounter = 0;
   if (series.isMultiframe) {
     // console.warn("Do not cache multiframe images for performance issues");
     return;
   }
-  let response = {
+  const response = {
     seriesId: series.seriesUID,
     loading: 0,
-    series: {}
+    series: {} as Series
   };
   callback(response);
   // add serie's imageIds into store
@@ -101,13 +107,13 @@ export function loadAndCacheImages(series: Series, callback: Function) {
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function () {
       cachingCounter += 1;
-      let cachingPercentage = Math.floor(
+      const cachingPercentage = Math.floor(
         (cachingCounter / series.imageIds.length) * 100
       );
       response.loading = cachingPercentage;
       setStore("progress", [series.seriesUID, cachingPercentage]);
       if (cachingCounter == series.imageIds.length) {
-        let t1 = performance.now();
+        const t1 = performance.now();
         console.log(`Call to cacheImages took ${t1 - t0} milliseconds.`);
         console.log("Cached images for ", series.seriesUID);
         response.series = series;
