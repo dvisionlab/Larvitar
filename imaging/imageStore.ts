@@ -5,6 +5,7 @@
 
 // external libraries
 import { get as _get } from "lodash";
+import { MetadataValue } from "./types";
 
 type StoreSeries = { imageIds: string[]; progress: number };
 
@@ -366,7 +367,7 @@ const validateStore = () => {
 
 export const set = (
   field: string,
-  payload: string | Array<string | number | boolean> // TODO-ts use SetPayload type here
+  payload: string | Array<MetadataValue> // TODO-ts use SetPayload type here
 ) => {
   validateStore();
   setValue(STORE!, [field, payload] as SetPayload);

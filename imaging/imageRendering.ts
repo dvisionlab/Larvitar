@@ -174,7 +174,7 @@ export const renderDICOMPDF = function (
         '<object data="' +
         fileURL +
         '" type="application/pdf" width="100%" height="100%"></object>';
-      setStore("isPDF", [elementId, true]);
+      setStore("isPDF", [elementId as string, true]);
       let t1 = performance.now();
       console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
       image = null;
@@ -374,7 +374,7 @@ export const renderImage = function (
 
   let series = { ...seriesStack };
 
-  setStore("renderingStatus", [elementId, false]);
+  setStore("renderingStatus", [elementId as string, false]);
   let data = getSeriesData(series, defaultProps) as {
     [key: string]: number | string | boolean;
   }; //TODO-ts improve this
@@ -501,8 +501,8 @@ export const updateImage = function (
       const timeId =
         (series.instances[imageId].metadata
           .temporalPositionIdentifier as number) - 1; // timeId from 0 to N
-      setStore("timeId", [elementId, timeId]);
-      setStore("timestamp", [elementId, timestamp]);
+      setStore("timeId", [elementId as string, timeId]);
+      setStore("timestamp", [elementId as string, timestamp]);
     }
 
     if (cacheImage) {
@@ -512,9 +512,9 @@ export const updateImage = function (
           return;
         }
         cornerstone.displayImage(element, image);
-        setStore("sliceId", [elementId, imageIndex]);
-        setStore("minPixelValue", [elementId, image.minPixelValue]);
-        setStore("maxPixelValue", [elementId, image.maxPixelValue]);
+        setStore("sliceId", [elementId as string, imageIndex]);
+        setStore("minPixelValue", [elementId as string, image.minPixelValue]);
+        setStore("maxPixelValue", [elementId as string, image.maxPixelValue]);
       });
     } else {
       cornerstone.loadImage(imageId).then(function (image) {
@@ -523,9 +523,9 @@ export const updateImage = function (
           return;
         }
         cornerstone.displayImage(element, image);
-        setStore("sliceId", [elementId, imageIndex]);
-        setStore("minPixelValue", [elementId, image.minPixelValue]);
-        setStore("maxPixelValue", [elementId, image.maxPixelValue]);
+        setStore("sliceId", [elementId as string, imageIndex]);
+        setStore("minPixelValue", [elementId as string, image.minPixelValue]);
+        setStore("maxPixelValue", [elementId as string, image.maxPixelValue]);
       });
     }
   } else {
