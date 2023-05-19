@@ -2,16 +2,18 @@
  *  @desc This file provides functionalities
  *        for data config store.
  */
+import { MetadataValue } from "./types";
+type StoreSeries = {
+    imageIds: string[];
+    progress: number;
+};
 type Store = {
     colormapId: string;
-    errorLog: any;
+    errorLog: string;
     leftActiveTool: string;
     rightActiveTool: string;
     series: {
-        [seriesUID: string]: {
-            imageIds: string[];
-            progress: number;
-        };
+        [seriesUID: string]: StoreSeries;
     };
     viewports: {
         [key: string]: typeof DEFAULT_VIEWPORT;
@@ -71,9 +73,9 @@ declare const DEFAULT_VIEWPORT: {
         };
     };
 };
-export declare const set: (field: string, payload: string | Array<unknown>) => void;
+export declare const set: (field: string, payload: string | Array<MetadataValue>) => void;
 declare const _default: {
-    initialize: (name: string) => void;
+    initialize: () => void;
     addViewport: (name: string) => void;
     deleteViewport: (name: string) => void;
     addSeriesId: (seriesId: string, imageIds: string[]) => void;
@@ -86,10 +88,7 @@ declare const _default: {
     removeStoreListener: () => undefined;
     addViewportListener: (elementId: string, listener: (data: typeof DEFAULT_VIEWPORT) => {}) => void;
     removeViewportListener: (elementId: string) => void;
-    addSeriesListener: (seriesId: string, listener: (data: {
-        imageIds: string[];
-        progress: number;
-    }) => {}) => void;
+    addSeriesListener: (seriesId: string, listener: (data: StoreSeries) => {}) => void;
     removeSeriesListener: (seriesId: string) => void;
 };
 export default _default;

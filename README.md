@@ -40,7 +40,7 @@ let newSerie: Series;
 - `cornerstone`
 - `cornerstone-tools`
 - `dicomParser`
-- `wadoImageLoader`
+- `DICOMImageLoader`
 - `webImageLoader`
 - `fileImageLoader`
 - `lodash`

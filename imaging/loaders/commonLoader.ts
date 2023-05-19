@@ -1,10 +1,10 @@
 /** @module loaders/commonLoader
  *  @desc This file provides functionalities for
- *        custom WadoImageLoaders
+ *        custom DICOMImageLoaders
  */
 
 // external libraries
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoader.bundle.min.js";
 import { DataSet } from "dicom-parser";
 import { each } from "lodash";
 import { updateLoadedStack } from "../imageLoading";
@@ -197,7 +197,7 @@ export const getImageFrame = function (
 
   if (dataSet) {
     imagePixelModule =
-      cornerstoneWADOImageLoader.wadouri.metaData.getImagePixelModule(dataSet);
+      cornerstoneDICOMImageLoader.wadouri.metaData.getImagePixelModule(dataSet);
   } else {
     imagePixelModule = {
       samplesPerPixel: metadata.x00280002,

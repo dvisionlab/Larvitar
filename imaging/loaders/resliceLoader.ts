@@ -4,8 +4,8 @@
  */
 
 // external libraries
-import cornerstone, { metaData } from "cornerstone-core";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import cornerstone from "cornerstone-core";
+import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoader.bundle.min.js";
 
 // internal libraries
 import {
@@ -21,7 +21,7 @@ import { Image, ImageFrame, MetadataValue } from "../types";
  */
 
 /**
- * Custom Loader for WadoImageLoader
+ * Custom Loader for DICOMImageLoader
  * @instance
  * @function loadReslicedImage
  * @param {String} imageId The Id of the image
@@ -82,7 +82,7 @@ let createCustomImage = function (
 
   let image: Partial<Image> = {
     imageId: imageId,
-    color: cornerstoneWADOImageLoader.isColorImage(
+    color: cornerstoneDICOMImageLoader.isColorImage(
       imageFrame.photometricInterpretation
     ),
     columnPixelSpacing: pixelSpacing
@@ -131,7 +131,7 @@ let createCustomImage = function (
       imageFrame.columns,
       imageFrame.rows
     );
-    cornerstoneWADOImageLoader.convertColorSpace(imageFrame, imageData);
+    cornerstoneDICOMImageLoader.convertColorSpace(imageFrame, imageData);
 
     imageFrame.imageData = imageData;
     imageFrame.pixelData = imageData.data;
@@ -160,7 +160,7 @@ let createCustomImage = function (
   }
 
   // calculate min/max to avoid erroneous calculation from getImageFrame function
-  let minMax = cornerstoneWADOImageLoader.getMinMax(pixelData);
+  let minMax = cornerstoneDICOMImageLoader.getMinMax(pixelData);
   image.minPixelValue = minMax.min;
   image.maxPixelValue = minMax.max;
 

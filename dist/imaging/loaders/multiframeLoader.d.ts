@@ -1,5 +1,5 @@
 /** @module loaders/multiframeLoader
- *  @desc This file is a custom wado loader for multiframe images
+ *  @desc This file is a custom DICOM loader for multiframe images
  */
 import { Image, Series } from "../types";
 /**
