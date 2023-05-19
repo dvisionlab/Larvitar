@@ -4,7 +4,9 @@ console.log(`LARVITAR v${VERSION}`);
 
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+// import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoader.bundle.min.js";
+
 const segModule = cornerstoneTools.getModule("segmentation");
 
 import larvitarModule from "./modules/vuex/larvitar";
@@ -217,7 +219,9 @@ export {
   cornerstone,
   cornerstoneTools,
   segModule,
-  cornerstoneWADOImageLoader,
+  //cornerstoneWADOImageLoader,
+  cornerstoneDICOMImageLoader,
+
   // vuex module
   larvitarModule,
   // memory module

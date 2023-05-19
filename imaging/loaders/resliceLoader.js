@@ -5,7 +5,8 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+//import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoader.bundle.min.js";
 
 // internal libraries
 import {
@@ -76,7 +77,8 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
 
   let image = {
     imageId: imageId,
-    color: cornerstoneWADOImageLoader.isColorImage(
+    // color: cornerstoneWADOImageLoader.isColorImage(
+    color: cornerstoneDICOMImageLoader.isColorImage(
       imageFrame.photometricInterpretation
     ),
     columnPixelSpacing: pixelSpacing ? pixelSpacing[1] : undefined,
@@ -114,7 +116,8 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
       imageFrame.columns,
       imageFrame.rows
     );
-    cornerstoneWADOImageLoader.convertColorSpace(imageFrame, imageData);
+    // cornerstoneWADOImageLoader.convertColorSpace(imageFrame, imageData);
+    cornerstoneDICOMImageLoader.convertColorSpace(imageFrame, imageData);
 
     imageFrame.imageData = imageData;
     imageFrame.pixelData = imageData.data;
@@ -140,7 +143,8 @@ let createCustomImage = function (imageId, metadata, pixelData, dataSet) {
   }
 
   // calculate min/max to avoid erroneous calculation from getImageFrame function
-  let minMax = cornerstoneWADOImageLoader.getMinMax(pixelData);
+  // let minMax = cornerstoneWADOImageLoader.getMinMax(pixelData);
+  let minMax = cornerstoneDICOMImageLoader.getMinMax(pixelData);
   image.minPixelValue = minMax.min;
   image.maxPixelValue = minMax.max;
 
