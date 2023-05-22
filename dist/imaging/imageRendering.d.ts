@@ -20,7 +20,11 @@ export declare const clearImageCache: (seriesId: string) => void;
  * @param {Object} series the parsed series data
  * @param {Function} callback a callback function
  */
-export declare function loadAndCacheImages(series: Series, callback: Function): void;
+export declare function loadAndCacheImages(series: Series, callback: (payload: {
+    seriesId: string;
+    loading: number;
+    series: Series;
+}) => any): void;
 /**
  * Render a PDF from a DICOM Encapsulated PDF
  * @instance

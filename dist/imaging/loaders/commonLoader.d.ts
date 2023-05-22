@@ -1,6 +1,6 @@
 /** @module loaders/commonLoader
  *  @desc This file provides functionalities for
- *        custom WadoImageLoaders
+ *        custom DICOMImageLoaders
  */
 import { DataSet } from "dicom-parser";
 import { ImageObject, MetadataValue, Series } from "../types";

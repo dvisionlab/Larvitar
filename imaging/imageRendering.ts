@@ -5,8 +5,8 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import { each, has, reject } from "lodash";
+import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoader.bundle.min.js";
+import { each, has } from "lodash";
 
 // internal libraries
 import { getFileImageId } from "./loaders/fileLoader";
@@ -59,8 +59,8 @@ export const clearImageCache = function (seriesId: string) {
           }
         } else {
           let uri =
-            cornerstoneWADOImageLoader.wadouri.parseImageId(imageId).url;
-          cornerstoneWADOImageLoader.wadouri.dataSetCacheManager.unload(uri);
+            cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+          cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
         }
       });
 
@@ -455,10 +455,10 @@ export const renderImage = function (
       let t1 = performance.now();
       console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
-      let uri = cornerstoneWADOImageLoader.wadouri.parseImageId(
+      let uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
         data.imageId
       ).url;
-      cornerstoneWADOImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
       //@ts-ignore
       image = null;
       //@ts-ignore

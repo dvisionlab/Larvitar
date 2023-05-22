@@ -27,11 +27,11 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@cornerstonejs/dicom-image-loader": "^0.6.9",
     "@rollup/plugin-commonjs": "^17.1.0",
     "cornerstone-core": "^2.6.1",
     "cornerstone-file-image-loader": "^0.3.0",
     "cornerstone-tools": "^6.0.7",
-    "cornerstone-wado-image-loader": "^4.10.2",
     "cornerstone-web-image-loader": "^2.1.1",
     "crypto-js": "^4.1.1",
     "dicom-character-set": "^1.0.3",
@@ -45,6 +45,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.21.8",
     "@types/cornerstone-core": "^2.3.0",
     "@types/crypto-js": "^4.1.1",
     "@types/hammerjs": "^2.0.41",

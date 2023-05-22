@@ -5,7 +5,7 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoader.bundle.min.js";
 import { each, clone, range, findKey, filter, pickBy } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import { ImageLoader } from "cornerstone-core";
@@ -246,7 +246,7 @@ export const buildNrrdImage = function (
   };
 
   // compute default ww/wl values here to use them also for resliced images
-  let minMax = cornerstoneWADOImageLoader.getMinMax(volume.data);
+  let minMax = cornerstoneDICOMImageLoader.getMinMax(volume.data);
   let maxVoi =
     minMax.max * (metadata.x00281053 as number[])[0] +
     (metadata.x00281052 as number[])[0];
@@ -507,7 +507,7 @@ let createCustomImage = function (
 
   let image: Partial<Image> = {
     imageId: imageId,
-    color: cornerstoneWADOImageLoader.isColorImage(
+    color: cornerstoneDICOMImageLoader.isColorImage(
       imageFrame.photometricInterpretation
     ),
     columnPixelSpacing: pixelSpacing
@@ -556,7 +556,7 @@ let createCustomImage = function (
       imageFrame.columns,
       imageFrame.rows
     );
-    cornerstoneWADOImageLoader.convertColorSpace(imageFrame, imageData);
+    cornerstoneDICOMImageLoader.convertColorSpace(imageFrame, imageData);
 
     imageFrame.imageData = imageData;
     imageFrame.pixelData = imageData.data;
@@ -586,7 +586,7 @@ let createCustomImage = function (
 
   // calculate min/max if not supplied
   if (image.minPixelValue === undefined || image.maxPixelValue === undefined) {
-    let minMax = cornerstoneWADOImageLoader.getMinMax(pixelData);
+    let minMax = cornerstoneDICOMImageLoader.getMinMax(pixelData);
     image.minPixelValue = minMax.min;
     image.maxPixelValue = minMax.max;
   }

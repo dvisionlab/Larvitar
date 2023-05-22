@@ -1,10 +1,10 @@
 /** @module imaging/imageLoading
  *  @desc This file provides functionalities for
- *        initialize, configure and update WadoImageLoader
+ *        initialize, configure and update DICOMImageLoader
  */
 import { ImageObject, Series } from "./types";
 /**
- * Configure cornerstoneWADOImageLoader
+ * Configure DICOMImageLoader
  * @instance
  * @function initializeImageLoader
  * @param {Object} config - Custom config @default globalConfig
@@ -41,7 +41,7 @@ export declare const registerResliceLoader: () => void;
  */
 export declare const registerMultiFrameImageLoader: () => void;
 /**
- * Update the allSeriesStack object using wadoImageLoader fileManager
+ * Update the allSeriesStack object using DICOMImageLoader fileManager
  * @instance
  * @function updateLoadedStack
  * @param {Object} seriesData - Cornerstone series object

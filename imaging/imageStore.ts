@@ -310,7 +310,7 @@ const setValue = (store: Store, data: SetPayload) => {
       break;
 
     default:
-      store[field][k] = v[0];
+      store[field] = v[0];
       break;
   }
 };
@@ -370,7 +370,8 @@ export const set = (
   payload: string | Array<MetadataValue> // TODO-ts use SetPayload type here
 ) => {
   validateStore();
-  setValue(STORE!, [field, payload] as SetPayload);
+  payload = Array.isArray(payload) ? payload : [payload];
+  setValue(STORE!, [field, ...payload] as SetPayload);
 };
 
 export default {

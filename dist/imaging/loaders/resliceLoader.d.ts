@@ -4,7 +4,7 @@
  */
 import { Image } from "../types";
 /**
- * Custom Loader for WadoImageLoader
+ * Custom Loader for DICOMImageLoader
  * @instance
  * @function loadReslicedImage
  * @param {String} imageId The Id of the image

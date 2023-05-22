@@ -108,8 +108,8 @@
 
       const getDemoFileNames = function () {
         let demoFileList = [];
-        for (let i = 1; i < 12; i++) {
-          let filename = "cropped" + i;
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
           demoFileList.push(filename);
         }
         return demoFileList;
@@ -127,7 +127,7 @@
         let file = new File([data], fileName);
         demoFiles.push(file);
         counter++;
-        if (counter == 11) {
+        if (counter == 24) {
           cb();
         }
       }
