@@ -28,7 +28,10 @@ import { ToolConfig, ToolSettings, ToolStyle } from "./types";
  * @param {Object} settings - the style object (see tools/default.js)
  * @example larvitar.initializeCSTools({showSVGCursors:false}, {color: "0000FF"});
  */
-const initializeCSTools = function (settings: ToolSettings, style: ToolStyle) {
+const initializeCSTools = function (
+  settings?: ToolSettings,
+  style?: ToolStyle
+) {
   cornerstoneTools.external.cornerstone = cornerstone;
   cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
   cornerstoneTools.external.Hammer = Hammer;
@@ -367,7 +370,7 @@ const setToolPassive = function (toolName: string, viewports?: string[]) {
  * @function setToolsStyle
  * @param {Object} style - the style object (see tools/defaults.js)
  */
-const setToolsStyle = function (style: ToolStyle) {
+const setToolsStyle = function (style?: ToolStyle) {
   extend(DEFAULT_STYLE, style);
 
   let fontFamily = DEFAULT_STYLE.fontFamily;

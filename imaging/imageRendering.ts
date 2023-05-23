@@ -46,7 +46,7 @@ import { Image, Instance, Series, Viewport } from "./types";
  * @function clearImageCache
  * @param {String} seriesId - The id of the serie
  */
-export const clearImageCache = function (seriesId: string) {
+export const clearImageCache = function (seriesId?: string) {
   if (seriesId) {
     let series = store.get("series");
     if (has(series, seriesId)) {

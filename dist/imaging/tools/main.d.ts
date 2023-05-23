@@ -11,7 +11,7 @@ import { ToolConfig, ToolSettings, ToolStyle } from "./types";
  * @param {Object} settings - the style object (see tools/default.js)
  * @example larvitar.initializeCSTools({showSVGCursors:false}, {color: "0000FF"});
  */
-declare const initializeCSTools: (settings: ToolSettings, style: ToolStyle) => void;
+declare const initializeCSTools: (settings?: ToolSettings, style?: ToolStyle) => void;
 /**
  * Create stack object to sync stack tools
  * @function csToolsCreateStack
@@ -75,5 +75,5 @@ declare const setToolPassive: (toolName: string, viewports?: string[]) => void;
  * @function setToolsStyle
  * @param {Object} style - the style object (see tools/defaults.js)
  */
-declare const setToolsStyle: (style: ToolStyle) => void;
+declare const setToolsStyle: (style?: ToolStyle) => void;
 export { initializeCSTools, setToolsStyle, csToolsCreateStack, addTool, setToolActive, setToolEnabled, setToolDisabled, setToolPassive, saveAnnotations, loadAnnotations, exportAnnotations };

@@ -60,7 +60,7 @@ const globalConfig = {
  * @function initializeImageLoader
  * @param {Object} config - Custom config @default globalConfig
  */
-export const initializeImageLoader = function (config: Object) {
+export const initializeImageLoader = function (config?: Object) {
   //TODO-ts better definition
   let imageLoaderConfig = config ? config : globalConfig;
   cornerstoneDICOMImageLoader.external.cornerstone = cornerstone;

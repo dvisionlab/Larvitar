@@ -11,7 +11,7 @@ import { Image, Series, Viewport } from "./types";
  * @function clearImageCache
  * @param {String} seriesId - The id of the serie
  */
-export declare const clearImageCache: (seriesId: string) => void;
+export declare const clearImageCache: (seriesId?: string) => void;
 /**
  * Load and cache all serie's images
  * Add series's imageIds into store

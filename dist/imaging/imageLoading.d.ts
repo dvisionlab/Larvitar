@@ -9,7 +9,7 @@ import { ImageObject, Series } from "./types";
  * @function initializeImageLoader
  * @param {Object} config - Custom config @default globalConfig
  */
-export declare const initializeImageLoader: (config: Object) => void;
+export declare const initializeImageLoader: (config?: Object) => void;
 /**
  * Configure cornerstoneWebImageLoader
  * @instance
