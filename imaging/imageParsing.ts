@@ -59,10 +59,7 @@ export const clearImageParsing = function (
  * @returns {Promise} - Return a promise which will resolve to a image object list or fail if an error occurs
  */
 export const readFiles = function (entries: File[]) {
-  let promise = new Promise((resolve, reject) => {
-    parseFiles(entries).then(resolve).catch(reject);
-  });
-  return promise;
+  return parseFiles(entries);
 };
 
 /**
@@ -73,10 +70,7 @@ export const readFiles = function (entries: File[]) {
  * @returns {Promise} - Return a promise which will resolve to a image object or fail if an error occurs
  */
 export const readFile = function (entry: File) {
-  let promise = new Promise((resolve, reject) => {
-    parseFile(entry).then(resolve).catch(reject);
-  });
-  return promise;
+  return parseFile(entry);
 };
 
 /* Internal module functions */
@@ -222,7 +216,7 @@ let parseNextFile = function (
  * @param {Array} fileList - Array of file objects
  * @returns {Promise} - Return a promise which will resolve to a image object list or fail if an error occurs
  */
-let parseFiles = function (fileList: File[]) {
+const parseFiles = function (fileList: File[]) {
   let allSeriesStack = {};
   let parsingQueue: File[] = [];
 
@@ -244,8 +238,8 @@ let parseFiles = function (fileList: File[]) {
  * @param {File} file - File object to be parsed
  * @returns {Promise} - Return a promise which will resolve to a image object or fail if an error occurs
  */
-let parseFile = function (file: File) {
-  let parsePromise: Promise<ImageObject> = new Promise((resolve, reject) => {
+const parseFile = function (file: File) {
+  const parsePromise = new Promise<ImageObject>((resolve, reject) => {
     let reader = new FileReader();
     reader.onload = function () {
       let arrayBuffer = reader.result;

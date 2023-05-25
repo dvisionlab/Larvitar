@@ -12,6 +12,7 @@
     "url": "https://github.com/dvisionlab/Larvitar.git",
     "type": "git"
   },
+  "main": "index.ts",
   "scripts": {
     "coverage": "typescript-coverage-report",
     "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json",
