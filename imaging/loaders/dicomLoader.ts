@@ -5,7 +5,7 @@
 
 // internal libraries
 import { loadAndCacheImages } from "../imageRendering";
-import { Series, CachingResponse } from "../types";
+import type { Series, CachingResponse } from "../types";
 
 /*
  * This module provides the following functions to be exported:
@@ -22,7 +22,6 @@ let imageLoaderCounter = 0;
  * @param {Object} seriesData The series data
  * @param {Function} callback An optional callback function
  */
-
 
 export const cacheImages = function (seriesData: Series, callback: Function) {
   loadAndCacheImages(seriesData, function (resp: CachingResponse) {

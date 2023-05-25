@@ -4,11 +4,10 @@
  */
 
 // external libraries
-import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { each } from "lodash";
 
-import { ToolState } from "./types";
+import type { ToolState } from "./types";
 
 /**
  *

@@ -26,7 +26,7 @@ import cornerstone from "cornerstone-core";
 import { getDicomImageId } from "./loaders/dicomLoader";
 import TAG_DICT from "./dataDictionary.json";
 import { getSeriesDataFromLarvitarManager } from "./loaders/commonLoader";
-import {
+import type {
   CustomDataSet,
   MetadataValue,
   ReslicedInstance,

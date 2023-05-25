@@ -13,7 +13,7 @@ import {
   getLarvitarManager
 } from "./commonLoader";
 import { parseDataSet } from "../imageParsing";
-import {
+import type {
   Image,
   ImageFrame,
   LarvitarManager,

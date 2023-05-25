@@ -15,8 +15,7 @@ import { setToolActive } from "./main";
 import { isElement } from "../imageUtils";
 import store, { set as setStore } from "../imageStore";
 import { updateViewportData } from "../imageRendering";
-
-import { ToolMouseKeys } from "./types";
+import type { ToolMouseKeys } from "./types";
 
 /**
  * TOOLS INTERACTIONS TODOS:

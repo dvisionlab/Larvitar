@@ -8,7 +8,7 @@ import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/
 import { DataSet } from "dicom-parser";
 import { each } from "lodash";
 import { updateLoadedStack } from "../imageLoading";
-import {
+import type {
   ImageObject,
   ImageTracker,
   LarvitarManager,

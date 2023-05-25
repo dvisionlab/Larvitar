@@ -11,8 +11,7 @@ import { unparse } from "papaparse";
 
 // internal libraries
 import { setToolEnabled } from "./main";
-
-import { ToolState } from "./types";
+import type { ToolState } from "./types";
 
 declare global {
   interface Document {

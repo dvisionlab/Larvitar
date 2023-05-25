@@ -13,7 +13,7 @@ import {
   getLarvitarImageTracker,
   getLarvitarManager
 } from "./commonLoader";
-import { Image, ImageFrame, MetadataValue } from "../types";
+import type { Image, ImageFrame, MetadataValue } from "../types";
 
 /*
  * This module provides the following functions to be exported:

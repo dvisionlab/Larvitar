@@ -11,7 +11,7 @@ const ARRAY_TYPES = {
 const { UINT_16_ARRAY, FLOAT_32_ARRAY } = ARRAY_TYPES;
 
 import cornerstoneTools from "cornerstone-tools";
-import { TypedArray } from "../../types";
+import type { TypedArray } from "../../types";
 import { EnabledElement } from "cornerstone-core";
 const { triggerLabelmapModifiedEvent } = cornerstoneTools.importInternal(
   "util/segmentationUtils"

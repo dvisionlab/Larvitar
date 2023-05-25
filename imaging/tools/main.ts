@@ -19,7 +19,7 @@ import {
   dvTools
 } from "./default";
 import { set as setStore } from "../imageStore";
-import { ToolConfig, ToolSettings, ToolStyle } from "./types";
+import type { ToolConfig, ToolSettings, ToolStyle } from "./types";
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)

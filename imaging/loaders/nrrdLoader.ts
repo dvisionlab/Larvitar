@@ -22,15 +22,14 @@ import {
   getLarvitarImageTracker,
   getLarvitarManager
 } from "./commonLoader";
-import {
+import type {
   Image,
   Instance,
   MetadataValue,
   Volume,
   LarvitarManager,
   ImageFrame,
-  ImageTracker,
-  CustomDataSet
+  ImageTracker
 } from "../types";
 
 // global module variables

@@ -23,8 +23,8 @@ import {
   MaskProperties,
   MaskVisualizations,
   SegmentationConfig
-} from "./types";
-import { TypedArray } from "../types";
+} from "./types.d";
+import type { TypedArray } from "../types";
 // override function
 setters.labelmap3DForElement = setLabelmap3DForElement;
 

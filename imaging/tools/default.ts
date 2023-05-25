@@ -29,7 +29,12 @@ import { filter, isArray } from "lodash";
 import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
 import PolylineScissorsTool from "./custom/polylineScissorsTool";
 
-import { ToolConfig, ToolMouseKeys, ToolSettings, ToolStyle } from "./types";
+import type {
+  ToolConfig,
+  ToolMouseKeys,
+  ToolSettings,
+  ToolStyle
+} from "./types";
 
 /**
  * These tools are added with `addDefaultTools()`
