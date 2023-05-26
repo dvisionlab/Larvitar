@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>imageLayers.js - Larvitar</title>
+    <title>4DScrollMouseWheelTool - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -43,123 +43,153 @@
 
 <div id="main">
     
-    <h1 class="page-title">imageLayers.js</h1>
+    <h1 class="page-title">4DScrollMouseWheelTool</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/** @module imaging/imageLayers
- *  @desc This file provides functionalities for
- *        rendering image layers using cornerstone stack
- */
+        <h2>
+        
+            4DScrollMouseWheelTool
+        
+        </h2>
+        
+            <div class="class-description usertext"><p>Tool for scrolling through a series using the mouse wheel.</p></div>
+        
+    
+</header>
 
-// external libraries
-import cornerstone from "cornerstone-core";
+<article>
+    
+        <div class="container-overview">
+        
+            
 
-// internal libraries
-import { isElement } from "./imageUtils";
+    
+    <h2>Constructor</h2>
+    
 
-/*
- * This module provides the following functions to be exported:
- * buildLayer(series, tag, options)
- * updateLayer(elementId, layerId, options)
- * getActiveLayer(elementId)
- * setActiveLayer(elementId, layerId)
- */
+    <h4 class="name" id="4DScrollMouseWheelTool"><span class="type-signature"></span>new 4DScrollMouseWheelTool<span class="signature">()</span><span class="type-signature"></span></h4>
 
-/**
- * Build the image layers object
- * @function buildLayers
- * @param {Object} series - Cornerstone series object
- * @param {String} tag - Tag for the layer
- * @param {Object} options - layer options {opacity:float, colormap: str}
- * @returns {Object} Cornerstone layer object
- */
-export const buildLayer = function (series, tag, options) {
-  let layerOptions = options ? options : {};
-  let layer = {
-    imageIds: series.imageIds,
-    currentImageIdIndex: Math.floor(series.imageIds.length / 2),
-    options: {
-      name: tag,
-      opacity: layerOptions.opacity ? layerOptions.opacity : 1.0,
-      visible: true,
-      viewport: {
-        colormap: layerOptions.colormap ? layerOptions.colormap : "gray"
-      }
-    }
-  };
-  return layer;
-};
+    
 
-/**
- * Change the options of a layer
- * @instance
- * @function updateLayer
- * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {Object} layer - The cornestone object layer
- * @param {Object} options - The new layer's options
- */
-export const updateLayer = function (elementId, layerId, options) {
-  let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
-  if (!element) {
-    console.log("not element");
-    return;
-  }
-  let layer = cornerstone.getLayer(element, layerId);
-  layer.options.opacity =
-    options.opacity != null ? options.opacity : layer.options.opacity;
-  layer.viewport.colormap = options.colormap
-    ? options.colormap
-    : layer.viewport.colormap;
-  cornerstone.updateImage(element);
-};
 
-/**
- * Get the active layer
- * @instance
- * @function getActiveLayer
- * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @returns {Object} layer - The active layer object
- */
-export const getActiveLayer = function (elementId) {
-  let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
-  if (!element) {
-    console.log("not element");
-    return;
-  }
-  return cornerstone.getActiveLayer(element);
-};
 
-/**
- * Set the active layer
- * @instance
- * @function setActiveLayer
- * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {String} layerId - The id of the layer
- */
-export const setActiveLayer = function (elementId, layerId) {
-  let element = isElement(elementId)
-    ? elementId
-    : document.getElementById(elementId);
-  if (!element) {
-    console.log("not element");
-    return;
-  }
-  cornerstone.setActiveLayer(element, layerId);
-};
-</code></pre>
-        </article>
-    </section>
+
+<dl class="details">
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="tools_custom_4dSliceScrollTool.js.html">tools/custom/4dSliceScrollTool.js</a>, <a href="tools_custom_4dSliceScrollTool.js.html#line18">line 18</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        </div>
+    
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li>Tools.Base.BaseTool</li>
+    </ul>
+
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
