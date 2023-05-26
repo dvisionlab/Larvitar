@@ -40,8 +40,8 @@ export default class Slice4DScrollMouseWheelTool extends BaseTool {
 
   mouseWheelCallback(evt) {
     const { direction: images, element } = evt.detail;
-    const { loop, allowSkipping, invert, frameNumber } = this.configuration;
-    const direction = invert ? (images * frameNumber)*(-1) : (images * frameNumber);
+    const { loop, allowSkipping, invert, framesNumber } = this.configuration;
+    const direction = invert ? (images * framesNumber)*(-1) : (images * framesNumber);
     console.log('wheel callback');
     console.log('Images ', images);
     console.log('Direction ', direction);
@@ -60,7 +60,7 @@ export default class Slice4DScrollMouseWheelTool extends BaseTool {
  * @param  {type} [allowSkipping = true]  Whether frames can be skipped.
  * @returns {void}
  */
-const scroll4DSlices = function(element, images, loop, allowSkipping, frameNumber) {
+const scroll4DSlices = function(element, images, loop, allowSkipping, framesNumber) {
     const toolData = getToolState(element, 'stack');
 
     if (!toolData || !toolData.data || !toolData.data.length) {
@@ -73,7 +73,7 @@ const scroll4DSlices = function(element, images, loop, allowSkipping, frameNumbe
         stackData.pending = [];
     }
     
-    let newImageIdIndex = stackData.currentImageIdIndex + images ;//+ 1 + frameNumber;
+    let newImageIdIndex = stackData.currentImageIdIndex + images ;//+ 1 + framesNumber;
     console.log('currentImageIdIndex', stackData.currentImageIdIndex)
     console.log('newImageIdIndex calculated ', newImageIdIndex);
     if (loop) {

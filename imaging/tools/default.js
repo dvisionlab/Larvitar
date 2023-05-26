@@ -119,7 +119,7 @@ const DEFAULT_TOOLS = {
       loop: false, // default false
       allowSkipping: false, // default true
       invert: false,
-      frameNumber: 1,
+      framesNumber: 1,
     },
     options: {
     },
