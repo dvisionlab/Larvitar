@@ -3,7 +3,7 @@
  *         for initializing tools and stacks
  */
 
-// external libraries
+//  external libraries
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools/dist/cornerstoneTools.js";
 import cornerstoneMath from "cornerstone-math";

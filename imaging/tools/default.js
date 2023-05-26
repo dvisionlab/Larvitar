@@ -106,7 +106,7 @@ const DEFAULT_TOOLS = {
     options: {
       loop: false, // default false
       allowSkipping: false, // default true
-      invert: false,
+      invert: false
     },
     cleanable: false,
     defaultActive: false,
@@ -119,10 +119,9 @@ const DEFAULT_TOOLS = {
       loop: false, // default false
       allowSkipping: false, // default true
       invert: false,
-      framesNumber: 1,
+      framesNumber: 1
     },
-    options: {
-    },
+    options: {},
     cleanable: false,
     defaultActive: true,
     class: "Slice4DScrollMouseWheelTool"
@@ -415,7 +414,7 @@ const DEFAULT_TOOLS = {
 const dvTools = {
   ThresholdsBrushTool: ThresholdsBrushTool,
   PolylineScissorsTool: PolylineScissorsTool,
-  Slice4DScrollMouseWheelTool: Slice4DScrollMouseWheelTool,
+  Slice4DScrollMouseWheelTool: Slice4DScrollMouseWheelTool
 };
 
 /**
