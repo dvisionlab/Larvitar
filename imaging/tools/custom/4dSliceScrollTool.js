@@ -45,8 +45,8 @@ export default class Slice4DScrollMouseWheelTool extends BaseTool {
     console.log('wheel callback');
     console.log('Images ', images);
     console.log('Direction ', direction);
-    // scroll(element, direction, loop, allowSkipping);
-    scroll4DSlices(element, direction, loop, allowSkipping);
+    scroll(element, direction, loop, allowSkipping);
+    // scroll4DSlices(element, direction, loop, allowSkipping);
   }
 }
 /**
