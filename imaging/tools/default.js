@@ -27,6 +27,7 @@
 
 import { filter, isArray } from "lodash";
 import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
+import Slice4DScrollMouseWheelTool from "./custom/4dSliceScrollTool";
 import PolylineScissorsTool from "./custom/polylineScissorsTool";
 
 /**
@@ -105,11 +106,26 @@ const DEFAULT_TOOLS = {
     options: {
       loop: false, // default false
       allowSkipping: false, // default true
-      invert: false
+      invert: false,
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "StackScrollMouseWheelTool"
+  },
+  Slice4DScrollMouseWheel: {
+    name: "Slice4DScrollMouseWheel",
+    viewports: "all",
+    configuration: {
+      loop: false, // default false
+      allowSkipping: false, // default true
+      invert: false,
+      frameNumber: 1,
+    },
+    options: {
     },
     cleanable: false,
     defaultActive: true,
-    class: "StackScrollMouseWheelTool"
+    class: "Slice4DScrollMouseWheelTool"
   },
   Pan: {
     name: "Pan",
@@ -398,7 +414,8 @@ const DEFAULT_TOOLS = {
  */
 const dvTools = {
   ThresholdsBrushTool: ThresholdsBrushTool,
-  PolylineScissorsTool: PolylineScissorsTool
+  PolylineScissorsTool: PolylineScissorsTool,
+  Slice4DScrollMouseWheelTool: Slice4DScrollMouseWheelTool,
 };
 
 /**
