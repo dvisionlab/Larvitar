@@ -360,7 +360,7 @@ export const renderImage = function (
     tr_x?: number;
     tr_y?: number;
   }
-) {
+): Promise<true> {
   let t0 = performance.now();
   // get element and enable it
   let element = isElement(elementId)
@@ -368,7 +368,9 @@ export const renderImage = function (
     : document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
-    return;
+    return new Promise((_, reject) =>
+      reject("invalid html element: " + elementId)
+    );
   }
   cornerstone.enable(element);
 
@@ -379,16 +381,18 @@ export const renderImage = function (
     [key: string]: number | string | boolean;
   }; //TODO-ts improve this
   if (!data.imageId) {
-    console.warn("Error during renderImage: imageId has not been loaded yet.");
-    return;
+    console.warn("error during renderImage: imageId has not been loaded yet.");
+    return new Promise((_, reject) =>
+      reject("error during renderImage: imageId has not been loaded yet.")
+    );
   }
 
-  let renderPromise = new Promise<void>((resolve, reject) => {
+  let renderPromise = new Promise<true>((resolve, reject) => {
     // load and display one image (imageId)
     cornerstone.loadImage(data.imageId as string).then(function (image) {
       if (!element) {
         console.error("invalid html element: " + elementId);
-        reject();
+        reject("invalid html element: " + elementId);
         return;
       }
 
@@ -407,7 +411,7 @@ export const renderImage = function (
 
       if (!viewport) {
         console.error("viewport not found");
-        reject();
+        reject("viewport not found for element: " + elementId);
         return;
       }
 
@@ -446,7 +450,7 @@ export const renderImage = function (
 
       if (!storedViewport) {
         console.error("storedViewport not found");
-        reject();
+        reject("storedViewport not found for element: " + elementId);
         return;
       }
 
@@ -465,7 +469,7 @@ export const renderImage = function (
       series = null;
       //@ts-ignore
       data = null;
-      resolve();
+      resolve(true);
     });
   });
 
