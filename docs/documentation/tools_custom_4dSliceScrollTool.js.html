@@ -97,11 +97,7 @@ export default class Slice4DScrollMouseWheelTool extends BaseTool {
     const { direction: images, element } = evt.detail;
     const { loop, allowSkipping, invert, framesNumber } = this.configuration;
     const direction = invert ? (images * framesNumber)*(-1) : (images * framesNumber);
-    console.log('wheel callback');
-    console.log('Images ', images);
-    console.log('Direction ', direction);
     scroll(element, direction, loop, allowSkipping);
-    // scroll4DSlices(element, direction, loop, allowSkipping);
   }
 }
 /**
@@ -129,8 +125,6 @@ const scroll4DSlices = function(element, images, loop, allowSkipping, framesNumb
     }
     
     let newImageIdIndex = stackData.currentImageIdIndex + images ;//+ 1 + framesNumber;
-    console.log('currentImageIdIndex', stackData.currentImageIdIndex)
-    console.log('newImageIdIndex calculated ', newImageIdIndex);
     if (loop) {
         const nbImages = stackData.imageIds.length;
         newImageIdIndex %= nbImages;
