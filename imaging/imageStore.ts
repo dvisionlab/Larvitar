@@ -199,17 +199,10 @@ const triggerSeriesListener = (seriesId: string) => {
 /**
  * Set a value into store
  * @function setValue
- * @param {field} field - The name of the field to be updated
  * @param {Object} data - The data object
  */
 const setValue = (store: Store, data: SetPayload) => {
   let field = data[0];
-
-  if (!Array.isArray(data)) {
-    store[field] = data;
-    return;
-  }
-
   const k = data[1];
   let [_1, _2, ...v] = data;
 
@@ -310,7 +303,7 @@ const setValue = (store: Store, data: SetPayload) => {
       break;
 
     default:
-      store[field] = v[0];
+      store[field] = k;
       break;
   }
 };

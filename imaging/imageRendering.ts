@@ -140,7 +140,7 @@ export const renderDICOMPDF = function (
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
 
-  let renderPromise = new Promise<void>((resolve, reject) => {
+  let renderPromise = new Promise<true>((resolve, reject) => {
     let image: Instance | null = seriesStack.instances[seriesStack.imageIds[0]];
     const SOPUID = image.dataSet?.string("x00080016");
 
@@ -181,7 +181,7 @@ export const renderDICOMPDF = function (
       fileTag = undefined;
       pdfByteArray = undefined;
       PDF = null;
-      resolve();
+      resolve(true);
     } else {
       reject("This is not a DICOM with a PDF");
     }
