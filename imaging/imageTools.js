@@ -289,7 +289,7 @@ export const setToolActive = function (
   activeViewport,
   viewports
 ) {
-  let defaultOpt = DEFAULT_TOOLS[toolName].options;
+  let defaultOpt = DEFAULT_TOOLS[toolName]?.options || {};
   extend(defaultOpt, options);
   cornerstoneTools.setToolActive(toolName, defaultOpt);
   if (activeViewport == "all") {

@@ -138,11 +138,11 @@ const addTool = function (
   targetElementId?: string
 ) {
   // extend defaults with user custom props
-  let defaultConfig = DEFAULT_TOOLS[toolName];
+  let defaultConfig = DEFAULT_TOOLS[toolName] || {};
   extend(defaultConfig, customConfig);
 
   if (isToolMissing(toolName)) {
-    const toolClassName = DEFAULT_TOOLS[toolName].class;
+    const toolClassName = defaultConfig.class;
     const toolClass = cornerstoneTools[toolClassName] || dvTools[toolClassName];
     if (targetElementId) {
       let element = document.getElementById(targetElementId);
@@ -232,7 +232,7 @@ const setToolActive = function (
   viewports?: string[],
   doNotSetInStore?: boolean
 ) {
-  let defaultOpt = { ...DEFAULT_TOOLS[toolName].options }; // deep copy obj because otherwise cornerstone tools will modify it
+  let defaultOpt = { ...DEFAULT_TOOLS[toolName]?.options }; // deep copy obj because otherwise cornerstone tools will modify it
 
   extend(defaultOpt, options);
 
