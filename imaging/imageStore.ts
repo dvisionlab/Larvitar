@@ -12,8 +12,8 @@ type StoreSeries = { imageIds: string[]; progress: number };
 type Store = {
   colormapId: string;
   errorLog: string; // TODO review this, should be an array?
-  leftActiveTool: string;
-  rightActiveTool: string;
+  leftActiveTool?: string;
+  rightActiveTool?: string;
   series: { [seriesUID: string]: StoreSeries };
   viewports: { [key: string]: typeof DEFAULT_VIEWPORT };
   // fallback for any other field
@@ -65,8 +65,8 @@ const viewportsListeners = {} as {
 const INITIAL_STORE_DATA: Store = {
   colormapId: "gray",
   errorLog: "",
-  leftActiveTool: "Wwwc",
-  rightActiveTool: "Zoom",
+  leftActiveTool: undefined,
+  rightActiveTool: undefined,
   series: {},
   viewports: {}
 };
