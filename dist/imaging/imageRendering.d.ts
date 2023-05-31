@@ -20,11 +20,14 @@ export declare const clearImageCache: (seriesId?: string) => void;
  * @param {Object} series the parsed series data
  * @param {Function} callback a callback function
  */
-export declare function loadAndCacheImages(series: Series, callback: (payload: {
+export declare function loadAndCacheImages(
+  series: Series,
+  callback: (payload: {
     seriesId: string;
     loading: number;
     series: Series;
-}) => any): void;
+  }) => any
+): void;
 /**
  * Render a PDF from a DICOM Encapsulated PDF
  * @instance
@@ -33,7 +36,10 @@ export declare function loadAndCacheImages(series: Series, callback: (payload: {
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when pdf is displayed
  */
-export declare const renderDICOMPDF: (seriesStack: Series, elementId: string | HTMLElement) => Promise<void>;
+export declare const renderDICOMPDF: (
+  seriesStack: Series,
+  elementId: string | HTMLElement
+) => Promise<void>;
 /**
  * Render an image (png or jpg) from File on a html div using cornerstone
  * @instance
@@ -42,7 +48,10 @@ export declare const renderDICOMPDF: (seriesStack: Series, elementId: string | H
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when image is displayed
  */
-export declare const renderFileImage: (file: File, elementId: string | HTMLElement) => Promise<unknown> | undefined;
+export declare const renderFileImage: (
+  file: File,
+  elementId: string | HTMLElement
+) => Promise<unknown> | undefined;
 /**
  * Render an image (png or jpg) from web url on a html div using cornerstone
  * @instance
@@ -51,7 +60,10 @@ export declare const renderFileImage: (file: File, elementId: string | HTMLEleme
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when image is displayed
  */
-export declare const renderWebImage: (url: string, elementId: string | HTMLElement) => Promise<cornerstone.Image>;
+export declare const renderWebImage: (
+  url: string,
+  elementId: string | HTMLElement
+) => Promise<cornerstone.Image>;
 /**
  * Unrender an image on a html div using cornerstone
  * @instance
@@ -67,7 +79,10 @@ export declare const disableViewport: (elementId: string | HTMLElement) => void;
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {String} seriesId - The id of the serie
  */
-export declare const unloadViewport: (elementId: string, seriesId: string) => void;
+export declare const unloadViewport: (
+  elementId: string,
+  seriesId: string
+) => void;
 /**
  * Resize a viewport using cornerstone resize
  * And forcing fit to window
@@ -85,12 +100,16 @@ export declare const resizeViewport: (elementId: string | HTMLElement) => void;
  * @param {Object} defaultProps - Optional default props
  * @return {Promise} Return a promise which will resolve when image is displayed
  */
-export declare const renderImage: (seriesStack: Series, elementId: string | HTMLElement, defaultProps: {
+export declare const renderImage: (
+  seriesStack: Series,
+  elementId: string | HTMLElement,
+  defaultProps: {
     scale?: number;
     colormap?: string;
     tr_x?: number;
     tr_y?: number;
-}) => Promise<void> | undefined;
+  }
+) => Promise<void> | undefined;
 /**
  * Update the cornerstone image with new imageIndex
  * @instance
@@ -100,7 +119,12 @@ export declare const renderImage: (seriesStack: Series, elementId: string | HTML
  * @param {Number} imageIndex - The index of the image to be rendered
  * @param {Boolean} cacheImage - A flag to handle image cache
  */
-export declare const updateImage: (series: Series, elementId: string | HTMLElement, imageIndex: number, cacheImage: boolean) => void;
+export declare const updateImage: (
+  series: Series,
+  elementId: string | HTMLElement,
+  imageIndex: number,
+  cacheImage: boolean
+) => void;
 /**
  * Reset viewport values (scale, translation and wwwc)
  * @instance
@@ -115,7 +139,11 @@ export declare const resetViewports: (elementIds: string[]) => void;
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {Object} viewportData - The new viewport data
  */
-export declare const updateViewportData: (elementId: string, viewportData: Viewport, activeTool: string) => void;
+export declare const updateViewportData: (
+  elementId: string,
+  viewportData: Viewport,
+  activeTool: string
+) => void;
 /**
  * Store the viewport data into internal storage
  * @instance
@@ -125,9 +153,14 @@ export declare const updateViewportData: (elementId: string, viewportData: Viewp
  * @param {String} viewport - The viewport tag name
  * @param {Object} data - The viewport data object
  */
-export declare const storeViewportData: (image: cornerstone.Image, elementId: string, viewport: Viewport, data: {
+export declare const storeViewportData: (
+  image: cornerstone.Image,
+  elementId: string,
+  viewport: Viewport,
+  data: {
     [key: string]: any;
-}) => void;
+  }
+) => void;
 /**
  * Invert pixels of an image
  * @instance
@@ -141,14 +174,18 @@ export declare const invertImage: (elementId: string | HTMLElement) => void;
  * @function flipImageHorizontal
  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
  */
-export declare const flipImageHorizontal: (elementId: string | HTMLElement) => void;
+export declare const flipImageHorizontal: (
+  elementId: string | HTMLElement
+) => void;
 /**
  * Flip image around vertical axis
  * @instance
  * @function flipImageVertical
  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
  */
-export declare const flipImageVertical: (elementId: string | HTMLElement) => void;
+export declare const flipImageVertical: (
+  elementId: string | HTMLElement
+) => void;
 /**
  * Rotate image by 90° in left direction
  * @instance
@@ -162,4 +199,6 @@ export declare const rotateImageLeft: (elementId: string | HTMLElement) => void;
  * @function rotateImageRight
  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
  */
-export declare const rotateImageRight: (elementId: string | HTMLElement) => void;
+export declare const rotateImageRight: (
+  elementId: string | HTMLElement
+) => void;

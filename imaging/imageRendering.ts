@@ -544,49 +544,65 @@ export const updateImage = function (
  * @instance
  * @function resetViewports
  * @param {Array} elementIds - The array of hmtl div ids
+ * @param {Array} keys - The array of viewport sections to resets (default is all)
  */
-export const resetViewports = function (elementIds: string[]) {
+export const resetViewports = function (
+  elementIds: string[],
+  keys?: Array<"contrast" | "scaleAndTranslation" | "rotation" | "flip">
+) {
   each(elementIds, function (elementId) {
-    let element = document.getElementById(elementId);
+    const element = document.getElementById(elementId);
     if (!element) {
       console.error("invalid html element: " + elementId);
       return;
     }
 
     const defaultViewport = store.get(["viewports", elementId, "default"]);
-
-    let viewport = cornerstone.getViewport(element);
+    const viewport = cornerstone.getViewport(element);
 
     if (!viewport) {
       throw new Error("viewport not found");
     }
 
-    viewport.scale = defaultViewport.scale;
-    viewport.rotation = defaultViewport.rotation;
-    viewport.translation.x = defaultViewport.translation.x;
-    viewport.translation.y = defaultViewport.translation.y;
-    viewport.voi.windowWidth = defaultViewport.voi.windowWidth;
-    viewport.voi.windowCenter = defaultViewport.voi.windowCenter;
-    viewport.hflip = false;
-    viewport.vflip = false;
-    viewport.invert = false;
+    if (!keys || keys.find(v => v === "contrast")) {
+      viewport.voi.windowWidth = defaultViewport.voi.windowWidth;
+      viewport.voi.windowCenter = defaultViewport.voi.windowCenter;
+      viewport.invert = false;
+      setStore("contrast", [
+        elementId,
+        viewport.voi.windowWidth,
+        viewport.voi.windowCenter
+      ]);
+    }
+
+    if (!keys || keys.find(v => v === "scaleAndTranslation")) {
+      viewport.scale = defaultViewport.scale;
+      setStore("scale", [elementId, viewport.scale]);
+
+      viewport.translation.x = defaultViewport.translation.x;
+      viewport.translation.y = defaultViewport.translation.y;
+      setStore("translation", [
+        elementId,
+        viewport.translation.x,
+        viewport.translation.y
+      ]);
+    }
+
+    if (!keys || keys.find(v => v === "rotation")) {
+      viewport.rotation = defaultViewport.rotation;
+      setStore("rotation", [elementId, viewport.rotation]);
+    }
+
+    if (!keys || keys.find(v => v === "flip")) {
+      viewport.hflip = false;
+      viewport.vflip = false;
+    }
 
     cornerstone.setViewport(element, viewport);
-    cornerstone.fitToWindow(element);
+    if (!keys || keys.find(v => v === "scaleAndTranslation")) {
+      cornerstone.fitToWindow(element);
+    }
     cornerstone.updateImage(element);
-
-    setStore("scale", [elementId, viewport.scale]);
-    setStore("rotation", [elementId, viewport.rotation]);
-    setStore("translation", [
-      elementId,
-      viewport.translation.x,
-      viewport.translation.y
-    ]);
-    setStore("contrast", [
-      elementId,
-      viewport.voi.windowWidth,
-      viewport.voi.windowCenter
-    ]);
   });
 };
 
