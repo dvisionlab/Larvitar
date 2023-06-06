@@ -6,9 +6,8 @@
 
 ## Dicom Image Toolkit for CornerstoneJS
 
-### Current version: 1.5.8
-
-### Latest Published Release: 1.5.8
+### Current version: 1.5.9
+### Latest Published Release: 1.5.9
 
 This library provides common DICOM functionalities to be used in web-applications: it's wrapper that simplifies the use of cornerstone-js environment.
 Orthogonal multiplanar reformat is included as well as custom loader/exporter for nrrd files and [Vuex](https://vuex.vuejs.org/) custom integration.
@@ -40,6 +39,7 @@ Orthogonal multiplanar reformat is included as well as custom loader/exporter fo
 - `tools/custom/editMaskTool` is a custom cornerstone tool for 2D visualization of segmentation masks with brush functionalities
 - `tools/custom/seedTool` is a custom cornerstone tool for 2D interactive seeding with custom colors and labels
 - `tools/custom/thresholdsBrushTool` is a custom cornerstone tool for handling thresholds in a brush tool
+- `tools/custom/Slice4DScrollMouseWheel` is a custom cornerstone tool for handling navigation of slices in a 4D DICOM series
 - `tools/default` default tools map and configuration
 - `tools/io` import and export functionalities for tools
 - `tools/main` tools main functionalities

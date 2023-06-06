@@ -157,7 +157,6 @@
         }
         return demoFileList;
       };
-
       // init all
       larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
@@ -190,7 +189,7 @@
 
               $("#image-time").html(
                 "Image Time Id: " +
-                  larvitar.larvitar_store.state.viewports.viewer.timeId +
+                  larvitar.larvitar_store.state.viewports.viewer.sliceId +
                   " of " +
                   larvitar.larvitar_store.state.viewports.viewer.maxTimeId
               );
@@ -227,8 +226,8 @@
                 }
               }
             };
-            larvitar.addDefaultTools();
-            larvitar.setToolActive("Wwwc");
+            larvitar.addTool("Slice4DScrollMouseWheel", {configuration: { loop: false,allowSkipping: false,invert: false, framesNumber: 97 }});
+            larvitar.setToolActive("Slice4DScrollMouseWheel");
           })
           .catch(err => console.log(err));
       }
