@@ -46,11 +46,11 @@ export const getImagePresets = function () {
  * @instance
  * @function setImagePreset
  * @param {Array} viewportNames - List of viewports where to apply preset
- * @param {String} preset_name - The image preset name
+ * @param {String | typeof IMAGE_PRESETS[0]} preset - The image preset name or the preset object
  */
 export const setImagePreset = function (
   viewportNames: string[],
-  preset_name: string
+  preset: string | (typeof IMAGE_PRESETS)[0]
 ) {
   if (!Array.isArray(viewportNames)) {
     console.error(
@@ -58,7 +58,8 @@ export const setImagePreset = function (
     );
     return;
   }
-  let image_preset = find(IMAGE_PRESETS, { name: preset_name });
+  let image_preset =
+    typeof preset === "string" ? find(IMAGE_PRESETS, { name: preset }) : preset;
 
   if (!image_preset) {
     console.error("Invalid image preset");
