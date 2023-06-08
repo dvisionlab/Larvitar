@@ -8,18 +8,27 @@
  * @function getImagePresets
  */
 export declare const getImagePresets: () => {
-    name: string;
-    ww: number;
-    wl: number;
+  name: string;
+  ww: number;
+  wl: number;
 }[];
 /**
  * Set Image presets
  * @instance
  * @function setImagePreset
  * @param {Array} viewportNames - List of viewports where to apply preset
- * @param {String} preset_name - The image preset name
+ * @param {String | typeof IMAGE_PRESETS[0]} preset - The image preset name or the preset object
  */
-export declare const setImagePreset: (viewportNames: string[], preset_name: string) => void;
+export declare const setImagePreset: (
+  viewportNames: string[],
+  preset:
+    | string
+    | {
+        name: string;
+        ww: number;
+        wl: number;
+      }
+) => void;
 /**
  * Set Image presets
  * @instance
@@ -27,7 +36,10 @@ export declare const setImagePreset: (viewportNames: string[], preset_name: stri
  * @param {Array} viewportNames - List of viewports where to apply preset
  * @param {Object} customValues - {wl: value, ww: value}
  */
-export declare const setImageCustomPreset: (viewportNames: string[], customValues: {
+export declare const setImageCustomPreset: (
+  viewportNames: string[],
+  customValues: {
     wl: number;
     ww: number;
-}) => void;
+  }
+) => void;
