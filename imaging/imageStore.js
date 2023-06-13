@@ -3,6 +3,7 @@
  *        for data config store.
  */
 
+import { defineVue } from "../modules/vuex/larvitar";
 import larvitar from "../modules/vuex/larvitar";
 
 // external libraries
@@ -312,7 +313,7 @@ export function initLarvitarStore(vuexStore, vuexModule, registerModule, _Vue) {
   if (vuexStore) {
     larvitar_store = new Larvitar_Store(vuexStore, vuexModule);
     if (registerModule) {
-      larvitar.defineVue(_Vue);
+      defineVue(_Vue);
       vuexStore.registerModule(vuexModule, larvitar);
     }
   } else {
