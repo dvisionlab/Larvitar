@@ -2,7 +2,7 @@
  *  @desc This file provides functionalities for
  *        custom DICOM Loader
  */
-import { Series } from "../types";
+import type { Series } from "../types";
 /**
  * Load and cache images
  * @instance

@@ -2,8 +2,8 @@
  *  @desc  This file provides functionalities
  *         for handling masks and luts
  */
-import { BrushProperties, MaskProperties, SegmentationConfig } from "./types";
-import { TypedArray } from "../types";
+import { BrushProperties, MaskProperties, SegmentationConfig } from "./types.d";
+import type { TypedArray } from "../types";
 export declare function rgbToHex(c: number[]): string;
 export declare function hexToRgb(hex: string): number[];
 /**

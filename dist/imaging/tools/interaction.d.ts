@@ -2,7 +2,7 @@
  *  @desc  This file provides functionalities for
  *         tools interactions
  */
-import { ToolMouseKeys } from "./types";
+import type { ToolMouseKeys } from "./types";
 /**
  * Setup mouse handler modifiers and keyboard shortcuts:
  * register a tool on right button and another one

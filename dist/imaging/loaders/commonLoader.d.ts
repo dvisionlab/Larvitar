@@ -3,7 +3,7 @@
  *        custom DICOMImageLoaders
  */
 import { DataSet } from "dicom-parser";
-import { ImageObject, MetadataValue, Series } from "../types";
+import type { ImageObject, MetadataValue, Series } from "../types";
 /**
  * Update and initialize larvitar manager in order to parse and load a single dicom object
  * @instance
