@@ -108,7 +108,7 @@ export declare const updateImage: (series: Series, elementId: string | HTMLEleme
  * @param {Array} elementIds - The array of hmtl div ids
  * @param {Array} keys - The array of viewport sections to resets (default is all)
  */
-export declare const resetViewports: (elementIds: string[], keys?: Array<"contrast" | "scaleAndTranslation" | "rotation" | "flip">) => void;
+export declare const resetViewports: (elementIds: string[], keys?: Array<"contrast" | "scaleAndTranslation" | "rotation" | "flip" | "zoom">) => void;
 /**
  * Update viewport data in store
  * @instance
