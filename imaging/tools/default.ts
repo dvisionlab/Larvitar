@@ -107,15 +107,30 @@ const DEFAULT_TOOLS: {
     shortcut: "ctrl-m",
     type: "utils"
   },
+  StackScroll: {
+    name: "StackScroll",
+    viewports: "all",
+    configuration: {
+      loop: false, // default false
+      allowSkipping: true // default true
+    },
+    options: {
+      mouseButtonMask: 1,
+      deltaY: 0 // default 0
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "StackScrollTool"
+  },
   StackScrollMouseWheel: {
     name: "StackScrollMouseWheel",
     viewports: "all",
-    configuration: {},
-    options: {
+    configuration: {
       loop: false, // default false
-      allowSkipping: false, // default true
+      allowSkipping: true, // default true
       invert: false
     },
+    options: {},
     cleanable: false,
     defaultActive: true,
     class: "StackScrollMouseWheelTool"
