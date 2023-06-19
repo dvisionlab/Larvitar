@@ -279,7 +279,7 @@ const setToolActive = function (
  */
 const setToolDisabled = function (toolName: string, viewports?: string[]) {
   if (viewports && viewports.length > 0) {
-    // activate and update only for "viewports"
+    // disable and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (!el) {
@@ -292,7 +292,7 @@ const setToolDisabled = function (toolName: string, viewports?: string[]) {
       tryUpdateImage(el);
     });
   } else {
-    // activate and update all
+    // disable and update all
     cornerstoneTools.setToolDisabled(toolName);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
@@ -311,7 +311,7 @@ const setToolDisabled = function (toolName: string, viewports?: string[]) {
  */
 const setToolEnabled = function (toolName: string, viewports?: string[]) {
   if (viewports && viewports.length > 0) {
-    // activate and update only for "viewports"
+    // enable and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (!el) {
@@ -324,7 +324,7 @@ const setToolEnabled = function (toolName: string, viewports?: string[]) {
       tryUpdateImage(el);
     });
   } else {
-    // activate and update all
+    // enable and update all
     cornerstoneTools.setToolEnabled(toolName);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
