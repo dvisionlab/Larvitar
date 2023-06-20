@@ -276,8 +276,13 @@ const setToolActive = function (
  * @function setToolDisabled
  * @param {String} toolName - The tool name.
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
+ * @param {Boolean} resetCursor - Flag to restore native cursor. @default true
  */
-const setToolDisabled = function (toolName: string, viewports?: string[]) {
+const setToolDisabled = function (
+  toolName: string,
+  viewports?: string[],
+  resetCursor = true
+) {
   if (viewports && viewports.length > 0) {
     // disable and update only for "viewports"
     each(viewports, function (elementId) {
@@ -287,18 +292,22 @@ const setToolDisabled = function (toolName: string, viewports?: string[]) {
         return;
       }
       cornerstoneTools.setToolDisabledForElement(el, toolName);
-      // restore native cursor
-      el.style.cursor = "initial";
-      tryUpdateImage(el);
+      if (resetCursor) {
+        // restore native cursor
+        el.style.cursor = "initial";
+        tryUpdateImage(el);
+      }
     });
   } else {
     // disable and update all
     cornerstoneTools.setToolDisabled(toolName);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
-      // restore native cursor
-      enel.element.style.cursor = "initial";
-      tryUpdateImage(enel.element);
+      if (resetCursor) {
+        // restore native cursor
+        enel.element.style.cursor = "initial";
+        tryUpdateImage(enel.element);
+      }
     });
   }
 };
@@ -308,8 +317,13 @@ const setToolDisabled = function (toolName: string, viewports?: string[]) {
  * @function setToolEnabled
  * @param {String} toolName - The tool name.
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
+ * @param {Boolean} resetCursor - Flag to restore native cursor. @default true
  */
-const setToolEnabled = function (toolName: string, viewports?: string[]) {
+const setToolEnabled = function (
+  toolName: string,
+  viewports?: string[],
+  resetCursor = true
+) {
   if (viewports && viewports.length > 0) {
     // enable and update only for "viewports"
     each(viewports, function (elementId) {
@@ -319,18 +333,22 @@ const setToolEnabled = function (toolName: string, viewports?: string[]) {
         return;
       }
       cornerstoneTools.setToolEnabledForElement(el, toolName);
-      // restore native cursor
-      el.style.cursor = "initial";
-      tryUpdateImage(el);
+      if (resetCursor) {
+        // restore native cursor
+        el.style.cursor = "initial";
+        tryUpdateImage(el);
+      }
     });
   } else {
     // enable and update all
     cornerstoneTools.setToolEnabled(toolName);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
-      // restore native cursor
-      enel.element.style.cursor = "initial";
-      tryUpdateImage(enel.element);
+      if (resetCursor) {
+        // restore native cursor
+        enel.element.style.cursor = "initial";
+        tryUpdateImage(enel.element);
+      }
     });
   }
 };
