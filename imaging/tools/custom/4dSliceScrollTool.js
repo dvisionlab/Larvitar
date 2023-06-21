@@ -35,6 +35,7 @@ export default class Slice4DScrollMouseWheelTool extends BaseTool {
       },
     };
     console.log('building wheel tool');
+    console.log('Cnfiguration: ', props.configuration );
     super(props, defaultProps);
   }
 
@@ -42,7 +43,12 @@ export default class Slice4DScrollMouseWheelTool extends BaseTool {
     const { direction: images, element } = evt.detail;
     const { loop, allowSkipping, invert, framesNumber } = this.configuration;
     const direction = invert ? (images * framesNumber)*(-1) : (images * framesNumber);
-    scroll(element, direction, loop, allowSkipping);
+    console.log('wheel callback');
+    console.log('framesNumber', framesNumber);
+    console.log('Images ', images);
+    console.log('Direction ', direction);
+    //scroll(element, direction, loop, allowSkipping);
+    scroll4DSlices(element, direction, loop, allowSkipping, framesNumber);
   }
 }
 /**
@@ -68,14 +74,21 @@ const scroll4DSlices = function(element, images, loop, allowSkipping, framesNumb
     if (!stackData.pending) {
         stackData.pending = [];
     }
-    
-    let newImageIdIndex = stackData.currentImageIdIndex + images ;//+ 1 + framesNumber;
+    const currentImageIdIndex = stackData.currentImageIdIndex > 0 ? stackData.currentImageIdIndex : 0;
+    let newImageIdIndex = currentImageIdIndex + images;// + framesNumber;
+    console.log('currentImageIdIndex', currentImageIdIndex)
+    console.log('newImageIdIndex calculated ', newImageIdIndex);
     if (loop) {
         const nbImages = stackData.imageIds.length;
         newImageIdIndex %= nbImages;
     } else {
         newImageIdIndex = clip(newImageIdIndex, 0, stackData.imageIds.length - 1);
         console.log('newImageIdIndex after clip  ', newImageIdIndex);
+        if ((newImageIdIndex!== 0) && ((newImageIdIndex) % framesNumber) !== 0) {
+          newImageIdIndex = stackData.currentImageIdIndex;
+          console.log('newImageIdIndex after check  ', newImageIdIndex);
+        }
+        
     }
 
     if (allowSkipping) {
