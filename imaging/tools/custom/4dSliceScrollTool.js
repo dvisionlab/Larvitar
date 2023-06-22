@@ -84,11 +84,15 @@ const scroll4DSlices = function(element, images, loop, allowSkipping, framesNumb
     } else {
         newImageIdIndex = clip(newImageIdIndex, 0, stackData.imageIds.length - 1);
         console.log('newImageIdIndex after clip  ', newImageIdIndex);
-        if ((newImageIdIndex!== 0) && ((newImageIdIndex) % framesNumber) !== 0) {
+        if ((newImageIdIndex < framesNumber) && (newImageIdIndex!== 0)) {
+          if ((newImageIdIndex % currentTimeFrame) === 0) {
+            newImageIdIndex = stackData.currentImageIdIndex;
+          }
+        }
+        if ((newImageIdIndex!== 0) && (((newImageIdIndex) % ((framesNumber + currentTimeFrame))) !== 0)) {
           newImageIdIndex = stackData.currentImageIdIndex;
           console.log('newImageIdIndex after check  ', newImageIdIndex);
         }
-        
     }
 
     if (allowSkipping) {
