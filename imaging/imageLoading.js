@@ -6,7 +6,7 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import dicomParser from "dicom-parser";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoader.bundle.min.js";
 import cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { forEach } from "lodash";
@@ -24,7 +24,7 @@ import { loadMultiFrameImage } from "./loaders/multiframeLoader";
  * @var {Object} globalConfig
  * @property {Number} maxWebWorkers - number of maximum web workers
  * @property {String} webWorkerPath - path to default WADO web worker
- * @property {} - see https://github.com/cornerstonejs/cornerstoneWADOImageLoader/blob/master/docs/WebWorkers.md
+ * @property {} - see https://github.com/cornerstonejs/cornerstoneDICOMImageLoader/blob/master/docs/WebWorkers.md
  */
 
 const MAX_CONCURRENCY = 6;
@@ -54,16 +54,16 @@ const globalConfig = {
  */
 
 /**
- * Configure cornerstoneWADOImageLoader
+ * Configure cornerstoneDICOMImageLoader
  * @instance
  * @function initializeImageLoader
  * @param {Object} config - Custom config @default globalConfig
  */
 export const initializeImageLoader = function (config) {
   let imageLoaderConfig = config ? config : globalConfig;
-  cornerstoneWADOImageLoader.webWorkerManager.initialize(imageLoaderConfig);
-  cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-  cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+  cornerstoneDICOMImageLoader.external.cornerstone = cornerstone;
+  cornerstoneDICOMImageLoader.external.dicomParser = dicomParser;
+  cornerstoneDICOMImageLoader.webWorkerManager.initialize(imageLoaderConfig);
 };
 
 /**
@@ -148,7 +148,7 @@ export const updateLoadedStack = function (
   let isPDF = SOPUID == "1.2.840.10008.5.1.4.1.1.104.1" ? true : false;
   let anonymized = seriesData.metadata.anonymized;
 
-  let color = cornerstoneWADOImageLoader.isColorImage(
+  let color = cornerstoneDICOMImageLoader.isColorImage(
     seriesData.metadata["x00280004"]
   );
   let id = customId || sid;
@@ -185,8 +185,8 @@ export const updateLoadedStack = function (
   if (isNewInstance(allSeriesStack[id].instances, iid)) {
     // generate an imageId for the file and store it
     // in allSeriesStack imageIds array, used by
-    // cornerstoneWADOImageLoader to display the stack of images
-    let imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(
+    // cornerstoneDICOMImageLoader to display the stack of images
+    let imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(
       seriesData.file
     );
 
