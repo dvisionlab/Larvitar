@@ -5,7 +5,7 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoader.bundle.min.js";
 import { each, has } from "lodash";
 
 // internal libraries
@@ -58,8 +58,8 @@ export const clearImageCache = function (seriesId) {
           }
         } else {
           let uri =
-            cornerstoneWADOImageLoader.wadouri.parseImageId(imageId).url;
-          cornerstoneWADOImageLoader.wadouri.dataSetCacheManager.unload(uri);
+            cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+          cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
         }
       });
 
@@ -377,10 +377,10 @@ export const renderImage = function (seriesStack, elementId, defaultProps) {
       let t1 = performance.now();
       console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
-      let uri = cornerstoneWADOImageLoader.wadouri.parseImageId(
+      let uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
         data.imageId
       ).url;
-      cornerstoneWADOImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
       image = null;
       series = null;
       data = null;
@@ -631,6 +631,12 @@ export const storeViewportData = function (image, elementId, viewport, data) {
     larvitar_store.set("timestamp", [elementId, data.timestamp]);
     larvitar_store.set("timestamps", [elementId, data.timestamps]);
     larvitar_store.set("timeIds", [elementId, data.timeIds]);
+  } else {
+    larvitar_store.set("minTimeId", [elementId, 0]);
+    larvitar_store.set("timeId", [elementId, 0]);
+    larvitar_store.set("maxTimeId", [elementId, 0]);
+    larvitar_store.set("timestamps", [elementId, []]);
+    larvitar_store.set("timeIds", [elementId, []]);
   }
 
   larvitar_store.set("defaultViewport", [
