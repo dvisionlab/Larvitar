@@ -708,6 +708,13 @@ export const storeViewportData = function (
     setStore("timestamp", [elementId, data.timestamp]);
     setStore("timestamps", [elementId, data.timestamps]);
     setStore("timeIds", [elementId, data.timeIds]);
+  } else {
+    setStore("minTimeId", [elementId, 0]);
+    setStore("timeId", [elementId, 0]);
+    setStore("maxTimeId", [elementId, 0]);
+    setStore("timestamp", [elementId, 0]);
+    setStore("timestamps", [elementId, []]);
+    setStore("timeIds", [elementId, []]);
   }
 
   setStore("defaultViewport", [
