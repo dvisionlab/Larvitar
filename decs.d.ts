@@ -4,6 +4,7 @@ declare module "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoad
 declare module "cornerstone-web-image-loader";
 declare module "cornerstone-file-image-loader";
 declare module "dicom-character-set";
+declare module "ciccio/external";
 
 declare global {
   interface Document {

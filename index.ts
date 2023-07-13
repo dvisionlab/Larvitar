@@ -7,9 +7,9 @@ console.groupCollapsed(
 );
 
 import cornerstone from "cornerstone-core";
-import cornerstoneTools from "cornerstone-tools";
+import { cornerstoneTools, registerExternal } from "@/external";
 import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoader.bundle.min.js";
-const segModule = cornerstoneTools.getModule("segmentation");
+// const segModule = cornerstoneTools.getModule("segmentation");
 
 import {
   checkMemoryAllocation,
@@ -217,10 +217,11 @@ import {
 
 export {
   VERSION,
+  registerExternal,
   // global cornerstone variables
   cornerstone,
   cornerstoneTools,
-  segModule,
+  // segModule,
   cornerstoneDICOMImageLoader,
   // memory module
   checkMemoryAllocation,

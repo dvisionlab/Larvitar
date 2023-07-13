@@ -5,7 +5,8 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import cornerstoneTools from "cornerstone-tools";
+// import cornerstoneTools from "cornerstone-tools";
+import { cornerstoneTools } from "@/index";
 import cornerstoneMath from "cornerstone-math";
 import Hammer from "hammerjs";
 import { each, extend } from "lodash";

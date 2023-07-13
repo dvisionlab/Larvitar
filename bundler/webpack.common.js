@@ -1,3 +1,5 @@
+const path = require("path");
+
 module.exports = {
   devtool: "source-map", // or inline-source-map ?
   module: {
@@ -22,6 +24,9 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".js", ".d.ts"]
+    extensions: [".tsx", ".ts", ".js", ".d.ts"],
+    alias: {
+      "@": path.resolve(__dirname, "../")
+    }
   }
 };
