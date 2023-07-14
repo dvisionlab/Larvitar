@@ -2,8 +2,8 @@
  *  @desc  This file provides functionalities
  *         for handling masks and luts
  */
-import { BrushProperties, MaskProperties, SegmentationConfig } from "./types";
-import { TypedArray } from "../types";
+import { BrushProperties, MaskProperties, SegmentationConfig } from "./types.d";
+import type { TypedArray } from "../types";
 export declare function rgbToHex(c: number[]): string;
 export declare function hexToRgb(hex: string): number[];
 /**
@@ -96,7 +96,7 @@ export declare function clearSegmentationState(): void;
  * Anyway, the activated tool name is returned
  * @param {Object} options - An object containing configuration values (eg radius, thresholds, etc...)
  */
-export declare function enableBrushTool(viewports: string[], options: BrushProperties): "ThresholdsBrush" | "Brush";
+export declare function enableBrushTool(viewports: string[], options: BrushProperties): "Brush" | "ThresholdsBrush";
 /**
  * Disable brushing
  * This function disables both brush tools, if found active on `viewports`

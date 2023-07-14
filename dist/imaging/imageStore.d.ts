@@ -10,8 +10,8 @@ type StoreSeries = {
 type Store = {
     colormapId: string;
     errorLog: string;
-    leftActiveTool: string;
-    rightActiveTool: string;
+    leftActiveTool?: string;
+    rightActiveTool?: string;
     series: {
         [seriesUID: string]: StoreSeries;
     };

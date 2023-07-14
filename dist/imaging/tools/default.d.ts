@@ -2,7 +2,7 @@
  *  @desc  This file provides definitions
  *         for default tools
  */
-import { ToolConfig, ToolMouseKeys, ToolSettings, ToolStyle } from "./types";
+import type { ToolConfig, ToolMouseKeys, ToolSettings, ToolStyle } from "./types";
 /**
  * These tools are added with `addDefaultTools()`
  */

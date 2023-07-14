@@ -3,7 +3,7 @@
  *         for initializing tools and stacks
  */
 import { saveAnnotations, loadAnnotations, exportAnnotations } from "./io";
-import { ToolConfig, ToolSettings, ToolStyle } from "./types";
+import type { ToolConfig, ToolSettings, ToolStyle } from "./types";
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
  * @function initializeCSTools

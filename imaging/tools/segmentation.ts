@@ -455,7 +455,7 @@ export function clearSegmentationState() {
 export function enableBrushTool(viewports: string[], options: BrushProperties) {
   setBrushProps(options);
   const brushType = "thresholds" in options ? "ThresholdsBrush" : "Brush";
-  setToolActive(brushType, viewports);
+  setToolActive(brushType, undefined, viewports);
   return brushType;
 }
 

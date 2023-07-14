@@ -1,22 +1,10 @@
-type ToolOptionsKeys =
-  | "mouseButtonMask"
-  | "supportedInteractionTypes"
-  | "loop"
-  | "allowSkipping"
-  | "invert"
-  | string;
-
-// TODO-ts: which one is better ?
-
-// type ToolOptions = {
-//   mouseButtonMask?: number;
-//   supportedInteractionTypes?: string[];
-//   loop?: boolean;
-//   allowSkipping?: boolean;
-//   invert?: boolean;
-// };
-
-type ToolOptions = Record<ToolOptionsKeys, any>;
+type ToolOptions = {
+  mouseButtonMask?: number | number[];
+  supportedInteractionTypes?: string[];
+  loop?: boolean;
+  allowSkipping?: boolean;
+  invert?: boolean;
+} & { [key: string]: unknown };
 
 export type ToolConfig = {
   name: string;
@@ -70,11 +58,152 @@ export type ToolMouseKeys = {
   };
 };
 
+type HanldePosition = {
+  active: boolean;
+  allowedOutsideImage?: boolean;
+  drawnIndependently?: boolean;
+  highlight: boolean;
+  index?: number;
+  locked?: boolean;
+  moving?: boolean;
+  x: number;
+  y: number;
+};
+
+type HandleTextBox = {
+  active: boolean;
+  allowedOutsideImage: boolean;
+  boundingBox: { height: number; left: number; top: number; width: number };
+  drawnIndependently: boolean;
+  hasBoundingBox: boolean;
+  hasMoved: boolean;
+  highlight?: boolean;
+  index?: number;
+  movesIndependently: boolean;
+  x: number;
+  y: number;
+};
+
+type BaseToolStateData = {
+  active: boolean;
+  color: string;
+  invalidated: boolean;
+  uuid: string;
+  visible: boolean;
+};
+
+type AngleStateData = BaseToolStateData & {
+  handles: {
+    end: HanldePosition;
+    middle: HanldePosition;
+    start: HanldePosition;
+    textBox: HandleTextBox;
+  };
+  rAngle: number;
+};
+
+type ArrowAnnotateStateData = BaseToolStateData & {
+  handles: {
+    end: HanldePosition;
+    start: HanldePosition;
+    textBox: HandleTextBox;
+  };
+  text: string;
+};
+
+type BidirectionalStateData = BaseToolStateData & {
+  handles: {
+    end: HanldePosition;
+    perpendicularEnd: HanldePosition;
+    perpendicularStart: HanldePosition;
+    start: HanldePosition;
+    textBox: HandleTextBox;
+  };
+  isCreating: boolean;
+  longestDiameter: number;
+  shortestDiameter: number;
+  toolName: "Bidirectional";
+  toolType: "Bidirectional";
+};
+
+type EllipticalRoiStateData = BaseToolStateData & {
+  cachedStats: {
+    area: number;
+    count: number;
+    max: number;
+    mean: number;
+    meanStdDevSUV?: number;
+    min: number;
+    stdDev: snumber;
+    variance: number;
+  };
+  handles: {
+    end: HanldePosition;
+    initialRotation: number;
+    start: HanldePosition;
+    textBox: HandleTextBox;
+  };
+  unit: string;
+};
+
+type FreehandRoiStateData = ToolStateData & {
+  area: number;
+  canComplete: boolean;
+  handles: {
+    points: FreehandHandleData[];
+    textBox: any;
+    invalidHandlePlacement: boolean;
+  };
+  highlight: boolean;
+  meanStdDev: { count: number; mean: number; variance: number; stdDev: number };
+  meanStdDevSUV: undefined;
+  polyBoundingBox: { left: number; top: number; width: number; height: number };
+  unit: string;
+};
+
+type LengthStateData = BaseToolStateData & {
+  handles: {
+    end: HanldePosition;
+    start: HanldePosition;
+    textBox: HandleTextBox;
+  };
+  length: number;
+  unit: string;
+};
+
+type ProbeStateData = BaseToolStateData;
+
+type RectangleRoiStateData = BaseToolStateData & {
+  cachedStats: {
+    area: number;
+    count: number;
+    max: number;
+    mean: number;
+    meanStdDevSUV?: number;
+    min: number;
+    perimeter: number;
+    stdDev: number;
+    variance: number;
+  };
+  handles: {
+    end: HanldePosition;
+    initialRotation: number;
+    start: HanldePosition;
+    textBox: HandleTextBox;
+  };
+  unit: string;
+};
+
 export type ToolState = {
   [imageId: string]: {
-    [toolName: string]: {
-      data: any; // TODO-ts define
-    };
+    Angle: AngleStateData;
+    ArrowAnnotate: ArrowAnnotateStateData;
+    Bidirectional: BidirectionalStateData;
+    EllipticalRoi: EllipticalRoiStateData;
+    FreehandRoi: FreehandRoiStateData;
+    Length: LengthStateData;
+    Probe: ProbeStateData;
+    RectangleRoi: RectangleRoiStateData;
   };
 };
 

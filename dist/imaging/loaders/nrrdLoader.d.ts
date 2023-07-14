@@ -3,7 +3,7 @@
  *        custom NRRD Loader
  */
 import { ImageLoader } from "cornerstone-core";
-import { Instance, Volume } from "../types";
+import type { Instance, Volume } from "../types";
 type NrrdInputVolume = {
     header: {
         sizes: number[];

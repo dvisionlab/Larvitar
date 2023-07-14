@@ -2,7 +2,7 @@
  *  @desc  This file provides functionalities
  *         for handling tools' state
  */
-import { ToolState } from "./types";
+import type { ToolState } from "./types";
 /**
  *
  * @param {*} elementId

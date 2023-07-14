@@ -2,7 +2,7 @@
  *  @desc  This file provides functionalities for
  *         tools input/output
  */
-import { ToolState } from "./types";
+import type { ToolState } from "./types";
 declare global {
     interface Document {
         documentMode?: any;

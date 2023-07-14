@@ -2,7 +2,7 @@
  *  @desc This file provides functionalities for
  *        custom Reslice Loader
  */
-import { Image } from "../types";
+import type { Image } from "../types";
 /**
  * Custom Loader for DICOMImageLoader
  * @instance

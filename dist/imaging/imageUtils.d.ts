@@ -2,7 +2,7 @@
  *  @desc This file provides utility functions for
  *        manipulating image pixels and image metadata
  */
-import { CustomDataSet, ReslicedInstance, Series } from "./types";
+import type { CustomDataSet, ReslicedInstance, Series } from "./types";
 /**
  * @typedef {Object} CornerstoneSeries
  * @property {Array} imageIds Array of the instances imageIds

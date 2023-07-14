@@ -2,7 +2,7 @@
  *  @desc  This file provides functionalities for parsing DICOM image files
  */
 import { DataSet } from "dicom-parser";
-import { MetadataValue, Series } from "./types";
+import { ImageObject, MetadataValue, Series } from "./types";
 /**
  * Reset series stack object and its internal data
  * @instance
@@ -27,7 +27,7 @@ export declare const readFiles: (entries: File[]) => Promise<unknown>;
  * @param {File} entry - File object
  * @returns {Promise} - Return a promise which will resolve to a image object or fail if an error occurs
  */
-export declare const readFile: (entry: File) => Promise<unknown>;
+export declare const readFile: (entry: File) => Promise<ImageObject>;
 /**
  * Parse metadata from dicom parser dataSet object
  * @instance

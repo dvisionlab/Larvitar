@@ -1,7 +1,7 @@
 /** @module loaders/multiframeLoader
  *  @desc This file is a custom DICOM loader for multiframe images
  */
-import { Image, Series } from "../types";
+import type { Image, Series } from "../types";
 /**
  * Custom MultiFrame Loader Function
  * @export

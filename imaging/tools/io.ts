@@ -159,7 +159,7 @@ export function generateCSV(
  */
 function extractToolInfo(
   toolName: string,
-  toolData: ToolState["imageId"]["toolName"]["data"]
+  toolData: ToolState["imageId"][keyof ToolState["imageId"]]
 ) {
   let dataArray: Object[] = [];
   switch (toolName) {
