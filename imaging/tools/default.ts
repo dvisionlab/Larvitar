@@ -28,6 +28,8 @@
 import { filter, isArray } from "lodash";
 import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
 import PolylineScissorsTool from "./custom/polylineScissorsTool";
+import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
+import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
 
 import type {
   ToolConfig,
@@ -105,15 +107,30 @@ const DEFAULT_TOOLS: {
     shortcut: "ctrl-m",
     type: "utils"
   },
+  StackScroll: {
+    name: "StackScroll",
+    viewports: "all",
+    configuration: {
+      loop: false, // default false
+      allowSkipping: true // default true
+    },
+    options: {
+      mouseButtonMask: 1,
+      deltaY: 0 // default 0
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "StackScrollTool"
+  },
   StackScrollMouseWheel: {
     name: "StackScrollMouseWheel",
     viewports: "all",
-    configuration: {},
-    options: {
+    configuration: {
       loop: false, // default false
-      allowSkipping: false, // default true
+      allowSkipping: true, // default true
       invert: false
     },
+    options: {},
     cleanable: false,
     defaultActive: true,
     class: "StackScrollMouseWheelTool"
@@ -243,6 +260,29 @@ const DEFAULT_TOOLS: {
     cleanable: true,
     defaultActive: false,
     class: "RectangleRoiTool",
+    description: "Draw a rectangle",
+    shortcut: "ctrl-a",
+    type: "annotation"
+  },
+  EllipticalRoiOverlay: {
+    name: "EllipticalRoiOverlay",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "EllipticalRoiOverlayTool",
+    description: "Draw an ellipse",
+    shortcut: "ctrl-f",
+    type: "annotation"
+  },
+  RectangleRoiOverlay: {
+    name: "RectangleRoiOverlay",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    defaultActive: false,
+    class: "RectangleRoiOverlayTool",
     description: "Draw a rectangle",
     shortcut: "ctrl-a",
     type: "annotation"
@@ -409,7 +449,9 @@ const dvTools: {
   [key: string]: any; // TODO-ts tools class type
 } = {
   ThresholdsBrushTool: ThresholdsBrushTool,
-  PolylineScissorsTool: PolylineScissorsTool
+  PolylineScissorsTool: PolylineScissorsTool,
+  RectangleRoiOverlayTool: RectangleRoiOverlayTool,
+  EllipticalRoiOverlayTool: EllipticalRoiOverlayTool
 };
 
 /**

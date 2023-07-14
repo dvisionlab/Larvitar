@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>tools/custom/rectangleRoiOverlayTool.js - Larvitar</title>
+    
+    <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
+    
+        <meta name="keywords" content="imaging, dataviz, medical, cornerstone" />
+        <meta name="keyword" content="imaging, dataviz, medical, cornerstone" />
+    
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    
+    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/dvisionlab/Larvitar" target="_blank" class="menu-item" id="repository" >Github repo</a></h2><h3>Classes</h3><ul><li><a href="module-imaging_tools_custom_polygonScissorsTool.html">imaging/tools/custom/polygonScissorsTool</a></li><li><a href="Tools.Annotation.ContoursTool.html">Tools.Annotation.ContoursTool</a></li><li><a href="Tools.Annotation.DiameterTool.html">Tools.Annotation.DiameterTool</a></li><li><a href="Tools.Annotation.EllipticalRoiTool.html">Tools.Annotation.EllipticalRoiTool</a></li><li><a href="Tools.Annotation.RectangleRoiTool.html">Tools.Annotation.RectangleRoiTool</a></li><li><a href="Tools.Brush.BrushTool.html">Tools.Brush.BrushTool</a></li><li><a href="Tools.Brush.ThresholdsBrushTool.html">Tools.Brush.ThresholdsBrushTool</a></li><li><a href="Tools.PolylineScissorsTool.html">Tools.PolylineScissorsTool</a></li></ul><h3>Modules</h3><ul><li><a href="module-imaging_imageTools.html">imaging/imageTools</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addContoursTool">addContoursTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addDefaultTools">addDefaultTools</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addDiameterTool">addDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addMaskEditingTool">addMaskEditingTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addSeedsTool">addSeedsTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addStackStateToElement">addStackStateToElement</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~addToolStateSingleSlice">addToolStateSingleSlice</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~clearCornerstoneElements">clearCornerstoneElements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~clearMeasurements">clearMeasurements</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~clearToolStateByName">clearToolStateByName</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~getCurrentMaskData">getCurrentMaskData</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~getToolState">getToolState</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~isToolMissing">isToolMissing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~setSegmentationConfig">setSegmentationConfig</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~setToolActive">setToolActive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~setToolDisabled">setToolDisabled</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~setToolEnabled">setToolEnabled</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~setToolPassive">setToolPassive</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~syncToolStack">syncToolStack</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~updateDiameterTool">updateDiameterTool</a></li><li data-type='method' style='display: none;'><a href="module-imaging_imageTools.html#~updateStackToolState">updateStackToolState</a></li></ul></li><li><a href="module-imaging_strategies_eraseFreehand.html">imaging/strategies/eraseFreehand</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_strategies_eraseFreehand.html#.eraseInsideFreehand">eraseInsideFreehand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_strategies_eraseFreehand.html#.eraseOutsideFreehand">eraseOutsideFreehand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_strategies_eraseFreehand.html#~eraseFreehand">eraseFreehand</a></li></ul></li><li><a href="module-imaging_strategies_fillFreehand.html">imaging/strategies/fillFreehand</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_strategies_fillFreehand.html#.fillInsideFreehand">fillInsideFreehand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_strategies_fillFreehand.html#.fillOutsideFreehand">fillOutsideFreehand</a></li><li data-type='method' style='display: none;'><a href="module-imaging_strategies_fillFreehand.html#~fillFreehand">fillFreehand</a></li></ul></li><li><a href="module-imaging_tools_custom_contourTool.html">imaging/tools/custom/contourTool</a></li><li><a href="module-imaging_tools_custom_diameterTool.html">imaging/tools/custom/diameterTool</a></li><li><a href="module-imaging_tools_custom_editMaskTool.html">imaging/tools/custom/editMaskTool</a></li><li><a href="module-imaging_tools_custom_polygonScissorsTool.html">imaging/tools/custom/polygonScissorsTool</a></li><li><a href="module-imaging_tools_custom_thresholdBrushTool.html">imaging/tools/custom/thresholdBrushTool</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools_custom_thresholdBrushTool.html#_paint">_paint</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_custom_thresholdBrushTool.html#~getCircleWithThreshold">getCircleWithThreshold</a></li></ul></li><li><a href="module-imaging_tools_polygonSegmentationMixin.html">imaging/tools/polygonSegmentationMixin</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-imaging_tools_polygonSegmentationMixin.html#~_checkIfDrawing">_checkIfDrawing</a></li><li data-type='method' style='display: none;'><a href="module-imaging_tools_polygonSegmentationMixin.html#~renderToolData">renderToolData</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingDoubleTapClickCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingDoubleTapClickCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingMouseDoubleClickCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingMouseDoubleClickCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingMouseDownCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingMouseDownCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingMouseDragCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingMouseDragCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingMouseMoveCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingMouseMoveCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingMouseUpCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingMouseUpCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingTouchDragCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingTouchDragCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_drawingTouchStartCallback">imaging/tools/custom/contourTool.ContoursTool#_drawingTouchStartCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_editMouseDragCallback">imaging/tools/custom/contourTool.ContoursTool#_editMouseDragCallback</a></li><li><a href="module-imaging_tools_custom_contourTool.ContoursTool.html#event:_editTouchDragCallback">imaging/tools/custom/contourTool.ContoursTool#_editTouchDragCallback</a></li></ul><h3>Mixins</h3><ul><li><a href="Mixins.polygonSegmentationMixin%2520-%2520segmentation%2520operations%2520for%2520polyline.html">Mixins.polygonSegmentationMixin - segmentation operations for polyline</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_calculateRectangleStats">_calculateRectangleStats</a></li><li><a href="global.html#_calculateStats">_calculateStats</a></li><li><a href="global.html#_createTextBoxContent">_createTextBoxContent</a></li><li><a href="global.html#_findTextBoxAnchorPoints">_findTextBoxAnchorPoints</a></li><li><a href="global.html#_formatArea">_formatArea</a></li><li><a href="global.html#_getEllipseImageCoordinates">_getEllipseImageCoordinates</a></li><li><a href="global.html#_getRectangleImageCoordinates">_getRectangleImageCoordinates</a></li><li><a href="global.html#NRRD_TYPES_TO_TYPEDARRAY">NRRD_TYPES_TO_TYPEDARRAY</a></li><li><a href="global.html">parse</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">tools/custom/rectangleRoiOverlayTool.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import cornerstoneTools from "cornerstone-tools";
+
+const external = cornerstoneTools.external;
+const BaseAnnotationTool = cornerstoneTools.importInternal(
+  "base/BaseAnnotationTool"
+);
+
+// State
+const getToolState = cornerstoneTools.getToolState;
+const toolStyle = cornerstoneTools.toolStyle;
+const toolColors = cornerstoneTools.toolColors;
+
+// Drawing
+const getNewContext = cornerstoneTools.importInternal("drawing/getNewContext");
+const draw = cornerstoneTools.importInternal("drawing/draw");
+const drawHandles = cornerstoneTools.importInternal("drawing/drawHandles");
+const drawRect = cornerstoneTools.importInternal("drawing/drawRect");
+const drawLinkedTextBox = cornerstoneTools.importInternal(
+  "drawing/drawLinkedTextBox"
+);
+const setShadow = cornerstoneTools.importInternal("drawing/setShadow");
+
+// Util
+const calculateSUV = cornerstoneTools.importInternal("util/calculateSUV");
+const getROITextBoxCoords = cornerstoneTools.importInternal(
+  "util/getROITextBoxCoords"
+);
+const numbersWithCommas = cornerstoneTools.importInternal(
+  "util/numbersWithCommas"
+);
+const throttle = cornerstoneTools.importInternal("util/throttle");
+const { rectangleRoiCursor } = cornerstoneTools.importInternal("tools/cursors");
+const getLogger = cornerstoneTools.importInternal("util/getLogger");
+const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
+const getModule = cornerstoneTools.getModule;
+
+const logger = getLogger("tools:annotation:RectangleRoiTool");
+
+/**
+ * @public
+ * @class RectangleRoiTool
+ * @memberof Tools.Annotation
+ * @classdesc Tool for drawing rectangular regions of interest, and measuring
+ * the statistics of the enclosed pixels.
+ * @extends Tools.Base.BaseAnnotationTool
+ */
+export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
+  constructor(props = {}) {
+    const defaultProps = {
+      name: "RectangleRoiOverlay",
+      supportedInteractionTypes: ["Mouse", "Touch"],
+      configuration: {
+        drawHandles: true,
+        drawHandlesOnHover: false,
+        hideHandlesIfMoving: false,
+        renderDashed: false
+        // showMinMax: false,
+        // showHounsfieldUnits: true,
+      },
+      svgCursor: rectangleRoiCursor
+    };
+
+    super(props, defaultProps);
+
+    this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
+  }
+
+  createNewMeasurement(eventData) {
+    const goodEventData =
+      eventData &amp;&amp; eventData.currentPoints &amp;&amp; eventData.currentPoints.image;
+
+    if (!goodEventData) {
+      logger.error(
+        `required eventData not supplied to tool ${this.name}'s createNewMeasurement`
+      );
+
+      return;
+    }
+
+    return {
+      computeMeasurements: this.options.computeMeasurements,
+      visible: true,
+      active: true,
+      color: undefined,
+      invalidated: true,
+      handles: {
+        start: {
+          x: eventData.currentPoints.image.x,
+          y: eventData.currentPoints.image.y,
+          highlight: true,
+          active: false
+        },
+        end: {
+          x: eventData.currentPoints.image.x,
+          y: eventData.currentPoints.image.y,
+          highlight: true,
+          active: true
+        },
+        initialRotation: eventData.viewport.rotation,
+        textBox: {
+          active: false,
+          hasMoved: false,
+          movesIndependently: false,
+          drawnIndependently: true,
+          allowedOutsideImage: true,
+          hasBoundingBox: true
+        }
+      }
+    };
+  }
+
+  pointNearTool(element, data, coords, interactionType) {
+    const hasStartAndEndHandles =
+      data &amp;&amp; data.handles &amp;&amp; data.handles.start &amp;&amp; data.handles.end;
+    const validParameters = hasStartAndEndHandles;
+
+    if (!validParameters) {
+      logger.warn(
+        `invalid parameters supplied to tool ${this.name}'s pointNearTool`
+      );
+    }
+
+    if (!validParameters || data.visible === false) {
+      return false;
+    }
+
+    const distance = interactionType === "mouse" ? 15 : 25;
+    const startCanvas = external.cornerstone.pixelToCanvas(
+      element,
+      data.handles.start
+    );
+    const endCanvas = external.cornerstone.pixelToCanvas(
+      element,
+      data.handles.end
+    );
+
+    const rect = {
+      left: Math.min(startCanvas.x, endCanvas.x),
+      top: Math.min(startCanvas.y, endCanvas.y),
+      width: Math.abs(startCanvas.x - endCanvas.x),
+      height: Math.abs(startCanvas.y - endCanvas.y)
+    };
+
+    const distanceToPoint = external.cornerstoneMath.rect.distanceToPoint(
+      rect,
+      coords
+    );
+
+    return distanceToPoint &lt; distance;
+  }
+
+  updateCachedStats(image, element, data) {
+    if (data.computeMeasurements) {
+      const seriesModule =
+        external.cornerstone.metaData.get(
+          "generalSeriesModule",
+          image.imageId
+        ) || {};
+      const modality = seriesModule.modality;
+      const pixelSpacing = getPixelSpacing(image);
+
+      const stats = _calculateStats(
+        image,
+        element,
+        data.handles,
+        modality,
+        pixelSpacing
+      );
+
+      data.cachedStats = stats;
+    }
+
+    data.invalidated = false;
+  }
+
+  renderToolData(evt) {
+    const toolData = getToolState(evt.currentTarget, this.name);
+
+    if (!toolData) {
+      return;
+    }
+
+    const eventData = evt.detail;
+    const { image, element } = eventData;
+    const lineWidth = toolStyle.getToolWidth();
+    const lineDash = getModule("globalConfiguration").configuration.lineDash;
+    const {
+      handleRadius,
+      drawHandlesOnHover,
+      hideHandlesIfMoving,
+      renderDashed
+    } = this.configuration;
+    const context = getNewContext(eventData.canvasContext.canvas);
+    const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+
+    // Meta
+    const seriesModule =
+      external.cornerstone.metaData.get("generalSeriesModule", image.imageId) ||
+      {};
+
+    // Pixel Spacing
+    const modality = seriesModule.modality;
+    const hasPixelSpacing = rowPixelSpacing &amp;&amp; colPixelSpacing;
+
+    draw(context, context => {
+      // If we have tool data for this element - iterate over each set and draw it
+      for (let i = 0; i &lt; toolData.data.length; i++) {
+        const data = toolData.data[i];
+
+        if (data.visible === false) {
+          continue;
+        }
+
+        // Configure
+        const color = toolColors.getColorIfActive(data);
+        const handleOptions = {
+          color,
+          handleRadius,
+          drawHandlesIfActive: drawHandlesOnHover,
+          hideHandlesIfMoving
+        };
+
+        setShadow(context, this.configuration);
+
+        const rectOptions = { color };
+
+        if (renderDashed) {
+          rectOptions.lineDash = lineDash;
+        }
+
+        // Draw
+        drawRect(
+          context,
+          element,
+          data.handles.start,
+          data.handles.end,
+          rectOptions,
+          "pixel",
+          data.handles.initialRotation
+        );
+
+        if (this.configuration.drawHandles) {
+          drawHandles(context, eventData, data.handles, handleOptions);
+        }
+
+        if (data.computeMeasurements) {
+          // Update textbox stats
+          if (data.invalidated === true) {
+            if (data.cachedStats) {
+              this.throttledUpdateCachedStats(image, element, data);
+            } else {
+              this.updateCachedStats(image, element, data);
+            }
+          }
+
+          // Default to textbox on right side of ROI
+          if (!data.handles.textBox.hasMoved) {
+            const defaultCoords = getROITextBoxCoords(
+              eventData.viewport,
+              data.handles
+            );
+
+            Object.assign(data.handles.textBox, defaultCoords);
+          }
+
+          const textBoxAnchorPoints = handles =>
+            _findTextBoxAnchorPoints(handles.start, handles.end);
+          const textBoxContent = _createTextBoxContent(
+            context,
+            image.color,
+            data.cachedStats,
+            modality,
+            hasPixelSpacing,
+            this.configuration
+          );
+
+          data.unit = _getUnit(
+            modality,
+            this.configuration.showHounsfieldUnits
+          );
+
+          drawLinkedTextBox(
+            context,
+            element,
+            data.handles.textBox,
+            textBoxContent,
+            data.handles,
+            textBoxAnchorPoints,
+            color,
+            lineWidth,
+            10,
+            true
+          );
+        }
+      }
+    });
+  }
+}
+
+/**
+ * TODO: This is the same method (+ GetPixels) for the other ROIs
+ * TODO: The pixel filtering is the unique bit
+ *
+ * @param {*} startHandle
+ * @param {*} endHandle
+ * @returns {{ left: number, top: number, width: number, height: number}}
+ */
+function _getRectangleImageCoordinates(startHandle, endHandle) {
+  return {
+    left: Math.min(startHandle.x, endHandle.x),
+    top: Math.min(startHandle.y, endHandle.y),
+    width: Math.abs(startHandle.x - endHandle.x),
+    height: Math.abs(startHandle.y - endHandle.y)
+  };
+}
+
+/**
+ *
+ *
+ * @param {*} image
+ * @param {*} element
+ * @param {*} handles
+ * @param {*} modality
+ * @param {*} pixelSpacing
+ * @returns {Object} The Stats object
+ */
+function _calculateStats(image, element, handles, modality, pixelSpacing) {
+  // Retrieve the bounds of the rectangle in image coordinates
+  const roiCoordinates = _getRectangleImageCoordinates(
+    handles.start,
+    handles.end
+  );
+
+  // Retrieve the array of pixels that the rectangle bounds cover
+  const pixels = external.cornerstone.getPixels(
+    element,
+    roiCoordinates.left,
+    roiCoordinates.top,
+    roiCoordinates.width,
+    roiCoordinates.height
+  );
+
+  // Calculate the mean &amp; standard deviation from the pixels and the rectangle details
+  const roiMeanStdDev = _calculateRectangleStats(pixels, roiCoordinates);
+
+  let meanStdDevSUV;
+
+  if (modality === "PT") {
+    meanStdDevSUV = {
+      mean: calculateSUV(image, roiMeanStdDev.mean, true) || 0,
+      stdDev: calculateSUV(image, roiMeanStdDev.stdDev, true) || 0
+    };
+  }
+
+  // Calculate the image area from the rectangle dimensions and pixel spacing
+  const area =
+    roiCoordinates.width *
+    (pixelSpacing.colPixelSpacing || 1) *
+    (roiCoordinates.height * (pixelSpacing.rowPixelSpacing || 1));
+
+  const perimeter =
+    roiCoordinates.width * 2 * (pixelSpacing.colPixelSpacing || 1) +
+    roiCoordinates.height * 2 * (pixelSpacing.rowPixelSpacing || 1);
+
+  return {
+    area: area || 0,
+    perimeter,
+    count: roiMeanStdDev.count || 0,
+    mean: roiMeanStdDev.mean || 0,
+    variance: roiMeanStdDev.variance || 0,
+    stdDev: roiMeanStdDev.stdDev || 0,
+    min: roiMeanStdDev.min || 0,
+    max: roiMeanStdDev.max || 0,
+    meanStdDevSUV
+  };
+}
+
+/**
+ *
+ *
+ * @param {*} sp
+ * @param {*} rectangle
+ * @returns {{ count, number, mean: number,  variance: number,  stdDev: number,  min: number,  max: number }}
+ */
+function _calculateRectangleStats(sp, rectangle) {
+  let sum = 0;
+  let sumSquared = 0;
+  let count = 0;
+  let index = 0;
+  let min = sp ? sp[0] : null;
+  let max = sp ? sp[0] : null;
+
+  for (let y = rectangle.top; y &lt; rectangle.top + rectangle.height; y++) {
+    for (let x = rectangle.left; x &lt; rectangle.left + rectangle.width; x++) {
+      sum += sp[index];
+      sumSquared += sp[index] * sp[index];
+      min = Math.min(min, sp[index]);
+      max = Math.max(max, sp[index]);
+      count++; // TODO: Wouldn't this just be sp.length?
+      index++;
+    }
+  }
+
+  if (count === 0) {
+    return {
+      count,
+      mean: 0.0,
+      variance: 0.0,
+      stdDev: 0.0,
+      min: 0.0,
+      max: 0.0
+    };
+  }
+
+  const mean = sum / count;
+  const variance = sumSquared / count - mean * mean;
+
+  return {
+    count,
+    mean,
+    variance,
+    stdDev: Math.sqrt(variance),
+    min,
+    max
+  };
+}
+
+/**
+ *
+ *
+ * @param {*} startHandle
+ * @param {*} endHandle
+ * @returns {Array.&lt;{x: number, y: number}>}
+ */
+function _findTextBoxAnchorPoints(startHandle, endHandle) {
+  const { left, top, width, height } = _getRectangleImageCoordinates(
+    startHandle,
+    endHandle
+  );
+
+  return [
+    {
+      // Top middle point of rectangle
+      x: left + width / 2,
+      y: top
+    },
+    {
+      // Left middle point of rectangle
+      x: left,
+      y: top + height / 2
+    },
+    {
+      // Bottom middle point of rectangle
+      x: left + width / 2,
+      y: top + height
+    },
+    {
+      // Right middle point of rectangle
+      x: left + width,
+      y: top + height / 2
+    }
+  ];
+}
+
+/**
+ *
+ *
+ * @param {*} area
+ * @param {*} hasPixelSpacing
+ * @returns {string} The formatted label for showing area
+ */
+function _formatArea(area, hasPixelSpacing) {
+  // This uses Char code 178 for a superscript 2
+  const suffix = hasPixelSpacing
+    ? ` mm${String.fromCharCode(178)}`
+    : ` px${String.fromCharCode(178)}`;
+
+  return `Area: ${numbersWithCommas(area.toFixed(2))}${suffix}`;
+}
+
+function _getUnit(modality, showHounsfieldUnits) {
+  return modality === "CT" &amp;&amp; showHounsfieldUnits !== false ? "HU" : "";
+}
+
+/**
+ * TODO: This is identical to EllipticalROI's same fn
+ * TODO: We may want to make this a utility for ROIs with these values?
+ *
+ * @param {*} context
+ * @param {*} isColorImage
+ * @param {*} { area, mean, stdDev, min, max, meanStdDevSUV }
+ * @param {*} modality
+ * @param {*} hasPixelSpacing
+ * @param {*} [options={}]
+ * @returns {string[]}
+ */
+function _createTextBoxContent(
+  context,
+  isColorImage,
+  { area = 0, mean = 0, stdDev = 0, min = 0, max = 0, meanStdDevSUV = 0 } = {},
+  modality,
+  hasPixelSpacing,
+  options = {}
+) {
+  const showMinMax = options.showMinMax || false;
+  const textLines = [];
+
+  const otherLines = [];
+
+  if (!isColorImage) {
+    const hasStandardUptakeValues = meanStdDevSUV &amp;&amp; meanStdDevSUV.mean !== 0;
+    const unit = _getUnit(modality, options.showHounsfieldUnits);
+
+    let meanString = `Mean: ${numbersWithCommas(mean.toFixed(2))} ${unit}`;
+    const stdDevString = `Std Dev: ${numbersWithCommas(
+      stdDev.toFixed(2)
+    )} ${unit}`;
+
+    // If this image has SUV values to display, concatenate them to the text line
+    if (hasStandardUptakeValues) {
+      const SUVtext = " SUV: ";
+
+      const meanSuvString = `${SUVtext}${numbersWithCommas(
+        meanStdDevSUV.mean.toFixed(2)
+      )}`;
+      const stdDevSuvString = `${SUVtext}${numbersWithCommas(
+        meanStdDevSUV.stdDev.toFixed(2)
+      )}`;
+
+      const targetStringLength = Math.floor(
+        context.measureText(`${stdDevString}     `).width
+      );
+
+      while (context.measureText(meanString).width &lt; targetStringLength) {
+        meanString += " ";
+      }
+
+      otherLines.push(`${meanString}${meanSuvString}`);
+      otherLines.push(`${stdDevString}     ${stdDevSuvString}`);
+    } else {
+      otherLines.push(`${meanString}`);
+      otherLines.push(`${stdDevString}`);
+    }
+
+    if (showMinMax) {
+      let minString = `Min: ${min} ${unit}`;
+      const maxString = `Max: ${max} ${unit}`;
+      const targetStringLength = hasStandardUptakeValues
+        ? Math.floor(context.measureText(`${stdDevString}     `).width)
+        : Math.floor(context.measureText(`${meanString}     `).width);
+
+      while (context.measureText(minString).width &lt; targetStringLength) {
+        minString += " ";
+      }
+
+      otherLines.push(`${minString}${maxString}`);
+    }
+  }
+
+  textLines.push(_formatArea(area, hasPixelSpacing));
+  otherLines.forEach(x => textLines.push(x));
+
+  return textLines;
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+</body>
+</html>

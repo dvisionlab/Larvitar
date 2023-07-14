@@ -167,8 +167,8 @@ let createCustomImage = function (
   // set the ww/wc to cover the dynamic range of the image if no values are supplied
   if (image.windowCenter === undefined || image.windowWidth === undefined) {
     if (image.color) {
-      image.windowWidth = 255;
-      image.windowCenter = 128;
+      image.windowWidth = 255.0;
+      image.windowCenter = 127.5;
     } else if (
       image.maxPixelValue &&
       image.minPixelValue &&

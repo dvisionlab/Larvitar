@@ -548,7 +548,9 @@ export const updateImage = function (
  */
 export const resetViewports = function (
   elementIds: string[],
-  keys?: Array<"contrast" | "scaleAndTranslation" | "rotation" | "flip">
+  keys?: Array<
+    "contrast" | "scaleAndTranslation" | "rotation" | "flip" | "zoom"
+  >
 ) {
   each(elementIds, function (elementId) {
     const element = document.getElementById(elementId);
@@ -598,10 +600,16 @@ export const resetViewports = function (
       viewport.vflip = false;
     }
 
+    if (!keys || keys.find(v => v === "zoom")) {
+      viewport.scale = 1.0;
+    }
+
     cornerstone.setViewport(element, viewport);
+
     if (!keys || keys.find(v => v === "scaleAndTranslation")) {
       cornerstone.fitToWindow(element);
     }
+
     cornerstone.updateImage(element);
   });
 };
@@ -700,6 +708,13 @@ export const storeViewportData = function (
     setStore("timestamp", [elementId, data.timestamp]);
     setStore("timestamps", [elementId, data.timestamps]);
     setStore("timeIds", [elementId, data.timeIds]);
+  } else {
+    setStore("minTimeId", [elementId, 0]);
+    setStore("timeId", [elementId, 0]);
+    setStore("maxTimeId", [elementId, 0]);
+    setStore("timestamp", [elementId, 0]);
+    setStore("timestamps", [elementId, []]);
+    setStore("timeIds", [elementId, []]);
   }
 
   setStore("defaultViewport", [
