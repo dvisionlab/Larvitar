@@ -164,7 +164,7 @@
 
 "@babel/runtime@7.1.2":
   version "7.1.2"
-  resolved "https://registry.npmjs.org/@babel/runtime/-/runtime-7.1.2.tgz"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.1.2.tgz#81c89935f4647706fc54541145e6b4ecfef4b8e3"
   integrity sha512-Y3SCjmhSupzFB6wcv1KmmFucH6gDVnI30WjOcicV10ju0cZjak3Jcs67YLIXBrmZYw1xCrVeJPbycFwrqNyxpg==
   dependencies:
     regenerator-runtime "^0.12.0"
@@ -1302,12 +1302,12 @@ cornerstone-file-image-loader@^0.3.0:
 
 cornerstone-math@0.1.10:
   version "0.1.10"
-  resolved "https://registry.npmjs.org/cornerstone-math/-/cornerstone-math-0.1.10.tgz"
+  resolved "https://registry.yarnpkg.com/cornerstone-math/-/cornerstone-math-0.1.10.tgz#a3f99db64d73c5adee61ae0d570128eca1682d07"
   integrity sha512-23XSAyP7t70ANvhFyqwvva+zFd1bQ2d5GL7tg9qKE932WmImjA2Y9tiy5n0iTtnf51W/78Png8Lia2o4dCdJaQ==
 
-cornerstone-tools@^6.0.7:
+cornerstone-tools@6.0.7:
   version "6.0.7"
-  resolved "https://registry.npmjs.org/cornerstone-tools/-/cornerstone-tools-6.0.7.tgz"
+  resolved "https://registry.yarnpkg.com/cornerstone-tools/-/cornerstone-tools-6.0.7.tgz#30e3ba0f77f1b90a812aabf040634ce48b4bd21f"
   integrity sha512-jPWjcgjwyEd+ezQ1veOmteSl40Ane6o6aJtlhl8IRTKL/7iEJyRSjD6Awq7PjYPDUu9Ntiv/aJxpSH2/pEj31A==
   dependencies:
     "@babel/runtime" "7.1.2"
@@ -3206,7 +3206,7 @@ rechoir@^0.8.0:
 
 regenerator-runtime@^0.12.0:
   version "0.12.1"
-  resolved "https://registry.npmjs.org/regenerator-runtime/-/regenerator-runtime-0.12.1.tgz"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.12.1.tgz#fa1a71544764c036f8c49b13a08b2594c9f8a0de"
   integrity sha512-odxIc1/vDlo4iZcfXqRYFj0vpXFNoGdKMAUieAlFYO6m/nl5e9KR/beGf41z4a1FI+aQgtjhuaSlDxQ0hmkrHg==
 
 regenerator-runtime@^0.13.11, regenerator-runtime@^0.13.4:
