@@ -11,7 +11,7 @@ const ARRAY_TYPES = {
 const { UINT_16_ARRAY, FLOAT_32_ARRAY } = ARRAY_TYPES;
 
 // import cornerstoneTools from "cornerstone-tools";
-import { externals } from "@/index";
+import { externals } from "../../../index";
 import type { TypedArray } from "../../types";
 import { EnabledElement } from "cornerstone-core";
 const { triggerLabelmapModifiedEvent } =

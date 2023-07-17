@@ -6,7 +6,7 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 // import cornerstoneTools from "cornerstone-tools";
-import { externals } from "@/index";
+import { externals } from "../../index";
 import { each, map, assign, invert } from "lodash";
 import { unparse } from "papaparse";
 

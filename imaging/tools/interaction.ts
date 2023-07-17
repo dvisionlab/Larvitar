@@ -8,7 +8,7 @@ import { throttle } from "lodash";
 import * as keyCodes from "keycode-js";
 import cornerstone from "cornerstone-core";
 // import cornerstoneTools from "cornerstone-tools";
-import { externals } from "@/index";
+import { externals } from "../../index";
 
 // internal libraries
 import { DEFAULT_MOUSE_KEYS } from "./default";

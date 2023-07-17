@@ -6,7 +6,7 @@
 // external libraries
 import cornerstone, { Viewport } from "cornerstone-core";
 // import cornerstoneTools from "cornerstone-tools";
-import { externals } from "@/index";
+import { externals } from "../../index";
 import { cloneDeep, extend, values, sum } from "lodash";
 const segModule = externals.cornerstoneTools.getModule("segmentation");
 const { getters, setters } = segModule;

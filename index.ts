@@ -7,7 +7,7 @@ console.groupCollapsed(
 );
 
 import cornerstone from "cornerstone-core";
-import externals from "@/external";
+import externals from "./external";
 import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoader.bundle.min.js";
 // const segModule = cornerstoneTools.getModule("segmentation");
 
