@@ -10,15 +10,15 @@ const ARRAY_TYPES = {
 };
 const { UINT_16_ARRAY, FLOAT_32_ARRAY } = ARRAY_TYPES;
 
-import cornerstoneTools from "cornerstone-tools";
+// import cornerstoneTools from "cornerstone-tools";
+import { externals } from "@/index";
 import type { TypedArray } from "../../types";
 import { EnabledElement } from "cornerstone-core";
-const { triggerLabelmapModifiedEvent } = cornerstoneTools.importInternal(
-  "util/segmentationUtils"
-);
-const getModule = cornerstoneTools.getModule;
-const getToolState = cornerstoneTools.getToolState;
-const storeGetters = cornerstoneTools.store.getters;
+const { triggerLabelmapModifiedEvent } =
+  externals.cornerstoneTools.importInternal("util/segmentationUtils");
+const getModule = externals.cornerstoneTools.getModule;
+const getToolState = externals.cornerstoneTools.getToolState;
+const storeGetters = externals.cornerstoneTools.store.getters;
 const state = getModule("segmentation").state;
 
 /**

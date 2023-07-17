@@ -5,8 +5,7 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-// import cornerstoneTools from "cornerstone-tools";
-import { cornerstoneTools } from "@/index";
+import { externals } from "@/index";
 import cornerstoneMath from "cornerstone-math";
 import Hammer from "hammerjs";
 import { each, extend } from "lodash";
@@ -33,18 +32,19 @@ const initializeCSTools = function (
   settings?: ToolSettings,
   style?: ToolStyle
 ) {
-  cornerstoneTools.external.cornerstone = cornerstone;
-  cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
-  cornerstoneTools.external.Hammer = Hammer;
+  console.log(externals.cornerstoneTools);
+  externals.cornerstoneTools.external.cornerstone = cornerstone;
+  externals.cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
+  externals.cornerstoneTools.external.Hammer = Hammer;
   extend(DEFAULT_SETTINGS, settings);
 
   // hack to fix warning on init() - but breaks labelmap 0 auto generation
   // see https://github.com/cornerstonejs/cornerstoneTools/issues/1395
-  cornerstoneTools.getModule(
+  externals.cornerstoneTools.getModule(
     "segmentation"
   ).configuration.segmentsPerLabelmap = 0;
 
-  cornerstoneTools.init(DEFAULT_SETTINGS);
+  externals.cornerstoneTools.init(DEFAULT_SETTINGS);
   setToolsStyle(style);
 };
 
@@ -75,8 +75,8 @@ const csToolsCreateStack = function (
       cornerstone.enable(element);
     }
   }
-  cornerstoneTools.addStackStateManager(element, ["stack"]);
-  cornerstoneTools.addToolState(element, "stack", stack);
+  externals.cornerstoneTools.addStackStateManager(element, ["stack"]);
+  externals.cornerstoneTools.addToolState(element, "stack", stack);
 };
 
 export function csToolsUpdateImageIds(
@@ -86,7 +86,10 @@ export function csToolsUpdateImageIds(
 ) {
   const element = document.getElementById(elementId);
   if (element) {
-    const stackState = cornerstoneTools.getToolState(element, "stack");
+    const stackState = externals.cornerstoneTools.getToolState(
+      element,
+      "stack"
+    );
     const stackData = stackState.data[0];
     stackData.imageIds = imageIds;
     stackData.currentImageIdIndex =
@@ -104,7 +107,7 @@ export function csToolsUpdateImageIds(
 export function csToolsUpdateImageIndex(elementId: string, imageId: string) {
   let currentImageIdIndex = parseInt(imageId.split(":")[1]);
   const element = document.getElementById(elementId);
-  const stackState = cornerstoneTools.getToolState(element, "stack");
+  const stackState = externals.cornerstoneTools.getToolState(element, "stack");
   const stackData = stackState.data[0];
   stackData.currentImageIdIndex = currentImageIdIndex;
 }
@@ -118,7 +121,10 @@ const isToolMissing = function (toolName: string) {
   let isToolMissing = false;
   // TODO check only target viewports
   each(elements, function (el) {
-    let added = cornerstoneTools.getToolForElement(el.element, toolName);
+    let added = externals.cornerstoneTools.getToolForElement(
+      el.element,
+      toolName
+    );
     if (added === undefined) {
       isToolMissing = true;
     }
@@ -144,12 +150,17 @@ const addTool = function (
 
   if (isToolMissing(toolName)) {
     const toolClassName = defaultConfig.class;
-    const toolClass = cornerstoneTools[toolClassName] || dvTools[toolClassName];
+    const toolClass =
+      externals.cornerstoneTools[toolClassName] || dvTools[toolClassName];
     if (targetElementId) {
       let element = document.getElementById(targetElementId);
-      cornerstoneTools.addToolForElement(element, toolClass, defaultConfig);
+      externals.cornerstoneTools.addToolForElement(
+        element,
+        toolClass,
+        defaultConfig
+      );
     } else {
-      cornerstoneTools.addTool(toolClass, defaultConfig);
+      externals.cornerstoneTools.addTool(toolClass, defaultConfig);
     }
   }
 };
@@ -190,9 +201,9 @@ export const addDefaultTools = function (elementId: string) {
 
     // if sync tool, enable
     if (tool.sync) {
-      const synchronizer = new cornerstoneTools.Synchronizer(
+      const synchronizer = new externals.cornerstoneTools.Synchronizer(
         "cornerstoneimagerendered",
-        cornerstoneTools[tool.sync]
+        externals.cornerstoneTools[tool.sync]
       );
       elements.forEach(element => {
         synchronizer.add(element.element);
@@ -241,14 +252,18 @@ const setToolActive = function (
     // activate and update only for "viewports"
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
-      cornerstoneTools.setToolActiveForElement(el, toolName, defaultOpt);
+      externals.cornerstoneTools.setToolActiveForElement(
+        el,
+        toolName,
+        defaultOpt
+      );
       if (el) {
         tryUpdateImage(el);
       }
     });
   } else {
     // activate and update all
-    cornerstoneTools.setToolActive(toolName, defaultOpt);
+    externals.cornerstoneTools.setToolActive(toolName, defaultOpt);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
       tryUpdateImage(enel.element);
@@ -292,7 +307,7 @@ const setToolDisabled = function (
         console.warn("setToolDisabled: element not found:", elementId);
         return;
       }
-      cornerstoneTools.setToolDisabledForElement(el, toolName);
+      externals.cornerstoneTools.setToolDisabledForElement(el, toolName);
       if (resetCursor) {
         // restore native cursor
         el.style.cursor = "initial";
@@ -301,7 +316,7 @@ const setToolDisabled = function (
     });
   } else {
     // disable and update all
-    cornerstoneTools.setToolDisabled(toolName);
+    externals.cornerstoneTools.setToolDisabled(toolName);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
       if (resetCursor) {
@@ -333,7 +348,7 @@ const setToolEnabled = function (
         console.warn("setToolDisabled: element not found:", elementId);
         return;
       }
-      cornerstoneTools.setToolEnabledForElement(el, toolName);
+      externals.cornerstoneTools.setToolEnabledForElement(el, toolName);
       if (resetCursor) {
         // restore native cursor
         el.style.cursor = "initial";
@@ -342,7 +357,7 @@ const setToolEnabled = function (
     });
   } else {
     // enable and update all
-    cornerstoneTools.setToolEnabled(toolName);
+    externals.cornerstoneTools.setToolEnabled(toolName);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
       if (resetCursor) {
@@ -369,12 +384,12 @@ const setToolPassive = function (toolName: string, viewports?: string[]) {
         console.warn("setToolDisabled: element not found:", elementId);
         return;
       }
-      cornerstoneTools.setToolPassiveForElement(el, toolName);
+      externals.cornerstoneTools.setToolPassiveForElement(el, toolName);
       tryUpdateImage(el);
     });
   } else {
     // activate and update all
-    cornerstoneTools.setToolPassive(toolName);
+    externals.cornerstoneTools.setToolPassive(toolName);
     let enabledElements = cornerstone.getEnabledElements();
     each(enabledElements, enel => {
       tryUpdateImage(enel.element);
@@ -395,12 +410,16 @@ const setToolsStyle = function (style?: ToolStyle) {
   let fontFamily = DEFAULT_STYLE.fontFamily;
   let fontSize = DEFAULT_STYLE.fontSize;
 
-  cornerstoneTools.toolStyle.setToolWidth(DEFAULT_STYLE.width);
-  cornerstoneTools.toolColors.setToolColor(DEFAULT_STYLE.color);
-  cornerstoneTools.toolColors.setActiveColor(DEFAULT_STYLE.activeColor);
-  cornerstoneTools.toolColors.setFillColor(DEFAULT_STYLE.fillColor); // used only by FreehandRoiTool inside handles
-  cornerstoneTools.textStyle.setFont(`${fontSize}px ${fontFamily}`);
-  cornerstoneTools.textStyle.setBackgroundColor(DEFAULT_STYLE.backgroundColor);
+  externals.cornerstoneTools.toolStyle.setToolWidth(DEFAULT_STYLE.width);
+  externals.cornerstoneTools.toolColors.setToolColor(DEFAULT_STYLE.color);
+  externals.cornerstoneTools.toolColors.setActiveColor(
+    DEFAULT_STYLE.activeColor
+  );
+  externals.cornerstoneTools.toolColors.setFillColor(DEFAULT_STYLE.fillColor); // used only by FreehandRoiTool inside handles
+  externals.cornerstoneTools.textStyle.setFont(`${fontSize}px ${fontFamily}`);
+  externals.cornerstoneTools.textStyle.setBackgroundColor(
+    DEFAULT_STYLE.backgroundColor
+  );
 };
 
 export {

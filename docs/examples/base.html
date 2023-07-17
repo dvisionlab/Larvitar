@@ -99,9 +99,9 @@
       </div>
     </div>
 
-    <script src="../../dist/larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/cornerstone-tools@next"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cornerstone-tools@6.0.7"></script>
+    <script src="../../dist/larvitar.js"></script>
 
     <script>
       let demoFiles = [];
@@ -117,7 +117,9 @@
       };
 
       // init all
-      larvitar.registerExternal("cornerstoneTools", cornerstoneTools);
+      const csTools = cornerstoneTools;
+      delete window.cornerstoneTools;
+      larvitar.externals.cornerstoneTools = csTools;
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();

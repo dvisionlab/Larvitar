@@ -4,7 +4,8 @@
  */
 
 // external libraries
-import cornerstoneTools from "cornerstone-tools";
+// import cornerstoneTools from "cornerstone-tools";
+import { externals } from "@/index";
 import { each } from "lodash";
 
 import type { ToolState } from "./types";
@@ -14,9 +15,10 @@ import type { ToolState } from "./types";
  * @param {*} elementId
  */
 const saveToolState = function (elementId: string) {
-  const elementToolStateManager = cornerstoneTools.getElementToolStateManager(
-    document.getElementById(elementId)
-  );
+  const elementToolStateManager =
+    externals.cornerstoneTools.getElementToolStateManager(
+      document.getElementById(elementId)
+    );
 
   const currentState = elementToolStateManager.saveToolState();
 
@@ -29,9 +31,10 @@ const saveToolState = function (elementId: string) {
  * @param {*} allToolState
  */
 const restoreToolState = function (elementId: string, allToolState: ToolState) {
-  const elementToolStateManager = cornerstoneTools.getElementToolStateManager(
-    document.getElementById(elementId)
-  );
+  const elementToolStateManager =
+    externals.cornerstoneTools.getElementToolStateManager(
+      document.getElementById(elementId)
+    );
 
   each(allToolState, (imageState, imageId) => {
     each(imageState, (toolState, toolName) => {

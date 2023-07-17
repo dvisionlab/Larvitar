@@ -7,7 +7,8 @@
 import { throttle } from "lodash";
 import * as keyCodes from "keycode-js";
 import cornerstone from "cornerstone-core";
-import cornerstoneTools from "cornerstone-tools";
+// import cornerstoneTools from "cornerstone-tools";
+import { externals } from "@/index";
 
 // internal libraries
 import { DEFAULT_MOUSE_KEYS } from "./default";
@@ -92,7 +93,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
       if (config.debug) console.log("active", toolName);
 
       const viewports = allViewports.filter(viewport =>
-        cornerstoneTools.getToolForElement(viewport, toolName)
+        externals.cornerstoneTools.getToolForElement(viewport, toolName)
       );
 
       setToolActive(
@@ -111,7 +112,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
     ) {
       if (config.debug) console.log("active", config.mouse_button_right.shift);
       const viewports = allViewports.filter(viewport =>
-        cornerstoneTools.getToolForElement(
+        externals.cornerstoneTools.getToolForElement(
           viewport,
           config.mouse_button_right.shift
         )
@@ -132,7 +133,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
     ) {
       if (config.debug) console.log("active", config.mouse_button_right.ctrl);
       const viewports = allViewports.filter(viewport =>
-        cornerstoneTools.getToolForElement(
+        externals.cornerstoneTools.getToolForElement(
           viewport,
           config.mouse_button_right.ctrl
         )
@@ -157,7 +158,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
     if (config.debug)
       console.log("active default", config.mouse_button_right.default);
     const viewports = allViewports.filter(viewport =>
-      cornerstoneTools.getToolForElement(
+      externals.cornerstoneTools.getToolForElement(
         viewport,
         config.mouse_button_right.default
       )
@@ -173,7 +174,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
   // activate default on mouse right, if any
   if (config.mouse_button_right && config.mouse_button_right.default) {
     const viewports = allViewports.filter(viewport =>
-      cornerstoneTools.getToolForElement(
+      externals.cornerstoneTools.getToolForElement(
         viewport,
         config.mouse_button_right.default
       )
@@ -188,7 +189,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
   // activate default on mouse left, if any
   if (config.mouse_button_left && config.mouse_button_left.default) {
     const viewports = allViewports.filter(viewport =>
-      cornerstoneTools.getToolForElement(
+      externals.cornerstoneTools.getToolForElement(
         viewport,
         config.mouse_button_left.default
       )

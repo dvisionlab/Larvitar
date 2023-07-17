@@ -5,7 +5,8 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import cornerstoneTools from "cornerstone-tools";
+// import cornerstoneTools from "cornerstone-tools";
+import { externals } from "@/index";
 import { each, map, assign, invert } from "lodash";
 import { unparse } from "papaparse";
 
@@ -28,7 +29,7 @@ declare global {
  */
 export const loadAnnotations = function (jsonData: ToolState) {
   // restore saved tool state
-  cornerstoneTools.globalImageIdSpecificToolStateManager.restoreToolState(
+  externals.cornerstoneTools.globalImageIdSpecificToolStateManager.restoreToolState(
     jsonData
   );
 
@@ -70,7 +71,7 @@ export const saveAnnotations = function (
   filename = "state.json"
 ) {
   let currentToolState =
-    cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
+    externals.cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
   if (download) {
     // Convert JSON Array to string.
     var json_string = JSON.stringify(currentToolState);
@@ -89,7 +90,7 @@ export const exportAnnotations = function (
   filename = "annotations.csv"
 ) {
   let currentToolState =
-    cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
+    externals.cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
   let { fieldsArr: fields, data } = generateCSV(fileManager, currentToolState);
   let csvstring = unparse({ fields, data });
   downloadFile(csvstring, filename);

@@ -5,9 +5,10 @@
 
 // external libraries
 import cornerstone, { Viewport } from "cornerstone-core";
-import cornerstoneTools from "cornerstone-tools";
+// import cornerstoneTools from "cornerstone-tools";
+import { externals } from "@/index";
 import { cloneDeep, extend, values, sum } from "lodash";
-const segModule = cornerstoneTools.getModule("segmentation");
+const segModule = externals.cornerstoneTools.getModule("segmentation");
 const { getters, setters } = segModule;
 
 // internal libraries
@@ -467,10 +468,12 @@ export function enableBrushTool(viewports: string[], options: BrushProperties) {
 export function disableBrushTool(viewports: string[], toolToActivate?: string) {
   viewports.forEach((viewport: string) => {
     const el = document.getElementById(viewport);
-    if (cornerstoneTools.isToolActiveForElement(el, "ThresholdsBrush")) {
+    if (
+      externals.cornerstoneTools.isToolActiveForElement(el, "ThresholdsBrush")
+    ) {
       setToolDisabled("ThresholdsBrush", [viewport]);
     }
-    if (cornerstoneTools.isToolActiveForElement(el, "Brush")) {
+    if (externals.cornerstoneTools.isToolActiveForElement(el, "Brush")) {
       setToolDisabled("Brush", [viewport]);
     }
   });
