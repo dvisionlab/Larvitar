@@ -27,12 +27,14 @@
     "Ale Re <ale.re@dvisionlab.com> (https://www.dvisionlab.com)"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "cornerstone-tools": "^6.0.7"
+  },
   "dependencies": {
     "@cornerstonejs/dicom-image-loader": "^1.2.7",
     "@rollup/plugin-commonjs": "^17.1.0",
     "cornerstone-core": "^2.6.1",
     "cornerstone-file-image-loader": "^0.3.0",
-    "cornerstone-tools": "^6.0.7",
     "cornerstone-web-image-loader": "^2.1.1",
     "crypto-js": "^4.1.1",
     "dicom-character-set": "^1.0.3",
