@@ -143,7 +143,15 @@ const addTool = function (
 
   if (isToolMissing(toolName)) {
     const toolClassName = defaultConfig.class;
+
+    if (!toolClassName) {
+      throw new Error(
+        `Tool ${toolName} class not found. Please check tools/default or pass a valid tool class name in the configuration object.`
+      );
+    }
+
     const toolClass = cornerstoneTools[toolClassName] || dvTools[toolClassName];
+
     if (targetElementId) {
       let element = document.getElementById(targetElementId);
       cornerstoneTools.addToolForElement(element, toolClass, defaultConfig);

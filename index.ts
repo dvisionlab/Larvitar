@@ -137,8 +137,10 @@ import {
 
 import {
   DEFAULT_TOOLS,
+  dvTools,
   getDefaultToolsByType,
-  setDefaultToolsProps
+  setDefaultToolsProps,
+  registerExternalTool
 } from "./imaging/tools/default";
 
 import {
@@ -365,8 +367,10 @@ export {
   exportAnnotations,
   // tools/default
   DEFAULT_TOOLS,
+  dvTools,
   getDefaultToolsByType,
   setDefaultToolsProps,
+  registerExternalTool,
   // tools/io
   saveAnnotations,
   loadAnnotations,
