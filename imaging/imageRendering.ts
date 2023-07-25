@@ -488,54 +488,49 @@ export const renderImage = function (
  * @param {Number} imageIndex - The index of the image to be rendered
  * @param {Boolean} cacheImage - A flag to handle image cache
  */
-export const updateImage = function (
+export const updateImage = async function (
   series: Series,
   elementId: string | HTMLElement,
   imageIndex: number,
   cacheImage: boolean
-) {
-  let element = isElement(elementId)
+): Promise<void> {
+  const imageId = series.imageIds[imageIndex];
+  if (!imageId) {
+    // console.warn(
+    //   `Error: wrong image index ${imageIndex}, no imageId available`
+    // );
+    throw `Error: wrong image index ${imageIndex}, no imageId available`;
+  }
+
+  const element = isElement(elementId)
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
-  let imageId = series.imageIds[imageIndex];
+  if (!element) {
+    // console.log("not element");
+    throw "not element";
+  }
 
-  if (imageId) {
-    if (series.is4D) {
-      const timestamp = series.instances[imageId].metadata.contentTime;
-      const timeId =
-        (series.instances[imageId].metadata
-          .temporalPositionIdentifier as number) - 1; // timeId from 0 to N
-      setStore("timeId", [elementId as string, timeId]);
-      setStore("timestamp", [elementId as string, timestamp]);
-    }
+  if (series.is4D) {
+    const timestamp = series.instances[imageId].metadata.contentTime;
+    const timeId =
+      (series.instances[imageId].metadata
+        .temporalPositionIdentifier as number) - 1; // timeId from 0 to N
+    setStore("timeId", [elementId as string, timeId]);
+    setStore("timestamp", [elementId as string, timestamp]);
+  }
 
-    if (cacheImage) {
-      cornerstone.loadAndCacheImage(imageId).then(function (image) {
-        if (!element) {
-          console.log("not element");
-          return;
-        }
-        cornerstone.displayImage(element, image);
-        setStore("sliceId", [elementId as string, imageIndex]);
-        setStore("minPixelValue", [elementId as string, image.minPixelValue]);
-        setStore("maxPixelValue", [elementId as string, image.maxPixelValue]);
-      });
-    } else {
-      cornerstone.loadImage(imageId).then(function (image) {
-        if (!element) {
-          console.log("not element");
-          return;
-        }
-        cornerstone.displayImage(element, image);
-        setStore("sliceId", [elementId as string, imageIndex]);
-        setStore("minPixelValue", [elementId as string, image.minPixelValue]);
-        setStore("maxPixelValue", [elementId as string, image.maxPixelValue]);
-      });
-    }
+  if (cacheImage) {
+    const image = await cornerstone.loadAndCacheImage(imageId);
+    cornerstone.displayImage(element, image);
+    setStore("sliceId", [elementId as string, imageIndex]);
+    setStore("minPixelValue", [elementId as string, image.minPixelValue]);
+    setStore("maxPixelValue", [elementId as string, image.maxPixelValue]);
   } else {
-    console.warn(
-      `Error: wrong image index ${imageIndex}, no imageId available`
-    );
+    const image = await cornerstone.loadImage(imageId);
+    cornerstone.displayImage(element, image);
+    setStore("sliceId", [elementId as string, imageIndex]);
+    setStore("minPixelValue", [elementId as string, image.minPixelValue]);
+    setStore("maxPixelValue", [elementId as string, image.maxPixelValue]);
   }
 };
 
