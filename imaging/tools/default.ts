@@ -539,6 +539,31 @@ const setDefaultToolsProps = function (newProps: Partial<ToolConfig>[]) {
   }
 };
 
+/**
+ * Register a custom tool
+ * @param {String} toolName - The name of the tool
+ * @param {Object} toolClass - The tool class
+ * NOTE: toolName must be unique
+ * NOTE: toolClass must be a valid cornerstone tool
+ */
+
+const registerExternalTool = function (toolName: string, toolClass: any) {
+  if (dvTools[toolName] || DEFAULT_TOOLS[toolName]) {
+    console.error(`${toolName} already exists`);
+    return;
+  }
+
+  dvTools[toolClass.name] = toolClass;
+  DEFAULT_TOOLS[toolName] = {
+    name: toolName,
+    class: toolClass.name,
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    defaultActive: false
+  };
+};
+
 export {
   DEFAULT_TOOLS,
   DEFAULT_STYLE,
@@ -546,5 +571,6 @@ export {
   DEFAULT_MOUSE_KEYS,
   dvTools,
   getDefaultToolsByType,
-  setDefaultToolsProps
+  setDefaultToolsProps,
+  registerExternalTool
 };
