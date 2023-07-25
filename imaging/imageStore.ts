@@ -4,7 +4,7 @@
  */
 
 // external libraries
-import { get as _get } from "lodash";
+import { get as _get, cloneDeep as _cloneDeep } from "lodash";
 import { MetadataValue } from "./types";
 
 type StoreSeries = { imageIds: string[]; progress: number };
@@ -311,7 +311,7 @@ const setValue = (store: Store, data: SetPayload) => {
 /**
  * Instancing the store
  */
-const setup = (data = { ...INITIAL_STORE_DATA }) => {
+const setup = (data = _cloneDeep(INITIAL_STORE_DATA)) => {
   /**
    * Create the Proxy handler object
    * @param  {String} name The namespace
@@ -372,7 +372,7 @@ export default {
   // add/remove viewports
   addViewport: (name: string) => {
     validateStore();
-    STORE!.viewports[name] = DEFAULT_VIEWPORT;
+    STORE!.viewports[name] = _cloneDeep(DEFAULT_VIEWPORT);
   },
   deleteViewport: (name: string) => {
     validateStore();
