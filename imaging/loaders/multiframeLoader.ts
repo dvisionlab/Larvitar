@@ -105,7 +105,7 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
       parseDataSet(dataSet!, frameMetadata, {
         tags: ["x52009230"],
         frameId: frameNumber
-      } as any); //TODO-ts change any to proper type when available
+      });
 
       // store file references
       manager[seriesId].seriesUID = seriesId;
