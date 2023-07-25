@@ -144,8 +144,6 @@ const addTool = function (
   if (isToolMissing(toolName)) {
     const toolClassName = defaultConfig.class;
 
-    console.log("addTool", defaultConfig, toolClassName);
-
     if (!toolClassName) {
       throw new Error(
         `Tool ${toolName} class not found. Please check tools/default or pass a valid tool class name in the configuration object.`
