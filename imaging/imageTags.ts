@@ -216,6 +216,7 @@ const isStringVr = function (vr: string) {
     vr === "OF" ||
     vr === "OW" ||
     vr === "SI" ||
+    vr === "SL" || // signed long
     vr === "SQ" ||
     vr === "SS" ||
     vr === "UL" ||
