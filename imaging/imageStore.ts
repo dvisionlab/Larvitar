@@ -180,6 +180,8 @@ const DEFAULT_VIEWPORT: {
   }
 };
 
+export type Viewport = typeof DEFAULT_VIEWPORT;
+
 // Trigger store listeners
 const triggerStoreListener = (data: Store) =>
   storeListener ? storeListener(data) : undefined;
