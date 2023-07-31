@@ -154,3 +154,5 @@ type TypedArray =
   | Int32Array
   | Uint32Array
   | Float32Array;
+
+type StoreViewport = typeof DEFAULT_VIEWPORT;
