@@ -139,8 +139,10 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
     if (useSeriesData) {
       forEach(series.imageIds, function (imageId) {
         const sliceData = series.instances[imageId].pixelData;
-        data.set(sliceData, offsetData);
-        offsetData += sliceData.length;
+        if (sliceData) {
+          data.set(sliceData, offsetData);
+          offsetData += sliceData.length;
+        }
       });
       let t1 = performance.now();
       console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
