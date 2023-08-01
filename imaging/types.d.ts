@@ -23,7 +23,7 @@ export interface Image extends cornerstone.Image {
 
 export type Instance = {
   metadata: { [key: string]: MetadataValue };
-  pixelData: TypedArray;
+  pixelData?: TypedArray | null;
   dataSet?: DataSet | null;
   file?: File | null;
 };
