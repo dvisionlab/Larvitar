@@ -453,7 +453,9 @@ export const parseTag = function (
     if (group) {
       var groupHexStr = ("0000" + group.toString(16)).substr(-4);
       var elm = dataSet.uint16(propertyName, 1);
-      var elmHexStr = ("0000" + elm.toString(16)).substr(-4);
+      var elmHexStr = elm
+        ? ("0000" + elm.toString(16)).substr(-4)
+        : "0000".substr(-4);
       valueOut = "x" + groupHexStr + elmHexStr;
     } else {
       valueOut = "";
@@ -508,9 +510,11 @@ export const getTagValue = function (dataSet: DataSet, tag: string) {
     // A string of characters representing either a fixed point number
     // or a floating point number.
     DS: function () {
-      let array = dataSet.string(tag)
-        ? dataSet.string(tag).split("\\").map(Number)
-        : null;
+      if (!dataSet) {
+        return null;
+      }
+      let tag_str = dataSet.string(tag);
+      let array = tag_str ? tag_str.split("\\").map(Number) : null;
       if (!array) {
         return null;
       }
@@ -521,7 +525,7 @@ export const getTagValue = function (dataSet: DataSet, tag: string) {
     // YYYYMMDDHHMMSS.FFFFFF&ZZXX
     DT: function () {
       let dateString = dataSet.string(tag);
-      return formatDateTime(dateString);
+      return dateString ? formatDateTime(dateString) : "";
     },
     // Person Name
     // A character string encoded using a 5 component convention.
@@ -532,7 +536,8 @@ export const getTagValue = function (dataSet: DataSet, tag: string) {
     // in their order of occurrence are: family name complex,
     // given name complex, middle name, name prefix, name suffix.
     PN: function () {
-      let pn = dataSet.string(tag) ? dataSet.string(tag).split("^") : null;
+      let tag_str = dataSet.string(tag);
+      let pn = tag_str ? tag_str.split("^") : null;
       if (!pn) {
         return null;
       }
