@@ -9,7 +9,7 @@ import type { Series, CachingResponse } from "../types";
 
 /*
  * This module provides the following functions to be exported:
- * cacheImages(seriesData)
+ * cacheImages(seriesData, callback)
  * getDicomImageId(dicomLoaderName)
  */
 
@@ -20,6 +20,7 @@ let imageLoaderCounter = 0;
  * @instance
  * @function cacheImages
  * @param {Object} seriesData The series data
+ * @param {Function} callback Optional callback function
  */
 
 export const cacheImages = async function (

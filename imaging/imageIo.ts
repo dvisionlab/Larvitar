@@ -139,7 +139,6 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
     if (useSeriesData) {
       forEach(series.imageIds, function (imageId) {
         const sliceData = series.instances[imageId].pixelData;
-        console.log("sliceData", sliceData);
         if (sliceData) {
           data.set(sliceData, offsetData);
           offsetData += sliceData.length;
