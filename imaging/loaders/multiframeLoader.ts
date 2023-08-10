@@ -276,7 +276,7 @@ let createCustomImage = function (
 
   let promise: Promise<Image> = new Promise((resolve, reject) => {
     decodePromise.then(function handleDecodeResponse(imageFrame: ImageFrame) {
-      let lastImageIdDrawn = "";
+      // let lastImageIdDrawn = "";
 
       // This function uses the pixelData received as argument without manipulating
       // them: if the image is compressed, the decompress function should be called
@@ -370,9 +370,9 @@ let createCustomImage = function (
       // Setup the renderer
       if (image.color) {
         image.getCanvas = function () {
-          if (lastImageIdDrawn === imageId) {
-            return canvas;
-          }
+          // if (lastImageIdDrawn === imageId) {
+          //   return canvas;
+          // }
           canvas.height = image.rows || 0;
           canvas.width = image.columns || 0;
           let context = canvas.getContext("2d");
@@ -380,7 +380,7 @@ let createCustomImage = function (
             throw new Error("Unable to get canvas context");
           }
           context.putImageData(imageFrame.imageData!, 0, 0);
-          lastImageIdDrawn = imageId;
+          // lastImageIdDrawn = imageId;
           return canvas;
         };
       }
@@ -398,8 +398,8 @@ let createCustomImage = function (
       // set the ww/wc to cover the dynamic range of the image if no values are supplied
       if (image.windowCenter === undefined || image.windowWidth === undefined) {
         if (image.color) {
-          image.windowWidth = 255.0;
-          image.windowCenter = 127.5;
+          image.windowWidth = 255;
+          image.windowCenter = 128;
         } else if (
           image.maxPixelValue &&
           image.minPixelValue &&
