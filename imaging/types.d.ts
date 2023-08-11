@@ -34,6 +34,15 @@ export type ReslicedInstance = {
   permuteTable?: [number, number, number];
 };
 
+export type StagedProtocol = {
+  numberOfStages: number; // Number of stages
+  numberOfViews: number; // Number of views in stage
+  stageName: string; // Name of the stage
+  stageNumber: number; // Number of the stage
+  viewName: string; // Name of the view
+  viewNumber: number; // Number of the view
+};
+
 export type Series = {
   imageIds: string[];
   instances: { [key: string]: Instance };
@@ -51,6 +60,7 @@ export type Series = {
   instanceUIDs: { [key: string]: string };
   is4D: boolean;
   isPDF: boolean;
+  stagedProtocol?: StagedProtocol;
   modality: string;
   numberOfFrames: number;
   numberOfSlices: number;

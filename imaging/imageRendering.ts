@@ -596,7 +596,8 @@ export const resetViewports = function (
     }
 
     if (!keys || keys.find(v => v === "zoom")) {
-      viewport.scale = 1.0;
+      viewport.scale = defaultViewport.scale;
+      setStore("scale", [elementId, viewport.scale]);
     }
 
     cornerstone.setViewport(element, viewport);
@@ -653,6 +654,7 @@ export const updateViewportData = function (
       setStore("rotation", [elementId, viewportData.rotation]);
       break;
     case "mouseWheel":
+    case "stackscroll":
       const viewport = store.get(["viewports", elementId]);
       const isTimeserie = viewport.isTimeserie;
       if (isTimeserie) {
