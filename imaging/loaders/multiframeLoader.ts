@@ -276,8 +276,6 @@ let createCustomImage = function (
 
   let promise: Promise<Image> = new Promise((resolve, reject) => {
     decodePromise.then(function handleDecodeResponse(imageFrame: ImageFrame) {
-      // let lastImageIdDrawn = "";
-
       // This function uses the pixelData received as argument without manipulating
       // them: if the image is compressed, the decompress function should be called
       // before creating the custom image object (like the multiframe case).
@@ -370,9 +368,6 @@ let createCustomImage = function (
       // Setup the renderer
       if (image.color) {
         image.getCanvas = function () {
-          // if (lastImageIdDrawn === imageId) {
-          //   return canvas;
-          // }
           canvas.height = image.rows || 0;
           canvas.width = image.columns || 0;
           let context = canvas.getContext("2d");
@@ -380,7 +375,6 @@ let createCustomImage = function (
             throw new Error("Unable to get canvas context");
           }
           context.putImageData(imageFrame.imageData!, 0, 0);
-          // lastImageIdDrawn = imageId;
           return canvas;
         };
       }
