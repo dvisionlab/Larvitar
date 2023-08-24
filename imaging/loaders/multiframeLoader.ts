@@ -246,11 +246,7 @@ let createCustomImage = function (
   let imageFrame = getImageFrame(metadata, dataSet);
   let transferSyntax = dataSet.string("x00020010");
 
-  let canvas =
-    window.document.getElementsByTagName("canvas").length > 0
-      ? window.document.getElementsByTagName("canvas")[0]
-      : window.document.createElement("canvas");
-
+  let canvas = window.document.createElement("canvas");
   // Get the scaling parameters from the metadata
   if (options.preScale.enabled) {
     const scalingParameters = cornerstoneDICOMImageLoader.getScalingParameters(
