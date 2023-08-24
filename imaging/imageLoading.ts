@@ -165,7 +165,7 @@ export const updateLoadedStack = function (
   // https://dicom.nema.org/dicom/2013/output/chtml/part17/sect_K.5.html
   const numberOfStages = seriesData.metadata["x00082124"]; // Number of stages
   const numberOfViews = seriesData.metadata["x0008212A"]; // Number of views in stage
-  const isStagedProtocol = numberOfStages && numberOfViews ? true : false;
+  const isStagedProtocol = numberOfStages ? true : false;
 
   // initialize series stack
   if (!allSeriesStack[id]) {
@@ -194,9 +194,9 @@ export const updateLoadedStack = function (
       let stagedProtocol: StagedProtocol = {
         numberOfStages: numberOfStages as number,
         numberOfViews: numberOfViews as number,
-        stageName: seriesData.metadata["x00082120"] as string,
+        stageName: (seriesData.metadata["x00082120"] as string).trim(),
         stageNumber: seriesData.metadata["x00082122"] as number,
-        viewName: seriesData.metadata["x00082127"] as string,
+        viewName: (seriesData.metadata["x00082127"] as string).trim(),
         viewNumber: seriesData.metadata["x00082128"] as number
       };
       series.stagedProtocol = stagedProtocol;

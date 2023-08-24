@@ -36,7 +36,7 @@ export type ReslicedInstance = {
 
 export type StagedProtocol = {
   numberOfStages: number; // Number of stages
-  numberOfViews: number; // Number of views in stage
+  numberOfViews?: number; // Number of views in stage
   stageName: string; // Name of the stage
   stageNumber: number; // Number of the stage
   viewName: string; // Name of the view
