@@ -1,5 +1,6 @@
 import { vec2 } from "cornerstone-core";
 import { DataSet } from "dicom-parser";
+import { DEFAULT_VIEWPORT } from "./imageStore";
 
 // TODO-ts: differentiate each single metadata
 export type MetadataValue =

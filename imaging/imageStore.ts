@@ -72,7 +72,7 @@ const INITIAL_STORE_DATA: Store = {
 };
 
 // default viewport object
-const DEFAULT_VIEWPORT: {
+export const DEFAULT_VIEWPORT: {
   loading: number;
   ready: boolean;
   minSliceId: number;
