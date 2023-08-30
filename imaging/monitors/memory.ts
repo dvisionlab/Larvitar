@@ -3,6 +3,13 @@
  *        monitoring memory usage
  */
 
+import {
+  getLarvitarManager,
+  removeSeriesFromLarvitarManager
+} from "../loaders/commonLoader";
+import { clearImageCache } from "../imageRendering";
+import store from "../imageStore";
+
 // Custom types for chrome
 interface Performance {
   memory?: any;
@@ -14,11 +21,41 @@ var customMemoryLimit: number | null = null;
 
 /*
  * This module provides the following functions to be exported:
- * checkMemoryAllocation()
+ * checkAndClearMemory(bytes, [seriesUUIDs])
+ * checkMemoryAllocation(bytes)
  * getUsedMemory()
  * getAvailableMemory()
  * setAvailableMemory()
  */
+
+/**
+ * Check memory allocation and clear memory if needed
+ * @instance
+ * @function checkAndClearMemory
+ * @param {Number} - Number of bytes to allocate
+ * @param {Array} - Rendered Series ids
+ */
+export const checkAndClearMemory = function (
+  bytes: number,
+  renderedSeriesIds: string[]
+) {
+  const isEnough = checkMemoryAllocation(bytes);
+  if (isEnough === false) {
+    const manager = getLarvitarManager();
+    // get all key of manager and create a list
+    const seriesIds = Object.keys(manager);
+    // create a list of non rendered series ids
+    const nonRenderedSeriesIds = seriesIds.filter(
+      seriesId => !renderedSeriesIds.includes(seriesId)
+    );
+    // remove non rendered series from manager
+    nonRenderedSeriesIds.forEach(seriesId => {
+      removeSeriesFromLarvitarManager(seriesId);
+      clearImageCache(seriesId);
+      store.removeSeriesId(seriesId);
+    });
+  }
+};
 
 /**
  * Check memory allocation and returns false if js Heap size has reached its limit

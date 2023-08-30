@@ -12,6 +12,7 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 const segModule = cornerstoneTools.getModule("segmentation");
 
 import {
+  checkAndClearMemory,
   checkMemoryAllocation,
   getUsedMemory,
   getAvailableMemory
@@ -225,6 +226,7 @@ export {
   segModule,
   cornerstoneDICOMImageLoader,
   // memory module
+  checkAndClearMemory,
   checkMemoryAllocation,
   getUsedMemory,
   getAvailableMemory,
