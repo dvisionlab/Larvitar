@@ -29,7 +29,7 @@ var customMemoryLimit: number | null = null;
  */
 
 /**
- * Check memory allocation and returns false if js Heap size has reached its limit
+ * Check memory allocation and clear memory if needed
  * @instance
  * @function checkAndClearMemory
  * @param {Number} - Number of bytes to allocate
