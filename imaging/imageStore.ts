@@ -262,7 +262,12 @@ const setValue = (store: Store, data: SetPayload) => {
 
     case "rotation":
     case "scale":
+      viewport.viewport[field] = (v as [number])[0];
+      triggerViewportListener(k);
+      break;
+
     case "thickness":
+      viewport[field] = (v as [number])[0];
       viewport.viewport[field] = (v as [number])[0];
       triggerViewportListener(k);
       break;
@@ -281,6 +286,8 @@ const setValue = (store: Store, data: SetPayload) => {
 
     case "dimensions":
       v = v as [number, number];
+      viewport.rows = v[0];
+      viewport.cols = v[1];
       viewport.viewport.rows = v[0];
       viewport.viewport.cols = v[1];
       triggerViewportListener(k);
@@ -288,6 +295,8 @@ const setValue = (store: Store, data: SetPayload) => {
 
     case "spacing":
       v = v as [number, number];
+      viewport.spacing_x = v[0];
+      viewport.spacing_y = v[1];
       viewport.viewport.spacing_x = v[0];
       viewport.viewport.spacing_y = v[1];
       triggerViewportListener(k);
