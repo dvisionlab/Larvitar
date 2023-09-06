@@ -164,7 +164,7 @@ export const updateLoadedStack = function (
   // Staged Protocol
   // https://dicom.nema.org/dicom/2013/output/chtml/part17/sect_K.5.html
   const numberOfStages = seriesData.metadata["x00082124"]; // Number of stages
-  const numberOfViews = seriesData.metadata["x0008212A"]; // Number of views in stage
+  const numberOfViews = seriesData.metadata["x0008212a"]; // Number of views in stage
   const isStagedProtocol = numberOfStages ? true : false;
 
   // initialize series stack
