@@ -6,7 +6,7 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import dicomParser from "dicom-parser";
-import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoader.bundle.min.js";
+import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { forEach } from "lodash";
