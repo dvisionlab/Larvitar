@@ -58,7 +58,7 @@
  */
 
 // external libraries
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader/dist/cornerstoneDICOMImageLoader.bundle.min.js";
 import { each, range } from "lodash";
 
 // internal libraries
@@ -91,7 +91,7 @@ let multiframeDatasetCache = null;
  * @returns {Function} Custom Image Creation Function
  */
 export const loadMultiFrameImage = function (imageId) {
-  let parsedImageId = cornerstoneWADOImageLoader.wadouri.parseImageId(imageId);
+  let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
   let imageTracker = getLarvitarImageTracker();
   let seriesId = imageTracker[rootImageId];
@@ -99,9 +99,14 @@ export const loadMultiFrameImage = function (imageId) {
   if (multiframeDatasetCache === null) {
     multiframeDatasetCache = {};
   }
-  multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId]
-    ? multiframeDatasetCache[rootImageId]
-    : manager[seriesId];
+  if (multiframeDatasetCache[rootImageId]) {
+    multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId];
+  } else if (manager) {
+    multiframeDatasetCache[rootImageId] = manager[seriesId];
+  } else {
+    throw new Error("No multiframe dataset found for seriesId: " + seriesId);
+  }
+
   let metadata =
     multiframeDatasetCache[rootImageId].instances[imageId].metadata;
   return createCustomImage(rootImageId, imageId, parsedImageId.frame, metadata);
@@ -152,7 +157,7 @@ export const buildMultiFrameImage = function (seriesId, serie) {
       manager[seriesId].seriesUID = seriesId;
       manager[seriesId].studyUID = metadata["x0020000d"];
       manager[seriesId].modality = metadata["x00080060"];
-      manager[seriesId].color = cornerstoneWADOImageLoader.isColorImage(
+      manager[seriesId].color = cornerstoneDICOMImageLoader.isColorImage(
         metadata["x00280004"]
       );
       manager[seriesId].isMultiframe = true;
@@ -245,12 +250,12 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
   let pixelData;
   try {
     if (pixelDataElement.encapsulatedPixelData) {
-      pixelData = cornerstoneWADOImageLoader.wadouri.getEncapsulatedImageFrame(
+      pixelData = cornerstoneDICOMImageLoader.wadouri.getEncapsulatedImageFrame(
         dataSet,
         frameIndex
       );
     } else {
-      pixelData = cornerstoneWADOImageLoader.wadouri.getUncompressedImageFrame(
+      pixelData = cornerstoneDICOMImageLoader.wadouri.getUncompressedImageFrame(
         dataSet,
         frameIndex
       );
@@ -262,14 +267,11 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
   let imageFrame = getImageFrame(metadata, dataSet);
   let transferSyntax = dataSet.string("x00020010");
 
-  let canvas =
-    window.document.getElementsByTagName("canvas").length > 0
-      ? window.document.getElementsByTagName("canvas")[0]
-      : window.document.createElement("canvas");
+  let canvas = window.document.createElement("canvas");
 
   // Get the scaling parameters from the metadata
   if (options.preScale.enabled) {
-    const scalingParameters = cornerstoneWADOImageLoader.getScalingParameters(
+    const scalingParameters = cornerstoneDICOMImageLoader.getScalingParameters(
       cornerstone.metaData,
       imageId
     );
@@ -282,7 +284,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
     }
   }
 
-  const decodePromise = cornerstoneWADOImageLoader.decodeImageFrame(
+  const decodePromise = cornerstoneDICOMImageLoader.decodeImageFrame(
     imageFrame,
     transferSyntax,
     pixelData,
@@ -292,8 +294,6 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
 
   let promise = new Promise((resolve, reject) => {
     decodePromise.then(function handleDecodeResponse(imageFrame) {
-      let lastImageIdDrawn = "";
-
       // This function uses the pixelData received as argument without manipulating
       // them: if the image is compressed, the decompress function should be called
       // before creating the custom image object (like the multiframe case).
@@ -317,7 +317,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
 
       let image = {
         imageId: imageId,
-        color: cornerstoneWADOImageLoader.isColorImage(
+        color: cornerstoneDICOMImageLoader.isColorImage(
           imageFrame.photometricInterpretation
         ),
         columnPixelSpacing: pixelSpacing[1] ? pixelSpacing[1] : pixelSpacing, // check for specific spacing value
@@ -348,7 +348,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
 
       // convert color space if not isJPEGBaseline8BitColor
       let isJPEGBaseline8BitColor =
-        cornerstoneWADOImageLoader.isJPEGBaseline8BitColor(
+        cornerstoneDICOMImageLoader.isJPEGBaseline8BitColor(
           imageFrame,
           transferSyntax
         );
@@ -365,7 +365,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
           imageFrame.rows
         );
 
-        cornerstoneWADOImageLoader.convertColorSpace(imageFrame, imageData);
+        cornerstoneDICOMImageLoader.convertColorSpace(imageFrame, imageData);
 
         imageFrame.imageData = imageData;
         imageFrame.pixelData = imageData.data;
@@ -374,14 +374,10 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
       // Setup the renderer
       if (image.color) {
         image.getCanvas = function () {
-          if (lastImageIdDrawn === imageId) {
-            return canvas;
-          }
           canvas.height = image.rows;
           canvas.width = image.columns;
           let context = canvas.getContext("2d");
           context.putImageData(imageFrame.imageData, 0, 0);
-          lastImageIdDrawn = imageId;
           return canvas;
         };
       }
@@ -391,7 +387,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
         image.minPixelValue === undefined ||
         image.maxPixelValue === undefined
       ) {
-        let minMax = cornerstoneWADOImageLoader.getMinMax(pixelData);
+        let minMax = cornerstoneDICOMImageLoader.getMinMax(pixelData);
         image.minPixelValue = minMax.min;
         image.maxPixelValue = minMax.max;
       }
@@ -421,7 +417,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
 };
 
 /**
- * This is an override of the cornerstoneWADOImageLoader setPixelDataType function
+ * This is an override of the cornerstoneDICOMImageLoader setPixelDataType function
  * @instance
  * @function setPixelDataType
  * @param {Object} imageFrame The Id of the image
