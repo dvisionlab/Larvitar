@@ -103,7 +103,7 @@ export function loadAndCacheImages(
   // add serie's imageIds into store
   store.addSeriesId(series.seriesUID, series.imageIds);
   // add serie's caching progress into store
-  setStore("progress", [series.seriesUID, 0]);
+  setStore(["progress", series.seriesUID, 0]);
   each(series.imageIds, function (imageId) {
     cornerstone.loadAndCacheImage(imageId).then(function () {
       cachingCounter += 1;
@@ -111,7 +111,7 @@ export function loadAndCacheImages(
         (cachingCounter / series.imageIds.length) * 100
       );
       response.loading = cachingPercentage;
-      setStore("progress", [series.seriesUID, cachingPercentage]);
+      setStore(["progress", series.seriesUID, cachingPercentage]);
       if (cachingCounter == series.imageIds.length) {
         const t1 = performance.now();
         console.log(`Call to cacheImages took ${t1 - t0} milliseconds.`);
@@ -174,7 +174,7 @@ export const renderDICOMPDF = function (
         '<object data="' +
         fileURL +
         '" type="application/pdf" width="100%" height="100%"></object>';
-      setStore("isPDF", [elementId as string, true]);
+      setStore(["isPDF", elementId as string, true]);
       let t1 = performance.now();
       console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
       image = null;
@@ -376,7 +376,7 @@ export const renderImage = function (
 
   let series = { ...seriesStack };
 
-  setStore("renderingStatus", [elementId as string, false]);
+  setStore(["ready", elementId as string, false]);
   let data = getSeriesData(series, defaultProps) as {
     [key: string]: number | string | boolean;
   }; //TODO-ts improve this
@@ -455,7 +455,7 @@ export const renderImage = function (
       }
 
       storeViewportData(image, element.id, storedViewport as Viewport, data);
-      setStore("renderingStatus", [element.id, true]);
+      setStore(["ready", element.id, true]);
       let t1 = performance.now();
       console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
@@ -515,22 +515,22 @@ export const updateImage = async function (
     const timeId =
       (series.instances[imageId].metadata
         .temporalPositionIdentifier as number) - 1; // timeId from 0 to N
-    setStore("timeId", [elementId as string, timeId]);
-    setStore("timestamp", [elementId as string, timestamp]);
+    setStore(["timeId", elementId as string, timeId]);
+    setStore(["timestamp", elementId as string, timestamp as number]);
   }
 
   if (cacheImage) {
     const image = await cornerstone.loadAndCacheImage(imageId);
     cornerstone.displayImage(element, image);
-    setStore("sliceId", [elementId as string, imageIndex]);
-    setStore("minPixelValue", [elementId as string, image.minPixelValue]);
-    setStore("maxPixelValue", [elementId as string, image.maxPixelValue]);
+    setStore(["sliceId", elementId as string, imageIndex]);
+    setStore(["minPixelValue", elementId as string, image.minPixelValue]);
+    setStore(["maxPixelValue", elementId as string, image.maxPixelValue]);
   } else {
     const image = await cornerstone.loadImage(imageId);
     cornerstone.displayImage(element, image);
-    setStore("sliceId", [elementId as string, imageIndex]);
-    setStore("minPixelValue", [elementId as string, image.minPixelValue]);
-    setStore("maxPixelValue", [elementId as string, image.maxPixelValue]);
+    setStore(["sliceId", elementId as string, imageIndex]);
+    setStore(["minPixelValue", elementId as string, image.minPixelValue]);
+    setStore(["maxPixelValue", elementId as string, image.maxPixelValue]);
   }
 };
 
@@ -565,7 +565,8 @@ export const resetViewports = function (
       viewport.voi.windowWidth = defaultViewport.voi.windowWidth;
       viewport.voi.windowCenter = defaultViewport.voi.windowCenter;
       viewport.invert = false;
-      setStore("contrast", [
+      setStore([
+        "contrast",
         elementId,
         viewport.voi.windowWidth,
         viewport.voi.windowCenter
@@ -574,11 +575,12 @@ export const resetViewports = function (
 
     if (!keys || keys.find(v => v === "scaleAndTranslation")) {
       viewport.scale = defaultViewport.scale;
-      setStore("scale", [elementId, viewport.scale]);
+      setStore(["scale", elementId, viewport.scale]);
 
       viewport.translation.x = defaultViewport.translation.x;
       viewport.translation.y = defaultViewport.translation.y;
-      setStore("translation", [
+      setStore([
+        "translation",
         elementId,
         viewport.translation.x,
         viewport.translation.y
@@ -587,7 +589,7 @@ export const resetViewports = function (
 
     if (!keys || keys.find(v => v === "rotation")) {
       viewport.rotation = defaultViewport.rotation;
-      setStore("rotation", [elementId, viewport.rotation]);
+      setStore(["rotation", elementId, viewport.rotation]);
     }
 
     if (!keys || keys.find(v => v === "flip")) {
@@ -597,7 +599,7 @@ export const resetViewports = function (
 
     if (!keys || keys.find(v => v === "zoom")) {
       viewport.scale = defaultViewport.scale;
-      setStore("scale", [elementId, viewport.scale]);
+      setStore(["scale", elementId, viewport.scale]);
     }
 
     cornerstone.setViewport(element, viewport);
@@ -633,25 +635,35 @@ export const updateViewportData = function (
       // sync viewports if needed
       let elements = cornerstone.getEnabledElements();
       each(elements, function (el) {
-        setStore("contrast", [
-          el.element.id,
-          viewportData.voi?.windowWidth,
-          viewportData.voi?.windowCenter
-        ]);
+        if (viewportData.voi) {
+          setStore([
+            "contrast",
+            el.element.id,
+            viewportData.voi.windowWidth,
+            viewportData.voi.windowCenter
+          ]);
+        }
       });
       break;
     case "Pan":
-      setStore("translation", [
-        elementId,
-        viewportData.translation?.x,
-        viewportData.translation?.y
-      ]);
+      if (viewportData.translation) {
+        setStore([
+          "translation",
+          elementId,
+          viewportData.translation.x,
+          viewportData.translation.y
+        ]);
+      }
       break;
     case "Zoom":
-      setStore("scale", [elementId, viewportData.scale]);
+      if (viewportData.scale) {
+        setStore(["scale", elementId, viewportData.scale]);
+      }
       break;
     case "Rotate":
-      setStore("rotation", [elementId, viewportData.rotation]);
+      if (viewportData.rotation) {
+        setStore(["rotation", elementId, viewportData.rotation]);
+      }
       break;
     case "mouseWheel":
     case "stackscroll":
@@ -661,8 +673,8 @@ export const updateViewportData = function (
         const index = viewportData.newImageIdIndex;
         const timeId = viewport.timeIds[index];
         const timestamp = viewport.timestamps[index];
-        setStore("timeId", [elementId, timeId]);
-        setStore("timestamp", [elementId, timestamp]);
+        setStore(["timeId", elementId, timeId]);
+        setStore(["timestamp", elementId, timestamp]);
       }
       break;
     default:
@@ -685,60 +697,64 @@ export const storeViewportData = function (
   viewport: Viewport,
   data: { [key: string]: any } // TODO-ts what is this?
 ) {
-  setStore("dimensions", [elementId, data.rows, data.cols]);
-  setStore("spacing", [elementId, data.spacing_x, data.spacing_y]);
-  setStore("thickness", [elementId, data.thickness]);
-  setStore("minPixelValue", [elementId, image.minPixelValue]);
-  setStore("maxPixelValue", [elementId, image.maxPixelValue]);
+  setStore(["dimensions", elementId, data.rows, data.cols]);
+  setStore(["spacing", elementId, data.spacing_x, data.spacing_y]);
+  setStore(["thickness", elementId, data.thickness]);
+  setStore(["minPixelValue", elementId, image.minPixelValue]);
+  setStore(["maxPixelValue", elementId, image.maxPixelValue]);
   // slice id from 0 to n - 1
-  setStore("minSliceId", [elementId, 0]);
-  setStore("sliceId", [elementId, data.imageIndex]);
-  setStore("maxSliceId", [elementId, data.numberOfSlices - 1]);
+  setStore(["minSliceId", elementId, 0]);
+  setStore(["sliceId", elementId, data.imageIndex]);
+  setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
 
   if (data.isTimeserie) {
-    setStore("minTimeId", [elementId, 0]);
-    setStore("timeId", [elementId, data.timeIndex]);
-    setStore("maxTimeId", [elementId, data.numberOfTemporalPositions - 1]);
+    setStore(["minTimeId", elementId, 0]);
+    setStore(["timeId", elementId, data.timeIndex]);
+    setStore(["maxTimeId", elementId, data.numberOfTemporalPositions - 1]);
     let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
-    setStore("maxSliceId", [elementId, maxSliceId]);
+    setStore(["maxSliceId", elementId, maxSliceId]);
 
-    setStore("timestamp", [elementId, data.timestamp]);
-    setStore("timestamps", [elementId, data.timestamps]);
-    setStore("timeIds", [elementId, data.timeIds]);
+    setStore(["timestamp", elementId, data.timestamp]);
+    setStore(["timestamps", elementId, data.timestamps]);
+    setStore(["timeIds", elementId, data.timeIds]);
   } else {
-    setStore("minTimeId", [elementId, 0]);
-    setStore("timeId", [elementId, 0]);
-    setStore("maxTimeId", [elementId, 0]);
-    setStore("timestamp", [elementId, 0]);
-    setStore("timestamps", [elementId, []]);
-    setStore("timeIds", [elementId, []]);
+    setStore(["minTimeId", elementId, 0]);
+    setStore(["timeId", elementId, 0]);
+    setStore(["maxTimeId", elementId, 0]);
+    setStore(["timestamp", elementId, 0]);
+    setStore(["timestamps", elementId, []]);
+    setStore(["timeIds", elementId, []]);
   }
 
-  setStore("defaultViewport", [
+  setStore([
+    "defaultViewport",
     elementId,
-    viewport.scale,
-    viewport.rotation,
-    viewport.translation?.x,
-    viewport.translation?.y,
+    viewport.scale || 0,
+    viewport.rotation || 0,
+    viewport.translation?.x || 0,
+    viewport.translation?.y || 0,
     data.defaultWW,
     data.defaultWC
   ]);
-  setStore("scale", [elementId, viewport.scale]);
-  setStore("rotation", [elementId, viewport.rotation]);
-  setStore("translation", [
+  setStore(["scale", elementId, viewport.scale || 0]);
+  setStore(["rotation", elementId, viewport.rotation || 0]);
+
+  setStore([
+    "translation",
     elementId,
-    viewport.translation?.x,
-    viewport.translation?.y
+    viewport.translation?.x || 0,
+    viewport.translation?.y || 0
   ]);
-  setStore("contrast", [
+  setStore([
+    "contrast",
     elementId,
-    viewport.voi?.windowWidth,
-    viewport.voi?.windowCenter
+    viewport.voi?.windowWidth || 0,
+    viewport.voi?.windowCenter || 0
   ]);
-  setStore("isColor", [elementId, data.isColor]);
-  setStore("isMultiframe", [elementId, data.isMultiframe]);
-  setStore("isTimeserie", [elementId, data.isTimeserie]);
-  setStore("isPDF", [elementId, false]);
+  setStore(["isColor", elementId, data.isColor]);
+  setStore(["isMultiframe", elementId, data.isMultiframe]);
+  setStore(["isTimeserie", elementId, data.isTimeserie]);
+  setStore(["isPDF", elementId, false]);
 };
 
 /**
@@ -964,9 +980,9 @@ let getSeriesData = function (
 
   if (data.rows == null || data.cols == null) {
     console.error("invalid image metadata (rows or cols is null)");
-    setStore("errorLog", "Invalid Image Metadata");
+    setStore(["errorLog", "Invalid Image Metadata"]);
   } else {
-    setStore("errorLog", "");
+    setStore(["errorLog", ""]);
   }
 
   return data;

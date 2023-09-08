@@ -247,7 +247,7 @@ export const toggleMouseToolsListeners = function (
   // mouse wheel handler
   function mouseWheelHandler(evt: any) {
     // TODO-ts fix type (should be a cornerstoneTools event type)
-    setStore("sliceId", [evt.target.id, evt.detail.newImageIdIndex]);
+    setStore(["sliceId", evt.target.id, evt.detail.newImageIdIndex]);
     updateViewportData(evt.srcElement.id, evt.detail, "mouseWheel");
   }
 
