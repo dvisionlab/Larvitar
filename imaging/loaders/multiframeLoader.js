@@ -44,9 +44,14 @@ export const loadMultiFrameImage = function (imageId) {
   if (multiframeDatasetCache === null) {
     multiframeDatasetCache = {};
   }
-  multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId]
-    ? multiframeDatasetCache[rootImageId]
-    : manager[seriesId];
+  if (multiframeDatasetCache[rootImageId]) {
+    multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId];
+  } else if (manager) {
+    multiframeDatasetCache[rootImageId] = manager[seriesId];
+  } else {
+    throw new Error("No multiframe dataset found for seriesId: " + seriesId);
+  }
+
   let metadata =
     multiframeDatasetCache[rootImageId].instances[imageId].metadata;
   return createCustomImage(rootImageId, imageId, parsedImageId.frame, metadata);
@@ -207,10 +212,7 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
   let imageFrame = getImageFrame(metadata, dataSet);
   let transferSyntax = dataSet.string("x00020010");
 
-  let canvas =
-    window.document.getElementsByTagName("canvas").length > 0
-      ? window.document.getElementsByTagName("canvas")[0]
-      : window.document.createElement("canvas");
+  let canvas = window.document.createElement("canvas");
 
   // Get the scaling parameters from the metadata
   if (options.preScale.enabled) {
@@ -237,8 +239,6 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
 
   let promise = new Promise((resolve, reject) => {
     decodePromise.then(function handleDecodeResponse(imageFrame) {
-      let lastImageIdDrawn = "";
-
       // This function uses the pixelData received as argument without manipulating
       // them: if the image is compressed, the decompress function should be called
       // before creating the custom image object (like the multiframe case).
@@ -319,14 +319,10 @@ let createCustomImage = function (id, imageId, frameIndex, metadata) {
       // Setup the renderer
       if (image.color) {
         image.getCanvas = function () {
-          if (lastImageIdDrawn === imageId) {
-            return canvas;
-          }
           canvas.height = image.rows;
           canvas.width = image.columns;
           let context = canvas.getContext("2d");
           context.putImageData(imageFrame.imageData, 0, 0);
-          lastImageIdDrawn = imageId;
           return canvas;
         };
       }
