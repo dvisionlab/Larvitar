@@ -191,13 +191,17 @@ export const updateLoadedStack = function (
       bytes: 0
     };
     if (isStagedProtocol) {
-      let stagedProtocol: StagedProtocol = {
+      const stageName = seriesData.metadata["x00082120"];
+      const stageNumber = seriesData.metadata["x00082122"];
+      const viewName = seriesData.metadata["x00082127"];
+      const viewNumber = seriesData.metadata["x00082128"];
+      const stagedProtocol: StagedProtocol = {
         numberOfStages: numberOfStages as number,
         numberOfViews: numberOfViews as number,
-        stageName: (seriesData.metadata["x00082120"] as string).trim(),
-        stageNumber: seriesData.metadata["x00082122"] as number,
-        viewName: (seriesData.metadata["x00082127"] as string).trim(),
-        viewNumber: seriesData.metadata["x00082128"] as number
+        stageName: stageName ? (stageName as string).trim() : undefined,
+        stageNumber: stageNumber as number,
+        viewName: viewName ? (viewName as string).trim() : undefined,
+        viewNumber: viewNumber as number
       };
       series.stagedProtocol = stagedProtocol;
     }
