@@ -90,10 +90,6 @@ export function loadAndCacheImages(
 ) {
   const t0 = performance.now();
   let cachingCounter = 0;
-  if (series.isMultiframe) {
-    // console.warn("Do not cache multiframe images for performance issues");
-    return;
-  }
   const response = {
     seriesId: series.seriesUID,
     loading: 0,
