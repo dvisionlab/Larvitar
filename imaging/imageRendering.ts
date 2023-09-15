@@ -170,7 +170,10 @@ export const renderDICOMPDF = function (
         '<object data="' +
         fileURL +
         '" type="application/pdf" width="100%" height="100%"></object>';
-      setStore("isPDF", [elementId as string, true]);
+      const id: string = isElement(elementId)
+        ? element.id
+        : (elementId as string);
+      setStore("isPDF", [id as string, true]);
       let t1 = performance.now();
       console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
       image = null;
@@ -291,9 +294,10 @@ export const disableViewport = function (elementId: string | HTMLElement) {
     console.error("invalid html element: " + elementId);
     return;
   }
-  // toggleMouseHandlers(elementId, true); // flagged true to disable handlers
-  toggleMouseToolsListeners(elementId, true);
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+  toggleMouseToolsListeners(id, true);
   cornerstone.disable(element);
+  setStore("renderingStatus", [id as string, false]);
 };
 
 /**
@@ -368,11 +372,12 @@ export const renderImage = function (
       reject("invalid html element: " + elementId)
     );
   }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
   cornerstone.enable(element);
 
   let series = { ...seriesStack };
 
-  setStore("renderingStatus", [elementId as string, false]);
+  setStore("renderingStatus", [id as string, false]);
   let data = getSeriesData(series, defaultProps) as {
     [key: string]: number | string | boolean;
   }; //TODO-ts improve this
@@ -470,7 +475,7 @@ export const renderImage = function (
   });
 
   csToolsCreateStack(element, series.imageIds, (data.imageIndex as number) - 1);
-  toggleMouseToolsListeners(elementId, false);
+  toggleMouseToolsListeners(id, false);
 
   return renderPromise;
 };
@@ -505,28 +510,29 @@ export const updateImage = async function (
     // console.log("not element");
     throw "not element";
   }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
 
   if (series.is4D) {
     const timestamp = series.instances[imageId].metadata.contentTime;
     const timeId =
       (series.instances[imageId].metadata
         .temporalPositionIdentifier as number) - 1; // timeId from 0 to N
-    setStore("timeId", [elementId as string, timeId]);
-    setStore("timestamp", [elementId as string, timestamp]);
+    setStore("timeId", [id as string, timeId]);
+    setStore("timestamp", [id as string, timestamp]);
   }
 
   if (cacheImage) {
     const image = await cornerstone.loadAndCacheImage(imageId);
     cornerstone.displayImage(element, image);
-    setStore("sliceId", [elementId as string, imageIndex]);
-    setStore("minPixelValue", [elementId as string, image.minPixelValue]);
-    setStore("maxPixelValue", [elementId as string, image.maxPixelValue]);
+    setStore("sliceId", [id as string, imageIndex]);
+    setStore("minPixelValue", [id as string, image.minPixelValue]);
+    setStore("maxPixelValue", [id as string, image.maxPixelValue]);
   } else {
     const image = await cornerstone.loadImage(imageId);
     cornerstone.displayImage(element, image);
-    setStore("sliceId", [elementId as string, imageIndex]);
-    setStore("minPixelValue", [elementId as string, image.minPixelValue]);
-    setStore("maxPixelValue", [elementId as string, image.maxPixelValue]);
+    setStore("sliceId", [id as string, imageIndex]);
+    setStore("minPixelValue", [id as string, image.minPixelValue]);
+    setStore("maxPixelValue", [id as string, image.maxPixelValue]);
   }
 };
 
