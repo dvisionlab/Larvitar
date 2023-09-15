@@ -19,6 +19,7 @@ import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
 import { loadMultiFrameImage } from "./loaders/multiframeLoader";
 import { ImageObject, Instance, Series, StagedProtocol } from "./types";
+import { getLarvitarManager } from "./loaders/commonLoader";
 
 /**
  * Global standard configuration
@@ -61,8 +62,7 @@ const globalConfig = {
  * @function initializeImageLoader
  * @param {Object} config - Custom config @default globalConfig
  */
-export const initializeImageLoader = function (config?: Object) {
-  //TODO-ts better definition
+export const initializeImageLoader = function (config?: typeof globalConfig) {
   let imageLoaderConfig = config ? config : globalConfig;
   cornerstoneDICOMImageLoader.external.cornerstone = cornerstone;
   cornerstoneDICOMImageLoader.external.dicomParser = dicomParser;
@@ -131,7 +131,7 @@ export const registerMultiFrameImageLoader = function () {
  */
 export const updateLoadedStack = function (
   seriesData: ImageObject,
-  allSeriesStack: { [key: string]: Series },
+  allSeriesStack: ReturnType<typeof getLarvitarManager>,
   customId?: string
 ) {
   let sid = seriesData.metadata.seriesUID;
@@ -208,10 +208,6 @@ export const updateLoadedStack = function (
     allSeriesStack[id] = series as Series;
   }
 
-  const sortMethods = is4D
-    ? ["imagePosition", "contentTime"]
-    : ["imagePosition"];
-
   // if the parsed file is a new series instance, keep it
   if (isNewInstance(allSeriesStack[id].instances, iid)) {
     // generate an imageId for the file and store it
@@ -223,7 +219,8 @@ export const updateLoadedStack = function (
 
     allSeriesStack[id].imageIds.push(imageId);
     if (is4D === false) {
-      allSeriesStack[id].numberOfImages += 1;
+      allSeriesStack[id].numberOfImages =
+        (allSeriesStack[id].numberOfImages || 0) + 1;
     }
     allSeriesStack[id].bytes += seriesData.file.size;
     // store needed instance tags
@@ -235,13 +232,15 @@ export const updateLoadedStack = function (
 
     // order images in stack
     allSeriesStack[id].imageIds = getSortedStack(
-      allSeriesStack[id],
-      sortMethods,
+      allSeriesStack[id] as Series,
+      is4D ? ["imagePosition", "contentTime"] : ["imagePosition"],
       true
     );
 
     // populate the ordered dictionary of instanceUIDs
-    allSeriesStack[id].instanceUIDs = getSortedUIDs(allSeriesStack[id]);
+    allSeriesStack[id].instanceUIDs = getSortedUIDs(
+      allSeriesStack[id] as Series
+    );
     store.addSeriesId(id, allSeriesStack[id].imageIds);
   }
 };

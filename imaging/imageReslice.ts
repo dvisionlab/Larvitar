@@ -14,7 +14,7 @@ import {
   getLarvitarManager
 } from "./loaders/commonLoader";
 import store from "./imageStore";
-import {  Series } from "./types";
+import { Series } from "./types";
 
 /*
  * This module provides the following functions to be exported:
@@ -74,6 +74,7 @@ export function resliceSeries(
       reslicedSeries.seriesDescription = seriesData.seriesDescription;
       reslicedSeries.orientation = orientation;
       manager[reslicedSeriesId] = reslicedSeries;
+      //@ts-ignore deprecated
       manager[seriesData.seriesUID][orientation] = reslicedSeriesId;
       let t1 = performance.now();
       console.log(`Call to resliceSeries took ${t1 - t0} milliseconds.`);

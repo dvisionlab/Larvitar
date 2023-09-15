@@ -24,7 +24,7 @@ import { Contours } from "./types";
  * @returns {Number} Number of array elements consumed
  */
 export const parseContours = function (
-  contoursData: { [key: string]: Uint8Array }, // TODO-ts: check if this is correct
+  contoursData: { [key: string]: Uint8Array }, // TODO-ts: check if this is correct @mronzoni
   pointBatchSize: number,
   segmentationName: string,
   viewports: Array<string>
@@ -138,7 +138,7 @@ const populateContoursObject = function (
 const extractSlicePoints = function (
   contours: Contours,
   pointBatchSize: number,
-  slicePoints: Uint8Array, // TODO-ts: check if this is correct
+  slicePoints: Uint8Array, // TODO-ts: check if this is correct @mronzoni
   segmentationName: string,
   viewport: string
 ) {

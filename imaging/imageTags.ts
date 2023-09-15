@@ -276,7 +276,7 @@ function getDICOMTag(code: string) {
 export const parseTag = function (
   dataSet: DataSet,
   propertyName: string,
-  element: { [key: string]: any } // TODO-ts better type
+  element: { [key: string]: any } // TODO-ts better type @szanchi
 ) {
   // GET VR
   var tagData = dataSet.elements[propertyName] || {};

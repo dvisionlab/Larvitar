@@ -179,8 +179,8 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
 export const buildDataAsync = function (
   series: Series,
   time: number,
-  resolve: Function, // TODO-ts type
-  reject: Function // TODO-ts type
+  resolve: (response: TypedArray) => void,
+  reject: (response: string) => void
 ) {
   const memoryAllocation = checkMemoryAllocation(series.bytes);
 
@@ -211,7 +211,6 @@ export const buildDataAsync = function (
     let imageIds = series.imageIds.slice();
     store.addSeriesId(series.seriesUID, series.imageIds);
 
-    // TODO-ts type check
     function runFillPixelData(data: TypedArray) {
       let imageId = imageIds.shift();
       if (imageId) {

@@ -12,6 +12,7 @@ import { unparse } from "papaparse";
 // internal libraries
 import { setToolEnabled } from "./main";
 import type { ToolState } from "./types";
+import { fileManager } from "../loaders/fileLoader";
 
 declare global {
   interface Document {
@@ -41,7 +42,8 @@ export const loadAnnotations = function (jsonData: ToolState) {
   }
 
   toolsInState.forEach(toolName => {
-    setToolEnabled(toolName); // TODO-ts fix 'null' this after setToolEnabled is typed
+    // TODO-ts fix 'null' this after setToolEnabled is typed @mronzoni
+    setToolEnabled(toolName);
   });
 
   let enabledElementIds = map(
@@ -85,12 +87,12 @@ export const saveAnnotations = function (
  * containing only useful informations for user
  */
 export const exportAnnotations = function (
-  fileManager: any, // TODO-ts what is this object?
+  manager: typeof fileManager,
   filename = "annotations.csv"
 ) {
   let currentToolState =
     cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState();
-  let { fieldsArr: fields, data } = generateCSV(fileManager, currentToolState);
+  let { fieldsArr: fields, data } = generateCSV(manager, currentToolState);
   let csvstring = unparse({ fields, data });
   downloadFile(csvstring, filename);
 };
@@ -124,7 +126,7 @@ function downloadFile(stringContent: string, filename: string) {
  * @param {*} allToolState
  */
 export function generateCSV(
-  fileManager: any, // TODO-ts what is this object?
+  manager: typeof fileManager,
   allToolState: ToolState
 ) {
   let fields: Set<string> = new Set();
@@ -133,7 +135,7 @@ export function generateCSV(
   let data: Object[] = [];
   each(allToolState, (imageToolState, imageId) => {
     // convert imageId to imagePath
-    let imagePath = invert(fileManager)[imageId];
+    let imagePath = invert(manager)[imageId];
     each(imageToolState, (toolState, toolName) => {
       // extract useful information from tool state
       let extractedData = extractToolInfo(toolName, toolState.data);
