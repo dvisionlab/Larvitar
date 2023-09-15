@@ -373,8 +373,6 @@ export const renderImage = function (
     );
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-  console.log(id, elementId);
-
   cornerstone.enable(element);
 
   let series = { ...seriesStack };
