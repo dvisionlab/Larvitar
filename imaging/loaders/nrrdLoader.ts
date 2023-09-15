@@ -57,19 +57,21 @@ type NrrdInputVolume = {
 };
 
 interface NrrdImage extends Instance {
-  instanceId: string;
-  frame: number;
+  // instanceId: string;
+  // frame: number;
 }
 
-type NrrdSeries = {
+export type NrrdSeries = {
   currentImageIdIndex: number;
   imageIds: string[];
   instances: { [key: string]: NrrdImage };
+  instanceUIDs: { [key: string]: string }; //TODO to implement
   numberOfImages: number;
   seriesDescription: string;
   seriesUID: string;
   customLoader: string;
   nrrdHeader: NrrdHeader;
+  bytes: number;
 };
 
 type NrrdHeader = {
@@ -351,6 +353,7 @@ export const loadNrrdImage: ImageLoader = function (imageId: string) {
   }
   let seriesId = imageTracker[imageId];
   let instance = manager[seriesId].instances[imageId];
+  //@ts-ignore TODO-ts: fix this why is different typed array?
   return createCustomImage(imageId, instance.metadata, instance.pixelData);
 };
 

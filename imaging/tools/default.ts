@@ -446,7 +446,7 @@ const DEFAULT_TOOLS: {
  * D/Vision Lab custom tools
  */
 const dvTools: {
-  [key: string]: any; // TODO-ts tools class type
+  [key: string]: any; // TODO-ts tools class type @mronzoni
 } = {
   ThresholdsBrushTool: ThresholdsBrushTool,
   PolylineScissorsTool: PolylineScissorsTool,
