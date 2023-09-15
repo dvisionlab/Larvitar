@@ -236,6 +236,9 @@ const setValue = (store: Store, data: SetPayload) => {
     case "isPDF":
     case "isTimeserie":
     case "ready":
+      if (!viewport) {
+        return;
+      }
       viewport[field] = (v as [boolean])[0];
       triggerViewportListener(k);
       break;
@@ -250,34 +253,52 @@ const setValue = (store: Store, data: SetPayload) => {
     case "sliceId":
     case "timeId":
     case "timestamp":
+      if (!viewport) {
+        return;
+      }
       viewport[field] = (v as [number])[0];
       triggerViewportListener(k);
       break;
 
     case "timestamps":
     case "timeIds":
+      if (!viewport) {
+        return;
+      }
       viewport[field] = (v as [[number]])[0];
       triggerViewportListener(k);
       break;
 
     case "rotation":
     case "scale":
+      if (!viewport) {
+        return;
+      }
       viewport.viewport[field] = (v as [number])[0];
       triggerViewportListener(k);
       break;
 
     case "thickness":
+      if (!viewport) {
+        return;
+      }
       viewport[field] = (v as [number])[0];
       viewport.viewport[field] = (v as [number])[0];
       triggerViewportListener(k);
       break;
 
     case "translation":
+      if (!viewport) {
+        return;
+      }
       viewport.viewport[field] = (v as [{ x: number; y: number }])[0];
       triggerViewportListener(k);
       break;
 
     case "contrast":
+      if (!viewport) {
+        return;
+      }
       v = v as [number, number];
       viewport.viewport.voi.windowWidth = v[0];
       viewport.viewport.voi.windowCenter = v[1];
@@ -285,6 +306,9 @@ const setValue = (store: Store, data: SetPayload) => {
       break;
 
     case "dimensions":
+      if (!viewport) {
+        return;
+      }
       v = v as [number, number];
       viewport.rows = v[0];
       viewport.cols = v[1];
@@ -294,6 +318,9 @@ const setValue = (store: Store, data: SetPayload) => {
       break;
 
     case "spacing":
+      if (!viewport) {
+        return;
+      }
       v = v as [number, number];
       viewport.spacing_x = v[0];
       viewport.spacing_y = v[1];
@@ -303,6 +330,9 @@ const setValue = (store: Store, data: SetPayload) => {
       break;
 
     case "defaultViewport":
+      if (!viewport) {
+        return;
+      }
       v = v as [number, number, number, number, number, number];
       viewport.default.scale = v[0];
       viewport.default.rotation = v[1];
