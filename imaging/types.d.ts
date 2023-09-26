@@ -10,6 +10,7 @@ export type MetadataValue =
   | number[]
   | boolean
   | null
+  | Array
   | undefined; // null or undefined is only for nrrd
 
 export interface Image extends cornerstone.Image {

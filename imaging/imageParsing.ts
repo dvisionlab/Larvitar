@@ -102,20 +102,26 @@ export const parseDataSet = function (
         : dataSet.elements;
     for (let propertyName in elements) {
       let element = elements[propertyName];
-      // Here we check for Sequence items and iterate over them if present.  items will not be set in the
+      // Here we check for Sequence items and iterate over them if present. items will not be set in the
       // element object for elements that don't have SQ VR type.  Note that implicit little endian
       // sequences will are currently not parsed.
       if (element.items) {
-        // each item contains its own data set so we iterate over the items
-        // and recursively call this function
-        if (customFilter && has(customFilter, "frameId")) {
-          let item = element.items[customFilter.frameId];
-          parseDataSet(item.dataSet!, metadata);
-        } else {
-          element.items.forEach(function (item) {
-            parseDataSet(item.dataSet!, metadata);
-          });
-        }
+        // iterates over nested elements
+        metadata[propertyName] = [];
+        element.items.forEach(function (item) {
+          let nestedObject: { [key: string]: any } = {};
+          for (let nestedPropertyName in item.dataSet!.elements) {
+            let tagValue = parseTag(
+              item.dataSet!,
+              nestedPropertyName,
+              item.dataSet!.elements[nestedPropertyName]
+            );
+            nestedObject[nestedPropertyName] = tagValue;
+          }
+          if (Object.keys(nestedObject).length > 0) {
+            metadata[propertyName].push(nestedObject);
+          }
+        });
       } else {
         let tagValue = parseTag(dataSet, propertyName, element);
 
