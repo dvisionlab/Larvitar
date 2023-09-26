@@ -334,6 +334,9 @@ const parseFile = function (file: File) {
             if (isMultiframe) {
               imageObject.metadata.frameTime = metadata["x00181063"];
               imageObject.metadata.frameDelay = metadata["x00181066"];
+              if (metadata["x00186060"]) {
+                imageObject.metadata.rWaveTimeVector = metadata["x00186060"];
+              }
             }
             imageObject.metadata.isMultiframe = isMultiframe;
             if (is4D) {

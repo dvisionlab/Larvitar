@@ -422,7 +422,26 @@ export const parseTag = function (
   } else if (vr == "FD") {
     valueOut = dataSet.double(propertyName);
   } else if (vr == "FL") {
-    valueOut = dataSet.float(propertyName);
+    // check if there are multiple values
+    if (propertyName === "x00186060") {
+      // RWaveTimeVector
+      let index = 0;
+      let rWaveTimeVector: number[] = [];
+      while (dataSet.float(propertyName, index)) {
+        let value = dataSet.float(propertyName, index);
+        // push value in array if is bigger than previous value
+        if (index > 0 && value && value < rWaveTimeVector[index - 1]) {
+          break;
+        }
+        if (value) {
+          rWaveTimeVector.push(value);
+        }
+        index++;
+      }
+      valueOut = rWaveTimeVector;
+    } else {
+      valueOut = dataSet.float(propertyName);
+    }
   } else if (
     vr === "OB" ||
     vr === "OW" ||

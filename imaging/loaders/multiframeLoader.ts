@@ -82,6 +82,8 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
   let frameDelay = serie.instances[serie.imageIds[0]].metadata.frameDelay
     ? serie.instances[serie.imageIds[0]].metadata.frameDelay
     : 0;
+  let rWaveTimeVector =
+    serie.instances[serie.imageIds[0]].metadata.rWaveTimeVector;
 
   each(serie.imageIds, function (instanceId) {
     let dataSet = serie.instances[instanceId].dataSet;
@@ -119,6 +121,7 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
       manager[seriesId].numberOfFrames = numberOfFrames;
       manager[seriesId].frameTime = frameTime;
       manager[seriesId].frameDelay = frameDelay;
+      manager[seriesId].rWaveTimeVector = rWaveTimeVector;
       manager[seriesId].numberOfImages = undefined;
       manager[seriesId].bytes = serie.bytes;
       manager[seriesId].imageIds.push(frameImageId);
