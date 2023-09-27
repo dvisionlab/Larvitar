@@ -507,7 +507,6 @@ export const updateImage = async function (
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    // console.log("not element");
     throw "not element";
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
@@ -566,7 +565,7 @@ export const resetViewports = function (
     if (!keys || keys.find(v => v === "contrast")) {
       viewport.voi.windowWidth = defaultViewport.voi.windowWidth;
       viewport.voi.windowCenter = defaultViewport.voi.windowCenter;
-      viewport.invert = false;
+      viewport.invert = defaultViewport.voi.invert;
       setStore("contrast", [
         elementId,
         viewport.voi.windowWidth,
@@ -607,7 +606,6 @@ export const resetViewports = function (
     if (!keys || keys.find(v => v === "scaleAndTranslation")) {
       cornerstone.fitToWindow(element);
     }
-
     cornerstone.updateImage(element);
   });
 };
@@ -723,7 +721,8 @@ export const storeViewportData = function (
     viewport.translation?.x,
     viewport.translation?.y,
     data.defaultWW,
-    data.defaultWC
+    data.defaultWC,
+    viewport.invert
   ]);
   setStore("scale", [elementId, viewport.scale]);
   setStore("rotation", [elementId, viewport.rotation]);
