@@ -47,7 +47,17 @@ type SetPayload =
   | ["timestamps" | "timeIds", string, number[]]
   | ["contrast", string, number, number]
   | ["translation", string, { x: number; y: number }]
-  | ["defaultViewport", string, number, number, number, number, number, number];
+  | [
+      "defaultViewport",
+      string,
+      number,
+      number,
+      number,
+      number,
+      number,
+      number,
+      boolean
+    ];
 
 // Larvitar store object
 let STORE: Store;
@@ -123,6 +133,7 @@ export const DEFAULT_VIEWPORT: {
     voi: {
       windowCenter: number;
       windowWidth: number;
+      invert: boolean;
     };
   };
 } = {
@@ -175,7 +186,8 @@ export const DEFAULT_VIEWPORT: {
     },
     voi: {
       windowCenter: 0.0,
-      windowWidth: 0.0
+      windowWidth: 0.0,
+      invert: false
     }
   }
 };
@@ -333,13 +345,14 @@ const setValue = (store: Store, data: SetPayload) => {
       if (!viewport) {
         return;
       }
-      v = v as [number, number, number, number, number, number];
+      v = v as [number, number, number, number, number, number, boolean];
       viewport.default.scale = v[0];
       viewport.default.rotation = v[1];
       viewport.default.translation.x = v[2];
       viewport.default.translation.y = v[3];
       viewport.default.voi.windowWidth = v[4];
       viewport.default.voi.windowCenter = v[5];
+      viewport.default.voi.invert = v[6];
       triggerViewportListener(k);
       break;
 
