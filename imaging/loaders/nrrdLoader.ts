@@ -56,16 +56,11 @@ type NrrdInputVolume = {
   data: Uint16Array; // TODO-ts: other typed arrays ?
 };
 
-interface NrrdImage extends Instance {
-  // instanceId: string;
-  // frame: number;
-}
-
 export type NrrdSeries = {
   currentImageIdIndex: number;
   imageIds: string[];
-  instances: { [key: string]: NrrdImage };
-  instanceUIDs: { [key: string]: string }; //TODO to implement
+  instances: { [key: string]: Instance };
+  instanceUIDs: { [key: string]: string };
   numberOfImages: number;
   seriesDescription: string;
   seriesUID: string;
