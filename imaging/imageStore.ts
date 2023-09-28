@@ -239,6 +239,9 @@ const setValue = (store: Store, data: SetPayload) => {
   // assign values
   switch (field) {
     case "progress":
+      if (!store.series[k]) {
+        return;
+      }
       store.series[k][field] = (v as [number])[0];
       triggerSeriesListener(k);
       break;
