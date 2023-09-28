@@ -108,9 +108,8 @@
 
       const getDemoFileNames = function () {
         let demoFileList = [];
-        for (let i = 0; i < 88; i++) {
-          const index = i < 10 ? "0" + i : i;
-          let filename = "MR0000" + index + ".dcm";
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
           demoFileList.push(filename);
         }
         return demoFileList;
@@ -123,12 +122,12 @@
       larvitar.store.addViewport("viewer");
 
       async function createFile(fileName, cb) {
-        let response = await fetch("./demo/mri/" + fileName);
+        let response = await fetch("./demo/" + fileName);
         let data = await response.blob();
         let file = new File([data], fileName);
         demoFiles.push(file);
         counter++;
-        if (counter == 88) {
+        if (counter == 24) {
           cb();
         }
       }
