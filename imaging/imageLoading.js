@@ -177,9 +177,10 @@ export const updateLoadedStack = function (
     };
   }
 
-  const sortMethods = is4D
-    ? ["imagePosition", "contentTime"]
-    : ["imagePosition"];
+  // get instance number from metadata
+  const instanceNumber = seriesData.metadata["x00200013"];
+  const defaultMethod = instanceNumber ? "instanceNumber" : "imagePosition";
+  const sortMethods = is4D ? [defaultMethod, "contentTime"] : [defaultMethod];
 
   // if the parsed file is a new series instance, keep it
   if (isNewInstance(allSeriesStack[id].instances, iid)) {
