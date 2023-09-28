@@ -223,16 +223,14 @@ export const renderFileImage = function (
           return;
         }
         cornerstone.displayImage(element, image);
-        let viewport = cornerstone.getViewport(element);
+        const viewport = cornerstone.getViewport(element) as Viewport;
 
         if (!viewport) {
           console.error("invalid viewport");
           return;
         }
 
-        // @ts-ignore: displayArea is not defined in the type definition TODO-ts check this
         viewport.displayedArea.brhc.x = image.width;
-        // @ts-ignore
         viewport.displayedArea.brhc.y = image.height;
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
@@ -380,7 +378,7 @@ export const renderImage = function (
   setStore("renderingStatus", [id as string, false]);
   let data = getSeriesData(series, defaultProps) as {
     [key: string]: number | string | boolean;
-  }; //TODO-ts improve this
+  }; //TODO-ts improve this @szanchi
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) =>
@@ -684,6 +682,7 @@ export const storeViewportData = function (
   elementId: string,
   viewport: Viewport,
   data: { [key: string]: any } // TODO-ts what is this?
+  // same data as getSeriesData @szanchi
 ) {
   setStore("dimensions", [elementId, data.rows, data.cols]);
   setStore("spacing", [elementId, data.spacing_x, data.spacing_y]);
@@ -886,6 +885,7 @@ let getSeriesData = function (
     data.isMultiframe = false;
     data.isTimeserie = true;
     // check with real indices
+    //@ts-ignore fix when data is typed
     data.numberOfSlices = series.numberOfImages;
     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
     data.imageIndex = 0;

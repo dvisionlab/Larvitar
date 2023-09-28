@@ -13,6 +13,7 @@ import { parseTag } from "./imageTags";
 import { updateLoadedStack } from "./imageLoading";
 import { checkMemoryAllocation } from "./monitors/memory";
 import { ImageObject, MetadataValue, Series } from "./types";
+import { getLarvitarManager } from "./loaders/commonLoader";
 
 // global module variables
 var t0: number; // t0 variable for timing debugging purpose
@@ -32,9 +33,7 @@ var t0: number; // t0 variable for timing debugging purpose
  * @param {Object} seriesStack - Parsed series stack object
  */
 export const clearImageParsing = function (
-  seriesStack: {
-    [key: string]: Series;
-  } | null
+  seriesStack: ReturnType<typeof getLarvitarManager> | null
 ) {
   each(seriesStack, function (stack) {
     each(stack.instances, function (instance) {
@@ -157,7 +156,7 @@ export const parseDataSet = function (
  */
 let parseNextFile = function (
   parsingQueue: File[],
-  allSeriesStack: { [key: string]: Series },
+  allSeriesStack: ReturnType<typeof getLarvitarManager>,
   uuid: string,
   resolve: Function,
   reject: Function

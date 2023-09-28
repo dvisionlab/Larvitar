@@ -53,7 +53,6 @@ const resliceTable: {
  * getMaxPixelValue(defaultValue, pixelData)
  * getPixelRepresentation(dataset)
  * getTypedArrayFromDataType(dataType)
- * getPixelTypedArray(dataset, pixelDataElement)
  * getSortedStack(seriesData, sortPriorities, returnSuccessMethod)
  * getSortedUIDs(seriesData)
  * randomId()
@@ -185,46 +184,6 @@ export const getTypedArrayFromDataType = function (dataType: string) {
 };
 
 /**
- * Create and return a typed array from the pixel data
- * @instance
- * @function getPixelTypedArray
- * @param {Object} dataSet - The cornerstone serie object
- * @param {Object} pixelDataElement - The dataset metadata (dataSet.elements.x7fe00010)
- * @returns {TypedArray} The pixel array as proper typed array
- */
-export const getPixelTypedArray = function (
-  dataSet: CustomDataSet,
-  pixelDataElement: any
-) {
-  //TODO-ts type (arrayBuffer?)
-  let buffer = dataSet.byteArray.buffer;
-  let offset = pixelDataElement.dataOffset;
-  let r = getPixelRepresentation(dataSet);
-  let typedArray = getTypedArrayFromDataType(r);
-  switch (typedArray) {
-    case Uint16Array:
-      length = pixelDataElement.length / 2;
-      break;
-    case Int16Array:
-      length = pixelDataElement.length / 2;
-      break;
-    case Uint32Array:
-      length = pixelDataElement.length / 4;
-      break;
-    case Int32Array:
-      length = pixelDataElement.length / 4;
-      break;
-    default:
-      length = pixelDataElement.length;
-      break;
-  }
-  if (!typedArray) {
-    throw new Error("invalid data type: " + r);
-  }
-  return new typedArray(buffer, offset, length);
-};
-
-/**
  * Sort the array of images ids of a series trying with:
  * - content time order, if the series has cardiacNumberOfImages tag > 1
  * - position order, if series has needed patient position tags
@@ -239,10 +198,13 @@ export const getPixelTypedArray = function (
  */
 export const getSortedStack = function (
   seriesData: Series,
-  sortPriorities: string[], // TODO-ts better type
+  sortPriorities: Array<"imagePosition" | "contentTime" | "instanceNumber">,
   returnSuccessMethod: boolean
 ) {
-  let tryToSort = function (data: Series, methods: string[]): string[] {
+  let tryToSort = function (
+    data: Series,
+    methods: typeof sortPriorities
+  ): string[] {
     if (isEmpty(methods)) {
       if (returnSuccessMethod === true) {
         return sorted!;
@@ -252,8 +214,6 @@ export const getSortedStack = function (
     }
 
     let sortMethod = methods.shift();
-    // TODO this try-catch is needed ? It brokes multiframe example
-    // try {
     var sorted = sortBy(data.imageIds, function (imageId) {
       return sortStackCallback(data, imageId, sortMethod!);
     });
@@ -262,9 +222,6 @@ export const getSortedStack = function (
     } else {
       return sorted;
     }
-    // } catch (ex) {
-    //   return tryToSort(data, methods);
-    // }
   };
 
   // sortPriorities will be shifted, so clone it before calling the tryToSort fucntion
@@ -367,8 +324,8 @@ export const getMeanValue = function (
  */
 export const getReslicedMetadata = function (
   reslicedSeriesId: string,
-  fromOrientation: string, // TODO-ts a better type is possible ? "axial" | "coronal" | "sagittal" ?
-  toOrientation: string, // TODO-ts a better type is possible ? "axial" | "coronal" | "sagittal" ?
+  fromOrientation: "axial" | "coronal" | "sagittal",
+  toOrientation: "axial" | "coronal" | "sagittal",
   seriesData: Series,
   imageLoaderName: string
 ) {
@@ -470,9 +427,6 @@ export const getReslicedMetadata = function (
       x00200037: reslicedIOP,
       // new image position
       x00200032: reslicedIPP
-      // TODO-ts : why duplicated ?
-      // x00280106: sampleMetadata.x00280106,
-      // x00280107: sampleMetadata.x00280107
     });
 
     // set human readable metadata
@@ -746,7 +700,9 @@ export const getImageMetadata = function (
   let metadata_list = map(metadata_keys, function (key) {
     // if value is a dictionary return empty string
     const value =
-      metadata[key] && metadata[key].constructor == Object ? "" : metadata[key];
+      metadata[key] && metadata[key]!.constructor == Object
+        ? ""
+        : metadata[key];
     // convert key removing x and adding comma at position 4
     const tagKey = (
       "(" +
@@ -787,7 +743,7 @@ export const getImageMetadata = function (
 let sortStackCallback = function (
   seriesData: Series,
   imageId: string,
-  method: string
+  method: "instanceNumber" | "contentTime" | "imagePosition"
 ) {
   switch (method) {
     case "instanceNumber":
