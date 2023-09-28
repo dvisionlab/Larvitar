@@ -372,6 +372,7 @@ export const parseTag = function (
     ) {
       // get character set
       let characterSet = dataSet.string("x00080005");
+
       if (characterSet) {
         let data = dataSet.elements[propertyName];
         let arr: Uint8Array | null = new Uint8Array(
@@ -379,9 +380,17 @@ export const parseTag = function (
           data.dataOffset,
           data.length
         );
-        valueOut = convertBytes(characterSet, arr, {
-          vr: vr
-        });
+        // try to convert bytes
+        // if raises invalid character set
+        // catch error
+        try {
+          valueOut = convertBytes(characterSet, arr, {
+            vr: vr
+          });
+        } catch (error) {
+          console.warn("Invalid Character Set: " + characterSet);
+          valueOut = "Invalid Character Set: " + characterSet;
+        }
         arr = null;
       }
       if (vr == "PN") {

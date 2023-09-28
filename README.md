@@ -8,7 +8,7 @@
 
 ## Dicom Image Toolkit for CornerstoneJS
 
-### Current version: 2.0.0-rc25
+### Current version: 2.0.0-rc26
 
 ### Latest Published Release: 1.5.8
 
