@@ -15,7 +15,14 @@ import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
 import { isElement } from "./imageUtils";
-import { Image, Instance, Series, Viewport } from "./types";
+import {
+  Image,
+  Instance,
+  Series,
+  StoreViewport,
+  StoreViewportOptions,
+  Viewport
+} from "./types";
 
 /*
  * This module provides the following functions to be exported:
@@ -351,17 +358,11 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
 export const renderImage = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
-  // defaultProps: cornerstone.Viewport
-  defaultProps: {
-    scale?: number;
-    colormap?: string;
-    tr_x?: number;
-    tr_y?: number;
-  }
+  defaultProps: StoreViewportOptions
 ): Promise<true> {
-  let t0 = performance.now();
+  const t0 = performance.now();
   // get element and enable it
-  let element = isElement(elementId)
+  const element = isElement(elementId)
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
@@ -373,12 +374,11 @@ export const renderImage = function (
   const id: string = isElement(elementId) ? element.id : (elementId as string);
   cornerstone.enable(element);
 
-  let series = { ...seriesStack };
+  const series = { ...seriesStack };
 
   setStore("renderingStatus", [id as string, false]);
-  let data = getSeriesData(series, defaultProps) as {
-    [key: string]: number | string | boolean;
-  }; //TODO-ts improve this @szanchi
+
+  const data = getSeriesData(series, defaultProps);
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) =>
@@ -386,7 +386,7 @@ export const renderImage = function (
     );
   }
 
-  let renderPromise = new Promise<true>((resolve, reject) => {
+  const renderPromise = new Promise<true>((resolve, reject) => {
     // load and display one image (imageId)
     cornerstone.loadImage(data.imageId as string).then(function (image) {
       if (!element) {
@@ -406,7 +406,7 @@ export const renderImage = function (
         );
       }
 
-      let viewport = cornerstone.getViewport(element);
+      const viewport = cornerstone.getViewport(element);
 
       if (!viewport) {
         console.error("viewport not found");
@@ -418,10 +418,18 @@ export const renderImage = function (
       // are stored in specific dicom tags
       // (x00281050 and x00281051)
       // if not present check in image object
-      data.ww = data.ww ? data.ww : image.windowWidth;
-      data.wc = data.wc ? data.wc : image.windowCenter;
-      data.defaultWW = data.defaultWW ? data.defaultWW : data.ww;
-      data.defaultWC = data.defaultWC ? data.defaultWC : data.wc;
+      if (data.viewport?.voi?.windowWidth === undefined) {
+        data.viewport.voi.windowWidth = image.windowWidth;
+      }
+      if (data.viewport?.voi?.windowCenter === undefined) {
+        data.viewport.voi.windowCenter = image.windowCenter;
+      }
+      if (data.default?.voi?.windowWidth === undefined) {
+        data.default.voi.windowWidth = data.viewport.voi.windowWidth;
+      }
+      if (data.default?.voi?.windowCenter === undefined) {
+        data.default.voi.windowCenter = data.viewport.voi.windowCenter;
+      }
 
       cornerstone.fitToWindow(element);
 
@@ -435,8 +443,8 @@ export const renderImage = function (
         defaultProps.tr_x !== undefined &&
         defaultProps.tr_y !== undefined
       ) {
-        viewport.translation.x = defaultProps["tr_x"];
-        viewport.translation.y = defaultProps["tr_y"];
+        viewport.translation.x = defaultProps.tr_x;
+        viewport.translation.y = defaultProps.tr_y;
         cornerstone.setViewport(element, viewport);
       }
 
@@ -445,7 +453,7 @@ export const renderImage = function (
         applyColorMap(defaultProps["colormap"]);
       }
 
-      let storedViewport = cornerstone.getViewport(element);
+      const storedViewport = cornerstone.getViewport(element);
 
       if (!storedViewport) {
         console.error("storedViewport not found");
@@ -455,10 +463,10 @@ export const renderImage = function (
 
       storeViewportData(image, element.id, storedViewport as Viewport, data);
       setStore("renderingStatus", [element.id, true]);
-      let t1 = performance.now();
+      const t1 = performance.now();
       console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
-      let uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
         data.imageId
       ).url;
       cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
@@ -681,8 +689,7 @@ export const storeViewportData = function (
   image: cornerstone.Image,
   elementId: string,
   viewport: Viewport,
-  data: { [key: string]: any } // TODO-ts what is this?
-  // same data as getSeriesData @szanchi
+  data: ReturnType<typeof getSeriesData>
 ) {
   setStore("dimensions", [elementId, data.rows, data.cols]);
   setStore("spacing", [elementId, data.spacing_x, data.spacing_y]);
@@ -719,8 +726,8 @@ export const storeViewportData = function (
     viewport.rotation,
     viewport.translation?.x,
     viewport.translation?.y,
-    data.defaultWW,
-    data.defaultWC,
+    data.default?.voi?.windowWidth,
+    data.default?.voi?.windowCenter,
     viewport.invert
   ]);
   setStore("scale", [elementId, viewport.scale]);
@@ -871,11 +878,22 @@ export const rotateImageRight = function (elementId: string | HTMLElement) {
  * @param {Object} defaultProps - Optional default properties
  * @return {Object} data - A data dictionary with parsed tags' values
  */
-let getSeriesData = function (
+const getSeriesData = function (
   series: Series,
-  defaultProps: { [key: string]: number | string | boolean }
+  defaultProps: StoreViewportOptions
 ) {
-  let data: { [key: string]: number | string | boolean | Array<any> } = {}; // TODO-ts better type definition
+  type RecursivePartial<T> = {
+    [P in keyof T]?: RecursivePartial<T[P]>;
+  };
+  type SeriesData = StoreViewport & {
+    imageIndex: number;
+    imageId: string;
+    numberOfSlices: number;
+    numberOfTemporalPositions: number;
+    timeIndex?: number;
+  };
+  const data: RecursivePartial<SeriesData> = {};
+
   if (series.isMultiframe) {
     data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;
@@ -885,7 +903,6 @@ let getSeriesData = function (
     data.isMultiframe = false;
     data.isTimeserie = true;
     // check with real indices
-    //@ts-ignore fix when data is typed
     data.numberOfSlices = series.numberOfImages;
     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
     data.imageIndex = 0;
@@ -907,24 +924,20 @@ let getSeriesData = function (
     });
   } else {
     data.isMultiframe = false;
-    data.numberOfSlices =
-      defaultProps && has(defaultProps, "numberOfSlices")
-        ? defaultProps["numberOfSlices"]
+    const numberOfSlices =
+      defaultProps && defaultProps.numberOfSlices
+        ? defaultProps.numberOfSlices
         : series.imageIds.length;
-
     data.imageIndex =
-      defaultProps &&
-      has(defaultProps, "sliceNumber") &&
-      (defaultProps["sliceNumber"] as number) >= 0 && // slice number between 0 and n-1
-      defaultProps["sliceNumber"] < data.numberOfSlices
+      defaultProps?.sliceNumber &&
+      defaultProps?.sliceNumber >= 0 && // slice number between 0 and n-1
+      defaultProps.sliceNumber < numberOfSlices
         ? defaultProps["sliceNumber"]
-        : Math.floor((data.numberOfSlices as number) / 2);
-
-    data.imageId = series.imageIds[data.imageIndex as number];
+        : Math.floor(numberOfSlices / 2);
+    data.imageId = series.imageIds[data.imageIndex];
   }
   data.isColor = series.color as boolean;
   data.isPDF = series.isPDF;
-
   // rows, cols and x y z spacing
   data.rows = series.instances[series.imageIds[0]].metadata[
     "x00280010"
@@ -935,33 +948,40 @@ let getSeriesData = function (
   data.thickness = series.instances[series.imageIds[0]].metadata[
     "x00180050"
   ] as number;
-
   let spacing = series.instances[series.imageIds[0]].metadata[
     "x00280030"
   ] as number[];
   data.spacing_x = spacing ? spacing[0] : 1;
   data.spacing_y = spacing ? spacing[1] : 1;
-
   // window center and window width
-  data.wc =
-    defaultProps && defaultProps.wc !== undefined
-      ? defaultProps["wc"]
-      : (series.instances[series.imageIds[0]].metadata["x00281050"] as number);
-
-  data.ww =
-    defaultProps && defaultProps.ww !== undefined
-      ? defaultProps["ww"]
-      : (series.instances[series.imageIds[0]].metadata["x00281051"] as number);
-
-  // default values for reset
-  data.defaultWW =
-    defaultProps && has(defaultProps, "defaultWW")
-      ? defaultProps["defaultWW"]
-      : data.ww;
-  data.defaultWC =
-    defaultProps && has(defaultProps, "defaultWC")
-      ? defaultProps["defaultWC"]
-      : data.wc;
+  data.viewport = {
+    voi: {
+      windowCenter:
+        defaultProps && has(defaultProps, "wc")
+          ? defaultProps.wc
+          : (series.instances[series.imageIds[0]].metadata[
+              "x00281050"
+            ] as number),
+      windowWidth:
+        defaultProps && has(defaultProps, "ww")
+          ? defaultProps.ww
+          : (series.instances[series.imageIds[0]].metadata[
+              "x00281051"
+            ] as number)
+    }
+  };
+  data.default = {
+    voi: {
+      windowCenter:
+        defaultProps && has(defaultProps, "defaultWC")
+          ? defaultProps.defaultWC
+          : data.viewport!.voi!.windowCenter,
+      windowWidth:
+        defaultProps && has(defaultProps, "defaultWW")
+          ? defaultProps.defaultWW
+          : data.viewport!.voi!.windowWidth
+    }
+  };
 
   if (data.rows == null || data.cols == null) {
     console.error("invalid image metadata (rows or cols is null)");
@@ -970,5 +990,5 @@ let getSeriesData = function (
     setStore("errorLog", "");
   }
 
-  return data;
+  return data as SeriesData;
 };
