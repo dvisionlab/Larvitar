@@ -295,7 +295,7 @@ export const disableViewport = function (elementId: string | HTMLElement) {
   const id: string = isElement(elementId) ? element.id : (elementId as string);
   toggleMouseToolsListeners(id, true);
   cornerstone.disable(element);
-  setStore(["renderingStatus", id, false]);
+  setStore(["ready", id, false]);
 };
 
 /**
@@ -734,7 +734,7 @@ export const storeViewportData = function (
     viewport.translation?.y || 0,
     data.defaultWW,
     data.defaultWC,
-    viewport.invert
+    viewport.invert === true
   ]);
   setStore(["scale", elementId, viewport.scale || 0]);
   setStore(["rotation", elementId, viewport.rotation || 0]);

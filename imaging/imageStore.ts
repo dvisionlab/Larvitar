@@ -53,7 +53,17 @@ type SetPayload =
       number,
       number
     ]
-  | ["defaultViewport", string, number, number, number, number, number, number];
+  | [
+      "defaultViewport",
+      string,
+      number,
+      number,
+      number,
+      number,
+      number,
+      number,
+      boolean
+    ];
 
 // Larvitar store object
 let STORE: Store;
