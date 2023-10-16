@@ -5,7 +5,7 @@
 
 // external libraries
 import { get as _get, cloneDeep as _cloneDeep } from "lodash";
-import { MetadataValue } from "./types";
+//import { MetadataValue } from "./types";
 
 type StoreSeries = { imageIds: string[]; progress: number };
 
@@ -417,7 +417,8 @@ const validateStore = () => {
 
 export const set = (
   field: string,
-  payload: string | Array<MetadataValue> // TODO-ts use SetPayload type here
+  payload: string | Array<any> // TODO-ts use SetPayload type here 
+  //Laura: shall we use MetaData?
 ) => {
   validateStore();
   payload = Array.isArray(payload) ? payload : [payload];

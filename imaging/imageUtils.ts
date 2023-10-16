@@ -28,11 +28,12 @@ import TAG_DICT from "./dataDictionary.json";
 import { getSeriesDataFromLarvitarManager } from "./loaders/commonLoader";
 import type {
   CustomDataSet,
-  MetadataValue,
+  MetaData,
   ReslicedInstance,
   Series
 } from "./types";
 import { getTagValue } from "./imageTags";
+import { MetaDataTypes } from "./MetaDataTypes";
 
 // global module variables
 // variables used to manage the reslice functionality
@@ -214,7 +215,7 @@ export const getSortedStack = function (
     }
 
     let sortMethod = methods.shift();
-    var sorted = sortBy(data.imageIds, function (imageId) {
+    var sorted = sortBy(data.imageIds, function (imageId : string) {
       return sortStackCallback(data, imageId, sortMethod!);
     });
     if (returnSuccessMethod === true) {
@@ -238,9 +239,9 @@ export const getSortedStack = function (
  */
 export const getSortedUIDs = function (seriesData: Series) {
   let instanceUIDs: { [key: string]: string } = {};
-  forEach(seriesData.imageIds, function (imageId) {
+  forEach(seriesData.imageIds, function (imageId : string) {
     let instanceUID = seriesData.instances[imageId].metadata
-      .instanceUID as string;
+      .instanceUID!; //Laura ??
     instanceUIDs[instanceUID] = imageId;
   });
   return instanceUIDs;
@@ -267,16 +268,17 @@ export const randomId = function () {
  */
 export const getMeanValue = function (
   series: Series,
-  tag: string,
+  tag: keyof MetaData,
   isArray: boolean
 ) {
   let meanValue = isArray ? ([] as number[]) : (0 as number);
 
-  forEach(series.imageIds, function (imageId) {
-    let tagValue = series.instances[imageId].metadata[tag];
+  forEach(series.imageIds, function (imageId : string) {
+    let tagValue = series.instances[imageId].metadata[tag] as MetaData[typeof tag];//Laura: tagvalue is metadata?? ask simone
     if (Array.isArray(tagValue)) {
+      tagValue;
       meanValue = meanValue as number[];
-      tagValue = tagValue.map(v => parseFloat(v as string));
+      //Laura ?? tagValue = tagValue.map(v => parseFloat(v as string));
       if (tagValue.length === 2) {
         meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
         meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
@@ -342,22 +344,15 @@ export const getReslicedMetadata = function (
   let sampleMetadata = seriesData.instances[seriesData.imageIds[0]].metadata;
 
   let fromSize = [
-    sampleMetadata.x00280011 as number,
-    sampleMetadata.x00280010 as number,
+    sampleMetadata.x00280011!, //Laura: set these tags as unknown in the datadictionary  
+    sampleMetadata.x00280010!, 
     seriesData.imageIds.length
   ];
   let toSize = permuteValues(permuteAbsTable, fromSize);
   let fromSpacing = spacingArray(seriesData, sampleMetadata);
-  let toSpacing = permuteValues(permuteAbsTable, fromSpacing);
+  let toSpacing = permuteValues(permuteAbsTable, fromSpacing as number[]);
   let reslicedIOP = getReslicedIOP(
-    sampleMetadata.x00200037 as [
-      number,
-      number,
-      number,
-      number,
-      number,
-      number
-    ],
+    sampleMetadata.x00200037!,
     permuteTable
   );
 
@@ -367,23 +362,16 @@ export const getReslicedMetadata = function (
 
     let instanceId = uuidv4();
     let reslicedIPP = getReslicedIPP(
-      sampleMetadata.x00200032 as [number, number, number],
-      sampleMetadata.x00200037 as [
-        number,
-        number,
-        number,
-        number,
-        number,
-        number
-      ],
+      sampleMetadata.x00200032 as [number,number,number],
+      sampleMetadata.x00200037!,
       reslicedIOP,
       permuteTable,
       f,
       fromSize,
       toSize,
-      fromSpacing
+      fromSpacing as number[]
     );
-    let metadata = extend(clone(sampleMetadata), {
+    let metadata : MetaData= extend(clone(sampleMetadata), {
       // pixel representation
       x00280100: sampleMetadata.x00280100,
       x00280103: sampleMetadata.x00280103,
@@ -429,7 +417,7 @@ export const getReslicedMetadata = function (
       x00200032: reslicedIPP
     });
 
-    // set human readable metadata
+    // set human readable metadata. 
     metadata.seriesUID = reslicedSeriesId;
     metadata.rows = metadata.x00280010;
     metadata.cols = metadata.x00280011;
@@ -527,7 +515,7 @@ export const getCmprMetadata = function (
 
     reslicedInstances[reslicedImageId] = {
       instanceId: instanceId,
-      metadata: metadata
+      metadata: metadata //Laura: missing other metadata, problem with MetaDataTypes. Is metadata an array of SOME metadatas?
     };
   }
 
@@ -632,19 +620,8 @@ export const getDistanceBetweenSlices = function (
   let imageId1 = seriesData.imageIds[sliceIndex1];
   let instance1 = seriesData.instances[imageId1];
   let metadata1 = instance1.metadata;
-  let imageOrientation = metadata1.imageOrientation
-    ? (metadata1.imageOrientation as [
-        number,
-        number,
-        number,
-        number,
-        number,
-        number
-      ])
-    : (metadata1.x00200037 as [number, number, number, number, number, number]);
-  let imagePosition = metadata1.imagePosition
-    ? (metadata1.imagePosition as [number, number, number])
-    : (metadata1.x00200032 as [number, number, number]);
+  let imageOrientation = metadata1.x00200037;
+  let imagePosition = metadata1.x00200032 as [number, number, number];
 
   if (imageOrientation && imagePosition) {
     let normal = getNormalOrientation(imageOrientation);
@@ -656,9 +633,7 @@ export const getDistanceBetweenSlices = function (
     let imageId2 = seriesData.imageIds[sliceIndex2];
     let instance2 = seriesData.instances[imageId2];
     let metadata2 = instance2.metadata;
-    let imagePosition2 = metadata2.imagePosition
-      ? (metadata2.imagePosition as [number, number, number])
-      : (metadata2.x00200032 as [number, number, number]);
+    let imagePosition2 = metadata2.x00200032!;
 
     let d2 =
       normal[0] * imagePosition2[0] +
@@ -692,17 +667,16 @@ export const getImageMetadata = function (
   }
 
   let metadata = seriesData.instances[imageId].metadata;
-  // get elements from metadata where the key starts with x and is length 7
-  let metadata_keys = filter(keys(metadata), function (key) {
-    return key.length === 9 && key[0] === "x";
-  });
+  // get elements from metadata where the key starts with x and is length 7 //Laura aren't they all like this?
+  let metadata_keys = Object.keys(metadata);
   // loop metadata using metadata_keys and return list of key value pairs
-  let metadata_list = map(metadata_keys, function (key) {
+  let metadata_list = map(metadata_keys, function (key : string) {
     // if value is a dictionary return empty string
+    let KEY=key as keyof MetaDataTypes;
     const value =
-      metadata[key] && metadata[key]!.constructor == Object
+      metadata[KEY] && metadata[KEY]!.constructor == Object
         ? ""
-        : metadata[key];
+        : metadata[KEY];
     // convert key removing x and adding comma at position 4
     const tagKey = (
       "(" +
@@ -748,24 +722,19 @@ let sortStackCallback = function (
   switch (method) {
     case "instanceNumber":
       var instanceNumber = seriesData.instances[imageId].metadata
-        .x00200013 as string;
+        .x00200013!;
       return parseInt(instanceNumber);
 
     case "contentTime":
       return seriesData.instances[imageId].metadata.x00080033;
 
     case "imagePosition":
-      let pStr = seriesData.instances[imageId].metadata
-        .imagePosition as string[];
-      let p = map(pStr, function (value) {
-        return parseFloat(value);
-      });
-
-      let oStr = seriesData.instances[imageId].metadata
-        .imageOrientation as string[];
-      let o = map(oStr, function (value) {
-        return parseFloat(value);
-      });
+      let p=seriesData.instances[imageId].metadata
+      .imagePosition!;
+      let pStr = p?.map(String);
+      let o =seriesData.instances[imageId].metadata
+      .imageOrientation!;
+      let oStr =  o?.map(String);
 
       var v1, v2, v3: number;
       v1 = o[0] * o[0] + o[3] * o[3];
@@ -906,17 +875,17 @@ let getReslicedIPP = function (
   // compute resliced ipp
   let reslicedIPP = [];
 
-  // iop data
+  // iop data types??
   let u = iop.slice(0, 3);
   let v = iop.slice(3, 6);
   let w = getNormalOrientation(iop);
-  let absW = map(w, function (v) {
+  let absW = map(w, function (v: number) {
     return Math.abs(v);
   });
   let majorOriginalIndex = indexOf(absW, max(absW));
 
   let normalReslicedIop = getNormalOrientation(reslicedIOP);
-  normalReslicedIop = map(normalReslicedIop, function (v) {
+  normalReslicedIop = map(normalReslicedIop, function (v: number) {
     return Math.abs(v);
   });
 
@@ -988,7 +957,7 @@ let getReslicedSliceLocation = function (
   reslicedIPP: [number, number, number]
 ) {
   let normalReslicedIop = getNormalOrientation(reslicedIOP);
-  normalReslicedIop = map(normalReslicedIop, function (v) {
+  normalReslicedIop = map(normalReslicedIop, function (v:number) {
     return Math.abs(v);
   });
 
@@ -1006,7 +975,7 @@ let getReslicedSliceLocation = function (
  */
 let spacingArray = function (
   seriesData: Series,
-  sampleMetadata: { [key: string]: MetadataValue }
+  sampleMetadata: MetaDataTypes
 ) {
   // the spacingArray is as follows:
   // [0]: column pixelSpacing value (x00280030[1])
@@ -1014,11 +983,11 @@ let spacingArray = function (
   // [2]: distance between slices, given the series imageOrientationPatient and
   //      imagePositionPatient of the first two slices
 
-  let distanceBetweenSlices = sampleMetadata.x00180050
-    ? sampleMetadata.x00180050
+  let distanceBetweenSlices = sampleMetadata["x00180050"]   //x00180050?? laura 
+    ? sampleMetadata["x00180050"]
     : getDistanceBetweenSlices(seriesData, 0, 1);
 
-  let spacing = sampleMetadata.x00280030 as number[];
+  let spacing = sampleMetadata["x00180050"]!;
 
   return [spacing[1], spacing[0], distanceBetweenSlices as number];
 };

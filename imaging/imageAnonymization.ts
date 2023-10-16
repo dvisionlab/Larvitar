@@ -7,7 +7,7 @@
 import sha256 from "crypto-js/sha256";
 import Hex from "crypto-js/enc-hex";
 import { forEach } from "lodash";
-import { Series } from "./types";
+import { Instance, MetaData, Series } from "./types";
 
 const SH = [
   "x00080050" // Accession Number,
@@ -113,8 +113,8 @@ const TAGS = [
  * @returns {Object} anonymized_series: Cornerstone anonymized series object
  */
 export const anonymize = function (series: Series) {
-  forEach(series.instances, function (instance) {
-    forEach(TAGS, function (tag) {
+  forEach(series.instances, function (instance : Instance) {
+    forEach(TAGS, function (tag : keyof MetaData) {
       if (tag in instance.metadata) {
         let anonymized_value = sha256(
           (instance.metadata[tag] || "").toString()
