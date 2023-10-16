@@ -33,6 +33,7 @@ export const loadReslicedImage = function (imageId: string) {
   let seriesId = imageTracker[imageId];
   let instance = manager[seriesId].instances[imageId];
   var reslicedPixeldata = instance.pixelData;
+  //@ts-ignore deprecated
   return createCustomImage(imageId, instance.metadata, reslicedPixeldata);
 };
 
@@ -52,7 +53,7 @@ let createCustomImage = function (
   imageId: string,
   metadata: { [key: string]: MetadataValue },
   pixelData: Uint8ClampedArray,
-  dataSet?: any // TODO-ts check this
+  dataSet?: any // deprecated
 ) {
   let canvas = window.document.createElement("canvas");
   let lastImageIdDrawn = "";

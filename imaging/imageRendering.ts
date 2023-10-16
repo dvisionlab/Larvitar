@@ -90,10 +90,6 @@ export function loadAndCacheImages(
 ) {
   const t0 = performance.now();
   let cachingCounter = 0;
-  if (series.isMultiframe) {
-    // console.warn("Do not cache multiframe images for performance issues");
-    return;
-  }
   const response = {
     seriesId: series.seriesUID,
     loading: 0,
@@ -174,7 +170,10 @@ export const renderDICOMPDF = function (
         '<object data="' +
         fileURL +
         '" type="application/pdf" width="100%" height="100%"></object>';
-      setStore(["isPDF", elementId as string, true]);
+      const id: string = isElement(elementId)
+        ? element.id
+        : (elementId as string);
+      setStore(["isPDF", id, true]);
       let t1 = performance.now();
       console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
       image = null;
@@ -224,16 +223,14 @@ export const renderFileImage = function (
           return;
         }
         cornerstone.displayImage(element, image);
-        let viewport = cornerstone.getViewport(element);
+        const viewport = cornerstone.getViewport(element) as Viewport;
 
         if (!viewport) {
           console.error("invalid viewport");
           return;
         }
 
-        // @ts-ignore: displayArea is not defined in the type definition TODO-ts check this
         viewport.displayedArea.brhc.x = image.width;
-        // @ts-ignore
         viewport.displayedArea.brhc.y = image.height;
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
@@ -295,9 +292,10 @@ export const disableViewport = function (elementId: string | HTMLElement) {
     console.error("invalid html element: " + elementId);
     return;
   }
-  // toggleMouseHandlers(elementId, true); // flagged true to disable handlers
-  toggleMouseToolsListeners(elementId, true);
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+  toggleMouseToolsListeners(id, true);
   cornerstone.disable(element);
+  setStore("renderingStatus", [id as string, false]);
 };
 
 /**
@@ -372,14 +370,15 @@ export const renderImage = function (
       reject("invalid html element: " + elementId)
     );
   }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
   cornerstone.enable(element);
 
   let series = { ...seriesStack };
 
-  setStore(["ready", elementId as string, false]);
+  setStore(["ready", id, false]);
   let data = getSeriesData(series, defaultProps) as {
     [key: string]: number | string | boolean;
-  }; //TODO-ts improve this
+  }; //TODO-ts improve this @szanchi
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) =>
@@ -474,7 +473,7 @@ export const renderImage = function (
   });
 
   csToolsCreateStack(element, series.imageIds, (data.imageIndex as number) - 1);
-  toggleMouseToolsListeners(elementId, false);
+  toggleMouseToolsListeners(id, false);
 
   return renderPromise;
 };
@@ -506,31 +505,31 @@ export const updateImage = async function (
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    // console.log("not element");
     throw "not element";
   }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
 
   if (series.is4D) {
     const timestamp = series.instances[imageId].metadata.contentTime;
     const timeId =
       (series.instances[imageId].metadata
         .temporalPositionIdentifier as number) - 1; // timeId from 0 to N
-    setStore(["timeId", elementId as string, timeId]);
-    setStore(["timestamp", elementId as string, timestamp as number]);
+    setStore(["timeId", id, timeId]);
+    setStore(["timestamp", id, timestamp as number]);
   }
 
   if (cacheImage) {
     const image = await cornerstone.loadAndCacheImage(imageId);
     cornerstone.displayImage(element, image);
-    setStore(["sliceId", elementId as string, imageIndex]);
-    setStore(["minPixelValue", elementId as string, image.minPixelValue]);
-    setStore(["maxPixelValue", elementId as string, image.maxPixelValue]);
+    setStore(["sliceId", id, imageIndex]);
+    setStore(["minPixelValue", id, image.minPixelValue]);
+    setStore(["maxPixelValue", id, image.maxPixelValue]);
   } else {
     const image = await cornerstone.loadImage(imageId);
     cornerstone.displayImage(element, image);
-    setStore(["sliceId", elementId as string, imageIndex]);
-    setStore(["minPixelValue", elementId as string, image.minPixelValue]);
-    setStore(["maxPixelValue", elementId as string, image.maxPixelValue]);
+    setStore(["sliceId", id, imageIndex]);
+    setStore(["minPixelValue", id, image.minPixelValue]);
+    setStore(["maxPixelValue", id, image.maxPixelValue]);
   }
 };
 
@@ -564,7 +563,7 @@ export const resetViewports = function (
     if (!keys || keys.find(v => v === "contrast")) {
       viewport.voi.windowWidth = defaultViewport.voi.windowWidth;
       viewport.voi.windowCenter = defaultViewport.voi.windowCenter;
-      viewport.invert = false;
+      viewport.invert = defaultViewport.voi.invert;
       setStore([
         "contrast",
         elementId,
@@ -607,7 +606,6 @@ export const resetViewports = function (
     if (!keys || keys.find(v => v === "scaleAndTranslation")) {
       cornerstone.fitToWindow(element);
     }
-
     cornerstone.updateImage(element);
   });
 };
@@ -696,6 +694,7 @@ export const storeViewportData = function (
   elementId: string,
   viewport: Viewport,
   data: { [key: string]: any } // TODO-ts what is this?
+  // same data as getSeriesData @szanchi
 ) {
   setStore(["dimensions", elementId, data.rows, data.cols]);
   setStore(["spacing", elementId, data.spacing_x, data.spacing_y]);
@@ -734,7 +733,8 @@ export const storeViewportData = function (
     viewport.translation?.x || 0,
     viewport.translation?.y || 0,
     data.defaultWW,
-    data.defaultWC
+    data.defaultWC,
+    viewport.invert
   ]);
   setStore(["scale", elementId, viewport.scale || 0]);
   setStore(["rotation", elementId, viewport.rotation || 0]);
@@ -901,6 +901,7 @@ let getSeriesData = function (
     data.isMultiframe = false;
     data.isTimeserie = true;
     // check with real indices
+    //@ts-ignore fix when data is typed
     data.numberOfSlices = series.numberOfImages;
     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
     data.imageIndex = 0;

@@ -1,8 +1,9 @@
 import { vec2 } from "cornerstone-core";
 import { DataSet } from "dicom-parser";
 import { DEFAULT_VIEWPORT } from "./imageStore";
+import { NrrdSeries } from "./loaders/nrrdLoader";
 
-// TODO-ts: differentiate each single metadata
+// TODO-ts: differentiate each single metadata @szanchi
 export type MetadataValue =
   | string
   | number
@@ -10,6 +11,7 @@ export type MetadataValue =
   | number[]
   | boolean
   | null
+  | Array
   | undefined; // null or undefined is only for nrrd
 
 export interface Image extends cornerstone.Image {
@@ -27,6 +29,8 @@ export type Instance = {
   pixelData?: TypedArray | null;
   dataSet?: DataSet | null;
   file?: File | null;
+  instanceId?: string;
+  frame?: number;
 };
 
 export type ReslicedInstance = {
@@ -37,11 +41,11 @@ export type ReslicedInstance = {
 
 export type StagedProtocol = {
   numberOfStages: number; // Number of stages
-  numberOfViews?: number; // Number of views in stage
-  stageName: string; // Name of the stage
-  stageNumber: number; // Number of the stage
-  viewName: string; // Name of the view
-  viewNumber: number; // Number of the view
+  numberOfViews: number; // Number of views in stage
+  stageName?: string; // Name of the stage
+  stageNumber?: number; // Number of the stage
+  viewName?: string; // Name of the view
+  viewNumber?: number; // Number of the view
 };
 
 export type Series = {
@@ -52,12 +56,13 @@ export type Series = {
   bytes: number;
   seriesUID: string;
   currentImageIdIndex: number;
-  numberOfImages: number;
+  numberOfImages?: number;
   isMultiframe: boolean;
   color?: boolean;
   dataSet: DataSet | null;
   frameDelay?: number;
   frameTime?: number;
+  rWaveTimeVector?: number[];
   instanceUIDs: { [key: string]: string };
   is4D: boolean;
   isPDF: boolean;
@@ -79,6 +84,12 @@ export interface Layer extends cornerstone.EnabledElementLayer {
 
 export interface Viewport extends cornerstone.Viewport {
   newImageIdIndex: number;
+  displayedArea: {
+    brhc: {
+      x: number;
+      y: number;
+    };
+  };
 }
 
 export type Contours = {
@@ -116,7 +127,7 @@ export type Volume = {
 };
 
 export type LarvitarManager = {
-  [key: string]: NrrdSeries;
+  [key: string]: NrrdSeries | Series;
 } | null;
 
 export type ImageFrame = {

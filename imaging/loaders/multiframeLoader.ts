@@ -55,7 +55,7 @@ export const loadMultiFrameImage = function (imageId: string) {
   if (multiframeDatasetCache[rootImageId]) {
     multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId];
   } else if (manager) {
-    multiframeDatasetCache[rootImageId] = manager[seriesId];
+    multiframeDatasetCache[rootImageId] = manager[seriesId] as Series;
   } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
   }
@@ -82,6 +82,8 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
   let frameDelay = serie.instances[serie.imageIds[0]].metadata.frameDelay
     ? serie.instances[serie.imageIds[0]].metadata.frameDelay
     : 0;
+  let rWaveTimeVector =
+    serie.instances[serie.imageIds[0]].metadata.rWaveTimeVector;
 
   each(serie.imageIds, function (instanceId) {
     let dataSet = serie.instances[instanceId].dataSet;
@@ -107,29 +109,33 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
         frameId: frameNumber
       });
 
+      // TODO-ts REMOVE "AS" WHEN METADATA VALUES ARE TYPED
       // store file references
-      manager[seriesId].seriesUID = seriesId;
-      manager[seriesId].studyUID = metadata["x0020000d"];
-      manager[seriesId].modality = metadata["x00080060"];
-      manager[seriesId].color = cornerstoneDICOMImageLoader.isColorImage(
+      const managerSeriesId = manager[seriesId] as Series;
+      managerSeriesId.seriesUID = seriesId;
+      managerSeriesId.studyUID = metadata["x0020000d"] as string;
+      managerSeriesId.modality = metadata["x00080060"] as string;
+      managerSeriesId.color = cornerstoneDICOMImageLoader.isColorImage(
         metadata["x00280004"]
       );
-      manager[seriesId].isMultiframe = true;
-      manager[seriesId].currentImageIdIndex = 0;
-      manager[seriesId].numberOfFrames = numberOfFrames;
-      manager[seriesId].frameTime = frameTime;
-      manager[seriesId].frameDelay = frameDelay;
-      manager[seriesId].numberOfImages = undefined;
-      manager[seriesId].bytes = serie.bytes;
-      manager[seriesId].imageIds.push(frameImageId);
-      manager[seriesId].instances[frameImageId] = {
+
+      managerSeriesId.isMultiframe = true;
+      managerSeriesId.currentImageIdIndex = 0;
+      managerSeriesId.numberOfFrames = numberOfFrames as number;
+      managerSeriesId.frameTime = frameTime as number;
+      managerSeriesId.frameDelay = frameDelay as number;
+      managerSeriesId.rWaveTimeVector = rWaveTimeVector as number[];
+      managerSeriesId.numberOfImages = undefined;
+      managerSeriesId.bytes = serie.bytes;
+      managerSeriesId.imageIds.push(frameImageId);
+      managerSeriesId.instances[frameImageId] = {
         instanceId: instanceId,
         frame: frameNumber,
         metadata: frameMetadata
       };
-      manager[seriesId].dataSet = dataSet;
-      manager[seriesId].seriesDescription =
-        serie.instances[serie.imageIds[0]].metadata.seriesDescription;
+      managerSeriesId.dataSet = dataSet || null;
+      managerSeriesId.seriesDescription = serie.instances[serie.imageIds[0]]
+        .metadata.seriesDescription as string;
     });
   });
   let t1 = performance.now();

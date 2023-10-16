@@ -6,7 +6,7 @@
     "medical",
     "cornerstone"
   ],
-  "version": "2.0.0-rc18",
+  "version": "2.0.0-rc26",
   "description": "javascript library for parsing, loading, rendering and interacting with DICOM images",
   "repository": {
     "url": "https://github.com/dvisionlab/Larvitar.git",

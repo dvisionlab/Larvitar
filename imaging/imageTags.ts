@@ -276,7 +276,7 @@ function getDICOMTag(code: string) {
 export const parseTag = function (
   dataSet: DataSet,
   propertyName: string,
-  element: { [key: string]: any } // TODO-ts better type
+  element: { [key: string]: any } // TODO-ts better type @szanchi
 ) {
   // GET VR
   var tagData = dataSet.elements[propertyName] || {};
@@ -372,6 +372,7 @@ export const parseTag = function (
     ) {
       // get character set
       let characterSet = dataSet.string("x00080005");
+
       if (characterSet) {
         let data = dataSet.elements[propertyName];
         let arr: Uint8Array | null = new Uint8Array(
@@ -379,9 +380,17 @@ export const parseTag = function (
           data.dataOffset,
           data.length
         );
-        valueOut = convertBytes(characterSet, arr, {
-          vr: vr
-        });
+        // try to convert bytes
+        // if raises invalid character set
+        // catch error
+        try {
+          valueOut = convertBytes(characterSet, arr, {
+            vr: vr
+          });
+        } catch (error) {
+          console.warn("Invalid Character Set: " + characterSet);
+          valueOut = "Invalid Character Set: " + characterSet;
+        }
         arr = null;
       }
       if (vr == "PN") {
@@ -422,7 +431,26 @@ export const parseTag = function (
   } else if (vr == "FD") {
     valueOut = dataSet.double(propertyName);
   } else if (vr == "FL") {
-    valueOut = dataSet.float(propertyName);
+    // check if there are multiple values
+    if (propertyName === "x00186060") {
+      // RWaveTimeVector
+      let index = 0;
+      let rWaveTimeVector: number[] = [];
+      while (dataSet.float(propertyName, index)) {
+        let value = dataSet.float(propertyName, index);
+        // push value in array if is bigger than previous value
+        if (index > 0 && value && value < rWaveTimeVector[index - 1]) {
+          break;
+        }
+        if (value) {
+          rWaveTimeVector.push(value);
+        }
+        index++;
+      }
+      valueOut = rWaveTimeVector;
+    } else {
+      valueOut = dataSet.float(propertyName);
+    }
   } else if (
     vr === "OB" ||
     vr === "OW" ||

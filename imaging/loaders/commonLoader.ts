@@ -54,9 +54,12 @@ export const updateLarvitarManager = function (
 
   if (data.metadata?.isMultiframe) {
     let seriesId = customId || imageObject.metadata.seriesUID;
-    let loadedStack: { [key: string]: Series } = {};
+    let loadedStack: ReturnType<typeof getLarvitarManager> = {};
     updateLoadedStack(data, loadedStack, customId);
-    buildMultiFrameImage(seriesId as string, loadedStack[seriesId as string]);
+    buildMultiFrameImage(
+      seriesId as string,
+      loadedStack[seriesId as string] as Series
+    );
   } else {
     updateLoadedStack(data, larvitarManager, customId);
   }
@@ -120,20 +123,23 @@ export const getLarvitarImageTracker = function () {
  */
 export const resetLarvitarManager = function () {
   each(larvitarManager, function (stack) {
-    if (stack.isMultiframe) {
-      if (stack.dataSet) {
-        stack.dataSet.byteArray = null;
+    if ((stack as Series).isMultiframe) {
+      if ((stack as Series).dataSet) {
+        //@ts-ignore for memory leak
+        (stack as Series).dataSet!.byteArray = null;
       }
-      stack.dataSet = null;
-      stack.elements = null;
+      (stack as Series).dataSet = null;
+      (stack as Series).elements = null;
       clearMultiFrameCache(stack.seriesUID);
     }
     each(stack.instances, function (instance) {
       if (instance.dataSet) {
+        //@ts-ignore for memory leak
         instance.dataSet.byteArray = null;
       }
       instance.dataSet = null;
       instance.file = null;
+      //@ts-ignore for memory leak
       instance.metadata = null;
     });
   });
@@ -149,20 +155,24 @@ export const resetLarvitarManager = function () {
  */
 export const removeSeriesFromLarvitarManager = function (seriesId: string) {
   if (larvitarManager && larvitarManager[seriesId]) {
-    if (larvitarManager[seriesId].isMultiframe) {
-      larvitarManager[seriesId].dataSet.byteArray = null;
-      larvitarManager[seriesId].dataSet = null;
-      larvitarManager[seriesId].elements = null;
+    if ((larvitarManager[seriesId] as Series).isMultiframe) {
+      //@ts-ignore for memory leak
+      (larvitarManager[seriesId] as Series).dataSet.byteArray = null;
+      (larvitarManager[seriesId] as Series).dataSet = null;
+      (larvitarManager[seriesId] as Series).elements = null;
       clearMultiFrameCache(seriesId);
     }
     each(larvitarManager[seriesId].instances, function (instance) {
       if (instance.dataSet) {
+        //@ts-ignore for memory leak
         instance.dataSet.byteArray = null;
       }
       instance.dataSet = null;
       instance.file = null;
+      //@ts-ignore for memory leak
       instance.metadata = null;
     });
+    //@ts-ignore for memory leak
     larvitarManager[seriesId] = null;
     delete larvitarManager[seriesId];
   }

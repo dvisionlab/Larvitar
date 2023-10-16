@@ -19,6 +19,7 @@ import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
 import { loadMultiFrameImage } from "./loaders/multiframeLoader";
 import { ImageObject, Instance, Series, StagedProtocol } from "./types";
+import { getLarvitarManager } from "./loaders/commonLoader";
 
 /**
  * Global standard configuration
@@ -61,8 +62,7 @@ const globalConfig = {
  * @function initializeImageLoader
  * @param {Object} config - Custom config @default globalConfig
  */
-export const initializeImageLoader = function (config?: Object) {
-  //TODO-ts better definition
+export const initializeImageLoader = function (config?: typeof globalConfig) {
   let imageLoaderConfig = config ? config : globalConfig;
   cornerstoneDICOMImageLoader.external.cornerstone = cornerstone;
   cornerstoneDICOMImageLoader.external.dicomParser = dicomParser;
@@ -131,7 +131,7 @@ export const registerMultiFrameImageLoader = function () {
  */
 export const updateLoadedStack = function (
   seriesData: ImageObject,
-  allSeriesStack: { [key: string]: Series },
+  allSeriesStack: ReturnType<typeof getLarvitarManager>,
   customId?: string
 ) {
   let sid = seriesData.metadata.seriesUID;
@@ -164,7 +164,7 @@ export const updateLoadedStack = function (
   // Staged Protocol
   // https://dicom.nema.org/dicom/2013/output/chtml/part17/sect_K.5.html
   const numberOfStages = seriesData.metadata["x00082124"]; // Number of stages
-  const numberOfViews = seriesData.metadata["x0008212A"]; // Number of views in stage
+  const numberOfViews = seriesData.metadata["x0008212a"]; // Number of views in stage
   const isStagedProtocol = numberOfStages ? true : false;
 
   // initialize series stack
@@ -191,22 +191,27 @@ export const updateLoadedStack = function (
       bytes: 0
     };
     if (isStagedProtocol) {
-      let stagedProtocol: StagedProtocol = {
+      const stageName = seriesData.metadata["x00082120"];
+      const stageNumber = seriesData.metadata["x00082122"];
+      const viewName = seriesData.metadata["x00082127"];
+      const viewNumber = seriesData.metadata["x00082128"];
+      const stagedProtocol: StagedProtocol = {
         numberOfStages: numberOfStages as number,
         numberOfViews: numberOfViews as number,
-        stageName: (seriesData.metadata["x00082120"] as string).trim(),
-        stageNumber: seriesData.metadata["x00082122"] as number,
-        viewName: (seriesData.metadata["x00082127"] as string).trim(),
-        viewNumber: seriesData.metadata["x00082128"] as number
+        stageName: stageName ? (stageName as string).trim() : undefined,
+        stageNumber: stageNumber as number,
+        viewName: viewName ? (viewName as string).trim() : undefined,
+        viewNumber: viewNumber as number
       };
       series.stagedProtocol = stagedProtocol;
     }
     allSeriesStack[id] = series as Series;
   }
 
-  const sortMethods = is4D
-    ? ["imagePosition", "contentTime"]
-    : ["imagePosition"];
+  // get instance number from metadata
+  const instanceNumber = seriesData.metadata["x00200013"];
+  const defaultMethod = instanceNumber ? "instanceNumber" : "imagePosition";
+  const sortMethods = is4D ? [defaultMethod, "contentTime"] : [defaultMethod];
 
   // if the parsed file is a new series instance, keep it
   if (isNewInstance(allSeriesStack[id].instances, iid)) {
@@ -219,7 +224,8 @@ export const updateLoadedStack = function (
 
     allSeriesStack[id].imageIds.push(imageId);
     if (is4D === false) {
-      allSeriesStack[id].numberOfImages += 1;
+      allSeriesStack[id].numberOfImages =
+        (allSeriesStack[id].numberOfImages || 0) + 1;
     }
     allSeriesStack[id].bytes += seriesData.file.size;
     // store needed instance tags
@@ -231,13 +237,15 @@ export const updateLoadedStack = function (
 
     // order images in stack
     allSeriesStack[id].imageIds = getSortedStack(
-      allSeriesStack[id],
-      sortMethods,
+      allSeriesStack[id] as Series,
+      is4D ? ["imagePosition", "contentTime"] : ["imagePosition"],
       true
     );
 
     // populate the ordered dictionary of instanceUIDs
-    allSeriesStack[id].instanceUIDs = getSortedUIDs(allSeriesStack[id]);
+    allSeriesStack[id].instanceUIDs = getSortedUIDs(
+      allSeriesStack[id] as Series
+    );
     store.addSeriesId(id, allSeriesStack[id].imageIds);
   }
 };
