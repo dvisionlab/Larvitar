@@ -265,7 +265,7 @@ let isNewInstance = function (
   iid: string
 ) {
   let isNewInstance = true;
-  forEach(instances, function (instance) {
+  forEach(instances, function (instance : Instance) {
     if (instance.metadata.instanceUID === iid) {
       isNewInstance = false;
     }

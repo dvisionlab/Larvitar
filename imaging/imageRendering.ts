@@ -50,7 +50,7 @@ export const clearImageCache = function (seriesId?: string) {
   if (seriesId) {
     let series = store.get("series");
     if (has(series, seriesId)) {
-      each(series[seriesId].imageIds, function (imageId) {
+      each(series[seriesId].imageIds, function (imageId : string) {
         if (cornerstone.imageCache.cachedImages.length > 0) {
           try {
             cornerstone.imageCache.removeImageLoadObject(imageId);
@@ -100,7 +100,7 @@ export function loadAndCacheImages(
   store.addSeriesId(series.seriesUID, series.imageIds);
   // add serie's caching progress into store
   setStore("progress", [series.seriesUID, 0]);
-  each(series.imageIds, function (imageId) {
+  each(series.imageIds, function (imageId : string) {
     cornerstone.loadAndCacheImage(imageId).then(function () {
       cachingCounter += 1;
       const cachingPercentage = Math.floor(
@@ -216,7 +216,7 @@ export const renderFileImage = function (
   let renderPromise = new Promise(resolve => {
     // check if imageId is already stored in fileManager
     const imageId = getFileImageId(file);
-    if (imageId) {
+    if (imageId) { //Laura: image is : cornerstone.IImage type 
       cornerstone.loadImage(imageId).then(function (image) {
         if (!element) {
           console.error("invalid html element: " + elementId);
@@ -513,7 +513,7 @@ export const updateImage = async function (
     const timestamp = series.instances[imageId].metadata.contentTime;
     const timeId =
       (series.instances[imageId].metadata
-        .temporalPositionIdentifier as number) - 1; // timeId from 0 to N
+        .temporalPositionIdentifier!) - 1; // timeId from 0 to N
     setStore("timeId", [id as string, timeId]);
     setStore("timestamp", [id as string, timestamp]);
   }
@@ -546,7 +546,7 @@ export const resetViewports = function (
     "contrast" | "scaleAndTranslation" | "rotation" | "flip" | "zoom"
   >
 ) {
-  each(elementIds, function (elementId) {
+  each(elementIds, function (elementId : string) {
     const element = document.getElementById(elementId);
     if (!element) {
       console.error("invalid html element: " + elementId);
@@ -890,19 +890,16 @@ let getSeriesData = function (
     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
     data.imageIndex = 0;
     data.timeIndex = 0;
-    data.timestamp = series.instances[series.imageIds[0]].metadata[
-      "x00080033"
-    ] as number;
+    data.timestamp = series.instances[series.imageIds[0]].metadata.x00080033!;
     data.imageId = series.imageIds[data.imageIndex];
     data.timestamps = [];
     data.timeIds = [];
-    each(series.imageIds, function (imageId) {
+    each(series.imageIds, function (imageId : string) {
       (data.timestamps as any[]).push(
         series.instances[imageId].metadata.contentTime
       );
-      (data.timeIds as any[]).push(
-        (series.instances[imageId].metadata
-          .temporalPositionIdentifier as number) - 1 // timeId from 0 to N
+      (data.timeIds as any[]).push(series.instances[imageId].metadata
+        .temporalPositionIdentifier! - 1 // timeId from 0 to N
       );
     });
   } else {
@@ -926,19 +923,11 @@ let getSeriesData = function (
   data.isPDF = series.isPDF;
 
   // rows, cols and x y z spacing
-  data.rows = series.instances[series.imageIds[0]].metadata[
-    "x00280010"
-  ] as number;
-  data.cols = series.instances[series.imageIds[0]].metadata[
-    "x00280011"
-  ] as number;
-  data.thickness = series.instances[series.imageIds[0]].metadata[
-    "x00180050"
-  ] as number;
+  data.rows = series.instances[series.imageIds[0]].metadata.x00280010!;
+  data.cols = series.instances[series.imageIds[0]].metadata.x00280011!;
+  data.thickness = series.instances[series.imageIds[0]].metadata.x00180050!;
 
-  let spacing = series.instances[series.imageIds[0]].metadata[
-    "x00280030"
-  ] as number[];
+  let spacing = series.instances[series.imageIds[0]].metadata.x00280030;
   data.spacing_x = spacing ? spacing[0] : 1;
   data.spacing_y = spacing ? spacing[1] : 1;
 
@@ -946,12 +935,12 @@ let getSeriesData = function (
   data.wc =
     defaultProps && defaultProps.wc !== undefined
       ? defaultProps["wc"]
-      : (series.instances[series.imageIds[0]].metadata["x00281050"] as number);
+      : (series.instances[series.imageIds[0]].metadata.x00281050!);
 
   data.ww =
     defaultProps && defaultProps.ww !== undefined
       ? defaultProps["ww"]
-      : (series.instances[series.imageIds[0]].metadata["x00281051"] as number);
+      : (series.instances[series.imageIds[0]].metadata.x00281051!);
 
   // default values for reset
   data.defaultWW =

@@ -66,7 +66,7 @@ export const setImagePreset = function (
     return;
   }
 
-  each(viewportNames, function (viewportName) {
+  each(viewportNames, function (viewportName : string) {
     let element = document.getElementById(viewportName);
     let enabledElement;
 
@@ -118,7 +118,7 @@ export const setImageCustomPreset = function (
     );
     return;
   }
-  each(viewportNames, function (viewportName) {
+  each(viewportNames, function (viewportName : string) {
     let element = document.getElementById(viewportName);
     let enabledElement;
 
