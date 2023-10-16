@@ -295,7 +295,7 @@ export const disableViewport = function (elementId: string | HTMLElement) {
   const id: string = isElement(elementId) ? element.id : (elementId as string);
   toggleMouseToolsListeners(id, true);
   cornerstone.disable(element);
-  setStore("renderingStatus", [id as string, false]);
+  setStore(["renderingStatus", id, false]);
 };
 
 /**
