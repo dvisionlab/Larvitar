@@ -60,7 +60,7 @@ export function resliceSeries(
       let t0 = performance.now();
       let imageTracker = getLarvitarImageTracker();
       let manager = getLarvitarManager();
-      each(reslicedSeries.imageIds, function (imageId : string) {
+      each(reslicedSeries.imageIds, function (imageId) {
         reslicedSeries.instances[imageId].pixelData = getReslicedPixeldata(
           imageId,
           seriesData,

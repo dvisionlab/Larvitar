@@ -34,7 +34,7 @@ import { Series, Header, Volume, TypedArray } from "./types";
 export const buildHeader = function (series: Series) {
   let header: Partial<Header> = {};
 
-  forEach(series.imageIds, function (imageId : string ) {
+  forEach(series.imageIds, function (imageId) {
     header[imageId] = series.instances[imageId].metadata;
   });
 
@@ -42,19 +42,19 @@ export const buildHeader = function (series: Series) {
 
   volume.imageIds = series.imageIds;
   volume.seriesId = series.instances[series.imageIds[0]].metadata
-    .seriesUID;
+    .seriesUID as string;
   volume.rows =
-    (series.instances[series.imageIds[0]].metadata.rows) ||
-    (series.instances[series.imageIds[0]].metadata.x00280010);
+    (series.instances[series.imageIds[0]].metadata.rows as number) ||
+    (series.instances[series.imageIds[0]].metadata.x00280010 as number);
   volume.cols =
-    (series.instances[series.imageIds[0]].metadata.cols) ||
-    (series.instances[series.imageIds[0]].metadata.x00280011);
-  volume.slope = series.instances[series.imageIds[0]].metadata.slope ;
-  volume.repr = series.instances[series.imageIds[0]].metadata.repr;
+    (series.instances[series.imageIds[0]].metadata.cols as number) ||
+    (series.instances[series.imageIds[0]].metadata.x00280011 as number);
+  volume.slope = series.instances[series.imageIds[0]].metadata.slope as number;
+  volume.repr = series.instances[series.imageIds[0]].metadata.repr as string;
   volume.intercept = series.instances[series.imageIds[0]].metadata
-    .intercept;
+    .intercept as number;
   volume.imagePosition = series.instances[series.imageIds[0]].metadata
-    .imagePosition as [number, number]; //ask simone
+    .imagePosition as [number, number];
   volume.numberOfSlices = series.imageIds.length as number;
 
   // @ts-ignore
@@ -137,7 +137,7 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
 
     // use input data or cached data
     if (useSeriesData) {
-      forEach(series.imageIds, function (imageId : string) {
+      forEach(series.imageIds, function (imageId) {
         const sliceData = series.instances[imageId].pixelData;
         if (sliceData) {
           data.set(sliceData, offsetData);
@@ -150,7 +150,7 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
     } else {
       store.addSeriesId(series.seriesUID, series.imageIds);
       let image_counter = 0;
-      forEach(series.imageIds, function (imageId : string) {
+      forEach(series.imageIds, function (imageId) {
         getCachedPixelData(imageId).then((sliceData: number[]) => {
           data.set(sliceData, offsetData);
           offsetData += sliceData.length;

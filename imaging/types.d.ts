@@ -2,11 +2,9 @@ import { vec2 } from "cornerstone-core";
 import { DataSet } from "dicom-parser";
 import { DEFAULT_VIEWPORT } from "./imageStore";
 import { NrrdSeries } from "./loaders/nrrdLoader";
-import { MetaDataTypes } from "./MetaDataTypes";
-import { MetaDataReadable} from "./MetaDataReadable";
 
 // TODO-ts: differentiate each single metadata @szanchi
-/*export type MetadataValue =
+export type MetadataValue =
   | string
   | number
   | string[]
@@ -14,21 +12,20 @@ import { MetaDataReadable} from "./MetaDataReadable";
   | boolean
   | null
   | Array
-  | undefined; // null or undefined is only for nrrd*/
-  
-export type MetaData = MetaDataTypes & MetaDataReadable;
+  | undefined; // null or undefined is only for nrrd
+
 export interface Image extends cornerstone.Image {
   render?: Function;
   decodeTimeInMS?: number;
   loadTimeInMS?: number;
   webWorkerTimeInMS?: number;
-  metadata: MetaData;
+  metadata: { [key: string]: MetadataValue };
   data?: DataSet;
   floatPixelData?: Float32Array;
 }
 
 export type Instance = {
-  metadata: MetaData;
+  metadata: { [key: string]: MetadataValue };
   pixelData?: TypedArray | null;
   dataSet?: DataSet | null;
   file?: File | null;
@@ -36,9 +33,8 @@ export type Instance = {
   frame?: number;
 };
 
-// Laura: metadata is not of MetaDataTypes or MetaData!See better.
 export type ReslicedInstance = {
-  metadata: MetaData;
+  metadata: { [key: string]: MetadataValue };
   instanceId?: string;
   permuteTable?: [number, number, number];
 };
@@ -155,7 +151,7 @@ export type ImageTracker = {
 export type ImageObject = {
   file: File;
   instanceUID: string;
-  metadata: MetaData;
+  metadata: { [key: string]: MetadataValue };
   dataSet: DataSet;
 };
 

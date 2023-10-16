@@ -107,7 +107,7 @@ export function applyColorMap(
   }
   let colormap = cornerstone.colors.getColormap(colormapId, {});
 
-  each(viewportNames, viewportName  => {
+  each(viewportNames, viewportName => {
     let element = document.getElementById(viewportName);
 
     if (!element) {
