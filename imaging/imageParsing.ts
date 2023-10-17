@@ -122,7 +122,7 @@ export const parseDataSet = function ( //Laura ?? nested objects ask Simone
               nestedPropertyName,
               item.dataSet!.elements[nestedPropertyName]
             );
-            nestedObject[TAG_nested]!=tagValue ;
+            nestedObject[TAG_nested] = tagValue ;
              //nestedobject is of type MetaDataTypes? contains metadata of different tags in itself?
              //if this is the case, set all arguments relative to VR=SQ as MetaDataTypes themselves
           }
