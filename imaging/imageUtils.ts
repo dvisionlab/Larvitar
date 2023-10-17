@@ -466,7 +466,7 @@ export const getCmprMetadata = function (
 
     let instanceId = uuidv4();
 
-    let metadata = {
+    let metadata : MetaData = {
       // pixel representation
       x00280100: header.repr,
       // Bits Allocated

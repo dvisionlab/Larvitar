@@ -272,7 +272,7 @@ const parseFile = function (file: File) {
       try {
         dataSet = parseDicom(byteArray);
         byteArray = null;
-        let metadata: MetaDataTypes={};
+        let metadata: MetaData={};
         parseDataSet(dataSet, metadata);
 
         let temporalPositionIdentifier = metadata["x00200100"]; // Temporal order of a dynamic or functional set of Images.
@@ -313,7 +313,7 @@ const parseFile = function (file: File) {
               file: file,
               dataSet: dataSet
             };
-            imageObject.metadata = metadata as MetaData;
+            imageObject.metadata = metadata as MetaDataReadable;
             imageObject.metadata.anonymized = false;
             imageObject.metadata.seriesUID = seriesInstanceUID;
             imageObject.metadata.instanceUID = instanceUID;

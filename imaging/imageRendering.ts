@@ -216,7 +216,7 @@ export const renderFileImage = function (
   let renderPromise = new Promise(resolve => {
     // check if imageId is already stored in fileManager
     const imageId = getFileImageId(file);
-    if (imageId) { //Laura: image is : cornerstone.IImage type 
+    if (imageId) { //Laura: image is : cornerstone.Image type 
       cornerstone.loadImage(imageId).then(function (image) {
         if (!element) {
           console.error("invalid html element: " + elementId);
@@ -264,7 +264,7 @@ export const renderWebImage = function (
       return;
     }
     cornerstone.enable(element);
-    cornerstone.loadImage(url).then(function (image) {
+    cornerstone.loadImage(url).then(function (image : Promise<Image>) {
       if (!element) {
         console.error("invalid html element: " + elementId);
         reject("invalid html element: " + elementId);

@@ -155,7 +155,7 @@ export type ImageTracker = {
 export type ImageObject = {
   file: File;
   instanceUID: string;
-  metadata: MetaData;
+  metadata: MetaDataReadable;
   dataSet: DataSet;
 };
 

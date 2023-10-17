@@ -1582,7 +1582,7 @@ export  type MetaDataTypes=
 "x00200010"?:string,
 "x00200011"?:string,
 "x00200012"?:number,
-"x00200013"?:string,
+"x00200013"?:number,
 "x00200014"?:string,
 "x00200015"?:string,
 "x00200016"?:string,
