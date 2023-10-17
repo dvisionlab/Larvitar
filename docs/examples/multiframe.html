@@ -146,6 +146,7 @@
         larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
+            //console.log(seriesStack);
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
@@ -207,7 +208,8 @@
         demoFiles.push(file);
         cb();
       }
-      createFile("xa_integris.dcm", renderSerie);
+      createFile("mmode", renderSerie);
+      //createFile("xa_integris.dcm", renderSerie);
     </script>
   </body>
 </html>

@@ -2401,6 +2401,28 @@ klaw@^3.0.0:
   dependencies:
     graceful-fs "^4.1.9"
 
+/*larvitar@^1.5.14:
+  version "1.5.14"
+  resolved "https://registry.yarnpkg.com/larvitar/-/larvitar-1.5.14.tgz#0063d279f0f228b47a63cfec1263ae10c7039775"
+  integrity sha512-wC3OF0n5CWwq2s9yYnvZv5e/E/6u+dimWGEZlN8e2fJI8NBfEMC1asACPiK2vv+BHRlb5OjxUAFIndAeVsjCVQ==
+  dependencies:
+    "@rollup/plugin-commonjs" "^17.1.0"
+    cornerstone-core "^2.6.1"
+    cornerstone-file-image-loader "^0.3.0"
+    cornerstone-tools "^6.0.7"
+    cornerstone-wado-image-loader "^4.13.2"
+    cornerstone-web-image-loader "^2.1.1"
+    crypto-js "^4.1.1"
+    dicom-character-set "^1.0.3"
+    dicom-parser "^1.8.13"
+    docdash "^1.2.0"
+    hammerjs "^2.0.8"
+    keycode-js "^3.1.0"
+    lodash "^4.17.15"
+    pako "^1.0.10"
+    papaparse "^5.3.0"
+    uuid "^8.3.2"
+*/
 launch-editor@^2.6.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/launch-editor/-/launch-editor-2.6.0.tgz#4c0c1a6ac126c572bd9ff9a30da1d2cae66defd7"
