@@ -1,13 +1,9 @@
 // external libraries
 import { map } from "lodash";
 import TAG_DICT from "./dataDictionary.json";
-//Laura: changed data dictionary using:
-//regex "\((\d+),(\d+)\)"
-//"x$1$2"
-//now tag are in format "x00000000"
 import { convertBytes } from "dicom-character-set";
-import { DataSet, Element } from "dicom-parser";
-import type {MetaDataTypes} from "./MetaDataTypes"; //custom type created as tag-type. { "x0000000":string, ...} 
+import { DataSet } from "dicom-parser";
+
 /*
  * This module provides the following functions to be exported:
  * parseTag(dataSet, propertyName, element)
@@ -238,7 +234,7 @@ const isStringVr = function (vr: string) {
  * @param {String} dicomTag - The original DICOM tag code
  * @return {String} - The human readable DICOM tag code
  */
-/*function getDICOMTagCode(code: string) {
+function getDICOMTagCode(code: string) {
   let re = /x(\w{4})(\w{4})/;
   let result = re.exec(code);
   if (!result) {
@@ -247,8 +243,7 @@ const isStringVr = function (vr: string) {
   let newCode = "(" + result[1] + "," + result[2] + ")";
   newCode = newCode.toUpperCase();
   return newCode;
-}*/
-//Laura: this function is not necessary animore because dataDictionary contains tags in format "x00000000"
+}
 
 /**
  * Get the dicom tag from dicom tag code
@@ -258,7 +253,7 @@ const isStringVr = function (vr: string) {
  * @return {String} - The human readable DICOM tag
  */
 function getDICOMTag(code: string) {
-  let newCode = code;
+  let newCode = getDICOMTagCode(code);
 
   if (!Object.keys(TAG_DICT).includes(newCode)) {
     console.debug(`Invalid tag key: ${newCode}`);
@@ -278,19 +273,17 @@ function getDICOMTag(code: string) {
  * @param {Object} element - The parsed dataset element
  * @return {String} - The DICOM Tag value
  */
-export function parseTag <T>(
+export const parseTag = function (
   dataSet: DataSet,
-  propertyName: string, //x0000000 string 
-  element: Element // TODO-ts better type @szanchi
+  propertyName: string,
+  element: { [key: string]: any } // TODO-ts better type @szanchi
 ) {
   // GET VR
   var tagData = dataSet.elements[propertyName] || {};
   var vr = tagData.vr;
   if (!vr) {
     // use dicom dict to get VR
-    var tag = getDICOMTag(propertyName); 
-    //Laura: from now on tag is an object of datadictionary.json (TAG_TYPE) and tag.tag is rapresented as "x0000000"
-    //so propertyname= tag.tag=keyof MetaDataTypes
+    var tag = getDICOMTag(propertyName);
     if (tag && tag.vr) {
       vr = tag.vr;
     } else {
@@ -306,7 +299,6 @@ export function parseTag <T>(
     // Most elements are strings but some aren't so we do a quick check
     // to make sure it actually has all ascii characters so we know it is
     // reasonable to display it.
-    let TAG=propertyName as keyof MetaDataTypes;
     var str = dataSet.string(propertyName);
     if (str === undefined) {
       return undefined;
@@ -316,7 +308,7 @@ export function parseTag <T>(
       // data. Note that the length of the element will be 0 to indicate "no data"
       // so we don't put anything here for the value in that case.
       valueIn = str;
-      valueOut = str as MetaDataTypes[typeof TAG];
+      valueOut = str;
     }
 
     // A string of characters representing an Integer in base-10 (decimal),
@@ -497,11 +489,10 @@ export function parseTag <T>(
       valueOut = "";
     }
   } else if (vr === "SQ") {
-    // parse the nested tags and returns metadata in array of metadata. Laura: check the nesting and return type 
-    var subTags = map(element, function (obj) {
-      return map(obj, function (v : Element, k : string) {
-        let TAG= k as keyof MetaDataTypes;
-        return parseTag<MetaDataTypes[typeof TAG]>(dataSet, k, v);
+    // parse the nested tags
+    var subTags: any = map(element, function (obj) {
+      return map(obj, function (v, k) {
+        return parseTag(dataSet, k, v);
       });
     });
 
@@ -511,7 +502,7 @@ export function parseTag <T>(
     valueOut = "no display code for VR " + vr;
   }
 
-  return valueOut as T;
+  return valueOut;
 };
 
 /**
