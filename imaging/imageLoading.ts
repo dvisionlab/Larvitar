@@ -41,9 +41,9 @@ const globalConfig = {
     decodeTask: {
       loadCodecsOnStartup: true,
       initializeCodecsOnStartup: false,
-      strict: true
-    }
-  }
+      strict: true,
+    },
+  },
 };
 
 /*
@@ -81,7 +81,7 @@ export const initializeWebImageLoader = function () {
       // add xhr as function arg
       // Add custom headers here (e.g. auth tokens)
       // xhr.setRequestHeader('x-auth-token', 'my auth token');
-    }
+    },
   });
 };
 
@@ -188,7 +188,7 @@ export const updateLoadedStack = function (
       anonymized: anonymized as boolean,
       modality: modality as string,
       color: color,
-      bytes: 0
+      bytes: 0,
     };
     if (isStagedProtocol) {
       const stageName = seriesData.metadata["x00082120"];
@@ -201,7 +201,7 @@ export const updateLoadedStack = function (
         stageName: stageName ? (stageName as string).trim() : undefined,
         stageNumber: stageNumber as number,
         viewName: viewName ? (viewName as string).trim() : undefined,
-        viewNumber: viewNumber as number
+        viewNumber: viewNumber as number,
       };
       series.stagedProtocol = stagedProtocol;
     }
@@ -232,7 +232,7 @@ export const updateLoadedStack = function (
     allSeriesStack[id].instances[imageId] = {
       metadata: seriesData.metadata,
       file: seriesData.file,
-      dataSet: seriesData.dataSet
+      dataSet: seriesData.dataSet,
     };
 
     // order images in stack
@@ -265,7 +265,7 @@ let isNewInstance = function (
   iid: string
 ) {
   let isNewInstance = true;
-  forEach(instances, function (instance : Instance) {
+  forEach(instances, function (instance: Instance) {
     if (instance.metadata.instanceUID === iid) {
       isNewInstance = false;
     }

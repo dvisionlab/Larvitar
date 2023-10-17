@@ -22,7 +22,7 @@ const IMAGE_PRESETS = [
   { name: "CT: Liver", ww: 150, wl: 50 },
   { name: "CT: Lung", ww: 1500, wl: -500 },
   { name: "CT: Mediastinum", ww: 300, wl: 50 },
-  { name: "CT: Pelvis", ww: 400, wl: 40 }
+  { name: "CT: Pelvis", ww: 400, wl: 40 },
 ];
 
 /*
@@ -66,7 +66,7 @@ export const setImagePreset = function (
     return;
   }
 
-  each(viewportNames, function (viewportName : string) {
+  each(viewportNames, function (viewportName: string) {
     let element = document.getElementById(viewportName);
     let enabledElement;
 
@@ -96,7 +96,7 @@ export const setImagePreset = function (
     setStore("contrast", [
       viewportName,
       viewport.voi.windowWidth,
-      viewport.voi.windowCenter
+      viewport.voi.windowCenter,
     ]);
   });
 };
@@ -118,7 +118,7 @@ export const setImageCustomPreset = function (
     );
     return;
   }
-  each(viewportNames, function (viewportName : string) {
+  each(viewportNames, function (viewportName: string) {
     let element = document.getElementById(viewportName);
     let enabledElement;
 
@@ -148,7 +148,7 @@ export const setImageCustomPreset = function (
     setStore("contrast", [
       viewportName,
       viewport.voi.windowWidth,
-      viewport.voi.windowCenter
+      viewport.voi.windowCenter,
     ]);
   });
 };

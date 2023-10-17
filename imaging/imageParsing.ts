@@ -14,7 +14,7 @@ import { updateLoadedStack } from "./imageLoading";
 import { checkMemoryAllocation } from "./monitors/memory";
 import { ImageObject, Instance, MetaData, Series } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
-import type {MetaDataTypes} from "./MetaDataTypes";
+import type { MetaDataTypes } from "./MetaDataTypes";
 import { MetaDataReadable } from "./MetaDataReadable";
 import { NrrdSeries } from "./loaders/nrrdLoader";
 
@@ -38,8 +38,8 @@ var t0: number; // t0 variable for timing debugging purpose
 export const clearImageParsing = function (
   seriesStack: ReturnType<typeof getLarvitarManager> | null
 ) {
-  each(seriesStack, function (stack : Series|NrrdSeries) {
-    each(stack.instances, function (instance : Instance) {
+  each(seriesStack, function (stack: Series | NrrdSeries) {
+    each(stack.instances, function (instance: Instance) {
       if (instance.dataSet) {
         // @ts-ignore
         instance.dataSet.byteArray = null;
@@ -86,9 +86,10 @@ export const readFile = function (entry: File) {
  * @param {Array} customFilter - Optional filter: {tags:[], frameId: 0}
  */
 // This function iterates through dataSet recursively and store tag values into metadata object
-export const parseDataSet = function ( //Laura ?? nested objects ask Simone 
+export const parseDataSet = function (
+  //Laura ?? nested objects ask Simone
   dataSet: DataSet,
-  metadata : MetaDataTypes,
+  metadata: MetaDataTypes,
   customFilter?: { tags: string[]; frameId: number }
 ) {
   // customFilter= {tags:[], frameId:xxx}
@@ -99,13 +100,13 @@ export const parseDataSet = function ( //Laura ?? nested objects ask Simone
   // contents to add to the output array
   try {
     let elements = dataSet.elements;
-    
-      customFilter && has(customFilter, "tags")
-        ? pick(dataSet.elements, customFilter.tags)
-        : dataSet.elements;
+
+    customFilter && has(customFilter, "tags")
+      ? pick(dataSet.elements, customFilter.tags)
+      : dataSet.elements;
     for (let propertyName in elements) {
       let element = elements[propertyName]; //metadata
-      const TAG=propertyName as keyof MetaDataTypes;
+      const TAG = propertyName as keyof MetaDataTypes;
       // Here we check for Sequence items and iterate over them if present. items will not be set in the
       // element object for elements that don't have SQ VR type.  Note that implicit little endian
       // sequences will are currently not parsed.
@@ -114,9 +115,9 @@ export const parseDataSet = function ( //Laura ?? nested objects ask Simone
         console.log(element.items);
         // iterates over nested elements (nested metadata)
         element.items.forEach(function (item) {
-          let nestedObject: MetaDataTypes={}; 
+          let nestedObject: MetaDataTypes = {};
           for (let nestedPropertyName in item.dataSet!.elements) {
-            const TAG_nested=nestedPropertyName as keyof MetaDataTypes;
+            const TAG_nested = nestedPropertyName as keyof MetaDataTypes;
 
             let tagValue = parseTag<MetaDataTypes[typeof TAG_nested]>(
               item.dataSet!,
@@ -126,19 +127,26 @@ export const parseDataSet = function ( //Laura ?? nested objects ask Simone
             //nestedObject["x00020012"] works
 
             //nestedObject[TAG_nested] = nestedObject[TAG_nested] as NonNullable<MetaDataTypes[typeof TAG_nested]>;
-            tagValue=tagValue as NonNullable<MetaDataTypes[typeof TAG_nested]>;
-            nestedObject[TAG_nested] = tagValue as NonNullable<MetaDataTypes[typeof TAG_nested]>; //gives error
-             //nestedobject is of type MetaDataTypes? contains metadata of different tags in itself?
-             //if this is the case, set all arguments relative to VR=SQ as MetaDataTypes themselves
+            tagValue = tagValue as NonNullable<
+              MetaDataTypes[typeof TAG_nested]
+            >;
+            nestedObject[TAG_nested] = tagValue as NonNullable<
+              MetaDataTypes[typeof TAG_nested]
+            >; //gives error
+            //nestedobject is of type MetaDataTypes? contains metadata of different tags in itself?
+            //if this is the case, set all arguments relative to VR=SQ as MetaDataTypes themselves
           }
-            //metadata[TAG] as MetaDataTypes[];
-            metadata[TAG]=metadata[TAG] as MetaDataTypes[];
-            metadata[TAG].push(nestedObject); //TODO-ts Laura 
-          
+          //metadata[TAG] as MetaDataTypes[];
+          metadata[TAG] = metadata[TAG] as MetaDataTypes[];
+          metadata[TAG].push(nestedObject); //TODO-ts Laura
         });
       } else {
-            let TAG=propertyName as keyof MetaDataTypes;
-            let tagValue = parseTag<MetaDataTypes[typeof TAG]>(dataSet, propertyName, element);
+        let TAG = propertyName as keyof MetaDataTypes;
+        let tagValue = parseTag<MetaDataTypes[typeof TAG]>(
+          dataSet,
+          propertyName,
+          element
+        );
 
         // identify duplicated tags (keep the first occurency and store the others in another tag eg x00280010_uuid)
         if (metadata[TAG] !== undefined) {
@@ -148,8 +156,10 @@ export const parseDataSet = function ( //Laura ?? nested objects ask Simone
             tagValue
           );
           // @ts-ignore fix MetadataValue type
-          let TAG_uuidv4=(propertyName + "_" + uuidv4()) as keyof MetaDataTypes;
-          metadata[TAG_uuidv4] = tagValue; //TODO-ts Laura 
+          let TAG_uuidv4 = (propertyName +
+            "_" +
+            uuidv4()) as keyof MetaDataTypes;
+          metadata[TAG_uuidv4] = tagValue; //TODO-ts Laura
         } else {
           // @ts-ignore fix MetadataValue type
           metadata[TAG] = tagValue;
@@ -223,7 +233,7 @@ let parseNextFile = function (
         seriesData = null;
         file = null;
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         parseNextFile(parsingQueue, allSeriesStack, uuid, resolve, reject);
         file = null;
@@ -242,7 +252,7 @@ const parseFiles = function (fileList: File[]) {
   let allSeriesStack = {};
   let parsingQueue: File[] = [];
 
-  forEach(fileList, function (file : File) {
+  forEach(fileList, function (file: File) {
     if (!file.name.startsWith(".") && !file.name.startsWith("DICOMDIR")) {
       parsingQueue.push(file);
     }
@@ -280,7 +290,7 @@ const parseFile = function (file: File) {
       try {
         dataSet = parseDicom(byteArray);
         byteArray = null;
-        let metadata: MetaData={};
+        let metadata: MetaData = {};
         parseDataSet(dataSet, metadata);
 
         let temporalPositionIdentifier = metadata["x00200100"]; // Temporal order of a dynamic or functional set of Images.
@@ -319,7 +329,7 @@ const parseFile = function (file: File) {
             let imageObject: Partial<ImageObject> = {
               // data needed for rendering
               file: file,
-              dataSet: dataSet
+              dataSet: dataSet,
             };
             imageObject.metadata = metadata as MetaData;
             imageObject.metadata.anonymized = false;
@@ -330,7 +340,9 @@ const parseFile = function (file: File) {
             imageObject.metadata.studyDescription = metadata["x00081030"];
             imageObject.metadata.patientName = metadata["x00100010"] as string;
             imageObject.metadata.patientBirthdate = metadata["x00100030"];
-            imageObject.metadata.seriesDescription = metadata["x0008103e"] as string;
+            imageObject.metadata.seriesDescription = metadata[
+              "x0008103e"
+            ] as string;
             imageObject.metadata.seriesDate = metadata["x00080021"];
             imageObject.metadata.seriesModality = metadata["x00080060"]
               ?.toString()
@@ -346,7 +358,7 @@ const parseFile = function (file: File) {
             imageObject.metadata.numberOfSlices = metadata["x00540081"]
               ? metadata["x00540081"] // number of slices
               : metadata["x00201002"]; // number of instances
-              //Laura: check types, number or string? 
+            //Laura: check types, number or string?
             imageObject.metadata.numberOfFrames = numberOfFrames;
             if (isMultiframe) {
               imageObject.metadata.frameTime = metadata["x00181063"];
@@ -375,7 +387,7 @@ const parseFile = function (file: File) {
             let pdfObject: Partial<ImageObject> = {
               // data needed for rendering
               file: file,
-              dataSet: dataSet
+              dataSet: dataSet,
             };
             pdfObject.metadata = metadata;
             pdfObject.metadata.seriesUID = seriesInstanceUID;

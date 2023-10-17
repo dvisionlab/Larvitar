@@ -11,7 +11,7 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 import {
   getImageFrame,
   getLarvitarImageTracker,
-  getLarvitarManager
+  getLarvitarManager,
 } from "./commonLoader";
 import type { Image, ImageFrame, MetaData } from "../types";
 
@@ -104,7 +104,7 @@ let createCustomImage = function (
     windowCenter: windowCenter ? (windowCenter as number) : undefined,
     windowWidth: windowWidth ? (windowWidth as number) : undefined,
     decodeTimeInMS: undefined,
-    webWorkerTimeInMS: undefined
+    webWorkerTimeInMS: undefined,
   };
 
   // add function to return pixel data
@@ -200,6 +200,6 @@ let createCustomImage = function (
   // Return an object containing the Promise to cornerstone so it can setup callbacks to be
   // invoked asynchronously for the success/resolve and failure/reject scenarios.
   return {
-    promise
+    promise,
   };
 };

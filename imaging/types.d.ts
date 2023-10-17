@@ -3,7 +3,7 @@ import { DataSet } from "dicom-parser";
 import { DEFAULT_VIEWPORT } from "./imageStore";
 import { NrrdSeries } from "./loaders/nrrdLoader";
 import { MetaDataTypes } from "./MetaDataTypes";
-import { MetaDataReadable} from "./MetaDataReadable";
+import { MetaDataReadable } from "./MetaDataReadable";
 
 // TODO-ts: differentiate each single metadata @szanchi
 /*export type MetadataValue =
@@ -15,7 +15,7 @@ import { MetaDataReadable} from "./MetaDataReadable";
   | null
   | Array
   | undefined; // null or undefined is only for nrrd*/
-  
+
 export type MetaData = MetaDataTypes & MetaDataReadable;
 export interface Image extends cornerstone.Image {
   render?: Function;

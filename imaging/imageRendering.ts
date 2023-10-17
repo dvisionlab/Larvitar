@@ -50,7 +50,7 @@ export const clearImageCache = function (seriesId?: string) {
   if (seriesId) {
     let series = store.get("series");
     if (has(series, seriesId)) {
-      each(series[seriesId].imageIds, function (imageId : string) {
+      each(series[seriesId].imageIds, function (imageId: string) {
         if (cornerstone.imageCache.cachedImages.length > 0) {
           try {
             cornerstone.imageCache.removeImageLoadObject(imageId);
@@ -93,14 +93,14 @@ export function loadAndCacheImages(
   const response = {
     seriesId: series.seriesUID,
     loading: 0,
-    series: {} as Series
+    series: {} as Series,
   };
   callback(response);
   // add serie's imageIds into store
   store.addSeriesId(series.seriesUID, series.imageIds);
   // add serie's caching progress into store
   setStore("progress", [series.seriesUID, 0]);
-  each(series.imageIds, function (imageId : string) {
+  each(series.imageIds, function (imageId: string) {
     cornerstone.loadAndCacheImage(imageId).then(function () {
       cachingCounter += 1;
       const cachingPercentage = Math.floor(
@@ -163,7 +163,7 @@ export const renderDICOMPDF = function (
       }
 
       let PDF: Blob | null = new Blob([pdfByteArray], {
-        type: "application/pdf"
+        type: "application/pdf",
       });
       let fileURL = URL.createObjectURL(PDF);
       element.innerHTML =
@@ -213,10 +213,11 @@ export const renderFileImage = function (
     cornerstone.enable(element);
   }
 
-  let renderPromise = new Promise(resolve => {
+  let renderPromise = new Promise((resolve) => {
     // check if imageId is already stored in fileManager
     const imageId = getFileImageId(file);
-    if (imageId) { //Laura: image is : cornerstone.Image type 
+    if (imageId) {
+      //Laura: image is : cornerstone.Image type
       cornerstone.loadImage(imageId).then(function (image) {
         if (!element) {
           console.error("invalid html element: " + elementId);
@@ -512,8 +513,7 @@ export const updateImage = async function (
   if (series.is4D) {
     const timestamp = series.instances[imageId].metadata.contentTime;
     const timeId =
-      (series.instances[imageId].metadata
-        .temporalPositionIdentifier!) - 1; // timeId from 0 to N
+      series.instances[imageId].metadata.temporalPositionIdentifier! - 1; // timeId from 0 to N
     setStore("timeId", [id as string, timeId]);
     setStore("timestamp", [id as string, timestamp]);
   }
@@ -546,7 +546,7 @@ export const resetViewports = function (
     "contrast" | "scaleAndTranslation" | "rotation" | "flip" | "zoom"
   >
 ) {
-  each(elementIds, function (elementId : string) {
+  each(elementIds, function (elementId: string) {
     const element = document.getElementById(elementId);
     if (!element) {
       console.error("invalid html element: " + elementId);
@@ -560,18 +560,18 @@ export const resetViewports = function (
       throw new Error("viewport not found");
     }
 
-    if (!keys || keys.find(v => v === "contrast")) {
+    if (!keys || keys.find((v) => v === "contrast")) {
       viewport.voi.windowWidth = defaultViewport.voi.windowWidth;
       viewport.voi.windowCenter = defaultViewport.voi.windowCenter;
       viewport.invert = defaultViewport.voi.invert;
       setStore("contrast", [
         elementId,
         viewport.voi.windowWidth,
-        viewport.voi.windowCenter
+        viewport.voi.windowCenter,
       ]);
     }
 
-    if (!keys || keys.find(v => v === "scaleAndTranslation")) {
+    if (!keys || keys.find((v) => v === "scaleAndTranslation")) {
       viewport.scale = defaultViewport.scale;
       setStore("scale", [elementId, viewport.scale]);
 
@@ -580,28 +580,28 @@ export const resetViewports = function (
       setStore("translation", [
         elementId,
         viewport.translation.x,
-        viewport.translation.y
+        viewport.translation.y,
       ]);
     }
 
-    if (!keys || keys.find(v => v === "rotation")) {
+    if (!keys || keys.find((v) => v === "rotation")) {
       viewport.rotation = defaultViewport.rotation;
       setStore("rotation", [elementId, viewport.rotation]);
     }
 
-    if (!keys || keys.find(v => v === "flip")) {
+    if (!keys || keys.find((v) => v === "flip")) {
       viewport.hflip = false;
       viewport.vflip = false;
     }
 
-    if (!keys || keys.find(v => v === "zoom")) {
+    if (!keys || keys.find((v) => v === "zoom")) {
       viewport.scale = defaultViewport.scale;
       setStore("scale", [elementId, viewport.scale]);
     }
 
     cornerstone.setViewport(element, viewport);
 
-    if (!keys || keys.find(v => v === "scaleAndTranslation")) {
+    if (!keys || keys.find((v) => v === "scaleAndTranslation")) {
       cornerstone.fitToWindow(element);
     }
     cornerstone.updateImage(element);
@@ -634,7 +634,7 @@ export const updateViewportData = function (
         setStore("contrast", [
           el.element.id,
           viewportData.voi?.windowWidth,
-          viewportData.voi?.windowCenter
+          viewportData.voi?.windowCenter,
         ]);
       });
       break;
@@ -642,7 +642,7 @@ export const updateViewportData = function (
       setStore("translation", [
         elementId,
         viewportData.translation?.x,
-        viewportData.translation?.y
+        viewportData.translation?.y,
       ]);
       break;
     case "Zoom":
@@ -721,19 +721,19 @@ export const storeViewportData = function (
     viewport.translation?.y,
     data.defaultWW,
     data.defaultWC,
-    viewport.invert
+    viewport.invert,
   ]);
   setStore("scale", [elementId, viewport.scale]);
   setStore("rotation", [elementId, viewport.rotation]);
   setStore("translation", [
     elementId,
     viewport.translation?.x,
-    viewport.translation?.y
+    viewport.translation?.y,
   ]);
   setStore("contrast", [
     elementId,
     viewport.voi?.windowWidth,
-    viewport.voi?.windowCenter
+    viewport.voi?.windowCenter,
   ]);
   setStore("isColor", [elementId, data.isColor]);
   setStore("isMultiframe", [elementId, data.isMultiframe]);
@@ -894,12 +894,12 @@ let getSeriesData = function (
     data.imageId = series.imageIds[data.imageIndex];
     data.timestamps = [];
     data.timeIds = [];
-    each(series.imageIds, function (imageId : string) {
+    each(series.imageIds, function (imageId: string) {
       (data.timestamps as any[]).push(
         series.instances[imageId].metadata.contentTime
       );
-      (data.timeIds as any[]).push(series.instances[imageId].metadata
-        .temporalPositionIdentifier! - 1 // timeId from 0 to N
+      (data.timeIds as any[]).push(
+        series.instances[imageId].metadata.temporalPositionIdentifier! - 1 // timeId from 0 to N
       );
     });
   } else {
@@ -935,12 +935,12 @@ let getSeriesData = function (
   data.wc =
     defaultProps && defaultProps.wc !== undefined
       ? defaultProps["wc"]
-      : (series.instances[series.imageIds[0]].metadata.x00281050!);
+      : series.instances[series.imageIds[0]].metadata.x00281050!;
 
   data.ww =
     defaultProps && defaultProps.ww !== undefined
       ? defaultProps["ww"]
-      : (series.instances[series.imageIds[0]].metadata.x00281051!);
+      : series.instances[series.imageIds[0]].metadata.x00281051!;
 
   // default values for reset
   data.defaultWW =

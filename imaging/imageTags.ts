@@ -7,7 +7,7 @@ import TAG_DICT from "./dataDictionary.json";
 //now tag are in format "x00000000"
 import { convertBytes } from "dicom-character-set";
 import { DataSet, Element } from "dicom-parser";
-import type {MetaDataTypes} from "./MetaDataTypes"; //custom type created as tag-type. { "x0000000":string, ...} 
+import type { MetaDataTypes } from "./MetaDataTypes"; //custom type created as tag-type. { "x0000000":string, ...}
 /*
  * This module provides the following functions to be exported:
  * parseTag(dataSet, propertyName, element)
@@ -278,9 +278,9 @@ function getDICOMTag(code: string) {
  * @param {Object} element - The parsed dataset element
  * @return {String} - The DICOM Tag value
  */
-export function parseTag <T>(
+export function parseTag<T>(
   dataSet: DataSet,
-  propertyName: string, //x0000000 string 
+  propertyName: string, //x0000000 string
   element: Element // TODO-ts better type @szanchi
 ) {
   // GET VR
@@ -288,7 +288,7 @@ export function parseTag <T>(
   var vr = tagData.vr;
   if (!vr) {
     // use dicom dict to get VR
-    var tag = getDICOMTag(propertyName); 
+    var tag = getDICOMTag(propertyName);
     //Laura: from now on tag is an object of datadictionary.json (TAG_TYPE) and tag.tag is rapresented as "x0000000"
     //so propertyname= tag.tag=keyof MetaDataTypes
     if (tag && tag.vr) {
@@ -306,7 +306,7 @@ export function parseTag <T>(
     // Most elements are strings but some aren't so we do a quick check
     // to make sure it actually has all ascii characters so we know it is
     // reasonable to display it.
-    let TAG=propertyName as keyof MetaDataTypes;
+    let TAG = propertyName as keyof MetaDataTypes;
     var str = dataSet.string(propertyName);
     if (str === undefined) {
       return undefined;
@@ -393,7 +393,7 @@ export function parseTag <T>(
         // catch error
         try {
           valueOut = convertBytes(characterSet, arr, {
-            vr: vr
+            vr: vr,
           });
         } catch (error) {
           console.warn("Invalid Character Set: " + characterSet);
@@ -496,7 +496,7 @@ export function parseTag <T>(
     } else {
       valueOut = "";
     }
-  } 
+  }
   //seems it is not used TODO-ts sm
   /*else if (vr === "SQ") {
     // parse the nested tags and returns metadata in array of metadata. Laura: check the nesting and return type 
@@ -509,13 +509,13 @@ export function parseTag <T>(
 
     valueOut = subTags;
   }*/
-   else {
+  else {
     // If it is some other length and we have no string
     valueOut = "no display code for VR " + vr;
   }
 
   return valueOut as T;
-};
+}
 
 /**
  * Extract tag value according to its value rapresentation, see
@@ -604,7 +604,7 @@ export const getTagValue = function (dataSet: DataSet, tag: string) {
     },
     "US|SS": function () {
       return dataSet.uint16(tag);
-    }
+    },
   };
   return vrParsingMap[vr] ? vrParsingMap[vr]() : dataSet.string(tag);
 };

@@ -30,7 +30,7 @@ export const parseContours = function (
   viewports: Array<string>
 ) {
   let contours: Contours = {};
-  each(viewports, viewport => {
+  each(viewports, (viewport) => {
     contours[viewport] = {};
     contours[viewport][segmentationName] = [];
     let points = contoursData[viewport];
@@ -90,7 +90,7 @@ const populateContoursObject = function (
       coords.push({
         x: xy[0],
         y: xy[1],
-        lines: []
+        lines: [],
       });
     }
 
@@ -104,9 +104,9 @@ const populateContoursObject = function (
         lines: [
           {
             x: coords[coords.length - 1].x,
-            y: coords[coords.length - 1].y
-          }
-        ]
+            y: coords[coords.length - 1].y,
+          },
+        ],
       });
     }
   }
@@ -116,8 +116,8 @@ const populateContoursObject = function (
     coords[0].lines = [
       {
         x: coords[coords.length - 1].x,
-        y: coords[coords.length - 1].y
-      }
+        y: coords[coords.length - 1].y,
+      },
     ];
   }
 
@@ -154,12 +154,12 @@ const extractSlicePoints = function (
 
   let numberOfPoints = 0;
   contours[viewport][segmentationName][sliceNumber] = {
-    lines: [] as vec2[][]
+    lines: [] as vec2[][],
   };
 
   if (numberOfLines) {
     // for each line
-    each(range(numberOfLines), function (l : number) {
+    each(range(numberOfLines), function (l: number) {
       // get number of points for current line
       let numberOfPointsPerLine = slicePoints[0];
       // compute coordinates size

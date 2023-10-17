@@ -10,7 +10,7 @@ import { forEach, find } from "lodash";
 import {
   getMeanValue,
   getDistanceBetweenSlices,
-  getTypedArrayFromDataType
+  getTypedArrayFromDataType,
 } from "./imageUtils";
 import store from "./imageStore";
 import { parse } from "./parsers/nrrd";
@@ -34,27 +34,26 @@ import { Series, Header, Volume, TypedArray } from "./types";
 export const buildHeader = function (series: Series) {
   let header: Partial<Header> = {};
 
-  forEach(series.imageIds, function (imageId : string ) {
+  forEach(series.imageIds, function (imageId: string) {
     header[imageId] = series.instances[imageId].metadata;
   });
 
   let volume: Partial<Volume> = {};
 
   volume.imageIds = series.imageIds;
-  volume.seriesId = series.instances[series.imageIds[0]].metadata
-    .seriesUID;
+  volume.seriesId = series.instances[series.imageIds[0]].metadata.seriesUID;
   volume.rows =
-    (series.instances[series.imageIds[0]].metadata.rows) ||
-    (series.instances[series.imageIds[0]].metadata.x00280010);
+    series.instances[series.imageIds[0]].metadata.rows ||
+    series.instances[series.imageIds[0]].metadata.x00280010;
   volume.cols =
-    (series.instances[series.imageIds[0]].metadata.cols) ||
-    (series.instances[series.imageIds[0]].metadata.x00280011);
-  volume.slope = series.instances[series.imageIds[0]].metadata.slope as number ;
+    series.instances[series.imageIds[0]].metadata.cols ||
+    series.instances[series.imageIds[0]].metadata.x00280011;
+  volume.slope = series.instances[series.imageIds[0]].metadata.slope as number;
   volume.repr = series.instances[series.imageIds[0]].metadata.repr as string;
   volume.intercept = series.instances[series.imageIds[0]].metadata
     .intercept as number;
   volume.imagePosition = series.instances[series.imageIds[0]].metadata
-    .imagePosition as [number, number]; 
+    .imagePosition as [number, number];
   volume.numberOfSlices = series.imageIds.length;
 
   // @ts-ignore
@@ -88,7 +87,7 @@ export const buildHeader = function (series: Series) {
 export const getCachedPixelData = function (imageId: string) {
   let cachedImage = find(cornerstone.imageCache.cachedImages, [
     "imageId",
-    imageId
+    imageId,
   ]);
   let promise = new Promise<number[]>((resolve, reject) => {
     if (cachedImage && cachedImage.image) {
@@ -96,8 +95,8 @@ export const getCachedPixelData = function (imageId: string) {
     } else {
       cornerstone
         .loadImage(imageId)
-        .then(image => resolve(image.getPixelData()))
-        .catch(err => reject(err));
+        .then((image) => resolve(image.getPixelData()))
+        .catch((err) => reject(err));
     }
   });
   return promise;
@@ -137,7 +136,7 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
 
     // use input data or cached data
     if (useSeriesData) {
-      forEach(series.imageIds, function (imageId : string) {
+      forEach(series.imageIds, function (imageId: string) {
         const sliceData = series.instances[imageId].pixelData;
         if (sliceData) {
           data.set(sliceData, offsetData);
@@ -150,7 +149,7 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
     } else {
       store.addSeriesId(series.seriesUID, series.imageIds);
       let image_counter = 0;
-      forEach(series.imageIds, function (imageId : string) {
+      forEach(series.imageIds, function (imageId: string) {
         getCachedPixelData(imageId).then((sliceData: number[]) => {
           data.set(sliceData, offsetData);
           offsetData += sliceData.length;
@@ -214,7 +213,7 @@ export const buildDataAsync = function (
     function runFillPixelData(data: TypedArray) {
       let imageId = imageIds.shift();
       if (imageId) {
-        getCachedPixelData(imageId).then(sliceData => {
+        getCachedPixelData(imageId).then((sliceData) => {
           data.set(sliceData, offsetData);
           offsetData += sliceData.length;
           // this does the trick: delay next computation to next tick

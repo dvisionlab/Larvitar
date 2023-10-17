@@ -10,7 +10,7 @@ import { forEach } from "lodash";
 import { Instance, MetaData, Series } from "./types";
 
 const SH = [
-  "x00080050" // Accession Number,
+  "x00080050", // Accession Number,
 ];
 
 const OPTIONAL = [
@@ -18,7 +18,7 @@ const OPTIONAL = [
   "x00080090", // Referring Physician's Name,
   "x00100020", // Patient ID
   "x00100040", // Patient's Sex
-  "x00200010" // Study ID
+  "x00200010", // Study ID
 ];
 
 const REMOVE = [
@@ -51,7 +51,7 @@ const REMOVE = [
   "x00181000", // Device Serial Number
   "x00181030", // Protocol Name
   "x00204000", // Image Comments
-  "x00400275" // Request Attributes Sequence
+  "x00400275", // Request Attributes Sequence
 ];
 
 // global vars
@@ -98,7 +98,7 @@ const TAGS = [
   "x0040a124", // UID
   "x00880140", // Storage Media File-set UID
   "x30060024", // Referenced Frame of Reference UID
-  "x300600c2" // Related Frame of Reference UID
+  "x300600c2", // Related Frame of Reference UID
 ];
 
 /*
@@ -113,39 +113,41 @@ const TAGS = [
  * @returns {Object} anonymized_series: Cornerstone anonymized series object
  */
 export const anonymize = function (series: Series) {
-  forEach(series.instances, function (instance : Instance) {
+  forEach(series.instances, function (instance: Instance) {
     forEach(TAGS, function (tag) {
       if (tag in instance.metadata) {
-        let tag_meta=tag as keyof MetaData;
+        let tag_meta = tag as keyof MetaData;
         let anonymized_value = sha256(
           (instance.metadata[tag_meta] || "").toString()
         ).toString(Hex);
         // Patient Tag Anonymization
         if (tag_meta === "x00100010") {
-          instance.metadata[tag_meta] =
-            "Anonymized^" + anonymized_value.substring(0, 6) as string;
+          instance.metadata[tag_meta] = ("Anonymized^" +
+            anonymized_value.substring(0, 6)) as string;
         }
         // Short string
         else if (SH.includes(tag) === true) {
-          tag_meta=tag as keyof MetaData;
-          let value=anonymized_value.substring(0, 16) as MetaData[typeof tag_meta];
-          instance.metadata[tag_meta] =value; //TODO-ts Laura 
+          tag_meta = tag as keyof MetaData;
+          let value = anonymized_value.substring(
+            0,
+            16
+          ) as MetaData[typeof tag_meta];
+          instance.metadata[tag_meta] = value; //TODO-ts Laura
         }
         // Required, empty if unknown
         else if (OPTIONAL.includes(tag) === true) {
-          tag_meta=tag as keyof MetaData;
-          let value="" as MetaData[typeof tag_meta];
-          instance.metadata[tag_meta]=value; 
+          tag_meta = tag as keyof MetaData;
+          let value = "" as MetaData[typeof tag_meta];
+          instance.metadata[tag_meta] = value;
         }
         // Optional
         else if (REMOVE.includes(tag) === true) {
-          tag_meta=tag as keyof MetaData;
+          tag_meta = tag as keyof MetaData;
           delete instance.metadata[tag_meta];
-
         }
         // Default sha256
         else {
-          tag_meta=tag as keyof MetaData;
+          tag_meta = tag as keyof MetaData;
           let value = anonymized_value as MetaData[typeof tag_meta];
           instance.metadata[tag_meta] = value;
         }
@@ -159,7 +161,9 @@ export const anonymize = function (series: Series) {
     instance.metadata.studyDescription = instance.metadata["x00081030"];
     instance.metadata.patientName = instance.metadata["x00100010"] as string;
     instance.metadata.patientBirthdate = instance.metadata["x00100030"];
-    instance.metadata.seriesDescription = instance.metadata["x0008103e"] as string;
+    instance.metadata.seriesDescription = instance.metadata[
+      "x0008103e"
+    ] as string;
     instance.metadata.anonymized = true;
   });
 
