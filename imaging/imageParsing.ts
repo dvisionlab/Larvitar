@@ -105,7 +105,7 @@ export const parseDataSet = function ( //Laura ?? nested objects ask Simone
         : dataSet.elements;
     for (let propertyName in elements) {
       let element = elements[propertyName]; //metadata
-      let TAG=propertyName as keyof MetaDataTypes;
+      const TAG=propertyName as keyof MetaDataTypes;
       // Here we check for Sequence items and iterate over them if present. items will not be set in the
       // element object for elements that don't have SQ VR type.  Note that implicit little endian
       // sequences will are currently not parsed.
@@ -116,13 +116,18 @@ export const parseDataSet = function ( //Laura ?? nested objects ask Simone
         element.items.forEach(function (item) {
           let nestedObject: MetaDataTypes={}; 
           for (let nestedPropertyName in item.dataSet!.elements) {
-            let TAG_nested=nestedPropertyName as keyof MetaDataTypes;
+            const TAG_nested=nestedPropertyName as keyof MetaDataTypes;
+
             let tagValue = parseTag<MetaDataTypes[typeof TAG_nested]>(
               item.dataSet!,
               nestedPropertyName,
               item.dataSet!.elements[nestedPropertyName]
             );
-            nestedObject[TAG_nested] = tagValue ;
+            //nestedObject["x00020012"] works
+
+            //nestedObject[TAG_nested] = nestedObject[TAG_nested] as NonNullable<MetaDataTypes[typeof TAG_nested]>;
+            tagValue=tagValue as NonNullable<MetaDataTypes[typeof TAG_nested]>;
+            nestedObject[TAG_nested] = tagValue as NonNullable<MetaDataTypes[typeof TAG_nested]>; //gives error
              //nestedobject is of type MetaDataTypes? contains metadata of different tags in itself?
              //if this is the case, set all arguments relative to VR=SQ as MetaDataTypes themselves
           }
