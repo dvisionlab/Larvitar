@@ -276,17 +276,20 @@ export const getMeanValue = function (
   forEach(series.imageIds, function (imageId : string) {
     let tagValue = series.instances[imageId].metadata[tag] as MetaData[typeof tag];//Laura: tagvalue is metadata?? ask simone
     if (Array.isArray(tagValue)) {
-      tagValue;
+      tagValue; //exclude array of metadatatypes
       meanValue = meanValue as number[];
       //Laura ?? tagValue = tagValue.map(v => parseFloat(v as string));
       if (tagValue.length === 2) {
+        tagValue= tagValue as [number,number];
         meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
         meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
       } else if (tagValue.length === 3) {
+        tagValue= tagValue as [number,number,number];
         meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
         meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
         meanValue[2] = meanValue[2] ? meanValue[2] + tagValue[2] : tagValue[2];
       } else if (tagValue.length === 6) {
+        tagValue= tagValue as [number,number,number,number,number,number];
         meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
         meanValue[1] = meanValue[1] ? meanValue[1] + tagValue[1] : tagValue[1];
         meanValue[2] = meanValue[2] ? meanValue[2] + tagValue[2] : tagValue[2];
@@ -476,7 +479,7 @@ export const getCmprMetadata = function (
       x00280011: header.cols, // cols
       // resliced series spacing
       x00280030: [header.spacing[1], header.spacing[0]],
-      x00180050: [header.distance_btw_slices],
+      x00180050: [header.distance_btw_slices] as number[],
       // remove min and max pixelvalue from metadata before calling the createCustomImage function:
       // need to recalculate the min and max pixel values on the new instance pixelData
       x00280106: undefined,
@@ -505,8 +508,8 @@ export const getCmprMetadata = function (
       // data needed to obtain a good rendering
       x00281050: [header.wwwl[1] / 2], // [wl]
       x00281051: [header.wwwl[0]], // [ww]
-      x00281052: [header.intercept],
-      x00281053: [header.slope],
+      x00281052: header.intercept,
+      x00281053: header.slope,
       // new image orientation (IOP)
       x00200037: header.iop ? header.iop.slice(f * 6, (f + 1) * 6) : null,
       // new image position (IPP)
@@ -638,7 +641,7 @@ export const getDistanceBetweenSlices = function (
     let d2 =
       normal[0] * imagePosition2[0] +
       normal[1] * imagePosition2[1] +
-      normal[2] * imagePosition2[2];
+      normal[2] * imagePosition2[2]!;
 
     return Math.abs(d1 - d2);
   }
@@ -723,7 +726,7 @@ let sortStackCallback = function (
     case "instanceNumber":
       var instanceNumber = seriesData.instances[imageId].metadata
         .x00200013!;
-      return parseInt(instanceNumber);
+      return instanceNumber;
 
     case "contentTime":
       return seriesData.instances[imageId].metadata.x00080033;
@@ -987,7 +990,7 @@ let spacingArray = function (
     ? sampleMetadata["x00180050"]
     : getDistanceBetweenSlices(seriesData, 0, 1);
 
-  let spacing = sampleMetadata["x00180050"]!;
+  let spacing = sampleMetadata.x00280030!;
 
   return [spacing[1], spacing[0], distanceBetweenSlices as number];
 };

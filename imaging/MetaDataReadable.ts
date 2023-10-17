@@ -12,31 +12,31 @@ export  type MetaDataReadable =
     seriesDescription ?: string;
     seriesDate ?: string;
     seriesModality ?: string;
-    intercept ?: number;
-    slope ?: number ; 
+    intercept ?: number|number[];
+    slope ?: number|number[]; 
     //check if type is correct
 
-    pixelSpacing ?: string;
-    sliceThickness ?: string;
+    pixelSpacing ?: [number, number];
+    sliceThickness ?: number|number[];
     imageOrientation ?:  [number, number, number, number, number, number];
-    imagePosition ?: number[];
+    imagePosition ?: [number,number]|[number,number,number]|number[];
     rows ?: number;
     cols ?: number;
     numberOfSlices ?: number;
     numberOfFrames ?: number;
-    frameTime ?: string;
-    frameDelay ?: string;
-    rWaveTimeVector ?: number;
+    frameTime ?: number;
+    frameDelay ?: number;
+    rWaveTimeVector ?: number[];
     isMultiframe ?: boolean;
     temporalPositionIdentifier ?: number;
     numberOfTemporalPositions ?: number;
     contentTime ?: string;
     is4D ?: boolean;
-    windowCenter ?: string;
-    windowWidth ?: string;
+    windowCenter ?: number|number[];
+    windowWidth ?: number|number[];
     minPixelValue ?: number;
     maxPixelValue ?: number;
     length ?: number;
-    repr ?: string;
+    repr ?: string|null;
     mimeType ?: string;
 }

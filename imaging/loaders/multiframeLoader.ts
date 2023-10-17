@@ -17,7 +17,7 @@ import type {
   Image,
   ImageFrame,
   LarvitarManager,
-  MetadataValue,
+  MetaData,
   Series
 } from "../types";
 
@@ -77,7 +77,7 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
   let manager = getLarvitarManager();
   let imageTracker = getLarvitarImageTracker();
   let numberOfFrames =
-    serie.instances[serie.imageIds[0]].metadata.numberOfFrames;
+    serie.instances[serie.imageIds[0]].metadata.numberOfFrames!;
   let frameTime = serie.instances[serie.imageIds[0]].metadata.frameTime;
   let frameDelay = serie.instances[serie.imageIds[0]].metadata.frameDelay
     ? serie.instances[serie.imageIds[0]].metadata.frameDelay
@@ -121,10 +121,10 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
 
       managerSeriesId.isMultiframe = true;
       managerSeriesId.currentImageIdIndex = 0;
-      managerSeriesId.numberOfFrames = numberOfFrames as number;
-      managerSeriesId.frameTime = frameTime as number;
-      managerSeriesId.frameDelay = frameDelay as number;
-      managerSeriesId.rWaveTimeVector = rWaveTimeVector as number[];
+      managerSeriesId.numberOfFrames = numberOfFrames;
+      managerSeriesId.frameTime = frameTime;
+      managerSeriesId.frameDelay = frameDelay ;
+      managerSeriesId.rWaveTimeVector = rWaveTimeVector;
       managerSeriesId.numberOfImages = undefined;
       managerSeriesId.bytes = serie.bytes;
       managerSeriesId.imageIds.push(frameImageId);
@@ -204,7 +204,7 @@ let createCustomImage = function (
   id: string,
   imageId: string,
   frameIndex: number,
-  metadata?: { [key: string]: MetadataValue }
+  metadata?: MetaData
 ) {
   let options: { [key: string]: any } = {}; //TODO-ts change any to proper type when available
   // always preScale the pixel array unless it is asked not to

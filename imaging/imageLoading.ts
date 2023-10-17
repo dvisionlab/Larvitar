@@ -214,7 +214,7 @@ export const updateLoadedStack = function (
   const sortMethods = is4D ? [defaultMethod, "contentTime"] : [defaultMethod];
 
   // if the parsed file is a new series instance, keep it
-  if (isNewInstance(allSeriesStack[id].instances, iid)) {
+  if (isNewInstance(allSeriesStack[id].instances, iid!)) {
     // generate an imageId for the file and store it
     // in allSeriesStack imageIds array, used by
     // DICOMImageLoader to display the stack of images

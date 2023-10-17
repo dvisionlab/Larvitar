@@ -496,7 +496,9 @@ export function parseTag <T>(
     } else {
       valueOut = "";
     }
-  } else if (vr === "SQ") {
+  } 
+  //seems it is not used TODO-ts sm
+  /*else if (vr === "SQ") {
     // parse the nested tags and returns metadata in array of metadata. Laura: check the nesting and return type 
     var subTags = map(element, function (obj) {
       return map(obj, function (v : Element, k : string) {
@@ -506,7 +508,8 @@ export function parseTag <T>(
     });
 
     valueOut = subTags;
-  } else {
+  }*/
+   else {
     // If it is some other length and we have no string
     valueOut = "no display code for VR " + vr;
   }

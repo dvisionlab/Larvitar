@@ -264,7 +264,7 @@ export const renderWebImage = function (
       return;
     }
     cornerstone.enable(element);
-    cornerstone.loadImage(url).then(function (image : Promise<Image>) {
+    cornerstone.loadImage(url).then(function (image) {
       if (!element) {
         console.error("invalid html element: " + elementId);
         reject("invalid html element: " + elementId);

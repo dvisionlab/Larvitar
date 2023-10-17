@@ -25,11 +25,11 @@ import {
 import type {
   Image,
   Instance,
-  MetadataValue,
   Volume,
   LarvitarManager,
   ImageFrame,
-  ImageTracker
+  ImageTracker,
+  MetaData
 } from "../types";
 
 // global module variables
@@ -256,7 +256,7 @@ export const buildNrrdImage = function (
   metadata.x00280107 = minMax.max;
 
   // extract the pixelData of each frame, store the data into the image object
-  each(range(frames), function (sliceIndex) {
+  each(range(frames), function (sliceIndex : number) {
     let sliceSize = rows * cols;
     let sliceBuffer = volume.data.subarray(
       sliceSize * sliceIndex,
@@ -289,7 +289,7 @@ export const buildNrrdImage = function (
 
     // store file references
     image.imageIds!.push(imageId);
-    let frameMetadata: { [key: string]: MetadataValue } = clone(metadata);
+    let frameMetadata: MetaData = clone(metadata);
     frameMetadata.x00200032 = firstIpp.map(function (val, i) {
       return val + thickness * sliceIndex * w[i];
     });
@@ -471,7 +471,7 @@ export const getNrrdSerieDimensions = function () {
  */
 let createCustomImage = function (
   imageId: string,
-  metadata: { [key: string]: MetadataValue },
+  metadata: MetaData,
   pixelData: Uint8ClampedArray,
   dataSet?: any
 ) {
@@ -508,7 +508,7 @@ let createCustomImage = function (
       imageFrame.photometricInterpretation
     ),
     columnPixelSpacing: pixelSpacing
-      ? (pixelSpacing as number[])[1]
+      ? (pixelSpacing)[1]
       : undefined,
     columns: imageFrame.columns,
     height: imageFrame.rows,
@@ -517,12 +517,12 @@ let createCustomImage = function (
     minPixelValue: imageFrame.smallestPixelValue,
     maxPixelValue: imageFrame.largestPixelValue,
     render: undefined, // set below
-    rowPixelSpacing: pixelSpacing ? (pixelSpacing as number[])[0] : undefined,
+    rowPixelSpacing: pixelSpacing ? (pixelSpacing)[0] : undefined,
     rows: imageFrame.rows,
     sizeInBytes: getSizeInBytes(),
     slope: rescaleSlope ? (rescaleSlope as number[])[0] : 1,
     width: imageFrame.columns,
-    windowCenter: windowCenter ? (windowCenter as number[])[0] : undefined,
+    windowCenter: windowCenter ? (windowCenter as number[])[0]: undefined,
     windowWidth: windowWidth ? (windowWidth as number[])[0] : undefined,
     decodeTimeInMS: undefined,
     webWorkerTimeInMS: undefined

@@ -49,13 +49,13 @@ export const buildHeader = function (series: Series) {
   volume.cols =
     (series.instances[series.imageIds[0]].metadata.cols) ||
     (series.instances[series.imageIds[0]].metadata.x00280011);
-  volume.slope = series.instances[series.imageIds[0]].metadata.slope ;
-  volume.repr = series.instances[series.imageIds[0]].metadata.repr;
+  volume.slope = series.instances[series.imageIds[0]].metadata.slope as number ;
+  volume.repr = series.instances[series.imageIds[0]].metadata.repr as string;
   volume.intercept = series.instances[series.imageIds[0]].metadata
-    .intercept;
+    .intercept as number;
   volume.imagePosition = series.instances[series.imageIds[0]].metadata
-    .imagePosition as [number, number]; //ask simone
-  volume.numberOfSlices = series.imageIds.length as number;
+    .imagePosition as [number, number]; 
+  volume.numberOfSlices = series.imageIds.length;
 
   // @ts-ignore
   volume.imageOrientation = getMeanValue(

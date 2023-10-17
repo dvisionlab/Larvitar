@@ -110,9 +110,11 @@ export const parseDataSet = function ( //Laura ?? nested objects ask Simone
       // element object for elements that don't have SQ VR type.  Note that implicit little endian
       // sequences will are currently not parsed.
       if (element.items) {
+        debugger;
+        console.log(element.items);
         // iterates over nested elements (nested metadata)
         element.items.forEach(function (item) {
-          let nestedObject: MetaDataTypes = {}; 
+          let nestedObject: MetaDataTypes={}; 
           for (let nestedPropertyName in item.dataSet!.elements) {
             let TAG_nested=nestedPropertyName as keyof MetaDataTypes;
             let tagValue = parseTag<MetaDataTypes[typeof TAG_nested]>(
@@ -120,13 +122,14 @@ export const parseDataSet = function ( //Laura ?? nested objects ask Simone
               nestedPropertyName,
               item.dataSet!.elements[nestedPropertyName]
             );
-            nestedObject[TAG_nested] = tagValue;
+            nestedObject[TAG_nested]!=tagValue ;
              //nestedobject is of type MetaDataTypes? contains metadata of different tags in itself?
              //if this is the case, set all arguments relative to VR=SQ as MetaDataTypes themselves
           }
-          if (Object.keys(nestedObject).length > 0) {
-            metadata[TAG]=nestedObject;
-          }
+            //metadata[TAG] as MetaDataTypes[];
+            metadata[TAG]=metadata[TAG] as MetaDataTypes[];
+            metadata[TAG].push(nestedObject); //TODO-ts Laura 
+          
         });
       } else {
             let TAG=propertyName as keyof MetaDataTypes;
@@ -140,8 +143,8 @@ export const parseDataSet = function ( //Laura ?? nested objects ask Simone
             tagValue
           );
           // @ts-ignore fix MetadataValue type
-          let TAG_uuidv4=propertyName + "_" + uuidv4() as keyof MetaDataTypes;
-          metadata[TAG_uuidv4] = tagValue;
+          let TAG_uuidv4=(propertyName + "_" + uuidv4()) as keyof MetaDataTypes;
+          metadata[TAG_uuidv4] = tagValue; //TODO-ts Laura 
         } else {
           // @ts-ignore fix MetadataValue type
           metadata[TAG] = tagValue;
@@ -313,16 +316,16 @@ const parseFile = function (file: File) {
               file: file,
               dataSet: dataSet
             };
-            imageObject.metadata = metadata as MetaDataReadable;
+            imageObject.metadata = metadata as MetaData;
             imageObject.metadata.anonymized = false;
             imageObject.metadata.seriesUID = seriesInstanceUID;
             imageObject.metadata.instanceUID = instanceUID;
             imageObject.metadata.studyUID = metadata["x0020000d"];
             imageObject.metadata.accessionNumber = metadata["x00080050"];
             imageObject.metadata.studyDescription = metadata["x00081030"];
-            imageObject.metadata.patientName = metadata["x00100010"];
+            imageObject.metadata.patientName = metadata["x00100010"] as string;
             imageObject.metadata.patientBirthdate = metadata["x00100030"];
-            imageObject.metadata.seriesDescription = metadata["x0008103e"];
+            imageObject.metadata.seriesDescription = metadata["x0008103e"] as string;
             imageObject.metadata.seriesDate = metadata["x00080021"];
             imageObject.metadata.seriesModality = metadata["x00080060"]
               ?.toString()
@@ -376,7 +379,7 @@ const parseFile = function (file: File) {
             pdfObject.metadata.studyUID = metadata["x0020000d"];
             pdfObject.metadata.accessionNumber = metadata["x00080050"];
             pdfObject.metadata.studyDescription = metadata["x00081030"];
-            pdfObject.metadata.patientName = metadata["x00100010"];
+            pdfObject.metadata.patientName = metadata["x00100010"] as string;
             pdfObject.metadata.patientBirthdate = metadata["x00100030"];
             pdfObject.metadata.seriesDate = metadata["x00080021"];
             pdfObject.metadata.seriesModality = metadata["x00080060"]

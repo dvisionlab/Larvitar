@@ -114,31 +114,40 @@ const TAGS = [
  */
 export const anonymize = function (series: Series) {
   forEach(series.instances, function (instance : Instance) {
-    forEach(TAGS, function (tag : keyof MetaData) {
+    forEach(TAGS, function (tag) {
       if (tag in instance.metadata) {
+        let tag_meta=tag as keyof MetaData;
         let anonymized_value = sha256(
-          (instance.metadata[tag] || "").toString()
+          (instance.metadata[tag_meta] || "").toString()
         ).toString(Hex);
         // Patient Tag Anonymization
-        if (tag === "x00100010") {
-          instance.metadata[tag] =
-            "Anonymized^" + anonymized_value.substring(0, 6);
+        if (tag_meta === "x00100010") {
+          instance.metadata[tag_meta] =
+            "Anonymized^" + anonymized_value.substring(0, 6) as string;
         }
         // Short string
         else if (SH.includes(tag) === true) {
-          instance.metadata[tag] = anonymized_value.substring(0, 16);
+          tag_meta=tag as keyof MetaData;
+          let value=anonymized_value.substring(0, 16) as MetaData[typeof tag_meta];
+          instance.metadata[tag_meta] =value; //TODO-ts Laura 
         }
         // Required, empty if unknown
         else if (OPTIONAL.includes(tag) === true) {
-          instance.metadata[tag] = "";
+          tag_meta=tag as keyof MetaData;
+          let value="" as MetaData[typeof tag_meta];
+          instance.metadata[tag_meta]=value; 
         }
         // Optional
         else if (REMOVE.includes(tag) === true) {
-          delete instance.metadata[tag];
+          tag_meta=tag as keyof MetaData;
+          delete instance.metadata[tag_meta];
+
         }
         // Default sha256
         else {
-          instance.metadata[tag] = anonymized_value;
+          tag_meta=tag as keyof MetaData;
+          let value = anonymized_value as MetaData[typeof tag_meta];
+          instance.metadata[tag_meta] = value;
         }
       }
     });
@@ -148,9 +157,9 @@ export const anonymize = function (series: Series) {
     instance.metadata.studyUID = instance.metadata["x0020000d"];
     instance.metadata.accessionNumber = instance.metadata["x00080050"];
     instance.metadata.studyDescription = instance.metadata["x00081030"];
-    instance.metadata.patientName = instance.metadata["x00100010"];
+    instance.metadata.patientName = instance.metadata["x00100010"] as string;
     instance.metadata.patientBirthdate = instance.metadata["x00100030"];
-    instance.metadata.seriesDescription = instance.metadata["x0008103e"];
+    instance.metadata.seriesDescription = instance.metadata["x0008103e"] as string;
     instance.metadata.anonymized = true;
   });
 
