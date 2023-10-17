@@ -130,6 +130,13 @@ export const parseDataSet = function (
             tagValue = tagValue as NonNullable<
               MetaDataTypes[typeof TAG_nested]
             >;
+            //let TAGx= "x20000010" as keyof MetaDataTypes;
+            //nestedObject[TAGx]=10; //doesnt work!!
+            //let x = nestedObject[TAGx];
+            nestedObject[TAG_nested] = nestedObject[TAG_nested] as NonNullable<
+              MetaDataTypes[typeof TAG_nested]
+            >;
+
             nestedObject[TAG_nested] = tagValue as NonNullable<
               MetaDataTypes[typeof TAG_nested]
             >; //gives error
