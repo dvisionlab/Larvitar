@@ -1,4 +1,5 @@
-//dictionary that maps tag and corresponding metadata's type
+//dictionary that maps TAGs and corresponding metadata's type, retrieved through the correspondence between VR and types
+//VR=SQ returns nested objects that are encapsuled in MetaDataTypes' Arrays
 export type MetaDataTypes = {
   x20000010?: number;
   x2000001e?: MetaDataTypes[];

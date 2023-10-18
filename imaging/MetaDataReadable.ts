@@ -13,8 +13,6 @@ export type MetaDataReadable = {
   seriesModality?: string;
   intercept?: number | number[];
   slope?: number | number[];
-  //check if type is correct
-
   pixelSpacing?: [number, number];
   sliceThickness?: number | number[];
   imageOrientation?: [number, number, number, number, number, number];

@@ -117,42 +117,54 @@ export const anonymize = function (series: Series) {
     forEach(TAGS, function (tag) {
       if (tag in instance.metadata) {
         let tag_meta = tag as keyof MetaData;
+
         let anonymized_value = sha256(
           (instance.metadata[tag_meta] || "").toString()
         ).toString(Hex);
+
         // Patient Tag Anonymization
         if (tag_meta === "x00100010") {
-          instance.metadata[tag_meta] = ("Anonymized^" +
-            anonymized_value.substring(0, 6)) as string;
+          instance.metadata[tag_meta] =
+            "Anonymized^" + anonymized_value.substring(0, 6);
         }
         // Short string
-        else if (SH.includes(tag) === true) {
-          tag_meta = tag as keyof MetaData;
-          let value = anonymized_value.substring(
-            0,
-            16
-          ) as MetaData[typeof tag_meta];
-          instance.metadata[tag_meta] = value; //TODO-ts Laura
+        else if (tag_meta === "x00080050") {
+          instance.metadata[tag_meta] = anonymized_value.substring(0, 16); //TODO-ts Laura
         }
         // Required, empty if unknown
-        else if (OPTIONAL.includes(tag) === true) {
+        /*else if (OPTIONAL.includes(tag) === true) {
           tag_meta = tag as keyof MetaData;
-          let value = "" as MetaData[typeof tag_meta];
-          instance.metadata[tag_meta] = value;
+          instance.metadata[tag_meta] = "";
+        }*/
+        else if (tag_meta === "x00100030") {
+          instance.metadata[tag_meta] = "";
+        } else if (tag_meta === "x00080090") {
+          instance.metadata[tag_meta] = "";
+        } else if (tag_meta === "x00100020") {
+          instance.metadata[tag_meta] = "";
+        } else if (tag_meta === "x00100040") {
+          instance.metadata[tag_meta] = "";
+        } else if (tag_meta === "x00200010") {
+          instance.metadata[tag_meta] = "";
         }
         // Optional
         else if (REMOVE.includes(tag) === true) {
-          tag_meta = tag as keyof MetaData;
+          //tag_meta = tag as keyof MetaData;
           delete instance.metadata[tag_meta];
         }
         // Default sha256
         else {
           tag_meta = tag as keyof MetaData;
-          let value = anonymized_value as MetaData[typeof tag_meta];
-          instance.metadata[tag_meta] = value;
+          if (instance.metadata[tag_meta] === "string") {
+            instance.metadata[tag_meta] = anonymized_value as any;
+          }
+          //TODO-ts Laura: check if this case has to be applied only on strings
+          //or also on numbers and if any type could be correct to force solution
+          //or find another solution
         }
       }
     });
+
     instance.metadata["x00120062"] = "YES"; // Patient Identity Removed Attribute
     instance.metadata.seriesUID = instance.metadata["x0020000e"];
     instance.metadata.instanceUID = instance.metadata["x00080018"];

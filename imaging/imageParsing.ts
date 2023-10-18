@@ -77,6 +77,18 @@ export const readFile = function (entry: File) {
 
 /* Internal module functions */
 
+//This type is used to instantiate metadata and nested objects in imageParsing in order to allow dynamic setting
+//of MetaDataTypes objects' properties.
+//In other words, metadata : ExtendedMetaDataTypes is useful and substitutes metadata : MetaDataTypes when metadata values
+//aren't called explicitly using metadata['xGGGGEEEEE']
+//and are instead called using TAG as a variable (i.e. metadata[TAG]).
+//It is important to highlight that even if we set metadata[TAG]=tagValue; whose type (of tagValue) is the correct one (returned by ParseTag).
+//if we then extract x=metadata[TAG]; we obtain tagValue : unknown and a casting with : MetaDataType[typeof TAG] is necessary.
+
+type ExtendedMetaDataTypes = MetaDataTypes & {
+  [key: string]: unknown;
+};
+
 /**
  * Parse metadata from dicom parser dataSet object
  * @instance
@@ -86,10 +98,11 @@ export const readFile = function (entry: File) {
  * @param {Array} customFilter - Optional filter: {tags:[], frameId: 0}
  */
 // This function iterates through dataSet recursively and store tag values into metadata object
+
 export const parseDataSet = function (
   //Laura ?? nested objects ask Simone
   dataSet: DataSet,
-  metadata: MetaDataTypes,
+  metadata: ExtendedMetaDataTypes,
   customFilter?: { tags: string[]; frameId: number }
 ) {
   // customFilter= {tags:[], frameId:xxx}
@@ -106,55 +119,40 @@ export const parseDataSet = function (
       : dataSet.elements;
     for (let propertyName in elements) {
       let element = elements[propertyName]; //metadata
-      const TAG = propertyName as keyof MetaDataTypes;
+      const TAG = propertyName as keyof ExtendedMetaDataTypes;
       // Here we check for Sequence items and iterate over them if present. items will not be set in the
       // element object for elements that don't have SQ VR type.  Note that implicit little endian
       // sequences will are currently not parsed.
       if (element.items) {
-        debugger;
-        console.log(element.items);
+        let nestedArray: MetaDataTypes[] = [];
+
         // iterates over nested elements (nested metadata)
         element.items.forEach(function (item) {
-          let nestedObject: MetaDataTypes = {};
+          let nestedObject: ExtendedMetaDataTypes = {};
           for (let nestedPropertyName in item.dataSet!.elements) {
-            const TAG_nested = nestedPropertyName as keyof MetaDataTypes;
+            let TAG_tagValue = nestedPropertyName as keyof MetaDataTypes;
 
-            let tagValue = parseTag<MetaDataTypes[typeof TAG_nested]>(
+            let tagValue = parseTag<MetaDataTypes[typeof TAG_tagValue]>(
               item.dataSet!,
               nestedPropertyName,
               item.dataSet!.elements[nestedPropertyName]
             );
-            //nestedObject["x00020012"] works
 
-            //nestedObject[TAG_nested] = nestedObject[TAG_nested] as NonNullable<MetaDataTypes[typeof TAG_nested]>;
-            tagValue = tagValue as NonNullable<
-              MetaDataTypes[typeof TAG_nested]
-            >;
-            //let TAGx= "x20000010" as keyof MetaDataTypes;
-            //nestedObject[TAGx]=10; //doesnt work!!
-            //let x = nestedObject[TAGx];
-            nestedObject[TAG_nested] = nestedObject[TAG_nested] as NonNullable<
-              MetaDataTypes[typeof TAG_nested]
-            >;
-
-            nestedObject[TAG_nested] = tagValue as NonNullable<
-              MetaDataTypes[typeof TAG_nested]
-            >; //gives error
-            //nestedobject is of type MetaDataTypes? contains metadata of different tags in itself?
-            //if this is the case, set all arguments relative to VR=SQ as MetaDataTypes themselves
+            let TAG_nested = nestedPropertyName as keyof ExtendedMetaDataTypes;
+            nestedObject[TAG_nested] = tagValue;
+            //see MetaDataTypes.ts last property to understand how this dynamic value setting is possible
           }
-          //metadata[TAG] as MetaDataTypes[];
-          metadata[TAG] = metadata[TAG] as MetaDataTypes[];
-          metadata[TAG].push(nestedObject); //TODO-ts Laura
+          nestedArray.push(nestedObject);
         });
+        metadata[TAG] = nestedArray; //TODO-ts Laura
       } else {
-        let TAG = propertyName as keyof MetaDataTypes;
-        let tagValue = parseTag<MetaDataTypes[typeof TAG]>(
+        let TAG_tagValue = propertyName as keyof MetaDataTypes;
+        let tagValue = parseTag<MetaDataTypes[typeof TAG_tagValue]>(
           dataSet,
           propertyName,
           element
         );
-
+        let TAG = propertyName as keyof ExtendedMetaDataTypes;
         // identify duplicated tags (keep the first occurency and store the others in another tag eg x00280010_uuid)
         if (metadata[TAG] !== undefined) {
           console.debug(
@@ -162,13 +160,11 @@ export const parseDataSet = function (
             metadata[TAG],
             tagValue
           );
-          // @ts-ignore fix MetadataValue type
           let TAG_uuidv4 = (propertyName +
             "_" +
-            uuidv4()) as keyof MetaDataTypes;
+            uuidv4()) as keyof ExtendedMetaDataTypes;
           metadata[TAG_uuidv4] = tagValue; //TODO-ts Laura
         } else {
-          // @ts-ignore fix MetadataValue type
           metadata[TAG] = tagValue;
         }
       }
