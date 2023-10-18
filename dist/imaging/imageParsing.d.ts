@@ -2,8 +2,9 @@
  *  @desc  This file provides functionalities for parsing DICOM image files
  */
 import { DataSet } from "dicom-parser";
-import { ImageObject, MetadataValue } from "./types";
+import { ImageObject } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
+import type { MetaDataTypes } from "./MetaDataTypes";
 /**
  * Reset series stack object and its internal data
  * @instance
@@ -27,6 +28,9 @@ export declare const readFiles: (entries: File[]) => Promise<unknown>;
  * @returns {Promise} - Return a promise which will resolve to a image object or fail if an error occurs
  */
 export declare const readFile: (entry: File) => Promise<ImageObject>;
+type ExtendedMetaDataTypes = MetaDataTypes & {
+    [key: string]: unknown;
+};
 /**
  * Parse metadata from dicom parser dataSet object
  * @instance
@@ -35,9 +39,8 @@ export declare const readFile: (entry: File) => Promise<ImageObject>;
  * @param {Object} metadata - Initialized metadata object
  * @param {Array} customFilter - Optional filter: {tags:[], frameId: 0}
  */
-export declare const parseDataSet: (dataSet: DataSet, metadata: {
-    [key: string]: any;
-}, customFilter?: {
+export declare const parseDataSet: (dataSet: DataSet, metadata: ExtendedMetaDataTypes, customFilter?: {
     tags: string[];
     frameId: number;
 }) => void;
+export {};

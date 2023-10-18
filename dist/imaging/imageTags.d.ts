@@ -1,4 +1,4 @@
-import { DataSet } from "dicom-parser";
+import { DataSet, Element } from "dicom-parser";
 /**
  * Parse a DICOM Tag according to its type
  * @instance
@@ -8,9 +8,8 @@ import { DataSet } from "dicom-parser";
  * @param {Object} element - The parsed dataset element
  * @return {String} - The DICOM Tag value
  */
-export declare const parseTag: (dataSet: DataSet, propertyName: string, element: {
-    [key: string]: any;
-}) => any;
+export declare function parseTag<T>(dataSet: DataSet, propertyName: string, //x0000000 string
+element: Element): Element | T | undefined;
 /**
  * Extract tag value according to its value rapresentation, see
  * {@link http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_6.2.html}

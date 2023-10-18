@@ -27,7 +27,7 @@ export type MetaDataReadable = {
   isMultiframe?: boolean;
   temporalPositionIdentifier?: number;
   numberOfTemporalPositions?: number;
-  contentTime?: string;
+  contentTime?: number;
   is4D?: boolean;
   windowCenter?: number | number[];
   windowWidth?: number | number[];

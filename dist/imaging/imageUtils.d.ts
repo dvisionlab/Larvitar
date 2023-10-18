@@ -2,7 +2,8 @@
  *  @desc This file provides utility functions for
  *        manipulating image pixels and image metadata
  */
-import type { CustomDataSet, ReslicedInstance, Series } from "./types";
+import type { CustomDataSet, MetaData, ReslicedInstance, Series } from "./types";
+import { MetaDataTypes } from "./MetaDataTypes";
 /**
  * @typedef {Object} CornerstoneSeries
  * @property {Array} imageIds Array of the instances imageIds
@@ -88,7 +89,7 @@ export declare const randomId: () => string;
  * @param {Bool} isArray - True if tag value is an array
  * @return {Number} - Tag mean value
  */
-export declare const getMeanValue: (series: Series, tag: string, isArray: boolean) => number | number[];
+export declare const getMeanValue: (series: Series, tag: keyof MetaData, isArray: boolean) => number | number[];
 /**
  * Compute resliced metadata from a cornerstone data structure
  * @instance
@@ -152,7 +153,7 @@ export declare const getDistanceBetweenSlices: (seriesData: Series, sliceIndex1:
 export declare const getImageMetadata: (seriesId: string, instanceUID: string) => {
     tag: string;
     name: string;
-    value: any;
+    value: string | number | number[] | MetaDataTypes[] | null | undefined;
 }[];
 /**
  * Check if a div tag is a valid DOM HTMLElement

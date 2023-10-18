@@ -548,7 +548,7 @@ export type MetaDataTypes = {
   x00080030?: string;
   x00080031?: string;
   x00080032?: string;
-  x00080033?: string;
+  x00080033?: number;
   x00080034?: string;
   x00080035?: string;
   x00080040?: number;

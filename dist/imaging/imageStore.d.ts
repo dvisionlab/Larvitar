@@ -2,7 +2,6 @@
  *  @desc This file provides functionalities
  *        for data config store.
  */
-import { MetadataValue } from "./types";
 type StoreSeries = {
     imageIds: string[];
     progress: number;
@@ -75,7 +74,7 @@ export declare const DEFAULT_VIEWPORT: {
     };
 };
 export type Viewport = typeof DEFAULT_VIEWPORT;
-export declare const set: (field: string, payload: string | Array<MetadataValue>) => void;
+export declare const set: (field: string, payload: string | Array<any>) => void;
 declare const _default: {
     initialize: () => void;
     addViewport: (name: string) => void;

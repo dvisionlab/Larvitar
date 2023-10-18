@@ -938,7 +938,8 @@ const getSeriesData = function (
   // rows, cols and x y z spacing
   data.rows = series.instances[series.imageIds[0]].metadata.x00280010!;
   data.cols = series.instances[series.imageIds[0]].metadata.x00280011!;
-  data.thickness = series.instances[series.imageIds[0]].metadata.x00180050!;
+  data.thickness = series.instances[series.imageIds[0]].metadata
+    .x00180050! as number;
 
   let spacing = series.instances[series.imageIds[0]].metadata.x00280030;
   data.spacing_x = spacing ? spacing[0] : 1;
@@ -949,11 +950,13 @@ const getSeriesData = function (
       windowCenter:
         defaultProps && defaultProps.wc
           ? defaultProps.wc
-          : series.instances[series.imageIds[0]].metadata.x00281050!,
+          : (series.instances[series.imageIds[0]].metadata
+              .x00281050! as number),
       windowWidth:
         defaultProps && defaultProps.ww
           ? defaultProps.ww
-          : series.instances[series.imageIds[0]].metadata.x00281051!,
+          : (series.instances[series.imageIds[0]].metadata
+              .x00281051! as number),
     },
   };
   data.default = {
