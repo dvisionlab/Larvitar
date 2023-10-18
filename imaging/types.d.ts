@@ -182,3 +182,16 @@ type TypedArray =
   | Float32Array;
 
 type StoreViewport = typeof DEFAULT_VIEWPORT;
+
+type StoreViewportOptions = {
+  numberOfSlices?: number;
+  sliceNumber?: number;
+  wc?: number;
+  ww?: number;
+  defaultWC?: number;
+  defaultWW?: number;
+  scale?: number;
+  colormap?: string;
+  tr_x?: number;
+  tr_y?: number;
+};
