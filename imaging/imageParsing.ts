@@ -100,7 +100,6 @@ type ExtendedMetaDataTypes = MetaDataTypes & {
 // This function iterates through dataSet recursively and store tag values into metadata object
 
 export const parseDataSet = function (
-  //Laura ?? nested objects ask Simone
   dataSet: DataSet,
   metadata: ExtendedMetaDataTypes,
   customFilter?: { tags: string[]; frameId: number }
@@ -144,7 +143,7 @@ export const parseDataSet = function (
           }
           nestedArray.push(nestedObject);
         });
-        metadata[TAG] = nestedArray; //TODO-ts Laura
+        metadata[TAG] = nestedArray;
       } else {
         let TAG_tagValue = propertyName as keyof MetaDataTypes;
         let tagValue = parseTag<MetaDataTypes[typeof TAG_tagValue]>(
@@ -163,7 +162,7 @@ export const parseDataSet = function (
           let TAG_uuidv4 = (propertyName +
             "_" +
             uuidv4()) as keyof ExtendedMetaDataTypes;
-          metadata[TAG_uuidv4] = tagValue; //TODO-ts Laura
+          metadata[TAG_uuidv4] = tagValue;
         } else {
           metadata[TAG] = tagValue;
         }
@@ -361,7 +360,6 @@ const parseFile = function (file: File) {
             imageObject.metadata.numberOfSlices = metadata["x00540081"]
               ? metadata["x00540081"] // number of slices
               : metadata["x00201002"]; // number of instances
-            //Laura: check types, number or string?
             imageObject.metadata.numberOfFrames = numberOfFrames;
             if (isMultiframe) {
               imageObject.metadata.frameTime = metadata["x00181063"];

@@ -36,7 +36,6 @@ export type Instance = {
   frame?: number;
 };
 
-// Laura: metadata is not of MetaDataTypes or MetaData!See better.
 export type ReslicedInstance = {
   metadata: MetaData;
   instanceId?: string;

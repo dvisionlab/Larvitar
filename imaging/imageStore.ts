@@ -418,7 +418,6 @@ const validateStore = () => {
 export const set = (
   field: string,
   payload: string | Array<any> // TODO-ts use SetPayload type here
-  //Laura: shall we use MetaData?
 ) => {
   validateStore();
   payload = Array.isArray(payload) ? payload : [payload];

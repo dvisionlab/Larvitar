@@ -224,7 +224,6 @@ export const renderFileImage = function (
     // check if imageId is already stored in fileManager
     const imageId = getFileImageId(file);
     if (imageId) {
-      //Laura: image is : cornerstone.Image type
       cornerstone.loadImage(imageId).then(function (image) {
         if (!element) {
           console.error("invalid html element: " + elementId);

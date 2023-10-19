@@ -240,7 +240,7 @@ export const getSortedStack = function (
 export const getSortedUIDs = function (seriesData: Series) {
   let instanceUIDs: { [key: string]: string } = {};
   forEach(seriesData.imageIds, function (imageId: string) {
-    let instanceUID = seriesData.instances[imageId].metadata.instanceUID!; //Laura ??
+    let instanceUID = seriesData.instances[imageId].metadata.instanceUID!;
     instanceUIDs[instanceUID] = imageId;
   });
   return instanceUIDs;
@@ -275,11 +275,11 @@ export const getMeanValue = function (
   forEach(series.imageIds, function (imageId: string) {
     let tagValue = series.instances[imageId].metadata[
       tag
-    ] as MetaData[typeof tag]; //Laura: tagvalue is metadata?? ask simone
+    ] as MetaData[typeof tag];
     if (Array.isArray(tagValue)) {
       tagValue; //exclude array of metadatatypes
       meanValue = meanValue as number[];
-      //Laura ?? tagValue = tagValue.map(v => parseFloat(v as string));
+
       if (tagValue.length === 2) {
         tagValue = tagValue as [number, number];
         meanValue[0] = meanValue[0] ? meanValue[0] + tagValue[0] : tagValue[0];
@@ -348,7 +348,7 @@ export const getReslicedMetadata = function (
   let sampleMetadata = seriesData.instances[seriesData.imageIds[0]].metadata;
 
   let fromSize = [
-    sampleMetadata.x00280011!, //Laura: set these tags as unknown in the datadictionary
+    sampleMetadata.x00280011!,
     sampleMetadata.x00280010!,
     seriesData.imageIds.length
   ];
@@ -516,7 +516,7 @@ export const getCmprMetadata = function (
 
     reslicedInstances[reslicedImageId] = {
       instanceId: instanceId,
-      metadata: metadata //Laura: missing other metadata, problem with MetaDataTypes. Is metadata an array of SOME metadatas?
+      metadata: metadata
     };
   }
 
@@ -668,7 +668,7 @@ export const getImageMetadata = function (
   }
 
   let metadata = seriesData.instances[imageId].metadata;
-  // get elements from metadata where the key starts with x and is length 7 //Laura aren't they all like this?
+  // get elements from metadata where the key starts with x and is length 7
   let metadata_keys = Object.keys(metadata);
   // loop metadata using metadata_keys and return list of key value pairs
   let metadata_list = map(metadata_keys, function (key: string) {
@@ -981,7 +981,7 @@ let spacingArray = function (
   // [2]: distance between slices, given the series imageOrientationPatient and
   //      imagePositionPatient of the first two slices
 
-  let distanceBetweenSlices = sampleMetadata["x00180050"] //x00180050?? laura
+  let distanceBetweenSlices = sampleMetadata["x00180050"]
     ? sampleMetadata["x00180050"]
     : getDistanceBetweenSlices(seriesData, 0, 1);
 

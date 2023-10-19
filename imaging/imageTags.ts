@@ -1,7 +1,7 @@
 // external libraries
 import { map } from "lodash";
 import TAG_DICT from "./dataDictionary.json";
-//Laura: changed data dictionary using:
+//Changed data dictionary using:
 //regex "\((\d+),(\d+)\)"
 //"x$1$2"
 //now tag are in format "x00000000"
@@ -248,7 +248,7 @@ const isStringVr = function (vr: string) {
   newCode = newCode.toUpperCase();
   return newCode;
 }*/
-//Laura: this function is not necessary animore because dataDictionary contains tags in format "x00000000"
+//This function is not necessary animore because dataDictionary contains tags in format "x00000000"
 
 /**
  * Get the dicom tag from dicom tag code
@@ -289,7 +289,7 @@ export function parseTag<T>(
   if (!vr) {
     // use dicom dict to get VR
     var tag = getDICOMTag(propertyName);
-    //Laura: from now on tag is an object of datadictionary.json (TAG_TYPE) and tag.tag is rapresented as "x0000000"
+    //From now on tag is an object of datadictionary.json (TAG_TYPE) and tag.tag is rapresented as "x0000000"
     //so propertyname= tag.tag=keyof MetaDataTypes
     if (tag && tag.vr) {
       vr = tag.vr;
@@ -499,7 +499,7 @@ export function parseTag<T>(
   }
   //seems it is not used TODO-ts sm
   /*else if (vr === "SQ") {
-    // parse the nested tags and returns metadata in array of metadata. Laura: check the nesting and return type 
+    // parse the nested tags and returns metadata in array of metadata. 
     var subTags = map(element, function (obj) {
       return map(obj, function (v : Element, k : string) {
         let TAG= k as keyof MetaDataTypes;

@@ -129,7 +129,7 @@ export const anonymize = function (series: Series) {
         }
         // Short string
         else if (tag_meta === "x00080050") {
-          instance.metadata[tag_meta] = anonymized_value.substring(0, 16); //TODO-ts Laura
+          instance.metadata[tag_meta] = anonymized_value.substring(0, 16);
         }
         // Required, empty if unknown
         /*else if (OPTIONAL.includes(tag) === true) {
@@ -158,7 +158,7 @@ export const anonymize = function (series: Series) {
           if (instance.metadata[tag_meta] === "string") {
             instance.metadata[tag_meta] = anonymized_value as any;
           }
-          //TODO-ts Laura: check if this case has to be applied only on strings
+          //TODO-ts: check if this case has to be applied only on strings
           //or also on numbers and if any type could be correct to force solution
           //or find another solution
         }
