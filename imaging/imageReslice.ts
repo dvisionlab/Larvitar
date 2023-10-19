@@ -11,7 +11,7 @@ import { each } from "lodash";
 import { getReslicedMetadata, getReslicedPixeldata } from "./imageUtils";
 import {
   getLarvitarImageTracker,
-  getLarvitarManager,
+  getLarvitarManager
 } from "./loaders/commonLoader";
 import store from "./imageStore";
 import { Series } from "./types";
@@ -33,7 +33,7 @@ export function resliceSeries(
   seriesData: Series,
   orientation: "axial" | "coronal" | "sagittal"
 ) {
-  let reslicePromise = new Promise((resolve) => {
+  let reslicePromise = new Promise(resolve => {
     let reslicedSeries: Partial<Series> = {};
     let reslicedSeriesId = uuidv4();
     let reslicedMetaData = getReslicedMetadata(

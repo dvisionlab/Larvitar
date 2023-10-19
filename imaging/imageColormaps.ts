@@ -103,11 +103,11 @@ export function applyColorMap(
 ) {
   // for retro-compatibility
   if (!viewportNames) {
-    viewportNames = cornerstone.getEnabledElements().map((e) => e.element.id);
+    viewportNames = cornerstone.getEnabledElements().map(e => e.element.id);
   }
   let colormap = cornerstone.colors.getColormap(colormapId, {});
 
-  each(viewportNames, (viewportName) => {
+  each(viewportNames, viewportName => {
     let element = document.getElementById(viewportName);
 
     if (!element) {

@@ -236,7 +236,7 @@ let parseNextFile = function (
         seriesData = null;
         file = null;
       })
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
         parseNextFile(parsingQueue, allSeriesStack, uuid, resolve, reject);
         file = null;
@@ -332,7 +332,7 @@ const parseFile = function (file: File) {
             let imageObject: Partial<ImageObject> = {
               // data needed for rendering
               file: file,
-              dataSet: dataSet,
+              dataSet: dataSet
             };
             imageObject.metadata = metadata as MetaData;
             imageObject.metadata.anonymized = false;
@@ -390,7 +390,7 @@ const parseFile = function (file: File) {
             let pdfObject: Partial<ImageObject> = {
               // data needed for rendering
               file: file,
-              dataSet: dataSet,
+              dataSet: dataSet
             };
             pdfObject.metadata = metadata;
             pdfObject.metadata.seriesUID = seriesInstanceUID;

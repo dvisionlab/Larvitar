@@ -10,7 +10,7 @@ import { forEach } from "lodash";
 import { Instance, MetaData, Series } from "./types";
 
 const SH = [
-  "x00080050", // Accession Number,
+  "x00080050" // Accession Number,
 ];
 
 const OPTIONAL = [
@@ -18,7 +18,7 @@ const OPTIONAL = [
   "x00080090", // Referring Physician's Name,
   "x00100020", // Patient ID
   "x00100040", // Patient's Sex
-  "x00200010", // Study ID
+  "x00200010" // Study ID
 ];
 
 const REMOVE = [
@@ -51,7 +51,7 @@ const REMOVE = [
   "x00181000", // Device Serial Number
   "x00181030", // Protocol Name
   "x00204000", // Image Comments
-  "x00400275", // Request Attributes Sequence
+  "x00400275" // Request Attributes Sequence
 ];
 
 // global vars
@@ -98,7 +98,7 @@ const TAGS = [
   "x0040a124", // UID
   "x00880140", // Storage Media File-set UID
   "x30060024", // Referenced Frame of Reference UID
-  "x300600c2", // Related Frame of Reference UID
+  "x300600c2" // Related Frame of Reference UID
 ];
 
 /*

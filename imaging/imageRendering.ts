@@ -21,7 +21,7 @@ import {
   Series,
   StoreViewport,
   StoreViewportOptions,
-  Viewport,
+  Viewport
 } from "./types";
 
 /*
@@ -100,7 +100,7 @@ export function loadAndCacheImages(
   const response = {
     seriesId: series.seriesUID,
     loading: 0,
-    series: {} as Series,
+    series: {} as Series
   };
   callback(response);
   // add serie's imageIds into store
@@ -170,7 +170,7 @@ export const renderDICOMPDF = function (
       }
 
       let PDF: Blob | null = new Blob([pdfByteArray], {
-        type: "application/pdf",
+        type: "application/pdf"
       });
       let fileURL = URL.createObjectURL(PDF);
       element.innerHTML =
@@ -220,7 +220,7 @@ export const renderFileImage = function (
     cornerstone.enable(element);
   }
 
-  let renderPromise = new Promise((resolve) => {
+  let renderPromise = new Promise(resolve => {
     // check if imageId is already stored in fileManager
     const imageId = getFileImageId(file);
     if (imageId) {
@@ -568,18 +568,18 @@ export const resetViewports = function (
       throw new Error("viewport not found");
     }
 
-    if (!keys || keys.find((v) => v === "contrast")) {
+    if (!keys || keys.find(v => v === "contrast")) {
       viewport.voi.windowWidth = defaultViewport.voi.windowWidth;
       viewport.voi.windowCenter = defaultViewport.voi.windowCenter;
       viewport.invert = defaultViewport.voi.invert;
       setStore("contrast", [
         elementId,
         viewport.voi.windowWidth,
-        viewport.voi.windowCenter,
+        viewport.voi.windowCenter
       ]);
     }
 
-    if (!keys || keys.find((v) => v === "scaleAndTranslation")) {
+    if (!keys || keys.find(v => v === "scaleAndTranslation")) {
       viewport.scale = defaultViewport.scale;
       setStore("scale", [elementId, viewport.scale]);
 
@@ -588,28 +588,28 @@ export const resetViewports = function (
       setStore("translation", [
         elementId,
         viewport.translation.x,
-        viewport.translation.y,
+        viewport.translation.y
       ]);
     }
 
-    if (!keys || keys.find((v) => v === "rotation")) {
+    if (!keys || keys.find(v => v === "rotation")) {
       viewport.rotation = defaultViewport.rotation;
       setStore("rotation", [elementId, viewport.rotation]);
     }
 
-    if (!keys || keys.find((v) => v === "flip")) {
+    if (!keys || keys.find(v => v === "flip")) {
       viewport.hflip = false;
       viewport.vflip = false;
     }
 
-    if (!keys || keys.find((v) => v === "zoom")) {
+    if (!keys || keys.find(v => v === "zoom")) {
       viewport.scale = defaultViewport.scale;
       setStore("scale", [elementId, viewport.scale]);
     }
 
     cornerstone.setViewport(element, viewport);
 
-    if (!keys || keys.find((v) => v === "scaleAndTranslation")) {
+    if (!keys || keys.find(v => v === "scaleAndTranslation")) {
       cornerstone.fitToWindow(element);
     }
     cornerstone.updateImage(element);
@@ -642,7 +642,7 @@ export const updateViewportData = function (
         setStore("contrast", [
           el.element.id,
           viewportData.voi?.windowWidth,
-          viewportData.voi?.windowCenter,
+          viewportData.voi?.windowCenter
         ]);
       });
       break;
@@ -650,7 +650,7 @@ export const updateViewportData = function (
       setStore("translation", [
         elementId,
         viewportData.translation?.x,
-        viewportData.translation?.y,
+        viewportData.translation?.y
       ]);
       break;
     case "Zoom":
@@ -728,19 +728,19 @@ export const storeViewportData = function (
     viewport.translation?.y,
     data.default?.voi?.windowWidth,
     data.default?.voi?.windowCenter,
-    viewport.invert,
+    viewport.invert
   ]);
   setStore("scale", [elementId, viewport.scale]);
   setStore("rotation", [elementId, viewport.rotation]);
   setStore("translation", [
     elementId,
     viewport.translation?.x,
-    viewport.translation?.y,
+    viewport.translation?.y
   ]);
   setStore("contrast", [
     elementId,
     viewport.voi?.windowWidth,
-    viewport.voi?.windowCenter,
+    viewport.voi?.windowCenter
   ]);
   setStore("isColor", [elementId, data.isColor]);
   setStore("isMultiframe", [elementId, data.isMultiframe]);
@@ -955,9 +955,8 @@ const getSeriesData = function (
       windowWidth:
         defaultProps && defaultProps.ww
           ? defaultProps.ww
-          : (series.instances[series.imageIds[0]].metadata
-              .x00281051! as number),
-    },
+          : (series.instances[series.imageIds[0]].metadata.x00281051! as number)
+    }
   };
   data.default = {
     voi: {
@@ -968,8 +967,8 @@ const getSeriesData = function (
       windowWidth:
         defaultProps && has(defaultProps, "defaultWW")
           ? defaultProps.defaultWW
-          : data.viewport!.voi!.windowWidth,
-    },
+          : data.viewport!.voi!.windowWidth
+    }
   };
 
   if (data.rows == null || data.cols == null) {

@@ -17,7 +17,7 @@ import {
   forEach,
   extend,
   indexOf,
-  random,
+  random
 } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import cornerstone from "cornerstone-core";
@@ -30,7 +30,7 @@ import type {
   CustomDataSet,
   MetaData,
   ReslicedInstance,
-  Series,
+  Series
 } from "./types";
 import { getTagValue } from "./imageTags";
 import { MetaDataTypes } from "./MetaDataTypes";
@@ -44,7 +44,7 @@ const resliceTable: {
 } = {
   sagittal: { coronal: [-2, 1, 0], axial: [-2, 0, -1] },
   coronal: { sagittal: [2, 1, -0], axial: [0, 2, -1] },
-  axial: { sagittal: [1, -2, -0], coronal: [0, -2, 1] },
+  axial: { sagittal: [1, -2, -0], coronal: [0, -2, 1] }
 };
 
 /*
@@ -88,7 +88,7 @@ export const getNormalOrientation = function (
   let n = [
     a[1] * b[2] - a[2] * b[1],
     a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0],
+    a[0] * b[1] - a[1] * b[0]
   ];
 
   return n;
@@ -350,7 +350,7 @@ export const getReslicedMetadata = function (
   let fromSize = [
     sampleMetadata.x00280011!, //Laura: set these tags as unknown in the datadictionary
     sampleMetadata.x00280010!,
-    seriesData.imageIds.length,
+    seriesData.imageIds.length
   ];
   let toSize = permuteValues(permuteAbsTable, fromSize);
   let fromSpacing = spacingArray(seriesData, sampleMetadata);
@@ -415,7 +415,7 @@ export const getReslicedMetadata = function (
       // new image orientation
       x00200037: reslicedIOP,
       // new image position
-      x00200032: reslicedIPP,
+      x00200032: reslicedIPP
     });
 
     // set human readable metadata.
@@ -433,14 +433,14 @@ export const getReslicedMetadata = function (
     reslicedInstances[reslicedImageId] = {
       instanceId: instanceId,
       metadata: metadata,
-      permuteTable: permuteTable,
+      permuteTable: permuteTable
     };
   }
 
   return {
     imageIds: reslicedImageIds,
     instances: reslicedInstances,
-    currentImageIdIndex: 0,
+    currentImageIdIndex: 0
   };
 };
 
@@ -511,18 +511,18 @@ export const getCmprMetadata = function (
       // new image orientation (IOP)
       x00200037: header.iop ? header.iop.slice(f * 6, (f + 1) * 6) : null,
       // new image position (IPP)
-      x00200032: header.ipp ? header.ipp.slice(f * 3, (f + 1) * 3) : null,
+      x00200032: header.ipp ? header.ipp.slice(f * 3, (f + 1) * 3) : null
     };
 
     reslicedInstances[reslicedImageId] = {
       instanceId: instanceId,
-      metadata: metadata, //Laura: missing other metadata, problem with MetaDataTypes. Is metadata an array of SOME metadatas?
+      metadata: metadata //Laura: missing other metadata, problem with MetaDataTypes. Is metadata an array of SOME metadatas?
     };
   }
 
   return {
     imageIds: reslicedImageIds,
-    instances: reslicedInstances,
+    instances: reslicedInstances
   };
 };
 
@@ -566,7 +566,7 @@ export const getReslicedPixeldata = function (
 
     let cachedImage = find(cornerstone.imageCache.cachedImages, [
       "imageId",
-      originalData.imageIds[f],
+      originalData.imageIds[f]
     ]);
     let targetPixeldata = cachedImage.image.getPixelData();
     let index = j * fromCols + i;
@@ -697,7 +697,7 @@ export const getImageMetadata = function (
     return {
       tag: tagKey,
       name: name,
-      value: value,
+      value: value
     };
   });
   return metadata_list;
@@ -1058,7 +1058,7 @@ const TYPES_TO_TYPEDARRAY = {
   uint32_t: Uint32Array,
 
   float: Float32Array,
-  double: Float64Array,
+  double: Float64Array
 };
 
 /**

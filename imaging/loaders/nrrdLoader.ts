@@ -14,13 +14,13 @@ import { ImageLoader } from "cornerstone-core";
 import {
   getNormalOrientation,
   getPixelRepresentation,
-  getTypedArrayFromDataType,
+  getTypedArrayFromDataType
 } from "../imageUtils";
 
 import {
   getImageFrame,
   getLarvitarImageTracker,
-  getLarvitarManager,
+  getLarvitarManager
 } from "./commonLoader";
 import type {
   Image,
@@ -29,7 +29,7 @@ import type {
   LarvitarManager,
   ImageFrame,
   ImageTracker,
-  MetaData,
+  MetaData
 } from "../types";
 
 // global module variables
@@ -238,7 +238,7 @@ export const buildNrrdImage = function (
     x00280103: header.volume.imageIds
       ? (header[header.volume.imageIds[0]] as NrrdInstance).pixelRepresentation
       : null,
-    repr: header.volume.repr || null,
+    repr: header.volume.repr || null
   };
 
   // compute default ww/wl values here to use them also for resliced images
@@ -297,7 +297,7 @@ export const buildNrrdImage = function (
       instanceId: uuidv4(),
       frame: sliceIndex,
       metadata: frameMetadata,
-      pixelData: pixelData,
+      pixelData: pixelData
     };
   });
 
@@ -371,14 +371,14 @@ export const getImageIdFromSlice = function (
   let imageTracker = getLarvitarImageTracker() as ImageTracker;
 
   if (seriesId) {
-    serieImageTracker = pickBy(imageTracker, (image) => {
+    serieImageTracker = pickBy(imageTracker, image => {
       return image[0] == seriesId;
     });
   } else {
     serieImageTracker = imageTracker;
   }
 
-  var firstImageIdStr = findKey(serieImageTracker, (entry) => {
+  var firstImageIdStr = findKey(serieImageTracker, entry => {
     return entry[1] == orientation;
   });
 
@@ -410,7 +410,7 @@ export const getSliceNumberFromImageId = function (
   orientation: string
 ) {
   let imageTracker = getLarvitarImageTracker() as ImageTracker;
-  var firstImageIdStr = findKey(imageTracker, (entry) => {
+  var firstImageIdStr = findKey(imageTracker, entry => {
     return entry[1] == orientation;
   });
 
@@ -440,20 +440,20 @@ export const getSliceNumberFromImageId = function (
  */
 export const getNrrdSerieDimensions = function () {
   let imageTracker = getLarvitarImageTracker() as ImageTracker;
-  var dim_axial = filter(imageTracker, (img) => {
+  var dim_axial = filter(imageTracker, img => {
     return img[1] == "axial";
   });
-  var dim_coronal = filter(imageTracker, (img) => {
+  var dim_coronal = filter(imageTracker, img => {
     return img[1] == "coronal";
   });
-  var dim_sagittal = filter(imageTracker, (img) => {
+  var dim_sagittal = filter(imageTracker, img => {
     return img[1] == "sagittal";
   });
 
   return {
     axial: [dim_coronal.length, dim_sagittal.length, dim_axial.length],
     coronal: [dim_sagittal.length, dim_axial.length, dim_coronal.length],
-    sagittal: [dim_coronal.length, dim_axial.length, dim_sagittal.length],
+    sagittal: [dim_coronal.length, dim_axial.length, dim_sagittal.length]
   };
 };
 
@@ -523,7 +523,7 @@ let createCustomImage = function (
     windowCenter: windowCenter ? (windowCenter as number[])[0] : undefined,
     windowWidth: windowWidth ? (windowWidth as number[])[0] : undefined,
     decodeTimeInMS: undefined,
-    webWorkerTimeInMS: undefined,
+    webWorkerTimeInMS: undefined
   };
 
   // add function to return pixel data
@@ -621,6 +621,6 @@ let createCustomImage = function (
   // Return an object containing the Promise to cornerstone so it can setup callbacks to be
   // invoked asynchronously for the success/resolve and failure/reject scenarios.
   return {
-    promise,
+    promise
   };
 };

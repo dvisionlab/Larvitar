@@ -10,7 +10,7 @@ import { forEach, find } from "lodash";
 import {
   getMeanValue,
   getDistanceBetweenSlices,
-  getTypedArrayFromDataType,
+  getTypedArrayFromDataType
 } from "./imageUtils";
 import store from "./imageStore";
 import { parse } from "./parsers/nrrd";
@@ -87,7 +87,7 @@ export const buildHeader = function (series: Series) {
 export const getCachedPixelData = function (imageId: string) {
   let cachedImage = find(cornerstone.imageCache.cachedImages, [
     "imageId",
-    imageId,
+    imageId
   ]);
   let promise = new Promise<number[]>((resolve, reject) => {
     if (cachedImage && cachedImage.image) {
@@ -95,8 +95,8 @@ export const getCachedPixelData = function (imageId: string) {
     } else {
       cornerstone
         .loadImage(imageId)
-        .then((image) => resolve(image.getPixelData()))
-        .catch((err) => reject(err));
+        .then(image => resolve(image.getPixelData()))
+        .catch(err => reject(err));
     }
   });
   return promise;
@@ -213,7 +213,7 @@ export const buildDataAsync = function (
     function runFillPixelData(data: TypedArray) {
       let imageId = imageIds.shift();
       if (imageId) {
-        getCachedPixelData(imageId).then((sliceData) => {
+        getCachedPixelData(imageId).then(sliceData => {
           data.set(sliceData, offsetData);
           offsetData += sliceData.length;
           // this does the trick: delay next computation to next tick

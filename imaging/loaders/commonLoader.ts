@@ -13,7 +13,7 @@ import type {
   ImageTracker,
   LarvitarManager,
   MetaData,
-  Series,
+  Series
 } from "../types";
 
 // internal libraries
@@ -219,7 +219,7 @@ export const getImageFrame = function (metadata: MetaData, dataSet: DataSet) {
       bluePaletteColorLookupTableDescriptor: metadata.x00281103,
       redPaletteColorLookupTableData: metadata.x00281201,
       greenPaletteColorLookupTableData: metadata.x00281202,
-      bluePaletteColorLookupTableData: metadata.x00281203,
+      bluePaletteColorLookupTableData: metadata.x00281203
     };
   }
 
@@ -246,6 +246,6 @@ export const getImageFrame = function (metadata: MetaData, dataSet: DataSet) {
     bluePaletteColorLookupTableData:
       imagePixelModule.bluePaletteColorLookupTableData,
     pixelData: undefined, // populated later after decoding,
-    ImageData: undefined,
+    ImageData: undefined
   };
 };

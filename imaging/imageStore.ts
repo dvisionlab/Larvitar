@@ -78,7 +78,7 @@ const INITIAL_STORE_DATA: Store = {
   leftActiveTool: undefined,
   rightActiveTool: undefined,
   series: {},
-  viewports: {},
+  viewports: {}
 };
 
 // default viewport object
@@ -164,32 +164,32 @@ export const DEFAULT_VIEWPORT: {
     rotation: 0.0,
     translation: {
       x: 0.0,
-      y: 0.0,
+      y: 0.0
     },
     voi: {
       windowCenter: 0.0,
-      windowWidth: 0.0,
+      windowWidth: 0.0
     },
     // redundant fields ?
     rows: 0,
     cols: 0,
     spacing_x: 0.0,
     spacing_y: 0.0,
-    thickness: 0.0,
+    thickness: 0.0
   },
   default: {
     scale: 0.0,
     rotation: 0.0,
     translation: {
       x: 0.0,
-      y: 0.0,
+      y: 0.0
     },
     voi: {
       windowCenter: 0.0,
       windowWidth: 0.0,
-      invert: false,
-    },
-  },
+      invert: false
+    }
+  }
 };
 
 export type Viewport = typeof DEFAULT_VIEWPORT;
@@ -399,7 +399,7 @@ const setup = (data = _cloneDeep(INITIAL_STORE_DATA)) => {
       delete obj[prop];
       triggerStoreListener(data);
       return true;
-    },
+    }
   };
 
   return new Proxy<Store>(data, handler);
@@ -488,5 +488,5 @@ export default {
   },
   removeSeriesListener: (seriesId: string) => {
     delete seriesListeners[seriesId];
-  },
+  }
 };

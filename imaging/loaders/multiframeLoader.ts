@@ -10,7 +10,7 @@ import { each, range } from "lodash";
 import {
   getImageFrame,
   getLarvitarImageTracker,
-  getLarvitarManager,
+  getLarvitarManager
 } from "./commonLoader";
 import { parseDataSet } from "../imageParsing";
 import type {
@@ -18,7 +18,7 @@ import type {
   ImageFrame,
   LarvitarManager,
   MetaData,
-  Series,
+  Series
 } from "../types";
 
 // global module variables
@@ -106,7 +106,7 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
 
       parseDataSet(dataSet!, frameMetadata, {
         tags: ["x52009230"],
-        frameId: frameNumber,
+        frameId: frameNumber
       });
 
       // TODO-ts REMOVE "AS" WHEN METADATA VALUES ARE TYPED
@@ -131,7 +131,7 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
       managerSeriesId.instances[frameImageId] = {
         instanceId: instanceId,
         frame: frameNumber,
-        metadata: frameMetadata,
+        metadata: frameMetadata
       };
       managerSeriesId.dataSet = dataSet || null;
       managerSeriesId.seriesDescription = serie.instances[serie.imageIds[0]]
@@ -212,7 +212,7 @@ let createCustomImage = function (
     enabled:
       options.preScale && options.preScale.enabled !== undefined
         ? options.preScale.enabled
-        : false,
+        : false
   };
 
   if (multiframeDatasetCache === null || !multiframeDatasetCache[id]) {
@@ -263,7 +263,7 @@ let createCustomImage = function (
     if (scalingParameters) {
       options.preScale = {
         ...options.preScale,
-        scalingParameters,
+        scalingParameters
       };
     }
   }
@@ -328,7 +328,7 @@ let createCustomImage = function (
         windowCenter: windowCenter as number,
         windowWidth: windowWidth as number,
         decodeTimeInMS: undefined, // TODO
-        loadTimeInMS: undefined, // TODO
+        loadTimeInMS: undefined // TODO
       };
       // add function to return pixel data
       image.getPixelData = function () {
@@ -416,7 +416,7 @@ let createCustomImage = function (
   // Return an object containing the Promise to cornerstone so it can setup callbacks to be
   // invoked asynchronously for the success/resolve and failure/reject scenarios.
   return {
-    promise,
+    promise
   };
 };
 

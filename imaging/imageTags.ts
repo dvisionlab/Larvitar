@@ -393,7 +393,7 @@ export function parseTag<T>(
         // catch error
         try {
           valueOut = convertBytes(characterSet, arr, {
-            vr: vr,
+            vr: vr
           });
         } catch (error) {
           console.warn("Invalid Character Set: " + characterSet);
@@ -604,7 +604,7 @@ export const getTagValue = function (dataSet: DataSet, tag: string) {
     },
     "US|SS": function () {
       return dataSet.uint16(tag);
-    },
+    }
   };
   return vrParsingMap[vr] ? vrParsingMap[vr]() : dataSet.string(tag);
 };

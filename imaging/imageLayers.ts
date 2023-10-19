@@ -39,9 +39,9 @@ export const buildLayer = function (
       opacity: options?.opacity ? options?.opacity : 1.0,
       visible: true,
       viewport: {
-        colormap: options?.colormap ? options?.colormap : "gray",
-      },
-    },
+        colormap: options?.colormap ? options?.colormap : "gray"
+      }
+    }
   };
   return layer;
 };
