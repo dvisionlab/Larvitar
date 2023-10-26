@@ -378,12 +378,13 @@ export const renderImage = function (
 
   let series = { ...seriesStack };
   let data = getSeriesData(series, defaultProps);
-  
+
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
-    return new Promise((_, reject) =>
-      reject("error during renderImage: imageId has not been loaded yet.")
-    );
+    return new Promise((_, reject) => {
+      setStore(["pendingSliceId", id, data.imageIndex]);
+      reject("error during renderImage: imageId has not been loaded yet.");
+    });
   }
 
   const renderPromise = new Promise<true>((resolve, reject) => {
@@ -945,11 +946,10 @@ const getSeriesData = function (
         ? defaultProps.numberOfSlices
         : series.imageIds.length;
     data.imageIndex =
-      defaultProps?.sliceNumber &&
-      defaultProps?.sliceNumber >= 0 && // slice number between 0 and n-1
-      defaultProps.sliceNumber < numberOfSlices
+      defaultProps?.sliceNumber && defaultProps?.sliceNumber >= 0 // slice number between 0 and n-1
         ? defaultProps["sliceNumber"]
         : Math.floor(numberOfSlices / 2);
+
     data.imageId = series.imageIds[data.imageIndex];
   }
   const instance: Instance | null = data.imageId
@@ -996,7 +996,7 @@ const getSeriesData = function (
 
   if (data.rows == null || data.cols == null) {
     console.warn("invalid image metadata (rows or cols is null)");
-    setStore("errorLog", "Invalid Image Metadata");
+    setStore(["errorLog", "Invalid Image Metadata"]);
   } else {
     setStore(["errorLog", ""]);
   }

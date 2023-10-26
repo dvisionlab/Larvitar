@@ -171,6 +171,7 @@ declare const getSeriesData: (series: Series, defaultProps: StoreViewportOptions
     minSliceId: number;
     maxSliceId: number;
     sliceId: number;
+    pendingSliceId: number;
     minTimeId: number;
     maxTimeId: number;
     timeId: number;

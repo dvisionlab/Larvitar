@@ -2,7 +2,6 @@
  *  @desc This file provides functionalities
  *        for data config store.
  */
-import { MetadataValue } from "./types";
 type StoreSeries = {
     imageIds: string[];
     progress: number;
@@ -20,12 +19,37 @@ type Store = {
     };
     [key: string]: any;
 };
+type SetPayload = ["errorLog" | "leftActiveTool" | "rightActiveTool", string] | [
+    "isColor" | "isMultiframe" | "isPDF" | "isTimeserie" | "ready",
+    string,
+    boolean
+] | [
+    ("progress" | "loading" | "minPixelValue" | "maxPixelValue" | "minSliceId" | "maxSliceId" | "minTimeId" | "maxTimeId" | "rotation" | "scale" | "sliceId" | "pendingSliceId" | "timeId" | "timestamp" | "thickness"),
+    string,
+    number
+] | ["timestamps" | "timeIds", string, number[]] | [
+    "contrast" | "dimensions" | "spacing" | "translation",
+    string,
+    number,
+    number
+] | [
+    "defaultViewport",
+    string,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    boolean
+];
 export declare const DEFAULT_VIEWPORT: {
     loading: number;
     ready: boolean;
     minSliceId: number;
     maxSliceId: number;
     sliceId: number;
+    pendingSliceId: number;
     minTimeId: number;
     maxTimeId: number;
     timeId: number;
@@ -75,7 +99,7 @@ export declare const DEFAULT_VIEWPORT: {
     };
 };
 export type Viewport = typeof DEFAULT_VIEWPORT;
-export declare const set: (field: string, payload: string | Array<MetadataValue>) => void;
+export declare const set: (payload: SetPayload) => void;
 declare const _default: {
     initialize: () => void;
     addViewport: (name: string) => void;
@@ -84,6 +108,7 @@ declare const _default: {
     removeSeriesId: (seriesId: string) => void;
     resetSeriesIds: () => void;
     setSliceId: (elementId: string, imageIndex: number) => void;
+    setPendingSliceId: (elementId: string, imageIndex: number) => void;
     setMaxSliceId: (elementId: string, imageIndex: number) => void;
     get: (props: string | string[]) => any;
     addStoreListener: (listener: (data: Store) => {}) => (data: Store) => {};
