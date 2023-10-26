@@ -5,7 +5,6 @@
 
 // external libraries
 import { get as _get, cloneDeep as _cloneDeep } from "lodash";
-import { MetadataValue } from "./types";
 
 type StoreSeries = { imageIds: string[]; progress: number };
 
@@ -21,8 +20,7 @@ type Store = {
 };
 
 type SetPayload =
-  | [string, string]
-  | ["progress", string, number]
+  | ["errorLog" | "leftActiveTool" | "rightActiveTool", string]
   | [
       "isColor" | "isMultiframe" | "isPDF" | "isTimeserie" | "ready",
       string,
@@ -30,6 +28,7 @@ type SetPayload =
     ]
   | [
       (
+        | "progress"
         | "loading"
         | "minPixelValue"
         | "maxPixelValue"
@@ -37,16 +36,23 @@ type SetPayload =
         | "maxSliceId"
         | "minTimeId"
         | "maxTimeId"
+        | "rotation"
+        | "scale"
         | "sliceId"
         | "timeId"
         | "timestamp"
+        | "thickness"
       ),
       string,
       number
     ]
   | ["timestamps" | "timeIds", string, number[]]
-  | ["contrast", string, number, number]
-  | ["translation", string, { x: number; y: number }]
+  | [
+      "contrast" | "dimensions" | "spacing" | "translation",
+      string,
+      number,
+      number
+    ]
   | [
       "defaultViewport",
       string,
@@ -222,20 +228,6 @@ const setValue = (store: Store, data: SetPayload) => {
 
   const viewport = store.viewports[k];
 
-  // rename field
-  switch (field) {
-    case "renderingStatus":
-      field = "ready";
-      break;
-
-    case "loadingProgress":
-      field = "loading";
-      break;
-
-    default:
-      break;
-  }
-
   // assign values
   switch (field) {
     case "progress":
@@ -306,7 +298,8 @@ const setValue = (store: Store, data: SetPayload) => {
       if (!viewport) {
         return;
       }
-      viewport.viewport[field] = (v as [{ x: number; y: number }])[0];
+      v = v as [number, number];
+      viewport.viewport[field] = { x: v[0], y: v[1] };
       triggerViewportListener(k);
       break;
 
@@ -415,13 +408,9 @@ const validateStore = () => {
   }
 };
 
-export const set = (
-  field: string,
-  payload: string | Array<MetadataValue> // TODO-ts use SetPayload type here
-) => {
+export const set = (payload: SetPayload) => {
   validateStore();
-  payload = Array.isArray(payload) ? payload : [payload];
-  setValue(STORE!, [field, ...payload] as SetPayload);
+  setValue(STORE!, payload);
 };
 
 export default {
@@ -454,10 +443,10 @@ export default {
   },
   // expose useful sets
   setSliceId: (elementId: string, imageIndex: number) => {
-    set("sliceId", [elementId, imageIndex]);
+    set(["sliceId", elementId, imageIndex]);
   },
   setMaxSliceId: (elementId: string, imageIndex: number) => {
-    set("maxSliceId", [elementId, imageIndex]);
+    set(["maxSliceId", elementId, imageIndex]);
   },
   // get
   get: (props: string | string[]) => {
