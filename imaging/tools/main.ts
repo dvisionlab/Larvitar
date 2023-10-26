@@ -271,10 +271,10 @@ const setToolActive = function (
       defaultOpt.mouseButtonMask = [defaultOpt.mouseButtonMask];
     }
     if (defaultOpt.mouseButtonMask.includes(1)) {
-      setStore("leftActiveTool", toolName);
+      setStore(["leftActiveTool", toolName]);
     }
     if (defaultOpt.mouseButtonMask.includes(2)) {
-      setStore("rightActiveTool", toolName);
+      setStore(["rightActiveTool", toolName]);
     }
   }
 };
