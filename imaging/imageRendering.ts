@@ -374,11 +374,10 @@ export const renderImage = function (
   const id: string = isElement(elementId) ? element.id : (elementId as string);
   cornerstone.enable(element);
 
-  const series = { ...seriesStack };
+  let series = { ...seriesStack };
 
   setStore("renderingStatus", [id as string, false]);
-
-  const data = getSeriesData(series, defaultProps);
+  let data = getSeriesData(series, defaultProps);
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) =>
@@ -907,10 +906,10 @@ const getSeriesData = function (
     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
     data.imageIndex = 0;
     data.timeIndex = 0;
-    data.timestamp = series.instances[series.imageIds[0]].metadata[
+    data.imageId = series.imageIds[data.imageIndex];
+    data.timestamp = series.instances[data.imageId].metadata[
       "x00080033"
     ] as number;
-    data.imageId = series.imageIds[data.imageIndex];
     data.timestamps = [];
     data.timeIds = [];
     each(series.imageIds, function (imageId) {
@@ -936,52 +935,50 @@ const getSeriesData = function (
         : Math.floor(numberOfSlices / 2);
     data.imageId = series.imageIds[data.imageIndex];
   }
+  const instance: Instance | null = data.imageId
+    ? series.instances[data.imageId]
+    : null;
+
   data.isColor = series.color as boolean;
   data.isPDF = series.isPDF;
   // rows, cols and x y z spacing
-  data.rows = series.instances[series.imageIds[0]].metadata[
-    "x00280010"
-  ] as number;
-  data.cols = series.instances[series.imageIds[0]].metadata[
-    "x00280011"
-  ] as number;
-  data.thickness = series.instances[series.imageIds[0]].metadata[
-    "x00180050"
-  ] as number;
+  if (instance) {
+    data.rows = instance.metadata["x00280010"] as number;
+    data.cols = instance.metadata["x00280011"] as number;
+    data.thickness = instance.metadata["x00180050"] as number;
 
-  let spacing = series.instances[series.imageIds[0]].metadata[
-    "x00280030"
-  ] as number[];
-  data.spacing_x = spacing ? spacing[0] : 1;
-  data.spacing_y = spacing ? spacing[1] : 1;
-  // window center and window width
-  data.viewport = {
-    voi: {
-      windowCenter:
-        defaultProps && defaultProps.wc
-          ? defaultProps.wc
-          : series.instances[series.imageIds[0]].metadata.x00281050!,
-      windowWidth:
-        defaultProps && defaultProps.ww
-          ? defaultProps.ww
-          : series.instances[series.imageIds[0]].metadata.x00281051!
-    }
-  };
-  data.default = {
-    voi: {
-      windowCenter:
-        defaultProps && has(defaultProps, "defaultWC")
-          ? defaultProps.defaultWC
-          : data.viewport!.voi!.windowCenter,
-      windowWidth:
-        defaultProps && has(defaultProps, "defaultWW")
-          ? defaultProps.defaultWW
-          : data.viewport!.voi!.windowWidth
-    }
-  };
+    let spacing = instance.metadata["x00280030"] as number[];
+    data.spacing_x = spacing ? spacing[0] : 1;
+    data.spacing_y = spacing ? spacing[1] : 1;
+    // window center and window width
+    data.viewport = {
+      voi: {
+        windowCenter:
+          defaultProps && defaultProps.wc
+            ? defaultProps.wc
+            : instance.metadata.x00281050!,
+        windowWidth:
+          defaultProps && defaultProps.ww
+            ? defaultProps.ww
+            : instance.metadata.x00281051!
+      }
+    };
+    data.default = {
+      voi: {
+        windowCenter:
+          defaultProps && has(defaultProps, "defaultWC")
+            ? defaultProps.defaultWC
+            : data.viewport!.voi!.windowCenter,
+        windowWidth:
+          defaultProps && has(defaultProps, "defaultWW")
+            ? defaultProps.defaultWW
+            : data.viewport!.voi!.windowWidth
+      }
+    };
+  }
 
   if (data.rows == null || data.cols == null) {
-    console.error("invalid image metadata (rows or cols is null)");
+    console.warn("invalid image metadata (rows or cols is null)");
     setStore("errorLog", "Invalid Image Metadata");
   } else {
     setStore("errorLog", "");

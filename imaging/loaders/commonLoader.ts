@@ -41,10 +41,12 @@ var imageTracker: ImageTracker = null;
  * @function updateLarvitarManager
  * @param {Object} imageObject The single dicom object
  * @param {String} customId - Optional custom id to overwrite seriesUID as default one
+ * @param {number} sliceIndex - Optional custom index to overwrite slice index as default one
  */
 export const updateLarvitarManager = function (
   imageObject: ImageObject,
-  customId?: string
+  customId?: string,
+  sliceIndex?: number
 ) {
   if (larvitarManager === null) {
     larvitarManager = {};
@@ -55,13 +57,13 @@ export const updateLarvitarManager = function (
   if (data.metadata?.isMultiframe) {
     let seriesId = customId || imageObject.metadata.seriesUID;
     let loadedStack: ReturnType<typeof getLarvitarManager> = {};
-    updateLoadedStack(data, loadedStack, customId);
+    updateLoadedStack(data, loadedStack, customId, sliceIndex);
     buildMultiFrameImage(
       seriesId as string,
       loadedStack[seriesId as string] as Series
     );
   } else {
-    updateLoadedStack(data, larvitarManager, customId);
+    updateLoadedStack(data, larvitarManager, customId, sliceIndex);
   }
   return larvitarManager;
 };
