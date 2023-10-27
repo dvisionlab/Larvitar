@@ -59,6 +59,7 @@ export declare const registerMultiFrameImageLoader: () => void;
  * @param {Object} seriesData - Cornerstone series object
  * @param {Object} allSeriesStack - Dict containing all series objects
  * @param {String} customId - Optional custom id to overwrite seriesUID as default one
+ * @param {number} sliceIndex - Optional custom index to overwrite slice index as default one
  */
-export declare const updateLoadedStack: (seriesData: ImageObject, allSeriesStack: ReturnType<typeof getLarvitarManager>, customId?: string) => void;
+export declare const updateLoadedStack: (seriesData: ImageObject, allSeriesStack: ReturnType<typeof getLarvitarManager>, customId?: string, sliceIndex?: number) => void;
 export {};

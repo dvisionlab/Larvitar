@@ -380,9 +380,10 @@ export const renderImage = function (
   let data = getSeriesData(series, defaultProps);
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
-    return new Promise((_, reject) =>
-      reject("error during renderImage: imageId has not been loaded yet.")
-    );
+    return new Promise((_, reject) => {
+      setStore(["pendingSliceId", id, data.imageIndex]);
+      reject("error during renderImage: imageId has not been loaded yet.");
+    });
   }
 
   const renderPromise = new Promise<true>((resolve, reject) => {
@@ -528,12 +529,21 @@ export const updateImage = async function (
     const image = await cornerstone.loadAndCacheImage(imageId);
     cornerstone.displayImage(element, image);
     setStore(["sliceId", id, imageIndex]);
+    const pendingSliceId = store.get(["pendingSliceId", id]);
+    if (imageIndex == pendingSliceId) {
+      setStore(["pendingSliceId", id, undefined]);
+    }
     setStore(["minPixelValue", id, image.minPixelValue]);
     setStore(["maxPixelValue", id, image.maxPixelValue]);
   } else {
     const image = await cornerstone.loadImage(imageId);
     cornerstone.displayImage(element, image);
     setStore(["sliceId", id, imageIndex]);
+    const pendingSliceId = store.get(["pendingSliceId", id]);
+    if (imageIndex == pendingSliceId) {
+      setStore(["pendingSliceId", id, undefined]);
+    }
+    setStore(["pendingSliceId", id, undefined]);
     setStore(["minPixelValue", id, image.minPixelValue]);
     setStore(["maxPixelValue", id, image.maxPixelValue]);
   }
@@ -709,6 +719,10 @@ export const storeViewportData = function (
   // slice id from 0 to n - 1
   setStore(["minSliceId", elementId, 0]);
   setStore(["sliceId", elementId, data.imageIndex]);
+  const pendingSliceId = store.get(["pendingSliceId", elementId]);
+  if (data.imageIndex == pendingSliceId) {
+    setStore(["pendingSliceId", elementId, undefined]);
+  }
   setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
 
   if (data.isTimeserie) {
@@ -921,8 +935,10 @@ const getSeriesData = function (
     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
     data.imageIndex = 0;
     data.timeIndex = 0;
-    data.timestamp = series.instances[series.imageIds[0]].metadata.x00080033!;
     data.imageId = series.imageIds[data.imageIndex];
+    data.timestamp = series.instances[data.imageId].metadata[
+      "x00080033"
+    ] as number;
     data.timestamps = [];
     data.timeIds = [];
     each(series.imageIds, function (imageId: string) {
@@ -940,53 +956,55 @@ const getSeriesData = function (
         ? defaultProps.numberOfSlices
         : series.imageIds.length;
     data.imageIndex =
-      defaultProps?.sliceNumber &&
-      defaultProps?.sliceNumber >= 0 && // slice number between 0 and n-1
-      defaultProps.sliceNumber < numberOfSlices
+      defaultProps?.sliceNumber && defaultProps?.sliceNumber >= 0 // slice number between 0 and n-1
         ? defaultProps["sliceNumber"]
         : Math.floor(numberOfSlices / 2);
+
     data.imageId = series.imageIds[data.imageIndex];
   }
+  const instance: Instance | null = data.imageId
+    ? series.instances[data.imageId]
+    : null;
+
   data.isColor = series.color as boolean;
   data.isPDF = series.isPDF;
-  // rows, cols and x y z spacing
-  data.rows = series.instances[series.imageIds[0]].metadata.x00280010!;
-  data.cols = series.instances[series.imageIds[0]].metadata.x00280011!;
-  data.thickness = series.instances[series.imageIds[0]].metadata
-    .x00180050! as number;
+  if (instance) {
+    data.rows = instance.metadata.x00280010!;
+    data.cols = instance.metadata.x00280011!;
+    data.thickness = instance.metadata.x00180050 as number;
 
-  let spacing = series.instances[series.imageIds[0]].metadata.x00280030;
-  data.spacing_x = spacing ? spacing[0] : 1;
-  data.spacing_y = spacing ? spacing[1] : 1;
-  // window center and window width
-  data.viewport = {
-    voi: {
-      windowCenter:
-        defaultProps && defaultProps.wc
-          ? defaultProps.wc
-          : (series.instances[series.imageIds[0]].metadata
-              .x00281050! as number),
-      windowWidth:
-        defaultProps && defaultProps.ww
-          ? defaultProps.ww
-          : (series.instances[series.imageIds[0]].metadata.x00281051! as number)
-    }
-  };
-  data.default = {
-    voi: {
-      windowCenter:
-        defaultProps && has(defaultProps, "defaultWC")
-          ? defaultProps.defaultWC
-          : data.viewport!.voi!.windowCenter,
-      windowWidth:
-        defaultProps && has(defaultProps, "defaultWW")
-          ? defaultProps.defaultWW
-          : data.viewport!.voi!.windowWidth
-    }
-  };
+    let spacing = instance.metadata.x00280030!;
+    data.spacing_x = spacing ? spacing[0] : 1;
+    data.spacing_y = spacing ? spacing[1] : 1;
+    // window center and window width
+    data.viewport = {
+      voi: {
+        windowCenter:
+          defaultProps && defaultProps.wc
+            ? defaultProps.wc
+            : (instance.metadata.x00281050 as number),
+        windowWidth:
+          defaultProps && defaultProps.ww
+            ? defaultProps.ww
+            : (instance.metadata.x00281051 as number)
+      }
+    };
+    data.default = {
+      voi: {
+        windowCenter:
+          defaultProps && has(defaultProps, "defaultWC")
+            ? defaultProps.defaultWC
+            : data.viewport!.voi!.windowCenter,
+        windowWidth:
+          defaultProps && has(defaultProps, "defaultWW")
+            ? defaultProps.defaultWW
+            : data.viewport!.voi!.windowWidth
+      }
+    };
+  }
 
   if (data.rows == null || data.cols == null) {
-    console.error("invalid image metadata (rows or cols is null)");
+    console.warn("invalid image metadata (rows or cols is null)");
     setStore(["errorLog", "Invalid Image Metadata"]);
   } else {
     setStore(["errorLog", ""]);

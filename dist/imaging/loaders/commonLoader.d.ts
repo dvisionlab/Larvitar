@@ -10,8 +10,9 @@ import type { ImageObject, MetaData, Series } from "../types";
  * @function updateLarvitarManager
  * @param {Object} imageObject The single dicom object
  * @param {String} customId - Optional custom id to overwrite seriesUID as default one
+ * @param {number} sliceIndex - Optional custom index to overwrite slice index as default one
  */
-export declare const updateLarvitarManager: (imageObject: ImageObject, customId?: string) => {
+export declare const updateLarvitarManager: (imageObject: ImageObject, customId?: string, sliceIndex?: number) => {
     [key: string]: Series | import("./nrrdLoader").NrrdSeries;
 };
 /**

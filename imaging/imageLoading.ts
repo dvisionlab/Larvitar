@@ -128,11 +128,13 @@ export const registerMultiFrameImageLoader = function () {
  * @param {Object} seriesData - Cornerstone series object
  * @param {Object} allSeriesStack - Dict containing all series objects
  * @param {String} customId - Optional custom id to overwrite seriesUID as default one
+ * @param {number} sliceIndex - Optional custom index to overwrite slice index as default one
  */
 export const updateLoadedStack = function (
   seriesData: ImageObject,
   allSeriesStack: ReturnType<typeof getLarvitarManager>,
-  customId?: string
+  customId?: string,
+  sliceIndex?: number
 ) {
   let sid = seriesData.metadata.seriesUID;
   let ssid = seriesData.metadata.studyUID;
@@ -211,7 +213,8 @@ export const updateLoadedStack = function (
   // get instance number from metadata
   const instanceNumber = seriesData.metadata["x00200013"];
   const defaultMethod = instanceNumber ? "instanceNumber" : "imagePosition";
-  const sortMethods = is4D ? [defaultMethod, "contentTime"] : [defaultMethod];
+  const sortMethods: Array<"imagePosition" | "contentTime" | "instanceNumber"> =
+    is4D ? [defaultMethod, "contentTime"] : [defaultMethod];
 
   // if the parsed file is a new series instance, keep it
 
@@ -227,7 +230,11 @@ export const updateLoadedStack = function (
       seriesData.file
     ) as string;
 
-    allSeriesStack[id].imageIds.push(imageId);
+    if (sliceIndex !== undefined) {
+      allSeriesStack[id].imageIds[sliceIndex] = imageId;
+    } else {
+      allSeriesStack[id].imageIds.push(imageId);
+    }
     if (is4D === false) {
       allSeriesStack[id].numberOfImages =
         (allSeriesStack[id].numberOfImages || 0) + 1;
@@ -240,17 +247,20 @@ export const updateLoadedStack = function (
       dataSet: seriesData.dataSet
     };
 
-    // order images in stack
-    allSeriesStack[id].imageIds = getSortedStack(
-      allSeriesStack[id] as Series,
-      is4D ? ["imagePosition", "contentTime"] : ["imagePosition"],
-      true
-    );
-
-    // populate the ordered dictionary of instanceUIDs
-    allSeriesStack[id].instanceUIDs = getSortedUIDs(
-      allSeriesStack[id] as Series
-    );
+    if (sliceIndex === undefined) {
+      // order images in stack
+      allSeriesStack[id].imageIds = getSortedStack(
+        allSeriesStack[id] as Series,
+        sortMethods,
+        true
+      );
+      // populate the ordered dictionary of instanceUIDs
+      allSeriesStack[id].instanceUIDs = getSortedUIDs(
+        allSeriesStack[id] as Series
+      );
+    } else {
+      allSeriesStack[id].instanceUIDs[iid] = imageId;
+    }
     store.addSeriesId(id, allSeriesStack[id].imageIds);
   }
 };

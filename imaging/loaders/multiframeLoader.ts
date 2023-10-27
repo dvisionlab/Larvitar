@@ -77,7 +77,6 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
   let t0 = performance.now();
   let manager = getLarvitarManager();
   let imageTracker = getLarvitarImageTracker();
-  console.log(serie);
   let numberOfFrames = serie.metadata!.numberOfFrames!;
   let frameTime = serie.metadata!.frameTime;
   let frameDelay = serie.metadata!.frameDelay ? serie.metadata!.frameDelay : 0;

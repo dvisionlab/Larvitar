@@ -27,7 +27,7 @@ type SetPayload = ["errorLog" | "leftActiveTool" | "rightActiveTool", string] | 
     ("progress" | "loading" | "minPixelValue" | "maxPixelValue" | "minSliceId" | "maxSliceId" | "minTimeId" | "maxTimeId" | "rotation" | "scale" | "sliceId" | "timeId" | "thickness"),
     string,
     number
-] | ["timestamp", string, number | undefined] | ["timestamps" | "timeIds", string, number[]] | [
+] | ["timestamp", string, number | undefined] | ["pendingSliceId", string, number | undefined] | ["timestamps" | "timeIds", string, number[]] | [
     "contrast" | "dimensions" | "spacing" | "translation",
     string,
     number,
@@ -49,6 +49,7 @@ export declare const DEFAULT_VIEWPORT: {
     minSliceId: number;
     maxSliceId: number;
     sliceId: number;
+    pendingSliceId: number | undefined;
     minTimeId: number;
     maxTimeId: number;
     timeId: number;
@@ -107,6 +108,7 @@ declare const _default: {
     removeSeriesId: (seriesId: string) => void;
     resetSeriesIds: () => void;
     setSliceId: (elementId: string, imageIndex: number) => void;
+    setPendingSliceId: (elementId: string, imageIndex: number) => void;
     setMaxSliceId: (elementId: string, imageIndex: number) => void;
     get: (props: string | string[]) => any;
     addStoreListener: (listener: (data: Store) => {}) => (data: Store) => {};
