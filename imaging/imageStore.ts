@@ -46,6 +46,7 @@ type SetPayload =
       string,
       number
     ]
+  | ["pendingSliceId", string, number | undefined]
   | ["timestamps" | "timeIds", string, number[]]
   | [
       "contrast" | "dimensions" | "spacing" | "translation",
@@ -94,6 +95,7 @@ export const DEFAULT_VIEWPORT: {
   minSliceId: number;
   maxSliceId: number;
   sliceId: number;
+  pendingSliceId: number | undefined;
   minTimeId: number;
   maxTimeId: number;
   timeId: number;
@@ -148,6 +150,7 @@ export const DEFAULT_VIEWPORT: {
   minSliceId: 0,
   maxSliceId: 0,
   sliceId: 0,
+  pendingSliceId: undefined,
   minTimeId: 0,
   maxTimeId: 0,
   timeId: 0,
@@ -258,6 +261,7 @@ const setValue = (store: Store, data: SetPayload) => {
     case "minTimeId":
     case "maxTimeId":
     case "sliceId":
+    case "pendingSliceId":
     case "timeId":
     case "timestamp":
       if (!viewport) {
@@ -444,6 +448,9 @@ export default {
   // expose useful sets
   setSliceId: (elementId: string, imageIndex: number) => {
     set(["sliceId", elementId, imageIndex]);
+  },
+  setPendingSliceId: (elementId: string, imageIndex: number) => {
+    set(["pendingSliceId", elementId, imageIndex]);
   },
   setMaxSliceId: (elementId: string, imageIndex: number) => {
     set(["maxSliceId", elementId, imageIndex]);

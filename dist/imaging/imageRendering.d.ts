@@ -171,6 +171,7 @@ declare const getSeriesData: (series: Series, defaultProps: StoreViewportOptions
     minSliceId: number;
     maxSliceId: number;
     sliceId: number;
+    pendingSliceId: number | undefined;
     minTimeId: number;
     maxTimeId: number;
     timeId: number;
@@ -192,14 +193,7 @@ declare const getSeriesData: (series: Series, defaultProps: StoreViewportOptions
         scale: number;
         rotation: number;
         translation: {
-            x: number; /**
-             * Load and cache all serie's images
-             * Add series's imageIds into store
-             * @instance
-             * @function loadAndCacheImages
-             * @param {Object} series the parsed series data
-             * @param {Function} callback a callback function
-             */
+            x: number;
             y: number;
         };
         voi: {
