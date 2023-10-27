@@ -235,10 +235,12 @@ export const updateLoadedStack = function (
     } else {
       allSeriesStack[id].imageIds.push(imageId);
     }
+
     if (is4D === false) {
       allSeriesStack[id].numberOfImages =
         (allSeriesStack[id].numberOfImages || 0) + 1;
     }
+
     allSeriesStack[id].bytes += seriesData.file.size;
     // store needed instance tags
     allSeriesStack[id].instances[imageId] = {
@@ -247,21 +249,26 @@ export const updateLoadedStack = function (
       dataSet: seriesData.dataSet
     };
 
-    if (sliceIndex === undefined) {
-      // order images in stack
-      allSeriesStack[id].imageIds = getSortedStack(
-        allSeriesStack[id] as Series,
-        sortMethods,
-        true
-      );
-      // populate the ordered dictionary of instanceUIDs
-      allSeriesStack[id].instanceUIDs = getSortedUIDs(
-        allSeriesStack[id] as Series
-      );
+    if (isPDF === false) {
+      if (sliceIndex === undefined) {
+        // order images in stack
+        allSeriesStack[id].imageIds = getSortedStack(
+          allSeriesStack[id] as Series,
+          sortMethods,
+          true
+        );
+        // populate the ordered dictionary of instanceUIDs
+        allSeriesStack[id].instanceUIDs = getSortedUIDs(
+          allSeriesStack[id] as Series
+        );
+      } else {
+        allSeriesStack[id].instanceUIDs[iid] = imageId;
+      }
+      store.addSeriesId(id, allSeriesStack[id].imageIds);
     } else {
       allSeriesStack[id].instanceUIDs[iid] = imageId;
+      store.addSeriesId(id, allSeriesStack[id].imageIds);
     }
-    store.addSeriesId(id, allSeriesStack[id].imageIds);
   }
 };
 

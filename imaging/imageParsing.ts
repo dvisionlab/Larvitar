@@ -15,7 +15,6 @@ import { checkMemoryAllocation } from "./monitors/memory";
 import { ImageObject, Instance, MetaData, Series } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
 import type { MetaDataTypes } from "./MetaDataTypes";
-import { MetaDataReadable } from "./MetaDataReadable";
 import { NrrdSeries } from "./loaders/nrrdLoader";
 
 // global module variables
