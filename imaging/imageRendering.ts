@@ -531,13 +531,20 @@ export const updateImage = async function (
     const image = await cornerstone.loadAndCacheImage(imageId);
     cornerstone.displayImage(element, image);
     setStore(["sliceId", id, imageIndex]);
-    setStore(["pendingSliceId", id, undefined]);
+    const pendingSliceId = store.get(["pendingSliceId", id]);
+    if (imageIndex == pendingSliceId) {
+      setStore(["pendingSliceId", id, undefined]);
+    }
     setStore(["minPixelValue", id, image.minPixelValue]);
     setStore(["maxPixelValue", id, image.maxPixelValue]);
   } else {
     const image = await cornerstone.loadImage(imageId);
     cornerstone.displayImage(element, image);
     setStore(["sliceId", id, imageIndex]);
+    const pendingSliceId = store.get(["pendingSliceId", id]);
+    if (imageIndex == pendingSliceId) {
+      setStore(["pendingSliceId", id, undefined]);
+    }
     setStore(["pendingSliceId", id, undefined]);
     setStore(["minPixelValue", id, image.minPixelValue]);
     setStore(["maxPixelValue", id, image.maxPixelValue]);
@@ -714,7 +721,10 @@ export const storeViewportData = function (
   // slice id from 0 to n - 1
   setStore(["minSliceId", elementId, 0]);
   setStore(["sliceId", elementId, data.imageIndex]);
-  setStore(["pendingSliceId", elementId, undefined]);
+  const pendingSliceId = store.get(["pendingSliceId", elementId]);
+  if (data.imageIndex == pendingSliceId) {
+    setStore(["pendingSliceId", elementId, undefined]);
+  }
   setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
 
   if (data.isTimeserie) {
