@@ -24,10 +24,10 @@ type SetPayload = ["errorLog" | "leftActiveTool" | "rightActiveTool", string] | 
     string,
     boolean
 ] | [
-    ("progress" | "loading" | "minPixelValue" | "maxPixelValue" | "minSliceId" | "maxSliceId" | "minTimeId" | "maxTimeId" | "rotation" | "scale" | "sliceId" | "pendingSliceId" | "timeId" | "timestamp" | "thickness"),
+    ("progress" | "loading" | "minPixelValue" | "maxPixelValue" | "minSliceId" | "maxSliceId" | "minTimeId" | "maxTimeId" | "rotation" | "scale" | "sliceId" | "timeId" | "timestamp" | "thickness"),
     string,
     number
-] | ["timestamps" | "timeIds", string, number[]] | [
+] | ["pendingSliceId", string, number | undefined] | ["timestamps" | "timeIds", string, number[]] | [
     "contrast" | "dimensions" | "spacing" | "translation",
     string,
     number,
@@ -49,7 +49,7 @@ export declare const DEFAULT_VIEWPORT: {
     minSliceId: number;
     maxSliceId: number;
     sliceId: number;
-    pendingSliceId: number;
+    pendingSliceId: number | undefined;
     minTimeId: number;
     maxTimeId: number;
     timeId: number;

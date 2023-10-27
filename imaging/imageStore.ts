@@ -39,7 +39,6 @@ type SetPayload =
         | "rotation"
         | "scale"
         | "sliceId"
-        | "pendingSliceId"
         | "timeId"
         | "timestamp"
         | "thickness"
@@ -47,6 +46,7 @@ type SetPayload =
       string,
       number
     ]
+  | ["pendingSliceId", string, number | undefined]
   | ["timestamps" | "timeIds", string, number[]]
   | [
       "contrast" | "dimensions" | "spacing" | "translation",
@@ -95,7 +95,7 @@ export const DEFAULT_VIEWPORT: {
   minSliceId: number;
   maxSliceId: number;
   sliceId: number;
-  pendingSliceId: number;
+  pendingSliceId: number | undefined;
   minTimeId: number;
   maxTimeId: number;
   timeId: number;
@@ -150,7 +150,7 @@ export const DEFAULT_VIEWPORT: {
   minSliceId: 0,
   maxSliceId: 0,
   sliceId: 0,
-  pendingSliceId: 0,
+  pendingSliceId: undefined,
   minTimeId: 0,
   maxTimeId: 0,
   timeId: 0,
