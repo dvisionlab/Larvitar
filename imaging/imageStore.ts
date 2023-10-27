@@ -450,7 +450,6 @@ export default {
     set(["sliceId", elementId, imageIndex]);
   },
   setPendingSliceId: (elementId: string, imageIndex: number) => {
-    console.log("setPendingSliceId", elementId, imageIndex);
     set(["pendingSliceId", elementId, imageIndex]);
   },
   setMaxSliceId: (elementId: string, imageIndex: number) => {
