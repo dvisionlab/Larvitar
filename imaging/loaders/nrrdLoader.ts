@@ -31,6 +31,7 @@ import type {
   ImageTracker,
   MetaData
 } from "../types";
+import { DataSet } from "dicom-parser";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -67,6 +68,8 @@ export type NrrdSeries = {
   customLoader: string;
   nrrdHeader: NrrdHeader;
   bytes: number;
+  dataSet?: DataSet;
+  metadata?: MetaData;
 };
 
 type NrrdHeader = {

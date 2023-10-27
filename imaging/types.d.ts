@@ -63,6 +63,7 @@ export type Series = {
   isMultiframe: boolean;
   color?: boolean;
   dataSet: DataSet | null;
+  metadata?: MetaData;
   frameDelay?: number;
   frameTime?: number;
   rWaveTimeVector?: number[];

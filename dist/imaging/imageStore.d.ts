@@ -19,6 +19,30 @@ type Store = {
     };
     [key: string]: any;
 };
+type SetPayload = ["errorLog" | "leftActiveTool" | "rightActiveTool", string] | [
+    "isColor" | "isMultiframe" | "isPDF" | "isTimeserie" | "ready",
+    string,
+    boolean
+] | [
+    ("progress" | "loading" | "minPixelValue" | "maxPixelValue" | "minSliceId" | "maxSliceId" | "minTimeId" | "maxTimeId" | "rotation" | "scale" | "sliceId" | "timeId" | "thickness"),
+    string,
+    number
+] | ["timestamp", string, number | undefined] | ["timestamps" | "timeIds", string, number[]] | [
+    "contrast" | "dimensions" | "spacing" | "translation",
+    string,
+    number,
+    number
+] | [
+    "defaultViewport",
+    string,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    boolean
+];
 export declare const DEFAULT_VIEWPORT: {
     loading: number;
     ready: boolean;
@@ -74,7 +98,7 @@ export declare const DEFAULT_VIEWPORT: {
     };
 };
 export type Viewport = typeof DEFAULT_VIEWPORT;
-export declare const set: (field: string, payload: string | Array<any>) => void;
+export declare const set: (payload: SetPayload) => void;
 declare const _default: {
     initialize: () => void;
     addViewport: (name: string) => void;

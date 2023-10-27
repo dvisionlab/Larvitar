@@ -376,8 +376,8 @@ export const renderImage = function (
 
   setStore(["ready", id, false]);
 
-  const series = { ...seriesStack };
-  const data = getSeriesData(series, defaultProps);
+  let series = { ...seriesStack };
+  let data = getSeriesData(series, defaultProps);
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) =>
