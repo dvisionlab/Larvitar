@@ -501,21 +501,22 @@ export const updateImage = async function (
   imageIndex: number,
   cacheImage: boolean
 ): Promise<void> {
-  const imageId = series.imageIds[imageIndex];
-  if (!imageId) {
-    // console.warn(
-    //   `Error: wrong image index ${imageIndex}, no imageId available`
-    // );
-    throw `Error: wrong image index ${imageIndex}, no imageId available`;
-  }
-
   const element = isElement(elementId)
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
     throw "not element";
   }
+
   const id: string = isElement(elementId) ? element.id : (elementId as string);
+  const imageId = series.imageIds[imageIndex];
+  if (!imageId) {
+    // console.warn(
+    //   `Error: wrong image index ${imageIndex}, no imageId available`
+    // );
+    setStore(["pendingSliceId", id, imageIndex]);
+    throw `Error: wrong image index ${imageIndex}, no imageId available`;
+  }
 
   if (series.is4D) {
     const timestamp = series.instances[imageId].metadata.contentTime;

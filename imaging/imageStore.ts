@@ -95,7 +95,7 @@ export const DEFAULT_VIEWPORT: {
   minSliceId: number;
   maxSliceId: number;
   sliceId: number;
-  pendingSliceId: number | undefined;
+  pendingSliceId?: number;
   minTimeId: number;
   maxTimeId: number;
   timeId: number;
