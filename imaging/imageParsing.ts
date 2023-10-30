@@ -15,7 +15,6 @@ import { checkMemoryAllocation } from "./monitors/memory";
 import { ImageObject, Instance, MetaData, Series } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
 import type { MetaDataTypes } from "./MetaDataTypes";
-import { MetaDataReadable } from "./MetaDataReadable";
 import { NrrdSeries } from "./loaders/nrrdLoader";
 
 // global module variables
@@ -303,21 +302,34 @@ const parseFile = function (file: File) {
             ? true
             : false;
 
-        let numberOfFrames = metadata["x00280008"];
-        let isMultiframe = (numberOfFrames as number) > 1 ? true : false;
-        // Overwrite SOPInstanceUID to manage multiframes.
+        let modality = metadata["x00080060"] as string;
+        let singleFrameModalities = [
+          "CR",
+          "DX",
+          "MG",
+          "PX",
+          "RF",
+          "XA",
+          "US",
+          "IVUS",
+          "OCT"
+        ];
+        // US XA RF IVUS OCT DX CR PX MG
+        // Overwrite SOPInstanceUID to manage single stack images (US, XA).
         // Usually different SeriesInstanceUID means different series and that value
         // is used into the application to group different instances into the same series,
         // but if a DICOM file contains a multiframe series, then the SeriesInstanceUID
         // can be shared by other files of the same study.
-        // In multiframe cases, the SOPInstanceUID (unique) is used as SeriesInstanceUID.
-        let seriesInstanceUID = isMultiframe
+        // In these cases, the SOPInstanceUID (unique) is used as SeriesInstanceUID.
+        let seriesInstanceUID = singleFrameModalities.includes(modality)
           ? metadata["x00080018"]
           : metadata["x0020000e"];
         let pixelSpacing = metadata["x00280030"];
         let imageOrientation = metadata["x00200037"];
         let imagePosition = metadata["x00200032"];
         let sliceThickness = metadata["x00180050"];
+        let numberOfFrames = metadata["x00280008"];
+        let isMultiframe = (numberOfFrames as number) > 1 ? true : false;
 
         if (dataSet.warnings.length > 0) {
           // warnings

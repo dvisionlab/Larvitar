@@ -144,13 +144,13 @@
 
       function renderSerie() {
         larvitar
-          .readFile(demoFiles[0])
-          .then(image => {
+          .readFiles(demoFiles)
+          .then(seriesStack => {
             // render the first series of the study
-
-            larvitar.updateLarvitarManager(image);
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            larvitar.populateLarvitarManager(seriesId, serie);
             let manager = larvitar.getLarvitarManager();
-            let seriesId = Object.keys(manager)[0];
             let multiFrameSerie = manager[seriesId];
             let frameId = 0;
             larvitar
