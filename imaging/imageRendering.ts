@@ -530,7 +530,7 @@ export const updateImage = async function (
     const image = await cornerstone.loadAndCacheImage(imageId);
     cornerstone.displayImage(element, image);
     setStore(["sliceId", id, imageIndex]);
-    const pendingSliceId = store.get(["pendingSliceId", id]);
+    const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
     if (imageIndex == pendingSliceId) {
       setStore(["pendingSliceId", id, undefined]);
     }
@@ -540,11 +540,10 @@ export const updateImage = async function (
     const image = await cornerstone.loadImage(imageId);
     cornerstone.displayImage(element, image);
     setStore(["sliceId", id, imageIndex]);
-    const pendingSliceId = store.get(["pendingSliceId", id]);
+    const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
     if (imageIndex == pendingSliceId) {
       setStore(["pendingSliceId", id, undefined]);
     }
-    setStore(["pendingSliceId", id, undefined]);
     setStore(["minPixelValue", id, image.minPixelValue]);
     setStore(["maxPixelValue", id, image.maxPixelValue]);
   }
@@ -720,7 +719,7 @@ export const storeViewportData = function (
   // slice id from 0 to n - 1
   setStore(["minSliceId", elementId, 0]);
   setStore(["sliceId", elementId, data.imageIndex]);
-  const pendingSliceId = store.get(["pendingSliceId", elementId]);
+  const pendingSliceId = store.get(["viewports", elementId, "pendingSliceId"]);
   if (data.imageIndex == pendingSliceId) {
     setStore(["pendingSliceId", elementId, undefined]);
   }
