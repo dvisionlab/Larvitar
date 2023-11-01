@@ -17,9 +17,10 @@ import type {
   Image,
   ImageFrame,
   LarvitarManager,
-  MetadataValue,
+  MetaData,
   Series
 } from "../types";
+import { metaData } from "cornerstone-core";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -76,68 +77,62 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
   let t0 = performance.now();
   let manager = getLarvitarManager();
   let imageTracker = getLarvitarImageTracker();
-  let numberOfFrames =
-    serie.instances[serie.imageIds[0]].metadata.numberOfFrames;
-  let frameTime = serie.instances[serie.imageIds[0]].metadata.frameTime;
-  let frameDelay = serie.instances[serie.imageIds[0]].metadata.frameDelay
-    ? serie.instances[serie.imageIds[0]].metadata.frameDelay
-    : 0;
-  let rWaveTimeVector =
-    serie.instances[serie.imageIds[0]].metadata.rWaveTimeVector;
+  let numberOfFrames = serie.metadata!.numberOfFrames!;
+  let frameTime = serie.metadata!.frameTime;
+  let frameDelay = serie.metadata!.frameDelay ? serie.metadata!.frameDelay : 0;
+  let rWaveTimeVector = serie.metadata!.rWaveTimeVector;
+  let sopInstanceUID = serie.metadata!["x00080018"] as string;
+  let dataSet = serie.dataSet;
+  let imageId = getMultiFrameImageId("multiFrameLoader");
+  imageTracker[imageId] = seriesId;
 
-  each(serie.imageIds, function (instanceId) {
-    let dataSet = serie.instances[instanceId].dataSet;
+  // check if manager exists for this seriesId
+  if (!manager[seriesId]) {
+    manager[seriesId] = serie;
+    manager[seriesId].imageIds = [];
+    manager[seriesId].instances = {};
+  }
 
-    let metadata = serie.instances[instanceId].metadata;
-    let imageId = getMultiFrameImageId("multiFrameLoader");
-    imageTracker[imageId] = seriesId;
+  each(range(numberOfFrames as number), function (frameNumber) {
+    let frameImageId = imageId + "?frame=" + frameNumber;
+    // EXTRACT MULTIFRAME METADATA (x52009230) Per-frame Functional Groups Sequence
+    let frameMetadata = { ...serie.metadata! };
 
-    // check if manager exists for this seriesId
-    if (!manager[seriesId]) {
-      manager[seriesId] = serie;
-      manager[seriesId].imageIds = [];
-      manager[seriesId].instances = {};
-    }
-
-    each(range(numberOfFrames as number), function (frameNumber) {
-      let frameImageId = imageId + "?frame=" + frameNumber;
-      // EXTRACT MULTIFRAME METADATA (x52009230) Per-frame Functional Groups Sequence
-      let frameMetadata = { ...metadata };
-
-      parseDataSet(dataSet!, frameMetadata, {
-        tags: ["x52009230"],
-        frameId: frameNumber
-      });
-
-      // TODO-ts REMOVE "AS" WHEN METADATA VALUES ARE TYPED
-      // store file references
-      const managerSeriesId = manager[seriesId] as Series;
-      managerSeriesId.seriesUID = seriesId;
-      managerSeriesId.studyUID = metadata["x0020000d"] as string;
-      managerSeriesId.modality = metadata["x00080060"] as string;
-      managerSeriesId.color = cornerstoneDICOMImageLoader.isColorImage(
-        metadata["x00280004"]
-      );
-
-      managerSeriesId.isMultiframe = true;
-      managerSeriesId.currentImageIdIndex = 0;
-      managerSeriesId.numberOfFrames = numberOfFrames as number;
-      managerSeriesId.frameTime = frameTime as number;
-      managerSeriesId.frameDelay = frameDelay as number;
-      managerSeriesId.rWaveTimeVector = rWaveTimeVector as number[];
-      managerSeriesId.numberOfImages = undefined;
-      managerSeriesId.bytes = serie.bytes;
-      managerSeriesId.imageIds.push(frameImageId);
-      managerSeriesId.instances[frameImageId] = {
-        instanceId: instanceId,
-        frame: frameNumber,
-        metadata: frameMetadata
-      };
-      managerSeriesId.dataSet = dataSet || null;
-      managerSeriesId.seriesDescription = serie.instances[serie.imageIds[0]]
-        .metadata.seriesDescription as string;
+    parseDataSet(dataSet!, frameMetadata, {
+      tags: ["x52009230"],
+      frameId: frameNumber
     });
+
+    // TODO-ts REMOVE "AS" WHEN METADATA VALUES ARE TYPED
+    // store file references
+    const managerSeriesId = manager[seriesId] as Series;
+    managerSeriesId.seriesUID = seriesId;
+    managerSeriesId.studyUID = serie.metadata!["x0020000d"] as string;
+    managerSeriesId.modality = serie.metadata!["x00080060"] as string;
+    managerSeriesId.color = cornerstoneDICOMImageLoader.isColorImage(
+      serie.metadata!["x00280004"]
+    );
+
+    managerSeriesId.isMultiframe = true;
+    managerSeriesId.currentImageIdIndex = 0;
+    managerSeriesId.numberOfFrames = numberOfFrames;
+    managerSeriesId.frameTime = frameTime;
+    managerSeriesId.frameDelay = frameDelay;
+    managerSeriesId.rWaveTimeVector = rWaveTimeVector;
+    managerSeriesId.numberOfImages = undefined;
+    managerSeriesId.bytes = serie.bytes;
+    managerSeriesId.imageIds.push(frameImageId);
+    managerSeriesId.instanceUIDs[sopInstanceUID] = imageId;
+    managerSeriesId.instances[frameImageId] = {
+      instanceId: sopInstanceUID,
+      frame: frameNumber,
+      metadata: frameMetadata
+    };
+    managerSeriesId.dataSet = dataSet || null;
+    managerSeriesId.seriesDescription = serie.metadata!
+      .seriesDescription as string;
   });
+
   let t1 = performance.now();
   console.log(`Call to buildMultiFrameImage took ${t1 - t0} milliseconds.`);
 };
@@ -204,7 +199,7 @@ let createCustomImage = function (
   id: string,
   imageId: string,
   frameIndex: number,
-  metadata?: { [key: string]: MetadataValue }
+  metadata?: MetaData
 ) {
   let options: { [key: string]: any } = {}; //TODO-ts change any to proper type when available
   // always preScale the pixel array unless it is asked not to

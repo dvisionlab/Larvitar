@@ -12,7 +12,7 @@ import type {
   ImageObject,
   ImageTracker,
   LarvitarManager,
-  MetadataValue,
+  MetaData,
   Series
 } from "../types";
 
@@ -199,10 +199,7 @@ export const getSeriesDataFromLarvitarManager = function (seriesId: string) {
  * @param {Object} dataSet dicom dataset
  * @returns {Object} specific image frame
  */
-export const getImageFrame = function (
-  metadata: { [key: string]: MetadataValue },
-  dataSet: DataSet
-) {
+export const getImageFrame = function (metadata: MetaData, dataSet: DataSet) {
   let imagePixelModule;
 
   if (dataSet) {

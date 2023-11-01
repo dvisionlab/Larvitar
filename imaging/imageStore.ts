@@ -40,12 +40,12 @@ type SetPayload =
         | "scale"
         | "sliceId"
         | "timeId"
-        | "timestamp"
         | "thickness"
       ),
       string,
       number
     ]
+  | ["timestamp", string, number | undefined]
   | ["pendingSliceId", string, number | undefined]
   | ["timestamps" | "timeIds", string, number[]]
   | [

@@ -7,7 +7,7 @@
 import sha256 from "crypto-js/sha256";
 import Hex from "crypto-js/enc-hex";
 import { forEach } from "lodash";
-import { Series } from "./types";
+import { Instance, MetaData, Series } from "./types";
 
 const SH = [
   "x00080050" // Accession Number,
@@ -113,44 +113,69 @@ const TAGS = [
  * @returns {Object} anonymized_series: Cornerstone anonymized series object
  */
 export const anonymize = function (series: Series) {
-  forEach(series.instances, function (instance) {
+  forEach(series.instances, function (instance: Instance) {
     forEach(TAGS, function (tag) {
       if (tag in instance.metadata) {
+        let tag_meta = tag as keyof MetaData;
+
         let anonymized_value = sha256(
-          (instance.metadata[tag] || "").toString()
+          (instance.metadata[tag_meta] || "").toString()
         ).toString(Hex);
+
         // Patient Tag Anonymization
-        if (tag === "x00100010") {
-          instance.metadata[tag] =
+        if (tag_meta === "x00100010") {
+          instance.metadata[tag_meta] =
             "Anonymized^" + anonymized_value.substring(0, 6);
         }
         // Short string
-        else if (SH.includes(tag) === true) {
-          instance.metadata[tag] = anonymized_value.substring(0, 16);
+        else if (tag_meta === "x00080050") {
+          instance.metadata[tag_meta] = anonymized_value.substring(0, 16);
         }
         // Required, empty if unknown
-        else if (OPTIONAL.includes(tag) === true) {
-          instance.metadata[tag] = "";
+        /*else if (OPTIONAL.includes(tag) === true) {
+          tag_meta = tag as keyof MetaData;
+          instance.metadata[tag_meta] = "";
+        }*/
+        else if (tag_meta === "x00100030") {
+          instance.metadata[tag_meta] = "";
+        } else if (tag_meta === "x00080090") {
+          instance.metadata[tag_meta] = "";
+        } else if (tag_meta === "x00100020") {
+          instance.metadata[tag_meta] = "";
+        } else if (tag_meta === "x00100040") {
+          instance.metadata[tag_meta] = "";
+        } else if (tag_meta === "x00200010") {
+          instance.metadata[tag_meta] = "";
         }
         // Optional
         else if (REMOVE.includes(tag) === true) {
-          delete instance.metadata[tag];
+          //tag_meta = tag as keyof MetaData;
+          delete instance.metadata[tag_meta];
         }
         // Default sha256
         else {
-          instance.metadata[tag] = anonymized_value;
+          tag_meta = tag as keyof MetaData;
+          if (instance.metadata[tag_meta] === "string") {
+            instance.metadata[tag_meta] = anonymized_value as any;
+          }
+          //TODO-ts: check if this case has to be applied only on strings
+          //or also on numbers and if any type could be correct to force solution
+          //or find another solution
         }
       }
     });
+
     instance.metadata["x00120062"] = "YES"; // Patient Identity Removed Attribute
     instance.metadata.seriesUID = instance.metadata["x0020000e"];
     instance.metadata.instanceUID = instance.metadata["x00080018"];
     instance.metadata.studyUID = instance.metadata["x0020000d"];
     instance.metadata.accessionNumber = instance.metadata["x00080050"];
     instance.metadata.studyDescription = instance.metadata["x00081030"];
-    instance.metadata.patientName = instance.metadata["x00100010"];
+    instance.metadata.patientName = instance.metadata["x00100010"] as string;
     instance.metadata.patientBirthdate = instance.metadata["x00100030"];
-    instance.metadata.seriesDescription = instance.metadata["x0008103e"];
+    instance.metadata.seriesDescription = instance.metadata[
+      "x0008103e"
+    ] as string;
     instance.metadata.anonymized = true;
   });
 

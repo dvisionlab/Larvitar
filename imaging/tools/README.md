@@ -24,4 +24,4 @@ These are the tools that will be added calling `addDefaultTools`. User can overr
 
 ## External Tools
 
-User can add custom tools calling `registerExternalTool`. The tool will be registered in the dvTools object and in DEFAULT_TOOLS array. If done _before_ adding the tools with `addDefaultTools`, the tool will be added automatically along with the default ones. Otherwise, the user can simply add its tool using `addTool`.
+User can add custom tools calling `registerExternalTool`. The tool will be registered in the dvTools object and in DEFAULT*TOOLS array. If done \_before* adding the tools with `addDefaultTools`, the tool will be added automatically along with the default ones. Otherwise, the user can simply add its tool using `addTool`.

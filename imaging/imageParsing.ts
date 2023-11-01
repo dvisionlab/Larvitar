@@ -12,8 +12,10 @@ import { getPixelRepresentation, randomId } from "./imageUtils";
 import { parseTag } from "./imageTags";
 import { updateLoadedStack } from "./imageLoading";
 import { checkMemoryAllocation } from "./monitors/memory";
-import { ImageObject, MetadataValue, Series } from "./types";
+import { ImageObject, Instance, MetaData, Series } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
+import type { MetaDataTypes } from "./MetaDataTypes";
+import { NrrdSeries } from "./loaders/nrrdLoader";
 
 // global module variables
 var t0: number; // t0 variable for timing debugging purpose
@@ -35,8 +37,8 @@ var t0: number; // t0 variable for timing debugging purpose
 export const clearImageParsing = function (
   seriesStack: ReturnType<typeof getLarvitarManager> | null
 ) {
-  each(seriesStack, function (stack) {
-    each(stack.instances, function (instance) {
+  each(seriesStack, function (stack: Series | NrrdSeries) {
+    each(stack.instances, function (instance: Instance) {
       if (instance.dataSet) {
         // @ts-ignore
         instance.dataSet.byteArray = null;
@@ -74,6 +76,18 @@ export const readFile = function (entry: File) {
 
 /* Internal module functions */
 
+//This type is used to instantiate metadata and nested objects in imageParsing in order to allow dynamic setting
+//of MetaDataTypes objects' properties.
+//In other words, metadata : ExtendedMetaDataTypes is useful and substitutes metadata : MetaDataTypes when metadata values
+//aren't called explicitly using metadata['xGGGGEEEEE']
+//and are instead called using TAG as a variable (i.e. metadata[TAG]).
+//It is important to highlight that even if we set metadata[TAG]=tagValue; whose type (of tagValue) is the correct one (returned by ParseTag).
+//if we then extract x=metadata[TAG]; we obtain tagValue : unknown and a casting with : MetaDataType[typeof TAG] is necessary.
+
+type ExtendedMetaDataTypes = MetaDataTypes & {
+  [key: string]: unknown;
+};
+
 /**
  * Parse metadata from dicom parser dataSet object
  * @instance
@@ -83,9 +97,10 @@ export const readFile = function (entry: File) {
  * @param {Array} customFilter - Optional filter: {tags:[], frameId: 0}
  */
 // This function iterates through dataSet recursively and store tag values into metadata object
+
 export const parseDataSet = function (
   dataSet: DataSet,
-  metadata: { [key: string]: MetadataValue },
+  metadata: ExtendedMetaDataTypes,
   customFilter?: { tags: string[]; frameId: number }
 ) {
   // customFilter= {tags:[], frameId:xxx}
@@ -95,47 +110,60 @@ export const parseDataSet = function (
   // be named 'x0008103e'.  Here we iterate over each property (element) so we can build a string describing its
   // contents to add to the output array
   try {
-    let elements =
-      customFilter && has(customFilter, "tags")
-        ? pick(dataSet.elements, customFilter.tags)
-        : dataSet.elements;
+    let elements = dataSet.elements;
+
+    customFilter && has(customFilter, "tags")
+      ? pick(dataSet.elements, customFilter.tags)
+      : dataSet.elements;
     for (let propertyName in elements) {
-      let element = elements[propertyName];
+      let element = elements[propertyName]; //metadata
+      const TAG = propertyName as keyof ExtendedMetaDataTypes;
       // Here we check for Sequence items and iterate over them if present. items will not be set in the
       // element object for elements that don't have SQ VR type.  Note that implicit little endian
       // sequences will are currently not parsed.
       if (element.items) {
-        // iterates over nested elements
-        metadata[propertyName] = [];
+        let nestedArray: MetaDataTypes[] = [];
+
+        // iterates over nested elements (nested metadata)
         element.items.forEach(function (item) {
-          let nestedObject: { [key: string]: any } = {};
+          let nestedObject: ExtendedMetaDataTypes = {};
           for (let nestedPropertyName in item.dataSet!.elements) {
-            let tagValue = parseTag(
+            let TAG_tagValue = nestedPropertyName as keyof MetaDataTypes;
+
+            let tagValue = parseTag<MetaDataTypes[typeof TAG_tagValue]>(
               item.dataSet!,
               nestedPropertyName,
               item.dataSet!.elements[nestedPropertyName]
             );
-            nestedObject[nestedPropertyName] = tagValue;
-          }
-          if (Object.keys(nestedObject).length > 0) {
-            metadata[propertyName].push(nestedObject);
-          }
-        });
-      } else {
-        let tagValue = parseTag(dataSet, propertyName, element);
 
+            let TAG_nested = nestedPropertyName as keyof ExtendedMetaDataTypes;
+            nestedObject[TAG_nested] = tagValue;
+            //see MetaDataTypes.ts last property to understand how this dynamic value setting is possible
+          }
+          nestedArray.push(nestedObject);
+        });
+        metadata[TAG] = nestedArray;
+      } else {
+        let TAG_tagValue = propertyName as keyof MetaDataTypes;
+        let tagValue = parseTag<MetaDataTypes[typeof TAG_tagValue]>(
+          dataSet,
+          propertyName,
+          element
+        );
+        let TAG = propertyName as keyof ExtendedMetaDataTypes;
         // identify duplicated tags (keep the first occurency and store the others in another tag eg x00280010_uuid)
-        if (metadata[propertyName] !== undefined) {
+        if (metadata[TAG] !== undefined) {
           console.debug(
             `Identified duplicated tag "${propertyName}", values are:`,
-            metadata[propertyName],
+            metadata[TAG],
             tagValue
           );
-          // @ts-ignore fix MetadataValue type
-          metadata[propertyName + "_" + uuidv4()] = tagValue;
+          let TAG_uuidv4 = (propertyName +
+            "_" +
+            uuidv4()) as keyof ExtendedMetaDataTypes;
+          metadata[TAG_uuidv4] = tagValue;
         } else {
-          // @ts-ignore fix MetadataValue type
-          metadata[propertyName] = tagValue;
+          metadata[TAG] = tagValue;
         }
       }
     }
@@ -225,7 +253,7 @@ const parseFiles = function (fileList: File[]) {
   let allSeriesStack = {};
   let parsingQueue: File[] = [];
 
-  forEach(fileList, function (file) {
+  forEach(fileList, function (file: File) {
     if (!file.name.startsWith(".") && !file.name.startsWith("DICOMDIR")) {
       parsingQueue.push(file);
     }
@@ -263,7 +291,7 @@ const parseFile = function (file: File) {
       try {
         dataSet = parseDicom(byteArray);
         byteArray = null;
-        let metadata: Partial<{ [key: string]: MetadataValue }> = {};
+        let metadata: MetaData = {};
         parseDataSet(dataSet, metadata);
 
         let temporalPositionIdentifier = metadata["x00200100"]; // Temporal order of a dynamic or functional set of Images.
@@ -274,21 +302,34 @@ const parseFile = function (file: File) {
             ? true
             : false;
 
-        let numberOfFrames = metadata["x00280008"];
-        let isMultiframe = (numberOfFrames as number) > 1 ? true : false;
-        // Overwrite SOPInstanceUID to manage multiframes.
+        let modality = metadata["x00080060"] as string;
+        let singleFrameModalities = [
+          "CR",
+          "DX",
+          "MG",
+          "PX",
+          "RF",
+          "XA",
+          "US",
+          "IVUS",
+          "OCT"
+        ];
+        // US XA RF IVUS OCT DX CR PX MG
+        // Overwrite SOPInstanceUID to manage single stack images (US, XA).
         // Usually different SeriesInstanceUID means different series and that value
         // is used into the application to group different instances into the same series,
         // but if a DICOM file contains a multiframe series, then the SeriesInstanceUID
         // can be shared by other files of the same study.
-        // In multiframe cases, the SOPInstanceUID (unique) is used as SeriesInstanceUID.
-        let seriesInstanceUID = isMultiframe
+        // In these cases, the SOPInstanceUID (unique) is used as SeriesInstanceUID.
+        let seriesInstanceUID = singleFrameModalities.includes(modality)
           ? metadata["x00080018"]
           : metadata["x0020000e"];
         let pixelSpacing = metadata["x00280030"];
         let imageOrientation = metadata["x00200037"];
         let imagePosition = metadata["x00200032"];
         let sliceThickness = metadata["x00180050"];
+        let numberOfFrames = metadata["x00280008"];
+        let isMultiframe = (numberOfFrames as number) > 1 ? true : false;
 
         if (dataSet.warnings.length > 0) {
           // warnings
@@ -304,16 +345,18 @@ const parseFile = function (file: File) {
               file: file,
               dataSet: dataSet
             };
-            imageObject.metadata = metadata;
+            imageObject.metadata = metadata as MetaData;
             imageObject.metadata.anonymized = false;
             imageObject.metadata.seriesUID = seriesInstanceUID;
             imageObject.metadata.instanceUID = instanceUID;
             imageObject.metadata.studyUID = metadata["x0020000d"];
             imageObject.metadata.accessionNumber = metadata["x00080050"];
             imageObject.metadata.studyDescription = metadata["x00081030"];
-            imageObject.metadata.patientName = metadata["x00100010"];
+            imageObject.metadata.patientName = metadata["x00100010"] as string;
             imageObject.metadata.patientBirthdate = metadata["x00100030"];
-            imageObject.metadata.seriesDescription = metadata["x0008103e"];
+            imageObject.metadata.seriesDescription = metadata[
+              "x0008103e"
+            ] as string;
             imageObject.metadata.seriesDate = metadata["x00080021"];
             imageObject.metadata.seriesModality = metadata["x00080060"]
               ?.toString()
@@ -366,7 +409,7 @@ const parseFile = function (file: File) {
             pdfObject.metadata.studyUID = metadata["x0020000d"];
             pdfObject.metadata.accessionNumber = metadata["x00080050"];
             pdfObject.metadata.studyDescription = metadata["x00081030"];
-            pdfObject.metadata.patientName = metadata["x00100010"];
+            pdfObject.metadata.patientName = metadata["x00100010"] as string;
             pdfObject.metadata.patientBirthdate = metadata["x00100030"];
             pdfObject.metadata.seriesDate = metadata["x00080021"];
             pdfObject.metadata.seriesModality = metadata["x00080060"]

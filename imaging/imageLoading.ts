@@ -217,7 +217,12 @@ export const updateLoadedStack = function (
     is4D ? [defaultMethod, "contentTime"] : [defaultMethod];
 
   // if the parsed file is a new series instance, keep it
-  if (isNewInstance(allSeriesStack[id].instances, iid)) {
+
+  if (isMultiframe) {
+    allSeriesStack[id].bytes += seriesData.file.size;
+    allSeriesStack[id].dataSet = seriesData.dataSet;
+    allSeriesStack[id].metadata = seriesData.metadata;
+  } else if (isNewInstance(allSeriesStack[id].instances, iid!)) {
     // generate an imageId for the file and store it
     // in allSeriesStack imageIds array, used by
     // DICOMImageLoader to display the stack of images
@@ -230,10 +235,12 @@ export const updateLoadedStack = function (
     } else {
       allSeriesStack[id].imageIds.push(imageId);
     }
+
     if (is4D === false) {
       allSeriesStack[id].numberOfImages =
         (allSeriesStack[id].numberOfImages || 0) + 1;
     }
+
     allSeriesStack[id].bytes += seriesData.file.size;
     // store needed instance tags
     allSeriesStack[id].instances[imageId] = {
@@ -242,21 +249,26 @@ export const updateLoadedStack = function (
       dataSet: seriesData.dataSet
     };
 
-    if (sliceIndex === undefined) {
-      // order images in stack
-      allSeriesStack[id].imageIds = getSortedStack(
-        allSeriesStack[id] as Series,
-        sortMethods,
-        true
-      );
-      // populate the ordered dictionary of instanceUIDs
-      allSeriesStack[id].instanceUIDs = getSortedUIDs(
-        allSeriesStack[id] as Series
-      );
+    if (isPDF === false) {
+      if (sliceIndex === undefined) {
+        // order images in stack
+        allSeriesStack[id].imageIds = getSortedStack(
+          allSeriesStack[id] as Series,
+          sortMethods,
+          true
+        );
+        // populate the ordered dictionary of instanceUIDs
+        allSeriesStack[id].instanceUIDs = getSortedUIDs(
+          allSeriesStack[id] as Series
+        );
+      } else {
+        allSeriesStack[id].instanceUIDs[iid] = imageId;
+      }
+      store.addSeriesId(id, allSeriesStack[id].imageIds);
     } else {
       allSeriesStack[id].instanceUIDs[iid] = imageId;
+      store.addSeriesId(id, allSeriesStack[id].imageIds);
     }
-    store.addSeriesId(id, allSeriesStack[id].imageIds);
   }
 };
 
@@ -275,7 +287,7 @@ let isNewInstance = function (
   iid: string
 ) {
   let isNewInstance = true;
-  forEach(instances, function (instance) {
+  forEach(instances, function (instance: Instance) {
     if (instance.metadata.instanceUID === iid) {
       isNewInstance = false;
     }

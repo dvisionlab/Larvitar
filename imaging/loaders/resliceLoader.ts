@@ -13,7 +13,7 @@ import {
   getLarvitarImageTracker,
   getLarvitarManager
 } from "./commonLoader";
-import type { Image, ImageFrame, MetadataValue } from "../types";
+import type { Image, ImageFrame, MetaData } from "../types";
 
 /*
  * This module provides the following functions to be exported:
@@ -51,7 +51,7 @@ export const loadReslicedImage = function (imageId: string) {
  */
 let createCustomImage = function (
   imageId: string,
-  metadata: { [key: string]: MetadataValue },
+  metadata: MetaData,
   pixelData: Uint8ClampedArray,
   dataSet?: any // deprecated
 ) {

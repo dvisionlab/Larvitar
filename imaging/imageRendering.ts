@@ -57,7 +57,7 @@ export const clearImageCache = function (seriesId?: string) {
   if (seriesId) {
     let series = store.get("series");
     if (has(series, seriesId)) {
-      each(series[seriesId].imageIds, function (imageId) {
+      each(series[seriesId].imageIds, function (imageId: string) {
         if (cornerstone.imageCache.cachedImages.length > 0) {
           try {
             cornerstone.imageCache.removeImageLoadObject(imageId);
@@ -107,7 +107,7 @@ export function loadAndCacheImages(
   store.addSeriesId(series.seriesUID, series.imageIds);
   // add serie's caching progress into store
   setStore(["progress", series.seriesUID, 0]);
-  each(series.imageIds, function (imageId) {
+  each(series.imageIds, function (imageId: string) {
     cornerstone.loadAndCacheImage(imageId).then(function () {
       cachingCounter += 1;
       const cachingPercentage = Math.floor(
@@ -378,7 +378,6 @@ export const renderImage = function (
 
   let series = { ...seriesStack };
   let data = getSeriesData(series, defaultProps);
-
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) => {
@@ -512,9 +511,6 @@ export const updateImage = async function (
   const id: string = isElement(elementId) ? element.id : (elementId as string);
   const imageId = series.imageIds[imageIndex];
   if (!imageId) {
-    // console.warn(
-    //   `Error: wrong image index ${imageIndex}, no imageId available`
-    // );
     setStore(["pendingSliceId", id, imageIndex]);
     throw `Error: wrong image index ${imageIndex}, no imageId available`;
   }
@@ -522,17 +518,16 @@ export const updateImage = async function (
   if (series.is4D) {
     const timestamp = series.instances[imageId].metadata.contentTime;
     const timeId =
-      (series.instances[imageId].metadata
-        .temporalPositionIdentifier as number) - 1; // timeId from 0 to N
-    setStore(["timeId", id, timeId]);
-    setStore(["timestamp", id, timestamp as number]);
+      series.instances[imageId].metadata.temporalPositionIdentifier! - 1; // timeId from 0 to N
+    setStore(["timeId", id as string, timeId]);
+    setStore(["timestamp", id as string, timestamp]);
   }
 
   if (cacheImage) {
     const image = await cornerstone.loadAndCacheImage(imageId);
     cornerstone.displayImage(element, image);
     setStore(["sliceId", id, imageIndex]);
-    const pendingSliceId = store.get(["pendingSliceId", id]);
+    const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
     if (imageIndex == pendingSliceId) {
       setStore(["pendingSliceId", id, undefined]);
     }
@@ -542,11 +537,10 @@ export const updateImage = async function (
     const image = await cornerstone.loadImage(imageId);
     cornerstone.displayImage(element, image);
     setStore(["sliceId", id, imageIndex]);
-    const pendingSliceId = store.get(["pendingSliceId", id]);
+    const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
     if (imageIndex == pendingSliceId) {
       setStore(["pendingSliceId", id, undefined]);
     }
-    setStore(["pendingSliceId", id, undefined]);
     setStore(["minPixelValue", id, image.minPixelValue]);
     setStore(["maxPixelValue", id, image.maxPixelValue]);
   }
@@ -565,7 +559,7 @@ export const resetViewports = function (
     "contrast" | "scaleAndTranslation" | "rotation" | "flip" | "zoom"
   >
 ) {
-  each(elementIds, function (elementId) {
+  each(elementIds, function (elementId: string) {
     const element = document.getElementById(elementId);
     if (!element) {
       console.error("invalid html element: " + elementId);
@@ -722,7 +716,7 @@ export const storeViewportData = function (
   // slice id from 0 to n - 1
   setStore(["minSliceId", elementId, 0]);
   setStore(["sliceId", elementId, data.imageIndex]);
-  const pendingSliceId = store.get(["pendingSliceId", elementId]);
+  const pendingSliceId = store.get(["viewports", elementId, "pendingSliceId"]);
   if (data.imageIndex == pendingSliceId) {
     setStore(["pendingSliceId", elementId, undefined]);
   }
@@ -944,13 +938,12 @@ const getSeriesData = function (
     ] as number;
     data.timestamps = [];
     data.timeIds = [];
-    each(series.imageIds, function (imageId) {
+    each(series.imageIds, function (imageId: string) {
       (data.timestamps as any[]).push(
         series.instances[imageId].metadata.contentTime
       );
       (data.timeIds as any[]).push(
-        (series.instances[imageId].metadata
-          .temporalPositionIdentifier as number) - 1 // timeId from 0 to N
+        series.instances[imageId].metadata.temporalPositionIdentifier! - 1 // timeId from 0 to N
       );
     });
   } else {
@@ -961,7 +954,7 @@ const getSeriesData = function (
         : series.imageIds.length;
     data.imageIndex =
       defaultProps?.sliceNumber && defaultProps?.sliceNumber >= 0 // slice number between 0 and n-1
-        ? defaultProps["sliceNumber"]
+        ? defaultProps.sliceNumber
         : Math.floor(numberOfSlices / 2);
 
     data.imageId = series.imageIds[data.imageIndex];
@@ -972,13 +965,12 @@ const getSeriesData = function (
 
   data.isColor = series.color as boolean;
   data.isPDF = series.isPDF;
-  // rows, cols and x y z spacing
   if (instance) {
-    data.rows = instance.metadata["x00280010"] as number;
-    data.cols = instance.metadata["x00280011"] as number;
-    data.thickness = instance.metadata["x00180050"] as number;
+    data.rows = instance.metadata.x00280010!;
+    data.cols = instance.metadata.x00280011!;
+    data.thickness = instance.metadata.x00180050 as number;
 
-    let spacing = instance.metadata["x00280030"] as number[];
+    let spacing = instance.metadata.x00280030!;
     data.spacing_x = spacing ? spacing[0] : 1;
     data.spacing_y = spacing ? spacing[1] : 1;
     // window center and window width
@@ -987,11 +979,11 @@ const getSeriesData = function (
         windowCenter:
           defaultProps && defaultProps.wc
             ? defaultProps.wc
-            : instance.metadata.x00281050!,
+            : (instance.metadata.x00281050 as number),
         windowWidth:
           defaultProps && defaultProps.ww
             ? defaultProps.ww
-            : instance.metadata.x00281051!
+            : (instance.metadata.x00281051 as number)
       }
     };
     data.default = {
@@ -1006,13 +998,16 @@ const getSeriesData = function (
             : data.viewport!.voi!.windowWidth
       }
     };
-  }
-
-  if (data.rows == null || data.cols == null) {
-    console.warn("invalid image metadata (rows or cols is null)");
-    setStore(["errorLog", "Invalid Image Metadata"]);
+    if (data.rows == null || data.cols == null) {
+      console.warn("invalid image metadata (rows or cols is null)");
+      setStore(["errorLog", "Invalid Image Metadata"]);
+    } else {
+      setStore(["errorLog", ""]);
+    }
   } else {
-    setStore(["errorLog", ""]);
+    console.warn(
+      `ImageId not found in imageIds with index ${data.imageIndex}.`
+    );
   }
 
   return data as SeriesData;

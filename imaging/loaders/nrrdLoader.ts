@@ -25,12 +25,13 @@ import {
 import type {
   Image,
   Instance,
-  MetadataValue,
   Volume,
   LarvitarManager,
   ImageFrame,
-  ImageTracker
+  ImageTracker,
+  MetaData
 } from "../types";
+import { DataSet } from "dicom-parser";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -67,6 +68,8 @@ export type NrrdSeries = {
   customLoader: string;
   nrrdHeader: NrrdHeader;
   bytes: number;
+  dataSet?: DataSet;
+  metadata?: MetaData;
 };
 
 type NrrdHeader = {
@@ -256,7 +259,7 @@ export const buildNrrdImage = function (
   metadata.x00280107 = minMax.max;
 
   // extract the pixelData of each frame, store the data into the image object
-  each(range(frames), function (sliceIndex) {
+  each(range(frames), function (sliceIndex: number) {
     let sliceSize = rows * cols;
     let sliceBuffer = volume.data.subarray(
       sliceSize * sliceIndex,
@@ -289,7 +292,7 @@ export const buildNrrdImage = function (
 
     // store file references
     image.imageIds!.push(imageId);
-    let frameMetadata: { [key: string]: MetadataValue } = clone(metadata);
+    let frameMetadata: MetaData = clone(metadata);
     frameMetadata.x00200032 = firstIpp.map(function (val, i) {
       return val + thickness * sliceIndex * w[i];
     });
@@ -471,7 +474,7 @@ export const getNrrdSerieDimensions = function () {
  */
 let createCustomImage = function (
   imageId: string,
-  metadata: { [key: string]: MetadataValue },
+  metadata: MetaData,
   pixelData: Uint8ClampedArray,
   dataSet?: any
 ) {
@@ -507,9 +510,7 @@ let createCustomImage = function (
     color: cornerstoneDICOMImageLoader.isColorImage(
       imageFrame.photometricInterpretation
     ),
-    columnPixelSpacing: pixelSpacing
-      ? (pixelSpacing as number[])[1]
-      : undefined,
+    columnPixelSpacing: pixelSpacing ? pixelSpacing[1] : undefined,
     columns: imageFrame.columns,
     height: imageFrame.rows,
     intercept: rescaleIntercept ? (rescaleIntercept as number[])[0] : 0,
@@ -517,7 +518,7 @@ let createCustomImage = function (
     minPixelValue: imageFrame.smallestPixelValue,
     maxPixelValue: imageFrame.largestPixelValue,
     render: undefined, // set below
-    rowPixelSpacing: pixelSpacing ? (pixelSpacing as number[])[0] : undefined,
+    rowPixelSpacing: pixelSpacing ? pixelSpacing[0] : undefined,
     rows: imageFrame.rows,
     sizeInBytes: getSizeInBytes(),
     slope: rescaleSlope ? (rescaleSlope as number[])[0] : 1,

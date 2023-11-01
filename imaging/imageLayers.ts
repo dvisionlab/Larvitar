@@ -26,7 +26,11 @@ import { Series } from "./types";
  * @param {Object} options - layer options {opacity:float, colormap: str}
  * @returns {Object} Cornerstone layer object
  */
-export const buildLayer = function (series: Series, tag: string, options: {opacity: number, colormap: string}) {
+export const buildLayer = function (
+  series: Series,
+  tag: string,
+  options: { opacity: number; colormap: string }
+) {
   let layer = {
     imageIds: series.imageIds,
     currentImageIdIndex: Math.floor(series.imageIds.length / 2),
@@ -50,9 +54,13 @@ export const buildLayer = function (series: Series, tag: string, options: {opaci
  * @param {string} layer - The layer id
  * @param {Object} options - The new layer's options
  */
-export const updateLayer = function (elementId: string | HTMLElement, layerId: string, options: {opacity: number, colormap: string}) {
+export const updateLayer = function (
+  elementId: string | HTMLElement,
+  layerId: string,
+  options: { opacity: number; colormap: string }
+) {
   let element = isElement(elementId)
-    ? elementId as HTMLElement
+    ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
     console.log("not element");
@@ -60,12 +68,13 @@ export const updateLayer = function (elementId: string | HTMLElement, layerId: s
   }
   let layer = cornerstone.getLayer(element, layerId);
   if (!layer.options) {
-    layer['options'] = {};
+    layer["options"] = {};
   }
   if (!layer.viewport) {
-    layer['viewport'] = {};
+    layer["viewport"] = {};
   }
-  layer.options.opacity = options.opacity != null ? options.opacity : layer.options.opacity;
+  layer.options.opacity =
+    options.opacity != null ? options.opacity : layer.options.opacity;
   layer.viewport.colormap = options.colormap
     ? options.colormap
     : layer.viewport.colormap;
@@ -81,7 +90,7 @@ export const updateLayer = function (elementId: string | HTMLElement, layerId: s
  */
 export const getActiveLayer = function (elementId: string | HTMLElement) {
   let element = isElement(elementId)
-    ? elementId as HTMLElement
+    ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
     console.log("not element");
@@ -97,9 +106,12 @@ export const getActiveLayer = function (elementId: string | HTMLElement) {
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @param {String} layerId - The id of the layer
  */
-export const setActiveLayer = function (elementId: string | HTMLElement, layerId: string) {
+export const setActiveLayer = function (
+  elementId: string | HTMLElement,
+  layerId: string
+) {
   let element = isElement(elementId)
-    ? elementId as HTMLElement
+    ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
     console.log("not element");

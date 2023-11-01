@@ -159,7 +159,7 @@ const extractSlicePoints = function (
 
   if (numberOfLines) {
     // for each line
-    each(range(numberOfLines), function (l) {
+    each(range(numberOfLines), function (l: number) {
       // get number of points for current line
       let numberOfPointsPerLine = slicePoints[0];
       // compute coordinates size

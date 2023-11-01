@@ -24,10 +24,10 @@ type SetPayload = ["errorLog" | "leftActiveTool" | "rightActiveTool", string] | 
     string,
     boolean
 ] | [
-    ("progress" | "loading" | "minPixelValue" | "maxPixelValue" | "minSliceId" | "maxSliceId" | "minTimeId" | "maxTimeId" | "rotation" | "scale" | "sliceId" | "timeId" | "timestamp" | "thickness"),
+    ("progress" | "loading" | "minPixelValue" | "maxPixelValue" | "minSliceId" | "maxSliceId" | "minTimeId" | "maxTimeId" | "rotation" | "scale" | "sliceId" | "timeId" | "thickness"),
     string,
     number
-] | ["pendingSliceId", string, number | undefined] | ["timestamps" | "timeIds", string, number[]] | [
+] | ["timestamp", string, number | undefined] | ["pendingSliceId", string, number | undefined] | ["timestamps" | "timeIds", string, number[]] | [
     "contrast" | "dimensions" | "spacing" | "translation",
     string,
     number,

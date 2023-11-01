@@ -3,7 +3,7 @@
  *        custom DICOMImageLoaders
  */
 import { DataSet } from "dicom-parser";
-import type { ImageObject, MetadataValue, Series } from "../types";
+import type { ImageObject, MetaData, Series } from "../types";
 /**
  * Update and initialize larvitar manager in order to parse and load a single dicom object
  * @instance
@@ -73,9 +73,7 @@ export declare const getSeriesDataFromLarvitarManager: (seriesId: string) => Ser
  * @param {Object} dataSet dicom dataset
  * @returns {Object} specific image frame
  */
-export declare const getImageFrame: (metadata: {
-    [key: string]: any;
-}, dataSet: DataSet) => {
+export declare const getImageFrame: (metadata: MetaData, dataSet: DataSet) => {
     samplesPerPixel: any;
     photometricInterpretation: any;
     planarConfiguration: any;

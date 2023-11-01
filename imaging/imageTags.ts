@@ -1,9 +1,13 @@
 // external libraries
 import { map } from "lodash";
 import TAG_DICT from "./dataDictionary.json";
+//Changed data dictionary using:
+//regex "\((\d+),(\d+)\)"
+//"x$1$2"
+//now tag are in format "x00000000"
 import { convertBytes } from "dicom-character-set";
-import { DataSet } from "dicom-parser";
-
+import { DataSet, Element } from "dicom-parser";
+import type { MetaDataTypes } from "./MetaDataTypes"; //custom type created as tag-type. { "x0000000":string, ...}
 /*
  * This module provides the following functions to be exported:
  * parseTag(dataSet, propertyName, element)
@@ -234,7 +238,7 @@ const isStringVr = function (vr: string) {
  * @param {String} dicomTag - The original DICOM tag code
  * @return {String} - The human readable DICOM tag code
  */
-function getDICOMTagCode(code: string) {
+/*function getDICOMTagCode(code: string) {
   let re = /x(\w{4})(\w{4})/;
   let result = re.exec(code);
   if (!result) {
@@ -243,7 +247,8 @@ function getDICOMTagCode(code: string) {
   let newCode = "(" + result[1] + "," + result[2] + ")";
   newCode = newCode.toUpperCase();
   return newCode;
-}
+}*/
+//This function is not necessary animore because dataDictionary contains tags in format "x00000000"
 
 /**
  * Get the dicom tag from dicom tag code
@@ -253,7 +258,7 @@ function getDICOMTagCode(code: string) {
  * @return {String} - The human readable DICOM tag
  */
 function getDICOMTag(code: string) {
-  let newCode = getDICOMTagCode(code);
+  let newCode = code;
 
   if (!Object.keys(TAG_DICT).includes(newCode)) {
     console.debug(`Invalid tag key: ${newCode}`);
@@ -273,10 +278,10 @@ function getDICOMTag(code: string) {
  * @param {Object} element - The parsed dataset element
  * @return {String} - The DICOM Tag value
  */
-export const parseTag = function (
+export function parseTag<T>(
   dataSet: DataSet,
-  propertyName: string,
-  element: { [key: string]: any } // TODO-ts better type @szanchi
+  propertyName: string, //x0000000 string
+  element: Element // TODO-ts better type @szanchi
 ) {
   // GET VR
   var tagData = dataSet.elements[propertyName] || {};
@@ -284,6 +289,8 @@ export const parseTag = function (
   if (!vr) {
     // use dicom dict to get VR
     var tag = getDICOMTag(propertyName);
+    //From now on tag is an object of datadictionary.json (TAG_TYPE) and tag.tag is rapresented as "x0000000"
+    //so propertyname= tag.tag=keyof MetaDataTypes
     if (tag && tag.vr) {
       vr = tag.vr;
     } else {
@@ -299,6 +306,7 @@ export const parseTag = function (
     // Most elements are strings but some aren't so we do a quick check
     // to make sure it actually has all ascii characters so we know it is
     // reasonable to display it.
+    let TAG = propertyName as keyof MetaDataTypes;
     var str = dataSet.string(propertyName);
     if (str === undefined) {
       return undefined;
@@ -308,7 +316,7 @@ export const parseTag = function (
       // data. Note that the length of the element will be 0 to indicate "no data"
       // so we don't put anything here for the value in that case.
       valueIn = str;
-      valueOut = str;
+      valueOut = str as MetaDataTypes[typeof TAG];
     }
 
     // A string of characters representing an Integer in base-10 (decimal),
@@ -488,22 +496,26 @@ export const parseTag = function (
     } else {
       valueOut = "";
     }
-  } else if (vr === "SQ") {
-    // parse the nested tags
-    var subTags: any = map(element, function (obj) {
-      return map(obj, function (v, k) {
-        return parseTag(dataSet, k, v);
+  }
+  //seems it is not used TODO-ts sm
+  /*else if (vr === "SQ") {
+    // parse the nested tags and returns metadata in array of metadata. 
+    var subTags = map(element, function (obj) {
+      return map(obj, function (v : Element, k : string) {
+        let TAG= k as keyof MetaDataTypes;
+        return parseTag<MetaDataTypes[typeof TAG]>(dataSet, k, v);
       });
     });
 
     valueOut = subTags;
-  } else {
+  }*/
+  else {
     // If it is some other length and we have no string
     valueOut = "no display code for VR " + vr;
   }
 
-  return valueOut;
-};
+  return valueOut as T;
+}
 
 /**
  * Extract tag value according to its value rapresentation, see

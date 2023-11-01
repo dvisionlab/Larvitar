@@ -3,7 +3,8 @@
  *        custom NRRD Loader
  */
 import { ImageLoader } from "cornerstone-core";
-import type { Instance, Volume } from "../types";
+import type { Instance, Volume, MetaData } from "../types";
+import { DataSet } from "dicom-parser";
 type NrrdInputVolume = {
     header: {
         sizes: number[];
@@ -29,6 +30,8 @@ export type NrrdSeries = {
     customLoader: string;
     nrrdHeader: NrrdHeader;
     bytes: number;
+    dataSet?: DataSet;
+    metadata?: MetaData;
 };
 type NrrdHeader = {
     volume: Volume;
