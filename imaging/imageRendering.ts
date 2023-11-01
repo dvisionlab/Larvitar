@@ -924,6 +924,7 @@ const getSeriesData = function (
     data.numberOfSlices = series.imageIds.length;
     data.imageIndex = 0;
     data.imageId = series.imageIds[data.imageIndex];
+    data.isTimeserie = false;
   } else if (series.is4D) {
     data.isMultiframe = false;
     data.isTimeserie = true;
@@ -948,10 +949,12 @@ const getSeriesData = function (
     });
   } else {
     data.isMultiframe = false;
+    data.isTimeserie = false;
     const numberOfSlices =
       defaultProps && defaultProps.numberOfSlices
         ? defaultProps.numberOfSlices
         : series.imageIds.length;
+    data.numberOfSlices = numberOfSlices;
     data.imageIndex =
       defaultProps?.sliceNumber && defaultProps?.sliceNumber >= 0 // slice number between 0 and n-1
         ? defaultProps.sliceNumber
