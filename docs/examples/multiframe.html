@@ -182,7 +182,12 @@
                     let series =
                       larvitar.getSeriesDataFromLarvitarManager(seriesId);
                     frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+                    let t0 = performance.now();
                     larvitar.updateImage(series, "viewer", frameId, false);
+                    let t1 = performance.now();
+                    console.log(
+                      `Call to updateImage took ${t1 - t0} milliseconds.`
+                    );
                     $("#current-frame").html(
                       "Current Frame: " +
                         parseInt(frameId + 1) +

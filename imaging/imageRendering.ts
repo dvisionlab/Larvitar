@@ -511,9 +511,6 @@ export const updateImage = async function (
   const id: string = isElement(elementId) ? element.id : (elementId as string);
   const imageId = series.imageIds[imageIndex];
   if (!imageId) {
-    // console.warn(
-    //   `Error: wrong image index ${imageIndex}, no imageId available`
-    // );
     setStore(["pendingSliceId", id, imageIndex]);
     throw `Error: wrong image index ${imageIndex}, no imageId available`;
   }
@@ -957,7 +954,7 @@ const getSeriesData = function (
         : series.imageIds.length;
     data.imageIndex =
       defaultProps?.sliceNumber && defaultProps?.sliceNumber >= 0 // slice number between 0 and n-1
-        ? defaultProps["sliceNumber"]
+        ? defaultProps.sliceNumber
         : Math.floor(numberOfSlices / 2);
 
     data.imageId = series.imageIds[data.imageIndex];
@@ -1001,13 +998,16 @@ const getSeriesData = function (
             : data.viewport!.voi!.windowWidth
       }
     };
-  }
-
-  if (data.rows == null || data.cols == null) {
-    console.warn("invalid image metadata (rows or cols is null)");
-    setStore(["errorLog", "Invalid Image Metadata"]);
+    if (data.rows == null || data.cols == null) {
+      console.warn("invalid image metadata (rows or cols is null)");
+      setStore(["errorLog", "Invalid Image Metadata"]);
+    } else {
+      setStore(["errorLog", ""]);
+    }
   } else {
-    setStore(["errorLog", ""]);
+    console.warn(
+      `ImageId not found in imageIds with index ${data.imageIndex}.`
+    );
   }
 
   return data as SeriesData;
