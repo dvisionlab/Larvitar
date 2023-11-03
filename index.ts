@@ -8,6 +8,8 @@ console.groupCollapsed(
 
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
+import { parseDicom } from "dicom-parser";
+
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 const segModule = cornerstoneTools.getModule("segmentation");
 
@@ -23,6 +25,8 @@ console.log(store);
 console.groupEnd();
 
 import { parseContours } from "./imaging/imageContours";
+
+import { parseECG } from "./imaging/parsers/ecg";
 
 import {
   getImagePresets,
@@ -222,6 +226,7 @@ export {
   // global cornerstone variables
   cornerstone,
   cornerstoneTools,
+  parseDicom,
   segModule,
   cornerstoneDICOMImageLoader,
   // memory module
@@ -231,6 +236,8 @@ export {
   getAvailableMemory,
   // larvitarStore
   store,
+  // parsers
+  parseECG,
   // imagePresets
   getImagePresets,
   setImagePreset,
