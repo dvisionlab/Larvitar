@@ -284,10 +284,10 @@ const setToolEnabled = function (toolName, viewports) {
       let el = document.getElementById(elementId);
       cornerstoneTools.setToolEnabledForElement(el, toolName);
       // restore native cursor
-      if (el.style) {
+      if (el && el.style) {
         el.style.cursor = "initial";
+        tryUpdateImage(el);
       }
-      tryUpdateImage(el);
     });
   } else {
     // activate and update all
