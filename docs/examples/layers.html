@@ -55,10 +55,10 @@
             };
       
             // init all
-            larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
             larvitar.initializeCSTools();
-            larvitar.larvitar_store.addViewport("viewer");
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
       
             async function createFile(fileName, cb) {
               let response = await fetch("./demo/" + fileName);
@@ -142,7 +142,7 @@
       </div>
     </div>
 
-    <script src="./larvitar.js"></script>
+    <script src="../../dist/larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
@@ -164,10 +164,10 @@
       };
 
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
-      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);

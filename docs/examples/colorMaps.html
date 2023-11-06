@@ -50,10 +50,10 @@
             };
 
             // init all
-            larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
             larvitar.initializeCSTools();
-            larvitar.larvitar_store.addViewport("viewer");
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
 
             async function createFile(fileName, cb) {
               let response = await fetch("./demo/" + fileName);
@@ -105,7 +105,7 @@
       </div>
     </div>
 
-    <script src="./larvitar.js"></script>
+    <script src="../../dist/larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
@@ -126,11 +126,32 @@
         return demoFileList;
       };
 
+      const customColorMap = function () {
+        let array = [[0, 0, 0, 255]];
+
+        for (let i = 1; i < 255; i++) {
+          let rgb;
+          rgb = larvitar.HSVToRGB(i / 360, 1, 1);
+          rgb[0] = Math.floor(rgb[0] * 255);
+          rgb[1] = Math.floor(rgb[1] * 255);
+          rgb[2] = Math.floor(rgb[2] * 255);
+          rgb[3] = 255;
+
+          array.push(rgb);
+        }
+
+        array.push([0, 0, 0, 255]);
+        return array;
+      };
+
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
-      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+
+      // add a custom color map
+      larvitar.addColorMap("custom", "CUSTOM", customColorMap());
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);

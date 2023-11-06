@@ -4,6 +4,7 @@
  *        DEPRECATION WARNING: these are legacy functions
  *        that will be removed soon. Use the corresponding
  *        functions in /tools/main.js instead.
+ *        For this reason, this file will not be translated to TypeScript.
  */
 
 // external libraries
@@ -288,7 +289,7 @@ export const setToolActive = function (
   activeViewport,
   viewports
 ) {
-  let defaultOpt = DEFAULT_TOOLS[toolName].options;
+  let defaultOpt = DEFAULT_TOOLS[toolName]?.options || {};
   extend(defaultOpt, options);
   cornerstoneTools.setToolActive(toolName, defaultOpt);
   if (activeViewport == "all") {

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
+    <title>Larvitar - ECG rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div id="viewer" class="col-8 h-100" style="background-color: black">
+        <p style="position: absolute; color: white">
+          Press "p" to play/pause frame animation
+        </p>
+        <p
+          id="frame-rate"
+          style="position: absolute; top: 20px; color: white"
+        ></p>
+        <p
+          id="current-frame"
+          style="position: absolute; top: 40px; color: white"
+        ></p>
+
+        <canvas
+          id="waveformCanvas"
+          class="col-4 h-25"
+          style="
+            position: absolute;
+            bottom: 0;
+            left: 10vw;
+            width: 40vw;
+            height: 10%;
+          "
+        ></canvas>
+      </div>
+
+      <div class="col-4 h-100">
+        <pre class="h-100">
+          <code class="javascript" style="background-color: #000000">
+          <p style="font-size:0.6vw;">
+            let demoFiles = [];
+
+            function parseECG(dataSet, tag, nSampling) {
+              const element = dataSet.elements[tag];
+              let data = dataSet.byteArray.slice(
+                element.dataOffset,
+                element.dataOffset + element.length
+              );
+              console.log(data);
+              let points = [];
+              const nCountFrom = data.length / 2;
+              const nCountTo = parseInt(
+                0.5 + parseFloat(nCountFrom) / parseFloat(nSampling)
+              );
+              let values = [];
+              let nFrom = 0;
+              for (let nTo = 0; nTo < nCountTo; nTo++) {
+                let v = parseFloat(data[nFrom] + 255 * data[nFrom + 1]);
+                values.push(v);
+                nFrom += nSampling * 2;
+              }
+              console.log(values);
+              const nMax = Math.max(...values);
+              const nMin = Math.min(...values);
+              for (let nTo = 0; nTo < nCountTo; nTo++) {
+                let data = parseFloat(((values[nTo] - nMin) / (nMax - nMin)) * 100);
+                points.push(data);
+              }
+              return points;
+            }
+
+            function renderECG(ecgData, frameId, numberOfFrames) {
+              const canvas = document.getElementById("waveformCanvas");
+              const ctx = canvas.getContext("2d");
+              const scaleFactor = 0.5; // Adjust this value to control the scaling of the ECG waveform
+              const yOffset = canvas.height / 2;
+
+              let dotX = (frameId * canvas.width) / numberOfFrames;
+
+              // Clear the canvas on each frame
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+              // Draw the ECG waveform (similar to previous examples)
+              ctx.strokeStyle = "red";
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              for (let i = 0; i < ecgData.length; i++) {
+                const x = i;
+                const y = yOffset - ecgData[i] * scaleFactor;
+                if (i === 0) {
+                  ctx.moveTo(x, y);
+                } else {
+                  ctx.lineTo(x, y);
+                }
+              }
+              ctx.stroke();
+
+              // Calculate the dot's position based on the waveform
+              const dotY = yOffset - ecgData[Math.floor(dotX)] * scaleFactor;
+
+              // Draw and animate the dot
+              ctx.fillStyle = "yellow";
+              const dotRadius = 1.5;
+              ctx.beginPath();
+              ctx.arc(dotX, dotY, dotRadius, 0, Math.PI * 2);
+              ctx.fill();
+            }
+
+            // init all
+            larvitar.initializeImageLoader();
+            larvitar.registerMultiFrameImageLoader();
+            larvitar.initializeCSTools();
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
+
+            function renderSerie() {
+              larvitar.readFiles(demoFiles).then(seriesStack => {
+                let seriesId = _.keys(seriesStack)[0];
+                let serie = seriesStack[seriesId];
+                larvitar.populateLarvitarManager(seriesId, serie);
+                let manager = larvitar.getLarvitarManager();
+                let multiFrameSerie = manager[seriesId];
+                let frameId = 0;
+                larvitar.renderImage(multiFrameSerie, "viewer", frameId).then(() => {
+                  console.log("Image has been rendered");
+                  larvitar.addDefaultTools();
+                  larvitar.setToolActive("StackScroll");
+                  let animation = false;
+                  let animationId = null;
+                  let numberOfFrames = multiFrameSerie.numberOfFrames;
+                  renderECG(ecgData, 0, numberOfFrames);
+                  let frameRate = multiFrameSerie.frameTime;
+                  $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
+                  $("#current-frame").html("Current Frame: 1 of " + numberOfFrames);
+
+                  document.onkeypress = function (e) {
+                    e = e || window.event;
+                    if (e.keyCode == 112) {
+                      animation = !animation;
+                      if (animation) {
+                        frameId = larvitar.store.get([
+                          "viewports",
+                          "viewer",
+                          "sliceId"
+                        ]);
+                        animationId = setInterval(function () {
+                          let series =
+                            larvitar.getSeriesDataFromLarvitarManager(seriesId);
+                          frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+                          let t0 = performance.now();
+                          larvitar.updateImage(series, "viewer", frameId, false);
+                          let t1 = performance.now();
+                          console.log(
+                            `Call to updateImage took ${t1 - t0} milliseconds.`
+                          );
+                          $("#current-frame").html(
+                            "Current Frame: " +
+                              parseInt(frameId + 1) +
+                              " of " +
+                              numberOfFrames
+                          );
+                          renderECG(ecgData, frameId, numberOfFrames);
+                        }, frameRate);
+                      } else {
+                        clearInterval(animationId);
+                        $("#current-frame").html();
+                      }
+                    }
+                  };
+                });
+
+                console.log(
+                  "Curve Dimensions: " + manager[seriesId].metadata.x50000005
+                );
+                console.log(
+                  "Number of Points: " + manager[seriesId].metadata.x50000010
+                );
+                console.log("Type of Data: " + manager[seriesId].metadata.x50000020);
+                console.log(
+                  "Data Value Representation: " + manager[seriesId].metadata.x50000103
+                );
+                console.log(
+                  "Curve Data Descriptor: " + manager[seriesId].metadata.x50000110
+                );
+                console.log(
+                  "Coordinate Start Value: " + manager[seriesId].metadata.x50000112
+                );
+                console.log(
+                  "Coordinate Step Value: " + manager[seriesId].metadata.x50000114
+                );
+                const ecgData = larvitar.parseECG(
+                  manager[seriesId].dataSet,
+                  "x50003000",
+                  2
+                );
+              });
+            }
+
+            async function createFile(fileName, cb) {
+              let response = await fetch("./demo/" + fileName);
+              let data = await response.blob();
+              let file = new File([data], fileName);
+              demoFiles.push(file);
+              cb();
+            }
+            createFile("119265", renderSerie);
+          
+          </p>
+          </code>
+        </pre>
+      </div>
+    </div>
+
+    <script src="../../dist/larvitar.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      let demoFiles = [];
+
+      function parseECG(dataSet, tag, nSampling) {
+        const element = dataSet.elements[tag];
+        let data = dataSet.byteArray.slice(
+          element.dataOffset,
+          element.dataOffset + element.length
+        );
+        console.log(data);
+        let points = [];
+        const nCountFrom = data.length / 2;
+        const nCountTo = parseInt(
+          0.5 + parseFloat(nCountFrom) / parseFloat(nSampling)
+        );
+        let values = [];
+        let nFrom = 0;
+        for (let nTo = 0; nTo < nCountTo; nTo++) {
+          let v = parseFloat(data[nFrom] + 255 * data[nFrom + 1]);
+          values.push(v);
+          nFrom += nSampling * 2;
+        }
+        console.log(values);
+        const nMax = Math.max(...values);
+        const nMin = Math.min(...values);
+        for (let nTo = 0; nTo < nCountTo; nTo++) {
+          let data = parseFloat(((values[nTo] - nMin) / (nMax - nMin)) * 100);
+          points.push(data);
+        }
+        return points;
+      }
+
+      function renderECG(ecgData, frameId, numberOfFrames) {
+        const canvas = document.getElementById("waveformCanvas");
+        const ctx = canvas.getContext("2d");
+        const scaleFactor = 0.5; // Adjust this value to control the scaling of the ECG waveform
+        const yOffset = canvas.height / 2;
+
+        let dotX = (frameId * canvas.width) / numberOfFrames;
+
+        // Clear the canvas on each frame
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the ECG waveform (similar to previous examples)
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i < ecgData.length; i++) {
+          const x = i;
+          const y = yOffset - ecgData[i] * scaleFactor;
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        ctx.stroke();
+
+        // Calculate the dot's position based on the waveform
+        const dotY = yOffset - ecgData[Math.floor(dotX)] * scaleFactor;
+
+        // Draw and animate the dot
+        ctx.fillStyle = "yellow";
+        const dotRadius = 1.5;
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, dotRadius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.registerMultiFrameImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+
+      function renderSerie() {
+        larvitar.readFiles(demoFiles).then(seriesStack => {
+          let seriesId = _.keys(seriesStack)[0];
+          let serie = seriesStack[seriesId];
+          larvitar.populateLarvitarManager(seriesId, serie);
+          let manager = larvitar.getLarvitarManager();
+          let multiFrameSerie = manager[seriesId];
+          let frameId = 0;
+          larvitar.renderImage(multiFrameSerie, "viewer", frameId).then(() => {
+            console.log("Image has been rendered");
+            larvitar.addDefaultTools();
+            // larvitar.setToolActive("StackScroll");
+            let animation = false;
+            let animationId = null;
+            let numberOfFrames = multiFrameSerie.numberOfFrames;
+            renderECG(ecgData, 0, numberOfFrames);
+            let frameRate = multiFrameSerie.frameTime;
+            $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
+            $("#current-frame").html("Current Frame: 1 of " + numberOfFrames);
+
+            document.onkeypress = function (e) {
+              e = e || window.event;
+              if (e.keyCode == 112) {
+                animation = !animation;
+                if (animation) {
+                  frameId = larvitar.store.get([
+                    "viewports",
+                    "viewer",
+                    "sliceId"
+                  ]);
+                  animationId = setInterval(function () {
+                    let series =
+                      larvitar.getSeriesDataFromLarvitarManager(seriesId);
+                    frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+                    let t0 = performance.now();
+                    larvitar.updateImage(series, "viewer", frameId, false);
+                    let t1 = performance.now();
+                    console.log(
+                      `Call to updateImage took ${t1 - t0} milliseconds.`
+                    );
+                    $("#current-frame").html(
+                      "Current Frame: " +
+                        parseInt(frameId + 1) +
+                        " of " +
+                        numberOfFrames
+                    );
+                    renderECG(ecgData, frameId, numberOfFrames);
+                  }, frameRate);
+                } else {
+                  clearInterval(animationId);
+                  $("#current-frame").html();
+                }
+              }
+            };
+          });
+
+          console.log(
+            "Curve Dimensions: " + manager[seriesId].metadata.x50000005
+          );
+          console.log(
+            "Number of Points: " + manager[seriesId].metadata.x50000010
+          );
+          console.log("Type of Data: " + manager[seriesId].metadata.x50000020);
+          console.log(
+            "Data Value Representation: " + manager[seriesId].metadata.x50000103
+          );
+          console.log(
+            "Curve Data Descriptor: " + manager[seriesId].metadata.x50000110
+          );
+          console.log(
+            "Coordinate Start Value: " + manager[seriesId].metadata.x50000112
+          );
+          console.log(
+            "Coordinate Step Value: " + manager[seriesId].metadata.x50000114
+          );
+          const ecgData = larvitar.parseECG(
+            manager[seriesId].dataSet,
+            "x50003000",
+            2
+          );
+        });
+      }
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        cb();
+      }
+      createFile("119265", renderSerie);
+    </script>
+  </body>
+</html>

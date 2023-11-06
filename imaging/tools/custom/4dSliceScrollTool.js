@@ -1,8 +1,8 @@
 /** @module imaging/tools/custom/4dSliceScrollTool
- *  @desc  This file provides functionalities for an alternative scroll tool 
+ *  @desc  This file provides functionalities for an alternative scroll tool
  *  to handle 4d exam and navigate to the correct slice
- *         
- *         
+ *
+ *
  */
 
 // external libraries
@@ -11,9 +11,9 @@ const external = cornerstoneTools.external;
 
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
 const scroll = cornerstoneTools.importInternal("util/scroll");
-const  scrollToIndex = cornerstoneTools.importInternal("util/scrollToIndex");
+const scrollToIndex = cornerstoneTools.importInternal("util/scrollToIndex");
 const getToolState = cornerstoneTools.getToolState;
-const clip =  cornerstoneTools.importInternal("util/clip");
+const clip = cornerstoneTools.importInternal("util/clip");
 
 /**
  * @public
@@ -26,25 +26,23 @@ const clip =  cornerstoneTools.importInternal("util/clip");
 export default class Slice4DScrollMouseWheelTool extends BaseTool {
   constructor(props = {}) {
     const defaultProps = {
-      name: 'Slice4DScrollMouseWheel',
-      supportedInteractionTypes: ['MouseWheel'],
+      name: "Slice4DScrollMouseWheel",
+      supportedInteractionTypes: ["MouseWheel"],
       configuration: {
         loop: false,
         allowSkipping: true,
-        invert: false,
-      },
+        invert: false
+      }
     };
-    console.log('building wheel tool');
     super(props, defaultProps);
   }
 
   mouseWheelCallback(evt) {
     const { direction: images, element } = evt.detail;
     const { loop, allowSkipping, invert, framesNumber } = this.configuration;
-    const direction = invert ? (images * framesNumber)*(-1) : (images * framesNumber);
-    console.log('wheel callback');
-    console.log('Images ', images);
-    console.log('Direction ', direction);
+    const direction = invert
+      ? images * framesNumber * -1
+      : images * framesNumber;
     scroll(element, direction, loop, allowSkipping);
     // scroll4DSlices(element, direction, loop, allowSkipping);
   }
@@ -60,41 +58,44 @@ export default class Slice4DScrollMouseWheelTool extends BaseTool {
  * @param  {type} [allowSkipping = true]  Whether frames can be skipped.
  * @returns {void}
  */
-const scroll4DSlices = function(element, images, loop, allowSkipping, framesNumber) {
-    const toolData = getToolState(element, 'stack');
+const scroll4DSlices = function (
+  element,
+  images,
+  loop,
+  allowSkipping,
+  framesNumber
+) {
+  const toolData = getToolState(element, "stack");
 
-    if (!toolData || !toolData.data || !toolData.data.length) {
-        return;
-    }
+  if (!toolData || !toolData.data || !toolData.data.length) {
+    return;
+  }
 
-    const stackData = toolData.data[0];
+  const stackData = toolData.data[0];
 
-    if (!stackData.pending) {
-        stackData.pending = [];
-    }
-    
-    let newImageIdIndex = stackData.currentImageIdIndex + images ;//+ 1 + framesNumber;
-    console.log('currentImageIdIndex', stackData.currentImageIdIndex)
-    console.log('newImageIdIndex calculated ', newImageIdIndex);
-    if (loop) {
-        const nbImages = stackData.imageIds.length;
-        newImageIdIndex %= nbImages;
-    } else {
-        newImageIdIndex = clip(newImageIdIndex, 0, stackData.imageIds.length - 1);
-        console.log('newImageIdIndex after clip  ', newImageIdIndex);
-    }
+  if (!stackData.pending) {
+    stackData.pending = [];
+  }
 
-    if (allowSkipping) {
-        scrollToIndex(element, newImageIdIndex);
-    } else {
-        const pendingEvent = {
-          index: newImageIdIndex,
-        };
+  let newImageIdIndex = stackData.currentImageIdIndex + images; //+ 1 + framesNumber;
+  if (loop) {
+    const nbImages = stackData.imageIds.length;
+    newImageIdIndex %= nbImages;
+  } else {
+    newImageIdIndex = clip(newImageIdIndex, 0, stackData.imageIds.length - 1);
+  }
 
-        stackData.pending.push(pendingEvent);
-        scrollWithoutSkipping(stackData, pendingEvent, element);
-    }
-}
+  if (allowSkipping) {
+    scrollToIndex(element, newImageIdIndex);
+  } else {
+    const pendingEvent = {
+      index: newImageIdIndex
+    };
+
+    stackData.pending.push(pendingEvent);
+    scrollWithoutSkipping(stackData, pendingEvent, element);
+  }
+};
 
 /**
  * Recursively scrolls the stack until the desired image is reached.
@@ -119,7 +120,7 @@ function scrollWithoutSkipping(stackData, pendingEvent, element) {
       return;
     }
 
-    const newImageHandler = function(event) {
+    const newImageHandler = function (event) {
       const index = stackData.imageIds.indexOf(event.detail.image.imageId);
 
       if (index === pendingEvent.index) {
