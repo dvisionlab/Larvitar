@@ -1,5 +1,4 @@
 // external libraries
-import { map } from "lodash";
 import TAG_DICT from "./dataDictionary.json";
 //Changed data dictionary using:
 //regex "\((\d+),(\d+)\)"
@@ -482,7 +481,7 @@ export function parseTag<T>(
         " as uint32: " +
         dataSet.uint32(propertyName);
     } else {
-      valueOut = "binary data of length " + element.length + " and VR " + vr;
+      valueOut = tagData;
     }
   } else if (vr === "AT") {
     var group = dataSet.uint16(propertyName, 0);
