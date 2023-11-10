@@ -9,6 +9,7 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 import { each, has } from "lodash";
 
 // internal libraries
+import { getPerformanceMonitor } from "./monitors/performance";
 import { getFileImageId } from "./loaders/fileLoader";
 import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
@@ -572,8 +573,22 @@ export const updateImage = async function (
   }
 
   if (cacheImage) {
+    let t0: number | undefined;
+    if (getPerformanceMonitor() === true) {
+      t0 = performance.now();
+    }
+
     const image = await cornerstone.loadAndCacheImage(imageId);
     cornerstone.displayImage(element, image);
+
+    if (getPerformanceMonitor() === true) {
+      const t1 = performance.now();
+      if (t0 !== undefined) {
+        // check if t0 is defined before using it
+        console.log(`Call to updateImage took ${t1 - t0} milliseconds.`);
+      }
+    }
+
     setStore(["sliceId", id, imageIndex]);
     const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
     if (imageIndex == pendingSliceId) {
@@ -582,8 +597,22 @@ export const updateImage = async function (
     setStore(["minPixelValue", id, image.minPixelValue]);
     setStore(["maxPixelValue", id, image.maxPixelValue]);
   } else {
+    let t0: number | undefined;
+    if (getPerformanceMonitor() === true) {
+      t0 = performance.now();
+    }
+
     const image = await cornerstone.loadImage(imageId);
     cornerstone.displayImage(element, image);
+
+    if (getPerformanceMonitor() === true) {
+      const t1 = performance.now();
+      if (t0 !== undefined) {
+        // check if t0 is defined before using it
+        console.log(`Call to updateImage took ${t1 - t0} milliseconds.`);
+      }
+    }
+
     setStore(["sliceId", id, imageIndex]);
     const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
     if (imageIndex == pendingSliceId) {
@@ -688,21 +717,18 @@ export const updateViewportData = function (
     console.error("invalid html element: " + elementId);
     return;
   }
+  // TODO: understand how to handle synchronized tools
   switch (activeTool) {
     case "Wwwc":
     case "WwwcRegion":
-      // sync viewports if needed
-      let elements = cornerstone.getEnabledElements();
-      each(elements, function (el) {
-        if (viewportData.voi) {
-          setStore([
-            "contrast",
-            el.element.id,
-            viewportData.voi.windowWidth,
-            viewportData.voi.windowCenter
-          ]);
-        }
-      });
+      if (viewportData.voi) {
+        setStore([
+          "contrast",
+          elementId,
+          viewportData.voi.windowWidth,
+          viewportData.voi.windowCenter
+        ]);
+      }
       break;
     case "Pan":
       if (viewportData.translation) {

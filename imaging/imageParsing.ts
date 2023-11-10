@@ -321,9 +321,10 @@ const parseFile = function (file: File) {
         // but if a DICOM file contains a multiframe series, then the SeriesInstanceUID
         // can be shared by other files of the same study.
         // In these cases, the SOPInstanceUID (unique) is used as SeriesInstanceUID.
-        let seriesInstanceUID = singleFrameModalities.includes(modality)
+        let uniqueId = singleFrameModalities.includes(modality)
           ? metadata["x00080018"]
           : metadata["x0020000e"];
+        let seriesInstanceUID = metadata["x0020000e"];
         let pixelSpacing = metadata["x00280030"];
         let imageOrientation = metadata["x00200037"];
         let imagePosition = metadata["x00200032"];
@@ -347,6 +348,7 @@ const parseFile = function (file: File) {
             };
             imageObject.metadata = metadata as MetaData;
             imageObject.metadata.anonymized = false;
+            imageObject.metadata.larvitarSeriesInstanceUID = uniqueId;
             imageObject.metadata.seriesUID = seriesInstanceUID;
             imageObject.metadata.instanceUID = instanceUID;
             imageObject.metadata.studyUID = metadata["x0020000d"];
@@ -403,6 +405,7 @@ const parseFile = function (file: File) {
               dataSet: dataSet
             };
             pdfObject.metadata = metadata;
+            pdfObject.metadata.larvitarSeriesInstanceUID = uniqueId;
             pdfObject.metadata.seriesUID = seriesInstanceUID;
             pdfObject.instanceUID =
               metadata["x00080018"]?.toString() || randomId();

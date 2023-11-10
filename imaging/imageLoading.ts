@@ -136,6 +136,7 @@ export const updateLoadedStack = function (
   customId?: string,
   sliceIndex?: number
 ) {
+  let lid = seriesData.metadata.larvitarSeriesInstanceUID;
   let sid = seriesData.metadata.seriesUID;
   let ssid = seriesData.metadata.studyUID;
   let iid = seriesData.metadata.instanceUID as string;
@@ -157,10 +158,10 @@ export const updateLoadedStack = function (
   let color = cornerstoneDICOMImageLoader.isColorImage(
     seriesData.metadata["x00280004"]
   ) as boolean;
-  let id = customId || sid?.toString();
+  let id = customId || lid?.toString();
 
   if (!id) {
-    throw new Error("Series UID is not defined");
+    throw new Error("Unique UID is not defined");
   }
 
   // Staged Protocol
@@ -177,7 +178,7 @@ export const updateLoadedStack = function (
       instanceUIDs: {}, // instanceUID: imageId (ordered)
       instances: {},
       seriesDescription: seriesDescription as string,
-      larvitarSeriesInstanceUID: sid as string,
+      larvitarSeriesInstanceUID: lid as string,
       seriesUID: sid as string,
       studyUID: ssid as string,
       numberOfImages: is4D ? (acquisitionNumberAttribute as number) : 0,

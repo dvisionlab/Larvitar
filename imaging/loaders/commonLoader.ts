@@ -33,6 +33,7 @@ var imageTracker: ImageTracker = null;
  * removeSeriesFromLarvitarManager(seriesId)
  * getSeriesDataFromLarvitarManager(seriesId)
  * getImageFrame(metadata, dataSet)
+ * getSopInstanceUIDFromLarvitarManager(larvitarSeriesInstanceUID, imageId)
  */
 
 /**
@@ -250,4 +251,25 @@ export const getImageFrame = function (metadata: MetaData, dataSet: DataSet) {
     pixelData: undefined, // populated later after decoding,
     ImageData: undefined
   };
+};
+
+/**
+ * Return the SOP Instance UID of a specific imageId stored in the Larvitar Manager
+ * @instance
+ * @function getSopInstanceUIDFromLarvitarManager
+ * @param {String} larvitarSeriesInstanceUID The Id of the series
+ * @param {String} imageId The Id of the image
+ * @returns {String} sopInstanceUID
+ */
+export const getSopInstanceUIDFromLarvitarManager = function (
+  larvitarSeriesInstanceUID: string,
+  imageId: string
+) {
+  if (larvitarManager === null) {
+    return null;
+  }
+  let series = larvitarManager[larvitarSeriesInstanceUID];
+  return Object.keys(series.instanceUIDs).find(
+    key => series.instanceUIDs[key] === imageId
+  );
 };

@@ -232,15 +232,17 @@
                 }
               }
             };
-            larvitar.addTool("Slice4DScrollMouseWheel", {
-              configuration: {
-                loop: false,
-                allowSkipping: false,
-                invert: false,
-                framesNumber: 97
-              }
-            });
-            larvitar.setToolActive("Slice4DScrollMouseWheel");
+            // larvitar.addTool("Slice4DScrollMouseWheel", {
+            //   configuration: {
+            //     loop: false,
+            //     allowSkipping: false,
+            //     invert: false,
+            //     framesNumber: 97
+            //   }
+            // });
+            // larvitar.setToolActive("Slice4DScrollMouseWheel");
+            larvitar.addDefaultTools();
+            larvitar.setToolActive("Wwwc");
           })
           .catch(err => console.log(err));
       }

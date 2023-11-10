@@ -145,6 +145,7 @@
             });
             // optionally cache the series
             larvitar.populateLarvitarManager(seriesId, serie);
+            console.log(larvitar.getLarvitarManager());
             larvitar.cacheImages(serie, function (resp) {
               if (resp.loading == 100) {
                 let cache = larvitar.cornerstone.imageCache;

@@ -87,7 +87,7 @@ const DEFAULT_TOOLS: {
     cleanable: false,
     defaultActive: true,
     class: "WwwcTool",
-    sync: "wwwcSynchronizer",
+    // sync: "wwwcSynchronizer",
     description: "Change image contrast",
     shortcut: "ctrl-m",
     type: "utils"
@@ -103,7 +103,7 @@ const DEFAULT_TOOLS: {
     cleanable: false,
     defaultActive: false,
     class: "WwwcRegionTool",
-    sync: "wwwcSynchronizer",
+    // sync: "wwwcSynchronizer",
     description: "Change image contrast based on selected region",
     shortcut: "ctrl-m",
     type: "utils"
@@ -133,7 +133,7 @@ const DEFAULT_TOOLS: {
     },
     options: {},
     cleanable: false,
-    defaultActive: false,
+    defaultActive: true,
     class: "StackScrollMouseWheelTool"
   },
   // Slice4DScrollMouseWheel: {

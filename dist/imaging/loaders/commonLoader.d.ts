@@ -92,3 +92,12 @@ export declare const getImageFrame: (metadata: MetaData, dataSet: DataSet) => {
     pixelData: undefined;
     ImageData: undefined;
 };
+/**
+ * Return the SOP Instance UID of a specific imageId stored in the Larvitar Manager
+ * @instance
+ * @function getSopInstanceUIDFromLarvitarManager
+ * @param {String} larvitarSeriesInstanceUID The Id of the series
+ * @param {String} imageId The Id of the image
+ * @returns {String} sopInstanceUID
+ */
+export declare const getSopInstanceUIDFromLarvitarManager: (larvitarSeriesInstanceUID: string, imageId: string) => string | null | undefined;

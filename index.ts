@@ -20,6 +20,12 @@ import {
   getAvailableMemory
 } from "./imaging/monitors/memory";
 
+import {
+  getPerformanceMonitor,
+  activatePerformanceMonitor,
+  deactivatePerformanceMonitor
+} from "./imaging/monitors/performance";
+
 import store from "./imaging/imageStore";
 console.log(store);
 console.groupEnd();
@@ -174,7 +180,8 @@ import {
   resetLarvitarManager,
   removeSeriesFromLarvitarManager,
   getSeriesDataFromLarvitarManager,
-  getImageFrame
+  getImageFrame,
+  getSopInstanceUIDFromLarvitarManager
 } from "./imaging/loaders/commonLoader";
 
 import {
@@ -238,6 +245,10 @@ export {
   checkMemoryAllocation,
   getUsedMemory,
   getAvailableMemory,
+  // performance module
+  getPerformanceMonitor,
+  activatePerformanceMonitor,
+  deactivatePerformanceMonitor,
   // larvitarStore
   store,
   // parsers
@@ -324,6 +335,7 @@ export {
   removeSeriesFromLarvitarManager,
   getSeriesDataFromLarvitarManager,
   getImageFrame,
+  getSopInstanceUIDFromLarvitarManager,
   // loaders/nrrdLoader
   buildNrrdImage,
   getNrrdImageId,

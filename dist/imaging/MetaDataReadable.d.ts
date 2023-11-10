@@ -1,5 +1,6 @@
 export type MetaDataReadable = {
     anonymized?: boolean;
+    larvitarSeriesInstanceUID?: string;
     seriesUID?: string;
     instanceUID?: string;
     studyUID?: string;
