@@ -45,11 +45,11 @@
               let demoFiles = [];
 
               // init all
-              larvitar.initLarvitarStore();
               larvitar.initializeImageLoader();
               larvitar.registerMultiFrameImageLoader();
               larvitar.initializeCSTools();
-              larvitar.larvitar_store.addViewport("viewer");
+              larvitar.store.initialize();
+              larvitar.store.addViewport("viewer");
 
               function renderSerie() {
                 larvitar
@@ -82,8 +82,11 @@
                       if (e.keyCode == 112) {
                         animation = !animation;
                         if (animation) {
-                          frameId =
-                            larvitar.larvitar_store.state.viewports.viewer.sliceId;
+                          frameId = larvitar.store.get([
+                            "viewports",
+                            "viewer",
+                            "sliceId"
+                          ]);
                           animationId = setInterval(function () {
                             let series =
                               larvitar.getSeriesDataFromLarvitarManager(seriesId);
@@ -120,7 +123,7 @@
       </div>
     </div>
 
-    <script src="./larvitar.js"></script>
+    <script src="../../dist/larvitar.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script
@@ -133,11 +136,11 @@
       let demoFiles = [];
 
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
       larvitar.registerMultiFrameImageLoader();
       larvitar.initializeCSTools();
-      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
       function renderSerie() {
         larvitar
@@ -156,7 +159,7 @@
                 console.log("Image has been rendered");
               });
             larvitar.addDefaultTools();
-            larvitar.setToolActive("Wwwc");
+            larvitar.setToolActive("StackScroll");
 
             let animation = false;
             let animationId = null;
@@ -167,16 +170,28 @@
 
             document.onkeypress = function (e) {
               e = e || window.event;
+              if (e.keyCode == 109) {
+                let performanceMonitor = larvitar.getPerformanceMonitor();
+                if (performanceMonitor) {
+                  larvitar.deactivatePerformanceMonitor();
+                } else {
+                  larvitar.activatePerformanceMonitor();
+                }
+              }
               if (e.keyCode == 112) {
                 animation = !animation;
                 if (animation) {
-                  frameId =
-                    larvitar.larvitar_store.state.viewports.viewer.sliceId;
+                  frameId = larvitar.store.get([
+                    "viewports",
+                    "viewer",
+                    "sliceId"
+                  ]);
                   animationId = setInterval(function () {
                     let series =
                       larvitar.getSeriesDataFromLarvitarManager(seriesId);
                     frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
                     larvitar.updateImage(series, "viewer", frameId, false);
+
                     $("#current-frame").html(
                       "Current Frame: " +
                         parseInt(frameId + 1) +

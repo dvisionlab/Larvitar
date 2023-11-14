@@ -6,22 +6,26 @@
     "medical",
     "cornerstone"
   ],
-  "version": "1.5.14",
-  "description": "javascript library for parsing, loading, rendering and interacting with DICOM images",
+  "version": "2.0.0",
+  "description": "typescript library for parsing, loading, rendering and interacting with DICOM images",
   "repository": {
     "url": "https://github.com/dvisionlab/Larvitar.git",
     "type": "git"
   },
+  "main": "index.ts",
   "scripts": {
+    "coverage": "typescript-coverage-report",
     "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json",
-    "build-lib": "rollup -c",
-    "dev-lib": "rollup -c -w"
+    "build": "webpack --config ./bundler/webpack.prod.js",
+    "dev": "webpack --progress --config ./bundler/webpack.dev.js",
+    "dev-wip": "webpack serve --config ./bundler/webpack.dev-wip.js"
   },
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
   "contributors": [
     "Mattia Ronzoni <mattia.ronzoni@dvisionlab.com> (https://www.dvisionlab.com)",
     "Sara Zanchi <sara.zanchi@dvisionlab.com> (https://www.dvisionlab.com)",
-    "Ale Re <ale.re@dvisionlab.com> (https://www.dvisionlab.com)"
+    "Ale Re <ale.re@dvisionlab.com> (https://www.dvisionlab.com)",
+    "Laura Borghesi Re <laura.borghesi@dvisionlab.com> (https://www.dvisionlab.com)"
   ],
   "license": "MIT",
   "dependencies": {
@@ -36,6 +40,7 @@
     "dicom-parser": "^1.8.13",
     "docdash": "^1.2.0",
     "hammerjs": "^2.0.8",
+    "jpeg-lossless-decoder-js": "^2.0.7",
     "keycode-js": "^3.1.0",
     "lodash": "^4.17.15",
     "pako": "^1.0.10",
@@ -43,15 +48,28 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^11.2.0",
+    "@babel/core": "^7.21.8",
+    "@types/cornerstone-core": "^2.3.0",
+    "@types/crypto-js": "^4.1.1",
+    "@types/hammerjs": "^2.0.41",
+    "@types/lodash": "^4.14.192",
+    "@types/papaparse": "^5.3.7",
+    "@types/uuid": "^9.0.1",
+    "babel-loader": "^9.1.2",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^11.0.0",
     "fs": "^0.0.1-security",
+    "html-loader": "^4.2.0",
+    "html-webpack-plugin": "^5.5.0",
+    "ip": "^1.1.8",
     "jsdoc": "^3.6.4",
-    "rollup": "^2.39.0",
-    "rollup-plugin-node-resolve": "^5.2.0"
-  },
-  "common": "dist/larvitar.cjs.js",
-  "module": "dist/larvitar.js",
-  "browser": "dist/larvitar.js",
-  "type": "module"
+    "portfinder-sync": "^0.0.2",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.0.2",
+    "typescript-coverage-report": "^0.7.0",
+    "webpack": "^5.76.3",
+    "webpack-bundle-analyzer": "^4.8.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.1"
+  }
 }

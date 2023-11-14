@@ -53,10 +53,10 @@
             };
 
             // init all
-            larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
             larvitar.initializeCSTools();
-            larvitar.larvitar_store.addViewport("viewer");
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
 
             async function createFile(fileName, cb) {
               let response = await fetch("./demo/4d/" + fileName);
@@ -84,13 +84,13 @@
 
                     $("#image-time").html(
                       "Image Time Id: " +
-                        larvitar.larvitar_store.state.viewports.viewer.timeId +
+                        larvitar.store.get(["viewports", "viewer", "timeId"]) +
                         " of " +
-                        larvitar.larvitar_store.state.viewports.viewer.maxTimeId
+                        larvitar.store.get(["viewports", "viewer", "maxTimeId"])
                     );
                     $("#timestamp").html(
                       "Image Time: " +
-                        larvitar.larvitar_store.state.viewports.viewer.timestamp
+                        larvitar.store.get(["viewports", "viewer", "timestamp"])
                     );
                   });
 
@@ -100,20 +100,23 @@
                     if (e.keyCode == 112) {
                       animation = !animation;
                       if (animation) {
-                        sliceId =
-                          larvitar.larvitar_store.state.viewports.viewer.sliceId;
+                        sliceId = larvitar.store.get([
+                          "viewports",
+                          "viewer",
+                          "sliceId"
+                        ]);
                         animationId = setInterval(function () {
                           sliceId = sliceId == 193 ? 0 : sliceId + 1;
                           larvitar.updateImage(serie, "viewer", sliceId, false);
                           $("#image-time").html(
                             "Image Time Id: " +
-                              larvitar.larvitar_store.state.viewports.viewer.timeId +
+                              larvitar.store.get(["viewports", "viewer", "timeId"]) +
                               " of " +
-                              larvitar.larvitar_store.state.viewports.viewer.maxTimeId
+                              larvitar.store.get(["viewports", "viewer", "maxTimeId"])
                           );
                           $("#timestamp").html(
                             "Image Time: " +
-                              larvitar.larvitar_store.state.viewports.viewer.timestamp
+                              larvitar.store.get(["viewports", "viewer", "timestamp"])
                           );
                         }, 100);
                       } else {
@@ -137,7 +140,7 @@
       </div>
     </div>
 
-    <script src="./larvitar.js"></script>
+    <script src="../../dist/larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
@@ -158,10 +161,10 @@
         return demoFileList;
       };
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
-      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/4d/" + fileName);
@@ -189,13 +192,13 @@
 
               $("#image-time").html(
                 "Image Time Id: " +
-                  larvitar.larvitar_store.state.viewports.viewer.sliceId +
+                  larvitar.store.get(["viewports", "viewer", "timeId"]) +
                   " of " +
-                  larvitar.larvitar_store.state.viewports.viewer.maxTimeId
+                  larvitar.store.get(["viewports", "viewer", "maxTimeId"])
               );
               $("#timestamp").html(
                 "Image Time: " +
-                  larvitar.larvitar_store.state.viewports.viewer.timestamp
+                  larvitar.store.get(["viewports", "viewer", "timestamp"])
               );
             });
 
@@ -205,20 +208,23 @@
               if (e.keyCode == 112) {
                 animation = !animation;
                 if (animation) {
-                  sliceId =
-                    larvitar.larvitar_store.state.viewports.viewer.sliceId;
+                  sliceId = larvitar.store.get([
+                    "viewports",
+                    "viewer",
+                    "sliceId"
+                  ]);
                   animationId = setInterval(function () {
                     sliceId = sliceId == 193 ? 0 : sliceId + 1;
                     larvitar.updateImage(serie, "viewer", sliceId, false);
                     $("#image-time").html(
                       "Image Time Id: " +
-                        larvitar.larvitar_store.state.viewports.viewer.timeId +
+                        larvitar.store.get(["viewports", "viewer", "timeId"]) +
                         " of " +
-                        larvitar.larvitar_store.state.viewports.viewer.maxTimeId
+                        larvitar.store.get(["viewports", "viewer", "maxTimeId"])
                     );
                     $("#timestamp").html(
                       "Image Time: " +
-                        larvitar.larvitar_store.state.viewports.viewer.timestamp
+                        larvitar.store.get(["viewports", "viewer", "timestamp"])
                     );
                   }, 100);
                 } else {
@@ -226,8 +232,17 @@
                 }
               }
             };
-            larvitar.addTool("Slice4DScrollMouseWheel", {configuration: { loop: false,allowSkipping: false,invert: false, framesNumber: 97 }});
-            larvitar.setToolActive("Slice4DScrollMouseWheel");
+            // larvitar.addTool("Slice4DScrollMouseWheel", {
+            //   configuration: {
+            //     loop: false,
+            //     allowSkipping: false,
+            //     invert: false,
+            //     framesNumber: 97
+            //   }
+            // });
+            // larvitar.setToolActive("Slice4DScrollMouseWheel");
+            larvitar.addDefaultTools();
+            larvitar.setToolActive("Wwwc");
           })
           .catch(err => console.log(err));
       }

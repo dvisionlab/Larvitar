@@ -44,10 +44,10 @@
             };
 
             // init all
-            larvitar.initLarvitarStore();
             larvitar.initializeImageLoader();
             larvitar.initializeCSTools();
-            larvitar.larvitar_store.addViewport("viewer");
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
 
             async function createFile(fileName, cb) {
               let response = await fetch("./demo/" + fileName);
@@ -99,7 +99,7 @@
       </div>
     </div>
 
-    <script src="./larvitar.js"></script>
+    <script src="../../dist/larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>
@@ -116,10 +116,10 @@
       };
 
       // init all
-      larvitar.initLarvitarStore();
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
-      larvitar.larvitar_store.addViewport("viewer");
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
@@ -145,6 +145,7 @@
             });
             // optionally cache the series
             larvitar.populateLarvitarManager(seriesId, serie);
+            console.log(larvitar.getLarvitarManager());
             larvitar.cacheImages(serie, function (resp) {
               if (resp.loading == 100) {
                 let cache = larvitar.cornerstone.imageCache;
@@ -158,13 +159,16 @@
             larvitar.addDefaultTools();
             larvitar.setToolActive("Wwwc");
           })
-          .catch(err => console.log(err));
+          .catch(err => console.error(err));
       }
 
       let demoFileList = getDemoFileNames();
       _.each(demoFileList, function (demoFile) {
         createFile(demoFile, renderSerie);
       });
+
+      // Reactively update the UI
+      // larvitar.store.watch(data => console.log(data));
     </script>
   </body>
 </html>

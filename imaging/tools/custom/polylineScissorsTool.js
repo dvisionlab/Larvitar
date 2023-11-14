@@ -15,7 +15,7 @@ import {
   eraseOutsideFreehand,
   eraseInsideFreehand
 } from "../strategies"; // cannot import strategies in other way 🤷
-import polygonSegmentationMixin from "../polygonSegmentationMixin";
+import polygonSegmentationMixin from "./polygonSegmentationMixin";
 
 // Register custom mixin
 cornerstoneTools.register(
