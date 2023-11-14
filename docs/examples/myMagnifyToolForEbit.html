@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
+    <title>Larvitar - Basic rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-8 h-100"
+        style="background-color: black"
+      ></div>
+
+      <div class="col-4 h-100">
+        <pre class="h-100">
+          <code class="javascript" style="background-color: #000000">
+          <p style="font-size:0.6vw;">
+//CUSTOM TOOL 
+const cornerstoneTools = larvitar.cornerstoneTools;
+const MagnifyTool = cornerstoneTools.MagnifyTool;
+
+
+class MyMagnifyTool extends MagnifyTool {
+  constructor(props) {
+    super(props);
+  }
+
+  /**
+   * Overrides the _drawMagnificationTool method to add red borders.
+   * @param {*} evt
+   * @returns {void}
+   */
+  _drawMagnificationTool(evt) {
+    super._drawMagnificationTool(evt); // Call the parent method to draw the magnification tool
+
+    const magnifyCanvas = evt.detail.element.querySelector('.magnifyTool');
+    //console.log(magnifyCanvas);
+    if (magnifyCanvas) {
+      //console.log("you are here");
+      const context = magnifyCanvas.getContext('2d');
+
+      // Add red borders
+      context.strokeStyle = 'red';
+      context.lineWidth = 2;
+      context.strokeRect(0, 0, magnifyCanvas.width, magnifyCanvas.height);
+    }
+  }
+}
+
+//IN HTML WRITE THE FOLLOWING
+            let demoFiles = [];
+            let counter = 0;
+      
+            const getDemoFileNames = function () {
+              let demoFileList = [];
+              for (let i = 1; i less than 25; i++) {
+                let filename = "anon" + i;
+                demoFileList.push(filename);
+              }
+              return demoFileList;
+            };
+      
+            // init all
+            larvitar.initializeImageLoader();
+            larvitar.initializeCSTools();
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
+            larvitar.registerExternalTool("MyMagnifyTool", MyMagnifyTool);
+      
+            async function createFile(fileName, cb) {
+              let response = await fetch("./demo/" + fileName);
+              let data = await response.blob();
+              let file = new File([data], fileName);
+              demoFiles.push(file);
+              counter++;
+              if (counter == 24) {
+                cb();
+              }
+            }
+      
+            function renderSerie() {
+              larvitar.resetLarvitarManager();
+              larvitar
+                .readFiles(demoFiles)
+                .then(seriesStack => {
+                  // render the first series of the study
+                  let seriesId = _.keys(seriesStack)[0];
+                  let serie = seriesStack[seriesId];
+                  larvitar.renderImage(serie, "viewer").then(() => {
+                    console.log("Image has been rendered");
+                  });
+                  // optionally cache the series
+      
+                  larvitar.addTool("MyMagnifyTool");
+                  larvitar.setToolActive("MyMagnifyTool");
+                })
+                .catch(err => console.error(err));
+            }
+      
+            let demoFileList = getDemoFileNames();
+            _.each(demoFileList, function (demoFile) {
+              createFile(demoFile, renderSerie);
+            });
+          </p>
+          </code>
+        </pre>
+      </div>
+    </div>
+
+<script src="../../dist/larvitar.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+<script src="./MyMagnifyTool.js"></script>
+<script>
+    let demoFiles = [];
+      let counter = 0;
+
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+      larvitar.registerExternalTool("MyMagnifyTool", MyMagnifyTool);
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 24) {
+          cb();
+        }
+      }
+
+      function renderSerie() {
+        larvitar.resetLarvitarManager();
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            // render the first series of the study
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            larvitar.renderImage(serie, "viewer").then(() => {
+              console.log("Image has been rendered");
+            });
+            // optionally cache the series
+
+            larvitar.addTool("MyMagnifyTool");
+            larvitar.setToolActive("MyMagnifyTool");
+          })
+          .catch(err => console.error(err));
+      }
+
+      let demoFileList = getDemoFileNames();
+      _.each(demoFileList, function (demoFile) {
+        createFile(demoFile, renderSerie);
+      });
+</script>
+
+</body>
+</html>
