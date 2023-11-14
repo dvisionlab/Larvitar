@@ -17,6 +17,7 @@
       hljs.highlightAll();
     </script>
     <title>Larvitar - Basic rendering example</title>
+    <p style="color:white">Press B or b to remove borders from zoom tool</p>
   </head>
 
   <body class="h-100" style="background-color: #000000">
@@ -32,37 +33,85 @@
           <code class="javascript" style="background-color: #000000">
           <p style="font-size:0.6vw;">
 //CUSTOM TOOL 
+const cornerstone = larvitar.cornerstone;
 const cornerstoneTools = larvitar.cornerstoneTools;
 const MagnifyTool = cornerstoneTools.MagnifyTool;
 
-
 class MyMagnifyTool extends MagnifyTool {
-  constructor(props) {
+  constructor(props = {}) {
     super(props);
+
+    // Additional configuration options
+    this.configuration.showBorders = props.showBorders !== undefined ? props.showBorders : true; // Default to true
+    this.configuration.showInfo = props.showInfo !== undefined ? props.showInfo : true; // Default to true
+    this.configuration.borderColor = props.borderColor || 'green'; // Default border color is green
+
+
+    // Add global keydown event listener
+    window.addEventListener('keydown', this.handleKeyDown.bind(this));
   }
 
   /**
-   * Overrides the _drawMagnificationTool method to add red borders.
+   * Event handler for the "keydown" event to toggle the visibility of borders and info on "B" key press.
+   * @param {KeyboardEvent} event
+   * @returns {void}
+   */
+  handleKeyDown(event) {
+    if (event.key === 'B' || event.key === 'b') {
+      // Toggle the visibility of borders
+      this.configuration.showBorders = !this.configuration.showBorders;
+
+      // Toggle the visibility of zoom/ROI info
+      this.configuration.showInfo = !this.configuration.showInfo;
+
+      // Redraw the magnification tool
+      this._drawMagnificationTool();
+    }
+  }
+
+  /**
+   * Overrides the _drawMagnificationTool method to add configurable borders and display zoom/ROI dimensions.
    * @param {*} evt
    * @returns {void}
    */
   _drawMagnificationTool(evt) {
-    super._drawMagnificationTool(evt); // Call the parent method to draw the magnification tool
+    // Call the parent method to draw the magnification tool
+    super._drawMagnificationTool(evt);
 
-    const magnifyCanvas = evt.detail.element.querySelector('.magnifyTool');
-    //console.log(magnifyCanvas);
+    // Query for the magnify canvas using the correct class name
+    const magnifyCanvas = evt ? evt.detail.element.querySelector('.magnifyTool') : null;
+
     if (magnifyCanvas) {
-      //console.log("you are here");
       const context = magnifyCanvas.getContext('2d');
 
-      // Add red borders
-      context.strokeStyle = 'red';
-      context.lineWidth = 2;
-      context.strokeRect(0, 0, magnifyCanvas.width, magnifyCanvas.height);
+      // Check if the user wants to show borders
+      if (this.configuration.showBorders) {
+        // Add configurable borders
+        context.strokeStyle = this.configuration.borderColor;
+        context.lineWidth = 4;
+        context.strokeRect(0, 0, magnifyCanvas.width, magnifyCanvas.height);
+      }
+
+      // Check if the user wants to show info
+      if (this.configuration.showInfo) {
+        // Get the zoom level
+        const viewport = cornerstone.getViewport(evt.detail.element);
+        const zoomLevel = viewport.scale.toFixed(2); // Adjust the precision as needed
+
+        // Get ROI dimensions
+        const roiWidth = magnifyCanvas.width;
+        const roiHeight = magnifyCanvas.height;
+        const roiArea = (roiWidth * roiHeight).toFixed(2); // Area of the ROI
+
+        // Display the zoom level and ROI dimensions
+        context.fillStyle = this.configuration.borderColor; // Adjust text color as needed
+        context.font = '14px Arial';
+        context.fillText(`Zoom: x${zoomLevel}`, 10, 20);
+        context.fillText(`ROI Area: ${roiWidth} x ${roiHeight} square pixels`, 10, 40);
+      }
     }
   }
 }
-
 //IN HTML WRITE THE FOLLOWING
             let demoFiles = [];
             let counter = 0;
