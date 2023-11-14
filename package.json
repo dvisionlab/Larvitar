@@ -16,8 +16,8 @@
   "scripts": {
     "coverage": "typescript-coverage-report",
     "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json",
-    "build": "webpack --config ./bundler/webpack.prod.js",
-    "dev": "webpack --progress --config ./bundler/webpack.dev.js",
+    "build": "webpack --config ./bundler/webpack.prod.js && cp ./dist/larvitar.js ./docs/examples/larvitar.js",
+    "dev": "webpack --progress --config ./bundler/webpack.dev.js && cp ./dist/larvitar.js ./docs/examples/larvitar.js",
     "dev-wip": "webpack serve --config ./bundler/webpack.dev-wip.js"
   },
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
