@@ -35,6 +35,12 @@ import { parseContours } from "./imaging/imageContours";
 import { parseECG } from "./imaging/parsers/ecg";
 
 import {
+  renderECG,
+  syncECGFrame,
+  updateECGFrame
+} from "./imaging/waveforms/ecg";
+
+import {
   getImagePresets,
   setImagePreset,
   setImageCustomPreset
@@ -253,6 +259,10 @@ export {
   store,
   // parsers
   parseECG,
+  syncECGFrame,
+  updateECGFrame,
+  // waveforms
+  renderECG,
   // imagePresets
   getImagePresets,
   setImagePreset,
