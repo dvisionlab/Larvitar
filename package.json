@@ -6,7 +6,7 @@
     "medical",
     "cornerstone"
   ],
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "typescript library for parsing, loading, rendering and interacting with DICOM images",
   "repository": {
     "url": "https://github.com/dvisionlab/Larvitar.git",
@@ -45,6 +45,7 @@
     "lodash": "^4.17.15",
     "pako": "^1.0.10",
     "papaparse": "^5.3.0",
+    "plotly.js-dist-min": "^2.27.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -54,6 +55,8 @@
     "@types/hammerjs": "^2.0.41",
     "@types/lodash": "^4.14.192",
     "@types/papaparse": "^5.3.7",
+    "@types/plotly.js": "^2.12.30",
+    "@types/plotly.js-dist-min": "^2.3.4",
     "@types/uuid": "^9.0.1",
     "babel-loader": "^9.1.2",
     "clean-webpack-plugin": "^4.0.0",

@@ -331,6 +331,7 @@ const parseFile = function (file: File) {
         let sliceThickness = metadata["x00180050"];
         let numberOfFrames = metadata["x00280008"];
         let isMultiframe = (numberOfFrames as number) > 1 ? true : false;
+        let waveform = metadata["x50003000"] ? true : false;
 
         if (dataSet.warnings.length > 0) {
           // warnings
@@ -391,6 +392,7 @@ const parseFile = function (file: File) {
               imageObject.metadata.contentTime = metadata["x00080033"];
             }
             imageObject.metadata.is4D = is4D;
+            imageObject.metadata.waveform = waveform;
             imageObject.metadata.windowCenter = metadata["x00281050"];
             imageObject.metadata.windowWidth = metadata["x00281051"];
             imageObject.metadata.minPixelValue = metadata["x00280106"];

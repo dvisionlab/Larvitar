@@ -10,6 +10,6 @@ import { DataSet } from "dicom-parser";
  * @param {DataSet} dataSet - the DICOM dataset
  * @param {String} tag - the tag of the ECG signal
  * @param {Number} nSampling - the sampling rate
- * @returns {Array} An array of points representing the ECG signal
+ * @returns {void}
  */
-export declare function parseECG(dataSet: DataSet, tag: string, nSampling: number): number[];
+export declare function parseECG(seriesId: string, dataSet: DataSet, tag: string, nSampling?: number): void;
