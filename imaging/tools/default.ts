@@ -31,7 +31,7 @@ import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
 import PolylineScissorsTool from "./custom/polylineScissorsTool";
 import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
 import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
-import NewMagnifyTool from "./custom/NewMagnifyTool";
+import BorderMagnifyTool from "./custom/BorderMagnifyTool";
 
 import type {
   ToolConfig,
@@ -186,8 +186,8 @@ const DEFAULT_TOOLS: {
     shortcut: "ctrl-z",
     type: "utils"
   },
-  NewMagnify: {
-    name: "NewMagnify",
+  BorderMagnify: {
+    name: "BorderMagnify",
     viewports: "all",
     configuration: {},
     options: {
@@ -195,7 +195,7 @@ const DEFAULT_TOOLS: {
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: false,
-    class: "NewMagnifyTool",
+    class: "BorderMagnifyTool",
     defaultActive: false,
     description: "Magnify image at mouse position",
     shortcut: "ctrl-m",
@@ -469,7 +469,7 @@ const dvTools: {
   // Slice4DScrollMouseWheelTool: Slice4DScrollMouseWheelTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
-  NewMagnifyTool: NewMagnifyTool
+  BorderMagnifyTool: BorderMagnifyTool
 };
 
 /**

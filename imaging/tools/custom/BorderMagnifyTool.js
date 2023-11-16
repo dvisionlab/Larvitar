@@ -3,15 +3,16 @@ import cornerstoneTools from "cornerstone-tools";
 const MagnifyTool = cornerstoneTools.MagnifyTool;
 const drawTextBox = cornerstoneTools.importInternal("drawing/drawTextBox");
 const textStyle = cornerstoneTools.textStyle;
+const toolColors = cornerstoneTools.toolColors;
 
-export default class NewMagnifyTool extends MagnifyTool {
+export default class BorderMagnifyTool extends MagnifyTool {
   constructor(props = {}) {
     super(props);
 
     // Additional configuration options
-    this.configuration.showBorders = props.showBorders !== undefined ? props.showBorders : true; // Default to true
-    this.configuration.showInfo = props.showInfo !== undefined ? props.showInfo : true; // Default to true
-    this.configuration.borderColor = props.borderColor || 'green'; // Default border color is green
+    this.configuration.showBorders = props.showBorders || true; // Default to true
+    this.configuration.showInfo = props.showInfo || true; // Default to true
+    this.configuration.borderColor = props.borderColor ; // Default border color is green
 
 
     // Add global keydown event listener
@@ -53,7 +54,7 @@ export default class NewMagnifyTool extends MagnifyTool {
       // Check if the user wants to show borders
       if (this.configuration.showBorders) {
         // Add configurable borders
-        context.strokeStyle = this.configuration.borderColor;
+        context.strokeStyle = this.configuration.borderColor|| toolColors.getColorIfActive({active: true});
         context.lineWidth = 4;
         context.strokeRect(0, 0, magnifyCanvas.width, magnifyCanvas.height);
       }
@@ -77,7 +78,7 @@ export default class NewMagnifyTool extends MagnifyTool {
         const text = `Zoom: x${zoomLevel}`;
         const str = `ROI: ${roiWidth}px x ${roiHeight}px`;
         const fontHeight = textStyle.getFontSize();
-        const color=this.configuration.borderColor;
+        const color=this.configuration.borderColor|| toolColors.getColorIfActive({active: true});
       // Draw text 5px away from cursor
       const textCoords = {
         x: 5,

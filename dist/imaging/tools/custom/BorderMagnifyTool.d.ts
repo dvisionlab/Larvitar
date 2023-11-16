@@ -1,5 +1,5 @@
-declare const NewMagnifyTool_base: any;
-export default class NewMagnifyTool extends NewMagnifyTool_base {
+declare const BorderMagnifyTool_base: any;
+export default class BorderMagnifyTool extends BorderMagnifyTool_base {
     [x: string]: any;
     constructor(props?: {});
     /**
