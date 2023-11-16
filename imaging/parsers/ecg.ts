@@ -4,6 +4,7 @@
  */
 
 import { DataSet, Element } from "dicom-parser";
+import { getSeriesDataFromLarvitarManager } from "../loaders/commonLoader";
 
 /*
  * This module provides the following functions to be exported:
@@ -17,13 +18,14 @@ import { DataSet, Element } from "dicom-parser";
  * @param {DataSet} dataSet - the DICOM dataset
  * @param {String} tag - the tag of the ECG signal
  * @param {Number} nSampling - the sampling rate
- * @returns {Array} An array of points representing the ECG signal
+ * @returns {void}
  */
 export function parseECG(
+  seriesId: string,
   dataSet: DataSet,
   tag: string,
-  nSampling: number
-): number[] {
+  nSampling: number = 2
+): void {
   const element: Element = dataSet.elements[tag];
   let data: Uint8Array = dataSet.byteArray.slice(
     element.dataOffset,
@@ -47,5 +49,6 @@ export function parseECG(
     let data: number = ((values[nTo] - nMin) / (nMax - nMin)) * 100;
     points.push(data);
   }
-  return points;
+  let series = getSeriesDataFromLarvitarManager(seriesId);
+  series!.ecgData = points;
 }

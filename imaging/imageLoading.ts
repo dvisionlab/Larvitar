@@ -151,6 +151,7 @@ export const updateLoadedStack = function (
   let numberOfTemporalPositions = seriesData.metadata["x00200105"];
   let acquisitionNumberAttribute = seriesData.metadata["x00200012"];
   let is4D = seriesData.metadata.is4D;
+  let waveform = seriesData.metadata.waveform;
   let SOPUID = seriesData.metadata["x00080016"];
   let isPDF = SOPUID == "1.2.840.10008.5.1.4.1.1.104.1" ? true : false;
   let anonymized = seriesData.metadata.anonymized;
@@ -186,6 +187,7 @@ export const updateLoadedStack = function (
       numberOfFrames: numberOfFrames as number,
       numberOfTemporalPositions: numberOfTemporalPositions as number,
       isMultiframe: isMultiframe,
+      waveform: waveform as boolean,
       is4D: is4D as boolean,
       isPDF: isPDF as boolean,
       anonymized: anonymized as boolean,

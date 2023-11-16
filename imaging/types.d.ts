@@ -69,6 +69,9 @@ export type Series = {
   rWaveTimeVector?: number[];
   instanceUIDs: { [key: string]: string };
   is4D: boolean;
+  waveform: boolean;
+  ecgData?: number[];
+  traceData?: Partial<Plotly.PlotData>[];
   isPDF: boolean;
   stagedProtocol?: StagedProtocol;
   modality: string;
