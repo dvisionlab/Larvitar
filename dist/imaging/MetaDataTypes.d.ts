@@ -3485,4 +3485,5 @@ export type MetaDataTypes = {
     x300e0004?: string;
     x300e0005?: string;
     x300e0008?: string;
+    x50003000?: MetaDataTypes[];
 };

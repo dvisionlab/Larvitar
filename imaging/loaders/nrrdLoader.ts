@@ -70,6 +70,7 @@ export type NrrdSeries = {
   bytes: number;
   dataSet?: DataSet;
   metadata?: MetaData;
+  ecgData?: number[];
 };
 
 type NrrdHeader = {

@@ -47,7 +47,7 @@
             larvitar.initializeCSTools();
             larvitar.store.initialize();
             larvitar.store.addViewport("viewer");
-      
+
             function renderSerie() {
               larvitar.readFiles(demoFiles).then(seriesStack => {
                 let seriesId = _.keys(seriesStack)[0];
@@ -56,6 +56,10 @@
                 let manager = larvitar.getLarvitarManager();
                 let multiFrameSerie = manager[seriesId];
                 let frameId = 0;
+                // check if the series has waveform data
+                if (multiFrameSerie.waveform) {
+                  larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
+                }
                 larvitar.renderImage(multiFrameSerie, "viewer", frameId).then(() => {
                   console.log("Image has been rendered");
                   larvitar.addDefaultTools();
@@ -63,14 +67,19 @@
                   let animationId = null;
                   let numberOfFrames = multiFrameSerie.numberOfFrames;
                   let frameTime = multiFrameSerie.frameTime;
+                  // generate trace data and render the ECG
+
                   const trace_data = larvitar.renderECG(
-                    ecgData,
+                    manager[seriesId].ecgData,
                     "ecg",
                     "red",
                     numberOfFrames,
                     frameTime,
                     0
                   );
+                  // save trace data in the manager for futrue use
+                  manager[seriesId].trace_data = trace_data;
+                  // sync the ECG frame with the image frame
                   larvitar.syncECGFrame(
                     trace_data,
                     seriesId,
@@ -78,10 +87,11 @@
                     numberOfFrames,
                     "ecg"
                   );
+
                   let frameRate = multiFrameSerie.frameTime;
                   $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
                   $("#current-frame").html("Current Frame: 1 of " + numberOfFrames);
-      
+
                   document.onkeypress = function (e) {
                     e = e || window.event;
                     if (e.keyCode == 112) {
@@ -118,14 +128,9 @@
                     }
                   };
                 });
-                const ecgData = larvitar.parseECG(
-                  manager[seriesId].dataSet,
-                  "x50003000",
-                  2
-                );
               });
             }
-      
+
             async function createFile(fileName, cb) {
               let response = await fetch("./demo/" + fileName);
               let data = await response.blob();
@@ -170,6 +175,10 @@
           let manager = larvitar.getLarvitarManager();
           let multiFrameSerie = manager[seriesId];
           let frameId = 0;
+          // check if the series has waveform data
+          if (multiFrameSerie.waveform) {
+            larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
+          }
           larvitar.renderImage(multiFrameSerie, "viewer", frameId).then(() => {
             console.log("Image has been rendered");
             larvitar.addDefaultTools();
@@ -177,14 +186,19 @@
             let animationId = null;
             let numberOfFrames = multiFrameSerie.numberOfFrames;
             let frameTime = multiFrameSerie.frameTime;
+            // generate trace data and render the ECG
+
             const trace_data = larvitar.renderECG(
-              ecgData,
+              manager[seriesId].ecgData,
               "ecg",
               "red",
               numberOfFrames,
               frameTime,
               0
             );
+            // save trace data in the manager for futrue use
+            manager[seriesId].trace_data = trace_data;
+            // sync the ECG frame with the image frame
             larvitar.syncECGFrame(
               trace_data,
               seriesId,
@@ -229,17 +243,10 @@
                 } else {
                   clearInterval(animationId);
                   $("#current-frame").html();
-                  const viewport = larvitar.store.get(["viewports", "viewer"]);
-                  console.log(viewport);
                 }
               }
             };
           });
-          const ecgData = larvitar.parseECG(
-            manager[seriesId].dataSet,
-            "x50003000",
-            2
-          );
         });
       }
 
