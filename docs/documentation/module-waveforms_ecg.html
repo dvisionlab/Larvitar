@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>defaults - Larvitar</title>
+    <title>waveforms/ecg - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -44,7 +44,7 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 <div id="main">
     
-    <h1 class="page-title">defaults</h1>
+    <h1 class="page-title">waveforms/ecg</h1>
     
 
     
@@ -56,11 +56,8 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 <header>
     
-        <h2>
         
-            Namespace
-        
-        </h2>
+            
         
     
 </header>
@@ -70,24 +67,27 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
         <div class="container-overview">
         
             
+                <div class="description usertext"><p>This file provides utility functions for<br>
+rendering ecg waveforms using plotly.js</p></div>
+            
 
-
-    
-
-    <h4 class="name" id="defaults">defaults</h4>
-
-    
+            
+                
 
 
 
 
 <dl class="details">
     
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>This file provides utility functions for<br>
+rendering ecg waveforms using plotly.js</p></li></ul></dd>
+    
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line54798">line 54798</a>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line88824">line 88824</a>
     </li></ul></dd>
     
 
@@ -151,6 +151,7 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 
 
+            
         
         </div>
     
@@ -170,43 +171,14 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
     
 
     
+        <h3 class="subsection-title">Methods</h3>
 
-    
-
-    
-</article>
-
-</section>
-
-
-
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        
-            Namespace
-        
-        </h2>
-        
-    
-</header>
-
-<article>
-    
-        <div class="container-overview">
         
             
 
-
     
 
-    <h4 class="name" id="defaults">defaults</h4>
+    <h4 class="name" id="renderECG"><span class="type-signature"></span>renderECG<span class="signature">(data, divId, colorMarker, numberOfframes, frameTime, frameId)</span><span class="type-signature"> &rarr; {Object}</span></h4>
 
     
 
@@ -215,11 +187,14 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 <dl class="details">
     
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Render ECG waveform in a div</p></li></ul></dd>
+    
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line55008">line 55008</a>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line88872">line 88872</a>
     </li></ul></dd>
     
 
@@ -266,6 +241,430 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 
 
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;number></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>ECG waveform data</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>divId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>DivId to render waveform in</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>colorMarker</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Color of the marker</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>numberOfframes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Number of frames in the image</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>frameTime</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Time interval of each frame in the image</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>frameId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>FrameId of the image to be rendered</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>trace_data - Plotly trace data</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="syncECGFrame"><span class="type-signature"></span>syncECGFrame<span class="signature">(trace_data, seriesId, canvasId, numberOfFrames, divId)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Sync ECG waveform with rendered image on click</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line88924">line 88924</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>trace_data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Plotly trace data</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>seriesId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>SeriesId of the image</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>canvasId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>CanvasId of the image</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>numberOfFrames</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Number of frames in the image</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>divId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>DivId to render waveform in</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
 
 
 
@@ -284,7 +683,28 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 
         
-        </div>
+            
+
+    
+
+    <h4 class="name" id="updateECGFrame"><span class="type-signature"></span>updateECGFrame<span class="signature">(trace_data, frameId, numberOfFrames, divId)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Sync ECG waveform with rendered image on click</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line88960">line 88960</a>
+    </li></ul></dd>
     
 
     
@@ -292,15 +712,184 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
     
 
     
-    
-    
-
-     
 
     
 
     
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>trace_data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Plotly trace data</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>frameId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>FrameId of the image</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>numberOfFrames</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Number of frames in the image</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>divId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>DivId to render waveform in</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
     
 
     
