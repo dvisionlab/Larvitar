@@ -9,6 +9,7 @@
 ## Dicom Image Toolkit for CornerstoneJS
 
 ### Current version: 2.0.0
+
 ### Latest Published Release: 2.0.0
 
 This library provides common DICOM functionalities to be used in web-applications: it's wrapper that simplifies the use of cornerstone-js environment.
@@ -107,7 +108,7 @@ Once you are done, upgrade the version (README and package.json) and build the l
 - `tools/custom/setLabelMap3D`
 - `tools/custom/thresholdsBrushTool` is a custom cornerstone tool for handling thresholds in a brush tool
 - `tools/default` default tools map and configuration
-- `tools/interaction` cornerstone interaction tools 
+- `tools/interaction` cornerstone interaction tools
 - `tools/io` import and export functionalities for tools
 - `tools/main` tools main functionalities
 - `tools/state` tools state management
