@@ -47,7 +47,7 @@
             larvitar.initializeCSTools();
             larvitar.store.initialize();
             larvitar.store.addViewport("viewer");
-
+      
             function renderSerie() {
               larvitar.readFiles(demoFiles).then(seriesStack => {
                 let seriesId = _.keys(seriesStack)[0];
@@ -78,11 +78,10 @@
                     numberOfFrames,
                     "ecg"
                   );
-
                   let frameRate = multiFrameSerie.frameTime;
                   $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
                   $("#current-frame").html("Current Frame: 1 of " + numberOfFrames);
-
+      
                   document.onkeypress = function (e) {
                     e = e || window.event;
                     if (e.keyCode == 112) {
@@ -126,7 +125,7 @@
                 );
               });
             }
-
+      
             async function createFile(fileName, cb) {
               let response = await fetch("./demo/" + fileName);
               let data = await response.blob();
@@ -230,6 +229,8 @@
                 } else {
                   clearInterval(animationId);
                   $("#current-frame").html();
+                  const viewport = larvitar.store.get(["viewports", "viewer"]);
+                  console.log(viewport);
                 }
               }
             };
