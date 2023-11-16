@@ -11,10 +11,8 @@ import { Series } from "../types";
 import { NrrdSeries } from "../loaders/nrrdLoader";
 import { updateImage } from "../imageRendering";
 import store from "../imageStore";
-import {
-  getLarvitarManager,
-  getSeriesDataFromLarvitarManager
-} from "../loaders/commonLoader";
+import { getSeriesDataFromLarvitarManager } from "../loaders/commonLoader";
+import { updateStackToolState } from "../imageTools";
 
 /*
  * This module provides the following functions to be exported:
@@ -28,9 +26,10 @@ const LAYOUT: Partial<Plotly.Layout> = {
     rangemode: "tozero",
     showgrid: true,
     gridcolor: "rgba(238,135,51,0.5)",
-    autotick: true,
+    dtick: 1,
     tickwidth: 2,
     tickcolor: "#f5f5f5",
+    tickformat: ".2f",
     tickfont: {
       color: "#f5f5f5"
     }
@@ -75,7 +74,6 @@ export const renderECG = function (
   // convert info using frameTime and numberOfFrames
   const totalTime = (numberOfFrames - 1) * (frameTime * 1e-3);
   const dotX: number = Math.floor((frameId * data.length) / numberOfFrames);
-
   // build the trace data
   const trace: Partial<Plotly.PlotData> = {
     x: data.map((_, i) => (i * totalTime) / data.length),
@@ -105,7 +103,10 @@ export const renderECG = function (
   };
   // render data and update ranges
   const trace_data: Partial<Plotly.PlotData>[] = [trace, marker];
+  // fix the range of the x-axis
   LAYOUT.xaxis!.range = [0, totalTime];
+  // fix the grid of x-axis using a line for each frame
+  LAYOUT.xaxis!.dtick = LAYOUT.xaxis!.dtick = totalTime / (numberOfFrames - 1);
   Plotly.newPlot(divId, trace_data, LAYOUT, {
     responsive: true,
     displayModeBar: false
@@ -142,14 +143,13 @@ export const syncECGFrame = function (
         (trace_data[0].x as number[]).length - 1
       ];
       const frameId: number = Math.floor(
-        ((data.points[0].x as number) * numberOfFrames) / totalTime
+        ((data.points[0].x as number) * numberOfFrames - 1) / totalTime
       );
       const series: Series | NrrdSeries | null =
         getSeriesDataFromLarvitarManager(seriesId);
       if (series) {
         updateImage(series as Series, canvasId, frameId, false);
-        const viewport = store.get(["viewports", canvasId]);
-        console.log(viewport.sliceId);
+        updateStackToolState(canvasId, frameId);
       }
     });
   }
@@ -158,6 +158,7 @@ export const syncECGFrame = function (
   canvasElement.addEventListener("wheel", function (e: WheelEvent) {
     const viewport = store.get(["viewports", canvasId]);
     updateECGFrame(trace_data, viewport.sliceId, numberOfFrames, divId);
+    updateStackToolState(canvasId, viewport.sliceId);
   });
 };
 
