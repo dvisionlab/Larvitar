@@ -134,7 +134,7 @@ type EllipticalRoiStateData = BaseToolStateData & {
     mean: number;
     meanStdDevSUV?: number;
     min: number;
-    stdDev: snumber;
+    stdDev: number;
     variance: number;
   };
   handles: {
