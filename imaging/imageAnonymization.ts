@@ -1,186 +1,135 @@
 /** @module imaging/imageAnonymization
  *  @desc This file provides anonymization functionalities on DICOM images
- * following http://dicom.nema.org/medical/dicom/current/output/html/part15.html#chapter_E
  */
 
-// external libraries
-import sha256 from "crypto-js/sha256";
-import Hex from "crypto-js/enc-hex";
-import { forEach } from "lodash";
-import { Instance, MetaData, Series } from "./types";
-
-const SH = [
-  "x00080050" // Accession Number,
-];
-
-const OPTIONAL = [
-  "x00100030", // Patient's Birth Date
-  "x00080090", // Referring Physician's Name,
-  "x00100020", // Patient ID
-  "x00100040", // Patient's Sex
-  "x00200010" // Study ID
-];
-
-const REMOVE = [
-  "x00080014", // Instance Creator UID
-  "x00080080", // Institution Name
-  "x00080081", // Institution Address
-  "x00080092", // Referring Physician's Address
-  "x00080094", // Referring Physician's Telephone numbers
-  "x00081010", // Station Name
-  "x00081030", // Study Description
-  "x0008103e", // Series Description
-  "x00081040", // Institutional Department name
-  "x00081048", // Physician(s) of Record
-  "x00081050", // Performing Physicians' Name
-  "x00081060", // Name of Physician(s) Reading study
-  "x00081070", // Operator's Name
-  "x00081080", // Admitting Diagnoses Description
-  "x00082111", // Derivation Description
-  "x00100032", // Patient's Birth Time
-  "x00101000", // Other Patient Ids
-  "x00101001", // Other Patient Names
-  "x00101010", // Patient's Age
-  "x00101020", // Patient's Size
-  "x00101030", // Patient's Weight
-  "x00101090", // Medical Record Locator
-  "x00102160", // Ethnic Group
-  "x00102180", // Occupation
-  "x001021b0", // Additional Patient's History
-  "x00104000", // Patient Comments
-  "x00181000", // Device Serial Number
-  "x00181030", // Protocol Name
-  "x00204000", // Image Comments
-  "x00400275" // Request Attributes Sequence
-];
-
-// global vars
-const TAGS = [
-  "x00080014", // Instance Creator UID
-  "x00080050", // Accession Number
-  "x00080080", // Institution Name
-  "x00080081", // Institution Address
-  "x00080090", // Referring Physician's Name
-  "x00080092", // Referring Physician's Address
-  "x00080094", // Referring Physician's Telephone numbers
-  "x00081010", // Station Name
-  "x00081030", // Study Description
-  "x0008103e", // Series Description
-  "x00081040", // Institutional Department name
-  "x00081048", // Physician(s) of Record
-  "x00081050", // Performing Physicians' Name
-  "x00081060", // Name of Physician(s) Reading study
-  "x00081070", // Operator's Name
-  "x00081080", // Admitting Diagnoses Description
-  "x00082111", // Derivation Description
-  "x00100010", // Patient's Name
-  "x00100020", // Patient ID
-  "x00100030", // Patient's Birth Date
-  "x00100032", // Patient's Birth Time
-  "x00100040", // Patient's Sex
-  "x00101000", // Other Patient Ids
-  "x00101001", // Other Patient Names
-  "x00101010", // Patient's Age
-  "x00101020", // Patient's Size
-  "x00101030", // Patient's Weight
-  "x00101090", // Medical Record Locator
-  "x00102160", // Ethnic Group
-  "x00102180", // Occupation
-  "x001021b0", // Additional Patient's History
-  "x00104000", // Patient Comments
-  "x00181000", // Device Serial Number
-  "x00181030", // Protocol Name
-  "x00200010", // Study ID
-  "x00200052", // Frame of Reference UID
-  "x00200200", // Synchronization Frame of Reference UID
-  "x00204000", // Image Comments
-  "x00400275", // Request Attributes Sequence
-  "x0040a124", // UID
-  "x00880140", // Storage Media File-set UID
-  "x30060024", // Referenced Frame of Reference UID
-  "x300600c2" // Related Frame of Reference UID
-];
+// internal libraries
+import { MetaData, Series } from "./types";
 
 /*
  * This module provides the following functions to be exported:
- * anonymize(series)
+ * anonymize(series: Series): Series
  */
 
 /**
- * Anonymize DICOM series' metadata using sha256
+ * Anonymize a series by replacing all metadata with random values
  * @function anonymize
- * @param {Object} series - Cornerstone series object
- * @returns {Object} anonymized_series: Cornerstone anonymized series object
+ * @param {Series} series - series to anonymize
+ * @returns {Series} anonymized series
  */
-export const anonymize = function (series: Series) {
-  forEach(series.instances, function (instance: Instance) {
-    forEach(TAGS, function (tag) {
-      if (tag in instance.metadata) {
-        let tag_meta = tag as keyof MetaData;
-
-        let anonymized_value = sha256(
-          (instance.metadata[tag_meta] || "").toString()
-        ).toString(Hex);
-
-        // Patient Tag Anonymization
-        if (tag_meta === "x00100010") {
-          instance.metadata[tag_meta] =
-            "Anonymized^" + anonymized_value.substring(0, 6);
-        }
-        // Short string
-        else if (tag_meta === "x00080050") {
-          instance.metadata[tag_meta] = anonymized_value.substring(0, 16);
-        }
-        // Required, empty if unknown
-        /*else if (OPTIONAL.includes(tag) === true) {
-          tag_meta = tag as keyof MetaData;
-          instance.metadata[tag_meta] = "";
-        }*/
-        else if (tag_meta === "x00100030") {
-          instance.metadata[tag_meta] = "";
-        } else if (tag_meta === "x00080090") {
-          instance.metadata[tag_meta] = "";
-        } else if (tag_meta === "x00100020") {
-          instance.metadata[tag_meta] = "";
-        } else if (tag_meta === "x00100040") {
-          instance.metadata[tag_meta] = "";
-        } else if (tag_meta === "x00200010") {
-          instance.metadata[tag_meta] = "";
-        }
-        // Optional
-        else if (REMOVE.includes(tag) === true) {
-          //tag_meta = tag as keyof MetaData;
-          delete instance.metadata[tag_meta];
-        }
-        // Default sha256
-        else {
-          tag_meta = tag as keyof MetaData;
-          if (instance.metadata[tag_meta] === "string") {
-            instance.metadata[tag_meta] = anonymized_value as any;
+export const anonymize = function (series: Series): Series {
+  // anonymize series bytearray
+  for (const id in series.imageIds) {
+    const imageId = series.imageIds[id];
+    let image = series.instances[imageId];
+    if (image.dataSet) {
+      for (const tag in image.dataSet.elements) {
+        let element = image.dataSet.elements[tag];
+        let text = "";
+        const vr = element.vr;
+        if (element !== undefined) {
+          let str = image.dataSet.string(tag);
+          if (str !== undefined) {
+            text = str;
           }
-          //TODO-ts: check if this case has to be applied only on strings
-          //or also on numbers and if any type could be correct to force solution
-          //or find another solution
+        }
+        if (vr) {
+          const deIdentifiedValue = makeDeIdentifiedValue(text.length, vr);
+          if (deIdentifiedValue !== undefined) {
+            for (let i: number = 0; i < element.length; i++) {
+              const char =
+                deIdentifiedValue.length > i
+                  ? deIdentifiedValue.charCodeAt(i)
+                  : 32;
+              image.dataSet.byteArray[element.dataOffset + i] = char;
+            }
+            if (tag in image.metadata) {
+              image.metadata[tag as keyof MetaData] = deIdentifiedValue as any;
+            }
+          }
         }
       }
-    });
+      image.metadata.seriesUID = image.metadata["x0020000e"];
+      image.metadata.instanceUID = image.metadata["x00080018"];
+      image.metadata.studyUID = image.metadata["x0020000d"];
+      image.metadata.accessionNumber = image.metadata["x00080050"];
+      image.metadata.studyDescription = image.metadata["x00081030"];
+      image.metadata.patientName = image.metadata["x00100010"] as string;
+      image.metadata.patientBirthdate = image.metadata["x00100030"];
+      image.metadata.seriesDescription = image.metadata["x0008103e"] as string;
+      image.metadata.anonymized = true;
+    } else {
+      console.warn(`No dataset found for image ${imageId}`);
+    }
+  }
 
-    instance.metadata["x00120062"] = "YES"; // Patient Identity Removed Attribute
-    instance.metadata.seriesUID = instance.metadata["x0020000e"];
-    instance.metadata.instanceUID = instance.metadata["x00080018"];
-    instance.metadata.studyUID = instance.metadata["x0020000d"];
-    instance.metadata.accessionNumber = instance.metadata["x00080050"];
-    instance.metadata.studyDescription = instance.metadata["x00081030"];
-    instance.metadata.patientName = instance.metadata["x00100010"] as string;
-    instance.metadata.patientBirthdate = instance.metadata["x00100030"];
-    instance.metadata.seriesDescription = instance.metadata[
-      "x0008103e"
-    ] as string;
-    instance.metadata.anonymized = true;
-  });
-
-  series.seriesDescription = undefined;
+  // update parsed metadata
   series.anonymized = true;
+  series.seriesDescription = series.instances[series.imageIds[0]].metadata[
+    "x0008103e"
+  ] as string;
 
   return series;
+};
+
+// Internal functions
+
+/**
+ * Generate a random string of a given length
+ * @function makeRandomString
+ * @param {number} length - length of the string to generate
+ * @returns {string} random string
+ */
+const makeRandomString = function (length: number): string {
+  let text: string = "";
+  const possible: string =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (let i: number = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+};
+
+/**
+ * Pad a number with 0s to a given size
+ * @function pad
+ * @param {number} num - number to pad
+ * @param {number} size - size of the padded number
+ * @returns {string} padded number
+ */
+const pad = function (num: number, size: number): string {
+  var s: string = num + "";
+  while (s.length < size) s = "0" + s;
+  return s;
+};
+
+/**
+ * Make a de-identified value for a given length and VR
+ * @function makeDeIdentifiedValue
+ * @param {number} length - length of the value to generate
+ * @param {string} vr - VR of the value to generate
+ * @returns {string} de-identified value
+ */
+const makeDeIdentifiedValue = function (
+  length: number,
+  vr: string
+): string | undefined {
+  if (vr === "LO" || vr === "SH" || vr === "PN") {
+    return makeRandomString(length);
+  } else if (vr === "DA") {
+    let oldDate = new Date(1900, 0, 1);
+    return (
+      oldDate.getFullYear() +
+      pad(oldDate.getMonth() + 1, 2) +
+      pad(oldDate.getDate(), 2)
+    );
+  } else if (vr === "TM") {
+    var now = new Date();
+    return (
+      pad(now.getHours(), 2) +
+      pad(now.getMinutes(), 2) +
+      pad(now.getSeconds(), 2)
+    );
+  } else {
+    return undefined;
+  }
 };

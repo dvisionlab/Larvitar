@@ -3,6 +3,7 @@ export type MetaDataReadable = {
     larvitarSeriesInstanceUID?: string;
     seriesUID?: string;
     instanceUID?: string;
+    sopClassUID?: string;
     studyUID?: string;
     accessionNumber?: string;
     studyDescription?: string;
