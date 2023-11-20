@@ -350,6 +350,7 @@ const parseFile = function (file: File) {
             imageObject.metadata = metadata as MetaData;
             imageObject.metadata.anonymized = false;
             imageObject.metadata.larvitarSeriesInstanceUID = uniqueId;
+            imageObject.metadata.sopClassUID = metadata["x00080016"];
             imageObject.metadata.seriesUID = seriesInstanceUID;
             imageObject.metadata.instanceUID = instanceUID;
             imageObject.metadata.studyUID = metadata["x0020000d"];

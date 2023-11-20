@@ -1,12 +1,11 @@
 /** @module imaging/imageAnonymization
  *  @desc This file provides anonymization functionalities on DICOM images
- * following http://dicom.nema.org/medical/dicom/current/output/html/part15.html#chapter_E
  */
 import { Series } from "./types";
 /**
- * Anonymize DICOM series' metadata using sha256
+ * Anonymize a series by replacing all metadata with random values
  * @function anonymize
- * @param {Object} series - Cornerstone series object
- * @returns {Object} anonymized_series: Cornerstone anonymized series object
+ * @param {Series} series - series to anonymize
+ * @returns {Series} anonymized series
  */
 export declare const anonymize: (series: Series) => Series;
