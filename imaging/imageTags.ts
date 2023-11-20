@@ -283,8 +283,8 @@ export function parseTag<T>(
   element: Element // TODO-ts better type @szanchi
 ) {
   // GET VR
-  var tagData = dataSet.elements[propertyName] || {};
-  var vr = tagData.vr;
+  var tagData = dataSet.elements[propertyName];
+  var vr = tagData?.vr;
   if (!vr) {
     // use dicom dict to get VR
     var tag = getDICOMTag(propertyName);

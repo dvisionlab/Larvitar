@@ -3,6 +3,7 @@
  */
 
 // internal libraries
+import { MetaDataTypes } from "./MetaDataTypes";
 import { MetaData, Series } from "./types";
 
 /*
@@ -42,9 +43,8 @@ export const anonymize = function (series: Series): Series {
                   : 32;
               image.dataSet.byteArray[element.dataOffset + i] = char;
             }
-            if (tag in image.metadata) {
-              image.metadata[tag as keyof MetaData] = deIdentifiedValue as any;
-            }
+            // @ts-ignore always string
+            image.metadata[tag] = deIdentifiedValue;
           }
         }
       }
