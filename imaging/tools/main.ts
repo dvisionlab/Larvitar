@@ -138,11 +138,14 @@ const addTool = function (
   targetElementId?: string
 ) {
   // extend defaults with user custom props
-  let defaultConfig = DEFAULT_TOOLS[toolName];
+  let defaultConfig: ToolConfig | {} = DEFAULT_TOOLS[toolName]
+    ? DEFAULT_TOOLS[toolName]
+    : {};
   extend(defaultConfig, customConfig);
 
   if (isToolMissing(toolName)) {
-    const toolClassName = defaultConfig.class;
+    const toolClassName: string | undefined =
+      "class" in defaultConfig ? defaultConfig.class : undefined;
 
     if (!toolClassName) {
       throw new Error(
