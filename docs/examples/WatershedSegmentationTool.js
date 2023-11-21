@@ -76,9 +76,9 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
         modality,
         pixelSpacing
       );
-    const lowerThreshold=stats.mean-stats.stdDev;
-    console.log(lowerThreshold);
-    const upperThreshold=stats.mean+stats.stdDev;
+      const XFactor=0.2;
+      const lowerThreshold = stats.mean - XFactor* stats.stdDev;
+      const upperThreshold = stats.mean + XFactor * stats.stdDev;
     let {src, imgElement}=await this.ConvertToPng(canvas);
     console.log(imgElement);//png image 
     this.WatershedSegmentation(src, lowerThreshold, upperThreshold)
@@ -115,14 +115,14 @@ let unknown = new cv.Mat();
 let markers = new cv.Mat();
 // gray and threshold image
 cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-//cv.threshold(gray, gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU);
+cv.threshold(gray, gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU);
 //TRESHOLD IN A CERTAIN RANGE (lowerThreshold, upperThreshold)
 let binary = new cv.Mat();
 console.log(binary);
 let lowerThresholdMat = new cv.Mat.ones(src.rows, src.cols, cv.CV_8U);
 lowerThresholdMat.setTo(new cv.Scalar(lowerThreshold));
 let upperThresholdMat = new cv.Mat.ones(src.rows, src.cols, cv.CV_8U);
-lowerThresholdMat.setTo(new cv.Scalar(upperThreshold));
+upperThresholdMat.setTo(new cv.Scalar(upperThreshold));
 cv.inRange(gray, lowerThresholdMat, upperThresholdMat, binary);
 
 // get background
@@ -151,14 +151,14 @@ cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
 cv.watershed(src, markers);
 // draw barriers
 const matrix = (rows, cols) => new Array(cols).fill(0).map((o, i) => new Array(rows).fill(0))
-let mask=matrix(markers.rows,markers.cols);
+//let mask=matrix(markers.rows,markers.cols);
 let mask_array=[];
 for (let i = 0; i < markers.rows; i++) {
     for (let j = 0; j < markers.cols; j++) {
-                mask[i][j]=0;
+                //mask[i][j]=0;
                 mask_array.push(0);
         if (markers.intPtr(i, j)[0] == -1) {
-                mask[i][j]=1;
+                //mask[i][j]=1;
                 mask_array.push(1);
                 src.ucharPtr(i, j)[0] = 255; // R
                 src.ucharPtr(i, j)[1] = 0; // G
