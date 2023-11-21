@@ -1,5 +1,4 @@
-import cornerstoneTools from "cornerstone-tools";
-
+const cornerstoneTools = larvitar.cornerstoneTools;
 const external = cornerstoneTools.external;
 const BaseAnnotationTool = cornerstoneTools.importInternal("base/BaseAnnotationTool");
 // State
@@ -32,7 +31,7 @@ const logger = getLogger("tools:annotation:RectangleRoiTool");
  * the statistics of the enclosed pixels.
  * @extends Tools.Base.BaseAnnotationTool
  */
-export default class WatershedSegmentationTool extends BaseAnnotationTool {
+class WatershedSegmentationTool extends BaseAnnotationTool {
   constructor(props = {}) {
     const defaultProps = {
       name: "WatershedSegmentation",
@@ -50,10 +49,10 @@ export default class WatershedSegmentationTool extends BaseAnnotationTool {
 
     super(props, defaultProps);
     this.handleMouseUp = this.handleMouseUp.bind(this);
-    this.mean
-    this.StdDev
     this.Mask_Array=[];
     this.eventData
+    this.datahandles
+    this.data
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
  
@@ -63,9 +62,28 @@ export default class WatershedSegmentationTool extends BaseAnnotationTool {
     const eventData = this.eventData;
     const DICOMimage=eventData.image;
     const canvas = eventData.canvasContext.canvas;
-    const lowerThreshold=this.mean-this.stdDev;
-    const upperThreshold=this.mean+this.stdDev;
-    this.ConvertToPng(canvas).then((imagePng)=>(this.WatershedSegmentation(imagePng,lowerThreshold,upperThreshold)).then(this.MultiplyMaskImage(DICOMimage,this.Mask_Array)));
+    const seriesModule =
+        external.cornerstone.metaData.get(
+          "generalSeriesModule",
+          DICOMimage.imageId
+        ) || {};
+      const modality = seriesModule.modality;
+      const pixelSpacing = getPixelSpacing(DICOMimage);
+    const stats = _calculateStats(
+        DICOMimage,
+        eventData.element,
+        this.datahandles,
+        modality,
+        pixelSpacing
+      );
+    const lowerThreshold=stats.mean-stats.stdDev;
+    console.log(lowerThreshold);
+    const upperThreshold=stats.mean+stats.stdDev;
+    let imagePng=this.ConvertToPng(canvas);
+    console.log(imagePng);
+
+    this.WatershedSegmentation(imagePng, lowerThreshold, upperThreshold)
+    this.MultiplyMaskImage(DICOMimage,this.Mask_Array);
   }
 
   ConvertToPng(canvas){
@@ -77,10 +95,13 @@ export default class WatershedSegmentationTool extends BaseAnnotationTool {
   }
 
 WatershedSegmentation(imgElement,lowerThreshold,upperThreshold){
+imgElement.width=300;
+imgElement.height=200;
 console.log(cv);
 console.log("you are here");
 console.log(imgElement);
 let src = cv.imread(imgElement);
+console.log(src);
 //cv.inRange(imgElement, lowerThreshold, upperThreshold, binary);
 console.log(src);
 //cv.imshow('canvasInput', src);
@@ -94,10 +115,15 @@ let unknown = new cv.Mat();
 let markers = new cv.Mat();
 // gray and threshold image
 cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-
+//cv.threshold(gray, gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU);
 //TRESHOLD IN A CERTAIN RANGE (lowerThreshold, upperThreshold)
 let binary = new cv.Mat();
-cv.inRange(gray, lowerThreshold, upperThreshold, binary);
+console.log(binary);
+let lowerThresholdMat = new cv.Mat.ones(src.rows, src.cols, cv.CV_8U);
+lowerThresholdMat.setTo(new cv.Scalar(lowerThreshold));
+let upperThresholdMat = new cv.Mat.ones(src.rows, src.cols, cv.CV_8U);
+lowerThresholdMat.setTo(new cv.Scalar(upperThreshold));
+cv.inRange(gray, lowerThresholdMat, upperThresholdMat, binary);
 
 // get background
 let M = cv.Mat.ones(3, 3, cv.CV_8U);
@@ -266,13 +292,13 @@ this.Mask_Array=mask_array;
 
   renderToolData(evt) {
     const toolData = getToolState(evt.currentTarget, this.name);
-    element.addEventListener('mouseup', this.handleMouseUp);
+    
     if (!toolData) {
       return;
     }
-
     const eventData = evt.detail;
     const { image, element } = eventData;
+    element.addEventListener('mouseup', this.handleMouseUp);
     this.eventData=eventData;
     const lineWidth = toolStyle.getToolWidth();
     const lineDash = getModule("globalConfiguration").configuration.lineDash;
@@ -333,6 +359,8 @@ this.Mask_Array=mask_array;
 
         if (this.configuration.drawHandles) {
           drawHandles(context, eventData, data.handles, handleOptions);
+          this.datahandles=data.handles;
+          this.data=data;
         }
 
         if (data.computeMeasurements) {
@@ -443,8 +471,8 @@ function _calculateStats(image, element, handles, modality, pixelSpacing) {
       stdDev: calculateSUV(image, roiMeanStdDev.stdDev, true) || 0
     };
   }
-this.mean=mean;
-this.StdDev=stdDev;
+console.log(roiMeanStdDev.mean)
+console.log(roiMeanStdDev.stdDev)
   // Calculate the image area from the rectangle dimensions and pixel spacing
   const area =
     roiCoordinates.width *
