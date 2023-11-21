@@ -3,6 +3,10 @@
  *         tools input/output
  */
 
+// deprecated file, to be removed
+// TODO-ts remove this file @mronzoni
+// @ts-nocheck
+
 // external libraries
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
