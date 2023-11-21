@@ -53,9 +53,10 @@ export default class WatershedSegmentationTool extends BaseAnnotationTool {
     this.mean
     this.StdDev
     this.Mask_Array=[];
+    this.eventData
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
-
+ 
   handleMouseUp= (event) => {
     console.log("stop");
     this.measuring = false;
@@ -64,7 +65,7 @@ export default class WatershedSegmentationTool extends BaseAnnotationTool {
     const canvas = eventData.canvasContext.canvas;
     const lowerThreshold=this.mean-this.stdDev;
     const upperThreshold=this.mean+this.stdDev;
-    this.ConvertToPng(canvas).then((imgPng)=>(this.WatershedSegmentation(imagePng,lowerThreshold,upperThreshold)).then(this.MultiplyMaskImage(DICOMimage,this.Mask_Array)));
+    this.ConvertToPng(canvas).then((imagePng)=>(this.WatershedSegmentation(imagePng,lowerThreshold,upperThreshold)).then(this.MultiplyMaskImage(DICOMimage,this.Mask_Array)));
   }
 
   ConvertToPng(canvas){
@@ -272,6 +273,7 @@ this.Mask_Array=mask_array;
 
     const eventData = evt.detail;
     const { image, element } = eventData;
+    this.eventData=eventData;
     const lineWidth = toolStyle.getToolWidth();
     const lineDash = getModule("globalConfiguration").configuration.lineDash;
     const {
