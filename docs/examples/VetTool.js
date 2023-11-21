@@ -323,10 +323,11 @@ this.eventData=eventData;
 
   }
 
-
-
   getPointsAlongLine(startHandle, endHandle,colPixelSpacing) {
     const points = [];
+    
+    if(endHandle.x>startHandle.x)
+    {
     const numPoints = (Math.floor(endHandle.x) - Math.floor(startHandle.x));
     let x = Math.floor(startHandle.x) + 1;
     points.push(x*colPixelSpacing);
@@ -334,6 +335,17 @@ this.eventData=eventData;
       x = x + 1;
       points.push(x*colPixelSpacing); //from pixels to mm
     }
+  }
+  if (endHandle.x<startHandle.x)
+  {
+    const numPoints = (Math.floor(startHandle.x) - Math.floor(endHandle.x));
+    let x = Math.floor(endHandle.x) + 1;
+    points.push(x*colPixelSpacing);
+    for (let i = 0; i < numPoints; i++) {
+      x = x + 1;
+      points.push(x*colPixelSpacing); //from pixels to mm
+    }
+  }
     return points;
   }
 
@@ -362,18 +374,20 @@ this.eventData=eventData;
   createPlot(points,pixelValues){
     console.log("plot")
     const xValues = points
-    const firstpixel=xValues[0];
-    console.log(firstpixel);
-    
-    const lastpixel=xValues[xValues.length-1];
-    console.log(lastpixel)
-    const yValues = pixelValues;
+    console.log(xValues)
+
+    const firstpixel = Math.min(...xValues);
+console.log(firstpixel);
+
+const lastpixel = Math.max(...xValues);
+console.log(lastpixel);
+    const yValues =  pixelValues;//pixelValues;
     const minGV=Math.min.apply(null, yValues);
     const maxGV= Math.max.apply(null, yValues);
     const data = [{
       x: xValues,
       y: yValues,
-      mode:"lines",
+      mode:"scatter",
       line: {
         color: this.color,
       },
@@ -384,7 +398,9 @@ this.eventData=eventData;
       xaxis: {range: [firstpixel, lastpixel], title: "position (mm)"},
       yaxis: {range: [minGV, maxGV], title: "GreyScaleValue (HU)"},  
       title: "GreyScaleValues vs position",
-      responsive: true
+      responsive: true,
+      type : 'log'
+      //plot_bgcolor : "black"
     };
     
     // Display using Plotly
