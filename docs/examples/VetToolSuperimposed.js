@@ -47,8 +47,10 @@ class VetTool extends BaseAnnotationTool {
     super(props, defaultProps);
     this.eventData;
     this.datahandles;
-    this.color;
     this.measuring = false; // New variable to track measurement state
+    this.color;
+    this.plotlydata=[];
+    this.measures=0;
     this.handleMouseUp = this.handleMouseUp.bind(this);
     // Add event listeners to start and stop measurements
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
@@ -61,7 +63,7 @@ class VetTool extends BaseAnnotationTool {
     }
     return color;
   }
-  
+
   handleMouseUp= (event) => {
     console.log("stop");
     this.measuring = false;
@@ -84,6 +86,7 @@ class VetTool extends BaseAnnotationTool {
   }
 
   createNewMeasurement(eventData) {
+    this.measures=this.measures+1;
 this.eventData=eventData;
     console.log("start");
     this.measuring = true;
@@ -100,7 +103,7 @@ this.eventData=eventData;
     let color=this.getRandomColor();
     this.color=color;
     const { x, y } = eventData.currentPoints.image;
-
+  
     return {
       visible: true,
       active: true,
@@ -359,41 +362,44 @@ this.eventData=eventData;
   
     return pixelValues;
   }
-  createPlot(points,pixelValues){
-    console.log("plot")
-    const xValues = points
-    const firstpixel=xValues[0];
-    console.log(firstpixel);
-    
-    const lastpixel=xValues[xValues.length-1];
-    console.log(lastpixel)
-    const yValues = pixelValues;
-    const minGV=Math.min.apply(null, yValues);
-    const maxGV= Math.max.apply(null, yValues);
-    const data = [{
-      x: xValues,
-      y: yValues,
-      mode:"lines",
+  createPlot(points, pixelValues) {
+    console.log("plot");
+  
+    // Create a new trace for each measurement
+    const trace = {
+      x: points,
+      y: pixelValues,
+      type: "lines",
       line: {
         color: this.color,
       },
-    }];
-    
-    // Define Layout
-    const layout = {
-      xaxis: {range: [firstpixel, lastpixel], title: "position (mm)"},
-      yaxis: {range: [minGV, maxGV], title: "GreyScaleValue (HU)"},  
-      title: "GreyScaleValues vs position",
-      responsive: true
     };
-    
+  
+    // Add the trace to the existing data array
+    this.plotlydata.push(trace);
+  
+    // Combine all traces into a single data array
+    const data = [...this.plotlydata];
+  
+    // Adjust the axis range based on all data
+    const allXValues = data.flatMap((trace) => trace.x);
+    const allYValues = data.flatMap((trace) => trace.y);
+  
+    const layout = {
+      xaxis: { range: [Math.min(...allXValues), Math.max(...allXValues)], title: "position (mm)" },
+      yaxis: { range: [Math.min(...allYValues), Math.max(...allYValues)], title: "GreyScaleValue (HU)" },
+      title: "GreyScaleValues vs position",
+      responsive: true,
+    };
+  
     // Display using Plotly
     const myPlotDiv = document.getElementById('myPlot');
     Plotly.newPlot(myPlotDiv, data, layout);
+  
     console.log("Data:", data);
     console.log("Layout:", layout);
     console.log(myPlotDiv);
-}
+  }
 }
 
 /**
