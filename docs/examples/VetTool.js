@@ -370,7 +370,7 @@ this.eventData=eventData;
     const layout = {
       xaxis: {range: [firstpixel, lastpixel], title: "position (mm)"},
       yaxis: {range: [minGV, maxGV], title: "GreyScaleValue (HU)"},  
-      title: "House Prices vs. Size",
+      title: "GreyScaleValues vs position",
       responsive: true
     };
     
