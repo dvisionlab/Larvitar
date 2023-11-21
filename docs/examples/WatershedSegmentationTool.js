@@ -56,7 +56,7 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
  
-  handleMouseUp= (event) => {
+  handleMouseUp= async (event) => {
     console.log("stop");
     this.measuring = false;
     const eventData = this.eventData;
@@ -79,31 +79,31 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
     const lowerThreshold=stats.mean-stats.stdDev;
     console.log(lowerThreshold);
     const upperThreshold=stats.mean+stats.stdDev;
-    let imagePng=this.ConvertToPng(canvas);
-    console.log(imagePng);
-
-    this.WatershedSegmentation(imagePng, lowerThreshold, upperThreshold)
+    let {src, imgElement}=await this.ConvertToPng(canvas);
+    console.log(imgElement);//png image 
+    this.WatershedSegmentation(src, lowerThreshold, upperThreshold)
     this.MultiplyMaskImage(DICOMimage,this.Mask_Array);
   }
-
-  ConvertToPng(canvas){
-    const pngDataUrl = canvas.toDataURL('image/png');
-    const url= pngDataUrl;
-    let imgElement = document.getElementById("imageSrc");
-    imgElement.src=url;
-    return imgElement;
+  ConvertToPng(canvas) {
+    return new Promise((resolve) => {
+      const pngDataUrl = canvas.toDataURL('image/png');
+      const imgElement = document.createElement('img');
+      imgElement.src = pngDataUrl;
+  
+      imgElement.onload = function () {
+        const src = cv.imread(imgElement);
+        resolve({ src, imgElement });
+      };
+    });
   }
-
-WatershedSegmentation(imgElement,lowerThreshold,upperThreshold){
-imgElement.width=300;
-imgElement.height=200;
+WatershedSegmentation(src,imgElement,lowerThreshold,upperThreshold){
+//imgElement.width=300;
+//imgElement.height=200;
 console.log(cv);
 console.log("you are here");
 console.log(imgElement);
-let src = cv.imread(imgElement);
 console.log(src);
 //cv.inRange(imgElement, lowerThreshold, upperThreshold, binary);
-console.log(src);
 //cv.imshow('canvasInput', src);
 let dst = new cv.Mat();
 let gray = new cv.Mat();
