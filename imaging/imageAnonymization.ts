@@ -3,8 +3,7 @@
  */
 
 // internal libraries
-import { MetaDataTypes } from "./MetaDataTypes";
-import { MetaData, Series } from "./types";
+import { Series } from "./types";
 
 /*
  * This module provides the following functions to be exported:

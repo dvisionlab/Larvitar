@@ -7,8 +7,7 @@
 import Plotly, { Datum } from "plotly.js-dist-min";
 
 // internal libraries
-import { Series } from "../types";
-import { NrrdSeries } from "../loaders/nrrdLoader";
+import { NrrdSeries, Series } from "../types";
 import { updateImage } from "../imageRendering";
 import store from "../imageStore";
 import { getSeriesDataFromLarvitarManager } from "../loaders/commonLoader";

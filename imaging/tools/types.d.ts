@@ -58,7 +58,7 @@ export type ToolMouseKeys = {
   };
 };
 
-type HanldePosition = {
+type HandlePosition = {
   active: boolean;
   allowedOutsideImage?: boolean;
   drawnIndependently?: boolean;
@@ -94,9 +94,9 @@ type BaseToolStateData = {
 
 type AngleStateData = BaseToolStateData & {
   handles: {
-    end: HanldePosition;
-    middle: HanldePosition;
-    start: HanldePosition;
+    end: HandlePosition;
+    middle: HandlePosition;
+    start: HandlePosition;
     textBox: HandleTextBox;
   };
   rAngle: number;
@@ -104,8 +104,8 @@ type AngleStateData = BaseToolStateData & {
 
 type ArrowAnnotateStateData = BaseToolStateData & {
   handles: {
-    end: HanldePosition;
-    start: HanldePosition;
+    end: HandlePosition;
+    start: HandlePosition;
     textBox: HandleTextBox;
   };
   text: string;
@@ -113,10 +113,10 @@ type ArrowAnnotateStateData = BaseToolStateData & {
 
 type BidirectionalStateData = BaseToolStateData & {
   handles: {
-    end: HanldePosition;
-    perpendicularEnd: HanldePosition;
-    perpendicularStart: HanldePosition;
-    start: HanldePosition;
+    end: HandlePosition;
+    perpendicularEnd: HandlePosition;
+    perpendicularStart: HandlePosition;
+    start: HandlePosition;
     textBox: HandleTextBox;
   };
   isCreating: boolean;
@@ -138,20 +138,20 @@ type EllipticalRoiStateData = BaseToolStateData & {
     variance: number;
   };
   handles: {
-    end: HanldePosition;
+    end: HandlePosition;
     initialRotation: number;
-    start: HanldePosition;
+    start: HandlePosition;
     textBox: HandleTextBox;
   };
   unit: string;
 };
 
-type FreehandRoiStateData = ToolStateData & {
+type FreehandRoiStateData = BaseToolStateData & {
   area: number;
   canComplete: boolean;
   handles: {
-    points: FreehandHandleData[];
-    textBox: any;
+    points: number[];
+    textBox: HandleTextBox;
     invalidHandlePlacement: boolean;
   };
   highlight: boolean;
@@ -163,8 +163,8 @@ type FreehandRoiStateData = ToolStateData & {
 
 type LengthStateData = BaseToolStateData & {
   handles: {
-    end: HanldePosition;
-    start: HanldePosition;
+    end: HandlePosition;
+    start: HandlePosition;
     textBox: HandleTextBox;
   };
   length: number;
@@ -186,9 +186,9 @@ type RectangleRoiStateData = BaseToolStateData & {
     variance: number;
   };
   handles: {
-    end: HanldePosition;
+    end: HandlePosition;
     initialRotation: number;
-    start: HanldePosition;
+    start: HandlePosition;
     textBox: HandleTextBox;
   };
   unit: string;

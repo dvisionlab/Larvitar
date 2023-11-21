@@ -1,7 +1,5 @@
 import { vec2 } from "cornerstone-core";
 import { DataSet } from "dicom-parser";
-import { DEFAULT_VIEWPORT } from "./imageStore";
-import { NrrdSeries } from "./loaders/nrrdLoader";
 import { MetaDataTypes } from "./MetaDataTypes";
 import { MetaDataReadable } from "./MetaDataReadable";
 
@@ -15,6 +13,68 @@ import { MetaDataReadable } from "./MetaDataReadable";
   | null
   | Array
   | undefined; // null or undefined is only for nrrd*/
+
+export type DEFAULT_VIEWPORT = {
+  loading: number;
+  ready: boolean;
+  minSliceId: number;
+  maxSliceId: number;
+  sliceId: number;
+  pendingSliceId?: number;
+  minTimeId: number;
+  maxTimeId: number;
+  timeId: number;
+  timestamp: number;
+  timestamps: number[];
+  timeIds: number[];
+  rows: number;
+  cols: number;
+  spacing_x: number;
+  spacing_y: number;
+  thickness: number;
+  minPixelValue: number;
+  maxPixelValue: number;
+  isColor: boolean;
+  isMultiframe: boolean;
+  isTimeserie: boolean;
+  isPDF: boolean;
+  imageIndex?: number;
+  imageId?: string;
+  numberOfSlices?: number;
+  numberOfTemporalPositions?: number;
+  timeIndex?: number;
+  viewport: {
+    scale: number;
+    rotation: number;
+    translation: {
+      x: number;
+      y: number;
+    };
+    voi: {
+      windowCenter: number;
+      windowWidth: number;
+    };
+    // redundant fields ?
+    rows: number;
+    cols: number;
+    spacing_x: number;
+    spacing_y: number;
+    thickness: number;
+  };
+  default: {
+    scale: number;
+    rotation: number;
+    translation: {
+      x: number;
+      y: number;
+    };
+    voi: {
+      windowCenter: number;
+      windowWidth: number;
+      invert: boolean;
+    };
+  };
+};
 
 export type MetaData = MetaDataTypes & MetaDataReadable;
 export interface Image extends cornerstone.Image {
@@ -197,4 +257,52 @@ type StoreViewportOptions = {
   colormap?: string;
   tr_x?: number;
   tr_y?: number;
+};
+
+export type NrrdInputVolume = {
+  header: {
+    sizes: number[];
+    "space directions": number[][]; // a property with a space in the name ?? Seriously ??
+    "space origin": [number, number];
+    kinds: string[];
+    type: string;
+  };
+  data: Uint16Array; // TODO-ts: other typed arrays ?
+};
+
+export type NrrdSeries = {
+  currentImageIdIndex: number;
+  imageIds: string[];
+  instances: { [key: string]: Instance };
+  instanceUIDs: { [key: string]: string };
+  numberOfImages: number;
+  seriesDescription: string;
+  seriesUID: string;
+  customLoader: string;
+  nrrdHeader: NrrdHeader;
+  bytes: number;
+  dataSet?: DataSet;
+  metadata?: MetaData;
+  ecgData?: number[];
+};
+
+export type NrrdHeader = {
+  volume: Volume;
+  intercept: number;
+  slope: number;
+  repr: string;
+  phase: string;
+  study_description: string;
+  series_description: string;
+  acquisition_date: string;
+  [imageId: string]: string | number | Volume | NrrdInstance; // TODO-ts: fix this: we need just NrrdInstance
+};
+
+export type NrrdInstance = {
+  instanceUID: string;
+  seriesDescription: string;
+  seriesModality: string;
+  patientName: string;
+  bitsAllocated: number;
+  pixelRepresentation: string;
 };

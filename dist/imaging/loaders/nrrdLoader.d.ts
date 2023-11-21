@@ -3,56 +3,7 @@
  *        custom NRRD Loader
  */
 import { ImageLoader } from "cornerstone-core";
-import type { Instance, Volume, MetaData } from "../types";
-import { DataSet } from "dicom-parser";
-type NrrdInputVolume = {
-    header: {
-        sizes: number[];
-        "space directions": number[][];
-        "space origin": [number, number];
-        kinds: string[];
-        type: string;
-    };
-    data: Uint16Array;
-};
-export type NrrdSeries = {
-    currentImageIdIndex: number;
-    imageIds: string[];
-    instances: {
-        [key: string]: Instance;
-    };
-    instanceUIDs: {
-        [key: string]: string;
-    };
-    numberOfImages: number;
-    seriesDescription: string;
-    seriesUID: string;
-    customLoader: string;
-    nrrdHeader: NrrdHeader;
-    bytes: number;
-    dataSet?: DataSet;
-    metadata?: MetaData;
-    ecgData?: number[];
-};
-type NrrdHeader = {
-    volume: Volume;
-    intercept: number;
-    slope: number;
-    repr: string;
-    phase: string;
-    study_description: string;
-    series_description: string;
-    acquisition_date: string;
-    [imageId: string]: string | number | Volume | NrrdInstance;
-};
-type NrrdInstance = {
-    instanceUID: string;
-    seriesDescription: string;
-    seriesModality: string;
-    patientName: string;
-    bitsAllocated: number;
-    pixelRepresentation: string;
-};
+import type { NrrdHeader, NrrdInputVolume, NrrdSeries } from "../types";
 /**
  * Build the data structure for the provided image orientation
  * @instance
@@ -110,4 +61,3 @@ export declare const getNrrdSerieDimensions: () => {
     coronal: number[];
     sagittal: number[];
 };
-export {};
