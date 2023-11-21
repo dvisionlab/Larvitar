@@ -146,11 +146,11 @@ type EllipticalRoiStateData = BaseToolStateData & {
   unit: string;
 };
 
-type FreehandRoiStateData = ToolStateData & {
+type FreehandRoiStateData = FreehandRoiStateData & {
   area: number;
   canComplete: boolean;
   handles: {
-    points: FreehandHandleData[];
+    points: number[];
     textBox: any;
     invalidHandlePlacement: boolean;
   };
