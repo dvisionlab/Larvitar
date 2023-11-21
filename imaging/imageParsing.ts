@@ -12,10 +12,9 @@ import { getPixelRepresentation, randomId } from "./imageUtils";
 import { parseTag } from "./imageTags";
 import { updateLoadedStack } from "./imageLoading";
 import { checkMemoryAllocation } from "./monitors/memory";
-import { ImageObject, Instance, MetaData, Series } from "./types";
+import { ImageObject, Instance, MetaData, NrrdSeries, Series } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
 import type { MetaDataTypes } from "./MetaDataTypes";
-import { NrrdSeries } from "./loaders/nrrdLoader";
 
 // global module variables
 var t0: number; // t0 variable for timing debugging purpose

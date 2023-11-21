@@ -113,6 +113,11 @@ export const DEFAULT_VIEWPORT: {
   isMultiframe: boolean;
   isTimeserie: boolean;
   isPDF: boolean;
+  imageIndex?: number;
+  imageId?: string;
+  numberOfSlices?: number;
+  numberOfTemporalPositions?: number;
+  timeIndex?: number;
   viewport: {
     scale: number;
     rotation: number;

@@ -984,13 +984,7 @@ const getSeriesData = function (
   type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;
   };
-  type SeriesData = StoreViewport & {
-    imageIndex: number;
-    imageId: string;
-    numberOfSlices: number;
-    numberOfTemporalPositions: number;
-    timeIndex?: number;
-  };
+  type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
 
   if (series.isMultiframe) {

@@ -29,9 +29,12 @@ import type {
   LarvitarManager,
   ImageFrame,
   ImageTracker,
-  MetaData
+  MetaData,
+  NrrdHeader,
+  NrrdInputVolume,
+  NrrdInstance,
+  NrrdSeries
 } from "../types";
-import { DataSet } from "dicom-parser";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -45,54 +48,6 @@ let customImageLoaderCounter = 0;
  * getSliceNumberFromImageId(imageId, orientation)
  * getNrrdSerieDimensions()
  */
-
-type NrrdInputVolume = {
-  header: {
-    sizes: number[];
-    "space directions": number[][]; // a property with a space in the name ?? Seriously ??
-    "space origin": [number, number];
-    kinds: string[];
-    type: string;
-  };
-  data: Uint16Array; // TODO-ts: other typed arrays ?
-};
-
-export type NrrdSeries = {
-  currentImageIdIndex: number;
-  imageIds: string[];
-  instances: { [key: string]: Instance };
-  instanceUIDs: { [key: string]: string };
-  numberOfImages: number;
-  seriesDescription: string;
-  seriesUID: string;
-  customLoader: string;
-  nrrdHeader: NrrdHeader;
-  bytes: number;
-  dataSet?: DataSet;
-  metadata?: MetaData;
-  ecgData?: number[];
-};
-
-type NrrdHeader = {
-  volume: Volume;
-  intercept: number;
-  slope: number;
-  repr: string;
-  phase: string;
-  study_description: string;
-  series_description: string;
-  acquisition_date: string;
-  [imageId: string]: string | number | Volume | NrrdInstance; // TODO-ts: fix this: we need just NrrdInstance
-};
-
-type NrrdInstance = {
-  instanceUID: string;
-  seriesDescription: string;
-  seriesModality: string;
-  patientName: string;
-  bitsAllocated: number;
-  pixelRepresentation: string;
-};
 
 // TODO-ts: why it's different from cornerstone type ?
 // type Image = {
