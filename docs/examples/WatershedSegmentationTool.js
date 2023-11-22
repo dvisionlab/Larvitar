@@ -132,16 +132,16 @@ let unknown = new cv.Mat();
 let markers = new cv.Mat();
 // gray and threshold image
 cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-//cv.threshold(gray, gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU);
+cv.threshold(gray, gray, upperThreshold, 255, cv.THRESH_BINARY);
 
 //TRESHOLD IN A CERTAIN RANGE (lowerThreshold, upperThreshold)
-let lowerThresholdMat = new cv.Mat.ones(src.rows, src.cols, cv.CV_8U);
+/*let lowerThresholdMat = new cv.Mat.ones(src.rows, src.cols, cv.CV_8U);
 lowerThresholdMat.setTo(new cv.Scalar(lowerThreshold));
 console.log(lowerThresholdMat);
 let upperThresholdMat = new cv.Mat.ones(src.rows, src.cols, cv.CV_8U);
 upperThresholdMat.setTo(new cv.Scalar(upperThreshold));
 console.log(upperThresholdMat);
-cv.inRange(gray, lowerThresholdMat, upperThresholdMat, gray);
+cv.inRange(gray, lowerThresholdMat, upperThresholdMat, gray);*/
 
 //cv.imshow('canvasOutput', binary);
 // get background
