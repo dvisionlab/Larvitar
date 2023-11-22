@@ -76,14 +76,32 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
         modality,
         pixelSpacing
       );
-      const XFactor=0.2;
-      const lowerThreshold = stats.mean - XFactor* stats.stdDev;
-      const upperThreshold = stats.mean + XFactor * stats.stdDev;
+      const XFactor=0.7;
+      const minThreshold = 0;
+      const maxThreshold = 4392;
+      const meanNorm=this.mapToRange(stats.mean, minThreshold, maxThreshold);
+      console.log(meanNorm)
+      const stdDevNorm=this.mapToRange(stats.stdDev, minThreshold, maxThreshold);
+      const lowerThreshold =  meanNorm- XFactor* stdDevNorm;
+      const upperThreshold = meanNorm + XFactor * stdDevNorm;
+      console.log(lowerThreshold)
+      console.log(upperThreshold)
+//TODO CHECK MINTRESHOLD AND MAXTRESHOLD 
+
+// Use normalizedLowerThreshold and normalizedUpperThreshold for PNG processing
+
+// Helper function to map values to a new range
+    console.log(DICOMimage)
     let {src, imgElement}=await this.ConvertToPng(canvas);
     console.log(imgElement);//png image 
-    this.WatershedSegmentation(src, lowerThreshold, upperThreshold)
+    this.WatershedSegmentation(src, lowerThreshold,upperThreshold)
     this.MultiplyMaskImage(DICOMimage,this.Mask_Array);
   }
+
+  mapToRange(value, inMin, inMax) {
+    console.log("value:"+value);
+    return ((value - inMin) / (inMax - inMin)) * 255;
+}
   ConvertToPng(canvas) {
     return new Promise((resolve) => {
       const pngDataUrl = canvas.toDataURL('image/png');
@@ -96,12 +114,11 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
       };
     });
   }
-WatershedSegmentation(src,imgElement,lowerThreshold,upperThreshold){
+WatershedSegmentation(src,lowerThreshold,upperThreshold){
 //imgElement.width=300;
 //imgElement.height=200;
 console.log(cv);
 console.log("you are here");
-console.log(imgElement);
 console.log(src);
 //cv.inRange(imgElement, lowerThreshold, upperThreshold, binary);
 //cv.imshow('canvasInput', src);
@@ -115,16 +132,18 @@ let unknown = new cv.Mat();
 let markers = new cv.Mat();
 // gray and threshold image
 cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-cv.threshold(gray, gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU);
+//cv.threshold(gray, gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU);
+
 //TRESHOLD IN A CERTAIN RANGE (lowerThreshold, upperThreshold)
-let binary = new cv.Mat();
-console.log(binary);
 let lowerThresholdMat = new cv.Mat.ones(src.rows, src.cols, cv.CV_8U);
 lowerThresholdMat.setTo(new cv.Scalar(lowerThreshold));
+console.log(lowerThresholdMat);
 let upperThresholdMat = new cv.Mat.ones(src.rows, src.cols, cv.CV_8U);
 upperThresholdMat.setTo(new cv.Scalar(upperThreshold));
-cv.inRange(gray, lowerThresholdMat, upperThresholdMat, binary);
+console.log(upperThresholdMat);
+cv.inRange(gray, lowerThresholdMat, upperThresholdMat, gray);
 
+//cv.imshow('canvasOutput', binary);
 // get background
 let M = cv.Mat.ones(3, 3, cv.CV_8U);
 cv.erode(gray, gray, M);
@@ -168,8 +187,8 @@ for (let i = 0; i < markers.rows; i++) {
     }
 
     //use mask array to mask a DICOM image 
-
-cv.imshow('canvasOutput', src);
+    cv.imshow('canvasOutput', src);
+//cv.imshow('canvasOutput', src);
 src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
 Fg.delete(); distTrans.delete(); unknown.delete(); markers.delete(); M.delete();
 //pixel_array = imageObject.metadata.x7fe00010;
@@ -193,7 +212,7 @@ this.Mask_Array=mask_array;
 
       return;
     }
-
+    
     return {
       computeMeasurements: this.options.computeMeasurements,
       visible: true,
