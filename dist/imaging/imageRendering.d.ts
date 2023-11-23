@@ -130,7 +130,7 @@ export declare const updateViewportData: (elementId: string, viewportData: Viewp
  * @param {String} viewport - The viewport tag name
  * @param {Object} data - The viewport data object
  */
-export declare const storeViewportData: (image: cornerstone.Image, elementId: string, viewport: Viewport, data: any) => void;
+export declare const storeViewportData: (image: cornerstone.Image, elementId: string, viewport: Viewport, data: ReturnType<typeof getSeriesData>) => void;
 /**
  * Invert pixels of an image
  * @instance
@@ -166,3 +166,72 @@ export declare const rotateImageLeft: (elementId: string | HTMLElement) => void;
  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
  */
 export declare const rotateImageRight: (elementId: string | HTMLElement) => void;
+/**
+ * Get series metadata from default props and series' metadata
+ * @instance
+ * @function getSeriesData
+ * @param {Object} series - The parsed data series
+ * @param {Object} defaultProps - Optional default properties
+ * @return {Object} data - A data dictionary with parsed tags' values
+ */
+declare const getSeriesData: (series: Series, defaultProps: StoreViewportOptions) => {
+    loading: number;
+    ready: boolean;
+    minSliceId: number;
+    maxSliceId: number;
+    sliceId: number;
+    pendingSliceId?: number | undefined;
+    minTimeId: number;
+    maxTimeId: number;
+    timeId: number;
+    timestamp: number;
+    timestamps: number[];
+    timeIds: number[];
+    rows: number;
+    cols: number;
+    spacing_x: number;
+    spacing_y: number;
+    thickness: number;
+    minPixelValue: number;
+    maxPixelValue: number;
+    isColor: boolean;
+    isMultiframe: boolean;
+    isTimeserie: boolean;
+    isPDF: boolean;
+    imageIndex?: number | undefined;
+    imageId?: string | undefined;
+    numberOfSlices?: number | undefined;
+    numberOfTemporalPositions?: number | undefined;
+    timeIndex?: number | undefined;
+    viewport: {
+        scale: number;
+        rotation: number;
+        translation: {
+            x: number;
+            y: number;
+        };
+        voi: {
+            windowCenter: number;
+            windowWidth: number;
+        };
+        rows: number;
+        cols: number;
+        spacing_x: number;
+        spacing_y: number;
+        thickness: number;
+    };
+    default: {
+        scale: number;
+        rotation: number;
+        translation: {
+            x: number;
+            y: number;
+        };
+        voi: {
+            windowCenter: number;
+            windowWidth: number;
+            invert: boolean;
+        };
+    };
+};
+export {};

@@ -43,7 +43,7 @@ type SetPayload = ["errorLog" | "leftActiveTool" | "rightActiveTool", string] | 
     number,
     boolean
 ];
-export declare const DEFAULT_VIEWPORT: {
+declare const DEFAULT_VIEWPORT: {
     loading: number;
     ready: boolean;
     minSliceId: number;
@@ -115,6 +115,7 @@ declare const _default: {
     setSliceId: (elementId: string, imageIndex: number) => void;
     setPendingSliceId: (elementId: string, imageIndex: number) => void;
     setMaxSliceId: (elementId: string, imageIndex: number) => void;
+    setTimeId: (elementId: string, timeIndex: number) => void;
     get: (props: string | string[]) => any;
     addStoreListener: (listener: (data: Store) => {}) => (data: Store) => {};
     removeStoreListener: () => undefined;
