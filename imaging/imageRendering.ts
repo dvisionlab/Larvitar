@@ -789,19 +789,22 @@ export const storeViewportData = function (
   setStore(["maxPixelValue", elementId, image.maxPixelValue]);
   // slice id from 0 to n - 1
   setStore(["minSliceId", elementId, 0]);
-  setStore(["sliceId", elementId, data.imageIndex]);
+  if (data.imageIndex) {
+    setStore(["sliceId", elementId, data.imageIndex]);
+  }
   const pendingSliceId = store.get(["viewports", elementId, "pendingSliceId"]);
   if (data.imageIndex == pendingSliceId) {
     setStore(["pendingSliceId", elementId, undefined]);
   }
-  setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
 
   if (data.isTimeserie) {
     setStore(["minTimeId", elementId, 0]);
     setStore(["timeId", elementId, data.timeIndex || 0]);
-    setStore(["maxTimeId", elementId, data.numberOfTemporalPositions - 1]);
-    let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
-    setStore(["maxSliceId", elementId, maxSliceId]);
+    if (data.numberOfSlices && data.numberOfTemporalPositions) {
+      setStore(["maxTimeId", elementId, data.numberOfTemporalPositions - 1]);
+      let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
+      setStore(["maxSliceId", elementId, maxSliceId]);
+    }
 
     setStore(["timestamp", elementId, data.timestamp]);
     setStore(["timestamps", elementId, data.timestamps]);

@@ -2,6 +2,7 @@ import { vec2 } from "cornerstone-core";
 import { DataSet } from "dicom-parser";
 import { MetaDataTypes } from "./MetaDataTypes";
 import { MetaDataReadable } from "./MetaDataReadable";
+import { type Viewport as StoreViewport } from "./imageStore";
 
 // TODO-ts: differentiate each single metadata @szanchi
 /*export type MetadataValue =
@@ -14,67 +15,7 @@ import { MetaDataReadable } from "./MetaDataReadable";
   | Array
   | undefined; // null or undefined is only for nrrd*/
 
-export type DEFAULT_VIEWPORT = {
-  loading: number;
-  ready: boolean;
-  minSliceId: number;
-  maxSliceId: number;
-  sliceId: number;
-  pendingSliceId?: number;
-  minTimeId: number;
-  maxTimeId: number;
-  timeId: number;
-  timestamp: number;
-  timestamps: number[];
-  timeIds: number[];
-  rows: number;
-  cols: number;
-  spacing_x: number;
-  spacing_y: number;
-  thickness: number;
-  minPixelValue: number;
-  maxPixelValue: number;
-  isColor: boolean;
-  isMultiframe: boolean;
-  isTimeserie: boolean;
-  isPDF: boolean;
-  imageIndex?: number;
-  imageId?: string;
-  numberOfSlices?: number;
-  numberOfTemporalPositions?: number;
-  timeIndex?: number;
-  viewport: {
-    scale: number;
-    rotation: number;
-    translation: {
-      x: number;
-      y: number;
-    };
-    voi: {
-      windowCenter: number;
-      windowWidth: number;
-    };
-    // redundant fields ?
-    rows: number;
-    cols: number;
-    spacing_x: number;
-    spacing_y: number;
-    thickness: number;
-  };
-  default: {
-    scale: number;
-    rotation: number;
-    translation: {
-      x: number;
-      y: number;
-    };
-    voi: {
-      windowCenter: number;
-      windowWidth: number;
-      invert: boolean;
-    };
-  };
-};
+export type StoreViewport = StoreViewport;
 
 export type MetaData = MetaDataTypes & MetaDataReadable;
 export interface Image extends cornerstone.Image {
