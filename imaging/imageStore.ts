@@ -460,6 +460,9 @@ export default {
   setMaxSliceId: (elementId: string, imageIndex: number) => {
     set(["maxSliceId", elementId, imageIndex]);
   },
+  setTimeId: (elementId: string, timeIndex: number) => {
+    set(["timeId", elementId, timeIndex]);
+  },
   // get
   get: (props: string | string[]) => {
     validateStore();
