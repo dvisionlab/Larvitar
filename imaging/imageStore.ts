@@ -5,6 +5,7 @@
 
 // external libraries
 import { get as _get, cloneDeep as _cloneDeep } from "lodash";
+import type { StoreViewport } from "./types.d";
 
 type StoreSeries = { imageIds: string[]; progress: number };
 
@@ -14,7 +15,7 @@ type Store = {
   leftActiveTool?: string;
   rightActiveTool?: string;
   series: { [seriesUID: string]: StoreSeries };
-  viewports: { [key: string]: typeof DEFAULT_VIEWPORT };
+  viewports: { [key: string]: StoreViewport };
   // fallback for any other field
   [key: string]: any;
 };
@@ -75,7 +76,7 @@ const seriesListeners = {} as {
   [seriesId: string]: (data: StoreSeries) => {};
 };
 const viewportsListeners = {} as {
-  [elementId: string]: (data: typeof DEFAULT_VIEWPORT) => {};
+  [elementId: string]: (data: StoreViewport) => {};
 };
 
 // default initial store object
@@ -89,67 +90,7 @@ const INITIAL_STORE_DATA: Store = {
 };
 
 // default viewport object
-const DEFAULT_VIEWPORT: {
-  loading: number;
-  ready: boolean;
-  minSliceId: number;
-  maxSliceId: number;
-  sliceId: number;
-  pendingSliceId?: number;
-  minTimeId: number;
-  maxTimeId: number;
-  timeId: number;
-  timestamp: number;
-  timestamps: number[];
-  timeIds: number[];
-  rows: number;
-  cols: number;
-  spacing_x: number;
-  spacing_y: number;
-  thickness: number;
-  minPixelValue: number;
-  maxPixelValue: number;
-  isColor: boolean;
-  isMultiframe: boolean;
-  isTimeserie: boolean;
-  isPDF: boolean;
-  imageIndex?: number;
-  imageId?: string;
-  numberOfSlices?: number;
-  numberOfTemporalPositions?: number;
-  timeIndex?: number;
-  viewport: {
-    scale: number;
-    rotation: number;
-    translation: {
-      x: number;
-      y: number;
-    };
-    voi: {
-      windowCenter: number;
-      windowWidth: number;
-    };
-    // redundant fields ?
-    rows: number;
-    cols: number;
-    spacing_x: number;
-    spacing_y: number;
-    thickness: number;
-  };
-  default: {
-    scale: number;
-    rotation: number;
-    translation: {
-      x: number;
-      y: number;
-    };
-    voi: {
-      windowCenter: number;
-      windowWidth: number;
-      invert: boolean;
-    };
-  };
-} = {
+const DEFAULT_VIEWPORT: StoreViewport = {
   loading: 0, // from 0 to 100 (%)
   ready: false, // true when currentImageId is rendered
   minSliceId: 0,
@@ -205,8 +146,6 @@ const DEFAULT_VIEWPORT: {
     }
   }
 };
-
-export type Viewport = typeof DEFAULT_VIEWPORT;
 
 // Trigger store listeners
 const triggerStoreListener = (data: Store) =>
@@ -475,7 +414,7 @@ export default {
   // watch single viewport
   addViewportListener: (
     elementId: string,
-    listener: (data: typeof DEFAULT_VIEWPORT) => {}
+    listener: (data: StoreViewport) => {}
   ) => {
     viewportsListeners[elementId] = listener;
   },
