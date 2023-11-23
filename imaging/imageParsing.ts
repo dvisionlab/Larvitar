@@ -249,7 +249,7 @@ let parseNextFile = function (
  * @returns {Promise} - Return a promise which will resolve to a image object list or fail if an error occurs
  */
 const parseFiles = function (fileList: File[]) {
-  let allSeriesStack = {};
+  let allSeriesStack: ReturnType<typeof getLarvitarManager> = {};
   let parsingQueue: File[] = [];
 
   forEach(fileList, function (file: File) {

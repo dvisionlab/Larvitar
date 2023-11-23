@@ -38,6 +38,7 @@ export type StoreViewport = {
   isMultiframe: boolean;
   isTimeserie: boolean;
   isPDF: boolean;
+  waveform: boolean;
   imageIndex?: number;
   imageId?: string;
   numberOfSlices?: number;

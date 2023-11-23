@@ -3,7 +3,7 @@
  *         rendering images in html canvas using cornerstone
  */
 import cornerstone from "cornerstone-core";
-import { Image, Series, StoreViewportOptions, Viewport } from "./types";
+import { Image, Series, StoreViewport, StoreViewportOptions, Viewport } from "./types";
 /**
  * Purge the cornestone internal cache
  * If seriesId is passed as argument only imageIds of the series are purged from internal cache
@@ -174,64 +174,5 @@ export declare const rotateImageRight: (elementId: string | HTMLElement) => void
  * @param {Object} defaultProps - Optional default properties
  * @return {Object} data - A data dictionary with parsed tags' values
  */
-declare const getSeriesData: (series: Series, defaultProps: StoreViewportOptions) => {
-    loading: number;
-    ready: boolean;
-    minSliceId: number;
-    maxSliceId: number;
-    sliceId: number;
-    pendingSliceId?: number | undefined;
-    minTimeId: number;
-    maxTimeId: number;
-    timeId: number;
-    timestamp: number;
-    timestamps: number[];
-    timeIds: number[];
-    rows: number;
-    cols: number;
-    spacing_x: number;
-    spacing_y: number;
-    thickness: number;
-    minPixelValue: number;
-    maxPixelValue: number;
-    isColor: boolean;
-    isMultiframe: boolean;
-    isTimeserie: boolean;
-    isPDF: boolean;
-    imageIndex?: number | undefined;
-    imageId?: string | undefined;
-    numberOfSlices?: number | undefined;
-    numberOfTemporalPositions?: number | undefined;
-    timeIndex?: number | undefined;
-    viewport: {
-        scale: number;
-        rotation: number;
-        translation: {
-            x: number;
-            y: number;
-        };
-        voi: {
-            windowCenter: number;
-            windowWidth: number;
-        };
-        rows: number;
-        cols: number;
-        spacing_x: number;
-        spacing_y: number;
-        thickness: number;
-    };
-    default: {
-        scale: number;
-        rotation: number;
-        translation: {
-            x: number;
-            y: number;
-        };
-        voi: {
-            windowCenter: number;
-            windowWidth: number;
-            invert: boolean;
-        };
-    };
-};
+declare const getSeriesData: (series: Series, defaultProps: StoreViewportOptions) => StoreViewport;
 export {};

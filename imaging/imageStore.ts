@@ -23,7 +23,14 @@ type Store = {
 type SetPayload =
   | ["errorLog" | "leftActiveTool" | "rightActiveTool", string]
   | [
-      "isColor" | "isMultiframe" | "isPDF" | "isTimeserie" | "ready",
+      (
+        | "isColor"
+        | "isMultiframe"
+        | "isPDF"
+        | "waveform"
+        | "isTimeserie"
+        | "ready"
+      ),
       string,
       boolean
     ]
@@ -114,6 +121,7 @@ const DEFAULT_VIEWPORT: StoreViewport = {
   isMultiframe: false,
   isTimeserie: false,
   isPDF: false,
+  waveform: false,
   viewport: {
     scale: 0.0,
     rotation: 0.0,
@@ -188,6 +196,7 @@ const setValue = (store: Store, data: SetPayload) => {
     case "isColor":
     case "isMultiframe":
     case "isPDF":
+    case "waveform":
     case "isTimeserie":
     case "ready":
       if (!viewport) {

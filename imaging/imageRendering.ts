@@ -852,6 +852,7 @@ export const storeViewportData = function (
   setStore(["isMultiframe", elementId, data.isMultiframe]);
   setStore(["isTimeserie", elementId, data.isTimeserie]);
   setStore(["isPDF", elementId, false]);
+  setStore(["waveform", elementId, data.waveform]);
 };
 
 /**
@@ -1043,6 +1044,7 @@ const getSeriesData = function (
 
   data.isColor = series.color as boolean;
   data.isPDF = series.isPDF;
+  data.waveform = series.waveform;
   if (instance) {
     data.rows = instance.metadata.x00280010!;
     data.cols = instance.metadata.x00280011!;
