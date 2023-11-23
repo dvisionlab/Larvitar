@@ -797,6 +797,10 @@ export const storeViewportData = function (
     setStore(["pendingSliceId", elementId, undefined]);
   }
 
+  if (data.numberOfSlices) {
+    setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
+  }
+
   if (data.isTimeserie) {
     setStore(["minTimeId", elementId, 0]);
     setStore(["timeId", elementId, data.timeIndex || 0]);
