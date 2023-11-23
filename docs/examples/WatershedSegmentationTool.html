@@ -157,6 +157,7 @@ let demoFiles = [];
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
       larvitar.registerExternalTool("Test", WatershedSegmentationTool);
+      //const cornerstoneTools = larvitar.cornerstoneTools;
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
@@ -182,6 +183,7 @@ let demoFiles = [];
             });
             // optionally cache the series
             larvitar.populateLarvitarManager(seriesId, serie);
+            let manager=larvitar.getLarvitarManager();
             larvitar.cacheImages(serie, function (resp) {
               if (resp.loading == 100) {
                 let cache = larvitar.cornerstone.imageCache;
@@ -192,8 +194,18 @@ let demoFiles = [];
                 );
               }
             });
+            let myTool = new WatershedSegmentationTool();
+            myTool.setSeriesId(seriesId)
+            myTool.setManager(manager[seriesId])
+            myTool.setDataset(manager[seriesId].dataSet)
+            console.log(manager[seriesId].dataSet); //why is it undefined???
+            console.log(manager[seriesId])
+            console.log(seriesId)
             larvitar.addTool("Test");
             larvitar.setToolActive("Test");
+            //cornerstoneTools.addTool(myTool);
+            // Step 3: Activate your tool
+            //cornerstoneTools.setToolActive(myTool.name, { mouseButtonMask: 1 });
           })
           .catch(err => console.error(err));
       }

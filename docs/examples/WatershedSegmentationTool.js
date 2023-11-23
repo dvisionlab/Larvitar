@@ -40,22 +40,35 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
         drawHandles: true,
         drawHandlesOnHover: false,
         hideHandlesIfMoving: false,
-        renderDashed: false
+        renderDashed: false,
+        metadatatag: "x50003000",
         // showMinMax: false,
         // showHounsfieldUnits: true,
       },
       svgCursor: rectangleRoiCursor
     };
-
     super(props, defaultProps);
+    this.seriesId=""
+    this.dataset=null
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.Mask_Array=[];
     this.eventData
     this.datahandles
     this.data
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
+    this.manager
   }
  
+  setSeriesId(value){
+    this.seriesId = value;
+  }
+  setDataset(value){
+    this.dataset = value;
+  }
+  setManager(value){
+    console.log("VALUE"+value)
+  this.manager=value;
+}
   handleMouseUp= async (event) => {
     console.log("stop");
     this.measuring = false;
@@ -95,7 +108,7 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
     let {src, imgElement}=await this.ConvertToPng(canvas);
     console.log(imgElement);//png image 
     this.WatershedSegmentation(src, lowerThreshold,upperThreshold)
-    this.MultiplyMaskImage(DICOMimage,this.Mask_Array);
+    this.Applymask_onDICOM(this.Mask_Array,this.seriesId,this.dataset,this.metadatatag);
   }
 
   mapToRange(value, inMin, inMax) {
@@ -195,10 +208,34 @@ Fg.delete(); distTrans.delete(); unknown.delete(); markers.delete(); M.delete();
 this.Mask_Array=mask_array;
   }
 
-  MultiplyMaskImage(DICOMimage,Mask){
-//extract dicom image pixels
-//multiply for mask array 
-//transform final array in a new masked dicom 
+ Applymask_onDICOM(
+    Mask_Array,
+    seriesId,
+    dataset,
+    tag
+  ){
+    console.log(this.manager);
+    console.log(dataset);
+    console.log(tag)
+    console.log(seriesId)
+    const element = dataset.elements[tag];
+    let data = dataset.byteArray.slice(
+    element.dataOffset,
+    element.dataOffset + element.length
+  );
+   const length=data.length;
+   console.log(length);
+   console.log(Mask_Array.length)
+   
+   for(let i=0;i<length;i++)
+   {
+    if(Mask_Array[i]===1)
+    {
+      dataset.byteArray[element.dataOffset+i]=0;
+    }
+   }
+   larvitar.renderImage(this.manager, "viewer", 0);
+   
   }
 
   createNewMeasurement(eventData) {
@@ -702,3 +739,5 @@ function _createTextBoxContent(
 
   return textLines;
 }
+
+
