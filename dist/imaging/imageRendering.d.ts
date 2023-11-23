@@ -3,7 +3,7 @@
  *         rendering images in html canvas using cornerstone
  */
 import cornerstone from "cornerstone-core";
-import { Image, Series, StoreViewportOptions, Viewport } from "./types";
+import { Image, Series, StoreViewport, StoreViewportOptions, Viewport } from "./types";
 /**
  * Purge the cornestone internal cache
  * If seriesId is passed as argument only imageIds of the series are purged from internal cache
@@ -130,7 +130,7 @@ export declare const updateViewportData: (elementId: string, viewportData: Viewp
  * @param {String} viewport - The viewport tag name
  * @param {Object} data - The viewport data object
  */
-export declare const storeViewportData: (image: cornerstone.Image, elementId: string, viewport: Viewport, data: any) => void;
+export declare const storeViewportData: (image: cornerstone.Image, elementId: string, viewport: Viewport, data: ReturnType<typeof getSeriesData>) => void;
 /**
  * Invert pixels of an image
  * @instance
@@ -166,3 +166,13 @@ export declare const rotateImageLeft: (elementId: string | HTMLElement) => void;
  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
  */
 export declare const rotateImageRight: (elementId: string | HTMLElement) => void;
+/**
+ * Get series metadata from default props and series' metadata
+ * @instance
+ * @function getSeriesData
+ * @param {Object} series - The parsed data series
+ * @param {Object} defaultProps - Optional default properties
+ * @return {Object} data - A data dictionary with parsed tags' values
+ */
+declare const getSeriesData: (series: Series, defaultProps: StoreViewportOptions) => StoreViewport;
+export {};

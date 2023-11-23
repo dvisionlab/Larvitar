@@ -789,19 +789,26 @@ export const storeViewportData = function (
   setStore(["maxPixelValue", elementId, image.maxPixelValue]);
   // slice id from 0 to n - 1
   setStore(["minSliceId", elementId, 0]);
-  setStore(["sliceId", elementId, data.imageIndex]);
+  if (data.imageIndex) {
+    setStore(["sliceId", elementId, data.imageIndex]);
+  }
   const pendingSliceId = store.get(["viewports", elementId, "pendingSliceId"]);
   if (data.imageIndex == pendingSliceId) {
     setStore(["pendingSliceId", elementId, undefined]);
   }
-  setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
+
+  if (data.numberOfSlices) {
+    setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
+  }
 
   if (data.isTimeserie) {
     setStore(["minTimeId", elementId, 0]);
     setStore(["timeId", elementId, data.timeIndex || 0]);
-    setStore(["maxTimeId", elementId, data.numberOfTemporalPositions - 1]);
-    let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
-    setStore(["maxSliceId", elementId, maxSliceId]);
+    if (data.numberOfSlices && data.numberOfTemporalPositions) {
+      setStore(["maxTimeId", elementId, data.numberOfTemporalPositions - 1]);
+      let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
+      setStore(["maxSliceId", elementId, maxSliceId]);
+    }
 
     setStore(["timestamp", elementId, data.timestamp]);
     setStore(["timestamps", elementId, data.timestamps]);
@@ -845,6 +852,7 @@ export const storeViewportData = function (
   setStore(["isMultiframe", elementId, data.isMultiframe]);
   setStore(["isTimeserie", elementId, data.isTimeserie]);
   setStore(["isPDF", elementId, false]);
+  setStore(["waveform", elementId, data.waveform]);
 };
 
 /**
@@ -1036,6 +1044,7 @@ const getSeriesData = function (
 
   data.isColor = series.color as boolean;
   data.isPDF = series.isPDF;
+  data.waveform = series.waveform;
   if (instance) {
     data.rows = instance.metadata.x00280010!;
     data.cols = instance.metadata.x00280011!;

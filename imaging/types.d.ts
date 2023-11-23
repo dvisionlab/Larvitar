@@ -14,7 +14,7 @@ import { MetaDataReadable } from "./MetaDataReadable";
   | Array
   | undefined; // null or undefined is only for nrrd*/
 
-export type DEFAULT_VIEWPORT = {
+export type StoreViewport = {
   loading: number;
   ready: boolean;
   minSliceId: number;
@@ -38,6 +38,7 @@ export type DEFAULT_VIEWPORT = {
   isMultiframe: boolean;
   isTimeserie: boolean;
   isPDF: boolean;
+  waveform: boolean;
   imageIndex?: number;
   imageId?: string;
   numberOfSlices?: number;
