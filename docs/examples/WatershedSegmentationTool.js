@@ -41,7 +41,6 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
         drawHandlesOnHover: false,
         hideHandlesIfMoving: false,
         renderDashed: false,
-        metadatatag: "x50003000",
         manager: {},
         seriesId:"",
         dataset:{} //problem undefined
@@ -54,6 +53,7 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
     this.seriesId=this.configuration.seriesId
     this.dataset=this.configuration.dataset
     this.manager=this.configuration.manager
+    this.metadatatag="x7fe00010"
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.Mask_Array=[];
     this.eventData
@@ -102,6 +102,7 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
     let {src, imgElement}=await this.ConvertToPng(canvas);
     console.log(imgElement);//png image 
     this.WatershedSegmentation(src, lowerThreshold,upperThreshold)
+    console.log(this.metadatatag)
     this.Applymask_onDICOM(this.Mask_Array,this.seriesId,this.dataset,this.metadatatag);
   }
 
@@ -213,7 +214,11 @@ this.Mask_Array=mask_array;
     console.log(tag)
     console.log(seriesId)
     const dataset_elements = dataset["elements"]
-    const element=dataset_elements.tag;
+    const element=dataset_elements["x7fe00010"];
+    console.log(dataset_elements)
+    console.log(element)
+    console.log(dataset.byteArray)
+    console.log(element["dataOffset"])
     //TODO CHECK DATASET, BYTEARRAY, DATAOFFSET 
     let data = dataset.byteArray.slice(
     element["dataOffset"],
