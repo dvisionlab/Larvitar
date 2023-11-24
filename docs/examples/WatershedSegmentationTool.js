@@ -42,33 +42,27 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
         hideHandlesIfMoving: false,
         renderDashed: false,
         metadatatag: "x50003000",
+        manager: {},
+        seriesId:"",
+        dataset:{} //problem undefined
         // showMinMax: false,
         // showHounsfieldUnits: true,
       },
       svgCursor: rectangleRoiCursor
     };
     super(props, defaultProps);
-    this.seriesId=""
-    this.dataset=null
+    this.seriesId=this.configuration.seriesId
+    this.dataset=this.configuration.dataset
+    this.manager=this.configuration.manager
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.Mask_Array=[];
     this.eventData
     this.datahandles
     this.data
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
-    this.manager
+    
   }
  
-  setSeriesId(value){
-    this.seriesId = value;
-  }
-  setDataset(value){
-    this.dataset = value;
-  }
-  setManager(value){
-    console.log("VALUE"+value)
-  this.manager=value;
-}
   handleMouseUp= async (event) => {
     console.log("stop");
     this.measuring = false;
@@ -218,10 +212,12 @@ this.Mask_Array=mask_array;
     console.log(dataset);
     console.log(tag)
     console.log(seriesId)
-    const element = dataset.elements[tag];
+    const dataset_elements = dataset["elements"]
+    const element=dataset_elements.tag;
+    //TODO CHECK DATASET, BYTEARRAY, DATAOFFSET 
     let data = dataset.byteArray.slice(
-    element.dataOffset,
-    element.dataOffset + element.length
+    element["dataOffset"],
+    element["dataOffset"] + element.length
   );
    const length=data.length;
    console.log(length);
@@ -234,7 +230,7 @@ this.Mask_Array=mask_array;
       dataset.byteArray[element.dataOffset+i]=0;
     }
    }
-   larvitar.renderImage(this.manager, "viewer", 0);
+   //larvitar.renderImage(this.manager, "viewer", 0);
    
   }
 

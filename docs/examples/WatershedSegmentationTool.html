@@ -165,7 +165,7 @@ let demoFiles = [];
         let file = new File([data], fileName);
         demoFiles.push(file);
         counter++;
-        if (counter == 24) {
+        if (counter == 1) {
           cb();
         }
       }
@@ -183,7 +183,9 @@ let demoFiles = [];
             });
             // optionally cache the series
             larvitar.populateLarvitarManager(seriesId, serie);
-            let manager=larvitar.getLarvitarManager();
+            const manager=larvitar.getLarvitarManager();
+            const instance=manager[seriesId].instances["dicomfile:0"];
+            const dataset=instance.dataSet;
             larvitar.cacheImages(serie, function (resp) {
               if (resp.loading == 100) {
                 let cache = larvitar.cornerstone.imageCache;
@@ -194,15 +196,24 @@ let demoFiles = [];
                 );
               }
             });
-            let myTool = new WatershedSegmentationTool();
-            myTool.setSeriesId(seriesId)
-            myTool.setManager(manager[seriesId])
-            myTool.setDataset(manager[seriesId].dataSet)
-            console.log(manager[seriesId].dataSet); //why is it undefined???
+            console.log(dataset); //why is it undefined???
             console.log(manager[seriesId])
             console.log(seriesId)
-            larvitar.addTool("Test");
-            larvitar.setToolActive("Test");
+            larvitar.addTool("Test", {
+              configuration: {
+        drawHandles: true,
+        drawHandlesOnHover: false,
+        hideHandlesIfMoving: false,
+        renderDashed: false,
+        metadatatag: "x50003000",
+        manager: manager,
+        seriesId:seriesId,
+        dataset:dataset //problem undefined
+        // showMinMax: false,
+        // showHounsfieldUnits: true,
+      }
+               });
+             larvitar.setToolActive("Test");
             //cornerstoneTools.addTool(myTool);
             // Step 3: Activate your tool
             //cornerstoneTools.setToolActive(myTool.name, { mouseButtonMask: 1 });
@@ -211,9 +222,8 @@ let demoFiles = [];
       }
 
       let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
-        createFile(demoFile, renderSerie);
-      });
+        createFile(demoFileList[12], renderSerie);
+  
 
 /*Hahn and Peitgen [2000] extracted the brain with a single watershed transform from MRI data. 
 Also, the cerebral ventricles were reliably segmented with minimal interaction. 
