@@ -238,6 +238,7 @@ this.Mask_Array=mask_array;
    console.log(length);
    console.log(Mask_Array.length)
    
+   
    for(let i=0;i<length;i++)
    {
     if(Mask_Array[i]===1)
@@ -245,6 +246,7 @@ this.Mask_Array=mask_array;
       dataset.byteArray[element.dataOffset+i]=0;
     }
    }
+   cornerstone.updateImage("dicomfile:0");
    //larvitar.renderImage(this.manager, "viewer", 0);
    
   }

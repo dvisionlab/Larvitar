@@ -227,6 +227,7 @@ this.Mask_Array=mask_array;
    const length=data.length;
    console.log(length);
    console.log(Mask_Array.length)
+   //WHY DO THEY HAVE DIFFERENT LENGTHS???
    
    for(let i=0;i<length;i++)
    {
