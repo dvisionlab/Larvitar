@@ -4,6 +4,13 @@
  */
 import Plotly from "plotly.js-dist-min";
 /**
+ * Get default layout for the plotly plot
+ * @instance
+ * @function getDefaultECGLayout
+ * @returns {Object} defaultECGLayout - Default layout for the plotly plot
+ */
+export declare const getDefaultECGLayout: () => Partial<Plotly.Layout>;
+/**
  * Render ECG waveform in a div
  * @instance
  * @function renderECG
@@ -13,9 +20,10 @@ import Plotly from "plotly.js-dist-min";
  * @param {number} numberOfframes - Number of frames in the image
  * @param {number} frameTime - Time interval of each frame in the image
  * @param {number} frameId - FrameId of the image to be rendered
+ * @param {Object} customLayout - Custom layout for the plotly plot
  * @returns {Object} traceData - Plotly trace data
  */
-export declare const renderECG: (data: number[], divId: string, colorMarker: string, numberOfFrames: number, frameTime: number, frameId?: number) => Partial<Plotly.PlotData>[];
+export declare const renderECG: (data: number[], divId: string, colorMarker: string, numberOfFrames: number, frameTime: number, frameId: number, customLayout?: Partial<Plotly.Layout>) => Partial<Plotly.PlotData>[];
 /**
  * Sync ECG waveform with rendered image on click
  * @instance

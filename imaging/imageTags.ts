@@ -257,10 +257,11 @@ const isStringVr = function (vr: string) {
  * @return {String} - The human readable DICOM tag
  */
 function getDICOMTag(code: string) {
-  let newCode = code;
+  // convert to upper case all newcode string except for the first char
+  let newCode = code.charAt(0) + code.slice(1).toUpperCase();
 
   if (!Object.keys(TAG_DICT).includes(newCode)) {
-    console.debug(`Invalid tag key: ${newCode}`);
+    console.warn(`Invalid tag key: ${newCode}`);
     return null;
   }
   // force type to keyof typeof TAG_DICT after having checked that it is a valid key

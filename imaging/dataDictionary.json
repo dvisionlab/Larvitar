@@ -263,14 +263,14 @@
     "vm": "1",
     "name": "Erase"
   },
-  "(0000,51A0)": {
-    "tag": "(0000,51A0)",
+  "x000051A0": {
+    "tag": "x000051A0",
     "vr": "CS",
     "vm": "1",
     "name": "Print"
   },
-  "(0000,51B0)": {
-    "tag": "(0000,51B0)",
+  "x000051B0": {
+    "tag": "x000051B0",
     "vr": "US",
     "vm": "1-n",
     "name": "Overlays"
@@ -437,8 +437,8 @@
     "vm": "1",
     "name": "ReferencedTransferSyntaxUIDInFile"
   },
-  "(0004,151A)": {
-    "tag": "(0004,151A)",
+  "x0004151A": {
+    "tag": "x0004151A",
     "vr": "UI",
     "vm": "1-n",
     "name": "ReferencedRelatedGeneralSOPClassUIDInFile"
@@ -509,14 +509,14 @@
     "vm": "1",
     "name": "SOPInstanceUID"
   },
-  "(0008,001A)": {
-    "tag": "(0008,001A)",
+  "x0008001A": {
+    "tag": "x0008001A",
     "vr": "UI",
     "vm": "1-n",
     "name": "RelatedGeneralSOPClassUID"
   },
-  "(0008,001B)": {
-    "tag": "(0008,001B)",
+  "x0008001B": {
+    "tag": "x0008001B",
     "vr": "UI",
     "vm": "1",
     "name": "OriginalSpecializedSOPClassUID"
@@ -557,8 +557,8 @@
     "vm": "1",
     "name": "CurveDate"
   },
-  "(0008,002A)": {
-    "tag": "(0008,002A)",
+  "x0008002A": {
+    "tag": "x0008002A",
     "vr": "DT",
     "vm": "1",
     "name": "AcquisitionDateTime"
@@ -773,26 +773,26 @@
     "vm": "1",
     "name": "ContextGroupLocalVersion"
   },
-  "(0008,010B)": {
-    "tag": "(0008,010B)",
+  "x0008010B": {
+    "tag": "x0008010B",
     "vr": "CS",
     "vm": "1",
     "name": "ContextGroupExtensionFlag"
   },
-  "(0008,010C)": {
-    "tag": "(0008,010C)",
+  "x0008010C": {
+    "tag": "x0008010C",
     "vr": "UI",
     "vm": "1",
     "name": "CodingSchemeUID"
   },
-  "(0008,010D)": {
-    "tag": "(0008,010D)",
+  "x0008010D": {
+    "tag": "x0008010D",
     "vr": "UI",
     "vm": "1",
     "name": "ContextGroupExtensionCreatorUID"
   },
-  "(0008,010F)": {
-    "tag": "(0008,010F)",
+  "x0008010F": {
+    "tag": "x0008010F",
     "vr": "CS",
     "vm": "1",
     "name": "ContextIdentifier"
@@ -863,14 +863,14 @@
     "vm": "1",
     "name": "ProcedureCodeSequence"
   },
-  "(0008,103E)": {
-    "tag": "(0008,103E)",
+  "x0008103E": {
+    "tag": "x0008103E",
     "vr": "LO",
     "vm": "1",
     "name": "SeriesDescription"
   },
-  "(0008,103F)": {
-    "tag": "(0008,103F)",
+  "x0008103F": {
+    "tag": "x0008103F",
     "vr": "SQ",
     "vm": "1",
     "name": "SeriesDescriptionCodeSequence"
@@ -995,8 +995,8 @@
     "vm": "1",
     "name": "ReferencedStereometricInstanceSequence"
   },
-  "(0008,113A)": {
-    "tag": "(0008,113A)",
+  "x0008113A": {
+    "tag": "x0008113A",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedWaveformSequence"
@@ -1013,14 +1013,14 @@
     "vm": "1",
     "name": "ReferencedCurveSequence"
   },
-  "(0008,114A)": {
-    "tag": "(0008,114A)",
+  "x0008114A": {
+    "tag": "x0008114A",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedInstanceSequence"
   },
-  "(0008,114B)": {
-    "tag": "(0008,114B)",
+  "x0008114B": {
+    "tag": "x0008114B",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedRealWorldValueMappingInstanceSequence"
@@ -1037,8 +1037,8 @@
     "vm": "1",
     "name": "ReferencedSOPInstanceUID"
   },
-  "(0008,115A)": {
-    "tag": "(0008,115A)",
+  "x0008115A": {
+    "tag": "x0008115A",
     "vr": "UI",
     "vm": "1-n",
     "name": "SOPClassesSupported"
@@ -1169,8 +1169,8 @@
     "vm": "1",
     "name": "NumberOfEventTimers"
   },
-  "(0008,212A)": {
-    "tag": "(0008,212A)",
+  "x0008212A": {
+    "tag": "x0008212A",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfViewsInStage"
@@ -1337,14 +1337,14 @@
     "vm": "1",
     "name": "AnatomicLocationOfExaminingInstrumentCodeSequenceTrial"
   },
-  "(0008,225A)": {
-    "tag": "(0008,225A)",
+  "x0008225A": {
+    "tag": "x0008225A",
     "vr": "SQ",
     "vm": "1",
     "name": "AnatomicStructureSpaceOrRegionModifierCodeSequenceTrial"
   },
-  "(0008,225C)": {
-    "tag": "(0008,225C)",
+  "x0008225C": {
+    "tag": "x0008225C",
     "vr": "SQ",
     "vm": "1",
     "name": "OnAxisBackgroundAnatomicStructureCodeSequenceTrial"
@@ -1661,32 +1661,32 @@
     "vm": "1",
     "name": "Occupation"
   },
-  "(0010,21A0)": {
-    "tag": "(0010,21A0)",
+  "x001021A0": {
+    "tag": "x001021A0",
     "vr": "CS",
     "vm": "1",
     "name": "SmokingStatus"
   },
-  "(0010,21B0)": {
-    "tag": "(0010,21B0)",
+  "x001021B0": {
+    "tag": "x001021B0",
     "vr": "LT",
     "vm": "1",
     "name": "AdditionalPatientHistory"
   },
-  "(0010,21C0)": {
-    "tag": "(0010,21C0)",
+  "x001021C0": {
+    "tag": "x001021C0",
     "vr": "US",
     "vm": "1",
     "name": "PregnancyStatus"
   },
-  "(0010,21D0)": {
-    "tag": "(0010,21D0)",
+  "x001021D0": {
+    "tag": "x001021D0",
     "vr": "DA",
     "vm": "1",
     "name": "LastMenstrualDate"
   },
-  "(0010,21F0)": {
-    "tag": "(0010,21F0)",
+  "x001021F0": {
+    "tag": "x001021F0",
     "vr": "LO",
     "vm": "1",
     "name": "PatientReligiousPreference"
@@ -2051,20 +2051,20 @@
     "vm": "1",
     "name": "IndicationDescription"
   },
-  "(0014,201A)": {
-    "tag": "(0014,201A)",
+  "x0014201A": {
+    "tag": "x0014201A",
     "vr": "CS",
     "vm": "1-n",
     "name": "IndicationType"
   },
-  "(0014,201C)": {
-    "tag": "(0014,201C)",
+  "x0014201C": {
+    "tag": "x0014201C",
     "vr": "CS",
     "vm": "1",
     "name": "IndicationDisposition"
   },
-  "(0014,201E)": {
-    "tag": "(0014,201E)",
+  "x0014201E": {
+    "tag": "x0014201E",
     "vr": "SQ",
     "vm": "1",
     "name": "IndicationROISequence"
@@ -2105,20 +2105,20 @@
     "vm": "1",
     "name": "CoordinateSystemDataSetMapping"
   },
-  "(0014,220A)": {
-    "tag": "(0014,220A)",
+  "x0014220A": {
+    "tag": "x0014220A",
     "vr": "IS",
     "vm": "1",
     "name": "CoordinateSystemAxisNumber"
   },
-  "(0014,220C)": {
-    "tag": "(0014,220C)",
+  "x0014220C": {
+    "tag": "x0014220C",
     "vr": "CS",
     "vm": "1",
     "name": "CoordinateSystemAxisType"
   },
-  "(0014,220E)": {
-    "tag": "(0014,220E)",
+  "x0014220E": {
+    "tag": "x0014220E",
     "vr": "CS",
     "vm": "1",
     "name": "CoordinateSystemAxisUnits"
@@ -2159,14 +2159,14 @@
     "vm": "1",
     "name": "TransformedAxisUnits"
   },
-  "(0014,222A)": {
-    "tag": "(0014,222A)",
+  "x0014222A": {
+    "tag": "x0014222A",
     "vr": "DS",
     "vm": "1-n",
     "name": "CoordinateSystemTransformRotationAndScaleMatrix"
   },
-  "(0014,222C)": {
-    "tag": "(0014,222C)",
+  "x0014222C": {
+    "tag": "x0014222C",
     "vr": "DS",
     "vm": "1-n",
     "name": "CoordinateSystemTransformTranslationMatrix"
@@ -2315,26 +2315,26 @@
     "vm": "1",
     "name": "ReceiverEquipmentSequence"
   },
-  "(0014,400A)": {
-    "tag": "(0014,400A)",
+  "x0014400A": {
+    "tag": "x0014400A",
     "vr": "CS",
     "vm": "1",
     "name": "AmplifierType"
   },
-  "(0014,400C)": {
-    "tag": "(0014,400C)",
+  "x0014400C": {
+    "tag": "x0014400C",
     "vr": "LT",
     "vm": "1",
     "name": "ReceiverNotes"
   },
-  "(0014,400E)": {
-    "tag": "(0014,400E)",
+  "x0014400E": {
+    "tag": "x0014400E",
     "vr": "SQ",
     "vm": "1",
     "name": "PreAmplifierEquipmentSequence"
   },
-  "(0014,400F)": {
-    "tag": "(0014,400F)",
+  "x0014400F": {
+    "tag": "x0014400F",
     "vr": "LT",
     "vm": "1",
     "name": "PreAmplifierNotes"
@@ -2399,20 +2399,20 @@
     "vm": "1",
     "name": "LocationOfMeasuredBeamDiameter"
   },
-  "(0014,401A)": {
-    "tag": "(0014,401A)",
+  "x0014401A": {
+    "tag": "x0014401A",
     "vr": "DS",
     "vm": "1",
     "name": "NominalFrequency"
   },
-  "(0014,401B)": {
-    "tag": "(0014,401B)",
+  "x0014401B": {
+    "tag": "x0014401B",
     "vr": "DS",
     "vm": "1",
     "name": "MeasuredCenterFrequency"
   },
-  "(0014,401C)": {
-    "tag": "(0014,401C)",
+  "x0014401C": {
+    "tag": "x0014401C",
     "vr": "DS",
     "vm": "1",
     "name": "MeasuredBandwidth"
@@ -2495,14 +2495,14 @@
     "vm": "1-n",
     "name": "DACGainPoints"
   },
-  "(0014,403A)": {
-    "tag": "(0014,403A)",
+  "x0014403A": {
+    "tag": "x0014403A",
     "vr": "DS",
     "vm": "1-n",
     "name": "DACTimePoints"
   },
-  "(0014,403C)": {
-    "tag": "(0014,403C)",
+  "x0014403C": {
+    "tag": "x0014403C",
     "vr": "DS",
     "vm": "1-n",
     "name": "DACAmplitude"
@@ -2561,14 +2561,14 @@
     "vm": "1",
     "name": "CrystalCenterLocationZ"
   },
-  "(0014,405A)": {
-    "tag": "(0014,405A)",
+  "x0014405A": {
+    "tag": "x0014405A",
     "vr": "DS",
     "vm": "1",
     "name": "SoundPathLength"
   },
-  "(0014,405C)": {
-    "tag": "(0014,405C)",
+  "x0014405C": {
+    "tag": "x0014405C",
     "vr": "ST",
     "vm": "1",
     "name": "DelayLawIdentifier"
@@ -2621,20 +2621,20 @@
     "vm": "1",
     "name": "ProcedureExpirationDate"
   },
-  "(0014,407A)": {
-    "tag": "(0014,407A)",
+  "x0014407A": {
+    "tag": "x0014407A",
     "vr": "DA",
     "vm": "1",
     "name": "ProcedureLastModifiedDate"
   },
-  "(0014,407C)": {
-    "tag": "(0014,407C)",
+  "x0014407C": {
+    "tag": "x0014407C",
     "vr": "TM",
     "vm": "1-n",
     "name": "CalibrationTime"
   },
-  "(0014,407E)": {
-    "tag": "(0014,407E)",
+  "x0014407E": {
+    "tag": "x0014407E",
     "vr": "DA",
     "vm": "1-n",
     "name": "CalibrationDate"
@@ -2735,8 +2735,8 @@
     "vm": "1",
     "name": "InterventionDrugCodeSequence"
   },
-  "(0018,002A)": {
-    "tag": "(0018,002A)",
+  "x0018002A": {
+    "tag": "x0018002A",
     "vr": "SQ",
     "vm": "1",
     "name": "AdditionalDrugSequence"
@@ -2801,8 +2801,8 @@
     "vm": "1",
     "name": "TherapyDescription"
   },
-  "(0018,003A)": {
-    "tag": "(0018,003A)",
+  "x0018003A": {
+    "tag": "x0018003A",
     "vr": "ST",
     "vm": "1",
     "name": "InterventionDescription"
@@ -3053,14 +3053,14 @@
     "vm": "1-n",
     "name": "SecondaryCaptureDeviceSoftwareVersions"
   },
-  "(0018,101A)": {
-    "tag": "(0018,101A)",
+  "x0018101A": {
+    "tag": "x0018101A",
     "vr": "LO",
     "vm": "1-n",
     "name": "HardcopyDeviceSoftwareVersion"
   },
-  "(0018,101B)": {
-    "tag": "(0018,101B)",
+  "x0018101B": {
+    "tag": "x0018101B",
     "vr": "LO",
     "vm": "1",
     "name": "HardcopyDeviceManufacturerModelName"
@@ -3215,20 +3215,20 @@
     "vm": "1",
     "name": "TriggerTimeOffset"
   },
-  "(0018,106A)": {
-    "tag": "(0018,106A)",
+  "x0018106A": {
+    "tag": "x0018106A",
     "vr": "CS",
     "vm": "1",
     "name": "SynchronizationTrigger"
   },
-  "(0018,106C)": {
-    "tag": "(0018,106C)",
+  "x0018106C": {
+    "tag": "x0018106C",
     "vr": "US",
     "vm": "2",
     "name": "SynchronizationChannel"
   },
-  "(0018,106E)": {
-    "tag": "(0018,106E)",
+  "x0018106E": {
+    "tag": "x0018106E",
     "vr": "UL",
     "vm": "1",
     "name": "TriggerSamplePosition"
@@ -3431,8 +3431,8 @@
     "vm": "1",
     "name": "TableAngle"
   },
-  "(0018,113A)": {
-    "tag": "(0018,113A)",
+  "x0018113A": {
+    "tag": "x0018113A",
     "vr": "CS",
     "vm": "1",
     "name": "TableType"
@@ -3533,14 +3533,14 @@
     "vm": "1",
     "name": "RectificationType"
   },
-  "(0018,115A)": {
-    "tag": "(0018,115A)",
+  "x0018115A": {
+    "tag": "x0018115A",
     "vr": "CS",
     "vm": "1",
     "name": "RadiationMode"
   },
-  "(0018,115E)": {
-    "tag": "(0018,115E)",
+  "x0018115E": {
+    "tag": "x0018115E",
     "vr": "DS",
     "vm": "1",
     "name": "ImageAndFluoroscopyAreaDoseProduct"
@@ -3623,14 +3623,14 @@
     "vm": "1",
     "name": "AnodeTargetMaterial"
   },
-  "(0018,11A0)": {
-    "tag": "(0018,11A0)",
+  "x001811A0": {
+    "tag": "x001811A0",
     "vr": "DS",
     "vm": "1",
     "name": "BodyPartThickness"
   },
-  "(0018,11A2)": {
-    "tag": "(0018,11A2)",
+  "x001811A2": {
+    "tag": "x001811A2",
     "vr": "DS",
     "vm": "1",
     "name": "CompressionForce"
@@ -4283,20 +4283,20 @@
     "vm": "1",
     "name": "RegionLocationMinX0"
   },
-  "(0018,601A)": {
-    "tag": "(0018,601A)",
+  "x0018601A": {
+    "tag": "x0018601A",
     "vr": "UL",
     "vm": "1",
     "name": "RegionLocationMinY0"
   },
-  "(0018,601C)": {
-    "tag": "(0018,601C)",
+  "x0018601C": {
+    "tag": "x0018601C",
     "vr": "UL",
     "vm": "1",
     "name": "RegionLocationMaxX1"
   },
-  "(0018,601E)": {
-    "tag": "(0018,601E)",
+  "x0018601E": {
+    "tag": "x0018601E",
     "vr": "UL",
     "vm": "1",
     "name": "RegionLocationMaxY1"
@@ -4331,20 +4331,20 @@
     "vm": "1",
     "name": "ReferencePixelPhysicalValueX"
   },
-  "(0018,602A)": {
-    "tag": "(0018,602A)",
+  "x0018602A": {
+    "tag": "x0018602A",
     "vr": "FD",
     "vm": "1",
     "name": "ReferencePixelPhysicalValueY"
   },
-  "(0018,602C)": {
-    "tag": "(0018,602C)",
+  "x0018602C": {
+    "tag": "x0018602C",
     "vr": "FD",
     "vm": "1",
     "name": "PhysicalDeltaX"
   },
-  "(0018,602E)": {
-    "tag": "(0018,602E)",
+  "x0018602E": {
+    "tag": "x0018602E",
     "vr": "FD",
     "vm": "1",
     "name": "PhysicalDeltaY"
@@ -4391,38 +4391,38 @@
     "vm": "1",
     "name": "DopplerSampleVolumeXPosition"
   },
-  "(0018,603A)": {
-    "tag": "(0018,603A)",
+  "x0018603A": {
+    "tag": "x0018603A",
     "vr": "UL",
     "vm": "1",
     "name": "DopplerSampleVolumeYPositionRetired"
   },
-  "(0018,603B)": {
-    "tag": "(0018,603B)",
+  "x0018603B": {
+    "tag": "x0018603B",
     "vr": "SL",
     "vm": "1",
     "name": "DopplerSampleVolumeYPosition"
   },
-  "(0018,603C)": {
-    "tag": "(0018,603C)",
+  "x0018603C": {
+    "tag": "x0018603C",
     "vr": "UL",
     "vm": "1",
     "name": "TMLinePositionX0Retired"
   },
-  "(0018,603D)": {
-    "tag": "(0018,603D)",
+  "x0018603D": {
+    "tag": "x0018603D",
     "vr": "SL",
     "vm": "1",
     "name": "TMLinePositionX0"
   },
-  "(0018,603E)": {
-    "tag": "(0018,603E)",
+  "x0018603E": {
+    "tag": "x0018603E",
     "vr": "UL",
     "vm": "1",
     "name": "TMLinePositionY0Retired"
   },
-  "(0018,603F)": {
-    "tag": "(0018,603F)",
+  "x0018603F": {
+    "tag": "x0018603F",
     "vr": "SL",
     "vm": "1",
     "name": "TMLinePositionY0"
@@ -4469,20 +4469,20 @@
     "vm": "1",
     "name": "PixelComponentRangeStart"
   },
-  "(0018,604A)": {
-    "tag": "(0018,604A)",
+  "x0018604A": {
+    "tag": "x0018604A",
     "vr": "UL",
     "vm": "1",
     "name": "PixelComponentRangeStop"
   },
-  "(0018,604C)": {
-    "tag": "(0018,604C)",
+  "x0018604C": {
+    "tag": "x0018604C",
     "vr": "US",
     "vm": "1",
     "name": "PixelComponentPhysicalUnits"
   },
-  "(0018,604E)": {
-    "tag": "(0018,604E)",
+  "x0018604E": {
+    "tag": "x0018604E",
     "vr": "US",
     "vm": "1",
     "name": "PixelComponentDataType"
@@ -4517,8 +4517,8 @@
     "vm": "1-n",
     "name": "TableOfPixelValues"
   },
-  "(0018,605A)": {
-    "tag": "(0018,605A)",
+  "x0018605A": {
+    "tag": "x0018605A",
     "vr": "FL",
     "vm": "1-n",
     "name": "TableOfParameterValues"
@@ -4565,20 +4565,20 @@
     "vm": "1",
     "name": "DetectorMode"
   },
-  "(0018,700A)": {
-    "tag": "(0018,700A)",
+  "x0018700A": {
+    "tag": "x0018700A",
     "vr": "SH",
     "vm": "1",
     "name": "DetectorID"
   },
-  "(0018,700C)": {
-    "tag": "(0018,700C)",
+  "x0018700C": {
+    "tag": "x0018700C",
     "vr": "DA",
     "vm": "1",
     "name": "DateOfLastDetectorCalibration"
   },
-  "(0018,700E)": {
-    "tag": "(0018,700E)",
+  "x0018700E": {
+    "tag": "x0018700E",
     "vr": "TM",
     "vm": "1",
     "name": "TimeOfLastDetectorCalibration"
@@ -4613,8 +4613,8 @@
     "vm": "1",
     "name": "DetectorActivationOffsetFromExposure"
   },
-  "(0018,701A)": {
-    "tag": "(0018,701A)",
+  "x0018701A": {
+    "tag": "x0018701A",
     "vr": "DS",
     "vm": "2",
     "name": "DetectorBinning"
@@ -4649,14 +4649,14 @@
     "vm": "2",
     "name": "DetectorActiveOrigin"
   },
-  "(0018,702A)": {
-    "tag": "(0018,702A)",
+  "x0018702A": {
+    "tag": "x0018702A",
     "vr": "LO",
     "vm": "1",
     "name": "DetectorManufacturerName"
   },
-  "(0018,702B)": {
-    "tag": "(0018,702B)",
+  "x0018702B": {
+    "tag": "x0018702B",
     "vr": "LO",
     "vm": "1",
     "name": "DetectorManufacturerModelName"
@@ -4727,8 +4727,8 @@
     "vm": "1",
     "name": "GridPeriod"
   },
-  "(0018,704C)": {
-    "tag": "(0018,704C)",
+  "x0018704C": {
+    "tag": "x0018704C",
     "vr": "DS",
     "vm": "1",
     "name": "GridFocalDistance"
@@ -5699,38 +5699,38 @@
     "vm": "1 ",
     "name": "ASLCrusherFlag"
   },
-  "(0018,925A)": {
-    "tag": "(0018,925A)",
+  "x0018925A": {
+    "tag": "x0018925A",
     "vr": "FD",
     "vm": "1",
     "name": "ASLCrusherFlow"
   },
-  "(0018,925B)": {
-    "tag": "(0018,925B)",
+  "x0018925B": {
+    "tag": "x0018925B",
     "vr": "LO",
     "vm": "1",
     "name": "ASLCrusherDescription"
   },
-  "(0018,925C)": {
-    "tag": "(0018,925C)",
+  "x0018925C": {
+    "tag": "x0018925C",
     "vr": "CS",
     "vm": "1 ",
     "name": "ASLBolusCutoffFlag"
   },
-  "(0018,925D)": {
-    "tag": "(0018,925D)",
+  "x0018925D": {
+    "tag": "x0018925D",
     "vr": "SQ",
     "vm": "1",
     "name": "ASLBolusCutoffTimingSequence"
   },
-  "(0018,925E)": {
-    "tag": "(0018,925E)",
+  "x0018925E": {
+    "tag": "x0018925E",
     "vr": "LO",
     "vm": "1",
     "name": "ASLBolusCutoffTechnique"
   },
-  "(0018,925F)": {
-    "tag": "(0018,925F)",
+  "x0018925F": {
+    "tag": "x0018925F",
     "vr": "UL",
     "vm": "1",
     "name": "ASLBolusCutoffDelayTime"
@@ -6815,62 +6815,62 @@
     "vm": "1",
     "name": "TransducerScanPatternCodeSequence"
   },
-  "(0018,980B)": {
-    "tag": "(0018,980B)",
+  "x0018980B": {
+    "tag": "x0018980B",
     "vr": "CS",
     "vm": "1",
     "name": "AliasedDataType"
   },
-  "(0018,980C)": {
-    "tag": "(0018,980C)",
+  "x0018980C": {
+    "tag": "x0018980C",
     "vr": "CS",
     "vm": "1",
     "name": "PositionMeasuringDeviceUsed"
   },
-  "(0018,980D)": {
-    "tag": "(0018,980D)",
+  "x0018980D": {
+    "tag": "x0018980D",
     "vr": "SQ",
     "vm": "1",
     "name": "TransducerGeometryCodeSequence"
   },
-  "(0018,980E)": {
-    "tag": "(0018,980E)",
+  "x0018980E": {
+    "tag": "x0018980E",
     "vr": "SQ",
     "vm": "1",
     "name": "TransducerBeamSteeringCodeSequence"
   },
-  "(0018,980F)": {
-    "tag": "(0018,980F)",
+  "x0018980F": {
+    "tag": "x0018980F",
     "vr": "SQ",
     "vm": "1",
     "name": "TransducerApplicationCodeSequence"
   },
-  "(0018,A001)": {
-    "tag": "(0018,A001)",
+  "x0018A001": {
+    "tag": "x0018A001",
     "vr": "SQ",
     "vm": "1",
     "name": "ContributingEquipmentSequence"
   },
-  "(0018,A002)": {
-    "tag": "(0018,A002)",
+  "x0018A002": {
+    "tag": "x0018A002",
     "vr": "DT",
     "vm": "1",
     "name": "ContributionDateTime"
   },
-  "(0018,A003)": {
-    "tag": "(0018,A003)",
+  "x0018A003": {
+    "tag": "x0018A003",
     "vr": "ST",
     "vm": "1",
     "name": "ContributionDescription"
   },
-  "(0020,000D)": {
-    "tag": "(0020,000D)",
+  "x0020000D": {
+    "tag": "x0020000D",
     "vr": "UI",
     "vm": "1",
     "name": "StudyInstanceUID"
   },
-  "(0020,000E)": {
-    "tag": "(0020,000E)",
+  "x0020000E": {
+    "tag": "x0020000E",
     "vr": "UI",
     "vm": "1",
     "name": "SeriesInstanceUID"
@@ -7019,8 +7019,8 @@
     "vm": "1-n",
     "name": "MaskingImage"
   },
-  "(0020,00AA)": {
-    "tag": "(0020,00AA)",
+  "x002000AA": {
+    "tag": "x002000AA",
     "vr": "IS",
     "vm": "1",
     "name": "ReportNumber"
@@ -7151,8 +7151,8 @@
     "vm": "1",
     "name": "NumberOfSeriesRelatedInstances"
   },
-  "(0020,31xx)": {
-    "tag": "(0020,31xx)",
+  "x002031xx": {
+    "tag": "x002031xx",
     "vr": "CS",
     "vm": "1-n",
     "name": "SourceImageIDs"
@@ -7475,32 +7475,32 @@
     "vm": "16",
     "name": "VolumeToTransducerMappingMatrix"
   },
-  "(0020,930A)": {
-    "tag": "(0020,930A)",
+  "x0020930A": {
+    "tag": "x0020930A",
     "vr": "FD",
     "vm": "16",
     "name": "VolumeToTableMappingMatrix"
   },
-  "(0020,930C)": {
-    "tag": "(0020,930C)",
+  "x0020930C": {
+    "tag": "x0020930C",
     "vr": "CS",
     "vm": "1",
     "name": "PatientFrameOfReferenceSource"
   },
-  "(0020,930D)": {
-    "tag": "(0020,930D)",
+  "x0020930D": {
+    "tag": "x0020930D",
     "vr": "FD",
     "vm": "1",
     "name": "TemporalPositionTimeOffset"
   },
-  "(0020,930E)": {
-    "tag": "(0020,930E)",
+  "x0020930E": {
+    "tag": "x0020930E",
     "vr": "SQ",
     "vm": "1",
     "name": "PlanePositionVolumeSequence"
   },
-  "(0020,930F)": {
-    "tag": "(0020,930F)",
+  "x0020930F": {
+    "tag": "x0020930F",
     "vr": "SQ",
     "vm": "1",
     "name": "PlaneOrientationVolumeSequence"
@@ -7619,32 +7619,32 @@
     "vm": "1",
     "name": "CylinderAxis"
   },
-  "(0022,000A)": {
-    "tag": "(0022,000A)",
+  "x0022000A": {
+    "tag": "x0022000A",
     "vr": "FL",
     "vm": "1",
     "name": "EmmetropicMagnification"
   },
-  "(0022,000B)": {
-    "tag": "(0022,000B)",
+  "x0022000B": {
+    "tag": "x0022000B",
     "vr": "FL",
     "vm": "1",
     "name": "IntraOcularPressure"
   },
-  "(0022,000C)": {
-    "tag": "(0022,000C)",
+  "x0022000C": {
+    "tag": "x0022000C",
     "vr": "FL",
     "vm": "1",
     "name": "HorizontalFieldOfView"
   },
-  "(0022,000D)": {
-    "tag": "(0022,000D)",
+  "x0022000D": {
+    "tag": "x0022000D",
     "vr": "CS",
     "vm": "1",
     "name": "PupilDilated"
   },
-  "(0022,000E)": {
-    "tag": "(0022,000E)",
+  "x0022000E": {
+    "tag": "x0022000E",
     "vr": "FL",
     "vm": "1",
     "name": "DegreeOfDilation"
@@ -7709,32 +7709,32 @@
     "vm": "1",
     "name": "LensesCodeSequence"
   },
-  "(0022,001A)": {
-    "tag": "(0022,001A)",
+  "x0022001A": {
+    "tag": "x0022001A",
     "vr": "SQ",
     "vm": "1",
     "name": "ChannelDescriptionCodeSequence"
   },
-  "(0022,001B)": {
-    "tag": "(0022,001B)",
+  "x0022001B": {
+    "tag": "x0022001B",
     "vr": "SQ",
     "vm": "1",
     "name": "RefractiveStateSequence"
   },
-  "(0022,001C)": {
-    "tag": "(0022,001C)",
+  "x0022001C": {
+    "tag": "x0022001C",
     "vr": "SQ",
     "vm": "1",
     "name": "MydriaticAgentCodeSequence"
   },
-  "(0022,001D)": {
-    "tag": "(0022,001D)",
+  "x0022001D": {
+    "tag": "x0022001D",
     "vr": "SQ",
     "vm": "1",
     "name": "RelativeImagePositionCodeSequence"
   },
-  "(0022,001E)": {
-    "tag": "(0022,001E)",
+  "x0022001E": {
+    "tag": "x0022001E",
     "vr": "FL",
     "vm": "1",
     "name": "CameraAngleOfView"
@@ -7829,8 +7829,8 @@
     "vm": "1",
     "name": "MaximumAcrossScanDistortion"
   },
-  "(0022,004E)": {
-    "tag": "(0022,004E)",
+  "x0022004E": {
+    "tag": "x0022004E",
     "vr": "DS",
     "vm": "1",
     "name": "MydriaticAgentConcentration"
@@ -8843,8 +8843,8 @@
     "vm": "1-n",
     "name": "FrameIncrementPointer"
   },
-  "(0028,000A)": {
-    "tag": "(0028,000A)",
+  "x0028000A": {
+    "tag": "x0028000A",
     "vr": "AT",
     "vm": "1-n",
     "name": "FrameDimensionPointer"
@@ -8915,8 +8915,8 @@
     "vm": "1-n",
     "name": "CorrectedImage"
   },
-  "(0028,005F)": {
-    "tag": "(0028,005F)",
+  "x0028005F": {
+    "tag": "x0028005F",
     "vr": "LO",
     "vm": "1",
     "name": "CompressionRecognitionCode"
@@ -9173,26 +9173,26 @@
     "vm": "1-n",
     "name": "DetailsOfCoefficients"
   },
-  "(0028,04x0)": {
-    "tag": "(0028,04x0)",
+  "x002804x0": {
+    "tag": "x002804x0",
     "vr": "US",
     "vm": "1",
     "name": "RowsForNthOrderCoefficients"
   },
-  "(0028,04x1)": {
-    "tag": "(0028,04x1)",
+  "x002804x1": {
+    "tag": "x002804x1",
     "vr": "US",
     "vm": "1",
     "name": "ColumnsForNthOrderCoefficients"
   },
-  "(0028,04x2)": {
-    "tag": "(0028,04x2)",
+  "x002804x2": {
+    "tag": "x002804x2",
     "vr": "LO",
     "vm": "1-n",
     "name": "CoefficientCoding"
   },
-  "(0028,04x3)": {
-    "tag": "(0028,04x3)",
+  "x002804x3": {
+    "tag": "x002804x3",
     "vr": "AT",
     "vm": "1-n",
     "name": "CoefficientCodingPointers"
@@ -9251,44 +9251,44 @@
     "vm": "1",
     "name": "CodeNumberFormat"
   },
-  "(0028,08x0)": {
-    "tag": "(0028,08x0)",
+  "x002808x0": {
+    "tag": "x002808x0",
     "vr": "CS",
     "vm": "1-n",
     "name": "CodeLabel"
   },
-  "(0028,08x2)": {
-    "tag": "(0028,08x2)",
+  "x002808x2": {
+    "tag": "x002808x2",
     "vr": "US",
     "vm": "1",
     "name": "NumberOfTables"
   },
-  "(0028,08x3)": {
-    "tag": "(0028,08x3)",
+  "x002808x3": {
+    "tag": "x002808x3",
     "vr": "AT",
     "vm": "1-n",
     "name": "CodeTableLocation"
   },
-  "(0028,08x4)": {
-    "tag": "(0028,08x4)",
+  "x002808x4": {
+    "tag": "x002808x4",
     "vr": "US",
     "vm": "1",
     "name": "BitsForCodeWord"
   },
-  "(0028,08x8)": {
-    "tag": "(0028,08x8)",
+  "x002808x8": {
+    "tag": "x002808x8",
     "vr": "AT",
     "vm": "1-n",
     "name": "ImageDataLocation"
   },
-  "(0028,0A02)": {
-    "tag": "(0028,0A02)",
+  "x00280A02": {
+    "tag": "x00280A02",
     "vr": "CS",
     "vm": "1",
     "name": "PixelSpacingCalibrationType"
   },
-  "(0028,0A04)": {
-    "tag": "(0028,0A04)",
+  "x00280A04": {
+    "tag": "x00280A04",
     "vr": "LO",
     "vm": "1",
     "name": "PixelSpacingCalibrationDescription"
@@ -9509,8 +9509,8 @@
     "vm": "1",
     "name": "PartialViewCodeSequence"
   },
-  "(0028,135A)": {
-    "tag": "(0028,135A)",
+  "x0028135A": {
+    "tag": "x0028135A",
     "vr": "CS",
     "vm": "1",
     "name": "SpatialLocationsPreserved"
@@ -9563,32 +9563,32 @@
     "vm": "1",
     "name": "BlendingLookupTableData"
   },
-  "(0028,140B)": {
-    "tag": "(0028,140B)",
+  "x0028140B": {
+    "tag": "x0028140B",
     "vr": "SQ",
     "vm": "1",
     "name": "EnhancedPaletteColorLookupTableSequence"
   },
-  "(0028,140C)": {
-    "tag": "(0028,140C)",
+  "x0028140C": {
+    "tag": "x0028140C",
     "vr": "SQ",
     "vm": "1",
     "name": "BlendingLUT2Sequence"
   },
-  "(0028,140D)": {
-    "tag": "(0028,140D)",
+  "x0028140D": {
+    "tag": "x0028140D",
     "vr": "CS",
     "vm": "1",
     "name": "BlendingLUT2TransferFunction"
   },
-  "(0028,140E)": {
-    "tag": "(0028,140E)",
+  "x0028140E": {
+    "tag": "x0028140E",
     "vr": "CS",
     "vm": "1",
     "name": "DataPathID"
   },
-  "(0028,140F)": {
-    "tag": "(0028,140F)",
+  "x0028140F": {
+    "tag": "x0028140F",
     "vr": "CS",
     "vm": "1",
     "name": "RGBLUTTransferFunction"
@@ -9761,8 +9761,8 @@
     "vm": "1",
     "name": "MaskOperationExplanation"
   },
-  "(0028,7FE0)": {
-    "tag": "(0028,7FE0)",
+  "x00287FE0": {
+    "tag": "x00287FE0",
     "vr": "UT",
     "vm": "1",
     "name": "PixelDataProviderURL"
@@ -9935,14 +9935,14 @@
     "vm": "1",
     "name": "EquipmentCoordinateSystemIdentification"
   },
-  "(0032,000A)": {
-    "tag": "(0032,000A)",
+  "x0032000A": {
+    "tag": "x0032000A",
     "vr": "CS",
     "vm": "1",
     "name": "StudyStatusID"
   },
-  "(0032,000C)": {
-    "tag": "(0032,000C)",
+  "x0032000C": {
+    "tag": "x0032000C",
     "vr": "CS",
     "vm": "1",
     "name": "StudyPriorityID"
@@ -10133,32 +10133,32 @@
     "vm": "1",
     "name": "RouteOfAdmissions"
   },
-  "(0038,001A)": {
-    "tag": "(0038,001A)",
+  "x0038001A": {
+    "tag": "x0038001A",
     "vr": "DA",
     "vm": "1",
     "name": "ScheduledAdmissionDate"
   },
-  "(0038,001B)": {
-    "tag": "(0038,001B)",
+  "x0038001B": {
+    "tag": "x0038001B",
     "vr": "TM",
     "vm": "1",
     "name": "ScheduledAdmissionTime"
   },
-  "(0038,001C)": {
-    "tag": "(0038,001C)",
+  "x0038001C": {
+    "tag": "x0038001C",
     "vr": "DA",
     "vm": "1",
     "name": "ScheduledDischargeDate"
   },
-  "(0038,001D)": {
-    "tag": "(0038,001D)",
+  "x0038001D": {
+    "tag": "x0038001D",
     "vr": "TM",
     "vm": "1",
     "name": "ScheduledDischargeTime"
   },
-  "(0038,001E)": {
-    "tag": "(0038,001E)",
+  "x0038001E": {
+    "tag": "x0038001E",
     "vr": "LO",
     "vm": "1",
     "name": "ScheduledPatientInstitutionResidence"
@@ -10265,230 +10265,230 @@
     "vm": "1",
     "name": "VisitComments"
   },
-  "(003A,0004)": {
-    "tag": "(003A,0004)",
+  "x003A0004": {
+    "tag": "x003A0004",
     "vr": "CS",
     "vm": "1",
     "name": "WaveformOriginality"
   },
-  "(003A,0005)": {
-    "tag": "(003A,0005)",
+  "x003A0005": {
+    "tag": "x003A0005",
     "vr": "US",
     "vm": "1",
     "name": "NumberOfWaveformChannels"
   },
-  "(003A,0010)": {
-    "tag": "(003A,0010)",
+  "x003A0010": {
+    "tag": "x003A0010",
     "vr": "UL",
     "vm": "1",
     "name": "NumberOfWaveformSamples"
   },
-  "(003A,001A)": {
-    "tag": "(003A,001A)",
+  "x003A001A": {
+    "tag": "x003A001A",
     "vr": "DS",
     "vm": "1",
     "name": "SamplingFrequency"
   },
-  "(003A,0020)": {
-    "tag": "(003A,0020)",
+  "x003A0020": {
+    "tag": "x003A0020",
     "vr": "SH",
     "vm": "1",
     "name": "MultiplexGroupLabel"
   },
-  "(003A,0200)": {
-    "tag": "(003A,0200)",
+  "x003A0200": {
+    "tag": "x003A0200",
     "vr": "SQ",
     "vm": "1",
     "name": "ChannelDefinitionSequence"
   },
-  "(003A,0202)": {
-    "tag": "(003A,0202)",
+  "x003A0202": {
+    "tag": "x003A0202",
     "vr": "IS",
     "vm": "1",
     "name": "WaveformChannelNumber"
   },
-  "(003A,0203)": {
-    "tag": "(003A,0203)",
+  "x003A0203": {
+    "tag": "x003A0203",
     "vr": "SH",
     "vm": "1",
     "name": "ChannelLabel"
   },
-  "(003A,0205)": {
-    "tag": "(003A,0205)",
+  "x003A0205": {
+    "tag": "x003A0205",
     "vr": "CS",
     "vm": "1-n",
     "name": "ChannelStatus"
   },
-  "(003A,0208)": {
-    "tag": "(003A,0208)",
+  "x003A0208": {
+    "tag": "x003A0208",
     "vr": "SQ",
     "vm": "1",
     "name": "ChannelSourceSequence"
   },
-  "(003A,0209)": {
-    "tag": "(003A,0209)",
+  "x003A0209": {
+    "tag": "x003A0209",
     "vr": "SQ",
     "vm": "1",
     "name": "ChannelSourceModifiersSequence"
   },
-  "(003A,020A)": {
-    "tag": "(003A,020A)",
+  "x003A020A": {
+    "tag": "x003A020A",
     "vr": "SQ",
     "vm": "1",
     "name": "SourceWaveformSequence"
   },
-  "(003A,020C)": {
-    "tag": "(003A,020C)",
+  "x003A020C": {
+    "tag": "x003A020C",
     "vr": "LO",
     "vm": "1",
     "name": "ChannelDerivationDescription"
   },
-  "(003A,0210)": {
-    "tag": "(003A,0210)",
+  "x003A0210": {
+    "tag": "x003A0210",
     "vr": "DS",
     "vm": "1",
     "name": "ChannelSensitivity"
   },
-  "(003A,0211)": {
-    "tag": "(003A,0211)",
+  "x003A0211": {
+    "tag": "x003A0211",
     "vr": "SQ",
     "vm": "1",
     "name": "ChannelSensitivityUnitsSequence"
   },
-  "(003A,0212)": {
-    "tag": "(003A,0212)",
+  "x003A0212": {
+    "tag": "x003A0212",
     "vr": "DS",
     "vm": "1",
     "name": "ChannelSensitivityCorrectionFactor"
   },
-  "(003A,0213)": {
-    "tag": "(003A,0213)",
+  "x003A0213": {
+    "tag": "x003A0213",
     "vr": "DS",
     "vm": "1",
     "name": "ChannelBaseline"
   },
-  "(003A,0214)": {
-    "tag": "(003A,0214)",
+  "x003A0214": {
+    "tag": "x003A0214",
     "vr": "DS",
     "vm": "1",
     "name": "ChannelTimeSkew"
   },
-  "(003A,0215)": {
-    "tag": "(003A,0215)",
+  "x003A0215": {
+    "tag": "x003A0215",
     "vr": "DS",
     "vm": "1",
     "name": "ChannelSampleSkew"
   },
-  "(003A,0218)": {
-    "tag": "(003A,0218)",
+  "x003A0218": {
+    "tag": "x003A0218",
     "vr": "DS",
     "vm": "1",
     "name": "ChannelOffset"
   },
-  "(003A,021A)": {
-    "tag": "(003A,021A)",
+  "x003A021A": {
+    "tag": "x003A021A",
     "vr": "US",
     "vm": "1",
     "name": "WaveformBitsStored"
   },
-  "(003A,0220)": {
-    "tag": "(003A,0220)",
+  "x003A0220": {
+    "tag": "x003A0220",
     "vr": "DS",
     "vm": "1",
     "name": "FilterLowFrequency"
   },
-  "(003A,0221)": {
-    "tag": "(003A,0221)",
+  "x003A0221": {
+    "tag": "x003A0221",
     "vr": "DS",
     "vm": "1",
     "name": "FilterHighFrequency"
   },
-  "(003A,0222)": {
-    "tag": "(003A,0222)",
+  "x003A0222": {
+    "tag": "x003A0222",
     "vr": "DS",
     "vm": "1",
     "name": "NotchFilterFrequency"
   },
-  "(003A,0223)": {
-    "tag": "(003A,0223)",
+  "x003A0223": {
+    "tag": "x003A0223",
     "vr": "DS",
     "vm": "1",
     "name": "NotchFilterBandwidth"
   },
-  "(003A,0230)": {
-    "tag": "(003A,0230)",
+  "x003A0230": {
+    "tag": "x003A0230",
     "vr": "FL",
     "vm": "1",
     "name": "WaveformDataDisplayScale"
   },
-  "(003A,0231)": {
-    "tag": "(003A,0231)",
+  "x003A0231": {
+    "tag": "x003A0231",
     "vr": "US",
     "vm": "3",
     "name": "WaveformDisplayBackgroundCIELabValue"
   },
-  "(003A,0240)": {
-    "tag": "(003A,0240)",
+  "x003A0240": {
+    "tag": "x003A0240",
     "vr": "SQ",
     "vm": "1",
     "name": "WaveformPresentationGroupSequence"
   },
-  "(003A,0241)": {
-    "tag": "(003A,0241)",
+  "x003A0241": {
+    "tag": "x003A0241",
     "vr": "US",
     "vm": "1",
     "name": "PresentationGroupNumber"
   },
-  "(003A,0242)": {
-    "tag": "(003A,0242)",
+  "x003A0242": {
+    "tag": "x003A0242",
     "vr": "SQ",
     "vm": "1",
     "name": "ChannelDisplaySequence"
   },
-  "(003A,0244)": {
-    "tag": "(003A,0244)",
+  "x003A0244": {
+    "tag": "x003A0244",
     "vr": "US",
     "vm": "3",
     "name": "ChannelRecommendedDisplayCIELabValue"
   },
-  "(003A,0245)": {
-    "tag": "(003A,0245)",
+  "x003A0245": {
+    "tag": "x003A0245",
     "vr": "FL",
     "vm": "1",
     "name": "ChannelPosition"
   },
-  "(003A,0246)": {
-    "tag": "(003A,0246)",
+  "x003A0246": {
+    "tag": "x003A0246",
     "vr": "CS",
     "vm": "1",
     "name": "DisplayShadingFlag"
   },
-  "(003A,0247)": {
-    "tag": "(003A,0247)",
+  "x003A0247": {
+    "tag": "x003A0247",
     "vr": "FL",
     "vm": "1",
     "name": "FractionalChannelDisplayScale"
   },
-  "(003A,0248)": {
-    "tag": "(003A,0248)",
+  "x003A0248": {
+    "tag": "x003A0248",
     "vr": "FL",
     "vm": "1",
     "name": "AbsoluteChannelDisplayScale"
   },
-  "(003A,0300)": {
-    "tag": "(003A,0300)",
+  "x003A0300": {
+    "tag": "x003A0300",
     "vr": "SQ",
     "vm": "1",
     "name": "MultiplexedAudioChannelsDescriptionCodeSequence"
   },
-  "(003A,0301)": {
-    "tag": "(003A,0301)",
+  "x003A0301": {
+    "tag": "x003A0301",
     "vr": "IS",
     "vm": "1",
     "name": "ChannelIdentificationCode"
   },
-  "(003A,0302)": {
-    "tag": "(003A,0302)",
+  "x003A0302": {
+    "tag": "x003A0302",
     "vr": "CS",
     "vm": "1",
     "name": "ChannelMode"
@@ -10547,14 +10547,14 @@
     "vm": "1",
     "name": "ScheduledProcedureStepID"
   },
-  "(0040,000A)": {
-    "tag": "(0040,000A)",
+  "x0040000A": {
+    "tag": "x0040000A",
     "vr": "SQ",
     "vm": "1",
     "name": "StageCodeSequence"
   },
-  "(0040,000B)": {
-    "tag": "(0040,000B)",
+  "x0040000B": {
+    "tag": "x0040000B",
     "vr": "SQ",
     "vm": "1",
     "name": "ScheduledPerformingPhysicianIdentificationSequence"
@@ -10631,8 +10631,8 @@
     "vm": "1",
     "name": "AssigningJurisdictionCodeSequence"
   },
-  "(0040,003A)": {
-    "tag": "(0040,003A)",
+  "x0040003A": {
+    "tag": "x0040003A",
     "vr": "SQ",
     "vm": "1",
     "name": "AssigningAgencyOrDepartmentCodeSequence"
@@ -10811,8 +10811,8 @@
     "vm": "1",
     "name": "DistanceSourceToSupport"
   },
-  "(0040,030E)": {
-    "tag": "(0040,030E)",
+  "x0040030E": {
+    "tag": "x0040030E",
     "vr": "SQ",
     "vm": "1",
     "name": "ExposureDoseSequence"
@@ -10901,8 +10901,8 @@
     "vm": "1",
     "name": "ScheduledSpecimenSequence"
   },
-  "(0040,050A)": {
-    "tag": "(0040,050A)",
+  "x0040050A": {
+    "tag": "x0040050A",
     "vr": "LO",
     "vm": "1",
     "name": "SpecimenAccessionNumber"
@@ -10931,8 +10931,8 @@
     "vm": "1",
     "name": "ContainerTypeCodeSequence"
   },
-  "(0040,051A)": {
-    "tag": "(0040,051A)",
+  "x0040051A": {
+    "tag": "x0040051A",
     "vr": "LO",
     "vm": "1",
     "name": "ContainerDescription"
@@ -10997,8 +10997,8 @@
     "vm": "1",
     "name": "IssuerOfTheSpecimenIdentifierSequence"
   },
-  "(0040,059A)": {
-    "tag": "(0040,059A)",
+  "x0040059A": {
+    "tag": "x0040059A",
     "vr": "SQ",
     "vm": "1",
     "name": "SpecimenTypeCodeSequence"
@@ -11033,56 +11033,56 @@
     "vm": "1",
     "name": "SpecimenLocalizationContentItemSequence"
   },
-  "(0040,06FA)": {
-    "tag": "(0040,06FA)",
+  "x004006FA": {
+    "tag": "x004006FA",
     "vr": "LO",
     "vm": "1",
     "name": "SlideIdentifier"
   },
-  "(0040,071A)": {
-    "tag": "(0040,071A)",
+  "x0040071A": {
+    "tag": "x0040071A",
     "vr": "SQ",
     "vm": "1",
     "name": "ImageCenterPointCoordinatesSequence"
   },
-  "(0040,072A)": {
-    "tag": "(0040,072A)",
+  "x0040072A": {
+    "tag": "x0040072A",
     "vr": "DS",
     "vm": "1",
     "name": "XOffsetInSlideCoordinateSystem"
   },
-  "(0040,073A)": {
-    "tag": "(0040,073A)",
+  "x0040073A": {
+    "tag": "x0040073A",
     "vr": "DS",
     "vm": "1",
     "name": "YOffsetInSlideCoordinateSystem"
   },
-  "(0040,074A)": {
-    "tag": "(0040,074A)",
+  "x0040074A": {
+    "tag": "x0040074A",
     "vr": "DS",
     "vm": "1",
     "name": "ZOffsetInSlideCoordinateSystem"
   },
-  "(0040,08D8)": {
-    "tag": "(0040,08D8)",
+  "x004008D8": {
+    "tag": "x004008D8",
     "vr": "SQ",
     "vm": "1",
     "name": "PixelSpacingSequence"
   },
-  "(0040,08DA)": {
-    "tag": "(0040,08DA)",
+  "x004008DA": {
+    "tag": "x004008DA",
     "vr": "SQ",
     "vm": "1",
     "name": "CoordinateSystemAxisCodeSequence"
   },
-  "(0040,08EA)": {
-    "tag": "(0040,08EA)",
+  "x004008EA": {
+    "tag": "x004008EA",
     "vr": "SQ",
     "vm": "1",
     "name": "MeasurementUnitsCodeSequence"
   },
-  "(0040,09F8)": {
-    "tag": "(0040,09F8)",
+  "x004009F8": {
+    "tag": "x004009F8",
     "vr": "SQ",
     "vm": "1",
     "name": "VitalStainCodeSequenceTrial"
@@ -11141,8 +11141,8 @@
     "vm": "1",
     "name": "ReportingPriority"
   },
-  "(0040,100A)": {
-    "tag": "(0040,100A)",
+  "x0040100A": {
+    "tag": "x0040100A",
     "vr": "SQ",
     "vm": "1",
     "name": "ReasonForRequestedProcedureCodeSequence"
@@ -11543,758 +11543,758 @@
     "vm": "1",
     "name": "RealWorldValueSlope"
   },
-  "(0040,A007)": {
-    "tag": "(0040,A007)",
+  "x0040A007": {
+    "tag": "x0040A007",
     "vr": "CS",
     "vm": "1",
     "name": "FindingsFlagTrial"
   },
-  "(0040,A010)": {
-    "tag": "(0040,A010)",
+  "x0040A010": {
+    "tag": "x0040A010",
     "vr": "CS",
     "vm": "1",
     "name": "RelationshipType"
   },
-  "(0040,A020)": {
-    "tag": "(0040,A020)",
+  "x0040A020": {
+    "tag": "x0040A020",
     "vr": "SQ",
     "vm": "1",
     "name": "FindingsSequenceTrial"
   },
-  "(0040,A021)": {
-    "tag": "(0040,A021)",
+  "x0040A021": {
+    "tag": "x0040A021",
     "vr": "UI",
     "vm": "1",
     "name": "FindingsGroupUIDTrial"
   },
-  "(0040,A022)": {
-    "tag": "(0040,A022)",
+  "x0040A022": {
+    "tag": "x0040A022",
     "vr": "UI",
     "vm": "1",
     "name": "ReferencedFindingsGroupUIDTrial"
   },
-  "(0040,A023)": {
-    "tag": "(0040,A023)",
+  "x0040A023": {
+    "tag": "x0040A023",
     "vr": "DA",
     "vm": "1",
     "name": "FindingsGroupRecordingDateTrial"
   },
-  "(0040,A024)": {
-    "tag": "(0040,A024)",
+  "x0040A024": {
+    "tag": "x0040A024",
     "vr": "TM",
     "vm": "1",
     "name": "FindingsGroupRecordingTimeTrial"
   },
-  "(0040,A026)": {
-    "tag": "(0040,A026)",
+  "x0040A026": {
+    "tag": "x0040A026",
     "vr": "SQ",
     "vm": "1",
     "name": "FindingsSourceCategoryCodeSequenceTrial"
   },
-  "(0040,A027)": {
-    "tag": "(0040,A027)",
+  "x0040A027": {
+    "tag": "x0040A027",
     "vr": "LO",
     "vm": "1",
     "name": "VerifyingOrganization"
   },
-  "(0040,A028)": {
-    "tag": "(0040,A028)",
+  "x0040A028": {
+    "tag": "x0040A028",
     "vr": "SQ",
     "vm": "1",
     "name": "DocumentingOrganizationIdentifierCodeSequenceTrial"
   },
-  "(0040,A030)": {
-    "tag": "(0040,A030)",
+  "x0040A030": {
+    "tag": "x0040A030",
     "vr": "DT",
     "vm": "1",
     "name": "VerificationDateTime"
   },
-  "(0040,A032)": {
-    "tag": "(0040,A032)",
+  "x0040A032": {
+    "tag": "x0040A032",
     "vr": "DT",
     "vm": "1",
     "name": "ObservationDateTime"
   },
-  "(0040,A040)": {
-    "tag": "(0040,A040)",
+  "x0040A040": {
+    "tag": "x0040A040",
     "vr": "CS",
     "vm": "1",
     "name": "ValueType"
   },
-  "(0040,A043)": {
-    "tag": "(0040,A043)",
+  "x0040A043": {
+    "tag": "x0040A043",
     "vr": "SQ",
     "vm": "1",
     "name": "ConceptNameCodeSequence"
   },
-  "(0040,A047)": {
-    "tag": "(0040,A047)",
+  "x0040A047": {
+    "tag": "x0040A047",
     "vr": "LO",
     "vm": "1",
     "name": "MeasurementPrecisionDescriptionTrial"
   },
-  "(0040,A050)": {
-    "tag": "(0040,A050)",
+  "x0040A050": {
+    "tag": "x0040A050",
     "vr": "CS",
     "vm": "1",
     "name": "ContinuityOfContent"
   },
-  "(0040,A057)": {
-    "tag": "(0040,A057)",
+  "x0040A057": {
+    "tag": "x0040A057",
     "vr": "CS",
     "vm": "1-n",
     "name": "UrgencyOrPriorityAlertsTrial"
   },
-  "(0040,A060)": {
-    "tag": "(0040,A060)",
+  "x0040A060": {
+    "tag": "x0040A060",
     "vr": "LO",
     "vm": "1",
     "name": "SequencingIndicatorTrial"
   },
-  "(0040,A066)": {
-    "tag": "(0040,A066)",
+  "x0040A066": {
+    "tag": "x0040A066",
     "vr": "SQ",
     "vm": "1",
     "name": "DocumentIdentifierCodeSequenceTrial"
   },
-  "(0040,A067)": {
-    "tag": "(0040,A067)",
+  "x0040A067": {
+    "tag": "x0040A067",
     "vr": "PN",
     "vm": "1",
     "name": "DocumentAuthorTrial"
   },
-  "(0040,A068)": {
-    "tag": "(0040,A068)",
+  "x0040A068": {
+    "tag": "x0040A068",
     "vr": "SQ",
     "vm": "1",
     "name": "DocumentAuthorIdentifierCodeSequenceTrial"
   },
-  "(0040,A070)": {
-    "tag": "(0040,A070)",
+  "x0040A070": {
+    "tag": "x0040A070",
     "vr": "SQ",
     "vm": "1",
     "name": "IdentifierCodeSequenceTrial"
   },
-  "(0040,A073)": {
-    "tag": "(0040,A073)",
+  "x0040A073": {
+    "tag": "x0040A073",
     "vr": "SQ",
     "vm": "1",
     "name": "VerifyingObserverSequence"
   },
-  "(0040,A074)": {
-    "tag": "(0040,A074)",
+  "x0040A074": {
+    "tag": "x0040A074",
     "vr": "OB",
     "vm": "1",
     "name": "ObjectBinaryIdentifierTrial"
   },
-  "(0040,A075)": {
-    "tag": "(0040,A075)",
+  "x0040A075": {
+    "tag": "x0040A075",
     "vr": "PN",
     "vm": "1",
     "name": "VerifyingObserverName"
   },
-  "(0040,A076)": {
-    "tag": "(0040,A076)",
+  "x0040A076": {
+    "tag": "x0040A076",
     "vr": "SQ",
     "vm": "1",
     "name": "DocumentingObserverIdentifierCodeSequenceTrial"
   },
-  "(0040,A078)": {
-    "tag": "(0040,A078)",
+  "x0040A078": {
+    "tag": "x0040A078",
     "vr": "SQ",
     "vm": "1",
     "name": "AuthorObserverSequence"
   },
-  "(0040,A07A)": {
-    "tag": "(0040,A07A)",
+  "x0040A07A": {
+    "tag": "x0040A07A",
     "vr": "SQ",
     "vm": "1",
     "name": "ParticipantSequence"
   },
-  "(0040,A07C)": {
-    "tag": "(0040,A07C)",
+  "x0040A07C": {
+    "tag": "x0040A07C",
     "vr": "SQ",
     "vm": "1",
     "name": "CustodialOrganizationSequence"
   },
-  "(0040,A080)": {
-    "tag": "(0040,A080)",
+  "x0040A080": {
+    "tag": "x0040A080",
     "vr": "CS",
     "vm": "1",
     "name": "ParticipationType"
   },
-  "(0040,A082)": {
-    "tag": "(0040,A082)",
+  "x0040A082": {
+    "tag": "x0040A082",
     "vr": "DT",
     "vm": "1",
     "name": "ParticipationDateTime"
   },
-  "(0040,A084)": {
-    "tag": "(0040,A084)",
+  "x0040A084": {
+    "tag": "x0040A084",
     "vr": "CS",
     "vm": "1",
     "name": "ObserverType"
   },
-  "(0040,A085)": {
-    "tag": "(0040,A085)",
+  "x0040A085": {
+    "tag": "x0040A085",
     "vr": "SQ",
     "vm": "1",
     "name": "ProcedureIdentifierCodeSequenceTrial"
   },
-  "(0040,A088)": {
-    "tag": "(0040,A088)",
+  "x0040A088": {
+    "tag": "x0040A088",
     "vr": "SQ",
     "vm": "1",
     "name": "VerifyingObserverIdentificationCodeSequence"
   },
-  "(0040,A089)": {
-    "tag": "(0040,A089)",
+  "x0040A089": {
+    "tag": "x0040A089",
     "vr": "OB",
     "vm": "1",
     "name": "ObjectDirectoryBinaryIdentifierTrial"
   },
-  "(0040,A090)": {
-    "tag": "(0040,A090)",
+  "x0040A090": {
+    "tag": "x0040A090",
     "vr": "SQ",
     "vm": "1",
     "name": "EquivalentCDADocumentSequence"
   },
-  "(0040,A0B0)": {
-    "tag": "(0040,A0B0)",
+  "x0040A0B0": {
+    "tag": "x0040A0B0",
     "vr": "US",
     "vm": "2-2n",
     "name": "ReferencedWaveformChannels"
   },
-  "(0040,A110)": {
-    "tag": "(0040,A110)",
+  "x0040A110": {
+    "tag": "x0040A110",
     "vr": "DA",
     "vm": "1",
     "name": "DateOfDocumentOrVerbalTransactionTrial"
   },
-  "(0040,A112)": {
-    "tag": "(0040,A112)",
+  "x0040A112": {
+    "tag": "x0040A112",
     "vr": "TM",
     "vm": "1",
     "name": "TimeOfDocumentCreationOrVerbalTransactionTrial"
   },
-  "(0040,A120)": {
-    "tag": "(0040,A120)",
+  "x0040A120": {
+    "tag": "x0040A120",
     "vr": "DT",
     "vm": "1",
     "name": "DateTime"
   },
-  "(0040,A121)": {
-    "tag": "(0040,A121)",
+  "x0040A121": {
+    "tag": "x0040A121",
     "vr": "DA",
     "vm": "1",
     "name": "Date"
   },
-  "(0040,A122)": {
-    "tag": "(0040,A122)",
+  "x0040A122": {
+    "tag": "x0040A122",
     "vr": "TM",
     "vm": "1",
     "name": "Time"
   },
-  "(0040,A123)": {
-    "tag": "(0040,A123)",
+  "x0040A123": {
+    "tag": "x0040A123",
     "vr": "PN",
     "vm": "1",
     "name": "PersonName"
   },
-  "(0040,A124)": {
-    "tag": "(0040,A124)",
+  "x0040A124": {
+    "tag": "x0040A124",
     "vr": "UI",
     "vm": "1",
     "name": "UID"
   },
-  "(0040,A125)": {
-    "tag": "(0040,A125)",
+  "x0040A125": {
+    "tag": "x0040A125",
     "vr": "CS",
     "vm": "2",
     "name": "ReportStatusIDTrial"
   },
-  "(0040,A130)": {
-    "tag": "(0040,A130)",
+  "x0040A130": {
+    "tag": "x0040A130",
     "vr": "CS",
     "vm": "1",
     "name": "TemporalRangeType"
   },
-  "(0040,A132)": {
-    "tag": "(0040,A132)",
+  "x0040A132": {
+    "tag": "x0040A132",
     "vr": "UL",
     "vm": "1-n",
     "name": "ReferencedSamplePositions"
   },
-  "(0040,A136)": {
-    "tag": "(0040,A136)",
+  "x0040A136": {
+    "tag": "x0040A136",
     "vr": "US",
     "vm": "1-n",
     "name": "ReferencedFrameNumbers"
   },
-  "(0040,A138)": {
-    "tag": "(0040,A138)",
+  "x0040A138": {
+    "tag": "x0040A138",
     "vr": "DS",
     "vm": "1-n",
     "name": "ReferencedTimeOffsets"
   },
-  "(0040,A13A)": {
-    "tag": "(0040,A13A)",
+  "x0040A13A": {
+    "tag": "x0040A13A",
     "vr": "DT",
     "vm": "1-n",
     "name": "ReferencedDateTime"
   },
-  "(0040,A160)": {
-    "tag": "(0040,A160)",
+  "x0040A160": {
+    "tag": "x0040A160",
     "vr": "UT",
     "vm": "1",
     "name": "TextValue"
   },
-  "(0040,A167)": {
-    "tag": "(0040,A167)",
+  "x0040A167": {
+    "tag": "x0040A167",
     "vr": "SQ",
     "vm": "1",
     "name": "ObservationCategoryCodeSequenceTrial"
   },
-  "(0040,A168)": {
-    "tag": "(0040,A168)",
+  "x0040A168": {
+    "tag": "x0040A168",
     "vr": "SQ",
     "vm": "1",
     "name": "ConceptCodeSequence"
   },
-  "(0040,A16A)": {
-    "tag": "(0040,A16A)",
+  "x0040A16A": {
+    "tag": "x0040A16A",
     "vr": "ST",
     "vm": "1",
     "name": "BibliographicCitationTrial"
   },
-  "(0040,A170)": {
-    "tag": "(0040,A170)",
+  "x0040A170": {
+    "tag": "x0040A170",
     "vr": "SQ",
     "vm": "1",
     "name": "PurposeOfReferenceCodeSequence"
   },
-  "(0040,A171)": {
-    "tag": "(0040,A171)",
+  "x0040A171": {
+    "tag": "x0040A171",
     "vr": "UI",
     "vm": "1",
     "name": "ObservationUIDTrial"
   },
-  "(0040,A172)": {
-    "tag": "(0040,A172)",
+  "x0040A172": {
+    "tag": "x0040A172",
     "vr": "UI",
     "vm": "1",
     "name": "ReferencedObservationUIDTrial"
   },
-  "(0040,A173)": {
-    "tag": "(0040,A173)",
+  "x0040A173": {
+    "tag": "x0040A173",
     "vr": "CS",
     "vm": "1",
     "name": "ReferencedObservationClassTrial"
   },
-  "(0040,A174)": {
-    "tag": "(0040,A174)",
+  "x0040A174": {
+    "tag": "x0040A174",
     "vr": "CS",
     "vm": "1",
     "name": "ReferencedObjectObservationClassTrial"
   },
-  "(0040,A180)": {
-    "tag": "(0040,A180)",
+  "x0040A180": {
+    "tag": "x0040A180",
     "vr": "US",
     "vm": "1",
     "name": "AnnotationGroupNumber"
   },
-  "(0040,A192)": {
-    "tag": "(0040,A192)",
+  "x0040A192": {
+    "tag": "x0040A192",
     "vr": "DA",
     "vm": "1",
     "name": "ObservationDateTrial"
   },
-  "(0040,A193)": {
-    "tag": "(0040,A193)",
+  "x0040A193": {
+    "tag": "x0040A193",
     "vr": "TM",
     "vm": "1",
     "name": "ObservationTimeTrial"
   },
-  "(0040,A194)": {
-    "tag": "(0040,A194)",
+  "x0040A194": {
+    "tag": "x0040A194",
     "vr": "CS",
     "vm": "1",
     "name": "MeasurementAutomationTrial"
   },
-  "(0040,A195)": {
-    "tag": "(0040,A195)",
+  "x0040A195": {
+    "tag": "x0040A195",
     "vr": "SQ",
     "vm": "1",
     "name": "ModifierCodeSequence"
   },
-  "(0040,A224)": {
-    "tag": "(0040,A224)",
+  "x0040A224": {
+    "tag": "x0040A224",
     "vr": "ST",
     "vm": "1",
     "name": "IdentificationDescriptionTrial"
   },
-  "(0040,A290)": {
-    "tag": "(0040,A290)",
+  "x0040A290": {
+    "tag": "x0040A290",
     "vr": "CS",
     "vm": "1",
     "name": "CoordinatesSetGeometricTypeTrial"
   },
-  "(0040,A296)": {
-    "tag": "(0040,A296)",
+  "x0040A296": {
+    "tag": "x0040A296",
     "vr": "SQ",
     "vm": "1",
     "name": "AlgorithmCodeSequenceTrial"
   },
-  "(0040,A297)": {
-    "tag": "(0040,A297)",
+  "x0040A297": {
+    "tag": "x0040A297",
     "vr": "ST",
     "vm": "1",
     "name": "AlgorithmDescriptionTrial"
   },
-  "(0040,A29A)": {
-    "tag": "(0040,A29A)",
+  "x0040A29A": {
+    "tag": "x0040A29A",
     "vr": "SL",
     "vm": "2-2n",
     "name": "PixelCoordinatesSetTrial"
   },
-  "(0040,A300)": {
-    "tag": "(0040,A300)",
+  "x0040A300": {
+    "tag": "x0040A300",
     "vr": "SQ",
     "vm": "1",
     "name": "MeasuredValueSequence"
   },
-  "(0040,A301)": {
-    "tag": "(0040,A301)",
+  "x0040A301": {
+    "tag": "x0040A301",
     "vr": "SQ",
     "vm": "1",
     "name": "NumericValueQualifierCodeSequence"
   },
-  "(0040,A307)": {
-    "tag": "(0040,A307)",
+  "x0040A307": {
+    "tag": "x0040A307",
     "vr": "PN",
     "vm": "1",
     "name": "CurrentObserverTrial"
   },
-  "(0040,A30A)": {
-    "tag": "(0040,A30A)",
+  "x0040A30A": {
+    "tag": "x0040A30A",
     "vr": "DS",
     "vm": "1-n",
     "name": "NumericValue"
   },
-  "(0040,A313)": {
-    "tag": "(0040,A313)",
+  "x0040A313": {
+    "tag": "x0040A313",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedAccessionSequenceTrial"
   },
-  "(0040,A33A)": {
-    "tag": "(0040,A33A)",
+  "x0040A33A": {
+    "tag": "x0040A33A",
     "vr": "ST",
     "vm": "1",
     "name": "ReportStatusCommentTrial"
   },
-  "(0040,A340)": {
-    "tag": "(0040,A340)",
+  "x0040A340": {
+    "tag": "x0040A340",
     "vr": "SQ",
     "vm": "1",
     "name": "ProcedureContextSequenceTrial"
   },
-  "(0040,A352)": {
-    "tag": "(0040,A352)",
+  "x0040A352": {
+    "tag": "x0040A352",
     "vr": "PN",
     "vm": "1",
     "name": "VerbalSourceTrial"
   },
-  "(0040,A353)": {
-    "tag": "(0040,A353)",
+  "x0040A353": {
+    "tag": "x0040A353",
     "vr": "ST",
     "vm": "1",
     "name": "AddressTrial"
   },
-  "(0040,A354)": {
-    "tag": "(0040,A354)",
+  "x0040A354": {
+    "tag": "x0040A354",
     "vr": "LO",
     "vm": "1",
     "name": "TelephoneNumberTrial"
   },
-  "(0040,A358)": {
-    "tag": "(0040,A358)",
+  "x0040A358": {
+    "tag": "x0040A358",
     "vr": "SQ",
     "vm": "1",
     "name": "VerbalSourceIdentifierCodeSequenceTrial"
   },
-  "(0040,A360)": {
-    "tag": "(0040,A360)",
+  "x0040A360": {
+    "tag": "x0040A360",
     "vr": "SQ",
     "vm": "1",
     "name": "PredecessorDocumentsSequence"
   },
-  "(0040,A370)": {
-    "tag": "(0040,A370)",
+  "x0040A370": {
+    "tag": "x0040A370",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedRequestSequence"
   },
-  "(0040,A372)": {
-    "tag": "(0040,A372)",
+  "x0040A372": {
+    "tag": "x0040A372",
     "vr": "SQ",
     "vm": "1",
     "name": "PerformedProcedureCodeSequence"
   },
-  "(0040,A375)": {
-    "tag": "(0040,A375)",
+  "x0040A375": {
+    "tag": "x0040A375",
     "vr": "SQ",
     "vm": "1",
     "name": "CurrentRequestedProcedureEvidenceSequence"
   },
-  "(0040,A380)": {
-    "tag": "(0040,A380)",
+  "x0040A380": {
+    "tag": "x0040A380",
     "vr": "SQ",
     "vm": "1",
     "name": "ReportDetailSequenceTrial"
   },
-  "(0040,A385)": {
-    "tag": "(0040,A385)",
+  "x0040A385": {
+    "tag": "x0040A385",
     "vr": "SQ",
     "vm": "1",
     "name": "PertinentOtherEvidenceSequence"
   },
-  "(0040,A390)": {
-    "tag": "(0040,A390)",
+  "x0040A390": {
+    "tag": "x0040A390",
     "vr": "SQ",
     "vm": "1",
     "name": "HL7StructuredDocumentReferenceSequence"
   },
-  "(0040,A402)": {
-    "tag": "(0040,A402)",
+  "x0040A402": {
+    "tag": "x0040A402",
     "vr": "UI",
     "vm": "1",
     "name": "ObservationSubjectUIDTrial"
   },
-  "(0040,A403)": {
-    "tag": "(0040,A403)",
+  "x0040A403": {
+    "tag": "x0040A403",
     "vr": "CS",
     "vm": "1",
     "name": "ObservationSubjectClassTrial"
   },
-  "(0040,A404)": {
-    "tag": "(0040,A404)",
+  "x0040A404": {
+    "tag": "x0040A404",
     "vr": "SQ",
     "vm": "1",
     "name": "ObservationSubjectTypeCodeSequenceTrial"
   },
-  "(0040,A491)": {
-    "tag": "(0040,A491)",
+  "x0040A491": {
+    "tag": "x0040A491",
     "vr": "CS",
     "vm": "1",
     "name": "CompletionFlag"
   },
-  "(0040,A492)": {
-    "tag": "(0040,A492)",
+  "x0040A492": {
+    "tag": "x0040A492",
     "vr": "LO",
     "vm": "1",
     "name": "CompletionFlagDescription"
   },
-  "(0040,A493)": {
-    "tag": "(0040,A493)",
+  "x0040A493": {
+    "tag": "x0040A493",
     "vr": "CS",
     "vm": "1",
     "name": "VerificationFlag"
   },
-  "(0040,A494)": {
-    "tag": "(0040,A494)",
+  "x0040A494": {
+    "tag": "x0040A494",
     "vr": "CS",
     "vm": "1",
     "name": "ArchiveRequested"
   },
-  "(0040,A496)": {
-    "tag": "(0040,A496)",
+  "x0040A496": {
+    "tag": "x0040A496",
     "vr": "CS",
     "vm": "1",
     "name": "PreliminaryFlag"
   },
-  "(0040,A504)": {
-    "tag": "(0040,A504)",
+  "x0040A504": {
+    "tag": "x0040A504",
     "vr": "SQ",
     "vm": "1",
     "name": "ContentTemplateSequence"
   },
-  "(0040,A525)": {
-    "tag": "(0040,A525)",
+  "x0040A525": {
+    "tag": "x0040A525",
     "vr": "SQ",
     "vm": "1",
     "name": "IdenticalDocumentsSequence"
   },
-  "(0040,A600)": {
-    "tag": "(0040,A600)",
+  "x0040A600": {
+    "tag": "x0040A600",
     "vr": "CS",
     "vm": "1",
     "name": "ObservationSubjectContextFlagTrial"
   },
-  "(0040,A601)": {
-    "tag": "(0040,A601)",
+  "x0040A601": {
+    "tag": "x0040A601",
     "vr": "CS",
     "vm": "1",
     "name": "ObserverContextFlagTrial"
   },
-  "(0040,A603)": {
-    "tag": "(0040,A603)",
+  "x0040A603": {
+    "tag": "x0040A603",
     "vr": "CS",
     "vm": "1",
     "name": "ProcedureContextFlagTrial"
   },
-  "(0040,A730)": {
-    "tag": "(0040,A730)",
+  "x0040A730": {
+    "tag": "x0040A730",
     "vr": "SQ",
     "vm": "1",
     "name": "ContentSequence"
   },
-  "(0040,A731)": {
-    "tag": "(0040,A731)",
+  "x0040A731": {
+    "tag": "x0040A731",
     "vr": "SQ",
     "vm": "1",
     "name": "RelationshipSequenceTrial"
   },
-  "(0040,A732)": {
-    "tag": "(0040,A732)",
+  "x0040A732": {
+    "tag": "x0040A732",
     "vr": "SQ",
     "vm": "1",
     "name": "RelationshipTypeCodeSequenceTrial"
   },
-  "(0040,A744)": {
-    "tag": "(0040,A744)",
+  "x0040A744": {
+    "tag": "x0040A744",
     "vr": "SQ",
     "vm": "1",
     "name": "LanguageCodeSequenceTrial"
   },
-  "(0040,A992)": {
-    "tag": "(0040,A992)",
+  "x0040A992": {
+    "tag": "x0040A992",
     "vr": "ST",
     "vm": "1",
     "name": "UniformResourceLocatorTrial"
   },
-  "(0040,B020)": {
-    "tag": "(0040,B020)",
+  "x0040B020": {
+    "tag": "x0040B020",
     "vr": "SQ",
     "vm": "1",
     "name": "WaveformAnnotationSequence"
   },
-  "(0040,DB00)": {
-    "tag": "(0040,DB00)",
+  "x0040DB00": {
+    "tag": "x0040DB00",
     "vr": "CS",
     "vm": "1",
     "name": "TemplateIdentifier"
   },
-  "(0040,DB06)": {
-    "tag": "(0040,DB06)",
+  "x0040DB06": {
+    "tag": "x0040DB06",
     "vr": "DT",
     "vm": "1",
     "name": "TemplateVersion"
   },
-  "(0040,DB07)": {
-    "tag": "(0040,DB07)",
+  "x0040DB07": {
+    "tag": "x0040DB07",
     "vr": "DT",
     "vm": "1",
     "name": "TemplateLocalVersion"
   },
-  "(0040,DB0B)": {
-    "tag": "(0040,DB0B)",
+  "x0040DB0B": {
+    "tag": "x0040DB0B",
     "vr": "CS",
     "vm": "1",
     "name": "TemplateExtensionFlag"
   },
-  "(0040,DB0C)": {
-    "tag": "(0040,DB0C)",
+  "x0040DB0C": {
+    "tag": "x0040DB0C",
     "vr": "UI",
     "vm": "1",
     "name": "TemplateExtensionOrganizationUID"
   },
-  "(0040,DB0D)": {
-    "tag": "(0040,DB0D)",
+  "x0040DB0D": {
+    "tag": "x0040DB0D",
     "vr": "UI",
     "vm": "1",
     "name": "TemplateExtensionCreatorUID"
   },
-  "(0040,DB73)": {
-    "tag": "(0040,DB73)",
+  "x0040DB73": {
+    "tag": "x0040DB73",
     "vr": "UL",
     "vm": "1-n",
     "name": "ReferencedContentItemIdentifier"
   },
-  "(0040,E001)": {
-    "tag": "(0040,E001)",
+  "x0040E001": {
+    "tag": "x0040E001",
     "vr": "ST",
     "vm": "1",
     "name": "HL7InstanceIdentifier"
   },
-  "(0040,E004)": {
-    "tag": "(0040,E004)",
+  "x0040E004": {
+    "tag": "x0040E004",
     "vr": "DT",
     "vm": "1",
     "name": "HL7DocumentEffectiveTime"
   },
-  "(0040,E006)": {
-    "tag": "(0040,E006)",
+  "x0040E006": {
+    "tag": "x0040E006",
     "vr": "SQ",
     "vm": "1",
     "name": "HL7DocumentTypeCodeSequence"
   },
-  "(0040,E008)": {
-    "tag": "(0040,E008)",
+  "x0040E008": {
+    "tag": "x0040E008",
     "vr": "SQ",
     "vm": "1",
     "name": "DocumentClassCodeSequence"
   },
-  "(0040,E010)": {
-    "tag": "(0040,E010)",
+  "x0040E010": {
+    "tag": "x0040E010",
     "vr": "UT",
     "vm": "1",
     "name": "RetrieveURI"
   },
-  "(0040,E011)": {
-    "tag": "(0040,E011)",
+  "x0040E011": {
+    "tag": "x0040E011",
     "vr": "UI",
     "vm": "1",
     "name": "RetrieveLocationUID"
   },
-  "(0040,E020)": {
-    "tag": "(0040,E020)",
+  "x0040E020": {
+    "tag": "x0040E020",
     "vr": "CS",
     "vm": "1",
     "name": "TypeOfInstances"
   },
-  "(0040,E021)": {
-    "tag": "(0040,E021)",
+  "x0040E021": {
+    "tag": "x0040E021",
     "vr": "SQ",
     "vm": "1",
     "name": "DICOMRetrievalSequence"
   },
-  "(0040,E022)": {
-    "tag": "(0040,E022)",
+  "x0040E022": {
+    "tag": "x0040E022",
     "vr": "SQ",
     "vm": "1",
     "name": "DICOMMediaRetrievalSequence"
   },
-  "(0040,E023)": {
-    "tag": "(0040,E023)",
+  "x0040E023": {
+    "tag": "x0040E023",
     "vr": "SQ",
     "vm": "1",
     "name": "WADORetrievalSequence"
   },
-  "(0040,E024)": {
-    "tag": "(0040,E024)",
+  "x0040E024": {
+    "tag": "x0040E024",
     "vr": "SQ",
     "vm": "1",
     "name": "XDSRetrievalSequence"
   },
-  "(0040,E030)": {
-    "tag": "(0040,E030)",
+  "x0040E030": {
+    "tag": "x0040E030",
     "vr": "UI",
     "vm": "1",
     "name": "RepositoryUniqueID"
   },
-  "(0040,E031)": {
-    "tag": "(0040,E031)",
+  "x0040E031": {
+    "tag": "x0040E031",
     "vr": "UI",
     "vm": "1",
     "name": "HomeCommunityID"
@@ -12371,14 +12371,14 @@
     "vm": "1",
     "name": "ProductDescription"
   },
-  "(0044,000A)": {
-    "tag": "(0044,000A)",
+  "x0044000A": {
+    "tag": "x0044000A",
     "vr": "LO",
     "vm": "1",
     "name": "ProductLotIdentifier"
   },
-  "(0044,000B)": {
-    "tag": "(0044,000B)",
+  "x0044000B": {
+    "tag": "x0044000B",
     "vr": "DT",
     "vm": "1",
     "name": "ProductExpirationDateTime"
@@ -12869,20 +12869,20 @@
     "vm": "1",
     "name": "OpticalPathIdentificationSequence"
   },
-  "(0048,021A)": {
-    "tag": "(0048,021A)",
+  "x0048021A": {
+    "tag": "x0048021A",
     "vr": "SQ",
     "vm": "1",
     "name": "PlanePositionSlideSequence"
   },
-  "(0048,021E)": {
-    "tag": "(0048,021E)",
+  "x0048021E": {
+    "tag": "x0048021E",
     "vr": "SL",
     "vm": "1",
     "name": "RowPositionInTotalImagePixelMatrix"
   },
-  "(0048,021F)": {
-    "tag": "(0048,021F)",
+  "x0048021F": {
+    "tag": "x0048021F",
     "vr": "SL",
     "vm": "1",
     "name": "ColumnPositionInTotalImagePixelMatrix"
@@ -12953,32 +12953,32 @@
     "vm": "1",
     "name": "InterMarkerDistance"
   },
-  "(0050,001A)": {
-    "tag": "(0050,001A)",
+  "x0050001A": {
+    "tag": "x0050001A",
     "vr": "CS",
     "vm": "1",
     "name": "ContainerComponentMaterial"
   },
-  "(0050,001B)": {
-    "tag": "(0050,001B)",
+  "x0050001B": {
+    "tag": "x0050001B",
     "vr": "LO",
     "vm": "1",
     "name": "ContainerComponentID"
   },
-  "(0050,001C)": {
-    "tag": "(0050,001C)",
+  "x0050001C": {
+    "tag": "x0050001C",
     "vr": "FD",
     "vm": "1",
     "name": "ContainerComponentLength"
   },
-  "(0050,001D)": {
-    "tag": "(0050,001D)",
+  "x0050001D": {
+    "tag": "x0050001D",
     "vr": "FD",
     "vm": "1",
     "name": "ContainerComponentDiameter"
   },
-  "(0050,001E)": {
-    "tag": "(0050,001E)",
+  "x0050001E": {
+    "tag": "x0050001E",
     "vr": "LO",
     "vm": "1",
     "name": "ContainerComponentDescription"
@@ -13139,8 +13139,8 @@
     "vm": "1",
     "name": "InterpolationType"
   },
-  "(0052,003A)": {
-    "tag": "(0052,003A)",
+  "x0052003A": {
+    "tag": "x0052003A",
     "vr": "CS",
     "vm": "1",
     "name": "RefractiveIndexApplied"
@@ -13709,38 +13709,38 @@
     "vm": "1",
     "name": "SegmentAlgorithmName"
   },
-  "(0062,000A)": {
-    "tag": "(0062,000A)",
+  "x0062000A": {
+    "tag": "x0062000A",
     "vr": "SQ",
     "vm": "1",
     "name": "SegmentIdentificationSequence"
   },
-  "(0062,000B)": {
-    "tag": "(0062,000B)",
+  "x0062000B": {
+    "tag": "x0062000B",
     "vr": "US",
     "vm": "1-n",
     "name": "ReferencedSegmentNumber"
   },
-  "(0062,000C)": {
-    "tag": "(0062,000C)",
+  "x0062000C": {
+    "tag": "x0062000C",
     "vr": "US",
     "vm": "1",
     "name": "RecommendedDisplayGrayscaleValue"
   },
-  "(0062,000D)": {
-    "tag": "(0062,000D)",
+  "x0062000D": {
+    "tag": "x0062000D",
     "vr": "US",
     "vm": "3",
     "name": "RecommendedDisplayCIELabValue"
   },
-  "(0062,000E)": {
-    "tag": "(0062,000E)",
+  "x0062000E": {
+    "tag": "x0062000E",
     "vr": "US",
     "vm": "1",
     "name": "MaximumFractionalValue"
   },
-  "(0062,000F)": {
-    "tag": "(0062,000F)",
+  "x0062000F": {
+    "tag": "x0062000F",
     "vr": "SQ",
     "vm": "1",
     "name": "SegmentedPropertyTypeCodeSequence"
@@ -13787,8 +13787,8 @@
     "vm": "1",
     "name": "VectorGridData"
   },
-  "(0064,000F)": {
-    "tag": "(0064,000F)",
+  "x0064000F": {
+    "tag": "x0064000F",
     "vr": "SQ",
     "vm": "1",
     "name": "PreDeformationMatrixRegistrationSequence"
@@ -13829,32 +13829,32 @@
     "vm": "1",
     "name": "SurfaceProcessing"
   },
-  "(0066,000A)": {
-    "tag": "(0066,000A)",
+  "x0066000A": {
+    "tag": "x0066000A",
     "vr": "FL",
     "vm": "1",
     "name": "SurfaceProcessingRatio"
   },
-  "(0066,000B)": {
-    "tag": "(0066,000B)",
+  "x0066000B": {
+    "tag": "x0066000B",
     "vr": "LO",
     "vm": "1",
     "name": "SurfaceProcessingDescription"
   },
-  "(0066,000C)": {
-    "tag": "(0066,000C)",
+  "x0066000C": {
+    "tag": "x0066000C",
     "vr": "FL",
     "vm": "1",
     "name": "RecommendedPresentationOpacity"
   },
-  "(0066,000D)": {
-    "tag": "(0066,000D)",
+  "x0066000D": {
+    "tag": "x0066000D",
     "vr": "CS",
     "vm": "1",
     "name": "RecommendedPresentationType"
   },
-  "(0066,000E)": {
-    "tag": "(0066,000E)",
+  "x0066000E": {
+    "tag": "x0066000E",
     "vr": "CS",
     "vm": "1",
     "name": "FiniteVolume"
@@ -13913,32 +13913,32 @@
     "vm": "1",
     "name": "MaximumPointDistance"
   },
-  "(0066,001A)": {
-    "tag": "(0066,001A)",
+  "x0066001A": {
+    "tag": "x0066001A",
     "vr": "FL",
     "vm": "6",
     "name": "PointsBoundingBoxCoordinates"
   },
-  "(0066,001B)": {
-    "tag": "(0066,001B)",
+  "x0066001B": {
+    "tag": "x0066001B",
     "vr": "FL",
     "vm": "3",
     "name": "AxisOfRotation"
   },
-  "(0066,001C)": {
-    "tag": "(0066,001C)",
+  "x0066001C": {
+    "tag": "x0066001C",
     "vr": "FL",
     "vm": "3",
     "name": "CenterOfRotation"
   },
-  "(0066,001E)": {
-    "tag": "(0066,001E)",
+  "x0066001E": {
+    "tag": "x0066001E",
     "vr": "UL",
     "vm": "1",
     "name": "NumberOfVectors"
   },
-  "(0066,001F)": {
-    "tag": "(0066,001F)",
+  "x0066001F": {
+    "tag": "x0066001F",
     "vr": "US",
     "vm": "1",
     "name": "VectorDimensionality"
@@ -13997,38 +13997,38 @@
     "vm": "1",
     "name": "PrimitivePointIndexList"
   },
-  "(0066,002A)": {
-    "tag": "(0066,002A)",
+  "x0066002A": {
+    "tag": "x0066002A",
     "vr": "UL",
     "vm": "1",
     "name": "SurfaceCount"
   },
-  "(0066,002B)": {
-    "tag": "(0066,002B)",
+  "x0066002B": {
+    "tag": "x0066002B",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedSurfaceSequence"
   },
-  "(0066,002C)": {
-    "tag": "(0066,002C)",
+  "x0066002C": {
+    "tag": "x0066002C",
     "vr": "UL",
     "vm": "1",
     "name": "ReferencedSurfaceNumber"
   },
-  "(0066,002D)": {
-    "tag": "(0066,002D)",
+  "x0066002D": {
+    "tag": "x0066002D",
     "vr": "SQ",
     "vm": "1",
     "name": "SegmentSurfaceGenerationAlgorithmIdentificationSequence"
   },
-  "(0066,002E)": {
-    "tag": "(0066,002E)",
+  "x0066002E": {
+    "tag": "x0066002E",
     "vr": "SQ",
     "vm": "1",
     "name": "SegmentSurfaceSourceInstanceSequence"
   },
-  "(0066,002F)": {
-    "tag": "(0066,002F)",
+  "x0066002F": {
+    "tag": "x0066002F",
     "vr": "SQ",
     "vm": "1",
     "name": "AlgorithmFamilyCodeSequence"
@@ -14141,50 +14141,50 @@
     "vm": "1",
     "name": "InformationSummary"
   },
-  "(0068,62A0)": {
-    "tag": "(0068,62A0)",
+  "x006862A0": {
+    "tag": "x006862A0",
     "vr": "SQ",
     "vm": "1",
     "name": "ImplantRegulatoryDisapprovalCodeSequence"
   },
-  "(0068,62A5)": {
-    "tag": "(0068,62A5)",
+  "x006862A5": {
+    "tag": "x006862A5",
     "vr": "FD",
     "vm": "1",
     "name": "OverallTemplateSpatialTolerance"
   },
-  "(0068,62C0)": {
-    "tag": "(0068,62C0)",
+  "x006862C0": {
+    "tag": "x006862C0",
     "vr": "SQ",
     "vm": "1",
     "name": "HPGLDocumentSequence"
   },
-  "(0068,62D0)": {
-    "tag": "(0068,62D0)",
+  "x006862D0": {
+    "tag": "x006862D0",
     "vr": "US",
     "vm": "1",
     "name": "HPGLDocumentID"
   },
-  "(0068,62D5)": {
-    "tag": "(0068,62D5)",
+  "x006862D5": {
+    "tag": "x006862D5",
     "vr": "LO",
     "vm": "1",
     "name": "HPGLDocumentLabel"
   },
-  "(0068,62E0)": {
-    "tag": "(0068,62E0)",
+  "x006862E0": {
+    "tag": "x006862E0",
     "vr": "SQ",
     "vm": "1",
     "name": "ViewOrientationCodeSequence"
   },
-  "(0068,62F0)": {
-    "tag": "(0068,62F0)",
+  "x006862F0": {
+    "tag": "x006862F0",
     "vr": "FD",
     "vm": "9",
     "name": "ViewOrientationModifier"
   },
-  "(0068,62F2)": {
-    "tag": "(0068,62F2)",
+  "x006862F2": {
+    "tag": "x006862F2",
     "vr": "FD",
     "vm": "1",
     "name": "HPGLDocumentScaling"
@@ -14261,56 +14261,56 @@
     "vm": "1",
     "name": "SurfaceModelScalingFactor"
   },
-  "(0068,63A0)": {
-    "tag": "(0068,63A0)",
+  "x006863A0": {
+    "tag": "x006863A0",
     "vr": "SQ",
     "vm": "1",
     "name": "MaterialsCodeSequence"
   },
-  "(0068,63A4)": {
-    "tag": "(0068,63A4)",
+  "x006863A4": {
+    "tag": "x006863A4",
     "vr": "SQ",
     "vm": "1",
     "name": "CoatingMaterialsCodeSequence"
   },
-  "(0068,63A8)": {
-    "tag": "(0068,63A8)",
+  "x006863A8": {
+    "tag": "x006863A8",
     "vr": "SQ",
     "vm": "1",
     "name": "ImplantTypeCodeSequence"
   },
-  "(0068,63AC)": {
-    "tag": "(0068,63AC)",
+  "x006863AC": {
+    "tag": "x006863AC",
     "vr": "SQ",
     "vm": "1",
     "name": "FixationMethodCodeSequence"
   },
-  "(0068,63B0)": {
-    "tag": "(0068,63B0)",
+  "x006863B0": {
+    "tag": "x006863B0",
     "vr": "SQ",
     "vm": "1",
     "name": "MatingFeatureSetsSequence"
   },
-  "(0068,63C0)": {
-    "tag": "(0068,63C0)",
+  "x006863C0": {
+    "tag": "x006863C0",
     "vr": "US",
     "vm": "1",
     "name": "MatingFeatureSetID"
   },
-  "(0068,63D0)": {
-    "tag": "(0068,63D0)",
+  "x006863D0": {
+    "tag": "x006863D0",
     "vr": "LO",
     "vm": "1",
     "name": "MatingFeatureSetLabel"
   },
-  "(0068,63E0)": {
-    "tag": "(0068,63E0)",
+  "x006863E0": {
+    "tag": "x006863E0",
     "vr": "SQ",
     "vm": "1",
     "name": "MatingFeatureSequence"
   },
-  "(0068,63F0)": {
-    "tag": "(0068,63F0)",
+  "x006863F0": {
+    "tag": "x006863F0",
     "vr": "US",
     "vm": "1",
     "name": "MatingFeatureID"
@@ -14369,26 +14369,26 @@
     "vm": "3",
     "name": "ThreeDDegreeOfFreedomAxis"
   },
-  "(0068,64A0)": {
-    "tag": "(0068,64A0)",
+  "x006864A0": {
+    "tag": "x006864A0",
     "vr": "FD",
     "vm": "2",
     "name": "RangeOfFreedom"
   },
-  "(0068,64C0)": {
-    "tag": "(0068,64C0)",
+  "x006864C0": {
+    "tag": "x006864C0",
     "vr": "FD",
     "vm": "3",
     "name": "ThreeDMatingPoint"
   },
-  "(0068,64D0)": {
-    "tag": "(0068,64D0)",
+  "x006864D0": {
+    "tag": "x006864D0",
     "vr": "FD",
     "vm": "9",
     "name": "ThreeDMatingAxes"
   },
-  "(0068,64F0)": {
-    "tag": "(0068,64F0)",
+  "x006864F0": {
+    "tag": "x006864F0",
     "vr": "FD",
     "vm": "3",
     "name": "TwoDDegreeOfFreedomAxis"
@@ -14447,32 +14447,32 @@
     "vm": "3",
     "name": "ThreeDPointCoordinates"
   },
-  "(0068,65A0)": {
-    "tag": "(0068,65A0)",
+  "x006865A0": {
+    "tag": "x006865A0",
     "vr": "SQ",
     "vm": "1",
     "name": "TwoDLineCoordinatesSequence"
   },
-  "(0068,65B0)": {
-    "tag": "(0068,65B0)",
+  "x006865B0": {
+    "tag": "x006865B0",
     "vr": "FD",
     "vm": "4",
     "name": "TwoDLineCoordinates"
   },
-  "(0068,65D0)": {
-    "tag": "(0068,65D0)",
+  "x006865D0": {
+    "tag": "x006865D0",
     "vr": "FD",
     "vm": "6",
     "name": "ThreeDLineCoordinates"
   },
-  "(0068,65E0)": {
-    "tag": "(0068,65E0)",
+  "x006865E0": {
+    "tag": "x006865E0",
     "vr": "SQ",
     "vm": "1",
     "name": "TwoDPlaneCoordinatesSequence"
   },
-  "(0068,65F0)": {
-    "tag": "(0068,65F0)",
+  "x006865F0": {
+    "tag": "x006865F0",
     "vr": "FD",
     "vm": "4",
     "name": "TwoDPlaneIntersection"
@@ -14639,8 +14639,8 @@
     "vm": "2",
     "name": "DisplayedAreaBottomRightHandCorner"
   },
-  "(0070,005A)": {
-    "tag": "(0070,005A)",
+  "x0070005A": {
+    "tag": "x0070005A",
     "vr": "SQ",
     "vm": "1",
     "name": "DisplayedAreaSelectionSequence"
@@ -15023,26 +15023,26 @@
     "vm": "1",
     "name": "MatrixRegistrationSequence"
   },
-  "(0070,030A)": {
-    "tag": "(0070,030A)",
+  "x0070030A": {
+    "tag": "x0070030A",
     "vr": "SQ",
     "vm": "1",
     "name": "MatrixSequence"
   },
-  "(0070,030C)": {
-    "tag": "(0070,030C)",
+  "x0070030C": {
+    "tag": "x0070030C",
     "vr": "CS",
     "vm": "1",
     "name": "FrameOfReferenceTransformationMatrixType"
   },
-  "(0070,030D)": {
-    "tag": "(0070,030D)",
+  "x0070030D": {
+    "tag": "x0070030D",
     "vr": "SQ",
     "vm": "1",
     "name": "RegistrationTypeCodeSequence"
   },
-  "(0070,030F)": {
-    "tag": "(0070,030F)",
+  "x0070030F": {
+    "tag": "x0070030F",
     "vr": "ST",
     "vm": "1",
     "name": "FiducialDescription"
@@ -15077,20 +15077,20 @@
     "vm": "1",
     "name": "GraphicCoordinatesDataSequence"
   },
-  "(0070,031A)": {
-    "tag": "(0070,031A)",
+  "x0070031A": {
+    "tag": "x0070031A",
     "vr": "UI",
     "vm": "1",
     "name": "FiducialUID"
   },
-  "(0070,031C)": {
-    "tag": "(0070,031C)",
+  "x0070031C": {
+    "tag": "x0070031C",
     "vr": "SQ",
     "vm": "1",
     "name": "FiducialSetSequence"
   },
-  "(0070,031E)": {
-    "tag": "(0070,031E)",
+  "x0070031E": {
+    "tag": "x0070031E",
     "vr": "SQ",
     "vm": "1",
     "name": "FiducialSequence"
@@ -15149,20 +15149,20 @@
     "vm": "1",
     "name": "HangingProtocolCreator"
   },
-  "(0072,000A)": {
-    "tag": "(0072,000A)",
+  "x0072000A": {
+    "tag": "x0072000A",
     "vr": "DT",
     "vm": "1",
     "name": "HangingProtocolCreationDateTime"
   },
-  "(0072,000C)": {
-    "tag": "(0072,000C)",
+  "x0072000C": {
+    "tag": "x0072000C",
     "vr": "SQ",
     "vm": "1",
     "name": "HangingProtocolDefinitionSequence"
   },
-  "(0072,000E)": {
-    "tag": "(0072,000E)",
+  "x0072000E": {
+    "tag": "x0072000E",
     "vr": "SQ",
     "vm": "1",
     "name": "HangingProtocolUserIdentificationCodeSequence"
@@ -15239,20 +15239,20 @@
     "vm": "2",
     "name": "RelativeTime"
   },
-  "(0072,003A)": {
-    "tag": "(0072,003A)",
+  "x0072003A": {
+    "tag": "x0072003A",
     "vr": "CS",
     "vm": "1",
     "name": "RelativeTimeUnits"
   },
-  "(0072,003C)": {
-    "tag": "(0072,003C)",
+  "x0072003C": {
+    "tag": "x0072003C",
     "vr": "SS",
     "vm": "2",
     "name": "AbstractPriorValue"
   },
-  "(0072,003E)": {
-    "tag": "(0072,003E)",
+  "x0072003E": {
+    "tag": "x0072003E",
     "vr": "SQ",
     "vm": "1",
     "name": "AbstractPriorCodeSequence"
@@ -15317,20 +15317,20 @@
     "vm": "1",
     "name": "SelectorLTValue"
   },
-  "(0072,006A)": {
-    "tag": "(0072,006A)",
+  "x0072006A": {
+    "tag": "x0072006A",
     "vr": "PN",
     "vm": "1-n",
     "name": "SelectorPNValue"
   },
-  "(0072,006C)": {
-    "tag": "(0072,006C)",
+  "x0072006C": {
+    "tag": "x0072006C",
     "vr": "SH",
     "vm": "1-n",
     "name": "SelectorSHValue"
   },
-  "(0072,006E)": {
-    "tag": "(0072,006E)",
+  "x0072006E": {
+    "tag": "x0072006E",
     "vr": "ST",
     "vm": "1",
     "name": "SelectorSTValue"
@@ -15365,20 +15365,20 @@
     "vm": "1-n",
     "name": "SelectorULValue"
   },
-  "(0072,007A)": {
-    "tag": "(0072,007A)",
+  "x0072007A": {
+    "tag": "x0072007A",
     "vr": "US",
     "vm": "1-n",
     "name": "SelectorUSValue"
   },
-  "(0072,007C)": {
-    "tag": "(0072,007C)",
+  "x0072007C": {
+    "tag": "x0072007C",
     "vr": "SL",
     "vm": "1-n",
     "name": "SelectorSLValue"
   },
-  "(0072,007E)": {
-    "tag": "(0072,007E)",
+  "x0072007E": {
+    "tag": "x0072007E",
     "vr": "SS",
     "vm": "1-n",
     "name": "SelectorSSValue"
@@ -15419,20 +15419,20 @@
     "vm": "4",
     "name": "DisplayEnvironmentSpatialPosition"
   },
-  "(0072,010A)": {
-    "tag": "(0072,010A)",
+  "x0072010A": {
+    "tag": "x0072010A",
     "vr": "US",
     "vm": "1",
     "name": "ScreenMinimumGrayscaleBitDepth"
   },
-  "(0072,010C)": {
-    "tag": "(0072,010C)",
+  "x0072010C": {
+    "tag": "x0072010C",
     "vr": "US",
     "vm": "1",
     "name": "ScreenMinimumColorBitDepth"
   },
-  "(0072,010E)": {
-    "tag": "(0072,010E)",
+  "x0072010E": {
+    "tag": "x0072010E",
     "vr": "US",
     "vm": "1",
     "name": "ApplicationMaximumRepaintTime"
@@ -15809,20 +15809,20 @@
     "vm": "1",
     "name": "ProcedureStepCommunicationsURISequence"
   },
-  "(0074,100a)": {
-    "tag": "(0074,100a)",
+  "x0074100a": {
+    "tag": "x0074100a",
     "vr": "ST",
     "vm": "1",
     "name": "ContactURI"
   },
-  "(0074,100c)": {
-    "tag": "(0074,100c)",
+  "x0074100c": {
+    "tag": "x0074100c",
     "vr": "LO",
     "vm": "1",
     "name": "ContactDisplayName"
   },
-  "(0074,100e)": {
-    "tag": "(0074,100e)",
+  "x0074100e": {
+    "tag": "x0074100e",
     "vr": "SQ",
     "vm": "1",
     "name": "ProcedureStepDiscontinuationReasonCodeSequence"
@@ -15863,26 +15863,26 @@
     "vm": "1",
     "name": "TableTopLateralAdjustedPosition"
   },
-  "(0074,102A)": {
-    "tag": "(0074,102A)",
+  "x0074102A": {
+    "tag": "x0074102A",
     "vr": "FD",
     "vm": "1",
     "name": "PatientSupportAdjustedAngle"
   },
-  "(0074,102B)": {
-    "tag": "(0074,102B)",
+  "x0074102B": {
+    "tag": "x0074102B",
     "vr": "FD",
     "vm": "1",
     "name": "TableTopEccentricAdjustedAngle"
   },
-  "(0074,102C)": {
-    "tag": "(0074,102C)",
+  "x0074102C": {
+    "tag": "x0074102C",
     "vr": "FD",
     "vm": "1",
     "name": "TableTopPitchAdjustedAngle"
   },
-  "(0074,102D)": {
-    "tag": "(0074,102D)",
+  "x0074102D": {
+    "tag": "x0074102D",
     "vr": "FD",
     "vm": "1",
     "name": "TableTopRollAdjustedAngle"
@@ -15917,8 +15917,8 @@
     "vm": "1",
     "name": "DoubleExposureMetersetTrial"
   },
-  "(0074,103A)": {
-    "tag": "(0074,103A)",
+  "x0074103A": {
+    "tag": "x0074103A",
     "vr": "DS",
     "vm": "4",
     "name": "DoubleExposureFieldDeltaTrial"
@@ -15953,20 +15953,20 @@
     "vm": "1",
     "name": "FailedAttributesSequence"
   },
-  "(0074,104A)": {
-    "tag": "(0074,104A)",
+  "x0074104A": {
+    "tag": "x0074104A",
     "vr": "SQ",
     "vm": "1",
     "name": "OverriddenAttributesSequence"
   },
-  "(0074,104C)": {
-    "tag": "(0074,104C)",
+  "x0074104C": {
+    "tag": "x0074104C",
     "vr": "SQ",
     "vm": "1",
     "name": "ConventionalControlPointVerificationSequence"
   },
-  "(0074,104E)": {
-    "tag": "(0074,104E)",
+  "x0074104E": {
+    "tag": "x0074104E",
     "vr": "SQ",
     "vm": "1",
     "name": "IonControlPointVerificationSequence"
@@ -16109,8 +16109,8 @@
     "vm": "1",
     "name": "DoubleExposureMeterset"
   },
-  "(0074,133A)": {
-    "tag": "(0074,133A)",
+  "x0074133A": {
+    "tag": "x0074133A",
     "vr": "FD",
     "vm": "4",
     "name": "DoubleExposureFieldDelta"
@@ -16139,20 +16139,20 @@
     "vm": "1",
     "name": "ReplacedImplantAssemblyTemplateSequence"
   },
-  "(0076,000A)": {
-    "tag": "(0076,000A)",
+  "x0076000A": {
+    "tag": "x0076000A",
     "vr": "CS",
     "vm": "1",
     "name": "ImplantAssemblyTemplateType"
   },
-  "(0076,000C)": {
-    "tag": "(0076,000C)",
+  "x0076000C": {
+    "tag": "x0076000C",
     "vr": "SQ",
     "vm": "1",
     "name": "OriginalImplantAssemblyTemplateSequence"
   },
-  "(0076,000E)": {
-    "tag": "(0076,000E)",
+  "x0076000E": {
+    "tag": "x0076000E",
     "vr": "SQ",
     "vm": "1",
     "name": "DerivationImplantAssemblyTemplateSequence"
@@ -16235,20 +16235,20 @@
     "vm": "1",
     "name": "Component1ReferencedMatingFeatureID"
   },
-  "(0076,00A0)": {
-    "tag": "(0076,00A0)",
+  "x007600A0": {
+    "tag": "x007600A0",
     "vr": "US",
     "vm": "1",
     "name": "Component2ReferencedID"
   },
-  "(0076,00B0)": {
-    "tag": "(0076,00B0)",
+  "x007600B0": {
+    "tag": "x007600B0",
     "vr": "US",
     "vm": "1",
     "name": "Component2ReferencedMatingFeatureSetID"
   },
-  "(0076,00C0)": {
-    "tag": "(0076,00C0)",
+  "x007600C0": {
+    "tag": "x007600C0",
     "vr": "US",
     "vm": "1",
     "name": "Component2ReferencedMatingFeatureID"
@@ -16289,14 +16289,14 @@
     "vm": "1",
     "name": "ImplantTemplateGroupTargetAnatomySequence"
   },
-  "(0078,002A)": {
-    "tag": "(0078,002A)",
+  "x0078002A": {
+    "tag": "x0078002A",
     "vr": "SQ",
     "vm": "1",
     "name": "ImplantTemplateGroupMembersSequence"
   },
-  "(0078,002E)": {
-    "tag": "(0078,002E)",
+  "x0078002E": {
+    "tag": "x0078002E",
     "vr": "US",
     "vm": "1",
     "name": "ImplantTemplateGroupMemberID"
@@ -16325,38 +16325,38 @@
     "vm": "2",
     "name": "TwoDImplantTemplateGroupMemberMatchingPoint"
   },
-  "(0078,00A0)": {
-    "tag": "(0078,00A0)",
+  "x007800A0": {
+    "tag": "x007800A0",
     "vr": "FD",
     "vm": "4",
     "name": "TwoDImplantTemplateGroupMemberMatchingAxes"
   },
-  "(0078,00B0)": {
-    "tag": "(0078,00B0)",
+  "x007800B0": {
+    "tag": "x007800B0",
     "vr": "SQ",
     "vm": "1",
     "name": "ImplantTemplateGroupVariationDimensionSequence"
   },
-  "(0078,00B2)": {
-    "tag": "(0078,00B2)",
+  "x007800B2": {
+    "tag": "x007800B2",
     "vr": "LO",
     "vm": "1",
     "name": "ImplantTemplateGroupVariationDimensionName"
   },
-  "(0078,00B4)": {
-    "tag": "(0078,00B4)",
+  "x007800B4": {
+    "tag": "x007800B4",
     "vr": "SQ",
     "vm": "1",
     "name": "ImplantTemplateGroupVariationDimensionRankSequence"
   },
-  "(0078,00B6)": {
-    "tag": "(0078,00B6)",
+  "x007800B6": {
+    "tag": "x007800B6",
     "vr": "US",
     "vm": "1",
     "name": "ReferencedImplantTemplateGroupMemberID"
   },
-  "(0078,00B8)": {
-    "tag": "(0078,00B8)",
+  "x007800B8": {
+    "tag": "x007800B8",
     "vr": "US",
     "vm": "1",
     "name": "ImplantTemplateGroupVariationDimensionRank"
@@ -16571,44 +16571,44 @@
     "vm": "1",
     "name": "ReasonForTheAttributeModification"
   },
-  "(1000,xxx0)": {
-    "tag": "(1000,xxx0)",
+  "x1000xxx0": {
+    "tag": "x1000xxx0",
     "vr": "US",
     "vm": "3",
     "name": "EscapeTriplet"
   },
-  "(1000,xxx1)": {
-    "tag": "(1000,xxx1)",
+  "x1000xxx1": {
+    "tag": "x1000xxx1",
     "vr": "US",
     "vm": "3",
     "name": "RunLengthTriplet"
   },
-  "(1000,xxx2)": {
-    "tag": "(1000,xxx2)",
+  "x1000xxx2": {
+    "tag": "x1000xxx2",
     "vr": "US",
     "vm": "1",
     "name": "HuffmanTableSize"
   },
-  "(1000,xxx3)": {
-    "tag": "(1000,xxx3)",
+  "x1000xxx3": {
+    "tag": "x1000xxx3",
     "vr": "US",
     "vm": "3",
     "name": "HuffmanTableTriplet"
   },
-  "(1000,xxx4)": {
-    "tag": "(1000,xxx4)",
+  "x1000xxx4": {
+    "tag": "x1000xxx4",
     "vr": "US",
     "vm": "1",
     "name": "ShiftTableSize"
   },
-  "(1000,xxx5)": {
-    "tag": "(1000,xxx5)",
+  "x1000xxx5": {
+    "tag": "x1000xxx5",
     "vr": "US",
     "vm": "3",
     "name": "ShiftTableTriplet"
   },
-  "(1010,xxxx)": {
-    "tag": "(1010,xxxx)",
+  "x1010xxxx": {
+    "tag": "x1010xxxx",
     "vr": "US",
     "vm": "1-n",
     "name": "ZonalMap"
@@ -16619,8 +16619,8 @@
     "vm": "1",
     "name": "NumberOfCopies"
   },
-  "(2000,001E)": {
-    "tag": "(2000,001E)",
+  "x2000001E": {
+    "tag": "x2000001E",
     "vr": "SQ",
     "vm": "1",
     "name": "PrinterConfigurationSequence"
@@ -16691,38 +16691,38 @@
     "vm": "1",
     "name": "PresentationLUTFlag"
   },
-  "(2000,006A)": {
-    "tag": "(2000,006A)",
+  "x2000006A": {
+    "tag": "x2000006A",
     "vr": "CS",
     "vm": "1",
     "name": "ImageBoxPresentationLUTFlag"
   },
-  "(2000,00A0)": {
-    "tag": "(2000,00A0)",
+  "x200000A0": {
+    "tag": "x200000A0",
     "vr": "US",
     "vm": "1",
     "name": "MemoryBitDepth"
   },
-  "(2000,00A1)": {
-    "tag": "(2000,00A1)",
+  "x200000A1": {
+    "tag": "x200000A1",
     "vr": "US",
     "vm": "1",
     "name": "PrintingBitDepth"
   },
-  "(2000,00A2)": {
-    "tag": "(2000,00A2)",
+  "x200000A2": {
+    "tag": "x200000A2",
     "vr": "SQ",
     "vm": "1",
     "name": "MediaInstalledSequence"
   },
-  "(2000,00A4)": {
-    "tag": "(2000,00A4)",
+  "x200000A4": {
+    "tag": "x200000A4",
     "vr": "SQ",
     "vm": "1",
     "name": "OtherMediaAvailableSequence"
   },
-  "(2000,00A8)": {
-    "tag": "(2000,00A8)",
+  "x200000A8": {
+    "tag": "x200000A8",
     "vr": "SQ",
     "vm": "1",
     "name": "SupportedImageDisplayFormatsSequence"
@@ -16787,26 +16787,26 @@
     "vm": "1",
     "name": "SmoothingType"
   },
-  "(2010,00A6)": {
-    "tag": "(2010,00A6)",
+  "x201000A6": {
+    "tag": "x201000A6",
     "vr": "CS",
     "vm": "1",
     "name": "DefaultMagnificationType"
   },
-  "(2010,00A7)": {
-    "tag": "(2010,00A7)",
+  "x201000A7": {
+    "tag": "x201000A7",
     "vr": "CS",
     "vm": "1-n",
     "name": "OtherMagnificationTypesAvailable"
   },
-  "(2010,00A8)": {
-    "tag": "(2010,00A8)",
+  "x201000A8": {
+    "tag": "x201000A8",
     "vr": "CS",
     "vm": "1",
     "name": "DefaultSmoothingType"
   },
-  "(2010,00A9)": {
-    "tag": "(2010,00A9)",
+  "x201000A9": {
+    "tag": "x201000A9",
     "vr": "CS",
     "vm": "1-n",
     "name": "OtherSmoothingTypesAvailable"
@@ -16859,8 +16859,8 @@
     "vm": "1",
     "name": "MaximumCollatedFilms"
   },
-  "(2010,015E)": {
-    "tag": "(2010,015E)",
+  "x2010015E": {
+    "tag": "x2010015E",
     "vr": "US",
     "vm": "1",
     "name": "Illumination"
@@ -16925,14 +16925,14 @@
     "vm": "1",
     "name": "RequestedResolutionID"
   },
-  "(2020,00A0)": {
-    "tag": "(2020,00A0)",
+  "x202000A0": {
+    "tag": "x202000A0",
     "vr": "CS",
     "vm": "1",
     "name": "RequestedImageSizeFlag"
   },
-  "(2020,00A2)": {
-    "tag": "(2020,00A2)",
+  "x202000A2": {
+    "tag": "x202000A2",
     "vr": "CS",
     "vm": "1",
     "name": "DecimateCropResult"
@@ -17207,14 +17207,14 @@
     "vm": "1",
     "name": "PresentationLUTContentSequence"
   },
-  "(2130,00A0)": {
-    "tag": "(2130,00A0)",
+  "x213000A0": {
+    "tag": "x213000A0",
     "vr": "SQ",
     "vm": "1",
     "name": "ProposedStudySequence"
   },
-  "(2130,00C0)": {
-    "tag": "(2130,00C0)",
+  "x213000C0": {
+    "tag": "x213000C0",
     "vr": "SQ",
     "vm": "1",
     "name": "OriginalImageSequence"
@@ -17273,38 +17273,38 @@
     "vm": "1",
     "name": "IncludeDisplayApplication"
   },
-  "(2200,000A)": {
-    "tag": "(2200,000A)",
+  "x2200000A": {
+    "tag": "x2200000A",
     "vr": "CS",
     "vm": "1",
     "name": "PreserveCompositeInstancesAfterMediaCreation"
   },
-  "(2200,000B)": {
-    "tag": "(2200,000B)",
+  "x2200000B": {
+    "tag": "x2200000B",
     "vr": "US",
     "vm": "1",
     "name": "TotalNumberOfPiecesOfMediaCreated"
   },
-  "(2200,000C)": {
-    "tag": "(2200,000C)",
+  "x2200000C": {
+    "tag": "x2200000C",
     "vr": "LO",
     "vm": "1",
     "name": "RequestedMediaApplicationProfile"
   },
-  "(2200,000D)": {
-    "tag": "(2200,000D)",
+  "x2200000D": {
+    "tag": "x2200000D",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedStorageMediaSequence"
   },
-  "(2200,000E)": {
-    "tag": "(2200,000E)",
+  "x2200000E": {
+    "tag": "x2200000E",
     "vr": "AT",
     "vm": "1-n",
     "name": "FailureAttributes"
   },
-  "(2200,000F)": {
-    "tag": "(2200,000F)",
+  "x2200000F": {
+    "tag": "x2200000F",
     "vr": "CS",
     "vm": "1",
     "name": "AllowLossyCompression"
@@ -17333,26 +17333,26 @@
     "vm": "1",
     "name": "RTImageDescription"
   },
-  "(3002,000A)": {
-    "tag": "(3002,000A)",
+  "x3002000A": {
+    "tag": "x3002000A",
     "vr": "CS",
     "vm": "1",
     "name": "ReportedValuesOrigin"
   },
-  "(3002,000C)": {
-    "tag": "(3002,000C)",
+  "x3002000C": {
+    "tag": "x3002000C",
     "vr": "CS",
     "vm": "1",
     "name": "RTImagePlane"
   },
-  "(3002,000D)": {
-    "tag": "(3002,000D)",
+  "x3002000D": {
+    "tag": "x3002000D",
     "vr": "DS",
     "vm": "3",
     "name": "XRayImageReceptorTranslation"
   },
-  "(3002,000E)": {
-    "tag": "(3002,000E)",
+  "x3002000E": {
+    "tag": "x3002000E",
     "vr": "DS",
     "vm": "1",
     "name": "XRayImageReceptorAngle"
@@ -17495,20 +17495,20 @@
     "vm": "3",
     "name": "NormalizationPoint"
   },
-  "(3004,000A)": {
-    "tag": "(3004,000A)",
+  "x3004000A": {
+    "tag": "x3004000A",
     "vr": "CS",
     "vm": "1",
     "name": "DoseSummationType"
   },
-  "(3004,000C)": {
-    "tag": "(3004,000C)",
+  "x3004000C": {
+    "tag": "x3004000C",
     "vr": "DS",
     "vm": "2-n",
     "name": "GridFrameOffsetVector"
   },
-  "(3004,000E)": {
-    "tag": "(3004,000E)",
+  "x3004000E": {
+    "tag": "x3004000E",
     "vr": "DS",
     "vm": "1",
     "name": "DoseGridScaling"
@@ -17687,14 +17687,14 @@
     "vm": "1",
     "name": "ROIDescription"
   },
-  "(3006,002A)": {
-    "tag": "(3006,002A)",
+  "x3006002A": {
+    "tag": "x3006002A",
     "vr": "IS",
     "vm": "3",
     "name": "ROIDisplayColor"
   },
-  "(3006,002C)": {
-    "tag": "(3006,002C)",
+  "x3006002C": {
+    "tag": "x3006002C",
     "vr": "DS",
     "vm": "1",
     "name": "ROIVolume"
@@ -17813,86 +17813,86 @@
     "vm": "1",
     "name": "ROIObservationDescription"
   },
-  "(3006,00A0)": {
-    "tag": "(3006,00A0)",
+  "x300600A0": {
+    "tag": "x300600A0",
     "vr": "SQ",
     "vm": "1",
     "name": "RelatedRTROIObservationsSequence"
   },
-  "(3006,00A4)": {
-    "tag": "(3006,00A4)",
+  "x300600A4": {
+    "tag": "x300600A4",
     "vr": "CS",
     "vm": "1",
     "name": "RTROIInterpretedType"
   },
-  "(3006,00A6)": {
-    "tag": "(3006,00A6)",
+  "x300600A6": {
+    "tag": "x300600A6",
     "vr": "PN",
     "vm": "1",
     "name": "ROIInterpreter"
   },
-  "(3006,00B0)": {
-    "tag": "(3006,00B0)",
+  "x300600B0": {
+    "tag": "x300600B0",
     "vr": "SQ",
     "vm": "1",
     "name": "ROIPhysicalPropertiesSequence"
   },
-  "(3006,00B2)": {
-    "tag": "(3006,00B2)",
+  "x300600B2": {
+    "tag": "x300600B2",
     "vr": "CS",
     "vm": "1",
     "name": "ROIPhysicalProperty"
   },
-  "(3006,00B4)": {
-    "tag": "(3006,00B4)",
+  "x300600B4": {
+    "tag": "x300600B4",
     "vr": "DS",
     "vm": "1",
     "name": "ROIPhysicalPropertyValue"
   },
-  "(3006,00B6)": {
-    "tag": "(3006,00B6)",
+  "x300600B6": {
+    "tag": "x300600B6",
     "vr": "SQ",
     "vm": "1",
     "name": "ROIElementalCompositionSequence"
   },
-  "(3006,00B7)": {
-    "tag": "(3006,00B7)",
+  "x300600B7": {
+    "tag": "x300600B7",
     "vr": "US",
     "vm": "1",
     "name": "ROIElementalCompositionAtomicNumber"
   },
-  "(3006,00B8)": {
-    "tag": "(3006,00B8)",
+  "x300600B8": {
+    "tag": "x300600B8",
     "vr": "FL",
     "vm": "1",
     "name": "ROIElementalCompositionAtomicMassFraction"
   },
-  "(3006,00C0)": {
-    "tag": "(3006,00C0)",
+  "x300600C0": {
+    "tag": "x300600C0",
     "vr": "SQ",
     "vm": "1",
     "name": "FrameOfReferenceRelationshipSequence"
   },
-  "(3006,00C2)": {
-    "tag": "(3006,00C2)",
+  "x300600C2": {
+    "tag": "x300600C2",
     "vr": "UI",
     "vm": "1",
     "name": "RelatedFrameOfReferenceUID"
   },
-  "(3006,00C4)": {
-    "tag": "(3006,00C4)",
+  "x300600C4": {
+    "tag": "x300600C4",
     "vr": "CS",
     "vm": "1",
     "name": "FrameOfReferenceTransformationType"
   },
-  "(3006,00C6)": {
-    "tag": "(3006,00C6)",
+  "x300600C6": {
+    "tag": "x300600C6",
     "vr": "DS",
     "vm": "16",
     "name": "FrameOfReferenceTransformationMatrix"
   },
-  "(3006,00C8)": {
-    "tag": "(3006,00C8)",
+  "x300600C8": {
+    "tag": "x300600C8",
     "vr": "LO",
     "vm": "1",
     "name": "FrameOfReferenceTransformationComment"
@@ -17951,20 +17951,20 @@
     "vm": "1",
     "name": "TreatmentControlPointTime"
   },
-  "(3008,002A)": {
-    "tag": "(3008,002A)",
+  "x3008002A": {
+    "tag": "x3008002A",
     "vr": "CS",
     "vm": "1",
     "name": "TreatmentTerminationStatus"
   },
-  "(3008,002B)": {
-    "tag": "(3008,002B)",
+  "x3008002B": {
+    "tag": "x3008002B",
     "vr": "SH",
     "vm": "1",
     "name": "TreatmentTerminationCode"
   },
-  "(3008,002C)": {
-    "tag": "(3008,002C)",
+  "x3008002C": {
+    "tag": "x3008002C",
     "vr": "CS",
     "vm": "1",
     "name": "TreatmentVerificationStatus"
@@ -17999,14 +17999,14 @@
     "vm": "1",
     "name": "DeliveredSecondaryMeterset"
   },
-  "(3008,003A)": {
-    "tag": "(3008,003A)",
+  "x3008003A": {
+    "tag": "x3008003A",
     "vr": "DS",
     "vm": "1",
     "name": "SpecifiedTreatmentTime"
   },
-  "(3008,003B)": {
-    "tag": "(3008,003B)",
+  "x3008003B": {
+    "tag": "x3008003B",
     "vr": "DS",
     "vm": "1",
     "name": "DeliveredTreatmentTime"
@@ -18083,8 +18083,8 @@
     "vm": "1",
     "name": "MostRecentTreatmentDate"
   },
-  "(3008,005A)": {
-    "tag": "(3008,005A)",
+  "x3008005A": {
+    "tag": "x3008005A",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfFractionsDelivered"
@@ -18137,8 +18137,8 @@
     "vm": "1",
     "name": "CorrectedParameterSequence"
   },
-  "(3008,006A)": {
-    "tag": "(3008,006A)",
+  "x3008006A": {
+    "tag": "x3008006A",
     "vr": "FL",
     "vm": "1",
     "name": "CorrectionValue"
@@ -18173,8 +18173,8 @@
     "vm": "1",
     "name": "StartMeterset"
   },
-  "(3008,007A)": {
-    "tag": "(3008,007A)",
+  "x3008007A": {
+    "tag": "x3008007A",
     "vr": "DS",
     "vm": "1",
     "name": "EndMeterset"
@@ -18203,56 +18203,56 @@
     "vm": "1",
     "name": "ReferencedCalculatedDoseReferenceNumber"
   },
-  "(3008,00A0)": {
-    "tag": "(3008,00A0)",
+  "x300800A0": {
+    "tag": "x300800A0",
     "vr": "SQ",
     "vm": "1",
     "name": "BeamLimitingDeviceLeafPairsSequence"
   },
-  "(3008,00B0)": {
-    "tag": "(3008,00B0)",
+  "x300800B0": {
+    "tag": "x300800B0",
     "vr": "SQ",
     "vm": "1",
     "name": "RecordedWedgeSequence"
   },
-  "(3008,00C0)": {
-    "tag": "(3008,00C0)",
+  "x300800C0": {
+    "tag": "x300800C0",
     "vr": "SQ",
     "vm": "1",
     "name": "RecordedCompensatorSequence"
   },
-  "(3008,00D0)": {
-    "tag": "(3008,00D0)",
+  "x300800D0": {
+    "tag": "x300800D0",
     "vr": "SQ",
     "vm": "1",
     "name": "RecordedBlockSequence"
   },
-  "(3008,00E0)": {
-    "tag": "(3008,00E0)",
+  "x300800E0": {
+    "tag": "x300800E0",
     "vr": "SQ",
     "vm": "1",
     "name": "TreatmentSummaryMeasuredDoseReferenceSequence"
   },
-  "(3008,00F0)": {
-    "tag": "(3008,00F0)",
+  "x300800F0": {
+    "tag": "x300800F0",
     "vr": "SQ",
     "vm": "1",
     "name": "RecordedSnoutSequence"
   },
-  "(3008,00F2)": {
-    "tag": "(3008,00F2)",
+  "x300800F2": {
+    "tag": "x300800F2",
     "vr": "SQ",
     "vm": "1",
     "name": "RecordedRangeShifterSequence"
   },
-  "(3008,00F4)": {
-    "tag": "(3008,00F4)",
+  "x300800F4": {
+    "tag": "x300800F4",
     "vr": "SQ",
     "vm": "1",
     "name": "RecordedLateralSpreadingDeviceSequence"
   },
-  "(3008,00F6)": {
-    "tag": "(3008,00F6)",
+  "x300800F6": {
+    "tag": "x300800F6",
     "vr": "SQ",
     "vm": "1",
     "name": "RecordedRangeModulatorSequence"
@@ -18323,14 +18323,14 @@
     "vm": "1",
     "name": "DeliveredNumberOfPulses"
   },
-  "(3008,013A)": {
-    "tag": "(3008,013A)",
+  "x3008013A": {
+    "tag": "x3008013A",
     "vr": "DS",
     "vm": "1",
     "name": "SpecifiedPulseRepetitionInterval"
   },
-  "(3008,013C)": {
-    "tag": "(3008,013C)",
+  "x3008013C": {
+    "tag": "x3008013C",
     "vr": "DS",
     "vm": "1",
     "name": "DeliveredPulseRepetitionInterval"
@@ -18443,2276 +18443,2276 @@
     "vm": "1",
     "name": "TreatmentTime"
   },
-  "(300A,0002)": {
-    "tag": "(300A,0002)",
+  "x300A0002": {
+    "tag": "x300A0002",
     "vr": "SH",
     "vm": "1",
     "name": "RTPlanLabel"
   },
-  "(300A,0003)": {
-    "tag": "(300A,0003)",
+  "x300A0003": {
+    "tag": "x300A0003",
     "vr": "LO",
     "vm": "1",
     "name": "RTPlanName"
   },
-  "(300A,0004)": {
-    "tag": "(300A,0004)",
+  "x300A0004": {
+    "tag": "x300A0004",
     "vr": "ST",
     "vm": "1",
     "name": "RTPlanDescription"
   },
-  "(300A,0006)": {
-    "tag": "(300A,0006)",
+  "x300A0006": {
+    "tag": "x300A0006",
     "vr": "DA",
     "vm": "1",
     "name": "RTPlanDate"
   },
-  "(300A,0007)": {
-    "tag": "(300A,0007)",
+  "x300A0007": {
+    "tag": "x300A0007",
     "vr": "TM",
     "vm": "1",
     "name": "RTPlanTime"
   },
-  "(300A,0009)": {
-    "tag": "(300A,0009)",
+  "x300A0009": {
+    "tag": "x300A0009",
     "vr": "LO",
     "vm": "1-n",
     "name": "TreatmentProtocols"
   },
-  "(300A,000A)": {
-    "tag": "(300A,000A)",
+  "x300A000A": {
+    "tag": "x300A000A",
     "vr": "CS",
     "vm": "1",
     "name": "PlanIntent"
   },
-  "(300A,000B)": {
-    "tag": "(300A,000B)",
+  "x300A000B": {
+    "tag": "x300A000B",
     "vr": "LO",
     "vm": "1-n",
     "name": "TreatmentSites"
   },
-  "(300A,000C)": {
-    "tag": "(300A,000C)",
+  "x300A000C": {
+    "tag": "x300A000C",
     "vr": "CS",
     "vm": "1",
     "name": "RTPlanGeometry"
   },
-  "(300A,000E)": {
-    "tag": "(300A,000E)",
+  "x300A000E": {
+    "tag": "x300A000E",
     "vr": "ST",
     "vm": "1",
     "name": "PrescriptionDescription"
   },
-  "(300A,0010)": {
-    "tag": "(300A,0010)",
+  "x300A0010": {
+    "tag": "x300A0010",
     "vr": "SQ",
     "vm": "1",
     "name": "DoseReferenceSequence"
   },
-  "(300A,0012)": {
-    "tag": "(300A,0012)",
+  "x300A0012": {
+    "tag": "x300A0012",
     "vr": "IS",
     "vm": "1",
     "name": "DoseReferenceNumber"
   },
-  "(300A,0013)": {
-    "tag": "(300A,0013)",
+  "x300A0013": {
+    "tag": "x300A0013",
     "vr": "UI",
     "vm": "1",
     "name": "DoseReferenceUID"
   },
-  "(300A,0014)": {
-    "tag": "(300A,0014)",
+  "x300A0014": {
+    "tag": "x300A0014",
     "vr": "CS",
     "vm": "1",
     "name": "DoseReferenceStructureType"
   },
-  "(300A,0015)": {
-    "tag": "(300A,0015)",
+  "x300A0015": {
+    "tag": "x300A0015",
     "vr": "CS",
     "vm": "1",
     "name": "NominalBeamEnergyUnit"
   },
-  "(300A,0016)": {
-    "tag": "(300A,0016)",
+  "x300A0016": {
+    "tag": "x300A0016",
     "vr": "LO",
     "vm": "1",
     "name": "DoseReferenceDescription"
   },
-  "(300A,0018)": {
-    "tag": "(300A,0018)",
+  "x300A0018": {
+    "tag": "x300A0018",
     "vr": "DS",
     "vm": "3",
     "name": "DoseReferencePointCoordinates"
   },
-  "(300A,001A)": {
-    "tag": "(300A,001A)",
+  "x300A001A": {
+    "tag": "x300A001A",
     "vr": "DS",
     "vm": "1",
     "name": "NominalPriorDose"
   },
-  "(300A,0020)": {
-    "tag": "(300A,0020)",
+  "x300A0020": {
+    "tag": "x300A0020",
     "vr": "CS",
     "vm": "1",
     "name": "DoseReferenceType"
   },
-  "(300A,0021)": {
-    "tag": "(300A,0021)",
+  "x300A0021": {
+    "tag": "x300A0021",
     "vr": "DS",
     "vm": "1",
     "name": "ConstraintWeight"
   },
-  "(300A,0022)": {
-    "tag": "(300A,0022)",
+  "x300A0022": {
+    "tag": "x300A0022",
     "vr": "DS",
     "vm": "1",
     "name": "DeliveryWarningDose"
   },
-  "(300A,0023)": {
-    "tag": "(300A,0023)",
+  "x300A0023": {
+    "tag": "x300A0023",
     "vr": "DS",
     "vm": "1",
     "name": "DeliveryMaximumDose"
   },
-  "(300A,0025)": {
-    "tag": "(300A,0025)",
+  "x300A0025": {
+    "tag": "x300A0025",
     "vr": "DS",
     "vm": "1",
     "name": "TargetMinimumDose"
   },
-  "(300A,0026)": {
-    "tag": "(300A,0026)",
+  "x300A0026": {
+    "tag": "x300A0026",
     "vr": "DS",
     "vm": "1",
     "name": "TargetPrescriptionDose"
   },
-  "(300A,0027)": {
-    "tag": "(300A,0027)",
+  "x300A0027": {
+    "tag": "x300A0027",
     "vr": "DS",
     "vm": "1",
     "name": "TargetMaximumDose"
   },
-  "(300A,0028)": {
-    "tag": "(300A,0028)",
+  "x300A0028": {
+    "tag": "x300A0028",
     "vr": "DS",
     "vm": "1",
     "name": "TargetUnderdoseVolumeFraction"
   },
-  "(300A,002A)": {
-    "tag": "(300A,002A)",
+  "x300A002A": {
+    "tag": "x300A002A",
     "vr": "DS",
     "vm": "1",
     "name": "OrganAtRiskFullVolumeDose"
   },
-  "(300A,002B)": {
-    "tag": "(300A,002B)",
+  "x300A002B": {
+    "tag": "x300A002B",
     "vr": "DS",
     "vm": "1",
     "name": "OrganAtRiskLimitDose"
   },
-  "(300A,002C)": {
-    "tag": "(300A,002C)",
+  "x300A002C": {
+    "tag": "x300A002C",
     "vr": "DS",
     "vm": "1",
     "name": "OrganAtRiskMaximumDose"
   },
-  "(300A,002D)": {
-    "tag": "(300A,002D)",
+  "x300A002D": {
+    "tag": "x300A002D",
     "vr": "DS",
     "vm": "1",
     "name": "OrganAtRiskOverdoseVolumeFraction"
   },
-  "(300A,0040)": {
-    "tag": "(300A,0040)",
+  "x300A0040": {
+    "tag": "x300A0040",
     "vr": "SQ",
     "vm": "1",
     "name": "ToleranceTableSequence"
   },
-  "(300A,0042)": {
-    "tag": "(300A,0042)",
+  "x300A0042": {
+    "tag": "x300A0042",
     "vr": "IS",
     "vm": "1",
     "name": "ToleranceTableNumber"
   },
-  "(300A,0043)": {
-    "tag": "(300A,0043)",
+  "x300A0043": {
+    "tag": "x300A0043",
     "vr": "SH",
     "vm": "1",
     "name": "ToleranceTableLabel"
   },
-  "(300A,0044)": {
-    "tag": "(300A,0044)",
+  "x300A0044": {
+    "tag": "x300A0044",
     "vr": "DS",
     "vm": "1",
     "name": "GantryAngleTolerance"
   },
-  "(300A,0046)": {
-    "tag": "(300A,0046)",
+  "x300A0046": {
+    "tag": "x300A0046",
     "vr": "DS",
     "vm": "1",
     "name": "BeamLimitingDeviceAngleTolerance"
   },
-  "(300A,0048)": {
-    "tag": "(300A,0048)",
+  "x300A0048": {
+    "tag": "x300A0048",
     "vr": "SQ",
     "vm": "1",
     "name": "BeamLimitingDeviceToleranceSequence"
   },
-  "(300A,004A)": {
-    "tag": "(300A,004A)",
+  "x300A004A": {
+    "tag": "x300A004A",
     "vr": "DS",
     "vm": "1",
     "name": "BeamLimitingDevicePositionTolerance"
   },
-  "(300A,004B)": {
-    "tag": "(300A,004B)",
+  "x300A004B": {
+    "tag": "x300A004B",
     "vr": "FL",
     "vm": "1",
     "name": "SnoutPositionTolerance"
   },
-  "(300A,004C)": {
-    "tag": "(300A,004C)",
+  "x300A004C": {
+    "tag": "x300A004C",
     "vr": "DS",
     "vm": "1",
     "name": "PatientSupportAngleTolerance"
   },
-  "(300A,004E)": {
-    "tag": "(300A,004E)",
+  "x300A004E": {
+    "tag": "x300A004E",
     "vr": "DS",
     "vm": "1",
     "name": "TableTopEccentricAngleTolerance"
   },
-  "(300A,004F)": {
-    "tag": "(300A,004F)",
+  "x300A004F": {
+    "tag": "x300A004F",
     "vr": "FL",
     "vm": "1",
     "name": "TableTopPitchAngleTolerance"
   },
-  "(300A,0050)": {
-    "tag": "(300A,0050)",
+  "x300A0050": {
+    "tag": "x300A0050",
     "vr": "FL",
     "vm": "1",
     "name": "TableTopRollAngleTolerance"
   },
-  "(300A,0051)": {
-    "tag": "(300A,0051)",
+  "x300A0051": {
+    "tag": "x300A0051",
     "vr": "DS",
     "vm": "1",
     "name": "TableTopVerticalPositionTolerance"
   },
-  "(300A,0052)": {
-    "tag": "(300A,0052)",
+  "x300A0052": {
+    "tag": "x300A0052",
     "vr": "DS",
     "vm": "1",
     "name": "TableTopLongitudinalPositionTolerance"
   },
-  "(300A,0053)": {
-    "tag": "(300A,0053)",
+  "x300A0053": {
+    "tag": "x300A0053",
     "vr": "DS",
     "vm": "1",
     "name": "TableTopLateralPositionTolerance"
   },
-  "(300A,0055)": {
-    "tag": "(300A,0055)",
+  "x300A0055": {
+    "tag": "x300A0055",
     "vr": "CS",
     "vm": "1",
     "name": "RTPlanRelationship"
   },
-  "(300A,0070)": {
-    "tag": "(300A,0070)",
+  "x300A0070": {
+    "tag": "x300A0070",
     "vr": "SQ",
     "vm": "1",
     "name": "FractionGroupSequence"
   },
-  "(300A,0071)": {
-    "tag": "(300A,0071)",
+  "x300A0071": {
+    "tag": "x300A0071",
     "vr": "IS",
     "vm": "1",
     "name": "FractionGroupNumber"
   },
-  "(300A,0072)": {
-    "tag": "(300A,0072)",
+  "x300A0072": {
+    "tag": "x300A0072",
     "vr": "LO",
     "vm": "1",
     "name": "FractionGroupDescription"
   },
-  "(300A,0078)": {
-    "tag": "(300A,0078)",
+  "x300A0078": {
+    "tag": "x300A0078",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfFractionsPlanned"
   },
-  "(300A,0079)": {
-    "tag": "(300A,0079)",
+  "x300A0079": {
+    "tag": "x300A0079",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfFractionPatternDigitsPerDay"
   },
-  "(300A,007A)": {
-    "tag": "(300A,007A)",
+  "x300A007A": {
+    "tag": "x300A007A",
     "vr": "IS",
     "vm": "1",
     "name": "RepeatFractionCycleLength"
   },
-  "(300A,007B)": {
-    "tag": "(300A,007B)",
+  "x300A007B": {
+    "tag": "x300A007B",
     "vr": "LT",
     "vm": "1",
     "name": "FractionPattern"
   },
-  "(300A,0080)": {
-    "tag": "(300A,0080)",
+  "x300A0080": {
+    "tag": "x300A0080",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfBeams"
   },
-  "(300A,0082)": {
-    "tag": "(300A,0082)",
+  "x300A0082": {
+    "tag": "x300A0082",
     "vr": "DS",
     "vm": "3",
     "name": "BeamDoseSpecificationPoint"
   },
-  "(300A,0084)": {
-    "tag": "(300A,0084)",
+  "x300A0084": {
+    "tag": "x300A0084",
     "vr": "DS",
     "vm": "1",
     "name": "BeamDose"
   },
-  "(300A,0086)": {
-    "tag": "(300A,0086)",
+  "x300A0086": {
+    "tag": "x300A0086",
     "vr": "DS",
     "vm": "1",
     "name": "BeamMeterset"
   },
-  "(300A,0088)": {
-    "tag": "(300A,0088)",
+  "x300A0088": {
+    "tag": "x300A0088",
     "vr": "FL",
     "vm": "1",
     "name": "BeamDosePointDepth"
   },
-  "(300A,0089)": {
-    "tag": "(300A,0089)",
+  "x300A0089": {
+    "tag": "x300A0089",
     "vr": "FL",
     "vm": "1",
     "name": "BeamDosePointEquivalentDepth"
   },
-  "(300A,008A)": {
-    "tag": "(300A,008A)",
+  "x300A008A": {
+    "tag": "x300A008A",
     "vr": "FL",
     "vm": "1",
     "name": "BeamDosePointSSD"
   },
-  "(300A,00A0)": {
-    "tag": "(300A,00A0)",
+  "x300A00A0": {
+    "tag": "x300A00A0",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfBrachyApplicationSetups"
   },
-  "(300A,00A2)": {
-    "tag": "(300A,00A2)",
+  "x300A00A2": {
+    "tag": "x300A00A2",
     "vr": "DS",
     "vm": "3",
     "name": "BrachyApplicationSetupDoseSpecificationPoint"
   },
-  "(300A,00A4)": {
-    "tag": "(300A,00A4)",
+  "x300A00A4": {
+    "tag": "x300A00A4",
     "vr": "DS",
     "vm": "1",
     "name": "BrachyApplicationSetupDose"
   },
-  "(300A,00B0)": {
-    "tag": "(300A,00B0)",
+  "x300A00B0": {
+    "tag": "x300A00B0",
     "vr": "SQ",
     "vm": "1",
     "name": "BeamSequence"
   },
-  "(300A,00B2)": {
-    "tag": "(300A,00B2)",
+  "x300A00B2": {
+    "tag": "x300A00B2",
     "vr": "SH",
     "vm": "1",
     "name": "TreatmentMachineName"
   },
-  "(300A,00B3)": {
-    "tag": "(300A,00B3)",
+  "x300A00B3": {
+    "tag": "x300A00B3",
     "vr": "CS",
     "vm": "1",
     "name": "PrimaryDosimeterUnit"
   },
-  "(300A,00B4)": {
-    "tag": "(300A,00B4)",
+  "x300A00B4": {
+    "tag": "x300A00B4",
     "vr": "DS",
     "vm": "1",
     "name": "SourceAxisDistance"
   },
-  "(300A,00B6)": {
-    "tag": "(300A,00B6)",
+  "x300A00B6": {
+    "tag": "x300A00B6",
     "vr": "SQ",
     "vm": "1",
     "name": "BeamLimitingDeviceSequence"
   },
-  "(300A,00B8)": {
-    "tag": "(300A,00B8)",
+  "x300A00B8": {
+    "tag": "x300A00B8",
     "vr": "CS",
     "vm": "1",
     "name": "RTBeamLimitingDeviceType"
   },
-  "(300A,00BA)": {
-    "tag": "(300A,00BA)",
+  "x300A00BA": {
+    "tag": "x300A00BA",
     "vr": "DS",
     "vm": "1",
     "name": "SourceToBeamLimitingDeviceDistance"
   },
-  "(300A,00BB)": {
-    "tag": "(300A,00BB)",
+  "x300A00BB": {
+    "tag": "x300A00BB",
     "vr": "FL",
     "vm": "1",
     "name": "IsocenterToBeamLimitingDeviceDistance"
   },
-  "(300A,00BC)": {
-    "tag": "(300A,00BC)",
+  "x300A00BC": {
+    "tag": "x300A00BC",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfLeafJawPairs"
   },
-  "(300A,00BE)": {
-    "tag": "(300A,00BE)",
+  "x300A00BE": {
+    "tag": "x300A00BE",
     "vr": "DS",
     "vm": "3-n",
     "name": "LeafPositionBoundaries"
   },
-  "(300A,00C0)": {
-    "tag": "(300A,00C0)",
+  "x300A00C0": {
+    "tag": "x300A00C0",
     "vr": "IS",
     "vm": "1",
     "name": "BeamNumber"
   },
-  "(300A,00C2)": {
-    "tag": "(300A,00C2)",
+  "x300A00C2": {
+    "tag": "x300A00C2",
     "vr": "LO",
     "vm": "1",
     "name": "BeamName"
   },
-  "(300A,00C3)": {
-    "tag": "(300A,00C3)",
+  "x300A00C3": {
+    "tag": "x300A00C3",
     "vr": "ST",
     "vm": "1",
     "name": "BeamDescription"
   },
-  "(300A,00C4)": {
-    "tag": "(300A,00C4)",
+  "x300A00C4": {
+    "tag": "x300A00C4",
     "vr": "CS",
     "vm": "1",
     "name": "BeamType"
   },
-  "(300A,00C6)": {
-    "tag": "(300A,00C6)",
+  "x300A00C6": {
+    "tag": "x300A00C6",
     "vr": "CS",
     "vm": "1",
     "name": "RadiationType"
   },
-  "(300A,00C7)": {
-    "tag": "(300A,00C7)",
+  "x300A00C7": {
+    "tag": "x300A00C7",
     "vr": "CS",
     "vm": "1",
     "name": "HighDoseTechniqueType"
   },
-  "(300A,00C8)": {
-    "tag": "(300A,00C8)",
+  "x300A00C8": {
+    "tag": "x300A00C8",
     "vr": "IS",
     "vm": "1",
     "name": "ReferenceImageNumber"
   },
-  "(300A,00CA)": {
-    "tag": "(300A,00CA)",
+  "x300A00CA": {
+    "tag": "x300A00CA",
     "vr": "SQ",
     "vm": "1",
     "name": "PlannedVerificationImageSequence"
   },
-  "(300A,00CC)": {
-    "tag": "(300A,00CC)",
+  "x300A00CC": {
+    "tag": "x300A00CC",
     "vr": "LO",
     "vm": "1-n",
     "name": "ImagingDeviceSpecificAcquisitionParameters"
   },
-  "(300A,00CE)": {
-    "tag": "(300A,00CE)",
+  "x300A00CE": {
+    "tag": "x300A00CE",
     "vr": "CS",
     "vm": "1",
     "name": "TreatmentDeliveryType"
   },
-  "(300A,00D0)": {
-    "tag": "(300A,00D0)",
+  "x300A00D0": {
+    "tag": "x300A00D0",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfWedges"
   },
-  "(300A,00D1)": {
-    "tag": "(300A,00D1)",
+  "x300A00D1": {
+    "tag": "x300A00D1",
     "vr": "SQ",
     "vm": "1",
     "name": "WedgeSequence"
   },
-  "(300A,00D2)": {
-    "tag": "(300A,00D2)",
+  "x300A00D2": {
+    "tag": "x300A00D2",
     "vr": "IS",
     "vm": "1",
     "name": "WedgeNumber"
   },
-  "(300A,00D3)": {
-    "tag": "(300A,00D3)",
+  "x300A00D3": {
+    "tag": "x300A00D3",
     "vr": "CS",
     "vm": "1",
     "name": "WedgeType"
   },
-  "(300A,00D4)": {
-    "tag": "(300A,00D4)",
+  "x300A00D4": {
+    "tag": "x300A00D4",
     "vr": "SH",
     "vm": "1",
     "name": "WedgeID"
   },
-  "(300A,00D5)": {
-    "tag": "(300A,00D5)",
+  "x300A00D5": {
+    "tag": "x300A00D5",
     "vr": "IS",
     "vm": "1",
     "name": "WedgeAngle"
   },
-  "(300A,00D6)": {
-    "tag": "(300A,00D6)",
+  "x300A00D6": {
+    "tag": "x300A00D6",
     "vr": "DS",
     "vm": "1",
     "name": "WedgeFactor"
   },
-  "(300A,00D7)": {
-    "tag": "(300A,00D7)",
+  "x300A00D7": {
+    "tag": "x300A00D7",
     "vr": "FL",
     "vm": "1",
     "name": "TotalWedgeTrayWaterEquivalentThickness"
   },
-  "(300A,00D8)": {
-    "tag": "(300A,00D8)",
+  "x300A00D8": {
+    "tag": "x300A00D8",
     "vr": "DS",
     "vm": "1",
     "name": "WedgeOrientation"
   },
-  "(300A,00D9)": {
-    "tag": "(300A,00D9)",
+  "x300A00D9": {
+    "tag": "x300A00D9",
     "vr": "FL",
     "vm": "1",
     "name": "IsocenterToWedgeTrayDistance"
   },
-  "(300A,00DA)": {
-    "tag": "(300A,00DA)",
+  "x300A00DA": {
+    "tag": "x300A00DA",
     "vr": "DS",
     "vm": "1",
     "name": "SourceToWedgeTrayDistance"
   },
-  "(300A,00DB)": {
-    "tag": "(300A,00DB)",
+  "x300A00DB": {
+    "tag": "x300A00DB",
     "vr": "FL",
     "vm": "1",
     "name": "WedgeThinEdgePosition"
   },
-  "(300A,00DC)": {
-    "tag": "(300A,00DC)",
+  "x300A00DC": {
+    "tag": "x300A00DC",
     "vr": "SH",
     "vm": "1",
     "name": "BolusID"
   },
-  "(300A,00DD)": {
-    "tag": "(300A,00DD)",
+  "x300A00DD": {
+    "tag": "x300A00DD",
     "vr": "ST",
     "vm": "1",
     "name": "BolusDescription"
   },
-  "(300A,00E0)": {
-    "tag": "(300A,00E0)",
+  "x300A00E0": {
+    "tag": "x300A00E0",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfCompensators"
   },
-  "(300A,00E1)": {
-    "tag": "(300A,00E1)",
+  "x300A00E1": {
+    "tag": "x300A00E1",
     "vr": "SH",
     "vm": "1",
     "name": "MaterialID"
   },
-  "(300A,00E2)": {
-    "tag": "(300A,00E2)",
+  "x300A00E2": {
+    "tag": "x300A00E2",
     "vr": "DS",
     "vm": "1",
     "name": "TotalCompensatorTrayFactor"
   },
-  "(300A,00E3)": {
-    "tag": "(300A,00E3)",
+  "x300A00E3": {
+    "tag": "x300A00E3",
     "vr": "SQ",
     "vm": "1",
     "name": "CompensatorSequence"
   },
-  "(300A,00E4)": {
-    "tag": "(300A,00E4)",
+  "x300A00E4": {
+    "tag": "x300A00E4",
     "vr": "IS",
     "vm": "1",
     "name": "CompensatorNumber"
   },
-  "(300A,00E5)": {
-    "tag": "(300A,00E5)",
+  "x300A00E5": {
+    "tag": "x300A00E5",
     "vr": "SH",
     "vm": "1",
     "name": "CompensatorID"
   },
-  "(300A,00E6)": {
-    "tag": "(300A,00E6)",
+  "x300A00E6": {
+    "tag": "x300A00E6",
     "vr": "DS",
     "vm": "1",
     "name": "SourceToCompensatorTrayDistance"
   },
-  "(300A,00E7)": {
-    "tag": "(300A,00E7)",
+  "x300A00E7": {
+    "tag": "x300A00E7",
     "vr": "IS",
     "vm": "1",
     "name": "CompensatorRows"
   },
-  "(300A,00E8)": {
-    "tag": "(300A,00E8)",
+  "x300A00E8": {
+    "tag": "x300A00E8",
     "vr": "IS",
     "vm": "1",
     "name": "CompensatorColumns"
   },
-  "(300A,00E9)": {
-    "tag": "(300A,00E9)",
+  "x300A00E9": {
+    "tag": "x300A00E9",
     "vr": "DS",
     "vm": "2",
     "name": "CompensatorPixelSpacing"
   },
-  "(300A,00EA)": {
-    "tag": "(300A,00EA)",
+  "x300A00EA": {
+    "tag": "x300A00EA",
     "vr": "DS",
     "vm": "2",
     "name": "CompensatorPosition"
   },
-  "(300A,00EB)": {
-    "tag": "(300A,00EB)",
+  "x300A00EB": {
+    "tag": "x300A00EB",
     "vr": "DS",
     "vm": "1-n",
     "name": "CompensatorTransmissionData"
   },
-  "(300A,00EC)": {
-    "tag": "(300A,00EC)",
+  "x300A00EC": {
+    "tag": "x300A00EC",
     "vr": "DS",
     "vm": "1-n",
     "name": "CompensatorThicknessData"
   },
-  "(300A,00ED)": {
-    "tag": "(300A,00ED)",
+  "x300A00ED": {
+    "tag": "x300A00ED",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfBoli"
   },
-  "(300A,00EE)": {
-    "tag": "(300A,00EE)",
+  "x300A00EE": {
+    "tag": "x300A00EE",
     "vr": "CS",
     "vm": "1",
     "name": "CompensatorType"
   },
-  "(300A,00F0)": {
-    "tag": "(300A,00F0)",
+  "x300A00F0": {
+    "tag": "x300A00F0",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfBlocks"
   },
-  "(300A,00F2)": {
-    "tag": "(300A,00F2)",
+  "x300A00F2": {
+    "tag": "x300A00F2",
     "vr": "DS",
     "vm": "1",
     "name": "TotalBlockTrayFactor"
   },
-  "(300A,00F3)": {
-    "tag": "(300A,00F3)",
+  "x300A00F3": {
+    "tag": "x300A00F3",
     "vr": "FL",
     "vm": "1",
     "name": "TotalBlockTrayWaterEquivalentThickness"
   },
-  "(300A,00F4)": {
-    "tag": "(300A,00F4)",
+  "x300A00F4": {
+    "tag": "x300A00F4",
     "vr": "SQ",
     "vm": "1",
     "name": "BlockSequence"
   },
-  "(300A,00F5)": {
-    "tag": "(300A,00F5)",
+  "x300A00F5": {
+    "tag": "x300A00F5",
     "vr": "SH",
     "vm": "1",
     "name": "BlockTrayID"
   },
-  "(300A,00F6)": {
-    "tag": "(300A,00F6)",
+  "x300A00F6": {
+    "tag": "x300A00F6",
     "vr": "DS",
     "vm": "1",
     "name": "SourceToBlockTrayDistance"
   },
-  "(300A,00F7)": {
-    "tag": "(300A,00F7)",
+  "x300A00F7": {
+    "tag": "x300A00F7",
     "vr": "FL",
     "vm": "1",
     "name": "IsocenterToBlockTrayDistance"
   },
-  "(300A,00F8)": {
-    "tag": "(300A,00F8)",
+  "x300A00F8": {
+    "tag": "x300A00F8",
     "vr": "CS",
     "vm": "1",
     "name": "BlockType"
   },
-  "(300A,00F9)": {
-    "tag": "(300A,00F9)",
+  "x300A00F9": {
+    "tag": "x300A00F9",
     "vr": "LO",
     "vm": "1",
     "name": "AccessoryCode"
   },
-  "(300A,00FA)": {
-    "tag": "(300A,00FA)",
+  "x300A00FA": {
+    "tag": "x300A00FA",
     "vr": "CS",
     "vm": "1",
     "name": "BlockDivergence"
   },
-  "(300A,00FB)": {
-    "tag": "(300A,00FB)",
+  "x300A00FB": {
+    "tag": "x300A00FB",
     "vr": "CS",
     "vm": "1",
     "name": "BlockMountingPosition"
   },
-  "(300A,00FC)": {
-    "tag": "(300A,00FC)",
+  "x300A00FC": {
+    "tag": "x300A00FC",
     "vr": "IS",
     "vm": "1",
     "name": "BlockNumber"
   },
-  "(300A,00FE)": {
-    "tag": "(300A,00FE)",
+  "x300A00FE": {
+    "tag": "x300A00FE",
     "vr": "LO",
     "vm": "1",
     "name": "BlockName"
   },
-  "(300A,0100)": {
-    "tag": "(300A,0100)",
+  "x300A0100": {
+    "tag": "x300A0100",
     "vr": "DS",
     "vm": "1",
     "name": "BlockThickness"
   },
-  "(300A,0102)": {
-    "tag": "(300A,0102)",
+  "x300A0102": {
+    "tag": "x300A0102",
     "vr": "DS",
     "vm": "1",
     "name": "BlockTransmission"
   },
-  "(300A,0104)": {
-    "tag": "(300A,0104)",
+  "x300A0104": {
+    "tag": "x300A0104",
     "vr": "IS",
     "vm": "1",
     "name": "BlockNumberOfPoints"
   },
-  "(300A,0106)": {
-    "tag": "(300A,0106)",
+  "x300A0106": {
+    "tag": "x300A0106",
     "vr": "DS",
     "vm": "2-2n",
     "name": "BlockData"
   },
-  "(300A,0107)": {
-    "tag": "(300A,0107)",
+  "x300A0107": {
+    "tag": "x300A0107",
     "vr": "SQ",
     "vm": "1",
     "name": "ApplicatorSequence"
   },
-  "(300A,0108)": {
-    "tag": "(300A,0108)",
+  "x300A0108": {
+    "tag": "x300A0108",
     "vr": "SH",
     "vm": "1",
     "name": "ApplicatorID"
   },
-  "(300A,0109)": {
-    "tag": "(300A,0109)",
+  "x300A0109": {
+    "tag": "x300A0109",
     "vr": "CS",
     "vm": "1",
     "name": "ApplicatorType"
   },
-  "(300A,010A)": {
-    "tag": "(300A,010A)",
+  "x300A010A": {
+    "tag": "x300A010A",
     "vr": "LO",
     "vm": "1",
     "name": "ApplicatorDescription"
   },
-  "(300A,010C)": {
-    "tag": "(300A,010C)",
+  "x300A010C": {
+    "tag": "x300A010C",
     "vr": "DS",
     "vm": "1",
     "name": "CumulativeDoseReferenceCoefficient"
   },
-  "(300A,010E)": {
-    "tag": "(300A,010E)",
+  "x300A010E": {
+    "tag": "x300A010E",
     "vr": "DS",
     "vm": "1",
     "name": "FinalCumulativeMetersetWeight"
   },
-  "(300A,0110)": {
-    "tag": "(300A,0110)",
+  "x300A0110": {
+    "tag": "x300A0110",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfControlPoints"
   },
-  "(300A,0111)": {
-    "tag": "(300A,0111)",
+  "x300A0111": {
+    "tag": "x300A0111",
     "vr": "SQ",
     "vm": "1",
     "name": "ControlPointSequence"
   },
-  "(300A,0112)": {
-    "tag": "(300A,0112)",
+  "x300A0112": {
+    "tag": "x300A0112",
     "vr": "IS",
     "vm": "1",
     "name": "ControlPointIndex"
   },
-  "(300A,0114)": {
-    "tag": "(300A,0114)",
+  "x300A0114": {
+    "tag": "x300A0114",
     "vr": "DS",
     "vm": "1",
     "name": "NominalBeamEnergy"
   },
-  "(300A,0115)": {
-    "tag": "(300A,0115)",
+  "x300A0115": {
+    "tag": "x300A0115",
     "vr": "DS",
     "vm": "1",
     "name": "DoseRateSet"
   },
-  "(300A,0116)": {
-    "tag": "(300A,0116)",
+  "x300A0116": {
+    "tag": "x300A0116",
     "vr": "SQ",
     "vm": "1",
     "name": "WedgePositionSequence"
   },
-  "(300A,0118)": {
-    "tag": "(300A,0118)",
+  "x300A0118": {
+    "tag": "x300A0118",
     "vr": "CS",
     "vm": "1",
     "name": "WedgePosition"
   },
-  "(300A,011A)": {
-    "tag": "(300A,011A)",
+  "x300A011A": {
+    "tag": "x300A011A",
     "vr": "SQ",
     "vm": "1",
     "name": "BeamLimitingDevicePositionSequence"
   },
-  "(300A,011C)": {
-    "tag": "(300A,011C)",
+  "x300A011C": {
+    "tag": "x300A011C",
     "vr": "DS",
     "vm": "2-2n",
     "name": "LeafJawPositions"
   },
-  "(300A,011E)": {
-    "tag": "(300A,011E)",
+  "x300A011E": {
+    "tag": "x300A011E",
     "vr": "DS",
     "vm": "1",
     "name": "GantryAngle"
   },
-  "(300A,011F)": {
-    "tag": "(300A,011F)",
+  "x300A011F": {
+    "tag": "x300A011F",
     "vr": "CS",
     "vm": "1",
     "name": "GantryRotationDirection"
   },
-  "(300A,0120)": {
-    "tag": "(300A,0120)",
+  "x300A0120": {
+    "tag": "x300A0120",
     "vr": "DS",
     "vm": "1",
     "name": "BeamLimitingDeviceAngle"
   },
-  "(300A,0121)": {
-    "tag": "(300A,0121)",
+  "x300A0121": {
+    "tag": "x300A0121",
     "vr": "CS",
     "vm": "1",
     "name": "BeamLimitingDeviceRotationDirection"
   },
-  "(300A,0122)": {
-    "tag": "(300A,0122)",
+  "x300A0122": {
+    "tag": "x300A0122",
     "vr": "DS",
     "vm": "1",
     "name": "PatientSupportAngle"
   },
-  "(300A,0123)": {
-    "tag": "(300A,0123)",
+  "x300A0123": {
+    "tag": "x300A0123",
     "vr": "CS",
     "vm": "1",
     "name": "PatientSupportRotationDirection"
   },
-  "(300A,0124)": {
-    "tag": "(300A,0124)",
+  "x300A0124": {
+    "tag": "x300A0124",
     "vr": "DS",
     "vm": "1",
     "name": "TableTopEccentricAxisDistance"
   },
-  "(300A,0125)": {
-    "tag": "(300A,0125)",
+  "x300A0125": {
+    "tag": "x300A0125",
     "vr": "DS",
     "vm": "1",
     "name": "TableTopEccentricAngle"
   },
-  "(300A,0126)": {
-    "tag": "(300A,0126)",
+  "x300A0126": {
+    "tag": "x300A0126",
     "vr": "CS",
     "vm": "1",
     "name": "TableTopEccentricRotationDirection"
   },
-  "(300A,0128)": {
-    "tag": "(300A,0128)",
+  "x300A0128": {
+    "tag": "x300A0128",
     "vr": "DS",
     "vm": "1",
     "name": "TableTopVerticalPosition"
   },
-  "(300A,0129)": {
-    "tag": "(300A,0129)",
+  "x300A0129": {
+    "tag": "x300A0129",
     "vr": "DS",
     "vm": "1",
     "name": "TableTopLongitudinalPosition"
   },
-  "(300A,012A)": {
-    "tag": "(300A,012A)",
+  "x300A012A": {
+    "tag": "x300A012A",
     "vr": "DS",
     "vm": "1",
     "name": "TableTopLateralPosition"
   },
-  "(300A,012C)": {
-    "tag": "(300A,012C)",
+  "x300A012C": {
+    "tag": "x300A012C",
     "vr": "DS",
     "vm": "3",
     "name": "IsocenterPosition"
   },
-  "(300A,012E)": {
-    "tag": "(300A,012E)",
+  "x300A012E": {
+    "tag": "x300A012E",
     "vr": "DS",
     "vm": "3",
     "name": "SurfaceEntryPoint"
   },
-  "(300A,0130)": {
-    "tag": "(300A,0130)",
+  "x300A0130": {
+    "tag": "x300A0130",
     "vr": "DS",
     "vm": "1",
     "name": "SourceToSurfaceDistance"
   },
-  "(300A,0134)": {
-    "tag": "(300A,0134)",
+  "x300A0134": {
+    "tag": "x300A0134",
     "vr": "DS",
     "vm": "1",
     "name": "CumulativeMetersetWeight"
   },
-  "(300A,0140)": {
-    "tag": "(300A,0140)",
+  "x300A0140": {
+    "tag": "x300A0140",
     "vr": "FL",
     "vm": "1",
     "name": "TableTopPitchAngle"
   },
-  "(300A,0142)": {
-    "tag": "(300A,0142)",
+  "x300A0142": {
+    "tag": "x300A0142",
     "vr": "CS",
     "vm": "1",
     "name": "TableTopPitchRotationDirection"
   },
-  "(300A,0144)": {
-    "tag": "(300A,0144)",
+  "x300A0144": {
+    "tag": "x300A0144",
     "vr": "FL",
     "vm": "1",
     "name": "TableTopRollAngle"
   },
-  "(300A,0146)": {
-    "tag": "(300A,0146)",
+  "x300A0146": {
+    "tag": "x300A0146",
     "vr": "CS",
     "vm": "1",
     "name": "TableTopRollRotationDirection"
   },
-  "(300A,0148)": {
-    "tag": "(300A,0148)",
+  "x300A0148": {
+    "tag": "x300A0148",
     "vr": "FL",
     "vm": "1",
     "name": "HeadFixationAngle"
   },
-  "(300A,014A)": {
-    "tag": "(300A,014A)",
+  "x300A014A": {
+    "tag": "x300A014A",
     "vr": "FL",
     "vm": "1",
     "name": "GantryPitchAngle"
   },
-  "(300A,014C)": {
-    "tag": "(300A,014C)",
+  "x300A014C": {
+    "tag": "x300A014C",
     "vr": "CS",
     "vm": "1",
     "name": "GantryPitchRotationDirection"
   },
-  "(300A,014E)": {
-    "tag": "(300A,014E)",
+  "x300A014E": {
+    "tag": "x300A014E",
     "vr": "FL",
     "vm": "1",
     "name": "GantryPitchAngleTolerance"
   },
-  "(300A,0180)": {
-    "tag": "(300A,0180)",
+  "x300A0180": {
+    "tag": "x300A0180",
     "vr": "SQ",
     "vm": "1",
     "name": "PatientSetupSequence"
   },
-  "(300A,0182)": {
-    "tag": "(300A,0182)",
+  "x300A0182": {
+    "tag": "x300A0182",
     "vr": "IS",
     "vm": "1",
     "name": "PatientSetupNumber"
   },
-  "(300A,0183)": {
-    "tag": "(300A,0183)",
+  "x300A0183": {
+    "tag": "x300A0183",
     "vr": "LO",
     "vm": "1",
     "name": "PatientSetupLabel"
   },
-  "(300A,0184)": {
-    "tag": "(300A,0184)",
+  "x300A0184": {
+    "tag": "x300A0184",
     "vr": "LO",
     "vm": "1",
     "name": "PatientAdditionalPosition"
   },
-  "(300A,0190)": {
-    "tag": "(300A,0190)",
+  "x300A0190": {
+    "tag": "x300A0190",
     "vr": "SQ",
     "vm": "1",
     "name": "FixationDeviceSequence"
   },
-  "(300A,0192)": {
-    "tag": "(300A,0192)",
+  "x300A0192": {
+    "tag": "x300A0192",
     "vr": "CS",
     "vm": "1",
     "name": "FixationDeviceType"
   },
-  "(300A,0194)": {
-    "tag": "(300A,0194)",
+  "x300A0194": {
+    "tag": "x300A0194",
     "vr": "SH",
     "vm": "1",
     "name": "FixationDeviceLabel"
   },
-  "(300A,0196)": {
-    "tag": "(300A,0196)",
+  "x300A0196": {
+    "tag": "x300A0196",
     "vr": "ST",
     "vm": "1",
     "name": "FixationDeviceDescription"
   },
-  "(300A,0198)": {
-    "tag": "(300A,0198)",
+  "x300A0198": {
+    "tag": "x300A0198",
     "vr": "SH",
     "vm": "1",
     "name": "FixationDevicePosition"
   },
-  "(300A,0199)": {
-    "tag": "(300A,0199)",
+  "x300A0199": {
+    "tag": "x300A0199",
     "vr": "FL",
     "vm": "1",
     "name": "FixationDevicePitchAngle"
   },
-  "(300A,019A)": {
-    "tag": "(300A,019A)",
+  "x300A019A": {
+    "tag": "x300A019A",
     "vr": "FL",
     "vm": "1",
     "name": "FixationDeviceRollAngle"
   },
-  "(300A,01A0)": {
-    "tag": "(300A,01A0)",
+  "x300A01A0": {
+    "tag": "x300A01A0",
     "vr": "SQ",
     "vm": "1",
     "name": "ShieldingDeviceSequence"
   },
-  "(300A,01A2)": {
-    "tag": "(300A,01A2)",
+  "x300A01A2": {
+    "tag": "x300A01A2",
     "vr": "CS",
     "vm": "1",
     "name": "ShieldingDeviceType"
   },
-  "(300A,01A4)": {
-    "tag": "(300A,01A4)",
+  "x300A01A4": {
+    "tag": "x300A01A4",
     "vr": "SH",
     "vm": "1",
     "name": "ShieldingDeviceLabel"
   },
-  "(300A,01A6)": {
-    "tag": "(300A,01A6)",
+  "x300A01A6": {
+    "tag": "x300A01A6",
     "vr": "ST",
     "vm": "1",
     "name": "ShieldingDeviceDescription"
   },
-  "(300A,01A8)": {
-    "tag": "(300A,01A8)",
+  "x300A01A8": {
+    "tag": "x300A01A8",
     "vr": "SH",
     "vm": "1",
     "name": "ShieldingDevicePosition"
   },
-  "(300A,01B0)": {
-    "tag": "(300A,01B0)",
+  "x300A01B0": {
+    "tag": "x300A01B0",
     "vr": "CS",
     "vm": "1",
     "name": "SetupTechnique"
   },
-  "(300A,01B2)": {
-    "tag": "(300A,01B2)",
+  "x300A01B2": {
+    "tag": "x300A01B2",
     "vr": "ST",
     "vm": "1",
     "name": "SetupTechniqueDescription"
   },
-  "(300A,01B4)": {
-    "tag": "(300A,01B4)",
+  "x300A01B4": {
+    "tag": "x300A01B4",
     "vr": "SQ",
     "vm": "1",
     "name": "SetupDeviceSequence"
   },
-  "(300A,01B6)": {
-    "tag": "(300A,01B6)",
+  "x300A01B6": {
+    "tag": "x300A01B6",
     "vr": "CS",
     "vm": "1",
     "name": "SetupDeviceType"
   },
-  "(300A,01B8)": {
-    "tag": "(300A,01B8)",
+  "x300A01B8": {
+    "tag": "x300A01B8",
     "vr": "SH",
     "vm": "1",
     "name": "SetupDeviceLabel"
   },
-  "(300A,01BA)": {
-    "tag": "(300A,01BA)",
+  "x300A01BA": {
+    "tag": "x300A01BA",
     "vr": "ST",
     "vm": "1",
     "name": "SetupDeviceDescription"
   },
-  "(300A,01BC)": {
-    "tag": "(300A,01BC)",
+  "x300A01BC": {
+    "tag": "x300A01BC",
     "vr": "DS",
     "vm": "1",
     "name": "SetupDeviceParameter"
   },
-  "(300A,01D0)": {
-    "tag": "(300A,01D0)",
+  "x300A01D0": {
+    "tag": "x300A01D0",
     "vr": "ST",
     "vm": "1",
     "name": "SetupReferenceDescription"
   },
-  "(300A,01D2)": {
-    "tag": "(300A,01D2)",
+  "x300A01D2": {
+    "tag": "x300A01D2",
     "vr": "DS",
     "vm": "1",
     "name": "TableTopVerticalSetupDisplacement"
   },
-  "(300A,01D4)": {
-    "tag": "(300A,01D4)",
+  "x300A01D4": {
+    "tag": "x300A01D4",
     "vr": "DS",
     "vm": "1",
     "name": "TableTopLongitudinalSetupDisplacement"
   },
-  "(300A,01D6)": {
-    "tag": "(300A,01D6)",
+  "x300A01D6": {
+    "tag": "x300A01D6",
     "vr": "DS",
     "vm": "1",
     "name": "TableTopLateralSetupDisplacement"
   },
-  "(300A,0200)": {
-    "tag": "(300A,0200)",
+  "x300A0200": {
+    "tag": "x300A0200",
     "vr": "CS",
     "vm": "1",
     "name": "BrachyTreatmentTechnique"
   },
-  "(300A,0202)": {
-    "tag": "(300A,0202)",
+  "x300A0202": {
+    "tag": "x300A0202",
     "vr": "CS",
     "vm": "1",
     "name": "BrachyTreatmentType"
   },
-  "(300A,0206)": {
-    "tag": "(300A,0206)",
+  "x300A0206": {
+    "tag": "x300A0206",
     "vr": "SQ",
     "vm": "1",
     "name": "TreatmentMachineSequence"
   },
-  "(300A,0210)": {
-    "tag": "(300A,0210)",
+  "x300A0210": {
+    "tag": "x300A0210",
     "vr": "SQ",
     "vm": "1",
     "name": "SourceSequence"
   },
-  "(300A,0212)": {
-    "tag": "(300A,0212)",
+  "x300A0212": {
+    "tag": "x300A0212",
     "vr": "IS",
     "vm": "1",
     "name": "SourceNumber"
   },
-  "(300A,0214)": {
-    "tag": "(300A,0214)",
+  "x300A0214": {
+    "tag": "x300A0214",
     "vr": "CS",
     "vm": "1",
     "name": "SourceType"
   },
-  "(300A,0216)": {
-    "tag": "(300A,0216)",
+  "x300A0216": {
+    "tag": "x300A0216",
     "vr": "LO",
     "vm": "1",
     "name": "SourceManufacturer"
   },
-  "(300A,0218)": {
-    "tag": "(300A,0218)",
+  "x300A0218": {
+    "tag": "x300A0218",
     "vr": "DS",
     "vm": "1",
     "name": "ActiveSourceDiameter"
   },
-  "(300A,021A)": {
-    "tag": "(300A,021A)",
+  "x300A021A": {
+    "tag": "x300A021A",
     "vr": "DS",
     "vm": "1",
     "name": "ActiveSourceLength"
   },
-  "(300A,0222)": {
-    "tag": "(300A,0222)",
+  "x300A0222": {
+    "tag": "x300A0222",
     "vr": "DS",
     "vm": "1",
     "name": "SourceEncapsulationNominalThickness"
   },
-  "(300A,0224)": {
-    "tag": "(300A,0224)",
+  "x300A0224": {
+    "tag": "x300A0224",
     "vr": "DS",
     "vm": "1",
     "name": "SourceEncapsulationNominalTransmission"
   },
-  "(300A,0226)": {
-    "tag": "(300A,0226)",
+  "x300A0226": {
+    "tag": "x300A0226",
     "vr": "LO",
     "vm": "1",
     "name": "SourceIsotopeName"
   },
-  "(300A,0228)": {
-    "tag": "(300A,0228)",
+  "x300A0228": {
+    "tag": "x300A0228",
     "vr": "DS",
     "vm": "1",
     "name": "SourceIsotopeHalfLife"
   },
-  "(300A,0229)": {
-    "tag": "(300A,0229)",
+  "x300A0229": {
+    "tag": "x300A0229",
     "vr": "CS",
     "vm": "1",
     "name": "SourceStrengthUnits"
   },
-  "(300A,022A)": {
-    "tag": "(300A,022A)",
+  "x300A022A": {
+    "tag": "x300A022A",
     "vr": "DS",
     "vm": "1",
     "name": "ReferenceAirKermaRate"
   },
-  "(300A,022B)": {
-    "tag": "(300A,022B)",
+  "x300A022B": {
+    "tag": "x300A022B",
     "vr": "DS",
     "vm": "1",
     "name": "SourceStrength"
   },
-  "(300A,022C)": {
-    "tag": "(300A,022C)",
+  "x300A022C": {
+    "tag": "x300A022C",
     "vr": "DA",
     "vm": "1",
     "name": "SourceStrengthReferenceDate"
   },
-  "(300A,022E)": {
-    "tag": "(300A,022E)",
+  "x300A022E": {
+    "tag": "x300A022E",
     "vr": "TM",
     "vm": "1",
     "name": "SourceStrengthReferenceTime"
   },
-  "(300A,0230)": {
-    "tag": "(300A,0230)",
+  "x300A0230": {
+    "tag": "x300A0230",
     "vr": "SQ",
     "vm": "1",
     "name": "ApplicationSetupSequence"
   },
-  "(300A,0232)": {
-    "tag": "(300A,0232)",
+  "x300A0232": {
+    "tag": "x300A0232",
     "vr": "CS",
     "vm": "1",
     "name": "ApplicationSetupType"
   },
-  "(300A,0234)": {
-    "tag": "(300A,0234)",
+  "x300A0234": {
+    "tag": "x300A0234",
     "vr": "IS",
     "vm": "1",
     "name": "ApplicationSetupNumber"
   },
-  "(300A,0236)": {
-    "tag": "(300A,0236)",
+  "x300A0236": {
+    "tag": "x300A0236",
     "vr": "LO",
     "vm": "1",
     "name": "ApplicationSetupName"
   },
-  "(300A,0238)": {
-    "tag": "(300A,0238)",
+  "x300A0238": {
+    "tag": "x300A0238",
     "vr": "LO",
     "vm": "1",
     "name": "ApplicationSetupManufacturer"
   },
-  "(300A,0240)": {
-    "tag": "(300A,0240)",
+  "x300A0240": {
+    "tag": "x300A0240",
     "vr": "IS",
     "vm": "1",
     "name": "TemplateNumber"
   },
-  "(300A,0242)": {
-    "tag": "(300A,0242)",
+  "x300A0242": {
+    "tag": "x300A0242",
     "vr": "SH",
     "vm": "1",
     "name": "TemplateType"
   },
-  "(300A,0244)": {
-    "tag": "(300A,0244)",
+  "x300A0244": {
+    "tag": "x300A0244",
     "vr": "LO",
     "vm": "1",
     "name": "TemplateName"
   },
-  "(300A,0250)": {
-    "tag": "(300A,0250)",
+  "x300A0250": {
+    "tag": "x300A0250",
     "vr": "DS",
     "vm": "1",
     "name": "TotalReferenceAirKerma"
   },
-  "(300A,0260)": {
-    "tag": "(300A,0260)",
+  "x300A0260": {
+    "tag": "x300A0260",
     "vr": "SQ",
     "vm": "1",
     "name": "BrachyAccessoryDeviceSequence"
   },
-  "(300A,0262)": {
-    "tag": "(300A,0262)",
+  "x300A0262": {
+    "tag": "x300A0262",
     "vr": "IS",
     "vm": "1",
     "name": "BrachyAccessoryDeviceNumber"
   },
-  "(300A,0263)": {
-    "tag": "(300A,0263)",
+  "x300A0263": {
+    "tag": "x300A0263",
     "vr": "SH",
     "vm": "1",
     "name": "BrachyAccessoryDeviceID"
   },
-  "(300A,0264)": {
-    "tag": "(300A,0264)",
+  "x300A0264": {
+    "tag": "x300A0264",
     "vr": "CS",
     "vm": "1",
     "name": "BrachyAccessoryDeviceType"
   },
-  "(300A,0266)": {
-    "tag": "(300A,0266)",
+  "x300A0266": {
+    "tag": "x300A0266",
     "vr": "LO",
     "vm": "1",
     "name": "BrachyAccessoryDeviceName"
   },
-  "(300A,026A)": {
-    "tag": "(300A,026A)",
+  "x300A026A": {
+    "tag": "x300A026A",
     "vr": "DS",
     "vm": "1",
     "name": "BrachyAccessoryDeviceNominalThickness"
   },
-  "(300A,026C)": {
-    "tag": "(300A,026C)",
+  "x300A026C": {
+    "tag": "x300A026C",
     "vr": "DS",
     "vm": "1",
     "name": "BrachyAccessoryDeviceNominalTransmission"
   },
-  "(300A,0280)": {
-    "tag": "(300A,0280)",
+  "x300A0280": {
+    "tag": "x300A0280",
     "vr": "SQ",
     "vm": "1",
     "name": "ChannelSequence"
   },
-  "(300A,0282)": {
-    "tag": "(300A,0282)",
+  "x300A0282": {
+    "tag": "x300A0282",
     "vr": "IS",
     "vm": "1",
     "name": "ChannelNumber"
   },
-  "(300A,0284)": {
-    "tag": "(300A,0284)",
+  "x300A0284": {
+    "tag": "x300A0284",
     "vr": "DS",
     "vm": "1",
     "name": "ChannelLength"
   },
-  "(300A,0286)": {
-    "tag": "(300A,0286)",
+  "x300A0286": {
+    "tag": "x300A0286",
     "vr": "DS",
     "vm": "1",
     "name": "ChannelTotalTime"
   },
-  "(300A,0288)": {
-    "tag": "(300A,0288)",
+  "x300A0288": {
+    "tag": "x300A0288",
     "vr": "CS",
     "vm": "1",
     "name": "SourceMovementType"
   },
-  "(300A,028A)": {
-    "tag": "(300A,028A)",
+  "x300A028A": {
+    "tag": "x300A028A",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfPulses"
   },
-  "(300A,028C)": {
-    "tag": "(300A,028C)",
+  "x300A028C": {
+    "tag": "x300A028C",
     "vr": "DS",
     "vm": "1",
     "name": "PulseRepetitionInterval"
   },
-  "(300A,0290)": {
-    "tag": "(300A,0290)",
+  "x300A0290": {
+    "tag": "x300A0290",
     "vr": "IS",
     "vm": "1",
     "name": "SourceApplicatorNumber"
   },
-  "(300A,0291)": {
-    "tag": "(300A,0291)",
+  "x300A0291": {
+    "tag": "x300A0291",
     "vr": "SH",
     "vm": "1",
     "name": "SourceApplicatorID"
   },
-  "(300A,0292)": {
-    "tag": "(300A,0292)",
+  "x300A0292": {
+    "tag": "x300A0292",
     "vr": "CS",
     "vm": "1",
     "name": "SourceApplicatorType"
   },
-  "(300A,0294)": {
-    "tag": "(300A,0294)",
+  "x300A0294": {
+    "tag": "x300A0294",
     "vr": "LO",
     "vm": "1",
     "name": "SourceApplicatorName"
   },
-  "(300A,0296)": {
-    "tag": "(300A,0296)",
+  "x300A0296": {
+    "tag": "x300A0296",
     "vr": "DS",
     "vm": "1",
     "name": "SourceApplicatorLength"
   },
-  "(300A,0298)": {
-    "tag": "(300A,0298)",
+  "x300A0298": {
+    "tag": "x300A0298",
     "vr": "LO",
     "vm": "1",
     "name": "SourceApplicatorManufacturer"
   },
-  "(300A,029C)": {
-    "tag": "(300A,029C)",
+  "x300A029C": {
+    "tag": "x300A029C",
     "vr": "DS",
     "vm": "1",
     "name": "SourceApplicatorWallNominalThickness"
   },
-  "(300A,029E)": {
-    "tag": "(300A,029E)",
+  "x300A029E": {
+    "tag": "x300A029E",
     "vr": "DS",
     "vm": "1",
     "name": "SourceApplicatorWallNominalTransmission"
   },
-  "(300A,02A0)": {
-    "tag": "(300A,02A0)",
+  "x300A02A0": {
+    "tag": "x300A02A0",
     "vr": "DS",
     "vm": "1",
     "name": "SourceApplicatorStepSize"
   },
-  "(300A,02A2)": {
-    "tag": "(300A,02A2)",
+  "x300A02A2": {
+    "tag": "x300A02A2",
     "vr": "IS",
     "vm": "1",
     "name": "TransferTubeNumber"
   },
-  "(300A,02A4)": {
-    "tag": "(300A,02A4)",
+  "x300A02A4": {
+    "tag": "x300A02A4",
     "vr": "DS",
     "vm": "1",
     "name": "TransferTubeLength"
   },
-  "(300A,02B0)": {
-    "tag": "(300A,02B0)",
+  "x300A02B0": {
+    "tag": "x300A02B0",
     "vr": "SQ",
     "vm": "1",
     "name": "ChannelShieldSequence"
   },
-  "(300A,02B2)": {
-    "tag": "(300A,02B2)",
+  "x300A02B2": {
+    "tag": "x300A02B2",
     "vr": "IS",
     "vm": "1",
     "name": "ChannelShieldNumber"
   },
-  "(300A,02B3)": {
-    "tag": "(300A,02B3)",
+  "x300A02B3": {
+    "tag": "x300A02B3",
     "vr": "SH",
     "vm": "1",
     "name": "ChannelShieldID"
   },
-  "(300A,02B4)": {
-    "tag": "(300A,02B4)",
+  "x300A02B4": {
+    "tag": "x300A02B4",
     "vr": "LO",
     "vm": "1",
     "name": "ChannelShieldName"
   },
-  "(300A,02B8)": {
-    "tag": "(300A,02B8)",
+  "x300A02B8": {
+    "tag": "x300A02B8",
     "vr": "DS",
     "vm": "1",
     "name": "ChannelShieldNominalThickness"
   },
-  "(300A,02BA)": {
-    "tag": "(300A,02BA)",
+  "x300A02BA": {
+    "tag": "x300A02BA",
     "vr": "DS",
     "vm": "1",
     "name": "ChannelShieldNominalTransmission"
   },
-  "(300A,02C8)": {
-    "tag": "(300A,02C8)",
+  "x300A02C8": {
+    "tag": "x300A02C8",
     "vr": "DS",
     "vm": "1",
     "name": "FinalCumulativeTimeWeight"
   },
-  "(300A,02D0)": {
-    "tag": "(300A,02D0)",
+  "x300A02D0": {
+    "tag": "x300A02D0",
     "vr": "SQ",
     "vm": "1",
     "name": "BrachyControlPointSequence"
   },
-  "(300A,02D2)": {
-    "tag": "(300A,02D2)",
+  "x300A02D2": {
+    "tag": "x300A02D2",
     "vr": "DS",
     "vm": "1",
     "name": "ControlPointRelativePosition"
   },
-  "(300A,02D4)": {
-    "tag": "(300A,02D4)",
+  "x300A02D4": {
+    "tag": "x300A02D4",
     "vr": "DS",
     "vm": "3",
     "name": "ControlPoint3DPosition"
   },
-  "(300A,02D6)": {
-    "tag": "(300A,02D6)",
+  "x300A02D6": {
+    "tag": "x300A02D6",
     "vr": "DS",
     "vm": "1",
     "name": "CumulativeTimeWeight"
   },
-  "(300A,02E0)": {
-    "tag": "(300A,02E0)",
+  "x300A02E0": {
+    "tag": "x300A02E0",
     "vr": "CS",
     "vm": "1",
     "name": "CompensatorDivergence"
   },
-  "(300A,02E1)": {
-    "tag": "(300A,02E1)",
+  "x300A02E1": {
+    "tag": "x300A02E1",
     "vr": "CS",
     "vm": "1",
     "name": "CompensatorMountingPosition"
   },
-  "(300A,02E2)": {
-    "tag": "(300A,02E2)",
+  "x300A02E2": {
+    "tag": "x300A02E2",
     "vr": "DS",
     "vm": "1-n",
     "name": "SourceToCompensatorDistance"
   },
-  "(300A,02E3)": {
-    "tag": "(300A,02E3)",
+  "x300A02E3": {
+    "tag": "x300A02E3",
     "vr": "FL",
     "vm": "1",
     "name": "TotalCompensatorTrayWaterEquivalentThickness"
   },
-  "(300A,02E4)": {
-    "tag": "(300A,02E4)",
+  "x300A02E4": {
+    "tag": "x300A02E4",
     "vr": "FL",
     "vm": "1",
     "name": "IsocenterToCompensatorTrayDistance"
   },
-  "(300A,02E5)": {
-    "tag": "(300A,02E5)",
+  "x300A02E5": {
+    "tag": "x300A02E5",
     "vr": "FL",
     "vm": "1",
     "name": "CompensatorColumnOffset"
   },
-  "(300A,02E6)": {
-    "tag": "(300A,02E6)",
+  "x300A02E6": {
+    "tag": "x300A02E6",
     "vr": "FL",
     "vm": "1-n",
     "name": "IsocenterToCompensatorDistances"
   },
-  "(300A,02E7)": {
-    "tag": "(300A,02E7)",
+  "x300A02E7": {
+    "tag": "x300A02E7",
     "vr": "FL",
     "vm": "1",
     "name": "CompensatorRelativeStoppingPowerRatio"
   },
-  "(300A,02E8)": {
-    "tag": "(300A,02E8)",
+  "x300A02E8": {
+    "tag": "x300A02E8",
     "vr": "FL",
     "vm": "1",
     "name": "CompensatorMillingToolDiameter"
   },
-  "(300A,02EA)": {
-    "tag": "(300A,02EA)",
+  "x300A02EA": {
+    "tag": "x300A02EA",
     "vr": "SQ",
     "vm": "1",
     "name": "IonRangeCompensatorSequence"
   },
-  "(300A,02EB)": {
-    "tag": "(300A,02EB)",
+  "x300A02EB": {
+    "tag": "x300A02EB",
     "vr": "LT",
     "vm": "1",
     "name": "CompensatorDescription"
   },
-  "(300A,0302)": {
-    "tag": "(300A,0302)",
+  "x300A0302": {
+    "tag": "x300A0302",
     "vr": "IS",
     "vm": "1",
     "name": "RadiationMassNumber"
   },
-  "(300A,0304)": {
-    "tag": "(300A,0304)",
+  "x300A0304": {
+    "tag": "x300A0304",
     "vr": "IS",
     "vm": "1",
     "name": "RadiationAtomicNumber"
   },
-  "(300A,0306)": {
-    "tag": "(300A,0306)",
+  "x300A0306": {
+    "tag": "x300A0306",
     "vr": "SS",
     "vm": "1",
     "name": "RadiationChargeState"
   },
-  "(300A,0308)": {
-    "tag": "(300A,0308)",
+  "x300A0308": {
+    "tag": "x300A0308",
     "vr": "CS",
     "vm": "1",
     "name": "ScanMode"
   },
-  "(300A,030A)": {
-    "tag": "(300A,030A)",
+  "x300A030A": {
+    "tag": "x300A030A",
     "vr": "FL",
     "vm": "2",
     "name": "VirtualSourceAxisDistances"
   },
-  "(300A,030C)": {
-    "tag": "(300A,030C)",
+  "x300A030C": {
+    "tag": "x300A030C",
     "vr": "SQ",
     "vm": "1",
     "name": "SnoutSequence"
   },
-  "(300A,030D)": {
-    "tag": "(300A,030D)",
+  "x300A030D": {
+    "tag": "x300A030D",
     "vr": "FL",
     "vm": "1",
     "name": "SnoutPosition"
   },
-  "(300A,030F)": {
-    "tag": "(300A,030F)",
+  "x300A030F": {
+    "tag": "x300A030F",
     "vr": "SH",
     "vm": "1",
     "name": "SnoutID"
   },
-  "(300A,0312)": {
-    "tag": "(300A,0312)",
+  "x300A0312": {
+    "tag": "x300A0312",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfRangeShifters"
   },
-  "(300A,0314)": {
-    "tag": "(300A,0314)",
+  "x300A0314": {
+    "tag": "x300A0314",
     "vr": "SQ",
     "vm": "1",
     "name": "RangeShifterSequence"
   },
-  "(300A,0316)": {
-    "tag": "(300A,0316)",
+  "x300A0316": {
+    "tag": "x300A0316",
     "vr": "IS",
     "vm": "1",
     "name": "RangeShifterNumber"
   },
-  "(300A,0318)": {
-    "tag": "(300A,0318)",
+  "x300A0318": {
+    "tag": "x300A0318",
     "vr": "SH",
     "vm": "1",
     "name": "RangeShifterID"
   },
-  "(300A,0320)": {
-    "tag": "(300A,0320)",
+  "x300A0320": {
+    "tag": "x300A0320",
     "vr": "CS",
     "vm": "1",
     "name": "RangeShifterType"
   },
-  "(300A,0322)": {
-    "tag": "(300A,0322)",
+  "x300A0322": {
+    "tag": "x300A0322",
     "vr": "LO",
     "vm": "1",
     "name": "RangeShifterDescription"
   },
-  "(300A,0330)": {
-    "tag": "(300A,0330)",
+  "x300A0330": {
+    "tag": "x300A0330",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfLateralSpreadingDevices"
   },
-  "(300A,0332)": {
-    "tag": "(300A,0332)",
+  "x300A0332": {
+    "tag": "x300A0332",
     "vr": "SQ",
     "vm": "1",
     "name": "LateralSpreadingDeviceSequence"
   },
-  "(300A,0334)": {
-    "tag": "(300A,0334)",
+  "x300A0334": {
+    "tag": "x300A0334",
     "vr": "IS",
     "vm": "1",
     "name": "LateralSpreadingDeviceNumber"
   },
-  "(300A,0336)": {
-    "tag": "(300A,0336)",
+  "x300A0336": {
+    "tag": "x300A0336",
     "vr": "SH",
     "vm": "1",
     "name": "LateralSpreadingDeviceID"
   },
-  "(300A,0338)": {
-    "tag": "(300A,0338)",
+  "x300A0338": {
+    "tag": "x300A0338",
     "vr": "CS",
     "vm": "1",
     "name": "LateralSpreadingDeviceType"
   },
-  "(300A,033A)": {
-    "tag": "(300A,033A)",
+  "x300A033A": {
+    "tag": "x300A033A",
     "vr": "LO",
     "vm": "1",
     "name": "LateralSpreadingDeviceDescription"
   },
-  "(300A,033C)": {
-    "tag": "(300A,033C)",
+  "x300A033C": {
+    "tag": "x300A033C",
     "vr": "FL",
     "vm": "1",
     "name": "LateralSpreadingDeviceWaterEquivalentThickness"
   },
-  "(300A,0340)": {
-    "tag": "(300A,0340)",
+  "x300A0340": {
+    "tag": "x300A0340",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfRangeModulators"
   },
-  "(300A,0342)": {
-    "tag": "(300A,0342)",
+  "x300A0342": {
+    "tag": "x300A0342",
     "vr": "SQ",
     "vm": "1",
     "name": "RangeModulatorSequence"
   },
-  "(300A,0344)": {
-    "tag": "(300A,0344)",
+  "x300A0344": {
+    "tag": "x300A0344",
     "vr": "IS",
     "vm": "1",
     "name": "RangeModulatorNumber"
   },
-  "(300A,0346)": {
-    "tag": "(300A,0346)",
+  "x300A0346": {
+    "tag": "x300A0346",
     "vr": "SH",
     "vm": "1",
     "name": "RangeModulatorID"
   },
-  "(300A,0348)": {
-    "tag": "(300A,0348)",
+  "x300A0348": {
+    "tag": "x300A0348",
     "vr": "CS",
     "vm": "1",
     "name": "RangeModulatorType"
   },
-  "(300A,034A)": {
-    "tag": "(300A,034A)",
+  "x300A034A": {
+    "tag": "x300A034A",
     "vr": "LO",
     "vm": "1",
     "name": "RangeModulatorDescription"
   },
-  "(300A,034C)": {
-    "tag": "(300A,034C)",
+  "x300A034C": {
+    "tag": "x300A034C",
     "vr": "SH",
     "vm": "1",
     "name": "BeamCurrentModulationID"
   },
-  "(300A,0350)": {
-    "tag": "(300A,0350)",
+  "x300A0350": {
+    "tag": "x300A0350",
     "vr": "CS",
     "vm": "1",
     "name": "PatientSupportType"
   },
-  "(300A,0352)": {
-    "tag": "(300A,0352)",
+  "x300A0352": {
+    "tag": "x300A0352",
     "vr": "SH",
     "vm": "1",
     "name": "PatientSupportID"
   },
-  "(300A,0354)": {
-    "tag": "(300A,0354)",
+  "x300A0354": {
+    "tag": "x300A0354",
     "vr": "LO",
     "vm": "1",
     "name": "PatientSupportAccessoryCode"
   },
-  "(300A,0356)": {
-    "tag": "(300A,0356)",
+  "x300A0356": {
+    "tag": "x300A0356",
     "vr": "FL",
     "vm": "1",
     "name": "FixationLightAzimuthalAngle"
   },
-  "(300A,0358)": {
-    "tag": "(300A,0358)",
+  "x300A0358": {
+    "tag": "x300A0358",
     "vr": "FL",
     "vm": "1",
     "name": "FixationLightPolarAngle"
   },
-  "(300A,035A)": {
-    "tag": "(300A,035A)",
+  "x300A035A": {
+    "tag": "x300A035A",
     "vr": "FL",
     "vm": "1",
     "name": "MetersetRate"
   },
-  "(300A,0360)": {
-    "tag": "(300A,0360)",
+  "x300A0360": {
+    "tag": "x300A0360",
     "vr": "SQ",
     "vm": "1",
     "name": "RangeShifterSettingsSequence"
   },
-  "(300A,0362)": {
-    "tag": "(300A,0362)",
+  "x300A0362": {
+    "tag": "x300A0362",
     "vr": "LO",
     "vm": "1",
     "name": "RangeShifterSetting"
   },
-  "(300A,0364)": {
-    "tag": "(300A,0364)",
+  "x300A0364": {
+    "tag": "x300A0364",
     "vr": "FL",
     "vm": "1",
     "name": "IsocenterToRangeShifterDistance"
   },
-  "(300A,0366)": {
-    "tag": "(300A,0366)",
+  "x300A0366": {
+    "tag": "x300A0366",
     "vr": "FL",
     "vm": "1",
     "name": "RangeShifterWaterEquivalentThickness"
   },
-  "(300A,0370)": {
-    "tag": "(300A,0370)",
+  "x300A0370": {
+    "tag": "x300A0370",
     "vr": "SQ",
     "vm": "1",
     "name": "LateralSpreadingDeviceSettingsSequence"
   },
-  "(300A,0372)": {
-    "tag": "(300A,0372)",
+  "x300A0372": {
+    "tag": "x300A0372",
     "vr": "LO",
     "vm": "1",
     "name": "LateralSpreadingDeviceSetting"
   },
-  "(300A,0374)": {
-    "tag": "(300A,0374)",
+  "x300A0374": {
+    "tag": "x300A0374",
     "vr": "FL",
     "vm": "1",
     "name": "IsocenterToLateralSpreadingDeviceDistance"
   },
-  "(300A,0380)": {
-    "tag": "(300A,0380)",
+  "x300A0380": {
+    "tag": "x300A0380",
     "vr": "SQ",
     "vm": "1",
     "name": "RangeModulatorSettingsSequence"
   },
-  "(300A,0382)": {
-    "tag": "(300A,0382)",
+  "x300A0382": {
+    "tag": "x300A0382",
     "vr": "FL",
     "vm": "1",
     "name": "RangeModulatorGatingStartValue"
   },
-  "(300A,0384)": {
-    "tag": "(300A,0384)",
+  "x300A0384": {
+    "tag": "x300A0384",
     "vr": "FL",
     "vm": "1",
     "name": "RangeModulatorGatingStopValue"
   },
-  "(300A,0386)": {
-    "tag": "(300A,0386)",
+  "x300A0386": {
+    "tag": "x300A0386",
     "vr": "FL",
     "vm": "1",
     "name": "RangeModulatorGatingStartWaterEquivalentThickness"
   },
-  "(300A,0388)": {
-    "tag": "(300A,0388)",
+  "x300A0388": {
+    "tag": "x300A0388",
     "vr": "FL",
     "vm": "1",
     "name": "RangeModulatorGatingStopWaterEquivalentThickness"
   },
-  "(300A,038A)": {
-    "tag": "(300A,038A)",
+  "x300A038A": {
+    "tag": "x300A038A",
     "vr": "FL",
     "vm": "1",
     "name": "IsocenterToRangeModulatorDistance"
   },
-  "(300A,0390)": {
-    "tag": "(300A,0390)",
+  "x300A0390": {
+    "tag": "x300A0390",
     "vr": "SH",
     "vm": "1",
     "name": "ScanSpotTuneID"
   },
-  "(300A,0392)": {
-    "tag": "(300A,0392)",
+  "x300A0392": {
+    "tag": "x300A0392",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfScanSpotPositions"
   },
-  "(300A,0394)": {
-    "tag": "(300A,0394)",
+  "x300A0394": {
+    "tag": "x300A0394",
     "vr": "FL",
     "vm": "1-n",
     "name": "ScanSpotPositionMap"
   },
-  "(300A,0396)": {
-    "tag": "(300A,0396)",
+  "x300A0396": {
+    "tag": "x300A0396",
     "vr": "FL",
     "vm": "1-n",
     "name": "ScanSpotMetersetWeights"
   },
-  "(300A,0398)": {
-    "tag": "(300A,0398)",
+  "x300A0398": {
+    "tag": "x300A0398",
     "vr": "FL",
     "vm": "2",
     "name": "ScanningSpotSize"
   },
-  "(300A,039A)": {
-    "tag": "(300A,039A)",
+  "x300A039A": {
+    "tag": "x300A039A",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfPaintings"
   },
-  "(300A,03A0)": {
-    "tag": "(300A,03A0)",
+  "x300A03A0": {
+    "tag": "x300A03A0",
     "vr": "SQ",
     "vm": "1",
     "name": "IonToleranceTableSequence"
   },
-  "(300A,03A2)": {
-    "tag": "(300A,03A2)",
+  "x300A03A2": {
+    "tag": "x300A03A2",
     "vr": "SQ",
     "vm": "1",
     "name": "IonBeamSequence"
   },
-  "(300A,03A4)": {
-    "tag": "(300A,03A4)",
+  "x300A03A4": {
+    "tag": "x300A03A4",
     "vr": "SQ",
     "vm": "1",
     "name": "IonBeamLimitingDeviceSequence"
   },
-  "(300A,03A6)": {
-    "tag": "(300A,03A6)",
+  "x300A03A6": {
+    "tag": "x300A03A6",
     "vr": "SQ",
     "vm": "1",
     "name": "IonBlockSequence"
   },
-  "(300A,03A8)": {
-    "tag": "(300A,03A8)",
+  "x300A03A8": {
+    "tag": "x300A03A8",
     "vr": "SQ",
     "vm": "1",
     "name": "IonControlPointSequence"
   },
-  "(300A,03AA)": {
-    "tag": "(300A,03AA)",
+  "x300A03AA": {
+    "tag": "x300A03AA",
     "vr": "SQ",
     "vm": "1",
     "name": "IonWedgeSequence"
   },
-  "(300A,03AC)": {
-    "tag": "(300A,03AC)",
+  "x300A03AC": {
+    "tag": "x300A03AC",
     "vr": "SQ",
     "vm": "1",
     "name": "IonWedgePositionSequence"
   },
-  "(300A,0401)": {
-    "tag": "(300A,0401)",
+  "x300A0401": {
+    "tag": "x300A0401",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedSetupImageSequence"
   },
-  "(300A,0402)": {
-    "tag": "(300A,0402)",
+  "x300A0402": {
+    "tag": "x300A0402",
     "vr": "ST",
     "vm": "1",
     "name": "SetupImageComment"
   },
-  "(300A,0410)": {
-    "tag": "(300A,0410)",
+  "x300A0410": {
+    "tag": "x300A0410",
     "vr": "SQ",
     "vm": "1",
     "name": "MotionSynchronizationSequence"
   },
-  "(300A,0412)": {
-    "tag": "(300A,0412)",
+  "x300A0412": {
+    "tag": "x300A0412",
     "vr": "FL",
     "vm": "3",
     "name": "ControlPointOrientation"
   },
-  "(300A,0420)": {
-    "tag": "(300A,0420)",
+  "x300A0420": {
+    "tag": "x300A0420",
     "vr": "SQ",
     "vm": "1",
     "name": "GeneralAccessorySequence"
   },
-  "(300A,0421)": {
-    "tag": "(300A,0421)",
+  "x300A0421": {
+    "tag": "x300A0421",
     "vr": "SH",
     "vm": "1",
     "name": "GeneralAccessoryID"
   },
-  "(300A,0422)": {
-    "tag": "(300A,0422)",
+  "x300A0422": {
+    "tag": "x300A0422",
     "vr": "ST",
     "vm": "1",
     "name": "GeneralAccessoryDescription"
   },
-  "(300A,0423)": {
-    "tag": "(300A,0423)",
+  "x300A0423": {
+    "tag": "x300A0423",
     "vr": "CS",
     "vm": "1",
     "name": "GeneralAccessoryType"
   },
-  "(300A,0424)": {
-    "tag": "(300A,0424)",
+  "x300A0424": {
+    "tag": "x300A0424",
     "vr": "IS",
     "vm": "1",
     "name": "GeneralAccessoryNumber"
   },
-  "(300A,0431)": {
-    "tag": "(300A,0431)",
+  "x300A0431": {
+    "tag": "x300A0431",
     "vr": "SQ",
     "vm": "1",
     "name": "ApplicatorGeometrySequence"
   },
-  "(300A,0432)": {
-    "tag": "(300A,0432)",
+  "x300A0432": {
+    "tag": "x300A0432",
     "vr": "CS",
     "vm": "1",
     "name": "ApplicatorApertureShape"
   },
-  "(300A,0433)": {
-    "tag": "(300A,0433)",
+  "x300A0433": {
+    "tag": "x300A0433",
     "vr": "FL",
     "vm": "1",
     "name": "ApplicatorOpening"
   },
-  "(300A,0434)": {
-    "tag": "(300A,0434)",
+  "x300A0434": {
+    "tag": "x300A0434",
     "vr": "FL",
     "vm": "1",
     "name": "ApplicatorOpeningX"
   },
-  "(300A,0435)": {
-    "tag": "(300A,0435)",
+  "x300A0435": {
+    "tag": "x300A0435",
     "vr": "FL",
     "vm": "1",
     "name": "ApplicatorOpeningY"
   },
-  "(300A,0436)": {
-    "tag": "(300A,0436)",
+  "x300A0436": {
+    "tag": "x300A0436",
     "vr": "FL",
     "vm": "1",
     "name": "SourceToApplicatorMountingPositionDistance"
   },
-  "(300C,0002)": {
-    "tag": "(300C,0002)",
+  "x300C0002": {
+    "tag": "x300C0002",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedRTPlanSequence"
   },
-  "(300C,0004)": {
-    "tag": "(300C,0004)",
+  "x300C0004": {
+    "tag": "x300C0004",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedBeamSequence"
   },
-  "(300C,0006)": {
-    "tag": "(300C,0006)",
+  "x300C0006": {
+    "tag": "x300C0006",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedBeamNumber"
   },
-  "(300C,0007)": {
-    "tag": "(300C,0007)",
+  "x300C0007": {
+    "tag": "x300C0007",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedReferenceImageNumber"
   },
-  "(300C,0008)": {
-    "tag": "(300C,0008)",
+  "x300C0008": {
+    "tag": "x300C0008",
     "vr": "DS",
     "vm": "1",
     "name": "StartCumulativeMetersetWeight"
   },
-  "(300C,0009)": {
-    "tag": "(300C,0009)",
+  "x300C0009": {
+    "tag": "x300C0009",
     "vr": "DS",
     "vm": "1",
     "name": "EndCumulativeMetersetWeight"
   },
-  "(300C,000A)": {
-    "tag": "(300C,000A)",
+  "x300C000A": {
+    "tag": "x300C000A",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedBrachyApplicationSetupSequence"
   },
-  "(300C,000C)": {
-    "tag": "(300C,000C)",
+  "x300C000C": {
+    "tag": "x300C000C",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedBrachyApplicationSetupNumber"
   },
-  "(300C,000E)": {
-    "tag": "(300C,000E)",
+  "x300C000E": {
+    "tag": "x300C000E",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedSourceNumber"
   },
-  "(300C,0020)": {
-    "tag": "(300C,0020)",
+  "x300C0020": {
+    "tag": "x300C0020",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedFractionGroupSequence"
   },
-  "(300C,0022)": {
-    "tag": "(300C,0022)",
+  "x300C0022": {
+    "tag": "x300C0022",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedFractionGroupNumber"
   },
-  "(300C,0040)": {
-    "tag": "(300C,0040)",
+  "x300C0040": {
+    "tag": "x300C0040",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedVerificationImageSequence"
   },
-  "(300C,0042)": {
-    "tag": "(300C,0042)",
+  "x300C0042": {
+    "tag": "x300C0042",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedReferenceImageSequence"
   },
-  "(300C,0050)": {
-    "tag": "(300C,0050)",
+  "x300C0050": {
+    "tag": "x300C0050",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedDoseReferenceSequence"
   },
-  "(300C,0051)": {
-    "tag": "(300C,0051)",
+  "x300C0051": {
+    "tag": "x300C0051",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedDoseReferenceNumber"
   },
-  "(300C,0055)": {
-    "tag": "(300C,0055)",
+  "x300C0055": {
+    "tag": "x300C0055",
     "vr": "SQ",
     "vm": "1",
     "name": "BrachyReferencedDoseReferenceSequence"
   },
-  "(300C,0060)": {
-    "tag": "(300C,0060)",
+  "x300C0060": {
+    "tag": "x300C0060",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedStructureSetSequence"
   },
-  "(300C,006A)": {
-    "tag": "(300C,006A)",
+  "x300C006A": {
+    "tag": "x300C006A",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedPatientSetupNumber"
   },
-  "(300C,0080)": {
-    "tag": "(300C,0080)",
+  "x300C0080": {
+    "tag": "x300C0080",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedDoseSequence"
   },
-  "(300C,00A0)": {
-    "tag": "(300C,00A0)",
+  "x300C00A0": {
+    "tag": "x300C00A0",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedToleranceTableNumber"
   },
-  "(300C,00B0)": {
-    "tag": "(300C,00B0)",
+  "x300C00B0": {
+    "tag": "x300C00B0",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedBolusSequence"
   },
-  "(300C,00C0)": {
-    "tag": "(300C,00C0)",
+  "x300C00C0": {
+    "tag": "x300C00C0",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedWedgeNumber"
   },
-  "(300C,00D0)": {
-    "tag": "(300C,00D0)",
+  "x300C00D0": {
+    "tag": "x300C00D0",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedCompensatorNumber"
   },
-  "(300C,00E0)": {
-    "tag": "(300C,00E0)",
+  "x300C00E0": {
+    "tag": "x300C00E0",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedBlockNumber"
   },
-  "(300C,00F0)": {
-    "tag": "(300C,00F0)",
+  "x300C00F0": {
+    "tag": "x300C00F0",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedControlPointIndex"
   },
-  "(300C,00F2)": {
-    "tag": "(300C,00F2)",
+  "x300C00F2": {
+    "tag": "x300C00F2",
     "vr": "SQ",
     "vm": "1",
     "name": "ReferencedControlPointSequence"
   },
-  "(300C,00F4)": {
-    "tag": "(300C,00F4)",
+  "x300C00F4": {
+    "tag": "x300C00F4",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedStartControlPointIndex"
   },
-  "(300C,00F6)": {
-    "tag": "(300C,00F6)",
+  "x300C00F6": {
+    "tag": "x300C00F6",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedStopControlPointIndex"
   },
-  "(300C,0100)": {
-    "tag": "(300C,0100)",
+  "x300C0100": {
+    "tag": "x300C0100",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedRangeShifterNumber"
   },
-  "(300C,0102)": {
-    "tag": "(300C,0102)",
+  "x300C0102": {
+    "tag": "x300C0102",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedLateralSpreadingDeviceNumber"
   },
-  "(300C,0104)": {
-    "tag": "(300C,0104)",
+  "x300C0104": {
+    "tag": "x300C0104",
     "vr": "IS",
     "vm": "1",
     "name": "ReferencedRangeModulatorNumber"
   },
-  "(300E,0002)": {
-    "tag": "(300E,0002)",
+  "x300E0002": {
+    "tag": "x300E0002",
     "vr": "CS",
     "vm": "1",
     "name": "ApprovalStatus"
   },
-  "(300E,0004)": {
-    "tag": "(300E,0004)",
+  "x300E0004": {
+    "tag": "x300E0004",
     "vr": "DA",
     "vm": "1",
     "name": "ReviewDate"
   },
-  "(300E,0005)": {
-    "tag": "(300E,0005)",
+  "x300E0005": {
+    "tag": "x300E0005",
     "vr": "TM",
     "vm": "1",
     "name": "ReviewTime"
   },
-  "(300E,0008)": {
-    "tag": "(300E,0008)",
+  "x300E0008": {
+    "tag": "x300E0008",
     "vr": "PN",
     "vm": "1",
     "name": "ReviewerName"
@@ -20747,8 +20747,8 @@
     "vm": "1",
     "name": "ReferencedInterpretationSequence"
   },
-  "(4008,00FF)": {
-    "tag": "(4008,00FF)",
+  "x400800FF": {
+    "tag": "x400800FF",
     "vr": "CS",
     "vm": "1",
     "name": "ReportProductionStatusTrial"
@@ -20789,20 +20789,20 @@
     "vm": "1",
     "name": "InterpretationTranscriptionTime"
   },
-  "(4008,010A)": {
-    "tag": "(4008,010A)",
+  "x4008010A": {
+    "tag": "x4008010A",
     "vr": "PN",
     "vm": "1",
     "name": "InterpretationTranscriber"
   },
-  "(4008,010B)": {
-    "tag": "(4008,010B)",
+  "x4008010B": {
+    "tag": "x4008010B",
     "vr": "ST",
     "vm": "1",
     "name": "InterpretationText"
   },
-  "(4008,010C)": {
-    "tag": "(4008,010C)",
+  "x4008010C": {
+    "tag": "x4008010C",
     "vr": "PN",
     "vm": "1",
     "name": "InterpretationAuthor"
@@ -20855,8 +20855,8 @@
     "vm": "1",
     "name": "DistributionName"
   },
-  "(4008,011A)": {
-    "tag": "(4008,011A)",
+  "x4008011A": {
+    "tag": "x4008011A",
     "vr": "LO",
     "vm": "1",
     "name": "DistributionAddress"
@@ -20957,8 +20957,8 @@
     "vm": "1",
     "name": "OOIOwnerType"
   },
-  "(4010,100A)": {
-    "tag": "(4010,100A)",
+  "x4010100A": {
+    "tag": "x4010100A",
     "vr": "SQ",
     "vm": "1",
     "name": "RouteSegmentSequence"
@@ -21023,38 +21023,38 @@
     "vm": "1",
     "name": "ZEffective"
   },
-  "(4010,101A)": {
-    "tag": "(4010,101A)",
+  "x4010101A": {
+    "tag": "x4010101A",
     "vr": "SH",
     "vm": "1",
     "name": "BoardingPassID"
   },
-  "(4010,101B)": {
-    "tag": "(4010,101B)",
+  "x4010101B": {
+    "tag": "x4010101B",
     "vr": "FL",
     "vm": "3",
     "name": "CenterOfMass"
   },
-  "(4010,101C)": {
-    "tag": "(4010,101C)",
+  "x4010101C": {
+    "tag": "x4010101C",
     "vr": "FL",
     "vm": "3",
     "name": "CenterOfPTO"
   },
-  "(4010,101D)": {
-    "tag": "(4010,101D)",
+  "x4010101D": {
+    "tag": "x4010101D",
     "vr": "FL",
     "vm": "6-n",
     "name": "BoundingPolygon"
   },
-  "(4010,101E)": {
-    "tag": "(4010,101E)",
+  "x4010101E": {
+    "tag": "x4010101E",
     "vr": "SH",
     "vm": "1",
     "name": "RouteSegmentStartLocationID"
   },
-  "(4010,101F)": {
-    "tag": "(4010,101F)",
+  "x4010101F": {
+    "tag": "x4010101F",
     "vr": "SH",
     "vm": "1",
     "name": "RouteSegmentEndLocationID"
@@ -21113,14 +21113,14 @@
     "vm": "1-n",
     "name": "ThreatDetectionAlgorithmandVersion"
   },
-  "(4010,102A)": {
-    "tag": "(4010,102A)",
+  "x4010102A": {
+    "tag": "x4010102A",
     "vr": "SH",
     "vm": "1",
     "name": "AssignedLocation"
   },
-  "(4010,102B)": {
-    "tag": "(4010,102B)",
+  "x4010102B": {
+    "tag": "x4010102B",
     "vr": "DT",
     "vm": "1",
     "name": "AlarmDecisionTime"
@@ -21161,8 +21161,8 @@
     "vm": "1",
     "name": "TIPType"
   },
-  "(4010,103A)": {
-    "tag": "(4010,103A)",
+  "x4010103A": {
+    "tag": "x4010103A",
     "vr": "CS",
     "vm": "1",
     "name": "DICOSVersion"
@@ -21305,170 +21305,170 @@
     "vm": "1",
     "name": "TotalProcessingTime"
   },
-  "(4010,106C)": {
-    "tag": "(4010,106C)",
+  "x4010106C": {
+    "tag": "x4010106C",
     "vr": "OB",
     "vm": "1",
     "name": "DetectorCalibrationData"
   },
-  "(4FFE,0001)": {
-    "tag": "(4FFE,0001)",
+  "x4FFE0001": {
+    "tag": "x4FFE0001",
     "vr": "SQ",
     "vm": "1",
     "name": "MACParametersSequence"
   },
-  "(50xx,0005)": {
-    "tag": "(50xx,0005)",
+  "x50xx0005": {
+    "tag": "x50xx0005",
     "vr": "US",
     "vm": "1",
     "name": "CurveDimensions"
   },
-  "(50xx,0010)": {
-    "tag": "(50xx,0010)",
+  "x50xx0010": {
+    "tag": "x50xx0010",
     "vr": "US",
     "vm": "1",
     "name": "NumberOfPoints"
   },
-  "(50xx,0020)": {
-    "tag": "(50xx,0020)",
+  "x50xx0020": {
+    "tag": "x50xx0020",
     "vr": "CS",
     "vm": "1",
     "name": "TypeOfData"
   },
-  "(50xx,0022)": {
-    "tag": "(50xx,0022)",
+  "x50xx0022": {
+    "tag": "x50xx0022",
     "vr": "LO",
     "vm": "1",
     "name": "CurveDescription"
   },
-  "(50xx,0030)": {
-    "tag": "(50xx,0030)",
+  "x50xx0030": {
+    "tag": "x50xx0030",
     "vr": "SH",
     "vm": "1-n",
     "name": "AxisUnits"
   },
-  "(50xx,0040)": {
-    "tag": "(50xx,0040)",
+  "x50xx0040": {
+    "tag": "x50xx0040",
     "vr": "SH",
     "vm": "1-n",
     "name": "AxisLabels"
   },
-  "(50xx,0103)": {
-    "tag": "(50xx,0103)",
+  "x50xx0103": {
+    "tag": "x50xx0103",
     "vr": "US",
     "vm": "1",
     "name": "DataValueRepresentation"
   },
-  "(50xx,0104)": {
-    "tag": "(50xx,0104)",
+  "x50xx0104": {
+    "tag": "x50xx0104",
     "vr": "US",
     "vm": "1-n",
     "name": "MinimumCoordinateValue"
   },
-  "(50xx,0105)": {
-    "tag": "(50xx,0105)",
+  "x50xx0105": {
+    "tag": "x50xx0105",
     "vr": "US",
     "vm": "1-n",
     "name": "MaximumCoordinateValue"
   },
-  "(50xx,0106)": {
-    "tag": "(50xx,0106)",
+  "x50xx0106": {
+    "tag": "x50xx0106",
     "vr": "SH",
     "vm": "1-n",
     "name": "CurveRange"
   },
-  "(50xx,0110)": {
-    "tag": "(50xx,0110)",
+  "x50xx0110": {
+    "tag": "x50xx0110",
     "vr": "US",
     "vm": "1-n",
     "name": "CurveDataDescriptor"
   },
-  "(50xx,0112)": {
-    "tag": "(50xx,0112)",
+  "x50xx0112": {
+    "tag": "x50xx0112",
     "vr": "US",
     "vm": "1-n",
     "name": "CoordinateStartValue"
   },
-  "(50xx,0114)": {
-    "tag": "(50xx,0114)",
+  "x50xx0114": {
+    "tag": "x50xx0114",
     "vr": "US",
     "vm": "1-n",
     "name": "CoordinateStepValue"
   },
-  "(50xx,1001)": {
-    "tag": "(50xx,1001)",
+  "x50xx1001": {
+    "tag": "x50xx1001",
     "vr": "CS",
     "vm": "1",
     "name": "CurveActivationLayer"
   },
-  "(50xx,2000)": {
-    "tag": "(50xx,2000)",
+  "x50xx2000": {
+    "tag": "x50xx2000",
     "vr": "US",
     "vm": "1",
     "name": "AudioType"
   },
-  "(50xx,2002)": {
-    "tag": "(50xx,2002)",
+  "x50xx2002": {
+    "tag": "x50xx2002",
     "vr": "US",
     "vm": "1",
     "name": "AudioSampleFormat"
   },
-  "(50xx,2004)": {
-    "tag": "(50xx,2004)",
+  "x50xx2004": {
+    "tag": "x50xx2004",
     "vr": "US",
     "vm": "1",
     "name": "NumberOfChannels"
   },
-  "(50xx,2006)": {
-    "tag": "(50xx,2006)",
+  "x50xx2006": {
+    "tag": "x50xx2006",
     "vr": "UL",
     "vm": "1",
     "name": "NumberOfSamples"
   },
-  "(50xx,2008)": {
-    "tag": "(50xx,2008)",
+  "x50xx2008": {
+    "tag": "x50xx2008",
     "vr": "UL",
     "vm": "1",
     "name": "SampleRate"
   },
-  "(50xx,200A)": {
-    "tag": "(50xx,200A)",
+  "x50xx200A": {
+    "tag": "x50xx200A",
     "vr": "UL",
     "vm": "1",
     "name": "TotalTime"
   },
-  "(50xx,200C)": {
-    "tag": "(50xx,200C)",
+  "x50xx200C": {
+    "tag": "x50xx200C",
     "vr": "OW|OB",
     "vm": "1",
     "name": "AudioSampleData"
   },
-  "(50xx,200E)": {
-    "tag": "(50xx,200E)",
+  "x50xx200E": {
+    "tag": "x50xx200E",
     "vr": "LT",
     "vm": "1 ",
     "name": "AudioComments"
   },
-  "(50xx,2500)": {
-    "tag": "(50xx,2500)",
+  "x50xx2500": {
+    "tag": "x50xx2500",
     "vr": "LO",
     "vm": "1",
     "name": "CurveLabel"
   },
-  "(50xx,2600)": {
-    "tag": "(50xx,2600)",
+  "x50xx2600": {
+    "tag": "x50xx2600",
     "vr": "SQ",
     "vm": "1",
     "name": "CurveReferencedOverlaySequence"
   },
-  "(50xx,2610)": {
-    "tag": "(50xx,2610)",
+  "x50xx2610": {
+    "tag": "x50xx2610",
     "vr": "US",
     "vm": "1",
     "name": "CurveReferencedOverlayGroup"
   },
-  "(50xx,3000)": {
-    "tag": "(50xx,3000)",
+  "x50xx3000": {
+    "tag": "x50xx3000",
     "vr": "OW|OB",
     "vm": "1",
     "name": "CurveData"
@@ -21515,8 +21515,8 @@
     "vm": "1",
     "name": "WaveformSampleInterpretation"
   },
-  "(5400,100A)": {
-    "tag": "(5400,100A)",
+  "x5400100A": {
+    "tag": "x5400100A",
     "vr": "OB|OW",
     "vm": "1",
     "name": "WaveformPaddingValue"
@@ -21539,326 +21539,326 @@
     "vm": "1",
     "name": "SpectroscopyData"
   },
-  "(60xx,0010)": {
-    "tag": "(60xx,0010)",
+  "x60xx0010": {
+    "tag": "x60xx0010",
     "vr": "US",
     "vm": "1",
     "name": "OverlayRows"
   },
-  "(60xx,0011)": {
-    "tag": "(60xx,0011)",
+  "x60xx0011": {
+    "tag": "x60xx0011",
     "vr": "US",
     "vm": "1",
     "name": "OverlayColumns"
   },
-  "(60xx,0012)": {
-    "tag": "(60xx,0012)",
+  "x60xx0012": {
+    "tag": "x60xx0012",
     "vr": "US",
     "vm": "1",
     "name": "OverlayPlanes"
   },
-  "(60xx,0015)": {
-    "tag": "(60xx,0015)",
+  "x60xx0015": {
+    "tag": "x60xx0015",
     "vr": "IS",
     "vm": "1",
     "name": "NumberOfFramesInOverlay"
   },
-  "(60xx,0022)": {
-    "tag": "(60xx,0022)",
+  "x60xx0022": {
+    "tag": "x60xx0022",
     "vr": "LO",
     "vm": "1",
     "name": "OverlayDescription"
   },
-  "(60xx,0040)": {
-    "tag": "(60xx,0040)",
+  "x60xx0040": {
+    "tag": "x60xx0040",
     "vr": "CS",
     "vm": "1",
     "name": "OverlayType"
   },
-  "(60xx,0045)": {
-    "tag": "(60xx,0045)",
+  "x60xx0045": {
+    "tag": "x60xx0045",
     "vr": "LO",
     "vm": "1",
     "name": "OverlaySubtype"
   },
-  "(60xx,0050)": {
-    "tag": "(60xx,0050)",
+  "x60xx0050": {
+    "tag": "x60xx0050",
     "vr": "SS",
     "vm": "2",
     "name": "OverlayOrigin"
   },
-  "(60xx,0051)": {
-    "tag": "(60xx,0051)",
+  "x60xx0051": {
+    "tag": "x60xx0051",
     "vr": "US",
     "vm": "1",
     "name": "ImageFrameOrigin"
   },
-  "(60xx,0052)": {
-    "tag": "(60xx,0052)",
+  "x60xx0052": {
+    "tag": "x60xx0052",
     "vr": "US",
     "vm": "1",
     "name": "OverlayPlaneOrigin"
   },
-  "(60xx,0060)": {
-    "tag": "(60xx,0060)",
+  "x60xx0060": {
+    "tag": "x60xx0060",
     "vr": "CS",
     "vm": "1",
     "name": "OverlayCompressionCode"
   },
-  "(60xx,0061)": {
-    "tag": "(60xx,0061)",
+  "x60xx0061": {
+    "tag": "x60xx0061",
     "vr": "SH",
     "vm": "1",
     "name": "OverlayCompressionOriginator"
   },
-  "(60xx,0062)": {
-    "tag": "(60xx,0062)",
+  "x60xx0062": {
+    "tag": "x60xx0062",
     "vr": "SH",
     "vm": "1",
     "name": "OverlayCompressionLabel"
   },
-  "(60xx,0063)": {
-    "tag": "(60xx,0063)",
+  "x60xx0063": {
+    "tag": "x60xx0063",
     "vr": "CS",
     "vm": "1",
     "name": "OverlayCompressionDescription"
   },
-  "(60xx,0066)": {
-    "tag": "(60xx,0066)",
+  "x60xx0066": {
+    "tag": "x60xx0066",
     "vr": "AT",
     "vm": "1-n",
     "name": "OverlayCompressionStepPointers"
   },
-  "(60xx,0068)": {
-    "tag": "(60xx,0068)",
+  "x60xx0068": {
+    "tag": "x60xx0068",
     "vr": "US",
     "vm": "1",
     "name": "OverlayRepeatInterval"
   },
-  "(60xx,0069)": {
-    "tag": "(60xx,0069)",
+  "x60xx0069": {
+    "tag": "x60xx0069",
     "vr": "US",
     "vm": "1",
     "name": "OverlayBitsGrouped"
   },
-  "(60xx,0100)": {
-    "tag": "(60xx,0100)",
+  "x60xx0100": {
+    "tag": "x60xx0100",
     "vr": "US",
     "vm": "1",
     "name": "OverlayBitsAllocated"
   },
-  "(60xx,0102)": {
-    "tag": "(60xx,0102)",
+  "x60xx0102": {
+    "tag": "x60xx0102",
     "vr": "US",
     "vm": "1",
     "name": "OverlayBitPosition"
   },
-  "(60xx,0110)": {
-    "tag": "(60xx,0110)",
+  "x60xx0110": {
+    "tag": "x60xx0110",
     "vr": "CS",
     "vm": "1",
     "name": "OverlayFormat"
   },
-  "(60xx,0200)": {
-    "tag": "(60xx,0200)",
+  "x60xx0200": {
+    "tag": "x60xx0200",
     "vr": "US",
     "vm": "1",
     "name": "OverlayLocation"
   },
-  "(60xx,0800)": {
-    "tag": "(60xx,0800)",
+  "x60xx0800": {
+    "tag": "x60xx0800",
     "vr": "CS",
     "vm": "1-n",
     "name": "OverlayCodeLabel"
   },
-  "(60xx,0802)": {
-    "tag": "(60xx,0802)",
+  "x60xx0802": {
+    "tag": "x60xx0802",
     "vr": "US",
     "vm": "1",
     "name": "OverlayNumberOfTables"
   },
-  "(60xx,0803)": {
-    "tag": "(60xx,0803)",
+  "x60xx0803": {
+    "tag": "x60xx0803",
     "vr": "AT",
     "vm": "1-n",
     "name": "OverlayCodeTableLocation"
   },
-  "(60xx,0804)": {
-    "tag": "(60xx,0804)",
+  "x60xx0804": {
+    "tag": "x60xx0804",
     "vr": "US",
     "vm": "1",
     "name": "OverlayBitsForCodeWord"
   },
-  "(60xx,1001)": {
-    "tag": "(60xx,1001)",
+  "x60xx1001": {
+    "tag": "x60xx1001",
     "vr": "CS",
     "vm": "1",
     "name": "OverlayActivationLayer"
   },
-  "(60xx,1100)": {
-    "tag": "(60xx,1100)",
+  "x60xx1100": {
+    "tag": "x60xx1100",
     "vr": "US",
     "vm": "1",
     "name": "OverlayDescriptorGray"
   },
-  "(60xx,1101)": {
-    "tag": "(60xx,1101)",
+  "x60xx1101": {
+    "tag": "x60xx1101",
     "vr": "US",
     "vm": "1",
     "name": "OverlayDescriptorRed"
   },
-  "(60xx,1102)": {
-    "tag": "(60xx,1102)",
+  "x60xx1102": {
+    "tag": "x60xx1102",
     "vr": "US",
     "vm": "1",
     "name": "OverlayDescriptorGreen"
   },
-  "(60xx,1103)": {
-    "tag": "(60xx,1103)",
+  "x60xx1103": {
+    "tag": "x60xx1103",
     "vr": "US",
     "vm": "1",
     "name": "OverlayDescriptorBlue"
   },
-  "(60xx,1200)": {
-    "tag": "(60xx,1200)",
+  "x60xx1200": {
+    "tag": "x60xx1200",
     "vr": "US",
     "vm": "1-n",
     "name": "OverlaysGray"
   },
-  "(60xx,1201)": {
-    "tag": "(60xx,1201)",
+  "x60xx1201": {
+    "tag": "x60xx1201",
     "vr": "US",
     "vm": "1-n",
     "name": "OverlaysRed"
   },
-  "(60xx,1202)": {
-    "tag": "(60xx,1202)",
+  "x60xx1202": {
+    "tag": "x60xx1202",
     "vr": "US",
     "vm": "1-n",
     "name": "OverlaysGreen"
   },
-  "(60xx,1203)": {
-    "tag": "(60xx,1203)",
+  "x60xx1203": {
+    "tag": "x60xx1203",
     "vr": "US",
     "vm": "1-n",
     "name": "OverlaysBlue"
   },
-  "(60xx,1301)": {
-    "tag": "(60xx,1301)",
+  "x60xx1301": {
+    "tag": "x60xx1301",
     "vr": "IS",
     "vm": "1",
     "name": "ROIArea"
   },
-  "(60xx,1302)": {
-    "tag": "(60xx,1302)",
+  "x60xx1302": {
+    "tag": "x60xx1302",
     "vr": "DS",
     "vm": "1",
     "name": "ROIMean"
   },
-  "(60xx,1303)": {
-    "tag": "(60xx,1303)",
+  "x60xx1303": {
+    "tag": "x60xx1303",
     "vr": "DS",
     "vm": "1",
     "name": "ROIStandardDeviation"
   },
-  "(60xx,1500)": {
-    "tag": "(60xx,1500)",
+  "x60xx1500": {
+    "tag": "x60xx1500",
     "vr": "LO",
     "vm": "1",
     "name": "OverlayLabel"
   },
-  "(60xx,3000)": {
-    "tag": "(60xx,3000)",
+  "x60xx3000": {
+    "tag": "x60xx3000",
     "vr": "OB|OW",
     "vm": "1",
     "name": "OverlayData"
   },
-  "(60xx,4000)": {
-    "tag": "(60xx,4000)",
+  "x60xx4000": {
+    "tag": "x60xx4000",
     "vr": "LT",
     "vm": "1",
     "name": "OverlayComments"
   },
-  "(7FE0,0010)": {
-    "tag": "(7FE0,0010)",
+  "x7FE00010": {
+    "tag": "x7FE00010",
     "vr": "OW|OB",
     "vm": "1",
     "name": "PixelData"
   },
-  "(7FE0,0020)": {
-    "tag": "(7FE0,0020)",
+  "x7FE00020": {
+    "tag": "x7FE00020",
     "vr": "OW",
     "vm": "1",
     "name": "CoefficientsSDVN"
   },
-  "(7FE0,0030)": {
-    "tag": "(7FE0,0030)",
+  "x7FE00030": {
+    "tag": "x7FE00030",
     "vr": "OW",
     "vm": "1",
     "name": "CoefficientsSDHN"
   },
-  "(7FE0,0040)": {
-    "tag": "(7FE0,0040)",
+  "x7FE00040": {
+    "tag": "x7FE00040",
     "vr": "OW",
     "vm": "1",
     "name": "CoefficientsSDDN"
   },
-  "(7Fxx,0010)": {
-    "tag": "(7Fxx,0010)",
+  "x7Fxx0010": {
+    "tag": "x7Fxx0010",
     "vr": "OW|OB",
     "vm": "1",
     "name": "VariablePixelData"
   },
-  "(7Fxx,0011)": {
-    "tag": "(7Fxx,0011)",
+  "x7Fxx0011": {
+    "tag": "x7Fxx0011",
     "vr": "US",
     "vm": "1",
     "name": "VariableNextDataGroup"
   },
-  "(7Fxx,0020)": {
-    "tag": "(7Fxx,0020)",
+  "x7Fxx0020": {
+    "tag": "x7Fxx0020",
     "vr": "OW",
     "vm": "1",
     "name": "VariableCoefficientsSDVN"
   },
-  "(7Fxx,0030)": {
-    "tag": "(7Fxx,0030)",
+  "x7Fxx0030": {
+    "tag": "x7Fxx0030",
     "vr": "OW",
     "vm": "1",
     "name": "VariableCoefficientsSDHN"
   },
-  "(7Fxx,0040)": {
-    "tag": "(7Fxx,0040)",
+  "x7Fxx0040": {
+    "tag": "x7Fxx0040",
     "vr": "OW",
     "vm": "1",
     "name": "VariableCoefficientsSDDN"
   },
-  "(FFFA,FFFA)": {
-    "tag": "(FFFA,FFFA)",
+  "xFFFAFFFA": {
+    "tag": "xFFFAFFFA",
     "vr": "SQ",
     "vm": "1",
     "name": "DigitalSignaturesSequence"
   },
-  "(FFFC,FFFC)": {
-    "tag": "(FFFC,FFFC)",
+  "xFFFCFFFC": {
+    "tag": "xFFFCFFFC",
     "vr": "OB",
     "vm": "1",
     "name": "DataSetTrailingPadding"
   },
-  "(FFFE,E000)": {
-    "tag": "(FFFE,E000)",
+  "xFFFEE000": {
+    "tag": "xFFFEE000",
     "vr": "",
     "vm": "1",
     "name": "Item"
   },
-  "(FFFE,E00D)": {
-    "tag": "(FFFE,E00D)",
+  "xFFFEE00D": {
+    "tag": "xFFFEE00D",
     "vr": "",
     "vm": "1",
     "name": "ItemDelimitationItem"
   },
-  "(FFFE,E0DD)": {
-    "tag": "(FFFE,E0DD)",
+  "xFFFEE0DD": {
+    "tag": "xFFFEE0DD",
     "vr": "",
     "vm": "1",
     "name": "SequenceDelimitationItem"
