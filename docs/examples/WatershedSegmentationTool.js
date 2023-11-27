@@ -118,6 +118,7 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
   
       imgElement.onload = function () {
         const src = cv.imread(imgElement);
+        
         resolve({ src, imgElement });
       };
     });
@@ -193,11 +194,12 @@ for (let i = 0; i < markers.rows; i++) {
             }
         }
     }
-
+    console.log(src.ucharPtr)//array of uint8 516987RGB pixels->172329grayscale pixels  
     //use mask array to mask a DICOM image 
+    console.log(src);
     cv.imshow('canvasOutput', src);
 //cv.imshow('canvasOutput', src);
-src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
+//src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
 Fg.delete(); distTrans.delete(); unknown.delete(); markers.delete(); M.delete();
 //pixel_array = imageObject.metadata.x7fe00010;
 this.Mask_Array=mask_array;
