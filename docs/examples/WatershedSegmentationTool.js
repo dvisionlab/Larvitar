@@ -98,20 +98,38 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
 // Use normalizedLowerThreshold and normalizedUpperThreshold for PNG processing
 
 // Helper function to map values to a new range
-    console.log(DICOMimage)
-    let {src, imgElement}=await this.ConvertToPng(canvas);
+    console.log(DICOMimage)//512 X 512
+    const height=DICOMimage.height
+    const width=DICOMimage.width
+    let dataset=this.dataset;
+    const dataset_elements = dataset["elements"]
+    const element=dataset_elements["x7fe00010"];
+    //TODO CHECK DATASET, BYTEARRAY, DATAOFFSET 
+    let data = dataset.byteArray.slice(
+    element["dataOffset"],
+    element["dataOffset"] + element.length
+  );
+  console.log(data);
+  console.log(canvas);
+    let {src, imgElement}=await this.ConvertToPng(canvas,height, width);
     console.log(imgElement);//png image 
+    console.log(src)
     this.WatershedSegmentation(src, lowerThreshold,upperThreshold)
-    console.log(this.metadatatag)
-    this.Applymask_onDICOM(this.Mask_Array,this.seriesId,this.dataset,this.metadatatag);
+    this.Applymask_onDICOM(this.Mask_Array,data,dataset,element);
   }
 
   mapToRange(value, inMin, inMax) {
     console.log("value:"+value);
     return ((value - inMin) / (inMax - inMin)) * 255;
 }
-  ConvertToPng(canvas) {
+  ConvertToPng(canvas,height,width) {
     return new Promise((resolve) => {
+      //var blob = new Blob([data], { type: "image/png" });
+      //var pngDataUrl = URL.createObjectURL(blob);
+      //canvas.width=width;
+      console.log(canvas.width)
+      //canvas.height=height;
+      console.log(canvas.width)
       const pngDataUrl = canvas.toDataURL('image/png');
       const imgElement = document.createElement('img');
       imgElement.src = pngDataUrl;
@@ -181,6 +199,10 @@ cv.watershed(src, markers);
 const matrix = (rows, cols) => new Array(cols).fill(0).map((o, i) => new Array(rows).fill(0))
 //let mask=matrix(markers.rows,markers.cols);
 let mask_array=[];
+console.log(src.rows)
+console.log(src.cols)
+console.log(markers.rows)
+console.log(markers.cols)
 for (let i = 0; i < markers.rows; i++) {
     for (let j = 0; j < markers.cols; j++) {
                 //mask[i][j]=0;
@@ -199,7 +221,7 @@ for (let i = 0; i < markers.rows; i++) {
     console.log(src);
     cv.imshow('canvasOutput', src);
 //cv.imshow('canvasOutput', src);
-//src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
+src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
 Fg.delete(); distTrans.delete(); unknown.delete(); markers.delete(); M.delete();
 //pixel_array = imageObject.metadata.x7fe00010;
 this.Mask_Array=mask_array;
@@ -207,25 +229,8 @@ this.Mask_Array=mask_array;
 
  Applymask_onDICOM(
     Mask_Array,
-    seriesId,
-    dataset,
-    tag
+    data,dataset,element
   ){
-    console.log(this.manager);
-    console.log(dataset);
-    console.log(tag)
-    console.log(seriesId)
-    const dataset_elements = dataset["elements"]
-    const element=dataset_elements["x7fe00010"];
-    console.log(dataset_elements)
-    console.log(element)
-    console.log(dataset.byteArray)
-    console.log(element["dataOffset"])
-    //TODO CHECK DATASET, BYTEARRAY, DATAOFFSET 
-    let data = dataset.byteArray.slice(
-    element["dataOffset"],
-    element["dataOffset"] + element.length
-  );
    const length=data.length;
    console.log(length);
    console.log(Mask_Array.length)
