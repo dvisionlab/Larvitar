@@ -20,7 +20,7 @@ import { updateStackToolState } from "../imageTools";
  * updateECGFrame(traceData, frameId, numberOfFrames, divId)
  */
 
-const LAYOUT: Partial<Plotly.Layout> = {
+const DEFAULT_ECG_LAYOUT: Partial<Plotly.Layout> = {
   xaxis: {
     rangemode: "tozero",
     showgrid: true,
@@ -47,7 +47,24 @@ const LAYOUT: Partial<Plotly.Layout> = {
   },
   showlegend: false,
   paper_bgcolor: "#000000",
-  plot_bgcolor: "#000000"
+  plot_bgcolor: "#000000",
+  margin: {
+    l: 80,
+    r: 80,
+    b: 50,
+    t: 10,
+    pad: 0
+  }
+};
+
+/**
+ * Get default layout for the plotly plot
+ * @instance
+ * @function getDefaultECGLayout
+ * @returns {Object} defaultECGLayout - Default layout for the plotly plot
+ */
+export const getDefaultECGLayout = function (): Partial<Plotly.Layout> {
+  return DEFAULT_ECG_LAYOUT;
 };
 
 /**
@@ -60,6 +77,7 @@ const LAYOUT: Partial<Plotly.Layout> = {
  * @param {number} numberOfframes - Number of frames in the image
  * @param {number} frameTime - Time interval of each frame in the image
  * @param {number} frameId - FrameId of the image to be rendered
+ * @param {Object} customLayout - Custom layout for the plotly plot
  * @returns {Object} traceData - Plotly trace data
  */
 export const renderECG = function (
@@ -68,7 +86,8 @@ export const renderECG = function (
   colorMarker: string,
   numberOfFrames: number,
   frameTime: number,
-  frameId: number = 0
+  frameId: number,
+  customLayout?: Partial<Plotly.Layout>
 ): Partial<Plotly.PlotData>[] {
   // convert info using frameTime and numberOfFrames
   const totalTime = (numberOfFrames - 1) * (frameTime * 1e-3);
@@ -102,6 +121,9 @@ export const renderECG = function (
   };
   // render data and update ranges
   const traceData: Partial<Plotly.PlotData>[] = [trace, marker];
+  let LAYOUT: Partial<Plotly.Layout> = customLayout
+    ? customLayout
+    : DEFAULT_ECG_LAYOUT;
   // fix the range of the x-axis
   LAYOUT.xaxis!.range = [0, totalTime];
   // fix the grid of x-axis using a line for each frame

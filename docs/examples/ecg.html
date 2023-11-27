@@ -188,13 +188,17 @@
             let frameTime = multiFrameSerie.frameTime;
             // generate trace data and render the ECG
 
+            let layout = larvitar.getDefaultECGLayout();
+            layout.margin.t = 20;
+
             const trace_data = larvitar.renderECG(
               manager[seriesId].ecgData,
               "ecg",
               "red",
               numberOfFrames,
               frameTime,
-              0
+              0,
+              layout
             );
             // save trace data in the manager for futrue use
             manager[seriesId].trace_data = trace_data;
