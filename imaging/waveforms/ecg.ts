@@ -15,7 +15,9 @@ import { updateStackToolState } from "../imageTools";
 
 /*
  * This module provides the following functions to be exported:
+ * getDefaultECGLayout()
  * renderECG(data, divId, colorMarker, numberOfFrames, frameTime, frameId)
+ * unrenderECG(divId)
  * syncECGFrame(traceData, seriesId, canvasId, numberOfFrames, divId)
  * updateECGFrame(traceData, frameId, numberOfFrames, divId)
  */
@@ -65,6 +67,16 @@ const DEFAULT_ECG_LAYOUT: Partial<Plotly.Layout> = {
  */
 export const getDefaultECGLayout = function (): Partial<Plotly.Layout> {
   return DEFAULT_ECG_LAYOUT;
+};
+
+/**
+ * Unrender ECG waveform previously rendered in a div
+ * @instance
+ * @function unrenderECG
+ * @param {string} divId - DivId where waveform is rendered
+ */
+export const unrenderECG = function (divId: string) {
+  Plotly.purge(divId);
 };
 
 /**

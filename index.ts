@@ -36,6 +36,7 @@ import { parseECG } from "./imaging/parsers/ecg";
 
 import {
   renderECG,
+  unrenderECG,
   syncECGFrame,
   updateECGFrame,
   getDefaultECGLayout
@@ -262,6 +263,7 @@ export {
   parseECG,
   // waveforms
   renderECG,
+  unrenderECG,
   syncECGFrame,
   updateECGFrame,
   getDefaultECGLayout,

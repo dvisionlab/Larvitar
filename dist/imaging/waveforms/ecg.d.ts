@@ -11,6 +11,13 @@ import Plotly from "plotly.js-dist-min";
  */
 export declare const getDefaultECGLayout: () => Partial<Plotly.Layout>;
 /**
+ * Unrender ECG waveform previously rendered in a div
+ * @instance
+ * @function unrenderECG
+ * @param {string} divId - DivId where waveform is rendered
+ */
+export declare const unrenderECG: (divId: string) => void;
+/**
  * Render ECG waveform in a div
  * @instance
  * @function renderECG
