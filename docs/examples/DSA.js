@@ -11,6 +11,7 @@ function apply_DSA_Mask(
   multiFrameSerie,
   tag,
 ) {
+  const startTime = new Date();
   const frameNumber=multiFrameSerie.imageIds.length
   const imageIds=multiFrameSerie.imageIds;
   console.log(frameNumber)
@@ -155,6 +156,10 @@ console.log(frames_array)
     // Put ImageData on the canvas
     ctx.putImageData(img, 0, 0);
     //larvitar.cornerstone.displayImage(element, image);
+    const endTime = new Date();
+    const elapsedTime = endTime - startTime;
+
+    console.log(`Function execution time: ${elapsedTime} milliseconds`);
 
   }
   else if(mask_type==="TID")
@@ -198,33 +203,3 @@ function buildCanvas(width, height, pixelData) {
   context.putImageData(imgData, 0, 0);
 }
 
-function modifyDicomMetadata(parsedDataSet,newPixelData) {
-  // Modify specific DICOM tags
-
-
-  // Additional modifications as needed
-  parsedDataSet.elements.x7fe00010={ vr: 'OW', Value: newPixelData };
-  // Encode the modified DICOM dataset
-  const modifiedDicomByteArray = dicomParser.encode(parsedDataSet);
-
-  // Create a Blob from the DICOM byte array
-  const modifiedDicomBlob = new Blob([new Uint8Array(modifiedDicomByteArray)], { type: 'application/dicom' });
-
-  // Create a download link and trigger the download
-  const downloadLink = document.createElement('a');
-  downloadLink.href = URL.createObjectURL(modifiedDicomBlob);
-  downloadLink.download = 'modifiedOutput.dcm';
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  document.body.removeChild(downloadLink);
-
-  console.log('Modified DICOM file saved successfully.');
-}
-
-// Example usage
-
-//const parsedDataSet =;
-//const newWidth = /* New width value */;
-//const newHeight = /* New height value */;
-
-//modifyDicomMetadata(parsedDataSet);
