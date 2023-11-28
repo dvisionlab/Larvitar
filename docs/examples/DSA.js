@@ -11,6 +11,8 @@ function apply_DSA_Mask(
   multiFrameSerie,
   tag,
 ) {
+  const frameNumber=multiFrameSerie.imageIds.length
+  console.log(frameNumber)
   const metadata_info=multiFrameSerie.metadata[tag];
   const mask_type=metadata_info["0"].x00286101;
   let frame_index_number=metadata_info["0"].x00286110;//might be an array
@@ -48,19 +50,36 @@ console.log(frames_array)
      */
 
     // Example metadata
-    if()
      const maskFrameNumbers = frame_index_number; // Mask Frame Numbers multiFrameSerie.metadata.x00286110
      console.log(frame_index_number)
-     console.log(metadata_info["0"].x00286114)
-     const maskSubPixelShift = 2; // Mask Sub-pixel Shift multiFrameSerie.metadata.x00286114
-     const frameRange = [0, 99]; // Applicable Frame Range multiFrameSerie.metadata.x00286102
-     const contrastFrameAveraging = 5; // Contrast Frame Averaging multiFrameSerie.metadata.x00286112
-     const pixelDataOffset=16508;
-     const pixelDataLength=10318648;
+
+     let maskSubPixelShift = 0;      // Mask Sub-pixel Shift
+     if(metadata_info["0"].x00286114!=undefined)
+     {
+      maskSubPixelShift=metadata_info["0"].x00286114;
+     }
+
+     let contrastFrameAveraging; // Contrast Frame Averaging 
+     if (metadata_info["0"].x00286112!=undefined)
+     {
+       contrastFrameAveraging=metadata_info["0"].x00286112;
+     }
+     console.log(contrastFrameAveraging);
+
+     let frameRange; // Applicable Frame Range
+     if (metadata_info["0"].x00286102!=undefined)
+     {
+      frameRange=metadata_info["0"].x00286102;
+     }
+     if(metadata_info["0"].x00286102===undefined&&contrastFrameAveraging!=undefined)
+     {
+      frameRange=[0,frameNumber-1-contrastFrameAveraging+1]
+     }  
+
     // Get pixel data from the multiframe dataset
-    const pixelDataByteArray = multiFrameSerie.dataSet.byteArray.slice(pixelDataOffset, pixelDataOffset + pixelDataLength);
-    const pixelData = Array.from(pixelDataByteArray);
-     console.log(pixelData);
+  
+    const pixelData = getPixelData()
+    console.log(pixelData);
 
     // Determine frames for processing
     const startFrame = frameRange[0] || 0;
