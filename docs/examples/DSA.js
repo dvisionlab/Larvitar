@@ -12,6 +12,7 @@ function apply_DSA_Mask(
   tag,
 ) {
   const frameNumber=multiFrameSerie.imageIds.length
+  const imageIds=multiFrameSerie.imageIds;
   console.log(frameNumber)
   const metadata_info=multiFrameSerie.metadata[tag];
   const mask_type=metadata_info["0"].x00286101;
@@ -64,7 +65,6 @@ console.log(frames_array)
      {
        contrastFrameAveraging=metadata_info["0"].x00286112;
      }
-     console.log(contrastFrameAveraging);
 
      let frameRange; // Applicable Frame Range
      if (metadata_info["0"].x00286102!=undefined)
@@ -75,41 +75,87 @@ console.log(frames_array)
      {
       frameRange=[0,frameNumber-1-contrastFrameAveraging+1]
      }  
-
-    // Get pixel data from the multiframe dataset
-    for(let i=0;i<frameNumber;i++)
+     console.log(larvitar.cornerstone.imageCache)
+     
+     const startFrame = frameRange!=undefined ? frameRange[0] : 0;
+     const effectiveEndFrame = frameRange!=undefined ? frameRange[1] : frameNumber-1;//-1 is set because this is used as index to extract imageId from imageIDs array 
+     
+     // Perform frame averaging for mask
+     let image;//blabla
+     let pixelData=[];
+    //array of arrays where each value contains a pixelData (for all frames until effectiveEndFrame )
+     let contrastFrames=[];
+     let lengtharrays;
+     
+     for(let i=0;i<=effectiveEndFrame;i++)
     {
-    let frameimage=//knowing imageId extract image 
-    let pixelData = frameimage.getPixelData();
-    console.log(pixelData);
-
-    // Determine frames for processing
-    const startFrame = frameRange[0] || 0;
-    const endFrame = frameRange[1] || pixelData.length;
-    const effectiveEndFrame = endFrame - contrastFrameAveraging + 1;
-    
-    // Extract frames pixel data for processing
-    const contrastFrames = Array.from(pixelData.slice(startFrame, effectiveEndFrame));
-    console.log(contrastFrames)
-    //create array of arrays where each member is a pixel array of a frame 
-    const maskFrames = //array of pixeldata of frames in frame_index_number 
-    // Perform frame averaging for mask
-    const averagedMaskFrames = maskFrames.reduce((acc, frame) => acc.map((value, i) => value + frame[i]), new Array(pixelData[0].length).fill(0));
-    averagedMaskFrames.forEach((value, i, arr) => (arr[i] /= maskFrames.length));
-    
-    // Apply sub-pixel shift
-    const shiftedMaskFrames = new Array(averagedMaskFrames.length);
-    for (let i = 0; i < averagedMaskFrames.length; i++) {
-      shiftedMaskFrames[(i + maskSubPixelShift) % averagedMaskFrames.length] = averagedMaskFrames[i];
+      image=larvitar.cornerstone.imageCache.cachedImages[i].image;//extract image 
+      pixelData=image.getPixelData();
+      lengtharrays=pixelData.length;
+      contrastFrames.push(pixelData)
     }
-    console.log(averagedMaskFrames)
-    console.log(shiftedMaskFrames)
     console.log(contrastFrames)
-    // Apply mask subtraction
-    const resultFrames = contrastFrames.map((contrastFrame, i) => contrastFrame.map((value, j) => value - shiftedMaskFrames[j]));
-    
-    // Update with the result frames
-  }
+     let maskFrames=[];//array of arrays where each value contains a pixelData (for the frames indexes cited in frame_idex_number array)to be extracted from contrast data 
+     for(let i=0;i<=(frame_index_number.length-1);i++)
+    {
+      image=larvitar.cornerstone.imageCache.cachedImages[frame_index_number[i]].image;//extract image 
+      pixelData=image.getPixelData();
+      maskFrames.push(pixelData)
+    }
+    console.log(maskFrames)
+     let averagedMaskFrames=new Array(lengtharrays);
+     if(maskFrames.length>1)
+     {
+      averagedMaskFrames = maskFrames.reduce((acc, frame) => acc.map((value, i) => value + frame[i]), new Array(lengtharrays).fill(0));
+      averagedMaskFrames.forEach((value, i, arr) => (arr[i] /= maskFrames.length));
+     }
+     else if(maskFrames.length===1){
+      
+      averagedMaskFrames=maskFrames
+      console.log(averagedMaskFrames)
+     }
+     // Apply sub-pixel shift
+     let shiftedMaskFrames = new Array(averagedMaskFrames.length);
+     if(maskSubPixelShift!=0)
+     {
+            for (let i = 0; i < averagedMaskFrames.length; i++) {
+                shiftedMaskFrames[(i + maskSubPixelShift) % averagedMaskFrames.length] = averagedMaskFrames[i];
+            }
+    }
+    else 
+      {
+                shiftedMaskFrames=averagedMaskFrames;
+      }
+    console.log(shiftedMaskFrames.length)
+    console.log(Array.isArray(shiftedMaskFrames[0]))
+    console.log(contrastFrames.length)
+    const resultFrames = contrastFrames.map(contrastFrame => contrastFrame.map((value, j) => value - shiftedMaskFrames[0][j]));
+    console.log(resultFrames)
+    image=larvitar.cornerstone.imageCache.cachedImages[5].image;
+    const myCanvas = document.getElementById("myCanvas");
+    myCanvas.width = image.width;
+    myCanvas.height = image.height;
+
+    const ctx = myCanvas.getContext("2d");
+
+    // Create a new Uint8ClampedArray with RGBA values
+    const rgbaData = new Uint8ClampedArray(image.width * image.height * 4);
+
+    // Assuming dicomPixelData represents grayscale values, set the same value for R, G, and B channels
+    for (let i = 0; i <resultFrames[5].length; i++) {
+      rgbaData[i * 4] = resultFrames[5][i];     // Red channel
+      rgbaData[i * 4 + 1] = resultFrames[5][i]; // Green channel
+      rgbaData[i * 4 + 2] = resultFrames[5][i]; // Blue channel
+      rgbaData[i * 4 + 3] = 255;               // Alpha channel (fully opaque)
+    }
+
+    // Create ImageData
+    const img = new ImageData(rgbaData, image.width, image.height);
+
+    // Put ImageData on the canvas
+    ctx.putImageData(img, 0, 0);
+    //larvitar.cornerstone.displayImage(element, image);
+
   }
   else if(mask_type==="TID")
   {
@@ -135,6 +181,50 @@ console.log(frames_array)
     the beginning frame numbers (i.e., the first frame number in each pair)
     shall be in increasing order.
     Algorithm to calculate the Mask Frame Number: see dicom site*/
+
   }
   
 }
+function buildCanvas(width, height, pixelData) {
+  var imgData = context.createImageData(width, height);
+  for (var i = 0; i < imgData.data.length; i += 4) {
+      var x = (i / 4) % 40;
+      imgData.data[i] = pixelData[x];
+      imgData.data[i + 1] = pixelData[x + 1];
+      imgData.data[i + 2] = pixelData[x + 2];
+      imgData.data[i + 3] = 255;
+  }
+  console.log(pixelData);
+  context.putImageData(imgData, 0, 0);
+}
+
+function modifyDicomMetadata(parsedDataSet,newPixelData) {
+  // Modify specific DICOM tags
+
+
+  // Additional modifications as needed
+  parsedDataSet.elements.x7fe00010={ vr: 'OW', Value: newPixelData };
+  // Encode the modified DICOM dataset
+  const modifiedDicomByteArray = dicomParser.encode(parsedDataSet);
+
+  // Create a Blob from the DICOM byte array
+  const modifiedDicomBlob = new Blob([new Uint8Array(modifiedDicomByteArray)], { type: 'application/dicom' });
+
+  // Create a download link and trigger the download
+  const downloadLink = document.createElement('a');
+  downloadLink.href = URL.createObjectURL(modifiedDicomBlob);
+  downloadLink.download = 'modifiedOutput.dcm';
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+
+  console.log('Modified DICOM file saved successfully.');
+}
+
+// Example usage
+
+//const parsedDataSet =;
+//const newWidth = /* New width value */;
+//const newHeight = /* New height value */;
+
+//modifyDicomMetadata(parsedDataSet);
