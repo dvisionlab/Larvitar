@@ -13,21 +13,22 @@ function apply_DSA_Mask(
 ) {
   const metadata_info=multiFrameSerie.metadata[tag];
   const mask_type=metadata_info["0"].x00286101;
-  const frame_index_number=metadata_info["0"].x00286110;//might be an array
+  let frame_index_number=metadata_info["0"].x00286110;//might be an array
   const frames_array=[];
   if((typeof frame_index_number)==="number")
   {
-  frames_array.push(multiFrameSerie.instances["multiFrameLoader://0?frame="+(frame_index_number-1)])
+  frames_array.push("multiFrameLoader://0?frame="+(frame_index_number-1))
+  frame_index_number=[frame_index_number]
   }
 else if (Array.isArray(frame_index_number))
 {
   for(let i=0;i<frame_index_number.length;i++)
   {
-    frames_array.push(multiFrameSerie.instances["multiFrameLoader://0?frame="+(frame_index_number[i]-1)])
+    frames_array.push("multiFrameLoader://0?frame="+(frame_index_number[i]-1))
   }
   //iterate through frames with that index 
 }
-
+console.log(frames_array)
   if(mask_type==="NONE")
   {
     return;
@@ -47,7 +48,10 @@ else if (Array.isArray(frame_index_number))
      */
 
     // Example metadata
-     const maskFrameNumbers = [1, 2, 3]; // Mask Frame Numbers multiFrameSerie.metadata.x00286110
+    if()
+     const maskFrameNumbers = frame_index_number; // Mask Frame Numbers multiFrameSerie.metadata.x00286110
+     console.log(frame_index_number)
+     console.log(metadata_info["0"].x00286114)
      const maskSubPixelShift = 2; // Mask Sub-pixel Shift multiFrameSerie.metadata.x00286114
      const frameRange = [0, 99]; // Applicable Frame Range multiFrameSerie.metadata.x00286102
      const contrastFrameAveraging = 5; // Contrast Frame Averaging multiFrameSerie.metadata.x00286112
@@ -59,28 +63,31 @@ else if (Array.isArray(frame_index_number))
      console.log(pixelData);
 
     // Determine frames for processing
-     const startFrame = frameRange[0] || 0;
-     const endFrame = frameRange[1] || pixelData.length;
-     const effectiveEndFrame = endFrame - contrastFrameAveraging + 1;
-
-    // Extract frames for processing
-     const contrastFrames = pixelData.slice(startFrame, effectiveEndFrame);
-     console.log(contrastFrames)
-     const maskFrames = maskFrameNumbers.map(frameNumber => pixelData[frameNumber - 1]); // Adjust frame numbers to 0-based index
-
+    const startFrame = frameRange[0] || 0;
+    const endFrame = frameRange[1] || pixelData.length;
+    const effectiveEndFrame = endFrame - contrastFrameAveraging + 1;
+    
+    // Extract frames pixel data for processing
+    const contrastFrames = Array.from(pixelData.slice(startFrame, effectiveEndFrame));
+    console.log(contrastFrames)
+    //create array of arrays where each member is a pixel array of a frame 
+    const maskFrames = maskFrameNumbers.map(frameNumber => Array.from(pixelData[frameNumber - 1])); // Adjust frame numbers to 0-based index
+    console.log(maskFrames)
     // Perform frame averaging for mask
-     const averagedMaskFrames = maskFrames.reduce((acc, frame) => acc.map((value, i) => value + frame[i]), new Array(pixelData[0].length).fill(0));
-     averagedMaskFrames.forEach((value, i, arr) => (arr[i] /= maskFrames.length));
-
+    const averagedMaskFrames = maskFrames.reduce((acc, frame) => acc.map((value, i) => value + frame[i]), new Array(pixelData[0].length).fill(0));
+    averagedMaskFrames.forEach((value, i, arr) => (arr[i] /= maskFrames.length));
+    
     // Apply sub-pixel shift
-     const shiftedMaskFrames = new Array(averagedMaskFrames.length);
-     for (let i = 0; i < averagedMaskFrames.length; i++) {
-        shiftedMaskFrames[(i + maskSubPixelShift) % averagedMaskFrames.length] = averagedMaskFrames[i];
-        }
-
+    const shiftedMaskFrames = new Array(averagedMaskFrames.length);
+    for (let i = 0; i < averagedMaskFrames.length; i++) {
+      shiftedMaskFrames[(i + maskSubPixelShift) % averagedMaskFrames.length] = averagedMaskFrames[i];
+    }
+    console.log(averagedMaskFrames)
+    console.log(shiftedMaskFrames)
+    console.log(contrastFrames)
     // Apply mask subtraction
-     const resultFrames = contrastFrames.map((contrastFrame, i) => contrastFrame.map((value, j) => value - shiftedMaskFrames[j]));
-
+    const resultFrames = contrastFrames.map((contrastFrame, i) => contrastFrame.map((value, j) => value - shiftedMaskFrames[j]));
+    
     // Update with the result frames
 
   }

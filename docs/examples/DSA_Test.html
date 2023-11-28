@@ -125,7 +125,12 @@ function renderSerie() {
       let multiFrameSerie = manager[seriesId];
       console.log(multiFrameSerie)
       console.log(multiFrameSerie.dataSet.elements.x00286100.items["0"].dataSet.elements)
-      //document.getElementById("DSA").addEventListener("click",apply_DSA_Mask(seriesId, multiFrameSerie, "x00286100"));
+      const button_DSA = document.getElementById("DSA");
+      console.log(button_DSA);
+
+      button_DSA.onclick = function () {
+        apply_DSA_Mask(seriesId, multiFrameSerie, "x00286100");
+      };
       //x00286100:Defines a Sequence that describes mask subtraction operations for a Multi-frame Image.
                 //SUBITEMS x00286101:Defined Term identifying the type of mask operation to be performed. 
                 //& x00286110 Specifies the frame numbers of the pixel data used to generate this mask. 
@@ -138,7 +143,7 @@ function renderSerie() {
           console.log("Image has been rendered");
         });
       larvitar.addDefaultTools();
-      larvitar.setToolActive("StackScroll");
+      larvitar.setToolActive("Wwwc");
     })
     .catch(err => console.log(err));
 }
