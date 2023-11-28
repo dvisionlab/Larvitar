@@ -21,6 +21,7 @@
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
+      <button id="DSA">Apply DSA</button>
       <div
         id="viewer"
         class="col-8 h-100"
@@ -101,7 +102,7 @@
 
     <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-
+    <script src="./DSA.js"></script>
     <script>
        let demoFiles = [];
 
@@ -124,7 +125,7 @@ function renderSerie() {
       let multiFrameSerie = manager[seriesId];
       console.log(multiFrameSerie)
       console.log(multiFrameSerie.dataSet.elements.x00286100.items["0"].dataSet.elements)
-      larvitar.apply_DSA_Mask(seriesId, multiFrameSerie, "x00286100");
+      //document.getElementById("DSA").addEventListener("click",apply_DSA_Mask(seriesId, multiFrameSerie, "x00286100"));
       //x00286100:Defines a Sequence that describes mask subtraction operations for a Multi-frame Image.
                 //SUBITEMS x00286101:Defined Term identifying the type of mask operation to be performed. 
                 //& x00286110 Specifies the frame numbers of the pixel data used to generate this mask. 
