@@ -19,14 +19,14 @@ function apply_DSA_Mask(
   const frames_array=[];
   if((typeof frame_index_number)==="number")
   {
-  frames_array.push("multiFrameLoader://0?frame="+(frame_index_number-1))
+  frames_array.push(multiFrameSerie.imageIds[frame_index_number])
   frame_index_number=[frame_index_number]
   }
 else if (Array.isArray(frame_index_number))
 {
   for(let i=0;i<frame_index_number.length;i++)
   {
-    frames_array.push("multiFrameLoader://0?frame="+(frame_index_number[i]-1))
+    frames_array.push(multiFrameSerie.imageIds[frame_index_number[i]])
   }
   //iterate through frames with that index 
 }
@@ -77,8 +77,10 @@ console.log(frames_array)
      }  
 
     // Get pixel data from the multiframe dataset
-  
-    const pixelData = getPixelData()
+    for(let i=0;i<frameNumber;i++)
+    {
+    let frameimage=//knowing imageId extract image 
+    let pixelData = frameimage.getPixelData();
     console.log(pixelData);
 
     // Determine frames for processing
@@ -90,8 +92,7 @@ console.log(frames_array)
     const contrastFrames = Array.from(pixelData.slice(startFrame, effectiveEndFrame));
     console.log(contrastFrames)
     //create array of arrays where each member is a pixel array of a frame 
-    const maskFrames = maskFrameNumbers.map(frameNumber => Array.from(pixelData[frameNumber - 1])); // Adjust frame numbers to 0-based index
-    console.log(maskFrames)
+    const maskFrames = //array of pixeldata of frames in frame_index_number 
     // Perform frame averaging for mask
     const averagedMaskFrames = maskFrames.reduce((acc, frame) => acc.map((value, i) => value + frame[i]), new Array(pixelData[0].length).fill(0));
     averagedMaskFrames.forEach((value, i, arr) => (arr[i] /= maskFrames.length));
@@ -108,7 +109,7 @@ console.log(frames_array)
     const resultFrames = contrastFrames.map((contrastFrame, i) => contrastFrame.map((value, j) => value - shiftedMaskFrames[j]));
     
     // Update with the result frames
-
+  }
   }
   else if(mask_type==="TID")
   {
