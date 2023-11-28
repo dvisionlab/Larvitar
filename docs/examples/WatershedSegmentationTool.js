@@ -99,6 +99,7 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
 
 // Helper function to map values to a new range
     console.log(DICOMimage)//512 X 512
+    console.log(DICOMimage.getPixelData())
     const height=DICOMimage.height
     const width=DICOMimage.width
     let dataset=this.dataset;
@@ -130,11 +131,12 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
       console.log(canvas.width)
       //canvas.height=height;
       console.log(canvas.width)
-      const pngDataUrl = canvas.toDataURL('image/png');
+      const pngDataUrl = canvas.toDataURL('image/jpeg');
       const imgElement = document.createElement('img');
       imgElement.src = pngDataUrl;
-  
+
       imgElement.onload = function () {
+
         const src = cv.imread(imgElement);
         
         resolve({ src, imgElement });
@@ -221,7 +223,7 @@ for (let i = 0; i < markers.rows; i++) {
     console.log(src);
     cv.imshow('canvasOutput', src);
 //cv.imshow('canvasOutput', src);
-src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
+//src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
 Fg.delete(); distTrans.delete(); unknown.delete(); markers.delete(); M.delete();
 //pixel_array = imageObject.metadata.x7fe00010;
 this.Mask_Array=mask_array;
@@ -235,7 +237,7 @@ this.Mask_Array=mask_array;
    console.log(length);
    console.log(Mask_Array.length)
    //WHY DO THEY HAVE DIFFERENT LENGTHS???
-   
+   console.log(dataset)
    for(let i=0;i<length;i++)
    {
     if(Mask_Array[i]===1)
