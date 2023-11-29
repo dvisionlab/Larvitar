@@ -10,7 +10,6 @@ import {
   clone,
   find,
   filter,
-  keys,
   has,
   max,
   map,
@@ -63,7 +62,7 @@ const resliceTable: {
  * getReslicedPixeldata(imageId, originalData, reslicedData)
  * getDistanceBetweenSlices(seriesData, sliceIndex1, sliceIndex2)
  * isElement(o)
- * getImageMetadata(dataSet, imageId)
+ * getImageMetadata(seriesUID, instanceUID)
  */
 
 /**
@@ -672,33 +671,36 @@ export const getImageMetadata = function (
   let metadata_keys = Object.keys(metadata);
   // loop metadata using metadata_keys and return list of key value pairs
   let metadata_list = map(metadata_keys, function (key: string) {
-    // if value is a dictionary return empty string
-    let KEY = key as keyof MetaDataTypes;
-    const value =
-      metadata[KEY] && metadata[KEY]!.constructor == Object
-        ? ""
-        : metadata[KEY];
-    // convert key removing x and adding comma at position 4
-    const tagKey = (
-      "(" +
-      key.slice(1, 5) +
-      "," +
-      key.slice(5) +
-      ")"
-    ).toUpperCase();
+    // force uppercase to check in TAG_DICT
+    const keyName = (key.charAt(0) +
+      key.slice(1).toUpperCase()) as keyof typeof TAG_DICT;
 
-    if (!Object.keys(TAG_DICT).includes(tagKey)) {
-      console.debug(`Invalid tag key: ${tagKey}`);
+    // force type KEY to keyof typeof MetaDataTypes
+    const KEY = key as keyof MetaDataTypes;
+    if (Object.keys(TAG_DICT).includes(keyName)) {
+      const name = TAG_DICT[keyName] ? TAG_DICT[keyName].name : "";
+      const value =
+        metadata[KEY] && metadata[KEY]!.constructor == Object
+          ? ""
+          : metadata[KEY];
+      const tag = (
+        "(" +
+        keyName.slice(1, 5) +
+        "," +
+        keyName.slice(5) +
+        ")"
+      ).toUpperCase();
+      return {
+        tag: tag,
+        name: name,
+        value: value
+      };
     }
-    // force type to keyof typeof TAG_DICT after having checked that it is a valid key
-    const name = TAG_DICT[tagKey as keyof typeof TAG_DICT]
-      ? TAG_DICT[tagKey as keyof typeof TAG_DICT].name
-      : "";
-    return {
-      tag: tagKey,
-      name: name,
-      value: value
-    };
+  });
+
+  // remove undefined values
+  metadata_list = filter(metadata_list, function (item) {
+    return item !== undefined;
   });
   return metadata_list;
 };

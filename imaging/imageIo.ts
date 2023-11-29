@@ -23,6 +23,7 @@ import { Series, Header, Volume, TypedArray } from "./types";
  * getCachedPixelData(imageId)
  * buildData(series)
  * importNRRDImage(bufferArray)
+ * exportImageToBase64(canvasId)
  */
 
 /**
@@ -248,4 +249,21 @@ export const importNRRDImage = function (bufferArray: ArrayBuffer) {
   // get the data
   let volume = parse(bufferArray, { headerOnly: false });
   return volume;
+};
+
+/**
+ * Export image rendered in a canvas to base64
+ * @function exportImageToBase64
+ * @param elementId - Id of the div element containing the canvas
+ * @returns {String | null} base64 image (png full quality) or null if canvas does not exist
+ */
+export const exportImageToBase64 = function (elementId: string): string | null {
+  const element: HTMLElement | null = document.getElementById(elementId);
+  if (element) {
+    const canvas: HTMLCanvasElement | null = element.querySelector("canvas");
+    return canvas ? canvas.toDataURL("image/png", 1.0) : null;
+  } else {
+    console.warn("Canvas not found, invalid elementId");
+    return null;
+  }
 };

@@ -68,7 +68,8 @@ import {
   getCachedPixelData,
   buildData,
   buildDataAsync,
-  importNRRDImage
+  importNRRDImage,
+  exportImageToBase64
 } from "./imaging/imageIo";
 
 import { anonymize } from "./imaging/imageAnonymization";
@@ -290,6 +291,7 @@ export {
   buildData,
   buildDataAsync,
   importNRRDImage,
+  exportImageToBase64,
   // imageAnonymization
   anonymize,
   // imageLayers

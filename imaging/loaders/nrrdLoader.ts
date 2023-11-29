@@ -49,32 +49,6 @@ let customImageLoaderCounter = 0;
  * getNrrdSerieDimensions()
  */
 
-// TODO-ts: why it's different from cornerstone type ?
-// type Image = {
-//   imageId: string;
-//   rows: number;
-//   columns: number;
-//   minPixelValue: number;
-//   maxPixelValue: number;
-//   slope: number;
-//   intercept: number;
-//   windowCenter: number;
-//   windowWidth: number;
-//   render?: Function;
-//   getPixelData?: Function;
-//   getCanvas?: Function;
-//   color: boolean;
-//   columnPixelSpacing: number;
-//   rowPixelSpacing: number;
-//   invert: boolean;
-//   sizeInBytes: number;
-//   height: number;
-//   width: number;
-//   decodeTimeInMS?: number;
-//   webWorkerTimeInMS?: number;
-//   metadata: {[key: string]: MetadataValue};
-// }
-
 /**
  * Build the data structure for the provided image orientation
  * @instance
