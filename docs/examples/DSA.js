@@ -172,6 +172,40 @@ console.log(frames_array)
     the Applicable Frame Range is assumed to be a range where TID offset subtracted 
     from any frame number with the range results in a valid frame number within 
     the Multi-frame image.*/
+     // Check if Applicable Frame Range is present
+     let contrastFrameAveraging; // Contrast Frame Averaging 
+     if (metadata_info["0"].x00286112!=undefined)
+     {
+       contrastFrameAveraging=metadata_info["0"].x00286112;
+     }
+     let frameRange; // Applicable Frame Range
+     if (metadata_info["0"].x00286102!=undefined)
+     {
+      frameRange=metadata_info["0"].x00286102;
+     }
+     if(metadata_info["0"].x00286102===undefined&&contrastFrameAveraging!=undefined)
+     {
+      frameRange=[0,frameNumber-1-contrastFrameAveraging+1]
+     }  
+      // Filter frames within the Applicable Frame Range
+      contrastFrames = contrastFrames.filter((frame, index) => {
+          const frameNumber = index + 1; // Assuming frames are 1-indexed
+          return frameNumber >= frameRange[0] && frameNumber <= frameRange[1];
+      });
+  
+
+  // Apply Time Interval Differencing
+  const resultFrames = contrastFrames.map((frame, index) => {
+      const tidAdjustedFrameIndex = index - tidOffset;
+      if (tidAdjustedFrameIndex >= 0 && tidAdjustedFrameIndex < contrastFrames.length) {
+          // Perform pixel-wise subtraction
+          return resultFrames=contrastFrames[index].map((pixel, index) => pixel - contrastFrames[tidAdjustedFrameIndex][index]);
+      } else {
+          // Handle frames outside the valid range
+          return null; // You may want to define your own handling logic
+      }
+  });
+
   }
   else if(mask_type==="REV_TID")
   {
@@ -186,6 +220,32 @@ console.log(frames_array)
     the beginning frame numbers (i.e., the first frame number in each pair)
     shall be in increasing order.
     Algorithm to calculate the Mask Frame Number: see dicom site*/
+    let contrastFrameAveraging; // Contrast Frame Averaging 
+    if (metadata_info["0"].x00286112!=undefined)
+    {
+      contrastFrameAveraging=metadata_info["0"].x00286112;
+    }
+    let frameRange; // Applicable Frame Range
+     if (metadata_info["0"].x00286102!=undefined)
+     {
+      frameRange=metadata_info["0"].x00286102;
+     }
+     if(metadata_info["0"].x00286102===undefined&&contrastFrameAveraging!=undefined)
+     {
+      frameRange=[0,frameNumber-1-contrastFrameAveraging+1]
+     }  
+    // Calculate mask frame number for each contrast frame within the Applicable Frame Range
+    const resultFrames = frameRange.map((startFrame) => {
+        const maskFrameNumber = startFrame - tidOffset;
+        if (maskFrameNumber >= 1 && maskFrameNumber <= contrastFrames.length) {
+            // Perform pixel-wise subtraction
+            return resultFrame = contrastFrames[startFrame - 1].map((pixel, index) => pixel - contrastFrames[maskFrameNumber - 1][index]);
+        } else {
+            // Handle frames outside the valid range
+            return null; // You may want to define your own handling logic
+        }
+    });
+
 
   }
   
