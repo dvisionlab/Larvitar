@@ -55,6 +55,7 @@ function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
     console.log(resultFrames);
 
     const image = larvitar.cornerstone.imageCache.cachedImages[5].image;
+    console.log(image.data)
     const myCanvas = document.getElementById("myCanvas");
     myCanvas.width = image.width;
     myCanvas.height = image.height;
@@ -69,7 +70,8 @@ function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
 
     const img = new ImageData(rgbaData, image.width, image.height);
     ctx.putImageData(img, 0, 0);
-
+    createImagesForFrames(resultFrames[5],imageIds[5],image)
+    //createNewDicom(image.getPixelData(),image);
     const endTime = new Date();
     const elapsedTime = endTime - startTime;
 
@@ -80,3 +82,60 @@ function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
     // Implementation for REV_TID
   }
 }
+
+//<script src="path/to/dicomParser.js"></script>
+function createNewDicom(modifiedPixelData,image) {
+
+  // Create a new DICOM instance
+  const newDicom = dicomParser.createDicomInstance();
+
+  // Set DICOM metadata and attributes (modify as needed)
+  tagsToCopy
+  tagsToCopy.forEach(tag => {
+    const element = image.data.dataSet.elements[tag];
+    if (element !== undefined) {
+        newDicom.setUint16(element.tag, element.data);
+    }
+});
+  // Set pixel data attributes
+  newDicom.setPixelData(modifiedPixelData);
+
+  // Save the new DICOM file
+  const newDicomArrayBuffer = newDicom.write();
+
+  // Assuming you want to save it locally
+  saveAs(new Blob([newDicomArrayBuffer], { type: 'application/dicom' }), 'modified-dicom-file.dcm');
+};
+
+
+function createImagesForFrames(pixelData,frameId,image) {
+  // Get the cornerstone element
+  const element = document.getElementById('myCanvas'); // Replace with your actual element ID
+
+  larvitar.cornerstone.enable(element);
+  // Loop through each frame pixel data
+    // Create a new image object
+    const imagenew = {
+      imageId: frameId, // Provide a unique image ID
+      minPixelValue: Math.min(pixelData),
+      maxPixelValue: Math.max(pixelData),
+      slope: image.slope,
+      intercept: image.intercept,
+      windowCenter: image.windowCenter,
+      windowWidth: image.windowWidth,
+      render: larvitar.cornerstone.renderGrayscaleImage,
+      getPixelData: () => pixelData, // Set the pixel data for this frame
+      rows: image.rows, // Set the number of rows
+      columns: image.columns, // Set the number of columns
+      height: image.height, // Set the height
+      width: image.width, // Set the width
+      color: false, // This is a grayscale image
+      columnPixelSpacing: image.columnPixelSpacing,
+      rowPixelSpacing: image.rowPixelSpacing,
+      invert: false,
+    };
+
+    // Add the image to the cornerstone element
+    larvitar.cornerstone.displayImage(element, imagenew);
+}
+
