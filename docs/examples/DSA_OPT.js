@@ -51,7 +51,7 @@ function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
       : averagedMaskFrames;
 
     const resultFrames = contrastFrames.map(contrastFrame => contrastFrame.map((value, j) => value - shiftedMaskFrames[j]));
-
+    const resultFrames_alternative = contrastFrames.map(contrastFrame => contrastFrame.map((value, j) => value - contrastFrames[2][j] ));
     console.log(resultFrames);
 
     const image = larvitar.cornerstone.imageCache.cachedImages[5].image;
@@ -70,8 +70,37 @@ function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
 
     const img = new ImageData(rgbaData, image.width, image.height);
     ctx.putImageData(img, 0, 0);
-    createImagesForFrames(resultFrames[5],imageIds[5],image)
+    //createImagesForFrames(resultFrames[5],imageIds[5],image)
     //createNewDicom(image.getPixelData(),image);
+    console.log(image.minPixelValue)
+ 
+
+    const modifiedImage = {
+      imageId: image.imageId, // Keep the same imageId
+      minPixelValue:  -100,
+      maxPixelValue: 800,
+      slope: image.slope,
+      intercept:image.intercept,
+      windowCenter: 0,
+      windowWidth:10,
+      getPixelData: function() {
+          return resultFrames[5];
+      },
+      rows: image.rows,
+      columns: image.columns,
+      height: image.height,
+      width: image.width,
+      color:image.color,
+      columnPixelSpacing: image.columnPixelSpacing,
+      rowPixelSpacing: image.rowPixelSpacing,
+  };
+
+// Now, display the modified image using cornerstone
+const element = document.getElementById('imageResult'); // Replace 'yourElementId' with the ID of the element where you want to display the image
+larvitar.cornerstone.enable(element);
+larvitar.cornerstone.displayImage(element, modifiedImage);
+larvitar.addDefaultTools();
+      larvitar.setToolActive("Wwwc");
     const endTime = new Date();
     const elapsedTime = endTime - startTime;
 

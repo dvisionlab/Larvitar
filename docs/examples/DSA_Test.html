@@ -17,88 +17,39 @@
       hljs.highlightAll();
     </script>
     <title>Larvitar - Basic rendering example</title>
+    <style>
+      .container {
+          display: flex;
+      }
+
+      .box {
+          width: 50%; /* Adjust the width as needed */
+          padding: 10px;
+          box-sizing: border-box;
+          width: 600px; 
+          height: 600px;
+          background-color: black;
+          margin-right: 40px;
+      }
+  </style>
   </head>
 
   <body class="h-100" style="background-color: #000000">
+    <button id="DSA" style="margin-left: 860px;">Apply DSA</button>
     <div class="row h-100">
-      <button id="DSA">Apply DSA</button>
+      
+      <div class="container">
       <div
         id="viewer"
-        class="col-8 h-100"
-        style="background-color: black"
+        class="box"
       ></div>
-
-      <div class="col-4 h-100">
-        <pre class="h-100">
-          <canvas id="myCanvas"></div>
-          <code class="javascript" style="background-color: #000000">
-          <p style="font-size:0.6vw;">
-            let demoFiles = [];
-            let counter = 0;
-
-            const getDemoFileNames = function () {
-              let demoFileList = [];
-              for (let i = 1; i < 25; i++) {
-                let filename = "anon" + i;
-                demoFileList.push(filename);
-              }
-              return demoFileList;
-            };
-
-            // init all
-            larvitar.initializeImageLoader();
-            larvitar.initializeCSTools();
-            larvitar.store.initialize();
-            larvitar.store.addViewport("viewer");
-
-            async function createFile(fileName, cb) {
-              let response = await fetch("./demo/" + fileName);
-              let data = await response.blob();
-              let file = new File([data], fileName);
-              demoFiles.push(file);
-              counter++;
-              if (counter == 24) {
-                cb();
-              }
-            }
-
-            function renderSerie() {
-              larvitar.resetLarvitarManager();
-              larvitar
-                .readFiles(demoFiles)
-                .then(seriesStack => {
-                  // render the first series of the study
-                  let seriesId = _.keys(seriesStack)[0];
-                  let serie = seriesStack[seriesId];
-                  larvitar.renderImage(serie, "viewer").then(() => {
-                    console.log("Image has been rendered");
-                  });
-                  // optionally cache the series
-                  larvitar.populateLarvitarManager(seriesId, serie);
-                  larvitar.cacheImages(serie, function (resp) {
-                    if (resp.loading == 100) {
-                      let cache = larvitar.cornerstone.imageCache;
-                      console.log(
-                        "Cache size: ",
-                        cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                        "Mb"
-                      );
-                    }
-                  });
-                  larvitar.addDefaultTools();
-                  larvitar.setToolActive("Wwwc");
-                })
-                .catch(err => console.log(err));
-            }
-
-            let demoFileList = getDemoFileNames();
-            _.each(demoFileList, function (demoFile) {
-              createFile(demoFile, renderSerie);
-            });
-          </p>
-          </code>
-        </pre>
-      </div>
+      <div id="imageResult" class="box"></div>
+      <canvas
+        id="myCanvas"
+        class="box"
+      ></canvas>
+    </div>
+      
     </div>
 
     <script src="./larvitar.js"></script>
