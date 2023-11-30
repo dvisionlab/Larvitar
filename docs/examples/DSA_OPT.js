@@ -78,11 +78,11 @@ function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
     const modifiedImage = {
       imageId: image.imageId, // Keep the same imageId
       minPixelValue:  -100,
-      maxPixelValue: 800,
+      maxPixelValue: 1000,
       slope: image.slope,
       intercept:image.intercept,
       windowCenter: 0,
-      windowWidth:10,
+      windowWidth:100,
       getPixelData: function() {
           return resultFrames[5];
       },
