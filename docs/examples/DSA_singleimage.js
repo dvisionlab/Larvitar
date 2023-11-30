@@ -72,124 +72,73 @@ console.log(frames_array)
      const maskFrameNumbers = frame_index_number; // Mask Frame Numbers multiFrameSerie.metadata.x00286110
      console.log(frame_index_number)
 
-     let maskSubPixelShift = 0;      // Mask Sub-pixel Shift
-     if(metadata_info["0"].x00286114!=undefined)
-     {
-      maskSubPixelShift=metadata_info["0"].x00286114;
-     }
+     const metadataInfo = metadata_info["0"];
+const imageCache = larvitar.cornerstone.imageCache;
+const cachedImages = imageCache.cachedImages;
+const maskSubPixelShift = metadata_info["0"].x00286114 || 0;
+    const contrastFrameAveraging = metadata_info["0"].x00286112 || 1;
+    const frameRange = metadata_info["0"].x00286102 || [0, frameNumber - 1 - contrastFrameAveraging + 1];
+    const startFrame = frameRange!=undefined ? frameRange[0] : 0;;
+    const effectiveEndFrame = frameRange!=undefined ? frameRange[1] : frameNumber-1;
+const isFrameIncluded = imageIds.includes(frameId) && imageIds.indexOf(frameId) >= startFrame && imageIds.indexOf(frameId) <= effectiveEndFrame;
 
-     let contrastFrameAveraging; // Contrast Frame Averaging 
-     if (metadata_info["0"].x00286112!=undefined)
-     {
-       contrastFrameAveraging=metadata_info["0"].x00286112;
-     }
+if (isFrameIncluded) {
+  const contrastFrames = [cachedImages[imageIds.indexOf(frameId)].image.getPixelData()];
+  const maskframe=cachedImages[frame_index_number[0]].image.getPixelData()
+  const resultFrames_alternative = contrastFrames.map(contrastFrame => contrastFrame.map((value, j) => value - maskframe[j] ));
+  const endTime3 = new Date();
+  const elapsedTime3 = endTime3 - startTime;
+  console.log(`Function execution time: ${elapsedTime3} milliseconds`);
 
-     let frameRange; // Applicable Frame Range
-     if (metadata_info["0"].x00286102!=undefined)
-     {
-      frameRange=metadata_info["0"].x00286102;
-     }
-     if(metadata_info["0"].x00286102===undefined&&contrastFrameAveraging!=undefined)
-     {
-      frameRange=[0,frameNumber-1-contrastFrameAveraging+1]
-     }  
-     console.log(larvitar.cornerstone.imageCache)
-     
-     const startFrame = frameRange!=undefined ? frameRange[0] : 0;
-     const effectiveEndFrame = frameRange!=undefined ? frameRange[1] : frameNumber-1;//-1 is set because this is used as index to extract imageId from imageIDs array 
-     
-     // Perform frame averaging for mask
-  
-     //elaboration of a single frame 
-     if(imageIds.slice(startFrame,effectiveEndFrame).includes(frameId))
-     {
-      let pixelData=[];
-     //array of arrays where each value contains a pixelData (for all frames until effectiveEndFrame )
-      let contrastFrames=[];
-      let lengtharrays;
+  const maskFrames = frame_index_number.map(index => cachedImages[index].image.getPixelData());
 
-      let i=imageIds.indexOf(frameId)
-      let image=larvitar.cornerstone.imageCache.cachedImages[i].image;
-      pixelData=image.getPixelData();
-      contrastFrames.push(pixelData)
-      console.log(contrastFrames)
-      lengtharrays=pixelData.length;
-      let maskFrames=[];//array of arrays where each value contains a pixelData (for the frames indexes cited in frame_idex_number array)to be extracted from contrast data 
-     for(let i=0;i<=(frame_index_number.length-1);i++)
-    {
-      image=larvitar.cornerstone.imageCache.cachedImages[frame_index_number[i]].image;//extract image 
-      pixelData=image.getPixelData();
-      maskFrames.push(pixelData)
-    }
-    console.log(maskFrames)
-     let averagedMaskFrames=new Array(lengtharrays);
-     if(maskFrames.length>1)
-     {
-      averagedMaskFrames = maskFrames.reduce((acc, frame) => acc.map((value, i) => value + frame[i]), new Array(lengtharrays).fill(0));
-      averagedMaskFrames.forEach((value, i, arr) => (arr[i] /= maskFrames.length));
-     }
-     else if(maskFrames.length===1){
-      
-      averagedMaskFrames=maskFrames
-      console.log(averagedMaskFrames)
-     }
-     // Apply sub-pixel shift
-     let shiftedMaskFrames = new Array(averagedMaskFrames.length);
-     if(maskSubPixelShift!=0)
-     {
-            for (let i = 0; i < averagedMaskFrames.length; i++) {
-                shiftedMaskFrames[(i + maskSubPixelShift) % averagedMaskFrames.length] = averagedMaskFrames[i];
-            }
-    }
-    else 
-      {
-                shiftedMaskFrames=averagedMaskFrames;
-      }
-    console.log(shiftedMaskFrames.length)
-    console.log(Array.isArray(shiftedMaskFrames[0]))
-    console.log(contrastFrames.length)
-    const resultFrames = contrastFrames.map(contrastFrame => contrastFrame.map((value, j) => value - shiftedMaskFrames[0][j]));
-    console.log(resultFrames)
-   
-   
-    //createImagesForFrames(resultFrames[5],imageIds[5],image)
-    //createNewDicom(image.getPixelData(),image);
-    console.log(image.minPixelValue)
-    let maxPixel=getMax(resultFrames[0]);
-    let minPixel=getMin(resultFrames[0]);
+  let averagedMaskFrames = maskFrames.length > 1
+    ? maskFrames.reduce((acc, frame) => acc.map((value, i) => value + frame[i]), new Float32Array(maskFrames[0].length))
+    : maskFrames[0];
 
-    const modifiedImage = {
-      imageId: image.imageId, // Keep the same imageId
-      minPixelValue: minPixel,
-      maxPixelValue: maxPixel,
-      slope: image.slope,
-      intercept:image.intercept,
-      windowCenter: 0,
-      windowWidth:maxPixel/2,
-      getPixelData: function() {
-          return resultFrames[0];
-      },
-      rows: image.rows,
-      columns: image.columns,
-      height: image.height,
-      width: image.width,
-      color:image.color,
-      columnPixelSpacing: image.columnPixelSpacing,
-      rowPixelSpacing: image.rowPixelSpacing,
+  averagedMaskFrames = averagedMaskFrames.map(value => value / maskFrames.length);
+
+  let shiftedMaskFrames = maskSubPixelShift !== 0
+    ? new Float32Array(averagedMaskFrames.length).map((_, i) => averagedMaskFrames[(i - maskSubPixelShift + averagedMaskFrames.length) % averagedMaskFrames.length])
+    : averagedMaskFrames;
+
+  const resultFrames = contrastFrames.map(contrastFrame => contrastFrame.map((value, j) => value - shiftedMaskFrames[j]));
+  const endTime = new Date();
+  const elapsedTime = endTime - startTime;
+  console.log(`Function execution time: ${elapsedTime} milliseconds`);
+
+  let maxPixel=getMax(resultFrames[0]);
+  let minPixel=getMin(resultFrames[0]);
+  const modifiedImage = {
+    imageId: imageIds.indexOf(frameId), // Keep the same imageId
+    minPixelValue:minPixel,
+    maxPixelValue: maxPixel,
+    slope: cachedImages[imageIds.indexOf(frameId)].image.slope,
+    intercept: cachedImages[imageIds.indexOf(frameId)].image.intercept,
+    windowCenter: 0,
+    windowWidth: maxPixel / 2,
+    getPixelData: () => resultFrames[0],
+    rows: cachedImages[imageIds.indexOf(frameId)].image.rows,
+    columns: cachedImages[imageIds.indexOf(frameId)].image.columns,
+    height: cachedImages[imageIds.indexOf(frameId)].image.height,
+    width: cachedImages[imageIds.indexOf(frameId)].image.width,
+    color: cachedImages[imageIds.indexOf(frameId)].image.color,
+    columnPixelSpacing: cachedImages[imageIds.indexOf(frameId)].image.columnPixelSpacing,
+    rowPixelSpacing: cachedImages[imageIds.indexOf(frameId)].image.rowPixelSpacing,
   };
 
-// Now, display the modified image using cornerstone
-const element = document.getElementById('imageResult'); // Replace 'yourElementId' with the ID of the element where you want to display the image
-larvitar.cornerstone.enable(element);
-larvitar.cornerstone.displayImage(element, modifiedImage);
-larvitar.addDefaultTools();
-      larvitar.setToolActive("Wwwc");
-    const endTime = new Date();
-    const elapsedTime = endTime - startTime;
+  const element = document.getElementById('imageResult');
+  larvitar.cornerstone.enable(element);
+  larvitar.cornerstone.displayImage(element, modifiedImage);
+  larvitar.addDefaultTools();
+  larvitar.setToolActive("Wwwc");
 
-    console.log(`Function execution time: ${elapsedTime} milliseconds`);
+  const endTime2 = new Date();
+  const elapsedTime2 = endTime2 - startTime;
 
-     }
+  console.log(`Function execution time: ${elapsedTime2} milliseconds`);
+}
+
      else
      {
       return; 

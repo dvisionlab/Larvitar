@@ -55,7 +55,7 @@
     <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script src="https://unpkg.com/dicom-parser/dist/dicomParser.js"></script>
-    <script src="./DSA_OPT.js"></script>
+    <script src="./DSA_singleimage.js"></script>
     <script>
        let demoFiles = [];
 
@@ -80,8 +80,9 @@ function renderSerie() {
       console.log(multiFrameSerie.dataSet.elements.x00286100.items["0"].dataSet.elements)
       const button_DSA = document.getElementById("DSA");
       console.log(button_DSA);
+      const imageIds=multiFrameSerie.imageIds;
       button_DSA.onclick = function () {
-        apply_DSA_Mask(seriesId, multiFrameSerie, "x00286100");
+        apply_DSA_Mask(seriesId, multiFrameSerie, "x00286100",imageIds[5]);
       };
       //x00286100:Defines a Sequence that describes mask subtraction operations for a Multi-frame Image.
                 //SUBITEMS x00286101:Defined Term identifying the type of mask operation to be performed. 

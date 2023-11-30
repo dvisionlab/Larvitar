@@ -1,3 +1,22 @@
+function getMax(arr) {
+  let len = arr.length;
+  let max = -Infinity;
+
+  while (len--) {
+      max = arr[len] > max ? arr[len] : max;
+  }
+  return max;
+}
+function getMin(arr) {
+  let len = arr.length;
+  let min = +Infinity;
+
+  while (len--) {
+      min = arr[len] < min ? arr[len] : min;
+  }
+  return min;
+}
+
 function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
   const startTime = new Date();
   const frameNumber = multiFrameSerie.imageIds.length;
@@ -11,7 +30,8 @@ function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
   const frames_array = Array.isArray(frame_index_number)
     ? frame_index_number.map(index => imageIds[index])
     : [imageIds[frame_index_number]];
-
+    const endTime = new Date();
+    console.log(endTime-startTime);
   console.log(frames_array);
 
   if (mask_type === "NONE") {
@@ -23,7 +43,7 @@ function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
 
     console.log(larvitar.cornerstone.imageCache);
 
-    const startFrame = frameRange!=undefined ? frameRange[0] : 0;;
+    const startFrame = frameRange!=undefined ? frameRange[0] : 0;
     const effectiveEndFrame = frameRange!=undefined ? frameRange[1] : frameNumber-1;
 
     const contrastFrames = new Array(effectiveEndFrame - startFrame + 1).fill(0).map((_, i) => {
@@ -32,6 +52,9 @@ function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
     });
 
     console.log(contrastFrames);
+
+    const endTime2 = new Date();
+    console.log(endTime2-startTime);
 
     const maskFrames = frames_array.map(index => {
         let i=frames_array.indexOf(index);
@@ -42,17 +65,29 @@ function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
 
     console.log(maskFrames);
 
+    const endTime3 = new Date();
+    console.log(endTime3-startTime);
+
     const averagedMaskFrames = maskFrames.length > 1
       ? maskFrames.reduce((acc, frame) => acc.map((value, i) => value + frame[i]), new Array(maskFrames[0].length).fill(0)).map(value => value / maskFrames.length)
       : maskFrames[0];
+
+      const endTime4 = new Date();
+      console.log(endTime4-startTime);
 
     const shiftedMaskFrames = maskSubPixelShift !== 0
       ? averagedMaskFrames.map((value, i, arr) => arr[(i + maskSubPixelShift) % arr.length])
       : averagedMaskFrames;
 
+      const endTime5 = new Date();
+      console.log(endTime5-startTime);
+    console.log(shiftedMaskFrames)
     const resultFrames = contrastFrames.map(contrastFrame => contrastFrame.map((value, j) => value - shiftedMaskFrames[j]));
     const resultFrames_alternative = contrastFrames.map(contrastFrame => contrastFrame.map((value, j) => value - contrastFrames[2][j] ));
     console.log(resultFrames);
+
+    const endTime6 = new Date();
+    console.log(endTime6-startTime);
 
     const image = larvitar.cornerstone.imageCache.cachedImages[5].image;
     console.log(image.data)
@@ -73,16 +108,17 @@ function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
     //createImagesForFrames(resultFrames[5],imageIds[5],image)
     //createNewDicom(image.getPixelData(),image);
     console.log(image.minPixelValue)
- 
+    let maxPixel=getMax(resultFrames[5]);
+    let minPixel=getMin(resultFrames[5]);
 
     const modifiedImage = {
       imageId: image.imageId, // Keep the same imageId
-      minPixelValue:  -100,
-      maxPixelValue: 1000,
+      minPixelValue: minPixel,
+      maxPixelValue: maxPixel,
       slope: image.slope,
       intercept:image.intercept,
       windowCenter: 0,
-      windowWidth:100,
+      windowWidth:maxPixel/2,
       getPixelData: function() {
           return resultFrames[5];
       },
