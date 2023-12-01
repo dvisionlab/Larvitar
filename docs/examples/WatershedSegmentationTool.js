@@ -112,9 +112,24 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
   );
   console.log(data);
   console.log(canvas);
+
+      //canvas.height=height;
+      console.log(canvas.height) //618
+      console.log(canvas.width)  //648
+      console.log(DICOMimage.height) //512
+      console.log(DICOMimage.width)  //512
+      let DOMelement=document.getElementById("viewer")
+      console.log(DOMelement)
+      const viewport =  larvitar.store.get("viewports")
+      //DOMelement.width=DICOMimage.width
+      //DOMelement.height=DICOMimage.height
+      console.log(DOMelement.width)
+      console.log(DOMelement.height)
+      //canvas.height=DICOMimage.height
+      //canvas.width=DICOMimage.width
     let {src, imgElement}=await this.ConvertToPng(canvas,height, width);
-    console.log(imgElement);//png image 
-    console.log(src)
+    console.log(imgElement);//png image 618x648
+    console.log(src) //png image 618x648
     this.WatershedSegmentation(src, lowerThreshold,upperThreshold)
     this.Applymask_onDICOM(this.Mask_Array,data,dataset,element);
   }
@@ -128,9 +143,7 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
       //var blob = new Blob([data], { type: "image/png" });
       //var pngDataUrl = URL.createObjectURL(blob);
       //canvas.width=width;
-      console.log(canvas.width)
-      //canvas.height=height;
-      console.log(canvas.width)
+      
       const pngDataUrl = canvas.toDataURL('image/jpeg');
       const imgElement = document.createElement('img');
       imgElement.src = pngDataUrl;
@@ -208,7 +221,7 @@ console.log(markers.cols)
 for (let i = 0; i < markers.rows; i++) {
     for (let j = 0; j < markers.cols; j++) {
                 //mask[i][j]=0;
-                mask_array.push(0);
+                
         if (markers.intPtr(i, j)[0] == -1) {
                 //mask[i][j]=1;
                 mask_array.push(1);
@@ -216,8 +229,13 @@ for (let i = 0; i < markers.rows; i++) {
                 src.ucharPtr(i, j)[1] = 0; // G
                 src.ucharPtr(i, j)[2] = 0; // B
             }
+            else{
+              mask_array.push(0);
+            }
         }
     }
+    //canvas of 618x648 while image of 512x512 means that i have to eliminate 53 rows above and below
+    //and 68 columns right and left to have a matrix of the same dimensions!crop final array and image ( or before) 
     console.log(src.ucharPtr)//array of uint8 516987RGB pixels->172329grayscale pixels  
     //use mask array to mask a DICOM image 
     console.log(src);
