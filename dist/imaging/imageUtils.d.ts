@@ -150,11 +150,11 @@ export declare const getDistanceBetweenSlices: (seriesData: Series, sliceIndex1:
  * @param {String} instanceUID - The SOPInstanceUID
  * @return {Array} - List of metadata objects: tag, name and value
  */
-export declare const getImageMetadata: (seriesId: string, instanceUID: string) => {
+export declare const getImageMetadata: (seriesId: string, instanceUID: string) => ({
     tag: string;
     name: string;
     value: string | number | number[] | MetaDataTypes[] | null | undefined;
-}[];
+} | undefined)[];
 /**
  * Check if a div tag is a valid DOM HTMLElement
  * @instance

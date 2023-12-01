@@ -40,3 +40,10 @@ export declare const buildDataAsync: (series: Series, time: number, resolve: (re
  * @returns {Array} Parsed pixel data array
  */
 export declare const importNRRDImage: (bufferArray: ArrayBuffer) => Object;
+/**
+ * Export image rendered in a canvas to base64
+ * @function exportImageToBase64
+ * @param elementId - Id of the div element containing the canvas
+ * @returns {String | null} base64 image (png full quality) or null if canvas does not exist
+ */
+export declare const exportImageToBase64: (elementId: string) => string | null;
