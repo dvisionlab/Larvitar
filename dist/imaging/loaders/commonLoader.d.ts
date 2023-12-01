@@ -19,11 +19,11 @@ export declare const updateLarvitarManager: (imageObject: ImageObject, customId?
  * This function can be called in order to populate the Larvitar manager
  * @instance
  * @function populateLarvitarManager
- * @param {String} seriesId The Id of the series
+ * @param {String} larvitarSeriesInstanceUID The Id of the manager stack
  * @param {Object} seriesData The series data
  * @returns {manager} the Larvitar manager
  */
-export declare const populateLarvitarManager: (seriesId: string, seriesData: Series) => {
+export declare const populateLarvitarManager: (larvitarSeriesInstanceUID: string, seriesData: Series) => {
     [key: string]: Series | import("../types").NrrdSeries;
 };
 /**

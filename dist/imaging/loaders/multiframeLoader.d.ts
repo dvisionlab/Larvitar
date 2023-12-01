@@ -19,7 +19,7 @@ export declare const loadMultiFrameImage: (imageId: string) => {
  * @param {String} seriesId - SeriesId tag
  * @param {Object} serie - parsed serie object
  */
-export declare const buildMultiFrameImage: (seriesId: string, serie: Series) => void;
+export declare const buildMultiFrameImage: (larvitarSeriesInstanceUID: string, serie: Series) => void;
 /**
  * Get the custom imageId from custom loader
  * @instance
