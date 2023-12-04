@@ -649,18 +649,25 @@ export const getDistanceBetweenSlices = function (
  * @function getImageMetadata
  * @param {String} seriesId - The seriesUID
  * @param {String} instanceUID - The SOPInstanceUID
+ * @param {number} frameId - Optional FrameId
  * @return {Array} - List of metadata objects: tag, name and value
  */
 export const getImageMetadata = function (
   seriesId: string,
-  instanceUID: string
+  instanceUID: string,
+  frameId?: number
 ) {
   const seriesData = getSeriesDataFromLarvitarManager(seriesId);
   if (seriesData === undefined || seriesData === null) {
     console.log(`Invalid Series ID: ${seriesId}`);
     return [];
   }
-  const imageId = seriesData.instanceUIDs[instanceUID];
+
+  // manage imageID if the image is a multiframe stack
+  const imageId = seriesData.isMultiframe
+    ? seriesData.instanceUIDs[instanceUID] + "?frame=" + frameId
+    : seriesData.instanceUIDs[instanceUID];
+
   if (imageId === undefined) {
     console.log(`Invalid InstanceUID ID: ${instanceUID}`);
     return [];

@@ -285,6 +285,7 @@ export type NrrdSeries = {
   dataSet?: DataSet;
   metadata?: MetaData;
   ecgData?: number[];
+  isMultiframe?: boolean;
 };
 
 export type NrrdHeader = {
