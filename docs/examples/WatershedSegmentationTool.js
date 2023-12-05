@@ -128,7 +128,7 @@ src.data.set(pngPixelData);
         this.WatershedSegmentation(src, lowerThreshold,upperThreshold)
         this.Applymask_onDICOM(this.Mask_Array,dicomPixelData,DICOMimage,minThreshold,maxThreshold)
         console.log(this.name)
-        //larvitar.setToolPassive(this.name);
+        larvitar.setToolPassive(this.name);
   }
 
   mapToRange(value, inMin, inMax) {
