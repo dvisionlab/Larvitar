@@ -32,12 +32,13 @@
           style="background-color: black"
         > 
 </div>
-<div class="col-5 h-100" >
-  <pre class="h-100" >
-        <img id="imageSrc" alt="No Image" />
-        <canvas id="canvasOutput" style="top: -16px" ></canvas>
-      </pre>
+<div
+id="canvasOutput"
+class="col-4 h-100"
+style="background-color: black"
+> 
 </div>
+
       <div class="col-3 h-100" >
       <pre class="h-100">
         
@@ -157,7 +158,7 @@ let demoFiles = [];
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
-      larvitar.registerExternalTool("Test", WatershedSegmentationTool);
+      larvitar.registerExternalTool("WatershedSegmentation", WatershedSegmentationTool);
       //const cornerstoneTools = larvitar.cornerstoneTools;
 
       async function createFile(fileName, cb) {
@@ -200,7 +201,7 @@ let demoFiles = [];
             console.log(dataset); //why is it undefined???
             console.log(manager[seriesId])
             console.log(seriesId)
-            larvitar.addTool("Test", {
+            larvitar.addTool("WatershedSegmentation", {
               configuration: {
         drawHandles: true,
         drawHandlesOnHover: false,
@@ -213,7 +214,7 @@ let demoFiles = [];
         // showHounsfieldUnits: true,
       }
                });
-             larvitar.setToolActive("Test");
+             larvitar.setToolActive("WatershedSegmentation");
             //cornerstoneTools.addTool(myTool);
             // Step 3: Activate your tool
             //cornerstoneTools.setToolActive(myTool.name, { mouseButtonMask: 1 });

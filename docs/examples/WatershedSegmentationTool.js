@@ -64,7 +64,7 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
   }
  
   handleMouseUp= async (event) => {
-    console.log("stop");
+
     this.measuring = false;
     const eventData = this.eventData;
     const DICOMimage=eventData.image;
@@ -84,25 +84,20 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
         pixelSpacing
       );
       const XFactor=0.7;
-      const minThreshold = 0;
-      const maxThreshold = 4392;
+      const dicomPixelData = DICOMimage.getPixelData();
+      const minThreshold = this.getMin(dicomPixelData)   
+      const maxThreshold = this.getMax(dicomPixelData);
       const meanNorm=this.mapToRange(stats.mean, minThreshold, maxThreshold);
-      console.log(meanNorm)
+
       const stdDevNorm=this.mapToRange(stats.stdDev, minThreshold, maxThreshold);
       const lowerThreshold =  meanNorm- XFactor* stdDevNorm;
       const upperThreshold = meanNorm + XFactor * stdDevNorm;
-      console.log(lowerThreshold)
-      console.log(upperThreshold)
-//TODO CHECK MINTRESHOLD AND MAXTRESHOLD 
 
-// Use normalizedLowerThreshold and normalizedUpperThreshold for PNG processing
-
-// Helper function to map values to a new range
   
 const height = DICOMimage.height;
 const width = DICOMimage.width;
 
-const dicomPixelData = DICOMimage.getPixelData();
+
 let normalizedPixelData = new Uint8Array(width * height)
 for(let i=0;i<dicomPixelData.length;i++)
 {
@@ -111,7 +106,6 @@ for(let i=0;i<dicomPixelData.length;i++)
 // Assuming 8-bit unsigned integer pixel values
 // Create a new array for PNG pixel data with 4 channels: RGB
 const pngPixelData = new Uint8Array(width * height * 4);
-let max=-Infinity
 // Function to convert DICOM pixel data to PNG pixel data
 for (let i = 0; i < dicomPixelData.length; i++) {
   const pixelValue = normalizedPixelData[i];
@@ -121,57 +115,48 @@ for (let i = 0; i < dicomPixelData.length; i++) {
   pngPixelData[i * 4 + 1] = pixelValue; // Green channel
   pngPixelData[i * 4 + 2] = pixelValue; // Blue channel
   pngPixelData[i * 4 + 3] = 255; // Alpha channel (fully opaque)
-if(pixelValue>max)
-{
-  max=pixelValue;
+
 }
-}
-console.log(max)
-console.log(pngPixelData)
+
 // Create an OpenCV Mat object from the PNG pixel data
 let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
 src.data.set(pngPixelData);
 
       // Now 'src' is an OpenCV Mat object representing the PNG image
-      console.log(src);
-      console.log(src)
 
-      setTimeout(this.WatershedSegmentation(src, lowerThreshold,upperThreshold), 1000)
-    
-    //this.Applymask_onDICOM(this.Mask_Array,data,dataset,element);
+
+        this.WatershedSegmentation(src, lowerThreshold,upperThreshold)
+        this.Applymask_onDICOM(this.Mask_Array,dicomPixelData,DICOMimage,minThreshold,maxThreshold)
+        console.log(this.name)
+        larvitar.setToolPassive(this.name);
   }
 
   mapToRange(value, inMin, inMax) {
     return ((value - inMin) / (inMax - inMin)) * 255;
 }
-  ConvertToPng(canvas,height,width) {
-    return new Promise((resolve) => {
-      //var blob = new Blob([data], { type: "image/png" });
-      //var pngDataUrl = URL.createObjectURL(blob);
-      //canvas.width=width;
-      
-      const pngDataUrl = canvas.toDataURL('image/jpeg');
-      const imgElement = document.createElement('img');
-      imgElement.src = pngDataUrl;
+getMax(arr) {
+   let len = arr.length;
+  let max = -Infinity;
 
-      imgElement.onload = function () {
-
-        const src = cv.imread(imgElement);
-        
-        resolve({ src, imgElement });
-      };
-    });
+  while (len--) {
+      max = arr[len] > max ? arr[len] : max;
   }
+  return max;
+}
+getMin(arr) {
+  let len = arr.length;
+  let min = +Infinity;
+
+  while (len--) {
+      min = arr[len] < min ? arr[len] : min;
+  }
+  return min;
+}
 WatershedSegmentation(src,lowerThreshold,upperThreshold){
-//imgElement.width=300;
-//imgElement.height=200;
-console.log(cv);
-console.log("you are here");
-console.log(src);
-console.log(src.type())
+
 
 let dst = new cv.Mat();
-console.log(dst)
+
 let gray = new cv.Mat();
 let opening = new cv.Mat();
 let Bg = new cv.Mat();
@@ -181,19 +166,9 @@ let unknown = new cv.Mat();
 let markers = new cv.Mat();
 // gray and threshold image
 cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-console.log(src)
-cv.threshold(gray, gray, upperThreshold, 255, cv.THRESH_BINARY);
-console.log(gray)
-//TRESHOLD IN A CERTAIN RANGE (lowerThreshold, upperThreshold)
-/*let lowerThresholdMat = new cv.Mat.ones(src.rows, src.cols, cv.CV_8U);
-lowerThresholdMat.setTo(new cv.Scalar(lowerThreshold));
-console.log(lowerThresholdMat);
-let upperThresholdMat = new cv.Mat.ones(src.rows, src.cols, cv.CV_8U);
-upperThresholdMat.setTo(new cv.Scalar(upperThreshold));
-console.log(upperThresholdMat);
-cv.inRange(gray, lowerThresholdMat, upperThresholdMat, gray);*/
 
-//cv.imshow('canvasOutput', binary);
+cv.threshold(gray, gray, upperThreshold, 255, cv.THRESH_BINARY);
+
 // get background
 let M = cv.Mat.ones(3, 3, cv.CV_8U);
 cv.erode(gray, gray, M);
@@ -222,10 +197,7 @@ cv.watershed(src, markers);
 const matrix = (rows, cols) => new Array(cols).fill(0).map((o, i) => new Array(rows).fill(0))
 //let mask=matrix(markers.rows,markers.cols);
 let mask_array=[];
-console.log(src.rows)
-console.log(src.cols)
-console.log(markers.rows)
-console.log(markers.cols)
+
 for (let i = 0; i < markers.rows; i++) {
     for (let j = 0; j < markers.cols; j++) {
                 //mask[i][j]=0;
@@ -242,12 +214,9 @@ for (let i = 0; i < markers.rows; i++) {
             }
         }
     }
-    console.log(src.ucharPtr)
+
     //use mask array to mask a DICOM image 
-    console.log(src);
-    
-cv.imshow('canvasOutput', src);
-//src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
+src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
 Fg.delete(); distTrans.delete(); unknown.delete(); markers.delete(); M.delete();
 //pixel_array = imageObject.metadata.x7fe00010;
 this.Mask_Array=mask_array;
@@ -255,25 +224,53 @@ this.Mask_Array=mask_array;
 
  Applymask_onDICOM(
     Mask_Array,
-    data,dataset,element
+    dicomPixelData,DICOMimage,minThreshold,maxThreshold
   ){
-   const length=data.length;
-   console.log(length);
-   console.log(Mask_Array.length)
-   //WHY DO THEY HAVE DIFFERENT LENGTHS???
-   console.log(dataset)
-   for(let i=0;i<length;i++)
-   {
-    if(Mask_Array[i]===1)
-    {
-      dataset.byteArray[element.dataOffset+i]=0;
+
+  let array=new Array(dicomPixelData.length)
+  for(let i=0;i<dicomPixelData.length;i++)
+  {
+    if(Mask_Array[i]===0)
+    {array[i * 4]=dicomPixelData[i]
+      array[i * 4+1]=dicomPixelData[i]
+      array[i * 4+2]=dicomPixelData[i]
+      array[i * 4+3]=255
     }
-   }
-   //larvitar.renderImage(this.manager, "viewer", 0);
-   
+    else if(Mask_Array[i]===1)
+    {
+      array[i*4]=maxThreshold;
+      array[i * 4+1]=0
+      array[i * 4+2]=0
+      array[i * 4+3]=1
+    }
+  }
+
+  const modifiedImage = {
+    imageId: DICOMimage.imageId, // Keep the same imageId
+    minPixelValue:minThreshold,
+    maxPixelValue: maxThreshold,
+    slope: DICOMimage.slope,
+    intercept: DICOMimage.intercept,
+    windowCenter: DICOMimage.windowCenter,
+    windowWidth: DICOMimage.windowWidth,
+    getPixelData: () => array,
+    rows: DICOMimage.rows,
+    columns: DICOMimage.columns,
+    height: DICOMimage.height,
+    width: DICOMimage.width,
+    color: true,
+    columnPixelSpacing: DICOMimage.columnPixelSpacing,
+    rowPixelSpacing: DICOMimage.rowPixelSpacing,
+  };
+
+  const element_new = document.getElementById('canvasOutput');
+  larvitar.cornerstone.enable(element_new);
+  larvitar.cornerstone.displayImage(element_new, modifiedImage);
+  //larvitar.addDefaultTools();
   }
 
   createNewMeasurement(eventData) {
+
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
@@ -391,6 +388,7 @@ this.Mask_Array=mask_array;
     const { image, element } = eventData;
     element.addEventListener('mouseup', this.handleMouseUp);
     this.eventData=eventData;
+    this.element=element
     const lineWidth = toolStyle.getToolWidth();
     const lineDash = getModule("globalConfiguration").configuration.lineDash;
     const {
@@ -562,8 +560,7 @@ function _calculateStats(image, element, handles, modality, pixelSpacing) {
       stdDev: calculateSUV(image, roiMeanStdDev.stdDev, true) || 0
     };
   }
-console.log(roiMeanStdDev.mean)
-console.log(roiMeanStdDev.stdDev)
+
   // Calculate the image area from the rectangle dimensions and pixel spacing
   const area =
     roiCoordinates.width *
