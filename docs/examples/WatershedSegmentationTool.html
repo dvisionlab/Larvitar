@@ -159,6 +159,8 @@ let demoFiles = [];
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
       larvitar.registerExternalTool("WatershedSegmentation", WatershedSegmentationTool);
+      const element_new = document.getElementById('canvasOutput');
+      larvitar.cornerstone.enable(element_new);
       //const cornerstoneTools = larvitar.cornerstoneTools;
 
       async function createFile(fileName, cb) {

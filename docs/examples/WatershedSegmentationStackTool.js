@@ -64,7 +64,6 @@ class WatershedSegmentationStackTool extends BaseAnnotationTool {
   }
  
   handleMouseUp= async (event) => {
-    console.log("stop");
     this.measuring = false;
     const eventData = this.eventData;
     const DICOMimage=eventData.image;
@@ -84,34 +83,63 @@ class WatershedSegmentationStackTool extends BaseAnnotationTool {
         pixelSpacing
       );
       const XFactor=0.7;
-      const minThreshold = 0;
-      const maxThreshold = 4392;
+      const dicomPixelData = DICOMimage.getPixelData();
+      const minThreshold = this.getMin(dicomPixelData)   
+      const maxThreshold = this.getMax(dicomPixelData);
       const meanNorm=this.mapToRange(stats.mean, minThreshold, maxThreshold);
-      console.log(meanNorm)
+
       const stdDevNorm=this.mapToRange(stats.stdDev, minThreshold, maxThreshold);
       const lowerThreshold =  meanNorm- XFactor* stdDevNorm;
       const upperThreshold = meanNorm + XFactor * stdDevNorm;
-      console.log(lowerThreshold)
-      console.log(upperThreshold)
+
 // Use normalizedLowerThreshold and normalizedUpperThreshold for PNG processing
  
 // Helper function to map values to a new range
-console.log(getToolState(this.element, 'stack').data["0"])
+    console.log(getToolState(this.element, 'stack').data["0"])
     const stack = getToolState(this.element, 'stack').data["0"];
     //let pngMaskedImages = [];
     for (let i = 0; i < stack.imageIds.length; i++) { 
-    const imageId = stack.imageIds[i];
-    const elementstack = cornerstone.getEnabledElement("viewer");
-     console.log(elementstack)
-     const canvas_stack_element = elementstack.element;
-    let {src, imgElement}=await this.ConvertToPng(canvas_stack_element);
-    console.log(imgElement);//png image 
-    this.WatershedSegmentation(src, lowerThreshold,upperThreshold,pngMaskedImages)
-    console.log(this.metadatatag)
-    this.Applymask_onDICOM(this.Mask_Array,this.seriesId,this.dataset,this.metadatatag);
-    cornerstone.updateImage(imageId);
+      let DICOMimage//stack image extract s
+      let height = DICOMimage.height;
+      let width = DICOMimage.width;
+      
+      
+      let normalizedPixelData = new Uint8Array(width * height)
+      for(let i=0;i<dicomPixelData.length;i++)
+      {
+                normalizedPixelData[i]=this.mapToRange(dicomPixelData[i], minThreshold, maxThreshold);
+      }
+      // Assuming 8-bit unsigned integer pixel values
+      // Create a new array for PNG pixel data with 4 channels: RGB
+      let pngPixelData = new Uint8Array(width * height * 4);
+      // Function to convert DICOM pixel data to PNG pixel data
+      for (let i = 0; i < dicomPixelData.length; i++) {
+        const pixelValue = normalizedPixelData[i];
+      
+        // Assuming each integer represents a grayscale value
+        pngPixelData[i * 4] = pixelValue; // Red channel
+        pngPixelData[i * 4 + 1] = pixelValue; // Green channel
+        pngPixelData[i * 4 + 2] = pixelValue; // Blue channel
+        pngPixelData[i * 4 + 3] = 255; // Alpha channel (fully opaque)
+      
+      }
+
+      // Create an OpenCV Mat object from the PNG pixel data
+      let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
+      src.data.set(pngPixelData);
+
+            // Now 'src' is an OpenCV Mat object representing the PNG image
+              this.WatershedSegmentation(src, lowerThreshold,upperThreshold)
+              this.Applymask_onDICOM(this.Mask_Array,dicomPixelData,DICOMimage,minThreshold,maxThreshold)
     }
+//image array is an array of images at the end of the cycle which we want to display as stack and activate tools on it 
+
+    
+    //this applies the mask on our dicoms and returns a new stack of dicoms masked 
     //display masked stack as scrollable using larvitar 
+    console.log(this.name)
+    larvitar.setToolPassive(this.name);
+    
 
   }
 
