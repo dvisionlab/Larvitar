@@ -98,50 +98,44 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
 // Use normalizedLowerThreshold and normalizedUpperThreshold for PNG processing
 
 // Helper function to map values to a new range
-  
-const height = DICOMimage.height;
-const width = DICOMimage.width;
+    console.log(DICOMimage)//512 X 512
+    console.log(DICOMimage.getPixelData())
+    const height=DICOMimage.height
+    const width=DICOMimage.width
+    let dataset=this.dataset;
+    const dataset_elements = dataset["elements"]
+    const element=dataset_elements["x7fe00010"];
+    //TODO CHECK DATASET, BYTEARRAY, DATAOFFSET 
+    let data = dataset.byteArray.slice(
+    element["dataOffset"],
+    element["dataOffset"] + element.length
+  );
+  console.log(data);
+  console.log(canvas);
 
-const dicomPixelData = DICOMimage.getPixelData();
-let normalizedPixelData = new Uint8Array(width * height)
-for(let i=0;i<dicomPixelData.length;i++)
-{
-          normalizedPixelData[i]=this.mapToRange(dicomPixelData[i], minThreshold, maxThreshold);
-}
-// Assuming 8-bit unsigned integer pixel values
-// Create a new array for PNG pixel data with 4 channels: RGB
-const pngPixelData = new Uint8Array(width * height * 4);
-let max=-Infinity
-// Function to convert DICOM pixel data to PNG pixel data
-for (let i = 0; i < dicomPixelData.length; i++) {
-  const pixelValue = normalizedPixelData[i];
-
-  // Assuming each integer represents a grayscale value
-  pngPixelData[i * 4] = pixelValue; // Red channel
-  pngPixelData[i * 4 + 1] = pixelValue; // Green channel
-  pngPixelData[i * 4 + 2] = pixelValue; // Blue channel
-  pngPixelData[i * 4 + 3] = 255; // Alpha channel (fully opaque)
-if(pixelValue>max)
-{
-  max=pixelValue;
-}
-}
-console.log(max)
-console.log(pngPixelData)
-// Create an OpenCV Mat object from the PNG pixel data
-let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
-src.data.set(pngPixelData);
-
-      // Now 'src' is an OpenCV Mat object representing the PNG image
-      console.log(src);
-      console.log(src)
-
-      setTimeout(this.WatershedSegmentation(src, lowerThreshold,upperThreshold), 1000)
-    
-    //this.Applymask_onDICOM(this.Mask_Array,data,dataset,element);
+      //canvas.height=height;
+      console.log(canvas.height) //618
+      console.log(canvas.width)  //648
+      console.log(DICOMimage.height) //512
+      console.log(DICOMimage.width)  //512
+      let DOMelement=document.getElementById("viewer")
+      console.log(DOMelement)
+      const viewport =  larvitar.store.get("viewports")
+      //DOMelement.width=DICOMimage.width
+      //DOMelement.height=DICOMimage.height
+      console.log(DOMelement.width)
+      console.log(DOMelement.height)
+      //canvas.height=DICOMimage.height
+      //canvas.width=DICOMimage.width
+    let {src, imgElement}=await this.ConvertToPng(canvas,height, width);
+    console.log(imgElement);//png image 618x648
+    console.log(src) //png image 618x648
+    this.WatershedSegmentation(src, lowerThreshold,upperThreshold)
+    this.Applymask_onDICOM(this.Mask_Array,data,dataset,element);
   }
 
   mapToRange(value, inMin, inMax) {
+    console.log("value:"+value);
     return ((value - inMin) / (inMax - inMin)) * 255;
 }
   ConvertToPng(canvas,height,width) {
@@ -169,9 +163,9 @@ console.log(cv);
 console.log("you are here");
 console.log(src);
 console.log(src.type())
-
+//cv.inRange(imgElement, lowerThreshold, upperThreshold, binary);
+//cv.imshow('canvasInput', src);
 let dst = new cv.Mat();
-console.log(dst)
 let gray = new cv.Mat();
 let opening = new cv.Mat();
 let Bg = new cv.Mat();
@@ -181,9 +175,8 @@ let unknown = new cv.Mat();
 let markers = new cv.Mat();
 // gray and threshold image
 cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-console.log(src)
 cv.threshold(gray, gray, upperThreshold, 255, cv.THRESH_BINARY);
-console.log(gray)
+
 //TRESHOLD IN A CERTAIN RANGE (lowerThreshold, upperThreshold)
 /*let lowerThresholdMat = new cv.Mat.ones(src.rows, src.cols, cv.CV_8U);
 lowerThresholdMat.setTo(new cv.Scalar(lowerThreshold));
@@ -242,11 +235,13 @@ for (let i = 0; i < markers.rows; i++) {
             }
         }
     }
-    console.log(src.ucharPtr)
+    //canvas of 618x648 while image of 512x512 means that i have to eliminate 53 rows above and below
+    //and 68 columns right and left to have a matrix of the same dimensions!crop final array and image ( or before) 
+    console.log(src.ucharPtr)//array of uint8 516987RGB pixels->172329grayscale pixels  
     //use mask array to mask a DICOM image 
     console.log(src);
-    
-cv.imshow('canvasOutput', src);
+    cv.imshow('canvasOutput', src);
+//cv.imshow('canvasOutput', src);
 //src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
 Fg.delete(); distTrans.delete(); unknown.delete(); markers.delete(); M.delete();
 //pixel_array = imageObject.metadata.x7fe00010;
@@ -774,5 +769,3 @@ function _createTextBoxContent(
 
   return textLines;
 }
-
-
