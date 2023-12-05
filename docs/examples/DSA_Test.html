@@ -19,37 +19,29 @@
     <title>Larvitar - Basic rendering example</title>
     <style>
       .container {
-          display: flex;
+        display: flex;
       }
 
       .box {
-          width: 50%; /* Adjust the width as needed */
-          padding: 10px;
-          box-sizing: border-box;
-          width: 600px; 
-          height: 600px;
-          background-color: black;
-          margin-right: 40px;
+        width: 50%; /* Adjust the width as needed */
+        padding: 10px;
+        box-sizing: border-box;
+        width: 600px;
+        height: 600px;
+        background-color: black;
+        margin-right: 40px;
       }
-  </style>
+    </style>
   </head>
 
   <body class="h-100" style="background-color: #000000">
-    <button id="DSA" style="margin-left: 860px;">Apply DSA</button>
+    <button id="DSA" style="margin-left: 860px">Apply DSA</button>
     <div class="row h-100">
-      
       <div class="container">
-      <div
-        id="viewer"
-        class="box"
-      ></div>
-      <div id="imageResult" class="box"></div>
-      <canvas
-        id="myCanvas"
-        class="box"
-      ></canvas>
-    </div>
-      
+        <div id="viewer" class="box"></div>
+        <div id="imageResult" class="box"></div>
+        <canvas id="myCanvas" class="box"></canvas>
+      </div>
     </div>
 
     <script src="./larvitar.js"></script>
@@ -57,60 +49,63 @@
     <script src="https://unpkg.com/dicom-parser/dist/dicomParser.js"></script>
     <script src="./DSA_singleimage.js"></script>
     <script>
-       let demoFiles = [];
+      let demoFiles = [];
 
-// init all
-larvitar.initializeImageLoader();
-larvitar.registerMultiFrameImageLoader();
-larvitar.initializeCSTools();
-larvitar.store.initialize();
-larvitar.store.addViewport("viewer");
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.registerMultiFrameImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
-function renderSerie() {
-  larvitar
-    .readFiles(demoFiles)
-    .then(seriesStack => {
-      // render the first series of the study
-      let seriesId = _.keys(seriesStack)[0];
-      let serie = seriesStack[seriesId];
-      larvitar.populateLarvitarManager(seriesId, serie);
-      let manager = larvitar.getLarvitarManager();
-      let multiFrameSerie = manager[seriesId];
-      console.log(multiFrameSerie)
-      console.log(multiFrameSerie.dataSet.elements.x00286100.items["0"].dataSet.elements)
-      const button_DSA = document.getElementById("DSA");
-      console.log(button_DSA);
-      const imageIds=multiFrameSerie.imageIds;
-      button_DSA.onclick = function () {
-        apply_DSA_Mask(seriesId, multiFrameSerie, "x00286100",imageIds[5]);
-      };
-      //x00286100:Defines a Sequence that describes mask subtraction operations for a Multi-frame Image.
-                //SUBITEMS x00286101:Defined Term identifying the type of mask operation to be performed. 
-                //& x00286110 Specifies the frame numbers of the pixel data used to generate this mask. 
-                //Frames in a Multi-frame Image are specified by sequentially increasing number values beginning with 1. 
-                //Required if Mask Operation x00286101 is AVG_SUB.
-      let frameId = 0;
-     larvitar.cacheImages(multiFrameSerie);
-      larvitar
-        .renderImage(multiFrameSerie, "viewer", frameId)
-        .then(() => {
-          console.log("Image has been rendered");
-        });
-      larvitar.addDefaultTools();
-      larvitar.setToolActive("Wwwc");
-    })
-    .catch(err => console.log(err));
-}
+      function renderSerie() {
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            // render the first series of the study
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            larvitar.populateLarvitarManager(seriesId, serie);
+            let manager = larvitar.getLarvitarManager();
+            let multiFrameSerie = manager[seriesId];
+            console.log(multiFrameSerie);
+            console.log(
+              multiFrameSerie.dataSet.elements.x00286100.items["0"].dataSet
+                .elements
+            );
+            const button_DSA = document.getElementById("DSA");
+            console.log(button_DSA);
+            const imageIds = multiFrameSerie.imageIds;
+            button_DSA.onclick = function () {
+              apply_DSA_Mask(
+                seriesId,
+                multiFrameSerie,
+                "x00286100",
+                imageIds[5]
+              );
+            };
 
-async function createFile(fileName, cb) {
-  let response = await fetch("./demo/DSA/" + fileName);
-  let data = await response.blob();
-  let file = new File([data], fileName);
-  demoFiles.push(file);
-  cb();
-}
-createFile("XA-DSA-Shutter.dcm", renderSerie);
-    
+            let frameId = 0;
+            larvitar.cacheImages(multiFrameSerie);
+            larvitar
+              .renderImage(multiFrameSerie, "viewer", frameId)
+              .then(() => {
+                console.log("Image has been rendered");
+              });
+            larvitar.addDefaultTools();
+            larvitar.setToolActive("Wwwc");
+          })
+          .catch(err => console.log(err));
+      }
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/DSA/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        cb();
+      }
+      createFile("XA-DSA-Shutter.dcm", renderSerie);
     </script>
   </body>
 </html>

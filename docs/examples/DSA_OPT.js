@@ -14,9 +14,12 @@ function getMin(arr) {
   while (len--) {
       min = arr[len] < min ? arr[len] : min;
   }
+  //moltiplicazione sottrazione numerica (no divisioni)
   return min;
 }
 
+//profiling codice 
+//deno fmt nomefile
 function apply_DSA_Mask(seriesId, multiFrameSerie, tag) {
   const startTime = new Date();
   const frameNumber = multiFrameSerie.imageIds.length;

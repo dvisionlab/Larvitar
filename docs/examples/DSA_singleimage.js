@@ -28,7 +28,7 @@ function apply_DSA_Mask(
   multiFrameSerie,
   tag,frameId
 ) {
-  const startTime = new Date();
+
   const frameNumber=multiFrameSerie.imageIds.length
   const imageIds=multiFrameSerie.imageIds;
   console.log(frameNumber)
@@ -41,74 +41,93 @@ function apply_DSA_Mask(
   frames_array.push(multiFrameSerie.imageIds[frame_index_number])
   frame_index_number=[frame_index_number]
   }
-else if (Array.isArray(frame_index_number))
-{
-  for(let i=0;i<frame_index_number.length;i++)
+  else if (Array.isArray(frame_index_number))
   {
-    frames_array.push(multiFrameSerie.imageIds[frame_index_number[i]])
+    for(let i=0;i<frame_index_number.length;i++)
+    {
+      frames_array.push(multiFrameSerie.imageIds[frame_index_number[i]])
+    }
+    //iterate through frames with that index 
   }
-  //iterate through frames with that index 
-}
-console.log(frames_array)
+  console.log(frames_array)
   if(mask_type==="NONE")
   {
     return;
   }
   else if (mask_type==="AVG_SUB")
   {
-     /*(Average Subtraction) 
-     The frames specified by the Mask Frame Numbers x00286110 are averaged together, 
-     shifted by the amount specified in the Mask Sub-pixel Shift x00286114, 
-     then subtracted from the contrast frames in the range specified in the Applicable 
-     Frame Range x00286102. 
-     Contrast Frame Averaging x00286112 number of frames starting with the current 
-     frame are averaged together before the subtraction. 
-     If the Applicable Frame Range is not present in this Sequence Item, the Applicable 
-     Frame Range is assumed to end at the last frame number of the image minus Contrast 
-     Frame Averaging x00286112 plus one;
-     */
 
     // Example metadata
      const maskFrameNumbers = frame_index_number; // Mask Frame Numbers multiFrameSerie.metadata.x00286110
      console.log(frame_index_number)
 
      const metadataInfo = metadata_info["0"];
-const imageCache = larvitar.cornerstone.imageCache;
-const cachedImages = imageCache.cachedImages;
-const maskSubPixelShift = metadata_info["0"].x00286114 || 0;
-    const contrastFrameAveraging = metadata_info["0"].x00286112 || 1;
-    const frameRange = metadata_info["0"].x00286102 || [0, frameNumber - 1 - contrastFrameAveraging + 1];
-    const startFrame = frameRange!=undefined ? frameRange[0] : 0;;
-    const effectiveEndFrame = frameRange!=undefined ? frameRange[1] : frameNumber-1;
-const isFrameIncluded = imageIds.includes(frameId) && imageIds.indexOf(frameId) >= startFrame && imageIds.indexOf(frameId) <= effectiveEndFrame;
+     const imageCache = larvitar.cornerstone.imageCache;
+     const cachedImages = imageCache.cachedImages;
+     const maskSubPixelShift = metadataInfo.x00286114 || 0;
+     const contrastFrameAveraging = metadataInfo.x00286112 || 1;
+     const frameRange = metadataInfo.x00286102 || [0, frameNumber - 1 - contrastFrameAveraging + 1];
+     const startFrame = frameRange!=undefined ? frameRange[0] : 0;;
+     const effectiveEndFrame = frameRange!=undefined ? frameRange[1] : frameNumber-1;
+     const isFrameIncluded = imageIds.includes(frameId) && imageIds.indexOf(frameId) >= startFrame && imageIds.indexOf(frameId) <= effectiveEndFrame;
 
 if (isFrameIncluded) {
-  const contrastFrames = [cachedImages[imageIds.indexOf(frameId)].image.getPixelData()];
-  const maskframe=cachedImages[frame_index_number[0]].image.getPixelData()
-  const resultFrames_alternative = contrastFrames.map(contrastFrame => contrastFrame.map((value, j) => value - maskframe[j] ));
-  const endTime3 = new Date();
-  const elapsedTime3 = endTime3 - startTime;
-  console.log(`Function execution time: ${elapsedTime3} milliseconds`);
-
+  //const t0 = performance.now();
+  const t=performance.now();
+  let image=cachedImages[imageIds.indexOf(frameId)].image
+  let contrastFrame=cachedImages[imageIds.indexOf(frameId)].image.getPixelData()
+  let len_pixeldata=contrastFrame.length;
+  const t0=performance.now();
+  console.log(t0-t)
   const maskFrames = frame_index_number.map(index => cachedImages[index].image.getPixelData());
-
-  let averagedMaskFrames = maskFrames.length > 1
-    ? maskFrames.reduce((acc, frame) => acc.map((value, i) => value + frame[i]), new Float32Array(maskFrames[0].length))
-    : maskFrames[0];
-
-  averagedMaskFrames = averagedMaskFrames.map(value => value / maskFrames.length);
-
-  let shiftedMaskFrames = maskSubPixelShift !== 0
-    ? new Float32Array(averagedMaskFrames.length).map((_, i) => averagedMaskFrames[(i - maskSubPixelShift + averagedMaskFrames.length) % averagedMaskFrames.length])
-    : averagedMaskFrames;
-
-  const resultFrames = contrastFrames.map(contrastFrame => contrastFrame.map((value, j) => value - shiftedMaskFrames[j]));
-  const endTime = new Date();
-  const elapsedTime = endTime - startTime;
-  console.log(`Function execution time: ${elapsedTime} milliseconds`);
-
-  let maxPixel=getMax(resultFrames[0]);
-  let minPixel=getMin(resultFrames[0]);
+  const t1 = performance.now();
+  console.log(t1-t0)
+  let resultFrames= new Float32Array(len_pixeldata)
+  let shiftedMaskFrames= new Float32Array(len_pixeldata)
+  let averagedMaskFrames= new Float32Array(len_pixeldata)
+  let average=false;
+  const t2 = performance.now();
+  console.log(t2-t1)
+  if (Array.isArray(maskFrames)&&maskFrames.length > 1)
+  {
+    average=true;
+  }
+  let time=[] ;
+  for(j=0;j<len_pixeldata;j++)
+  {
+    let value=contrastFrame[j]
+  
+    if (average){
+      let value_average;
+      let maskframeslength=maskFrames.length
+      for(i=0;i<maskframeslength;i++)
+      {
+        value_average=value_average+maskFrames[i][j]
+      }
+      value_average=value_average/maskframeslength;
+      averagedMaskFrames[j]=value_average;
+    }
+    else{
+      averagedMaskFrames[j]=maskFrames[0][j]
+    }
+   
+    if (maskSubPixelShift !== 0){
+      shiftedMaskFrames[j]=averagedMaskFrames[j]-maskSubPixelShift;
+    }
+    else{
+      shiftedMaskFrames[j]=averagedMaskFrames[j]
+    }
+    resultFrames[j]=value - shiftedMaskFrames[j]
+    if(j<1000)
+    {
+      time.push(performance.now()-t2);
+    }
+   
+  }
+  console.log(time)
+  const t3 = performance.now();
+  let maxPixel=getMax(resultFrames);
+  let minPixel=getMin(resultFrames);
   const modifiedImage = {
     imageId: imageIds.indexOf(frameId), // Keep the same imageId
     minPixelValue:minPixel,
@@ -117,7 +136,7 @@ if (isFrameIncluded) {
     intercept: cachedImages[imageIds.indexOf(frameId)].image.intercept,
     windowCenter: 0,
     windowWidth: maxPixel / 2,
-    getPixelData: () => resultFrames[0],
+    getPixelData: () => resultFrames,
     rows: cachedImages[imageIds.indexOf(frameId)].image.rows,
     columns: cachedImages[imageIds.indexOf(frameId)].image.columns,
     height: cachedImages[imageIds.indexOf(frameId)].image.height,
@@ -132,11 +151,9 @@ if (isFrameIncluded) {
   larvitar.cornerstone.displayImage(element, modifiedImage);
   larvitar.addDefaultTools();
   larvitar.setToolActive("Wwwc");
+  const t4 = performance.now();
+  console.log(t4-t3)
 
-  const endTime2 = new Date();
-  const elapsedTime2 = endTime2 - startTime;
-
-  console.log(`Function execution time: ${elapsedTime2} milliseconds`);
 }
 
      else
@@ -150,14 +167,7 @@ if (isFrameIncluded) {
   }
   else if(mask_type==="TID")
   {
-    /*(Time Interval Differencing) 
-    The mask for each frame within the Applicable Frame Range (0028,6102)
-    is selected by subtracting TID Offset (0028,6120) from the respective 
-    frame number. 
-    If the Applicable Frame Range is not present in this Sequence Item, 
-    the Applicable Frame Range is assumed to be a range where TID offset subtracted 
-    from any frame number with the range results in a valid frame number within 
-    the Multi-frame image.*/
+
      // Check if Applicable Frame Range is present
      let contrastFrameAveraging; // Contrast Frame Averaging 
      if (metadata_info["0"].x00286112!=undefined)
@@ -195,17 +205,6 @@ if (isFrameIncluded) {
   }
   else if(mask_type==="REV_TID")
   {
-    /*(Reversed Time Interval Differencing) 
-    The number of the mask frame for each contrast frame within 
-    the Applicable Frame Range (0028,6102) is calculated by subtracting TID Offset (0028,6120) 
-    from the first frame within the Applicable Frame Range, TID Offset (0028,6120) 
-    +2 from the second frame within the Applicable Frame Range, TID Offset (0028,6120)
-    +4 from the third frame and so on. 
-    The Applicable Frame Range (0028,6102) shall be present.
-    When multiple pairs of frame numbers are specified in the Applicable Frame Range Attribute,
-    the beginning frame numbers (i.e., the first frame number in each pair)
-    shall be in increasing order.
-    Algorithm to calculate the Mask Frame Number: see dicom site*/
     let contrastFrameAveraging; // Contrast Frame Averaging 
     if (metadata_info["0"].x00286112!=undefined)
     {
@@ -249,3 +248,43 @@ function buildCanvas(width, height, pixelData) {
   context.putImageData(imgData, 0, 0);
 }
 
+
+ //x00286100:Defines a Sequence that describes mask subtraction operations for a Multi-frame Image.
+                //SUBITEMS x00286101:Defined Term identifying the type of mask operation to be performed. 
+                //& x00286110 Specifies the frame numbers of the pixel data used to generate this mask. 
+                //Frames in a Multi-frame Image are specified by sequentially increasing number values beginning with 1. 
+                //Required if Mask Operation x00286101 is AVG_SUB.
+
+                
+     /*(Average Subtraction) 
+     The frames specified by the Mask Frame Numbers x00286110 are averaged together, 
+     shifted by the amount specified in the Mask Sub-pixel Shift x00286114, 
+     then subtracted from the contrast frames in the range specified in the Applicable 
+     Frame Range x00286102. 
+     Contrast Frame Averaging x00286112 number of frames starting with the current 
+     frame are averaged together before the subtraction. 
+     If the Applicable Frame Range is not present in this Sequence Item, the Applicable 
+     Frame Range is assumed to end at the last frame number of the image minus Contrast 
+     Frame Averaging x00286112 plus one;
+     */
+
+    /*(Time Interval Differencing) 
+    The mask for each frame within the Applicable Frame Range (0028,6102)
+    is selected by subtracting TID Offset (0028,6120) from the respective 
+    frame number. 
+    If the Applicable Frame Range is not present in this Sequence Item, 
+    the Applicable Frame Range is assumed to be a range where TID offset subtracted 
+    from any frame number with the range results in a valid frame number within 
+    the Multi-frame image.*/
+
+    /*(Reversed Time Interval Differencing) 
+    The number of the mask frame for each contrast frame within 
+    the Applicable Frame Range (0028,6102) is calculated by subtracting TID Offset (0028,6120) 
+    from the first frame within the Applicable Frame Range, TID Offset (0028,6120) 
+    +2 from the second frame within the Applicable Frame Range, TID Offset (0028,6120)
+    +4 from the third frame and so on. 
+    The Applicable Frame Range (0028,6102) shall be present.
+    When multiple pairs of frame numbers are specified in the Applicable Frame Range Attribute,
+    the beginning frame numbers (i.e., the first frame number in each pair)
+    shall be in increasing order.
+    Algorithm to calculate the Mask Frame Number: see dicom site*/
