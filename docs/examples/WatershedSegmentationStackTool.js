@@ -97,6 +97,7 @@ class WatershedSegmentationStackTool extends BaseAnnotationTool {
 // Helper function to map values to a new range
     console.log(getToolState(this.element, 'stack').data["0"])
     const stack = getToolState(this.element, 'stack').data["0"];
+    console.log(stack)
     //let pngMaskedImages = [];
     for (let i = 0; i < stack.imageIds.length; i++) { 
       let DICOMimage//stack image extract s
