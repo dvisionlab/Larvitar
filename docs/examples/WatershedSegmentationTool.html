@@ -201,19 +201,7 @@ let demoFiles = [];
               }
             });
 
-            larvitar.addTool("WatershedSegmentation", {
-              configuration: {
-        drawHandles: true,
-        drawHandlesOnHover: false,
-        hideHandlesIfMoving: false,
-        renderDashed: false,
-        manager: manager,
-        seriesId:seriesId,
-        dataset:dataset //problem undefined
-        // showMinMax: false,
-        // showHounsfieldUnits: true,
-      }
-               });
+            larvitar.addTool("WatershedSegmentation");
              larvitar.setToolActive("WatershedSegmentation");
             //cornerstoneTools.addTool(myTool);
             // Step 3: Activate your tool

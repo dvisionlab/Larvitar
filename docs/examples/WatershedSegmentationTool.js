@@ -41,25 +41,19 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
         drawHandlesOnHover: false,
         hideHandlesIfMoving: false,
         renderDashed: false,
-        manager: {},
-        seriesId:"",
-        dataset:{} //problem undefined
-        // showMinMax: false,
-        // showHounsfieldUnits: true,
       },
       svgCursor: rectangleRoiCursor
     };
     super(props, defaultProps);
-    this.seriesId=this.configuration.seriesId
-    this.dataset=this.configuration.dataset
-    this.manager=this.configuration.manager
-    this.metadatatag="x7fe00010"
+
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.Mask_Array=[];
     this.eventData
     this.datahandles
     this.data
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
+    this.lowerThreshold;
+      this.upperThreshold
     
   }
  
@@ -92,7 +86,8 @@ class WatershedSegmentationTool extends BaseAnnotationTool {
       const stdDevNorm=this.mapToRange(stats.stdDev, minThreshold, maxThreshold);
       const lowerThreshold =  meanNorm- XFactor* stdDevNorm;
       const upperThreshold = meanNorm + XFactor * stdDevNorm;
-
+      this.lowerThreshold=lowerThreshold;
+      this.upperThreshold=upperThreshold;
   
 const height = DICOMimage.height;
 const width = DICOMimage.width;
