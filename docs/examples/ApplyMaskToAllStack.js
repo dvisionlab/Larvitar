@@ -1,6 +1,6 @@
 
 
-export function ApplyMaskToAllSTack(minThreshold,maxThreshold,Mask_Array){
+export function ApplyMaskToAllSTack(minThreshold,maxThreshold){
 
     //let pngMaskedImages = [];
     let modifiedimages=[]

@@ -118,14 +118,30 @@ let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
 src.data.set(pngPixelData);
 
       // Now 'src' is an OpenCV Mat object representing the PNG image
+        let Maskold=this.Mask_Array
+        await this.WatershedSegmentation(src, lowerThreshold,upperThreshold)
 
-
-        this.WatershedSegmentation(src, lowerThreshold,upperThreshold)
-        this.Applymask_onDICOM(this.Mask_Array,dicomPixelData,DICOMimage,minThreshold,maxThreshold)
+        console.log(this.Mask_Array)
+        console.log(this.arraysEqual(Maskold, this.Mask_Array))
+        await this.Applymask_onDICOM(this.Mask_Array,dicomPixelData,DICOMimage,minThreshold,maxThreshold)
         console.log(this.name)
-        larvitar.setToolPassive(this.name);
+        //larvitar.setToolPassive(this.name);
   }
-
+  arraysEqual(a, b) {
+    if (a === b) return true;
+    if (a == null || b == null||a == undefined||b == undefined) return false;
+    if (a.length !== b.length) return false;
+  
+    // If you don't care about the order of the elements inside
+    // the array, you should sort both arrays here.
+    // Please note that calling sort on an array will modify that array.
+    // you might want to clone your array first.
+  
+    for (var i = 0; i < a.length; ++i) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
   mapToRange(value, inMin, inMax) {
     return ((value - inMin) / (inMax - inMin)) * 255;
 }
@@ -148,8 +164,7 @@ getMin(arr) {
   return min;
 }
 WatershedSegmentation(src,lowerThreshold,upperThreshold){
-
-
+  
 let dst = new cv.Mat();
 
 let gray = new cv.Mat();
@@ -215,6 +230,7 @@ src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
 Fg.delete(); distTrans.delete(); unknown.delete(); markers.delete(); M.delete();
 //pixel_array = imageObject.metadata.x7fe00010;
 this.Mask_Array=mask_array;
+
   }
 
  Applymask_onDICOM(
@@ -239,8 +255,8 @@ this.Mask_Array=mask_array;
       array[i * 4+3]=1
     }
   }
-
-  const modifiedImage = {
+  console.log(array)
+  let modifiedImage = {
     imageId: DICOMimage.imageId, // Keep the same imageId
     minPixelValue:minThreshold,
     maxPixelValue: maxThreshold,
@@ -257,10 +273,11 @@ this.Mask_Array=mask_array;
     columnPixelSpacing: DICOMimage.columnPixelSpacing,
     rowPixelSpacing: DICOMimage.rowPixelSpacing,
   };
+  
 
-  const element_new = document.getElementById('canvasOutput');
-
+  let element_new = document.getElementById('canvasOutput');
   larvitar.cornerstone.displayImage(element_new, modifiedImage);
+
   //larvitar.addDefaultTools();
   }
 
