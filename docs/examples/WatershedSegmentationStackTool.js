@@ -91,58 +91,83 @@ class WatershedSegmentationStackTool extends BaseAnnotationTool {
       const stdDevNorm=this.mapToRange(stats.stdDev, minThreshold, maxThreshold);
       const lowerThreshold =  meanNorm- XFactor* stdDevNorm;
       const upperThreshold = meanNorm + XFactor * stdDevNorm;
-
+  
 // Use normalizedLowerThreshold and normalizedUpperThreshold for PNG processing
  
 // Helper function to map values to a new range
     console.log(getToolState(this.element, 'stack').data["0"])
     const stack = getToolState(this.element, 'stack').data["0"];
-    console.log(stack)
     //let pngMaskedImages = [];
+    let modifiedimages=[]
     for (let i = 0; i < stack.imageIds.length; i++) { 
-      let DICOMimage//stack image extract s
-      let height = DICOMimage.height;
-      let width = DICOMimage.width;
+
+      let image=larvitar.cornerstone.imageCache.cachedImages[i].image;//stack image extract s
+      let height = image.height;
+      let width =image.width;
+      let dicomPixelDatanew = image.getPixelData();
       
+      let normalizedPixelDatanew = new Uint8Array(width * height)
       
-      let normalizedPixelData = new Uint8Array(width * height)
-      let modifiedimages=[]
-      for(let i=0;i<dicomPixelData.length;i++)
+      for(let i=0;i<dicomPixelDatanew.length;i++)
       {
-                normalizedPixelData[i]=this.mapToRange(dicomPixelData[i], minThreshold, maxThreshold);
+                normalizedPixelDatanew[i]=this.mapToRange(dicomPixelDatanew[i], minThreshold, maxThreshold);
       }
       // Assuming 8-bit unsigned integer pixel values
       // Create a new array for PNG pixel data with 4 channels: RGB
-      let pngPixelData = new Uint8Array(width * height * 4);
+      let pngPixelDatanew = new Uint8Array(width * height * 4);
       // Function to convert DICOM pixel data to PNG pixel data
       for (let i = 0; i < dicomPixelData.length; i++) {
-        const pixelValue = normalizedPixelData[i];
+        let pixelValuenew = normalizedPixelDatanew[i];
       
         // Assuming each integer represents a grayscale value
-        pngPixelData[i * 4] = pixelValue; // Red channel
-        pngPixelData[i * 4 + 1] = pixelValue; // Green channel
-        pngPixelData[i * 4 + 2] = pixelValue; // Blue channel
-        pngPixelData[i * 4 + 3] = 255; // Alpha channel (fully opaque)
+        pngPixelDatanew[i * 4] = pixelValuenew; // Red channel
+        pngPixelDatanew[i * 4 + 1] = pixelValuenew; // Green channel
+        pngPixelDatanew[i * 4 + 2] = pixelValuenew; // Blue channel
+        pngPixelDatanew[i * 4 + 3] = 255; // Alpha channel (fully opaque)
       
       }
 
       // Create an OpenCV Mat object from the PNG pixel data
       let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
-      src.data.set(pngPixelData);
+      src.data.set(pngPixelDatanew);
 
             // Now 'src' is an OpenCV Mat object representing the PNG image
               this.WatershedSegmentation(src, lowerThreshold,upperThreshold)
-              let modifiedImage=this.Applymask_onDICOM(this.Mask_Array,dicomPixelData,DICOMimage,minThreshold,maxThreshold)
+              let modifiedImage=this.Applymask_onDICOM(this.Mask_Array,dicomPixelDatanew,image,minThreshold,maxThreshold)
               modifiedimages.push(modifiedImage)
             }
 //image array is an array of images at the end of the cycle which we want to display as stack and activate tools on it 
 
-    
+    console.log(modifiedimages)
+    console.log(modifiedimages[0].getPixelData())
     //this applies the mask on our dicoms and returns a new stack of dicoms masked 
     //display masked stack as scrollable using larvitar 
     console.log(this.name)
     larvitar.setToolPassive(this.name);
+    const elementnew = document.getElementById('canvasOutput'); // Replace 'exampleElement' with the ID of your Cornerstone element
+    const cornerstone = larvitar.cornerstone;
     
+    // Enable Cornerstone element
+    cornerstone.enable(elementnew);
+    larvitar.cornerstone.displayImage(elementnew, modifiedimages[0]);
+    /* Ensure Cornerstone is initialized
+    const cornerstone = larvitar.cornerstone;
+    
+    // Enable Cornerstone element
+    cornerstone.enable(elementnew);
+    
+    
+    const stacknew = {
+      currentImageIdIndex: 0,
+      imageIds: modifiedimages.map(image => image.imageId),
+    };
+    
+    // Ensure the stack is set on the element
+    cornerstoneTools.addStackStateManager(elementnew, ['stack']);
+    cornerstoneTools.addToolState(elementnew, 'stack', stacknew);
+    
+    // Enable stack scrolling tool
+    larvitar.addDefaultTools('canvasOutput');*/
 
   }
 
