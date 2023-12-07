@@ -107,6 +107,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     console.log(Serie);
     let imageIds = Serie.imageIds;
     let instance = Serie.instances[imageIds[0]];
+    //larvitar.cornerstone.metaData.get("larvitarModule",imageId)
     let metadata = instance.metadata;
     let frames_number_mod1 = metadata.x00280008;
     let is4D = metadata.is4D;
