@@ -17,30 +17,21 @@
       hljs.highlightAll();
     </script>
     <title>Larvitar - Basic rendering example</title>
-    <style>
-      .container {
-        display: flex;
-      }
-
-      .box {
-        width: 50%; /* Adjust the width as needed */
-        padding: 10px;
-        box-sizing: border-box;
-        width: 600px;
-        height: 600px;
-        background-color: black;
-        margin-right: 40px;
-      }
-    </style>
   </head>
 
   <body class="h-100" style="background-color: #000000">
-    <button id="DSA" style="margin-left: 860px">Apply DSA</button>
     <div class="row h-100">
-      <div class="container">
-        <div id="viewer" class="box"></div>
-        <div id="imageResult" class="box"></div>
-        <canvas id="myCanvas" class="box"></canvas>
+      <div class="col-5 h-100">
+        <div id="viewer" class="h-100"></div>
+      </div>
+      <div class="col-5 h-100">
+        <div id="imageResult" class="h-100"></div>
+      </div>
+
+      <div class="col-2">
+        <button id="DSA" class="btn btn-primary" onclick="applyDSA()">
+          Apply DSA
+        </button>
       </div>
     </div>
 
@@ -58,6 +49,20 @@
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
+      function applyDSA(evt) {
+        let manager = larvitar.getLarvitarManager();
+        let seriesId = _.keys(manager)[0];
+        let multiFrameSerie = manager[seriesId];
+        const imageIds = multiFrameSerie.imageIds;
+        const targetImageId = evt ? evt.detail.image.imageId : imageIds[5];
+        console.warn("targetImageId", targetImageId);
+        apply_DSA_Mask(seriesId, multiFrameSerie, targetImageId);
+      }
+
+      document
+        .getElementById("viewer")
+        .addEventListener("cornerstonetoolsmousewheel", applyDSA);
+
       function renderSerie() {
         larvitar
           .readFiles(demoFiles)
@@ -68,23 +73,6 @@
             larvitar.populateLarvitarManager(seriesId, serie);
             let manager = larvitar.getLarvitarManager();
             let multiFrameSerie = manager[seriesId];
-            console.log(multiFrameSerie);
-            console.log(
-              multiFrameSerie.dataSet.elements.x00286100.items["0"].dataSet
-                .elements
-            );
-            const button_DSA = document.getElementById("DSA");
-            console.log(button_DSA);
-            const imageIds = multiFrameSerie.imageIds;
-            button_DSA.onclick = function () {
-              apply_DSA_Mask(
-                seriesId,
-                multiFrameSerie,
-                "x00286100",
-                imageIds[5]
-              );
-            };
-
             let frameId = 0;
             larvitar.cacheImages(multiFrameSerie);
             larvitar
@@ -105,6 +93,7 @@
         demoFiles.push(file);
         cb();
       }
+
       createFile("XA-DSA-Shutter.dcm", renderSerie);
     </script>
   </body>

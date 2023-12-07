@@ -444,6 +444,8 @@ export const renderImage = function (
         return;
       }
 
+      // TODO @laura carica qui lo script per la DSA
+
       cornerstone.displayImage(element, image);
 
       if (series.layer) {
