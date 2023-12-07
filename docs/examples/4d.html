@@ -147,6 +147,7 @@
       integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
       crossorigin="anonymous"
     ></script>
+    <script src="./CustomScroll4DTool.js"></script>
 
     <script>
       let demoFiles = [];
@@ -165,6 +166,7 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+      larvitar.registerExternalTool("Test", CustomScrollTool4D);
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/4d/" + fileName);
@@ -241,8 +243,8 @@
             //   }
             // });
             // larvitar.setToolActive("Slice4DScrollMouseWheel");
-            larvitar.addDefaultTools();
-            larvitar.setToolActive("Wwwc");
+            larvitar.addTool("Test");
+            larvitar.setToolActive("Test");
           })
           .catch(err => console.log(err));
       }
