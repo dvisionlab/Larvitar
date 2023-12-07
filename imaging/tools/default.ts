@@ -32,6 +32,7 @@ import PolylineScissorsTool from "./custom/polylineScissorsTool";
 import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
 import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
 import BorderMagnifyTool from "./custom/BorderMagnifyTool";
+import CustomMouseWheelScrollTool from "./custom/CustomMouseWheelScrollTool";
 
 import type {
   ToolConfig,
@@ -124,18 +125,22 @@ const DEFAULT_TOOLS: {
     defaultActive: false,
     class: "StackScrollTool"
   },
-  StackScrollMouseWheel: {
-    name: "StackScrollMouseWheel",
+  CustomMouseWheelScroll: {
+    name: "CustomMouseWheelScroll",
     viewports: "all",
     configuration: {
-      loop: false, // default false
-      allowSkipping: true, // default true
-      invert: false
+      loop: false,
+      allowSkipping: true,
+      invert: false,
+      fixedFrame: 1,
+      fixedSlice: 0,
+      currentMode: "stack", // 'stack' or 'slice'
+      framesNumber: 1
     },
     options: {},
     cleanable: false,
     defaultActive: true,
-    class: "StackScrollMouseWheelTool"
+    class: "CustomMouseWheelScrollTool"
   },
   // Slice4DScrollMouseWheel: {
   //   name: "Slice4DScrollMouseWheel",
@@ -469,7 +474,8 @@ const dvTools: {
   // Slice4DScrollMouseWheelTool: Slice4DScrollMouseWheelTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
-  BorderMagnifyTool: BorderMagnifyTool
+  BorderMagnifyTool: BorderMagnifyTool,
+  CustomMouseWheelScrollTool: CustomMouseWheelScrollTool
 };
 
 /**
