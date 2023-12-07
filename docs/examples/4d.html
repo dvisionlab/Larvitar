@@ -147,7 +147,6 @@
       integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
       crossorigin="anonymous"
     ></script>
-    <script src="./CustomScroll4DTool.js"></script>
 
     <script>
       let demoFiles = [];
@@ -161,12 +160,12 @@
         }
         return demoFileList;
       };
+
       // init all
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
-      larvitar.registerExternalTool("Test", CustomScrollTool4D);
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/4d/" + fileName);
@@ -180,73 +179,48 @@
       }
 
       function renderSerie() {
-        larvitar.resetLarvitarManager();
-        larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            // render the first series of the study
-            let sliceId = 0;
-            let seriesId = _.keys(seriesStack)[sliceId];
-            let serie = seriesStack[seriesId];
-
-            larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
-
-              $("#image-time").html(
-                "Image Time Id: " +
-                  larvitar.store.get(["viewports", "viewer", "timeId"]) +
-                  " of " +
-                  larvitar.store.get(["viewports", "viewer", "maxTimeId"])
-              );
-              $("#timestamp").html(
-                "Image Time: " +
-                  larvitar.store.get(["viewports", "viewer", "timestamp"])
-              );
-            });
-
-            let animation = false;
-            let animationId = null;
-            document.onkeypress = function (e) {
-              if (e.keyCode == 112) {
-                animation = !animation;
-                if (animation) {
-                  sliceId = larvitar.store.get([
-                    "viewports",
-                    "viewer",
-                    "sliceId"
-                  ]);
-                  animationId = setInterval(function () {
-                    sliceId = sliceId == 193 ? 0 : sliceId + 1;
-                    larvitar.updateImage(serie, "viewer", sliceId, false);
-                    $("#image-time").html(
-                      "Image Time Id: " +
-                        larvitar.store.get(["viewports", "viewer", "timeId"]) +
-                        " of " +
-                        larvitar.store.get(["viewports", "viewer", "maxTimeId"])
-                    );
-                    $("#timestamp").html(
-                      "Image Time: " +
-                        larvitar.store.get(["viewports", "viewer", "timestamp"])
-                    );
-                  }, 100);
-                } else {
-                  clearInterval(animationId);
+        larvitar.readFiles(demoFiles).then(seriesStack => {
+          let seriesId = _.keys(seriesStack)[0];
+          let serie = seriesStack[seriesId];
+          larvitar.populateLarvitarManager(seriesId, serie);
+          let manager = larvitar.getLarvitarManager();
+          let multiFrameSerie = manager[seriesId];
+          let frameId = 0;
+          // check if the series has waveform data
+          larvitar
+            .renderImage(multiFrameSerie, "viewer", frameId)
+            .then(() => {
+              larvitar.cacheImages(serie, function (resp) {
+                if (resp.loading == 100) {
+                  let cache = larvitar.cornerstone.imageCache;
+                  console.log(
+                    "Cache size: ",
+                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                    "Mb"
+                  );
                 }
+              });
+              //extract framesNumber in two ways, depending on image acquisition mode
+              const instance = manager[seriesId].instances["dicomfile:0"];
+              const metadata = instance.metadata;
+              const frames_number_mod1 =
+                manager[seriesId].instances["dicomfile:0"].metadata.x00280008;
+              const frames_number_mod2 = metadata["numberOfTemporalPositions"];
+              let frames_number = 1;
+              if (frames_number_mod1 != undefined) {
+                frames_number = frames_number_mod1;
+              } else if (frames_number_mod2 != undefined) {
+                frames_number = frames_number_mod2;
               }
-            };
-            // larvitar.addTool("Slice4DScrollMouseWheel", {
-            //   configuration: {
-            //     loop: false,
-            //     allowSkipping: false,
-            //     invert: false,
-            //     framesNumber: 97
-            //   }
-            // });
-            // larvitar.setToolActive("Slice4DScrollMouseWheel");
-            larvitar.addTool("Test");
-            larvitar.setToolActive("Test");
-          })
-          .catch(err => console.log(err));
+              // const modality = manager[seriesId].instances["dicomfile:0"].metadata.x00080060;
+              // if(modality.toString()==="MR"){ dont need to check if it's not standard
+              // console.log(frames_number);
+
+              larvitar.addDefaultTools();
+              larvitar.setToolActive("CustomMouseWheelScroll");
+            })
+            .catch(err => console.error(err));
+        });
       }
 
       let demoFileList = getDemoFileNames();

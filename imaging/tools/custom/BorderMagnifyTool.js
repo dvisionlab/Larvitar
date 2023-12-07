@@ -25,7 +25,7 @@ export default class BorderMagnifyTool extends MagnifyTool {
    * @returns {void}
    */
   handleKeyDown(event) {
-    if (event.key === 'B' || event.key === 'b') {
+    if (event.key === 'M' || event.key === 'm') {
       // Toggle the visibility of borders
       this.configuration.showBorders = !this.configuration.showBorders;
 

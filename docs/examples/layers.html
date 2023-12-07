@@ -190,7 +190,9 @@
 
             let serie_1 = { ...seriesStack[seriesId] };
             let serie_2 = { ...seriesStack[seriesId] };
-
+            larvitar.populateLarvitarManager(seriesId, serie_1);
+            larvitar.populateLarvitarManager(seriesId, serie_2);
+            let manager = larvitar.getLarvitarManager();
             layer_1 = larvitar.buildLayer(serie_1, "main");
             layer_2 = larvitar.buildLayer(serie_2, "colored", {
               opacity: 0.25,
@@ -203,15 +205,35 @@
 
             larvitar.renderImage(serie_1, "viewer").then(() => {
               console.log("Image 1 has been rendered");
+              larvitar.cacheImages(serie_1, function (resp) {
+                if (resp.loading == 100) {
+                  let cache = larvitar.cornerstone.imageCache;
+                  console.log(
+                    "Cache size: ",
+                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                    "Mb"
+                  );
+                }
+              });
+              larvitar.addDefaultTools();
             });
             larvitar.renderImage(serie_2, "viewer").then(() => {
               console.log("Image 2 has been rendered");
+              larvitar.cacheImages(serie_2, function (resp) {
+                if (resp.loading == 100) {
+                  let cache = larvitar.cornerstone.imageCache;
+                  console.log(
+                    "Cache size: ",
+                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                    "Mb"
+                  );
+                }
+              });
+              larvitar.addDefaultTools();
             });
 
             $("#active-layer").html("Active Layer: main");
             $("#opacity").html("Opacity: 1.0");
-
-            larvitar.addDefaultTools();
           })
           .catch(err => console.log(err));
       }

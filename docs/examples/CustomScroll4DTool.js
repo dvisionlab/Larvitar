@@ -40,10 +40,15 @@ class CustomScrollTool4D extends BaseTool {
     this.slicenum = document.getElementById("slicenum");
     this.is4D = false;
     this.isMultiframe = false;
+    if (
+      this.imagetime != undefined &&
+      this.timestamp != undefined &&
+      this.slicenum != undefined
+    ) {
     this.imagetime.innerText =
       "Press B or b to switch between stack/slice mode ";
     this.timestamp.innerText = "Standard acquisitions: only stack mode ";
-    this.slicenum.innerText = "Multiframe acquisitions: scrolling slice mode";
+    this.slicenum.innerText = "Multiframe acquisitions: scrolling slice mode";}
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
     //console.log(larvitar.store.get("series"))
   }
@@ -284,7 +289,10 @@ class CustomScrollTool4D extends BaseTool {
       let currentframe = fixedFrame;
       let myslice = Math.floor(validIndex / this.framesNumber) + 1;
       let slicenumber = this.slicesnumber + 1;
-      if (this.is4D === true) {
+      if (this.is4D === true&&
+        this.imagetime != undefined &&
+        this.timestamp != undefined &&
+        this.slicenum != undefined) {
         this.imagetime.innerText =
           "Image Time Id: " + currentframe + " of " + this.framesNumber;
         this.timestamp.innerText =
@@ -292,7 +300,10 @@ class CustomScrollTool4D extends BaseTool {
           larvitar.store.get(["viewports", "viewer", "timestamp"]); //normal that changes because it is not really a frame fixed, because the frames are 97 and not 12
         this.slicenum.innerText = "Slice: " + myslice + " of " + slicenumber;
       }
-      if (this.is4D === false) {
+      if (this.is4D === false&&
+        this.imagetime != undefined &&
+        this.timestamp != undefined &&
+        this.slicenum != undefined) {
         this.imagetime.innerText = "";
         this.timestamp.innerText = ""; //normal that changes because it is not really a frame fixed, because the frames are 97 and not 12
         this.slicenum.innerText = "Slice: " + myslice + " of " + slicenumber;
@@ -347,7 +358,11 @@ class CustomScrollTool4D extends BaseTool {
       // console.log(newImageIdIndex + 1 - fixedSlice * this.framesNumber);
       let currentframe = newImageIdIndex + 1 - fixedSlice * this.framesNumber;
       // console.log(this.fixedSlice);
-      if (this.is4D === true) {
+      if (this.is4D === true&&
+        this.imagetime != undefined &&
+        this.timestamp != undefined &&
+        this.slicenum != undefined
+      ) {
         let myslice = fixedSlice + 1;
         let slicenumber = this.slicesnumber + 1;
         this.imagetime.innerText =
@@ -356,7 +371,10 @@ class CustomScrollTool4D extends BaseTool {
           "Image Time: " +
           larvitar.store.get(["viewports", "viewer", "timestamp"]);
         this.slicenum.innerText = "Slice: " + myslice + " of " + slicenumber;
-      } else if (this.isMultiframe === true) {
+      } else if (this.isMultiframe === true&&
+        this.imagetime != undefined &&
+        this.timestamp != undefined &&
+        this.slicenum != undefined) {
         let myslice = fixedSlice + 1;
         let slicenumber = this.slicesnumber + 1;
         this.imagetime.innerText = "";
