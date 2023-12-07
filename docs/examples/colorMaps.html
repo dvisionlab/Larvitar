@@ -171,11 +171,25 @@
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
+
+            larvitar.populateLarvitarManager(seriesId, serie);
+            let manager = larvitar.getLarvitarManager();
+
             larvitar.renderImage(serie, "viewer").then(() => {
               console.log("Image has been rendered");
+              larvitar.cacheImages(serie, function (resp) {
+                if (resp.loading == 100) {
+                  let cache = larvitar.cornerstone.imageCache;
+                  console.log(
+                    "Cache size: ",
+                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                    "Mb"
+                  );
+                }
+              });
+              larvitar.addDefaultTools();
+              larvitar.setToolActive("Wwwc");
             });
-            larvitar.addDefaultTools();
-            larvitar.setToolActive("Wwwc");
           })
           .catch(err => console.log(err));
       }

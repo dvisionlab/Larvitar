@@ -73,8 +73,8 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
         "Press B or b to switch between stack/slice mode ";
       this.timestamp.innerText = "Standard acquisitions: only stack mode ";
       this.slicenum.innerText = "Multiframe acquisitions: scrolling slice mode";
-      document.addEventListener("keydown", this.handleKeyDown.bind(this));
     }
+    document.addEventListener("keydown", this.handleKeyDown.bind(this));
     //console.log(larvitar.store.get("series"))
   }
 
