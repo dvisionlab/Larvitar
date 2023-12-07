@@ -64,6 +64,8 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     this.slicenum = document.getElementById("slicenum")!;
     this.is4D = false;
     this.isMultiframe = false;
+    this.animation = false;
+    this.animationId = null;
     if (
       this.imagetime != undefined &&
       this.timestamp != undefined &&
@@ -163,6 +165,20 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
         }
       }
     }
+    if (
+      (event.key === "p" || event.key === "P") &&
+      this.currentMode === "slice"
+    ) {
+      this.animation = !this.animation;
+      if (this.animation) {
+        const thisclass = this;
+        this.animationId = setInterval(function () {
+          thisclass.mouseWheelCallback();
+        }, 100);
+      } else {
+        clearInterval(this.animationId);
+      }
+    }
   }
 
   toggleMode(element: HTMLElement) {
@@ -235,8 +251,8 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     }
   }
 
-  mouseWheelCallback(evt: CustomEvent<ToolEventDetail>) {
-    const { direction: images, element } = evt.detail;
+  mouseWheelCallback(evt?: CustomEvent<ToolEventDetail>) {
+    const { direction: images, element } = evt!.detail;
 
     console.log(images);
     console.log(element);
@@ -340,6 +356,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
 
       const stackData = toolData.data[0];
       const currentIndex = stackData.currentImageIdIndex;
+      console.log(currentIndex);
       const numberOfSlices =
         Math.ceil(stackData.imageIds.length / this.framesNumber) - 1; // Your total number of slices
       this.slicesnumber = numberOfSlices;
