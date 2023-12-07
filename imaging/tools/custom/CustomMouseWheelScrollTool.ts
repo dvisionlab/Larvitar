@@ -6,10 +6,9 @@ import store from "../../imageStore";
 import { Image } from "cornerstone-core";
 import cornerstone from "cornerstone-core";
 import {
-  getImageFrame,
   getLarvitarImageTracker,
   getLarvitarManager
-} from "../../loaders/commonLoader";
+} from "../../../imaging/loaders/commonLoader";
 import { Series } from "../../types";
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
 const scroll = cornerstoneTools.importInternal("util/scroll");
