@@ -24,7 +24,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     Verify4D(): boolean | undefined;
     handleKeyDown(event: KeyboardEvent): void;
     toggleMode(element: HTMLElement): void;
-    mouseWheelCallback(evt: CustomEvent<ToolEventDetail>): void;
+    mouseWheelCallback(evt?: CustomEvent<ToolEventDetail>): void;
     scrollWithoutSkipping(stackData: StackData, pendingEvent: any, element: HTMLElement): void;
 }
 export {};
