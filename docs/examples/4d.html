@@ -220,7 +220,8 @@
             .catch(err => console.error(err));
         });
       }
-
+      let animation = false;
+      let animationId = null;
       document.onkeypress = function (e) {
         if (e.keyCode == 112) {
           animation = !animation;
