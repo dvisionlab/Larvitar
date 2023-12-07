@@ -193,6 +193,7 @@
             larvitar.populateLarvitarManager(seriesId, serie_1);
             larvitar.populateLarvitarManager(seriesId, serie_2);
             let manager = larvitar.getLarvitarManager();
+            console.log(manager);
             layer_1 = larvitar.buildLayer(serie_1, "main");
             layer_2 = larvitar.buildLayer(serie_2, "colored", {
               opacity: 0.25,
@@ -215,21 +216,36 @@
                   );
                 }
               });
-              larvitar.addDefaultTools();
-            });
-            larvitar.renderImage(serie_2, "viewer").then(() => {
-              console.log("Image 2 has been rendered");
-              larvitar.cacheImages(serie_2, function (resp) {
-                if (resp.loading == 100) {
-                  let cache = larvitar.cornerstone.imageCache;
-                  console.log(
-                    "Cache size: ",
-                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                    "Mb"
+              larvitar.renderImage(serie_2, "viewer").then(() => {
+                console.log("Image 2 has been rendered");
+                larvitar.cacheImages(serie_2, function (resp) {
+                  if (resp.loading == 100) {
+                    let cache = larvitar.cornerstone.imageCache;
+                    console.log(
+                      "Cache size: ",
+                      cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                      "Mb"
+                    );
+                  }
+                });
+                const enabledElement =
+                  larvitar.cornerstone.getEnabledElements();
+                console.log(enabledElement);
+                const imageId = enabledElement[0].image.imageId;
+                let parsedImageId =
+                  larvitar.cornerstoneDICOMImageLoader.wadouri.parseImageId(
+                    imageId
                   );
-                }
+                console.log(parsedImageId);
+                let rootImageId =
+                  parsedImageId.scheme + ":" + parsedImageId.url;
+                console.log(rootImageId);
+                let imageTracker = larvitar.getLarvitarImageTracker();
+                console.log(imageTracker);
+                seriesId = imageTracker[rootImageId];
+                console.log(seriesId);
+                larvitar.addDefaultTools();
               });
-              larvitar.addDefaultTools();
             });
 
             $("#active-layer").html("Active Layer: main");
