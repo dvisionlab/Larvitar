@@ -61,50 +61,44 @@
       }
 
       function renderSerie() {
-        larvitar.readFiles(demoFiles).then(seriesStack => {
-          let seriesId = _.keys(seriesStack)[0];
-          let serie = seriesStack[seriesId];
-          larvitar.populateLarvitarManager(seriesId, serie);
-          let manager = larvitar.getLarvitarManager();
-          let multiFrameSerie = manager[seriesId];
-          console.log(multiFrameSerie);
-          let frameId = 0;
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            larvitar.populateLarvitarManager(seriesId, serie);
+            let manager = larvitar.getLarvitarManager();
+            let multiFrameSerie = manager[seriesId];
+            console.log(multiFrameSerie);
+            let frameId = 0;
 
-          let serie_1 = multiFrameSerie;
+            let serie_1 = multiFrameSerie;
 
-          layer_1 = larvitar.buildLayer(serie_1, "main");
+            layer_1 = larvitar.buildLayer(serie_1, "main");
 
-          // define a layer into the series object to be rendered
-          serie_1.layer = layer_1;
+            // define a layer into the series object to be rendered
+            serie_1.layer = layer_1;
 
-          larvitar.renderImage(serie_1, "viewer", frameId).then(() => {
-            console.log("Image 1 has been rendered");
-          });
-          larvitar
-            .cacheImages(multiFrameSerie)
-            .then(() => {
-              let multiFrameSerie_2;
-              larvitar.cornerstone.events.addEventListener(
-                "cornerstoneimageLoaded",
-                function (event) {
-                  console.log("you are here");
-                  multiFrameSerie_2 = applyDSA(multiFrameSerie);
-                  console.log(multiFrameSerie_2);
-                  let serie_2 = multiFrameSerie_2;
-                  layer_2 = larvitar.buildLayer(serie_2, "DSA applied", {
-                    opacity: 0
-                  });
-                  serie_2.layer = layer_2;
-                  larvitar.renderImage(serie_2, "viewer", frameId).then(() => {
-                    console.log("Image 2 has been rendered");
-                  });
+            larvitar.renderImage(serie_1, "viewer", frameId).then(() => {
+              console.log("Image 1 has been rendered");
+              larvitar.cacheImages(serie_1).then(() => {
+                let multiFrameSerie_2;
+                multiFrameSerie_2 = applyDSA(serie_1);
+                console.log(multiFrameSerie_2);
+                let serie_2 = multiFrameSerie_2;
+                layer_2 = larvitar.buildLayer(serie_2, "DSA applied", {
+                  opacity: 0
+                });
+                serie_2.layer = layer_2;
+                larvitar.renderImage(serie_2, "viewer", frameId).then(() => {
+                  console.log("Image 2 has been rendered");
+                });
 
-                  larvitar.addDefaultTools();
-                }
-              );
-            })
-            .catch(err => console.log(err));
-        });
+                larvitar.addDefaultTools();
+              });
+            });
+          })
+          .catch(err => console.log(err));
       }
 
       function applyDSA(multiFrameSerie) {
