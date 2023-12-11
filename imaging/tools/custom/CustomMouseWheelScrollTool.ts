@@ -83,6 +83,12 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
   Verify4D() {
     const enabledElement = cornerstone.getEnabledElement(this.element);
     const imageId = enabledElement.image!.imageId;
+    /*console.log(imageId);
+    console.log(
+      "metadata",
+      cornerstone.metaData.get("larvitarModule", imageId)
+    );
+    let metadata = cornerstone.metaData.get("larvitarModule", imageId);*/
     let Getter = cornerstone.metaData.get("generalSeriesModule", imageId);
     let seriesId;
     if (Getter === undefined) {
