@@ -115,15 +115,15 @@ function getMax(arr) {
                     }
                 }
         const t3 = performance.now();
-        return resultFramesAvg;
-        /*maxPixel = maxPixel||getMax(resultFramesAvg);
+
+        maxPixel = maxPixel||getMax(resultFramesAvg);
         minPixel = minPixel||getMin(resultFramesAvg);
         windowWidth= windowWidth||(maxPixel-minPixel)/2
   
         console.log("t3", t3 - t2);
   
         const modifiedImage = {
-          imageId: imageIds.indexOf(frameId), // Keep the same imageId
+          imageId: imageIds.indexOf(frameId)+"-DSA", // Keep the same imageId
           minPixelValue: minPixel,
           maxPixelValue: maxPixel,
           slope: image.slope,
@@ -139,10 +139,10 @@ function getMax(arr) {
           columnPixelSpacing: image.columnPixelSpacing,
           rowPixelSpacing: image.rowPixelSpacing
         };
-  
+         return modifiedImage;
         const element = document.getElementById("imageResult");
         larvitar.cornerstone.enable(element);
-        larvitar.cornerstone.displayImage(element, modifiedImage);*/
+        larvitar.cornerstone.displayImage(element, modifiedImage);
         // larvitar.addDefaultTools();
         // larvitar.setToolActive("Wwwc");
 
@@ -173,12 +173,13 @@ function getMax(arr) {
       {
         resultFramesTid[i]=contrastFrame[i]-contrastMaskFrame[i]
       }
-      return resultFramesTid
-      /*maxPixel = maxPixel||getMax(resultFramesTid);
+      
+      maxPixel = maxPixel||getMax(resultFramesTid);
         minPixel = minPixel||getMin(resultFramesTid);
         windowWidth= windowWidth||(maxPixel-minPixel)/2
+        
             const modifiedImage = {
-        imageId: imageIds.indexOf(frameId), // Keep the same imageId
+        imageId: imageIds.indexOf(frameId)+"-DSA", // Keep the same imageId
         minPixelValue: minPixel,
         maxPixelValue:maxPixel,
         slope: image.slope,
@@ -192,12 +193,12 @@ function getMax(arr) {
         width: image.width,
         color: image.color,
         columnPixelSpacing: image.columnPixelSpacing,
-        rowPixelSpacing: image.rowPixelSpacing
+        rowPixelSpacing: image.rowPixelSpacing,
       };
-  
+      return modifiedImage
       const element = document.getElementById("viewer");
       // larvitar.cornerstone.enable(element);
-      larvitar.cornerstone.displayImage(element, modifiedImage);*/
+      larvitar.cornerstone.displayImage(element, modifiedImage);
     }
     } else if (mask_type === "REV_TID") {
       contrastFrameAveragingRevTid = contrastFrameAveragingRevTid||metadataInfo.x00286112 || 1;
@@ -225,12 +226,12 @@ function getMax(arr) {
       {
         resultFramesRevTid[i]=contrastFrame[i]-contrastMaskFrame[i]
       }
-      return resultFramesRevTid
-      /*maxPixel = maxPixel||getMax( resultFramesRevTid);
+      
+      maxPixel = maxPixel||getMax( resultFramesRevTid);
         minPixel = minPixel||getMin( resultFramesRevTid);
         windowWidth= windowWidth||(maxPixel-minPixel)/2
-      const modifiedImage = {
-        imageId: imageIds.indexOf(frameId), // Keep the same imageId
+        const modifiedImage = {
+        imageId: imageIds.indexOf(frameId)+"-DSA", // Keep the same imageId
         minPixelValue: minPixel,
         maxPixelValue:maxPixel,
         slope: image.slope,
@@ -246,8 +247,8 @@ function getMax(arr) {
         columnPixelSpacing: image.columnPixelSpacing,
         rowPixelSpacing: image.rowPixelSpacing
       };
-  
-      const element = document.getElementById("viewer");
+      return modifiedImage
+      /*const element = document.getElementById("viewer");
       // larvitar.cornerstone.enable(element);
       larvitar.cornerstone.displayImage(element, modifiedImage);*/
     }
