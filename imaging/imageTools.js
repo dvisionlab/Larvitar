@@ -98,7 +98,7 @@ export const addDefaultTools = function (toolToActivate) {
   });
 
   // set wheel scroll active
-  setToolActive("StackScrollMouseWheel", {
+  setToolActive("CustomMouseWheelScroll", {
     loop: false, // default false
     allowSkipping: false, // default true
     invert: false
