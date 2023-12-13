@@ -109,9 +109,11 @@
                     setTimeout(() => {
                       console.log(multiFrameSerie);
                       console.log(multiFrameSerie2);
-                      larvitar.renderImage(serie_2, "viewer").then(() => {
+                      /*larvitar.renderImage(serie_2, "viewer").then(() => {
                         console.log("Image 2 has been rendered");
-                      });
+                      });*/
+                      let element = document.getElementById("viewer");
+                      cornerstone.displayImage(element, image);
                     }, 1000);
                   }, "1100");
                 });

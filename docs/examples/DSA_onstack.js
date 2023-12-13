@@ -121,9 +121,16 @@ function getMax(arr) {
         windowWidth= windowWidth||(maxPixel-minPixel)/2
   
         console.log("t3", t3 - t2);
-  
+        let startIndex = multiFrameSerie.imageIds[i].indexOf("multiFrameLoader://") + "multiFrameLoader://".length;
+        let endIndex = multiFrameSerie.imageIds[i].indexOf("?frame=");
+        let extractedPart = multiFrameSerie.imageIds[i].slice(startIndex, endIndex);
+        let newindex=parseInt(extractedPart)+1
+        console.log("EXTRACTEDPART:",newindex )
+        console.log("multiFrameLoader://"+newindex+"?frame="+i+ "-DSA")
         const modifiedImage = {
-          imageId: "dicomfile:" + i + "-DSA", // Keep the same imageId
+          //multiFrameLoader://0?frame=0-DSA
+
+          imageId: "multiFrameLoader://"+newindex+"?frame="+i+ "-DSA", // Keep the same imageId
           minPixelValue: minPixel,
           maxPixelValue: maxPixel,
           slope: image.slope,
@@ -155,7 +162,7 @@ function getMax(arr) {
         console.log(modifiedImage)
         const element = document.getElementById("imageResult");
         larvitar.cornerstone.enable(element);
-        larvitar.cornerstone.displayImage(element, modifiedImage);
+        //larvitar.cornerstone.displayImage(element, modifiedImage);
          return modifiedImage;
       
         // larvitar.addDefaultTools();

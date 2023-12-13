@@ -440,12 +440,29 @@ export const renderImage = function (
     // load and display one image (imageId)
     console.log(data.imageId);
     console.log(series.instances[data.imageId!]);
+    //if (data.imageId!.includes("DSA")) {
+    /*let image = series.instances[data.imageId!] as Image;
+      cornerstone.displayImage(element, image);
+      console.log("SIUMM");
+      console.log(series.layer);
+      console.log(image.lut);
+
+      if (series.layer) {
+        // assign the image to its layer and return its id
+        series.layer.id = cornerstone.addLayer(
+          element,
+          image,
+          series.layer.options
+        );
+      }*/
+    //} else {
     cornerstone.loadImage(data.imageId as string).then(function (image) {
       if (!element) {
         console.error("invalid html element: " + elementId);
         reject("invalid html element: " + elementId);
         return;
       }
+      console.log("IMAGE LOADED:", image);
       console.log(image);
       console.log(image.getPixelData());
       cornerstone.displayImage(element, image);
@@ -531,6 +548,7 @@ export const renderImage = function (
       data = null;
       resolve(true);
     });
+    //   }
   });
 
   csToolsCreateStack(element, series.imageIds, (data.imageIndex as number) - 1);
