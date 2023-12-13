@@ -427,6 +427,7 @@ export const renderImage = function (
 
   let series = { ...seriesStack };
   let data = getSeriesData(series, defaultProps);
+  console.log(data);
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) => {
@@ -437,13 +438,16 @@ export const renderImage = function (
 
   const renderPromise = new Promise<true>((resolve, reject) => {
     // load and display one image (imageId)
+    console.log(data.imageId);
+    console.log(series.instances[data.imageId!]);
     cornerstone.loadImage(data.imageId as string).then(function (image) {
       if (!element) {
         console.error("invalid html element: " + elementId);
         reject("invalid html element: " + elementId);
         return;
       }
-
+      console.log(image);
+      console.log(image.getPixelData());
       cornerstone.displayImage(element, image);
 
       if (series.layer) {
