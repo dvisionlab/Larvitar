@@ -130,7 +130,7 @@ function getMax(arr) {
         const modifiedImage = {
           //multiFrameLoader://0?frame=0-DSA
 
-          imageId: "multiFrameLoader://"+newindex+"?frame="+i+ "-DSA", // Keep the same imageId
+          imageId: "multiFrameLoader://"+newindex+"?frame="+i, // Keep the same imageId
           minPixelValue: minPixel,
           maxPixelValue: maxPixel,
           slope: image.slope,

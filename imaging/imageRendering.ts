@@ -456,6 +456,7 @@ export const renderImage = function (
         );
       }*/
     //} else {
+    console.log("DATA IMAGEID:", data.imageId);
     cornerstone.loadImage(data.imageId as string).then(function (image) {
       if (!element) {
         console.error("invalid html element: " + elementId);

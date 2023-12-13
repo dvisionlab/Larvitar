@@ -97,34 +97,36 @@
                 .then(() => {
                   setTimeout(() => {
                     let multiFrameSerie2 = _.cloneDeep(multiFrameSerie);
+                    console.log(multiFrameSerie2.imageIds.length);
                     multiFrameSerie2 = applyDSA(multiFrameSerie2);
+                    console.log(multiFrameSerie2.imageIds.length);
+                    console.log("MULTIFRAME SERIES 2:", multiFrameSerie2);
                     let serie_2 = { ...multiFrameSerie2 };
                     larvitar.populateLarvitarManager(
-                      seriesId + "-DSA",
+                      multiFrameSerie2.seriesUID,
                       serie_2
                     );
-                    manager = larvitar.getLarvitarManager();
-                    manager[seriesId + "-DSA"] = _.cloneDeep(multiFrameSerie2);
-
-                    console.log(multiFrameSerie2);
-
-                    console.log("MANAGER:", manager);
-
+                    console.log(
+                      "AFTER MANAGER:",
+                      multiFrameSerie2.imageIds.length
+                    ); //26 imageIds and 26 instances
                     layer_2 = larvitar.buildLayer(serie_2, "colored", {
                       opacity: 0,
                       colormap: "hotIron"
                     });
+                    serie_2.layer = layer_2;
+                    manager = larvitar.getLarvitarManager();
+                    //manager[seriesId + "-DSA"] = _.cloneDeep(multiFrameSerie2);
+
+                    console.log("MANAGER:", manager);
+
                     console.log("LAYER 1:", layer_1);
                     console.log("LAYER 2:", layer_2);
-                    serie_2.layer = layer_2;
+
                     console.log(serie_2);
                     frameId = 0;
                     setTimeout(() => {
-                      let image =
-                        multiFrameSerie2.instances[
-                          multiFrameSerie2.imageIds[6]
-                        ];
-                      larvitar.renderImage(serie_2, "imageResult").then(() => {
+                      larvitar.renderImage(serie_2, "viewer").then(() => {
                         console.log("Image 2 has been rendered");
                       });
                       /*let element = document.getElementById("imageResult");
@@ -141,15 +143,17 @@
 
       function applyDSA(multiFrameSerie2, manager) {
         const imageIds = multiFrameSerie2.imageIds;
-
+        console.log(multiFrameSerie2.imageIds.length);
         for (let i = 0; i < imageIds.length; i++) {
           frameId = imageIds[i];
           resultFrame = apply_DSA_Mask(multiFrameSerie2, frameId, i);
           multiFrameSerie2.imageIds[i] = resultFrame.imageId;
-
+          console.log(multiFrameSerie2.imageIds[i]);
           multiFrameSerie2.instances[multiFrameSerie2.imageIds[i]] = {
             ...resultFrame
           };
+          console.log(multiFrameSerie2.imageIds.length);
+          console.log(multiFrameSerie2.instances[multiFrameSerie2.imageIds[i]]);
           /*multiFrameSerie2.instances[multiFrameSerie2.imageIds[i]].metadata =
             multiFrameSerie2.metadata;*/
           //updateStack(imageIds, resultFrames, i, seriesStack2);

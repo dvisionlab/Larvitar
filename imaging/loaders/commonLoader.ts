@@ -84,6 +84,9 @@ export const populateLarvitarManager = function (
   if (larvitarManager === null) {
     larvitarManager = {};
   }
+  if (seriesId.includes("DSA")) {
+    larvitarManager[seriesId] = _.cloneDeep(seriesData);
+  }
   let data = { ...seriesData };
   if (data.isMultiframe) {
     buildMultiFrameImage(seriesId, data);
