@@ -720,6 +720,7 @@ export const updateViewportData = function (
   // TODO: understand how to handle synchronized tools
   switch (activeTool) {
     case "Wwwc":
+    case "Wwwl":
     case "WwwcRegion":
       if (viewportData.voi) {
         setStore([
@@ -763,6 +764,7 @@ export const updateViewportData = function (
       }
       break;
     default:
+      console.warn("unknown tool: " + activeTool);
       break;
   }
 };
