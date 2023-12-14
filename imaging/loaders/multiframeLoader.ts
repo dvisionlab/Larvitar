@@ -43,7 +43,7 @@ let multiframeDatasetCache: { [key: string]: Series | null } | null = null;
  * @returns {Function} Custom Image Creation Function
  */
 export const loadMultiFrameImage = function (imageId: string) {
-  if (imageId.includes("DSA")) {
+  if (imageId.includes("multiFrameLoader://1")) {
     //TODO
     //rootImageId= imageId;
 
@@ -56,10 +56,10 @@ export const loadMultiFrameImage = function (imageId: string) {
       let parsedImageId =
         cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
 
-      let rootImageId_ = parsedImageId.scheme + ":" + parsedImageId.url;
+      let rootImageId_ = "multiFrameLoader://0";
       console.log("ROOT IMAGE ID :", rootImageId_);
       console.log("IMAGE TRACKER: ", imageTracker);
-      let seriesId = imageTracker[rootImageId_];
+      let seriesId = imageTracker[rootImageId_] + "-DSA";
       console.log("SERIESID: ", seriesId);
       if (multiframeDatasetCache === null) {
         multiframeDatasetCache = {};

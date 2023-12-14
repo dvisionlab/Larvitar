@@ -145,6 +145,7 @@ function getMax(arr) {
           color: image.color,
           columnPixelSpacing: image.columnPixelSpacing,
           rowPixelSpacing: image.rowPixelSpacing,
+          sizeInBytes: image.sizeInBytes,
           metadata:{isMultiframe : false,
             windowCenter: 0,
           windowWidth:  windowWidth,
@@ -160,8 +161,7 @@ function getMax(arr) {
           }
         };
         console.log(modifiedImage)
-        const element = document.getElementById("imageResult");
-        larvitar.cornerstone.enable(element);
+       
         //larvitar.cornerstone.displayImage(element, modifiedImage);
          return modifiedImage;
       

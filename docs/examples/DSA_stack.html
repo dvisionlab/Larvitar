@@ -76,7 +76,10 @@
 
             let serie_1 = multiFrameSerie;
 
-            layer_1 = larvitar.buildLayer(serie_1, "main");
+            layer_1 = larvitar.buildLayer(serie_1, "main", {
+              opacity: 1,
+              colormap: ""
+            });
 
             // define a layer into the series object to be rendered
             serie_1.layer = layer_1;
@@ -97,45 +100,60 @@
                 .then(() => {
                   setTimeout(() => {
                     let multiFrameSerie2 = _.cloneDeep(multiFrameSerie);
+                    multiFrameSerie2.instances = _.cloneDeep({});
                     console.log(multiFrameSerie2.imageIds.length);
                     multiFrameSerie2 = applyDSA(multiFrameSerie2);
                     console.log(multiFrameSerie2.imageIds.length);
                     console.log("MULTIFRAME SERIES 2:", multiFrameSerie2);
                     let serie_2 = { ...multiFrameSerie2 };
-                    larvitar.populateLarvitarManager(
+                    manager = larvitar.populateLarvitarManager(
                       multiFrameSerie2.seriesUID,
                       serie_2
                     );
                     console.log(
                       "AFTER MANAGER:",
-                      multiFrameSerie2.imageIds.length
-                    ); //26 imageIds and 26 instances
+                      manager[multiFrameSerie2.seriesUID].imageIds.length
+                    );
                     layer_2 = larvitar.buildLayer(serie_2, "colored", {
-                      opacity: 0,
-                      colormap: "hotIron"
+                      opacity: 0.25,
+                      colormap: ""
                     });
                     serie_2.layer = layer_2;
-                    manager = larvitar.getLarvitarManager();
+                    console.log(
+                      "AFTER BUILD LAYER MANAGER:",
+                      manager[multiFrameSerie2.seriesUID].imageIds.length
+                    );
                     //manager[seriesId + "-DSA"] = _.cloneDeep(multiFrameSerie2);
-
-                    console.log("MANAGER:", manager);
 
                     console.log("LAYER 1:", layer_1);
                     console.log("LAYER 2:", layer_2);
+                    let element = document.getElementById("viewer");
+                    let visibleLayers =
+                      larvitar.cornerstone.getVisibleLayers(element);
+                    console.log("VISIBLE LAYERS IMAGE: ", visibleLayers[0]);
 
                     console.log(serie_2);
                     frameId = 0;
                     setTimeout(() => {
+                      console.log(
+                        "COLORLUT: ",
+                        visibleLayers[0].renderingTools.colorLut
+                      );
+
                       larvitar.renderImage(serie_2, "viewer").then(() => {
+                        console.log(
+                          "AFTER RENDER:",
+                          manager[multiFrameSerie2.seriesUID].imageIds.length
+                        );
+                        larvitar.addDefaultTools("viewer");
                         console.log("Image 2 has been rendered");
                       });
                       /*let element = document.getElementById("imageResult");
                       larvitar.cornerstone.displayImage(element, image);*/
-                    }, 1000);
+                    }, "2000");
                   }, "1100");
                 });
             });
-            larvitar.addDefaultTools();
           })
 
           .catch(err => console.log(err));
