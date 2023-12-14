@@ -380,15 +380,15 @@ export class ContoursTool {
      */
     fireModifiedEvent(element: any, measurementData: any): void;
     fireCompletedEvent(element: any, measurementData: any): void;
-    set spacing(arg: any);
+    set spacing(value: any);
     get spacing(): any;
-    set activeHandleRadius(arg: any);
+    set activeHandleRadius(value: any);
     get activeHandleRadius(): any;
-    set completeHandleRadius(arg: any);
+    set completeHandleRadius(value: any);
     get completeHandleRadius(): any;
-    set alwaysShowHandles(arg: any);
+    set alwaysShowHandles(value: any);
     get alwaysShowHandles(): any;
-    set invalidColor(arg: any);
+    set invalidColor(value: any);
     get invalidColor(): any;
     /**
      * Ends the active drawing loop and removes the polygon.
