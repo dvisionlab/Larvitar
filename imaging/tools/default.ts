@@ -27,6 +27,7 @@
 
 import { filter, isArray } from "lodash";
 import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
+import WSTool from "./custom/WSTool";
 // import Slice4DScrollMouseWheelTool from "./custom/4dSliceScrollTool";
 import PolylineScissorsTool from "./custom/polylineScissorsTool";
 import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
@@ -401,6 +402,17 @@ const DEFAULT_TOOLS: {
     shortcut: "ctrl-t",
     type: "segmentation"
   },
+  WS: {
+    name: "WS",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "WSTool",
+    description: "Watershed Segmentation Alggorithm based on selected area",
+    shortcut: "ctrl-t",
+    type: "segmentation"
+  },
   RectangleScissors: {
     name: "RectangleScissors",
     viewports: "all",
@@ -465,6 +477,7 @@ const dvTools: {
   [key: string]: any; // TODO-ts tools class type @mronzoni
 } = {
   ThresholdsBrushTool: ThresholdsBrushTool,
+  WSTool: WSTool,
   PolylineScissorsTool: PolylineScissorsTool,
   // Slice4DScrollMouseWheelTool: Slice4DScrollMouseWheelTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
