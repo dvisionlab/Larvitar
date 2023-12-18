@@ -1,4 +1,5 @@
-const cornerstoneTools = larvitar.cornerstoneTools;
+import cornerstoneTools from "cornerstone-tools";
+import { fillFreehand } from "./utilsWSTool";
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(
@@ -7,28 +8,7 @@ const segmentationUtils = cornerstoneTools.importInternal(
 
 const getCircle = segmentationUtils.getCircle;
 const segmentationModule = cornerstoneTools.getModule("segmentation");
-// State
-const getToolState = cornerstoneTools.getToolState;
-const toolStyle = cornerstoneTools.toolStyle;
-const toolColors = cornerstoneTools.toolColors;
-// Drawing
-const getNewContext = cornerstoneTools.importInternal("drawing/getNewContext");
-const draw = cornerstoneTools.importInternal("drawing/draw");
-const drawHandles = cornerstoneTools.importInternal("drawing/drawHandles");
-const drawRect = cornerstoneTools.importInternal("drawing/drawRect");
-const drawLinkedTextBox = cornerstoneTools.importInternal("drawing/drawLinkedTextBox");
-const setShadow = cornerstoneTools.importInternal("drawing/setShadow");
-const drawBrushPixels = segmentationUtils.drawBrushPixels;
-// Util
-const calculateSUV = cornerstoneTools.importInternal("util/calculateSUV");
-const getROITextBoxCoords = cornerstoneTools.importInternal("util/getROITextBoxCoords");
-const numbersWithCommas = cornerstoneTools.importInternal("util/numbersWithCommas");
-const throttle = cornerstoneTools.importInternal("util/throttle");
-const { rectangleRoiCursor } = cornerstoneTools.importInternal("tools/cursors");
-const getLogger = cornerstoneTools.importInternal("util/getLogger");
-const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
-const getModule = cornerstoneTools.getModule;
-const logger = getLogger("tools:annotation:RectangleRoiTool");
+
 /**
  * @public
  * @class WSTool
@@ -49,6 +29,7 @@ export default class WSTool extends BaseBrushTool {
         this.lowerThreshold = 0;
 this.upperThreshold = 0;
 this.Mask_Array = [];
+this.src
         this.touchDragCallback = this._paint.bind(this);
     }
 
@@ -60,7 +41,7 @@ this.Mask_Array = [];
    * @param  {Object} evt The data object associated with the event.
    * @returns {void}
    */
- _paint(evt) {
+ async _paint(evt) {
     const { configuration } = segmentationModule;
     const eventData = evt.detail;
     const { rows, columns } = eventData.image;
@@ -81,21 +62,24 @@ this.Mask_Array = [];
         circleArray = getCircle(radius, rows, columns, x, y);
         
     const dicomPixelData = DICOMimage.getPixelData();
-    const {mean, stdDev} = this._calculateStats(DICOMimage,
+    const {mean, stddev} = this._calculateStats(DICOMimage,
         dicomPixelData,
         circleArray
       );
-     
+      console.log(mean)
+      console.log(stddev)
       const minThreshold = this.getMin(dicomPixelData)   
       const maxThreshold = this.getMax(dicomPixelData);
       const meanNorm=this.mapToRange(mean, minThreshold, maxThreshold);
 
-      const stdDevNorm=this.mapToRange(stdDev, minThreshold, maxThreshold);
+      const stdDevNorm=this.mapToRange(stddev, minThreshold, maxThreshold);
       const XFactor=0.7;
       const lowerThreshold =  meanNorm- XFactor* stdDevNorm;
       const upperThreshold = meanNorm + XFactor * stdDevNorm;
       this.lowerThreshold=lowerThreshold;
+      console.log(lowerThreshold)
       this.upperThreshold=upperThreshold;
+      console.log(upperThreshold)
      
       const height = DICOMimage.height;
       const width = DICOMimage.width;
@@ -122,9 +106,9 @@ this.Mask_Array = [];
         // Create an OpenCV Mat object from the PNG pixel data
         let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
         src.data.set(pngPixelData);
-        this.WatershedSegmentation(src,upperThreshold)
+        await this.WatershedSegmentation(src,upperThreshold,dicomPixelData)
         // Draw / Erase the active color.
-        this.drawBrushPixels(
+        this.drawBrushPixels(evt,
         this.Mask_Array,
         labelmap2D.pixelData,
         labelmap3D.activeSegmentIndex,
@@ -135,7 +119,7 @@ this.Mask_Array = [];
     external.cornerstone.updateImage(evt.detail.element);
   }
 
-  WatershedSegmentation(src,upperThreshold){
+   WatershedSegmentation(src,upperThreshold,dicomPixelData){
   
     let dst = new cv.Mat();
     
@@ -171,50 +155,80 @@ this.Mask_Array = [];
             if (unknown.ucharPtr(i, j)[0] == 255) {
                 markers.intPtr(i, j)[0] = 0;
             }
-            }
+        }
     }
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
     cv.watershed(src, markers);
     // draw barriers
-    const matrix = (rows, cols) => new Array(cols).fill(0).map((o, i) => new Array(rows).fill(0))
+    //const matrix = (rows, cols) => new Array(cols).fill(0).map((o, i) => new Array(rows).fill(0))
     //let mask=matrix(markers.rows,markers.cols);
-    let mask_array=[];
+    let columns=markers.cols;
+    let rightleft = [];
+
+    // Iterate through rows
+    /*for (let i = 0; i < dicomPixelData.length; i += columns) {
+      let row = dicomPixelData.slice(i, i + columns);
+      let leftIndex = row.findIndex(value => value !== 0);
     
+      // Find the first non-zero value from the right
+      let rightIndex = row.reverse().findIndex(value => value !== 0);
+    
+      rightleft.push({ left: leftIndex, right: rightIndex });
+    }*/
+    
+    console.log(rightleft);
+    
+    let mask_array = [];
     for (let i = 0; i < markers.rows; i++) {
-        for (let j = 0; j < markers.cols; j++) {
-                    //mask[i][j]=0;
-                    
-            if (markers.intPtr(i, j)[0] == -1) {
-                    //mask[i][j]=1;
-                    mask_array.push(1);
-                    src.ucharPtr(i, j)[0] = 255; // R
-                    src.ucharPtr(i, j)[1] = 0; // G
-                    src.ucharPtr(i, j)[2] = 0; // B
-                }
-                else{
-                  mask_array.push(0);
-                }
-            }
+      for (let j = 0; j < markers.cols; j++) {
+        if (markers.intPtr(i, j)[0] == -1) {
+          // Border pixel
+          mask_array.push(0);
+        } else if (markers.intPtr(i, j)[0] > 1) {
+          // Inside pixel (non-zero marker values)
+          mask_array.push(0);
+        } else {
+          // Background pixel (marker value == 0)
+          mask_array.push(1);
         }
+      }
+    }
+    /* Iterate through rows
+    for (let i = 0; i < dicomPixelData.length; i += columns) {
+      let row = i / columns;
+      console.log(row)
+      // Iterate from the beginning of the row to the left non-zero value
+      for (let j = row * columns; j < rightleft[row].left; j++) {
+        mask_array[j] = 0;
+      }
     
+      // Iterate from the right non-zero value to the end of the row
+      for (let k = rightleft[row].right; k < (row + 1) * columns; k++) {
+        mask_array[k] = 0;
+      }
+    }*/
+    
+    console.log(mask_array);
+
         //use mask array to mask a DICOM image 
     src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
     Fg.delete(); distTrans.delete(); unknown.delete(); markers.delete(); M.delete();
     //pixel_array = imageObject.metadata.x7fe00010;
     this.Mask_Array=mask_array;
+    console.log(this.Mask_Array)
     
       }
 
-      drawBrushPixels(
+      drawBrushPixels(evt,
         mask,
         pixelData,
         segmentIndex,
         columns,shouldErase
       ) {
-        const getPixelIndex = (x, y) => y * columns + x;
       
-        mask.forEach(point => {
-          const spIndex = getPixelIndex(...point);
+        for(let i=0;i<mask.length;i++){
+          let point=mask[i];
+          const spIndex = i;
           if (shouldErase) {
             this.eraseIfSegmentIndex(spIndex, pixelData, segmentIndex);
           } else {
@@ -226,7 +240,14 @@ this.Mask_Array = [];
         }
     
           }
-        });
+        };
+        
+        let points=this.mask;
+        let operationData={pixelData,
+          segmentIndex,points}
+          console.log(operationData)
+        //fillFreehand(evt, operationData, true)
+
       }
     
       eraseIfSegmentIndex(
@@ -246,15 +267,18 @@ this.Mask_Array = [];
       
         circleArray.forEach(([x, y]) => {
           const value = imagePixelData[y * image.rows + x];
+          
           sum += value;
           sumSquaredDiff += value * value;
         });
-      
+        
         const count = circleArray.length;
+        
         const mean = sum / count;
+        
         const variance = (sumSquaredDiff / count) - (mean * mean);
         const stddev = Math.sqrt(variance);
-      
+     
         return { mean, stddev };
       }
     
@@ -280,4 +304,3 @@ this.Mask_Array = [];
         return ((value - inMin) / (inMax - inMin)) * 255;
     }
 }
-

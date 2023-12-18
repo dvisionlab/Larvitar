@@ -156,7 +156,8 @@ let demoFiles = [];
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
-     
+      larvitar.registerNRRDImageLoader();
+      larvitar.initSegmentationModule();
       //const element_new = document.getElementById('canvasOutput');
       //larvitar.cornerstone.enable(element_new);
       //const cornerstoneTools = larvitar.cornerstoneTools;
@@ -181,10 +182,12 @@ let demoFiles = [];
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
+              larvitar.addDefaultTools();
+              demoFiles = [];
+              loadMasks();
             });
             // optionally cache the series
-            larvitar.populateLarvitarManager(seriesId, serie);
+           /* larvitar.populateLarvitarManager(seriesId, serie);
             const manager=larvitar.getLarvitarManager();
             const instance=manager[seriesId].instances["dicomfile:0"];
             const dataset=instance.dataSet;
@@ -197,20 +200,48 @@ let demoFiles = [];
                   "Mb"
                 );
               }
-            });
-            larvitar.initSegmentationModule();
-            larvitar.addDefaultTools();
-            larvitar.setActiveLabelmap(0, "viewer");
-            larvitar.setToolActive("WS");
-            //cornerstoneTools.addTool(myTool);
-            // Step 3: Activate your tool
-            //cornerstoneTools.setToolActive(myTool.name, { mouseButtonMask: 1 });
+            }).then(()=>{
+
+              
+              larvitar.addDefaultTools();
+              larvitar.setToolActive("WS");
+            });*/
+            
           })
           .catch(err => console.error(err));
       }
+      async function loadMasks() {
+        larvitar.initSegmentationModule();
+
+        // fetch data
+        let response = await fetch("./demo/" + "segmentation.nrrd");
+        let data = await response.blob();
+        let nrrd_file = new File([data], "segmentation.nrrd");
+        // read file
+        let reader = new FileReader();
+        reader.readAsArrayBuffer(nrrd_file);
+        reader.onload = function () {
+          // create volume
+          let volume = larvitar.importNRRDImage(reader.result);
+          // define mask properties
+          let properties = {
+            // color: "#00ff00",
+            opacity: 0.2,
+            labelId: 0
+          };
+          // add to viewport
+          larvitar
+            .addSegmentationMask(properties, volume.data, "viewer")
+            .then(() => {
+              // activate brush on this labelmap
+              larvitar.setActiveLabelmap(0, "viewer");
+              larvitar.setToolActive("WS");
+            });
+        };
+      }
 
       let demoFileList = getDemoFileNames();
-        createFile(demoFileList[12], renderSerie);
+      createFile(demoFileList[12], renderSerie);
   
 
 /*Hahn and Peitgen [2000] extracted the brain with a single watershed transform from MRI data. 

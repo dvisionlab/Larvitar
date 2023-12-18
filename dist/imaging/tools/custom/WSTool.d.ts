@@ -19,8 +19,8 @@ export default class WSTool {
       * @returns {void}
       */
     protected _paint(evt: Object): void;
-    WatershedSegmentation(src: any, upperThreshold: any): void;
-    drawBrushPixels(mask: any, pixelData: any, segmentIndex: any, columns: any, shouldErase: any): void;
+    WatershedSegmentation(src: any, upperThreshold: any, dicomPixelData: any): void;
+    drawBrushPixels(evt: any, mask: any, pixelData: any, segmentIndex: any, columns: any, shouldErase: any): void;
     eraseIfSegmentIndex(pixelIndex: any, pixelData: any, segmentIndex: any): void;
     _calculateStats(image: any, imagePixelData: any, circleArray: any): {
         mean: number;
