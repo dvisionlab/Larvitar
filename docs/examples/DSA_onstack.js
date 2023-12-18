@@ -161,7 +161,8 @@ function getMax(arr) {
           }
         };
         console.log(modifiedImage)
-       
+        //const element = document.getElementById("imageResult");
+        //larvitar.cornerstone.enable(element);
         //larvitar.cornerstone.displayImage(element, modifiedImage);
          return modifiedImage;
       
