@@ -211,6 +211,10 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
       }
     }
     // Iterate through rows
+    //not correct. It fills Bg (black Bg+black features inside the knee) and not Fg(all that is considered inside the knee)
+    //firstly, identify Bg and Fg even with hypodense features correctly
+    //secondly, find another way to fill inside the features that are segmented with Ws
+    //remove real Bg from red label using Bg Mat
 
 // Iterate through rows
 for (let i = 0; i < dicomPixelData.length; i += columns) {
