@@ -156,6 +156,10 @@ this.src
             if (unknown.ucharPtr(i, j)[0] == 255) {
                 markers.intPtr(i, j)[0] = -1;
             }
+            if(Bg.ucharPtr(i, j)[0] == 255)
+            {
+              markers.intPtr(i, j)[0] = 0;
+            }
         }
     }
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
@@ -196,17 +200,20 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
     console.log(rightleft);
     
     let mask_array = [];
+    
     for (let i = 0; i < markers.rows; i++) {
       for (let j = 0; j < markers.cols; j++) {
         if (markers.intPtr(i, j)[0] == -1) {
+          
           // Border pixel
           mask_array.push(1);
         } else if (markers.intPtr(i, j)[0] > 1) {
           // Inside pixel (non-zero marker values)
-          mask_array.push(0);
+          //console.log(markers.intPtr(i, j)[0])
+          mask_array.push(1);
         } else {
           // Background pixel (marker value == 0)
-          mask_array.push(1);
+          mask_array.push(0);
         }
       }
     }
