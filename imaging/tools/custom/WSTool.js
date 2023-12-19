@@ -30,13 +30,7 @@ export default class WSTool extends BaseBrushTool {
     this.Mask_Array = [];
     this.src = null;
     this.touchDragCallback = this._paint.bind(this);
-    //this.mouseWheelCallback = this._changeRadius.bind(this);
 
-    // Use "cornerstonetoolsmousewheel" event
-    /*external.cornerstone.events.addEventListener(
-      "wheel",function()
-      {console.log("WHeeee")}
-    );*/
   }
 
   _changeRadius(evt) {
@@ -46,33 +40,14 @@ export default class WSTool extends BaseBrushTool {
     const { deltaY } = evt;
     console.log("DELTAY",evt.deltaY)
     console.log(evt)
-    configuration.radius += deltaY > 0 ? 1 : -1;
+    configuration.radius += (deltaY > 0) ? 1 : -1;
     console.log(configuration.radius)
     configuration.radius = Math.max(configuration.radius, 1);
 
     external.cornerstone.updateImage(this.element);
   }
 
-  /*startListening() {
-    super.startListening();
 
-    // Use "cornerstonetoolsmousewheel" event
-    external.cornerstone.events.addEventListener(
-      "wheel",function()
-      {console.log("WHeeee")}
-    );
-
-  }
-
-  stopListening() {
-    // Remove the "cornerstonetoolsmousewheel" event listener
-    external.cornerstone.events.removeEventListener(
-      "cornerstonetoolsmousewheel",
-      this.mouseWheelCallback
-    );
-
-    super.stopListening();
-  }*/
  /**
    * Paints the data to the labelmap.
    *
