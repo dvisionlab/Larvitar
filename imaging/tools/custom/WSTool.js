@@ -16,23 +16,59 @@ const segmentationModule = cornerstoneTools.getModule("segmentation");
  * @extends Tools.Base.BaseBrushTool
  */
 export default class WSTool extends BaseBrushTool {
-    constructor(props = {}) {
-        const defaultProps = {
-          name: "WS",
-          supportedInteractionTypes: ["Mouse", "Touch"],
-          configuration: {},
-          mixins: ["renderBrushMixin"]
-        };
-    
-        super(props, defaultProps);
-        this.lowerThreshold = 0;
-this.upperThreshold = 0;
-this.Mask_Array = [];
-this.src
-        this.touchDragCallback = this._paint.bind(this);
-    }
+  constructor(props = {}) {
+    const defaultProps = {
+      name: "WS",
+      supportedInteractionTypes: ["Mouse", "Touch"],
+      configuration: {},
+      mixins: ["renderBrushMixin"],
+    };
 
-   
+    super(props, defaultProps);
+    this.lowerThreshold = 0;
+    this.upperThreshold = 0;
+    this.Mask_Array = [];
+    this.src = null;
+    this.touchDragCallback = this._paint.bind(this);
+    this.mouseWheelCallback = this._changeRadius.bind(this);
+
+    // Use "cornerstonetoolsmousewheel" event
+    external.cornerstone.events.addEventListener(
+      "cornerstonetoolsmousewheel",
+      this.mouseWheelCallback
+    );
+  }
+
+  _changeRadius(evt) {
+    console.log("CHANGERADIUS");
+    const { configuration } = segmentationModule;
+    const { deltaY } = evt.detail;
+
+    configuration.radius += deltaY > 0 ? 1 : -1;
+    configuration.radius = Math.max(configuration.radius, 1);
+
+    external.cornerstone.updateImage(evt.detail.element);
+  }
+
+  startListening() {
+    super.startListening();
+
+    // Use "cornerstonetoolsmousewheel" event
+    external.cornerstone.events.addEventListener(
+      "cornerstonetoolsmousewheel",
+      this.mouseWheelCallback
+    );
+  }
+
+  stopListening() {
+    // Remove the "cornerstonetoolsmousewheel" event listener
+    external.cornerstone.events.removeEventListener(
+      "cornerstonetoolsmousewheel",
+      this.mouseWheelCallback
+    );
+
+    super.stopListening();
+  }
  /**
    * Paints the data to the labelmap.
    *
@@ -176,7 +212,7 @@ this.src
 
     // Find left and right indices for each row
 
-  /*for (let i = 0; i < dicomPixelData.length; i += columns) {
+  for (let i = 0; i < dicomPixelData.length; i += columns) {
   let row = dicomPixelData.slice(i, i + columns);
 
   // Find the first non-zero value from the left
@@ -195,7 +231,7 @@ this.src
   }
   console.log(row[rightIndex])
   rightleft.push({ left: i + leftIndex, right: i + rightIndex });
-}*/
+}
 
 
     console.log(rightleft);
@@ -226,7 +262,7 @@ this.src
     // Iterate through rows
 
 // Iterate through rows
-/*for (let i = 0; i < dicomPixelData.length; i += columns) {
+for (let i = 0; i < dicomPixelData.length; i += columns) {
   let rowStartIndex = i / columns;
 
   // Iterate from the beginning of the row to the left non-zero value
@@ -238,7 +274,7 @@ this.src
   for (let k = rightleft[rowStartIndex].right; k < i + columns; k++) {
     mask_array[k]=0;
   }
-}*/
+}
 
     console.log(mask_array);
 

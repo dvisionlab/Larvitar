@@ -34,6 +34,7 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
     super(props, defaultProps);
 
     this.touchDragCallback = this._paint.bind(this);
+    
   }
 
   /**
