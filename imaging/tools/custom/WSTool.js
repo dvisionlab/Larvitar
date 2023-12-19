@@ -106,7 +106,7 @@ this.src
         // Create an OpenCV Mat object from the PNG pixel data
         let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
         src.data.set(pngPixelData);
-        await this.WatershedSegmentation(src,upperThreshold,lowerThreshold,dicomPixelData)
+        await this.WatershedSegmentation(src,upperThreshold,dicomPixelData)
         // Draw / Erase the active color.
         this.drawBrushPixels(evt,
         this.Mask_Array,
@@ -119,7 +119,7 @@ this.src
     external.cornerstone.updateImage(evt.detail.element);
   }
 
-   WatershedSegmentation(src,upperThreshold,lowerThreshold,dicomPixelData){
+   WatershedSegmentation(src,upperThreshold,dicomPixelData){
   
     let dst = new cv.Mat();
     
@@ -132,8 +132,8 @@ this.src
     let markers = new cv.Mat();
     // gray and threshold image
     cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-    cv.threshold(gray, gray, lowerThreshold, upperThreshold, cv.THRESH_BINARY);
-    //cv.threshold(gray, gray, upperThreshold, 255, cv.THRESH_BINARY);
+    
+    cv.threshold(gray, gray, upperThreshold, 255, cv.THRESH_BINARY);
     
     // get background
     let M = cv.Mat.ones(3, 3, cv.CV_8U);
@@ -151,20 +151,14 @@ this.src
     cv.connectedComponents(Fg, markers);
     for (let i = 0; i < markers.rows; i++) {
         for (let j = 0; j < markers.cols; j++) {
-         //markers.intPtr(i, j)[0] = markers.ucharPtr(i, j)[0] + 1;
          markers.intPtr(i, j)[0] = markers.ucharPtr(i, j)[0] + 1;
             if (unknown.ucharPtr(i, j)[0] == 255) {
-                markers.intPtr(i, j)[0] = -1;
-            }
-            if(Bg.ucharPtr(i, j)[0] == 255)
-            {
-              markers.intPtr(i, j)[0] = 0;
+                markers.intPtr(i, j)[0] = 0;
             }
         }
     }
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
     cv.watershed(src, markers);
-    //cv.imshow( "canvasOutput",Bg)
     // draw barriers
     //const matrix = (rows, cols) => new Array(cols).fill(0).map((o, i) => new Array(rows).fill(0))
     //let mask=matrix(markers.rows,markers.cols);
@@ -179,7 +173,7 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
   let row = dicomPixelData.slice(i, i + columns);
 
   // Find the first non-zero value from the left
-  let leftIndex = row.findIndex(value => value > 355);
+  let leftIndex = row.findIndex(value => value > 1);
   
   if (leftIndex === -1||leftIndex ===undefined) {
     leftIndex = row.length-1; // All values are zero
@@ -187,9 +181,9 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
   console.log(row[leftIndex])
   // Find the first non-zero value from the right
   let reversedRow = [...row]; // Create a copy before reversing
-  let rightIndex = row.length - 1 - reversedRow.reverse().findIndex(value => value > 355);
+  let rightIndex = row.length - 1 - reversedRow.reverse().findIndex(value => value > 0);
   
-  if (reversedRow.reverse().findIndex(value => value > 0) ===-1||rightIndex===undefined) {
+  if (reversedRow.reverse().findIndex(value => value > 0) ===-1) {
     rightIndex = row.length-1; // All values are zero
   }
   console.log(row[rightIndex])
@@ -200,17 +194,14 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
     console.log(rightleft);
     
     let mask_array = [];
-    
     for (let i = 0; i < markers.rows; i++) {
       for (let j = 0; j < markers.cols; j++) {
         if (markers.intPtr(i, j)[0] == -1) {
-          
           // Border pixel
           mask_array.push(1);
         } else if (markers.intPtr(i, j)[0] > 1) {
           // Inside pixel (non-zero marker values)
-          //console.log(markers.intPtr(i, j)[0])
-          mask_array.push(1);
+          mask_array.push(0);
         } else {
           // Background pixel (marker value == 0)
           mask_array.push(0);
@@ -218,10 +209,6 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
       }
     }
     // Iterate through rows
-    //not correct. It fills Bg (black Bg+black features inside the knee) and not Fg(all that is considered inside the knee)
-    //firstly, identify Bg and Fg even with hypodense features correctly
-    //secondly, find another way to fill inside the features that are segmented with Ws
-    //remove real Bg from red label using Bg Mat
 
 // Iterate through rows
 for (let i = 0; i < dicomPixelData.length; i += columns) {
