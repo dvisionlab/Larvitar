@@ -12,10 +12,7 @@ export default class WSTool {
     Mask_Array: any[];
     src: any;
     touchDragCallback: (evt: Object) => void;
-    mouseWheelCallback: (evt: any) => void;
     _changeRadius(evt: any): void;
-    startListening(): void;
-    stopListening(): void;
     /**
       * Paints the data to the labelmap.
       *
@@ -24,6 +21,7 @@ export default class WSTool {
       * @returns {void}
       */
     protected _paint(evt: Object): void;
+    element: any;
     WatershedSegmentation(src: any, dicomPixelData: any): void;
     drawBrushPixels(evt: any, mask: any, pixelData: any, segmentIndex: any, columns: any, shouldErase: any): void;
     eraseIfSegmentIndex(pixelIndex: any, pixelData: any, segmentIndex: any): void;

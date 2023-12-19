@@ -36,23 +36,71 @@ const logger = getLogger("tools:annotation:RectangleRoiTool");
  * @classdesc Tool for drawing segmentations on an image (only pixels inside thresholds)
  * @extends Tools.Base.BaseBrushTool
  */
+/**
+ * @public
+ * @class WSTool
+ * @memberof Tools.Brush
+ * @classdesc Tool for drawing segmentations on an image (only pixels inside thresholds)
+ * @extends Tools.Base.BaseBrushTool
+ */
 export default class WSTool extends BaseBrushTool {
-    constructor(props = {}) {
-        const defaultProps = {
-          name: "WS",
-          supportedInteractionTypes: ["Mouse", "Touch"],
-          configuration: {},
-          mixins: ["renderBrushMixin"]
-        };
-    
-        super(props, defaultProps);
-        this.lowerThreshold = 0;
-this.upperThreshold = 0;
-this.Mask_Array = [];
-        this.touchDragCallback = this._paint.bind(this);
-    }
+  constructor(props = {}) {
+    const defaultProps = {
+      name: "WS",
+      supportedInteractionTypes: ["Mouse", "Touch"],
+      configuration: {},
+      mixins: ["renderBrushMixin"],
+    };
 
-   
+    super(props, defaultProps);
+    this.lowerThreshold = 0;
+    this.upperThreshold = 0;
+    this.Mask_Array = [];
+    this.src = null;
+    this.touchDragCallback = this._paint.bind(this);
+    //this.mouseWheelCallback = this._changeRadius.bind(this);
+
+    // Use "cornerstonetoolsmousewheel" event
+    /*external.cornerstone.events.addEventListener(
+      "wheel",function()
+      {console.log("WHeeee")}
+    );*/
+  }
+
+  _changeRadius(evt) {
+    console.log("CHANGERADIUS");
+
+    const { configuration } = segmentationModule;
+    const { deltaY } = evt;
+    console.log("DELTAY",evt.deltaY)
+    console.log(evt)
+    configuration.radius += deltaY > 0 ? 1 : -1;
+    console.log(configuration.radius)
+    configuration.radius = Math.max(configuration.radius, 1);
+
+    external.cornerstone.updateImage(this.element);
+  }
+
+  /*startListening() {
+    super.startListening();
+
+    // Use "cornerstonetoolsmousewheel" event
+    external.cornerstone.events.addEventListener(
+      "wheel",function()
+      {console.log("WHeeee")}
+    );
+
+  }
+
+  stopListening() {
+    // Remove the "cornerstonetoolsmousewheel" event listener
+    external.cornerstone.events.removeEventListener(
+      "cornerstonetoolsmousewheel",
+      this.mouseWheelCallback
+    );
+
+    super.stopListening();
+  }*/
  /**
    * Paints the data to the labelmap.
    *
@@ -60,9 +108,15 @@ this.Mask_Array = [];
    * @param  {Object} evt The data object associated with the event.
    * @returns {void}
    */
- _paint(evt) {
+ async _paint(evt) {
+ 
     const { configuration } = segmentationModule;
+    
     const eventData = evt.detail;
+    const element=eventData.element;
+    this.element=element;
+    element.addEventListener("wheel",this._changeRadius.bind(this)
+  );
     const { rows, columns } = eventData.image;
     const DICOMimage=eventData.image;
     const { x, y } = eventData.currentPoints.image;
@@ -81,21 +135,24 @@ this.Mask_Array = [];
         circleArray = getCircle(radius, rows, columns, x, y);
         
     const dicomPixelData = DICOMimage.getPixelData();
-    const {mean, stdDev} = this._calculateStats(DICOMimage,
+    const {mean, stddev} = this._calculateStats(DICOMimage,
         dicomPixelData,
         circleArray
       );
-     
+      console.log(mean)
+      console.log(stddev)
       const minThreshold = this.getMin(dicomPixelData)   
       const maxThreshold = this.getMax(dicomPixelData);
       const meanNorm=this.mapToRange(mean, minThreshold, maxThreshold);
 
-      const stdDevNorm=this.mapToRange(stdDev, minThreshold, maxThreshold);
-      const XFactor=0.7;
+      const stdDevNorm=this.mapToRange(stddev, minThreshold, maxThreshold);
+      const XFactor=1.5;
       const lowerThreshold =  meanNorm- XFactor* stdDevNorm;
-      const upperThreshold = meanNorm + XFactor * stdDevNorm;
+      const upperThreshold = meanNorm +XFactor * stdDevNorm;
       this.lowerThreshold=lowerThreshold;
+      console.log(lowerThreshold)
       this.upperThreshold=upperThreshold;
+      console.log(upperThreshold)
      
       const height = DICOMimage.height;
       const width = DICOMimage.width;
@@ -122,9 +179,9 @@ this.Mask_Array = [];
         // Create an OpenCV Mat object from the PNG pixel data
         let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
         src.data.set(pngPixelData);
-        this.WatershedSegmentation(src,upperThreshold)
+        await this.WatershedSegmentation(src,dicomPixelData)
         // Draw / Erase the active color.
-        this.drawBrushPixels(
+        this.drawBrushPixels(evt,
         this.Mask_Array,
         labelmap2D.pixelData,
         labelmap3D.activeSegmentIndex,
@@ -135,7 +192,7 @@ this.Mask_Array = [];
     external.cornerstone.updateImage(evt.detail.element);
   }
 
-  WatershedSegmentation(src,upperThreshold){
+   WatershedSegmentation(src,dicomPixelData){
   
     let dst = new cv.Mat();
     
@@ -143,13 +200,21 @@ this.Mask_Array = [];
     let opening = new cv.Mat();
     let Bg = new cv.Mat();
     let Fg = new cv.Mat();
-    let distTrans = new cv.Mat();
+   let distTrans = new cv.Mat();
     let unknown = new cv.Mat();
     let markers = new cv.Mat();
-    // gray and threshold image
+    //gray and threshold image
     cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-    
-    cv.threshold(gray, gray, upperThreshold, 255, cv.THRESH_BINARY);
+    console.log("LOWER",this.lowerThreshold)
+    console.log("UPPER",this.upperThreshold)
+    let lowerBinary = new cv.Mat();
+    let upperBinary = new cv.Mat();
+
+    cv.threshold(gray, lowerBinary, this.lowerThreshold, 255, cv.THRESH_BINARY);
+    cv.threshold(gray, upperBinary, this.upperThreshold, 255, cv.THRESH_BINARY_INV);
+
+    // Combine the binary masks using bitwise_and
+    cv.bitwise_and(lowerBinary, upperBinary, gray);
     
     // get background
     let M = cv.Mat.ones(3, 3, cv.CV_8U);
@@ -171,50 +236,105 @@ this.Mask_Array = [];
             if (unknown.ucharPtr(i, j)[0] == 255) {
                 markers.intPtr(i, j)[0] = 0;
             }
-            }
+        }
     }
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
     cv.watershed(src, markers);
     // draw barriers
-    const matrix = (rows, cols) => new Array(cols).fill(0).map((o, i) => new Array(rows).fill(0))
+    //const matrix = (rows, cols) => new Array(cols).fill(0).map((o, i) => new Array(rows).fill(0))
     //let mask=matrix(markers.rows,markers.cols);
-    let mask_array=[];
+    let columns=markers.cols;
+    let rightleft = [];
+    let rownumber=0;
+    // Iterate through rows
+
+    // Find left and right indices for each row
+
+  for (let i = 0; i < dicomPixelData.length; i += columns) {
+  let row = dicomPixelData.slice(i, i + columns);
+
+  // Find the first non-zero value from the left
+  let leftIndex = row.findIndex(value => value > 350);
+  
+  if (leftIndex === -1||leftIndex ===undefined) {
+    leftIndex = row.length-1; // All values are zero
+  }
+
+  // Find the first non-zero value from the right
+  let reversedRow = [...row]; // Create a copy before reversing
+  let rightIndex = row.length - 1 - reversedRow.reverse().findIndex(value => value > 350);
+
+  if (reversedRow.reverse().findIndex(value => value > 0) ===-1||rightIndex===undefined||rightIndex>=row.length) {
+    rightIndex = row.length-1; // All values are zero
+  }
+
+  rightleft.push({ left: i + leftIndex, right: i + rightIndex });
+}
+
+
+    console.log(rightleft);
     
+    let mask_array = [];
     for (let i = 0; i < markers.rows; i++) {
-        for (let j = 0; j < markers.cols; j++) {
-                    //mask[i][j]=0;
-                    
-            if (markers.intPtr(i, j)[0] == -1) {
-                    //mask[i][j]=1;
-                    mask_array.push(1);
-                    src.ucharPtr(i, j)[0] = 255; // R
-                    src.ucharPtr(i, j)[1] = 0; // G
-                    src.ucharPtr(i, j)[2] = 0; // B
-                }
-                else{
-                  mask_array.push(0);
-                }
-            }
+      for (let j = 0; j < markers.cols; j++) {
+        if (markers.intPtr(i, j)[0] == -1) {
+          // Border pixel
+          if(i===0|| j===0||i===markers.rows-1||j===markers.cols-1)
+          {
+            mask_array.push(0);
+          }
+          else{
+            mask_array.push(1);
+          }
+          
+         
+        } else if (markers.intPtr(i, j)[0] > 1) {
+          // Inside pixel (non-zero marker values)
+          mask_array.push(1);
+        } else {
+          // Background pixel (marker value == 0)
+          mask_array.push(0);
         }
-    
+      }
+    }
+    // Iterate through rows
+
+// Iterate through rows
+for (let i = 0; i < dicomPixelData.length; i += columns) {
+  let rowStartIndex = i / columns;
+
+  // Iterate from the beginning of the row to the left non-zero value
+  for (let j = i; j < rightleft[rowStartIndex].left; j++) {
+    mask_array[j]=0;
+  }
+
+  // Iterate from the right non-zero value to the end of the row
+  for (let k = rightleft[rowStartIndex].right; k < i + columns; k++) {
+    mask_array[k]=0;
+  }
+}
+
+    console.log(mask_array);
+
         //use mask array to mask a DICOM image 
     src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
     Fg.delete(); distTrans.delete(); unknown.delete(); markers.delete(); M.delete();
     //pixel_array = imageObject.metadata.x7fe00010;
     this.Mask_Array=mask_array;
+    console.log(this.Mask_Array)
     
       }
 
-      drawBrushPixels(
+      drawBrushPixels(evt,
         mask,
         pixelData,
         segmentIndex,
         columns,shouldErase
       ) {
-        const getPixelIndex = (x, y) => y * columns + x;
       
-        mask.forEach(point => {
-          const spIndex = getPixelIndex(...point);
+        for(let i=0;i<mask.length;i++){
+          let point=mask[i];
+          const spIndex = i;
           if (shouldErase) {
             this.eraseIfSegmentIndex(spIndex, pixelData, segmentIndex);
           } else {
@@ -226,7 +346,14 @@ this.Mask_Array = [];
         }
     
           }
-        });
+        };
+        
+        let points=this.mask;
+        let operationData={pixelData,
+          segmentIndex,points}
+          console.log(operationData)
+        //fillFreehand(evt, operationData, true)
+
       }
     
       eraseIfSegmentIndex(
@@ -246,15 +373,18 @@ this.Mask_Array = [];
       
         circleArray.forEach(([x, y]) => {
           const value = imagePixelData[y * image.rows + x];
+          
           sum += value;
           sumSquaredDiff += value * value;
         });
-      
+        
         const count = circleArray.length;
+        
         const mean = sum / count;
+        
         const variance = (sumSquaredDiff / count) - (mean * mean);
         const stddev = Math.sqrt(variance);
-      
+     
         return { mean, stddev };
       }
     
@@ -280,4 +410,3 @@ this.Mask_Array = [];
         return ((value - inMin) / (inMax - inMin)) * 255;
     }
 }
-

@@ -30,34 +30,38 @@ export default class WSTool extends BaseBrushTool {
     this.Mask_Array = [];
     this.src = null;
     this.touchDragCallback = this._paint.bind(this);
-    this.mouseWheelCallback = this._changeRadius.bind(this);
+    //this.mouseWheelCallback = this._changeRadius.bind(this);
 
     // Use "cornerstonetoolsmousewheel" event
-    external.cornerstone.events.addEventListener(
-      "cornerstonetoolsmousewheel",
-      this.mouseWheelCallback
-    );
+    /*external.cornerstone.events.addEventListener(
+      "wheel",function()
+      {console.log("WHeeee")}
+    );*/
   }
 
   _changeRadius(evt) {
     console.log("CHANGERADIUS");
-    const { configuration } = segmentationModule;
-    const { deltaY } = evt.detail;
 
+    const { configuration } = segmentationModule;
+    const { deltaY } = evt;
+    console.log("DELTAY",evt.deltaY)
+    console.log(evt)
     configuration.radius += deltaY > 0 ? 1 : -1;
+    console.log(configuration.radius)
     configuration.radius = Math.max(configuration.radius, 1);
 
-    external.cornerstone.updateImage(evt.detail.element);
+    external.cornerstone.updateImage(this.element);
   }
 
-  startListening() {
+  /*startListening() {
     super.startListening();
 
     // Use "cornerstonetoolsmousewheel" event
     external.cornerstone.events.addEventListener(
-      "cornerstonetoolsmousewheel",
-      this.mouseWheelCallback
+      "wheel",function()
+      {console.log("WHeeee")}
     );
+
   }
 
   stopListening() {
@@ -68,7 +72,7 @@ export default class WSTool extends BaseBrushTool {
     );
 
     super.stopListening();
-  }
+  }*/
  /**
    * Paints the data to the labelmap.
    *
@@ -77,8 +81,14 @@ export default class WSTool extends BaseBrushTool {
    * @returns {void}
    */
  async _paint(evt) {
+ 
     const { configuration } = segmentationModule;
+    
     const eventData = evt.detail;
+    const element=eventData.element;
+    this.element=element;
+    element.addEventListener("wheel",this._changeRadius.bind(this)
+  );
     const { rows, columns } = eventData.image;
     const DICOMimage=eventData.image;
     const { x, y } = eventData.currentPoints.image;
@@ -108,7 +118,7 @@ export default class WSTool extends BaseBrushTool {
       const meanNorm=this.mapToRange(mean, minThreshold, maxThreshold);
 
       const stdDevNorm=this.mapToRange(stddev, minThreshold, maxThreshold);
-      const XFactor=1;
+      const XFactor=1.5;
       const lowerThreshold =  meanNorm- XFactor* stdDevNorm;
       const upperThreshold = meanNorm +XFactor * stdDevNorm;
       this.lowerThreshold=lowerThreshold;
@@ -221,15 +231,15 @@ export default class WSTool extends BaseBrushTool {
   if (leftIndex === -1||leftIndex ===undefined) {
     leftIndex = row.length-1; // All values are zero
   }
-  console.log(row[leftIndex])
+
   // Find the first non-zero value from the right
   let reversedRow = [...row]; // Create a copy before reversing
   let rightIndex = row.length - 1 - reversedRow.reverse().findIndex(value => value > 350);
-  
-  if (reversedRow.reverse().findIndex(value => value > 0) ===-1) {
+
+  if (reversedRow.reverse().findIndex(value => value > 0) ===-1||rightIndex===undefined||rightIndex>=row.length) {
     rightIndex = row.length-1; // All values are zero
   }
-  console.log(row[rightIndex])
+
   rightleft.push({ left: i + leftIndex, right: i + rightIndex });
 }
 
