@@ -127,13 +127,14 @@ this.src
     let opening = new cv.Mat();
     let Bg = new cv.Mat();
     let Fg = new cv.Mat();
-    let distTrans = new cv.Mat();
+   let distTrans = new cv.Mat();
     let unknown = new cv.Mat();
     let markers = new cv.Mat();
-    // gray and threshold image
+    //gray and threshold image
     cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-    
-    cv.threshold(gray, gray, upperThreshold, 255, cv.THRESH_BINARY);
+    console.log("LOWER",this.lowerThreshold)
+    console.log("UPPER",upperThreshold)
+    cv.threshold(gray, gray, this.lowerThreshold,upperThreshold, cv.THRESH_BINARY);
     
     // get background
     let M = cv.Mat.ones(3, 3, cv.CV_8U);
@@ -173,7 +174,7 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
   let row = dicomPixelData.slice(i, i + columns);
 
   // Find the first non-zero value from the left
-  let leftIndex = row.findIndex(value => value > 1);
+  let leftIndex = row.findIndex(value => value > 350);
   
   if (leftIndex === -1||leftIndex ===undefined) {
     leftIndex = row.length-1; // All values are zero
@@ -181,7 +182,7 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
   console.log(row[leftIndex])
   // Find the first non-zero value from the right
   let reversedRow = [...row]; // Create a copy before reversing
-  let rightIndex = row.length - 1 - reversedRow.reverse().findIndex(value => value > 0);
+  let rightIndex = row.length - 1 - reversedRow.reverse().findIndex(value => value > 350);
   
   if (reversedRow.reverse().findIndex(value => value > 0) ===-1) {
     rightIndex = row.length-1; // All values are zero
