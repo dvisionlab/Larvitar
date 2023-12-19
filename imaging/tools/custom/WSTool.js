@@ -1,5 +1,4 @@
 import cornerstoneTools from "cornerstone-tools";
-import { fillFreehand } from "./utilsWSTool";
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(
@@ -73,9 +72,9 @@ this.src
       const meanNorm=this.mapToRange(mean, minThreshold, maxThreshold);
 
       const stdDevNorm=this.mapToRange(stddev, minThreshold, maxThreshold);
-      const XFactor=0.7;
+      const XFactor=1;
       const lowerThreshold =  meanNorm- XFactor* stdDevNorm;
-      const upperThreshold = meanNorm + XFactor * stdDevNorm;
+      const upperThreshold = meanNorm +XFactor * stdDevNorm;
       this.lowerThreshold=lowerThreshold;
       console.log(lowerThreshold)
       this.upperThreshold=upperThreshold;
@@ -106,7 +105,7 @@ this.src
         // Create an OpenCV Mat object from the PNG pixel data
         let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
         src.data.set(pngPixelData);
-        await this.WatershedSegmentation(src,upperThreshold,dicomPixelData)
+        await this.WatershedSegmentation(src,dicomPixelData)
         // Draw / Erase the active color.
         this.drawBrushPixels(evt,
         this.Mask_Array,
@@ -119,7 +118,7 @@ this.src
     external.cornerstone.updateImage(evt.detail.element);
   }
 
-   WatershedSegmentation(src,upperThreshold,dicomPixelData){
+   WatershedSegmentation(src,dicomPixelData){
   
     let dst = new cv.Mat();
     
@@ -133,8 +132,15 @@ this.src
     //gray and threshold image
     cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
     console.log("LOWER",this.lowerThreshold)
-    console.log("UPPER",upperThreshold)
-    cv.threshold(gray, gray, this.lowerThreshold,upperThreshold, cv.THRESH_BINARY);
+    console.log("UPPER",this.upperThreshold)
+    let lowerBinary = new cv.Mat();
+    let upperBinary = new cv.Mat();
+
+    cv.threshold(gray, lowerBinary, this.lowerThreshold, 255, cv.THRESH_BINARY);
+    cv.threshold(gray, upperBinary, this.upperThreshold, 255, cv.THRESH_BINARY_INV);
+
+    // Combine the binary masks using bitwise_and
+    cv.bitwise_and(lowerBinary, upperBinary, gray);
     
     // get background
     let M = cv.Mat.ones(3, 3, cv.CV_8U);
@@ -170,7 +176,7 @@ this.src
 
     // Find left and right indices for each row
 
-for (let i = 0; i < dicomPixelData.length; i += columns) {
+  /*for (let i = 0; i < dicomPixelData.length; i += columns) {
   let row = dicomPixelData.slice(i, i + columns);
 
   // Find the first non-zero value from the left
@@ -189,7 +195,7 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
   }
   console.log(row[rightIndex])
   rightleft.push({ left: i + leftIndex, right: i + rightIndex });
-}
+}*/
 
 
     console.log(rightleft);
@@ -199,10 +205,18 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
       for (let j = 0; j < markers.cols; j++) {
         if (markers.intPtr(i, j)[0] == -1) {
           // Border pixel
-          mask_array.push(1);
+          if(i===0|| j===0||i===markers.rows-1||j===markers.cols-1)
+          {
+            mask_array.push(0);
+          }
+          else{
+            mask_array.push(1);
+          }
+          
+         
         } else if (markers.intPtr(i, j)[0] > 1) {
           // Inside pixel (non-zero marker values)
-          mask_array.push(0);
+          mask_array.push(1);
         } else {
           // Background pixel (marker value == 0)
           mask_array.push(0);
@@ -212,7 +226,7 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
     // Iterate through rows
 
 // Iterate through rows
-for (let i = 0; i < dicomPixelData.length; i += columns) {
+/*for (let i = 0; i < dicomPixelData.length; i += columns) {
   let rowStartIndex = i / columns;
 
   // Iterate from the beginning of the row to the left non-zero value
@@ -224,7 +238,7 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
   for (let k = rightleft[rowStartIndex].right; k < i + columns; k++) {
     mask_array[k]=0;
   }
-}
+}*/
 
     console.log(mask_array);
 
