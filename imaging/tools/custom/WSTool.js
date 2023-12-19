@@ -106,7 +106,7 @@ this.src
         // Create an OpenCV Mat object from the PNG pixel data
         let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
         src.data.set(pngPixelData);
-        await this.WatershedSegmentation(src,upperThreshold,dicomPixelData)
+        await this.WatershedSegmentation(src,upperThreshold,lowerThreshold,dicomPixelData)
         // Draw / Erase the active color.
         this.drawBrushPixels(evt,
         this.Mask_Array,
@@ -119,7 +119,7 @@ this.src
     external.cornerstone.updateImage(evt.detail.element);
   }
 
-   WatershedSegmentation(src,upperThreshold,dicomPixelData){
+   WatershedSegmentation(src,upperThreshold,lowerThreshold,dicomPixelData){
   
     let dst = new cv.Mat();
     
@@ -132,8 +132,8 @@ this.src
     let markers = new cv.Mat();
     // gray and threshold image
     cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-    
-    cv.threshold(gray, gray, upperThreshold, 255, cv.THRESH_BINARY);
+    cv.threshold(gray, gray, lowerThreshold, upperThreshold, cv.THRESH_BINARY);
+    //cv.threshold(gray, gray, upperThreshold, 255, cv.THRESH_BINARY);
     
     // get background
     let M = cv.Mat.ones(3, 3, cv.CV_8U);
@@ -151,31 +151,48 @@ this.src
     cv.connectedComponents(Fg, markers);
     for (let i = 0; i < markers.rows; i++) {
         for (let j = 0; j < markers.cols; j++) {
+         //markers.intPtr(i, j)[0] = markers.ucharPtr(i, j)[0] + 1;
          markers.intPtr(i, j)[0] = markers.ucharPtr(i, j)[0] + 1;
             if (unknown.ucharPtr(i, j)[0] == 255) {
-                markers.intPtr(i, j)[0] = 0;
+                markers.intPtr(i, j)[0] = -1;
             }
         }
     }
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
     cv.watershed(src, markers);
+    //cv.imshow( "canvasOutput",Bg)
     // draw barriers
     //const matrix = (rows, cols) => new Array(cols).fill(0).map((o, i) => new Array(rows).fill(0))
     //let mask=matrix(markers.rows,markers.cols);
     let columns=markers.cols;
     let rightleft = [];
-
+    let rownumber=0;
     // Iterate through rows
-    /*for (let i = 0; i < dicomPixelData.length; i += columns) {
-      let row = dicomPixelData.slice(i, i + columns);
-      let leftIndex = row.findIndex(value => value !== 0);
-    
-      // Find the first non-zero value from the right
-      let rightIndex = row.reverse().findIndex(value => value !== 0);
-    
-      rightleft.push({ left: leftIndex, right: rightIndex });
-    }*/
-    
+
+    // Find left and right indices for each row
+
+for (let i = 0; i < dicomPixelData.length; i += columns) {
+  let row = dicomPixelData.slice(i, i + columns);
+
+  // Find the first non-zero value from the left
+  let leftIndex = row.findIndex(value => value > 355);
+  
+  if (leftIndex === -1||leftIndex ===undefined) {
+    leftIndex = row.length-1; // All values are zero
+  }
+  console.log(row[leftIndex])
+  // Find the first non-zero value from the right
+  let reversedRow = [...row]; // Create a copy before reversing
+  let rightIndex = row.length - 1 - reversedRow.reverse().findIndex(value => value > 355);
+  
+  if (reversedRow.reverse().findIndex(value => value > 0) ===-1||rightIndex===undefined) {
+    rightIndex = row.length-1; // All values are zero
+  }
+  console.log(row[rightIndex])
+  rightleft.push({ left: i + leftIndex, right: i + rightIndex });
+}
+
+
     console.log(rightleft);
     
     let mask_array = [];
@@ -183,7 +200,7 @@ this.src
       for (let j = 0; j < markers.cols; j++) {
         if (markers.intPtr(i, j)[0] == -1) {
           // Border pixel
-          mask_array.push(0);
+          mask_array.push(1);
         } else if (markers.intPtr(i, j)[0] > 1) {
           // Inside pixel (non-zero marker values)
           mask_array.push(0);
@@ -193,21 +210,23 @@ this.src
         }
       }
     }
-    /* Iterate through rows
-    for (let i = 0; i < dicomPixelData.length; i += columns) {
-      let row = i / columns;
-      console.log(row)
-      // Iterate from the beginning of the row to the left non-zero value
-      for (let j = row * columns; j < rightleft[row].left; j++) {
-        mask_array[j] = 0;
-      }
-    
-      // Iterate from the right non-zero value to the end of the row
-      for (let k = rightleft[row].right; k < (row + 1) * columns; k++) {
-        mask_array[k] = 0;
-      }
-    }*/
-    
+    // Iterate through rows
+
+// Iterate through rows
+for (let i = 0; i < dicomPixelData.length; i += columns) {
+  let rowStartIndex = i / columns;
+
+  // Iterate from the beginning of the row to the left non-zero value
+  for (let j = i; j < rightleft[rowStartIndex].left; j++) {
+    mask_array[j]=0;
+  }
+
+  // Iterate from the right non-zero value to the end of the row
+  for (let k = rightleft[rowStartIndex].right; k < i + columns; k++) {
+    mask_array[k]=0;
+  }
+}
+
     console.log(mask_array);
 
         //use mask array to mask a DICOM image 

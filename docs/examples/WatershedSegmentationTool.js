@@ -205,6 +205,7 @@ cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
 cv.watershed(src, markers);
 // draw barriers
 const matrix = (rows, cols) => new Array(cols).fill(0).map((o, i) => new Array(rows).fill(0))
+//cv.imshow("canvasOutput",Bg)
 //let mask=matrix(markers.rows,markers.cols);
 let mask_array=[];
 
