@@ -22,6 +22,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     isMultiframe: boolean;
     constructor(props?: {});
     verify4D(): false | undefined;
+    handleToggle(newcurrentMode: string): void;
     toggleScrollMode(element: HTMLElement): void;
     mouseWheelCallback(evt?: CustomEvent<ToolEventDetail>): void;
     scrollWithoutSkipping(stackData: StackData, pendingEvent: any, element: HTMLElement): void;

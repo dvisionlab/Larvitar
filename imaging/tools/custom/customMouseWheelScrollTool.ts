@@ -4,10 +4,10 @@
  */
 
 // external libraries
+import cornerstone from "cornerstone-core";
+import { Image } from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
-import { Image } from "cornerstone-core";
-import cornerstone from "cornerstone-core";
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
 const scrollToIndex = cornerstoneTools.importInternal("util/scrollToIndex");
 const getToolState = cornerstoneTools.getToolState;
@@ -119,6 +119,8 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
         this.configuration.framesNumber = metadata.x00200105;
       } else if (this.isMultiframe === true) {
         this.configuration.framesNumber = metadata.x00280008;
+        this.currentMode = "slice";
+        this.configuration.currentMode = "slice";
       } else {
         this.configuration.framesNumber = 1;
       }
@@ -134,30 +136,27 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
   // la setta nella configurazione (this.currentMode)
   // fa i suoi controlli e chiama la funzione toggleScrollMode
 
-  // handleKeyDown(event: KeyboardEvent) {
-  // // Toggle mode between 'stack' and 'slice' on Tab key press
+  handleToggle(newcurrentMode: string) {
+    // Toggle mode between 'stack' and 'slice' on Tab key press
 
-  //   if (event.key === "b" || event.key === "B") {
-  //     this.verify4D();
-  //     if (this.is4D === false) {
-  //       if (this.isMultiframe === true) {
-  //         this.currentMode = "slice";
-  //         this.configuration.currentMode = "slice";
-  //       } else {
-  //         this.currentMode = "stack";
-  //         this.configuration.currentMode = "stack";
-  //       }
+    this.verify4D();
+    if (this.is4D === false) {
+      if (this.isMultiframe === true) {
+        this.currentMode = newcurrentMode;
+        this.configuration.currentMode = newcurrentMode;
+      } else {
+        this.currentMode = newcurrentMode;
+        this.configuration.currentMode = newcurrentMode;
+      }
 
-  //       return;
-  //     } else if (this.is4D === true) {
-  //       this.framesNumber = this.configuration.framesNumber;
-  //       const element = this.element; // Get the tool's element
-  //       if (element) {
-  //         this.toggleScrollMode(element); // Pass the element to toggleScrollMode
-  //       }
-  //     }
-  //   }
-  // }
+      return;
+    } else if (this.is4D === true) {
+      const element = this.element; // Get the tool's element
+      if (element) {
+        this.toggleScrollMode(element); // Pass the element to toggleScrollMode
+      }
+    }
+  }
 
   /*
    * @method toggleScrollMode
