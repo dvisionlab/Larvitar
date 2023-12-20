@@ -48,7 +48,7 @@ export declare const getPixelRepresentation: (dataSet: CustomDataSet) => string;
  * @param {Object} dataType - The data type
  * @returns {TypedArray} The typed array
  */
-export declare const getTypedArrayFromDataType: (dataType: string) => Uint8ArrayConstructor | Int8ArrayConstructor | Uint16ArrayConstructor | Int16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor | null;
+export declare const getTypedArrayFromDataType: (dataType: string) => Uint16ArrayConstructor | Int16ArrayConstructor | Uint8ArrayConstructor | Int8ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor | null;
 /**
  * Sort the array of images ids of a series trying with:
  * - content time order, if the series has cardiacNumberOfImages tag > 1

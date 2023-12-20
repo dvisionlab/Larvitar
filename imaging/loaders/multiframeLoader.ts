@@ -44,7 +44,7 @@ let multiframeDatasetCache: { [key: string]: Series | null } | null = null;
  */
 export const loadMultiFrameImage = function (imageId: string) {
   let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
-  console.log("IMAGE ID MULTIFRAMELOADER:", imageId);
+
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
   let imageTracker = getLarvitarImageTracker();
   let seriesId = imageTracker[rootImageId];
@@ -57,7 +57,7 @@ export const loadMultiFrameImage = function (imageId: string) {
     multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId];
   } else if (manager) {
     multiframeDatasetCache[rootImageId] = manager[seriesId] as Series;
-    console.log("MULTIFRAMEDATACACHE", multiframeDatasetCache[rootImageId]);
+
     if (seriesId.includes("DSA")) {
       let image = manager[seriesId].images![imageId];
 
@@ -69,7 +69,7 @@ export const loadMultiFrameImage = function (imageId: string) {
   } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
   }
-  console.log(multiframeDatasetCache[rootImageId]);
+
   let metadata =
     multiframeDatasetCache[rootImageId]?.instances[imageId].metadata;
   return createCustomImage(rootImageId, imageId, parsedImageId.frame, metadata);
