@@ -60,10 +60,15 @@ export const loadMultiFrameImage = function (imageId: string) {
 
     if (seriesId.includes("DSA")) {
       let image = manager[seriesId].images![imageId];
-
-      let promise: Promise<Image> = new Promise((resolve, reject) => {
-        resolve(image as Image);
-      });
+      let promise: Promise<Image> = new Promise((resolve, reject) =>
+        resolve(image as Image)
+      );
+      /*return createCustomImage(
+        rootImageId,
+        imageId,
+        parsedImageId.frame,
+        manager[seriesId]
+      );*/
       return { promise };
     }
   } else {
@@ -191,8 +196,6 @@ export const clearMultiFrameCache = function (seriesId: string) {
     multiframeDatasetCache = null;
   }
 };
-
-/* Internal module functions */
 
 /**
  * Create the custom image object for cornerstone from custom image

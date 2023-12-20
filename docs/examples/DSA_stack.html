@@ -49,14 +49,15 @@
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
-      let layer_1; //, layer_2;
+      let layer_1;
+      let layer_2;
       //const cacheImagesAsync = promisify(larvitar.cacheImages.bind(larvitar));
       function ChangeLayer() {
         let oldactiveLayer = larvitar.getActiveLayer("viewer");
         console.log(layer_1);
         larvitar.updateLayer("viewer", layer_1.id, { opacity: 1 });
         console.log(layer_1);
-        let newopacity =
+        let newActiveLayer =
           oldactiveLayer.layerId == layer_1.id ? layer_2 : layer_1;
         //set slice of active layer to be the same of the slice of the previous active layer
         larvitar.setActiveLayer("viewer", newActiveLayer.id);
