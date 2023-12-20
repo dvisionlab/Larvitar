@@ -32,7 +32,7 @@ import PolylineScissorsTool from "./custom/polylineScissorsTool";
 import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
 import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
 import BorderMagnifyTool from "./custom/BorderMagnifyTool";
-import CustomMouseWheelScrollTool from "./custom/CustomMouseWheelScrollTool";
+import CustomMouseWheelScrollTool from "./custom/customMouseWheelScrollTool";
 
 import type {
   ToolConfig,

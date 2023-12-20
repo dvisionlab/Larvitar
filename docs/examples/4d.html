@@ -164,22 +164,6 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
-      // add metadata provider to cornerstone
-      function metadataProvider(type, imageId) {
-        if (type === "larvitarModule") {
-          const manager = larvitar.getLarvitarManager();
-          const series = Object.values(manager).find(series =>
-            series.imageIds.includes(imageId)
-          );
-          if (series) {
-            return {
-              larvitarSeriesInstanceUID: series.larvitarSeriesInstanceUID,
-              ...series?.instances[imageId].metadata
-            };
-          }
-        }
-      }
-      larvitar.cornerstone.metaData.addProvider(metadataProvider);
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/4d/" + fileName);
@@ -200,7 +184,6 @@
           let manager = larvitar.getLarvitarManager();
           let multiFrameSerie = manager[seriesId];
           let frameId = 0;
-          // check if the series has waveform data
           larvitar
             .renderImage(multiFrameSerie, "viewer", frameId)
             .then(() => {
@@ -226,9 +209,6 @@
               } else if (frames_number_mod2 != undefined) {
                 frames_number = frames_number_mod2;
               }
-              // const modality = manager[seriesId].instances["dicomfile:0"].metadata.x00080060;
-              // if(modality.toString()==="MR"){ dont need to check if it's not standard
-              // console.log(frames_number);
 
               larvitar.addDefaultTools();
               larvitar.setToolActive("CustomMouseWheelScroll");
@@ -306,6 +286,17 @@
       _.each(demoFileList, function (demoFile) {
         createFile(demoFile, renderSerie);
       });
+      // if (
+      //   this.imagetime != undefined &&
+      //   this.timestamp != undefined &&
+      //   this.slicenum != undefined
+      // ) {
+      //   this.imagetime.innerText =
+      //     "Press B or b to switch between stack/slice mode ";
+      //   this.timestamp.innerText = "Standard acquisitions: only stack mode ";
+      //   this.slicenum.innerText = "Multiframe acquisitions: scrolling slice mode";
+      // }
+      // TODO MOVE TO 4D EXAMPLE
     </script>
   </body>
 </html>
