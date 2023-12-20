@@ -41,6 +41,7 @@ function getMax(arr) {
   
   
   function apply_DSA_Mask(multiFrameSerie, frameId,i) {
+    return new Promise((resolve, reject) => {
     const frameNumber = multiFrameSerie.imageIds.length;
     const imageIds = multiFrameSerie.imageIds;
     const metadata_info = multiFrameSerie.metadata["x00286100"];
@@ -52,7 +53,8 @@ function getMax(arr) {
     }
     // Check mask type
     if (mask_type === "NONE") {
-      return;
+      let error=console.log("there is NO mask to apply to this serie!")
+      reject(error);
     } else if (mask_type === "AVG_SUB") {
         const imageCache = larvitar.cornerstone.imageCache;
         const cachedImages = imageCache.cachedImages;
@@ -72,24 +74,20 @@ function getMax(arr) {
         }
       if (isFrameIncluded) {
         const t = performance.now();
-        console.log(cachedImages[0].image)
         let image =cachedImages[imageIds.indexOf(frameId)].image;
         let contrastFrame = image.getPixelData();
         let len_pixeldata = contrastFrame.length;
         const t0 = performance.now();
-        console.log("t0", t0 - t);
         maskFramesAvg =
           maskFramesAvg ||
           frame_index_number.map(index =>
             cachedImages[index].image.getPixelData()
           );
         const t1 = performance.now();
-        console.log("t1", t1 - t0);
         
         resultFramesAvg = resultFramesAvg || new Float32Array(len_pixeldata);
         let average = false;
         const t2 = performance.now();
-        console.log("t2", t2 - t1);
         if (Array.isArray(maskFramesAvg) && maskFramesAvg.length > 1) {
           average = true;
         }
@@ -120,16 +118,13 @@ function getMax(arr) {
         minPixel = minPixel||getMin(resultFramesAvg);
         windowWidth= windowWidth||(maxPixel-minPixel)/2
   
-        console.log("t3", t3 - t2);
         let startIndex = multiFrameSerie.imageIds[i].indexOf("multiFrameLoader://") + "multiFrameLoader://".length;
         let endIndex = multiFrameSerie.imageIds[i].indexOf("?frame=");
         let extractedPart = multiFrameSerie.imageIds[i].slice(startIndex, endIndex);
         let newindex=parseInt(extractedPart)+1
-        console.log("EXTRACTEDPART:",newindex )
-        console.log("multiFrameLoader://"+newindex+"?frame="+i+ "-DSA")
         const modifiedImage = {
           //multiFrameLoader://0?frame=0-DSA
-
+//TODO ADD INSTANCEID+DSA AND FRAMENUMBER 
           imageId: "multiFrameLoader://"+newindex+"?frame="+i, // Keep the same imageId
           minPixelValue: minPixel,
           maxPixelValue: maxPixel,
@@ -160,11 +155,11 @@ function getMax(arr) {
           
           }
         };
-        console.log(modifiedImage)
+       
         //const element = document.getElementById("imageResult");
         //larvitar.cornerstone.enable(element);
         //larvitar.cornerstone.displayImage(element, modifiedImage);
-         return modifiedImage;
+        resolve(modifiedImage);
       
         // larvitar.addDefaultTools();
         // larvitar.setToolActive("Wwwc");
@@ -231,7 +226,7 @@ function getMax(arr) {
         
         }
       };
-      return modifiedImage
+      resolve(modifiedImage);
       const element = document.getElementById("viewer");
       // larvitar.cornerstone.enable(element);
       larvitar.cornerstone.displayImage(element, modifiedImage);
@@ -297,14 +292,14 @@ function getMax(arr) {
 
         }
       };
-      return modifiedImage
+      resolve(modifiedImage);
       /*const element = document.getElementById("viewer");
       // larvitar.cornerstone.enable(element);
       larvitar.cornerstone.displayImage(element, modifiedImage);*/
     }
   }
   }
-  
+    )}
   //x00286100:Defines a Sequence that describes mask subtraction operations for a Multi-frame Image.
   //SUBITEMS x00286101:Defined Term identifying the type of mask operation to be performed.
   //& x00286110 Specifies the frame numbers of the pixel data used to generate this mask.

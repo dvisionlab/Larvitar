@@ -50,7 +50,7 @@
       larvitar.store.addViewport("viewer");
 
       let layer_1, layer_2;
-
+      //const cacheImagesAsync = promisify(larvitar.cacheImages.bind(larvitar));
       function ChangeLayer() {
         let oldactiveLayer = larvitar.getActiveLayer("viewer");
         larvitar.updateLayer("viewer", oldactiveLayer.layerId, { opacity: 0 });
@@ -84,100 +84,75 @@
             // define a layer into the series object to be rendered
             serie_1.layer = layer_1;
 
-            larvitar.renderImage(serie_1, "viewer", frameId).then(() => {
-              console.log("Image 1 has been rendered");
-              larvitar
-                .cacheImages(serie_1, function (resp) {
-                  if (resp.loading == 100) {
-                    let cache = larvitar.cornerstone.imageCache;
-                    console.log(
-                      "Cache size: ",
-                      cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                      "Mb"
-                    );
-                  }
-                })
-                .then(() => {
-                  setTimeout(() => {
-                    let multiFrameSerie2 = _.cloneDeep(multiFrameSerie);
-                    multiFrameSerie2.instances = _.cloneDeep({});
-                    console.log(multiFrameSerie2.imageIds.length);
-                    multiFrameSerie2 = applyDSA(multiFrameSerie2);
-                    console.log(multiFrameSerie2.imageIds.length);
-                    console.log("MULTIFRAME SERIES 2:", multiFrameSerie2);
-                    let serie_2 = { ...multiFrameSerie2 };
-                    manager = larvitar.populateLarvitarManager(
-                      multiFrameSerie2.seriesUID,
-                      serie_2
-                    );
-                    console.log(
-                      "AFTER MANAGER:",
-                      manager[multiFrameSerie2.seriesUID].imageIds.length
-                    );
-                    layer_2 = larvitar.buildLayer(serie_2, "colored", {
-                      opacity: 0.25,
-                      colormap: ""
-                    });
-                    serie_2.layer = layer_2;
-                    console.log(
-                      "AFTER BUILD LAYER MANAGER:",
-                      manager[multiFrameSerie2.seriesUID].imageIds.length
-                    );
-                    //manager[seriesId + "-DSA"] = _.cloneDeep(multiFrameSerie2);
-
-                    console.log("LAYER 1:", layer_1);
-                    console.log("LAYER 2:", layer_2);
-                    let element = document.getElementById("viewer");
-                    let visibleLayers =
-                      larvitar.cornerstone.getVisibleLayers(element);
-                    console.log("VISIBLE LAYERS IMAGE: ", visibleLayers[0]);
-
-                    console.log(serie_2);
-                    frameId = 0;
-                    setTimeout(() => {
-                      console.log(
-                        "COLORLUT: ",
-                        visibleLayers[0].renderingTools.colorLut
-                      );
-
-                      larvitar.renderImage(serie_2, "viewer").then(() => {
-                        console.log(
-                          "AFTER RENDER:",
-                          manager[multiFrameSerie2.seriesUID].imageIds.length
-                        );
-                        larvitar.addDefaultTools("viewer");
-                        console.log("Image 2 has been rendered");
-                      });
-                      /*let element = document.getElementById("imageResult");
-                      larvitar.cornerstone.displayImage(element, image);*/
-                    }, "2000");
-                  }, "1100");
+            larvitar
+              .renderImage(serie_1, "viewer", frameId)
+              .then(() => {
+                console.log("Image 1 has been rendered");
+                return new Promise((resolve, reject) => {
+                  larvitar.cacheImages(serie_1, resp => {
+                    if (resp.loading === 100) {
+                      resolve();
+                    }
+                  });
                 });
-            });
+              })
+              .then(() => {
+                let multiFrameSerie2 = _.cloneDeep(multiFrameSerie);
+                multiFrameSerie2.instances = _.cloneDeep({});
+                console.log(multiFrameSerie2.imageIds.length);
+                return applyDSA(multiFrameSerie2).then(serie_2 => {
+                  manager[multiFrameSerie2.seriesUID] = serie_2;
+                  layer_2 = larvitar.buildLayer(serie_2, "colored", {
+                    opacity: 0.25,
+                    colormap: ""
+                  });
+                  serie_2.layer = layer_2;
+                  let element = document.getElementById("viewer");
+                  let visibleLayers =
+                    larvitar.cornerstone.getVisibleLayers(element);
+                  console.log("VISIBLE LAYERS IMAGE: ", visibleLayers[0]);
+                  frameId = 0;
+
+                  console.log(
+                    "COLORLUT: ",
+                    visibleLayers[0].renderingTools.colorLut
+                  );
+                  console.log("SERIE 1", serie_1);
+                  console.log("SERIE 2", serie_2);
+                  larvitar.renderImage(serie_2, "viewer", frameId).then(() => {
+                    larvitar.addDefaultTools("viewer");
+                    console.log("Image 2 has been rendered");
+                  });
+                });
+              });
           })
 
           .catch(err => console.log(err));
       }
 
-      function applyDSA(multiFrameSerie2, manager) {
+      async function applyDSA(multiFrameSerie2, manager) {
         const imageIds = multiFrameSerie2.imageIds;
-        console.log(multiFrameSerie2.imageIds.length);
+        const promises = [];
+
         for (let i = 0; i < imageIds.length; i++) {
-          frameId = imageIds[i];
-          resultFrame = apply_DSA_Mask(multiFrameSerie2, frameId, i);
-          multiFrameSerie2.imageIds[i] = resultFrame.imageId;
-          console.log(multiFrameSerie2.imageIds[i]);
-          multiFrameSerie2.instances[multiFrameSerie2.imageIds[i]] = {
-            ...resultFrame
-          };
-          console.log(multiFrameSerie2.imageIds.length);
-          console.log(multiFrameSerie2.instances[multiFrameSerie2.imageIds[i]]);
-          /*multiFrameSerie2.instances[multiFrameSerie2.imageIds[i]].metadata =
-            multiFrameSerie2.metadata;*/
-          //updateStack(imageIds, resultFrames, i, seriesStack2);
+          const frameId = imageIds[i];
+          promises.push(
+            apply_DSA_Mask(multiFrameSerie2, frameId, i).then(resultFrame => {
+              multiFrameSerie2.imageIds[i] = resultFrame.imageId;
+
+              multiFrameSerie2.instances[multiFrameSerie2.imageIds[i]] = {
+                ...resultFrame
+              };
+            })
+          );
         }
-        multiFrameSerie2.seriesUID = multiFrameSerie2.seriesUID + "-DSA";
-        return multiFrameSerie2;
+
+        return Promise.all(promises).then(() => {
+          multiFrameSerie2.seriesUID = multiFrameSerie2.seriesUID + "-DSA";
+          multiFrameSerie2.studyUID = multiFrameSerie2.studyUID + "-DSA";
+          //TODO same with instanceUID
+          return multiFrameSerie2;
+        });
       }
 
       async function createFile(fileName, cb) {
@@ -188,43 +163,6 @@
         cb();
       }
       createFile("XA-DSA-Shutter.dcm", renderSerie);
-      /*function updateStack(imageIds, resultFrames, index, seriesStack2) {
-        // Assuming the first image in the series is available to get common properties
-        const imageCache = larvitar.cornerstone.imageCache;
-        const cachedImages = imageCache.cachedImages;
-        referenceImage = cachedImages[0].image;
-        resultFrames[index] =
-          seriesStack2.instances[seriesStack2.imageIds[index]];
-        let newimageIds = imageIds.map(id => id + "-DSA");
-        for (const prop in multiFrameSerie) {
-          if (existingImage.hasOwnProperty(prop)) {
-            multiframeImage[prop] = multiFrameSerie[prop];
-          }
-        }
-        multiframeImage.imageId = "multiframe_DSA_image";
-        multiframeImage = {
-          imageId: "multiframe_DSA_image", // Use a unique image ID for the multiframe image
-          imageIds: newimageIds,
-          minPixelValue: referenceImage.minPixelValue,
-          maxPixelValue: referenceImage.maxPixelValue,
-          slope: referenceImage.slope,
-          intercept: referenceImage.intercept,
-          windowCenter: 0,
-          windowWidth: referenceImage.windowWidth,
-          getPixelData: frameIndex => framesPixelDataArrays[frameIndex],
-          rows: referenceImage.rows,
-          columns: referenceImage.columns,
-          height: referenceImage.height,
-          width: referenceImage.width,
-          color: referenceImage.color,
-          columnPixelSpacing: referenceImage.columnPixelSpacing,
-          rowPixelSpacing: referenceImage.rowPixelSpacing
-        };
-
-        // Add any additional properties as needed
-
-        return multiframeImage;
-      }*/
     </script>
   </body>
 </html>
