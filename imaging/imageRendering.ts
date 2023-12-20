@@ -474,6 +474,8 @@ export const renderImage = function (
       console.log(image);
       console.log(image.getPixelData());
       cornerstone.displayImage(element, image);
+      console.log("ELEMENT:", element);
+      console.log("SERIES LAYER :", series.layer);
 
       if (series.layer) {
         // assign the image to its layer and return its id
@@ -1028,7 +1030,7 @@ const getSeriesData = function (
   const data: RecursivePartial<SeriesData> = {};
 
   if (series.isMultiframe) {
-    data.isMultiframe = true;
+    data.isMultiframe = series.isMultiframe || true;
     data.numberOfSlices = series.imageIds.length;
     data.imageIndex = 0;
     data.imageId = series.imageIds[data.imageIndex];

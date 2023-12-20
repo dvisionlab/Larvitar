@@ -43,63 +43,36 @@ let multiframeDatasetCache: { [key: string]: Series | null } | null = null;
  * @returns {Function} Custom Image Creation Function
  */
 export const loadMultiFrameImage = function (imageId: string) {
-  if (imageId.includes("multiFrameLoader://1")) {
-    //TODO
-    //rootImageId= imageId;
-
-    let promise: Promise<Image> = new Promise((resolve, reject) => {
-      let manager = getLarvitarManager() as LarvitarManager;
-      if (!manager) {
-        console.log("manager is undefined");
-      }
-      let imageTracker = getLarvitarImageTracker();
-      let parsedImageId =
-        cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
-
-      let rootImageId_ = "multiFrameLoader://0";
-      console.log("ROOT IMAGE ID :", rootImageId_);
-      console.log("IMAGE TRACKER: ", imageTracker);
-      let seriesId = imageTracker[rootImageId_] + "-DSA";
-      console.log("SERIESID: ", seriesId);
-      if (multiframeDatasetCache === null) {
-        multiframeDatasetCache = {};
-      }
-      multiframeDatasetCache[rootImageId_] = manager![seriesId] as Series;
-      console.log("MULTIFRAMEDATASETCACHE:", manager);
-      let image = multiframeDatasetCache[rootImageId_]?.instances[imageId];
-      console.log("IMAGE:", image);
-      resolve(image as Image);
-    });
-    return { promise };
-  } else {
-    let parsedImageId =
-      cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
-    console.log("IMAGE ID MULTIFRAMELOADER:", imageId);
-    let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
-    let imageTracker = getLarvitarImageTracker();
-    let seriesId = imageTracker[rootImageId];
-    let manager = getLarvitarManager() as LarvitarManager;
-    if (multiframeDatasetCache === null) {
-      multiframeDatasetCache = {};
-    }
-
-    if (multiframeDatasetCache[rootImageId]) {
-      multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId];
-    } else if (manager) {
-      multiframeDatasetCache[rootImageId] = manager[seriesId] as Series;
-    } else {
-      throw new Error("No multiframe dataset found for seriesId: " + seriesId);
-    }
-    console.log(multiframeDatasetCache[rootImageId]);
-    let metadata =
-      multiframeDatasetCache[rootImageId]?.instances[imageId].metadata;
-    return createCustomImage(
-      rootImageId,
-      imageId,
-      parsedImageId.frame,
-      metadata
-    );
+  let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
+  console.log("IMAGE ID MULTIFRAMELOADER:", imageId);
+  let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
+  let imageTracker = getLarvitarImageTracker();
+  let seriesId = imageTracker[rootImageId];
+  let manager = getLarvitarManager() as LarvitarManager;
+  if (multiframeDatasetCache === null) {
+    multiframeDatasetCache = {};
   }
+
+  if (multiframeDatasetCache[rootImageId]) {
+    multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId];
+  } else if (manager) {
+    multiframeDatasetCache[rootImageId] = manager[seriesId] as Series;
+    console.log("MULTIFRAMEDATACACHE", multiframeDatasetCache[rootImageId]);
+    if (seriesId.includes("DSA")) {
+      let image = manager[seriesId].images![imageId];
+
+      let promise: Promise<Image> = new Promise((resolve, reject) => {
+        resolve(image as Image);
+      });
+      return { promise };
+    }
+  } else {
+    throw new Error("No multiframe dataset found for seriesId: " + seriesId);
+  }
+  console.log(multiframeDatasetCache[rootImageId]);
+  let metadata =
+    multiframeDatasetCache[rootImageId]?.instances[imageId].metadata;
+  return createCustomImage(rootImageId, imageId, parsedImageId.frame, metadata);
 };
 
 /**

@@ -3,6 +3,7 @@
  *        manipulating image pixels and image metadata
  */
 import type { CustomDataSet, MetaData, ReslicedInstance, Series } from "./types";
+import { MetaDataTypes } from "./MetaDataTypes";
 /**
  * @typedef {Object} CornerstoneSeries
  * @property {Array} imageIds Array of the instances imageIds
@@ -152,7 +153,7 @@ export declare const getDistanceBetweenSlices: (seriesData: Series, sliceIndex1:
 export declare const getImageMetadata: (seriesId: string, instanceUID: string) => {
     tag: string;
     name: string;
-    value: string | number | number[] | import("./MetaDataTypes").MetaDataTypes[] | null | undefined;
+    value: string | number | number[] | MetaDataTypes[] | null | undefined;
 }[];
 /**
  * Check if a div tag is a valid DOM HTMLElement

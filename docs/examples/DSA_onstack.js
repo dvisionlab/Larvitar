@@ -40,7 +40,7 @@ function getMax(arr) {
   let windowWidth
   
   
-  function apply_DSA_Mask(multiFrameSerie, frameId,i) {
+  function apply_DSA_Mask(multiFrameSerie, frameId,instance,i) {
     return new Promise((resolve, reject) => {
     const frameNumber = multiFrameSerie.imageIds.length;
     const imageIds = multiFrameSerie.imageIds;
@@ -122,9 +122,11 @@ function getMax(arr) {
         let endIndex = multiFrameSerie.imageIds[i].indexOf("?frame=");
         let extractedPart = multiFrameSerie.imageIds[i].slice(startIndex, endIndex);
         let newindex=parseInt(extractedPart)+1
-        const modifiedImage = {
+        //let modifiedImage=_.cloneDeep(image);
+        let modifiedImage = {
           //multiFrameLoader://0?frame=0-DSA
 //TODO ADD INSTANCEID+DSA AND FRAMENUMBER 
+       
           imageId: "multiFrameLoader://"+newindex+"?frame="+i, // Keep the same imageId
           minPixelValue: minPixel,
           maxPixelValue: maxPixel,
@@ -135,31 +137,47 @@ function getMax(arr) {
           getPixelData: () => resultFramesAvg,
           rows: image.rows,
           columns: image.columns,
+          invert: image.invert,
+          floatPixelData: undefined,
           height: image.height,
           width: image.width,
-          color: image.color,
+          render: undefined,
+          color: larvitar.cornerstoneDICOMImageLoader.isColorImage(
+            image
+          ),
           columnPixelSpacing: image.columnPixelSpacing,
           rowPixelSpacing: image.rowPixelSpacing,
           sizeInBytes: image.sizeInBytes,
-          metadata:{isMultiframe : false,
-            windowCenter: 0,
-          windowWidth:  windowWidth,
-          minPixelValue: minPixel,
-          maxPixelValue:maxPixel,
-          x00280010:image.rows,
-          x00280011:image.columns,
-          x00180050: image.rowPixelSpacing,
-          x00280030:[image.rowPixelSpacing,image.columnPixelSpacing],
-          x00281050:1000,
-          x00281051:2000,
-          
-          }
+          decodeTimeInMS: undefined, // TODO
+          loadTimeInMS: undefined // TODO
         };
-       
+
+
+        let modifiedinstance=_.cloneDeep(instance);
+        modifiedinstance.instanceId=instance.instanceId+"-DSA"
+        modifiedinstance.frame=instance.frame
+        modifiedinstance.metadata=_.cloneDeep({});
+        modifiedinstance.metadata={
+          isMultiframe : true,
+          windowCenter: 0,
+        windowWidth:  windowWidth,
+        minPixelValue: minPixel,
+        maxPixelValue:maxPixel,
+        x00280010:image.rows,
+        x00280011:image.columns,
+        x00180050: image.rowPixelSpacing,
+        x00280030:[image.rowPixelSpacing,image.columnPixelSpacing],
+        x00281050:1000,
+        x00281051:2000,  
+        }
+
+
+       console.log("ORIGINAL IMAGE:",image);
+       console.log("MODIFIED DSA IMAGE:",modifiedImage)
         //const element = document.getElementById("imageResult");
         //larvitar.cornerstone.enable(element);
         //larvitar.cornerstone.displayImage(element, modifiedImage);
-        resolve(modifiedImage);
+        resolve([modifiedImage,modifiedinstance]);
       
         // larvitar.addDefaultTools();
         // larvitar.setToolActive("Wwwc");

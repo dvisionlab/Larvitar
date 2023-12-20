@@ -49,12 +49,14 @@
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
-      let layer_1, layer_2;
+      let layer_1; //, layer_2;
       //const cacheImagesAsync = promisify(larvitar.cacheImages.bind(larvitar));
       function ChangeLayer() {
         let oldactiveLayer = larvitar.getActiveLayer("viewer");
-        larvitar.updateLayer("viewer", oldactiveLayer.layerId, { opacity: 0 });
-        let newActiveLayer =
+        console.log(layer_1);
+        larvitar.updateLayer("viewer", layer_1.id, { opacity: 1 });
+        console.log(layer_1);
+        let newopacity =
           oldactiveLayer.layerId == layer_1.id ? layer_2 : layer_1;
         //set slice of active layer to be the same of the slice of the previous active layer
         larvitar.setActiveLayer("viewer", newActiveLayer.id);
@@ -99,8 +101,13 @@
               .then(() => {
                 let multiFrameSerie2 = _.cloneDeep(multiFrameSerie);
                 multiFrameSerie2.instances = _.cloneDeep({});
+                multiFrameSerie2.instanceUIDs = _.cloneDeep({});
                 console.log(multiFrameSerie2.imageIds.length);
-                return applyDSA(multiFrameSerie2).then(serie_2 => {
+                return applyDSA(
+                  multiFrameSerie2,
+                  multiFrameSerie,
+                  manager
+                ).then(serie_2 => {
                   manager[multiFrameSerie2.seriesUID] = serie_2;
                   layer_2 = larvitar.buildLayer(serie_2, "colored", {
                     opacity: 0.25,
@@ -108,15 +115,16 @@
                   });
                   serie_2.layer = layer_2;
                   let element = document.getElementById("viewer");
+                  let imageTracker = larvitar.getLarvitarImageTracker();
+                  imageTracker["multiFrameLoader://1"] =
+                    multiFrameSerie2.seriesUID;
+                  console.log(imageTracker);
+                  console.log(manager);
                   let visibleLayers =
                     larvitar.cornerstone.getVisibleLayers(element);
-                  console.log("VISIBLE LAYERS IMAGE: ", visibleLayers[0]);
+
                   frameId = 0;
 
-                  console.log(
-                    "COLORLUT: ",
-                    visibleLayers[0].renderingTools.colorLut
-                  );
                   console.log("SERIE 1", serie_1);
                   console.log("SERIE 2", serie_2);
                   larvitar.renderImage(serie_2, "viewer", frameId).then(() => {
@@ -130,26 +138,41 @@
           .catch(err => console.log(err));
       }
 
-      async function applyDSA(multiFrameSerie2, manager) {
+      async function applyDSA(multiFrameSerie2, multiFrameSerie, manager) {
         const imageIds = multiFrameSerie2.imageIds;
         const promises = [];
-
+        multiFrameSerie2.images = {};
         for (let i = 0; i < imageIds.length; i++) {
           const frameId = imageIds[i];
+          let instance =
+            multiFrameSerie.instances[multiFrameSerie2.imageIds[i]];
+          console.log(instance);
           promises.push(
-            apply_DSA_Mask(multiFrameSerie2, frameId, i).then(resultFrame => {
-              multiFrameSerie2.imageIds[i] = resultFrame.imageId;
+            apply_DSA_Mask(multiFrameSerie2, frameId, instance, i).then(
+              ([resultFrame, resultinstance]) => {
+                multiFrameSerie2.imageIds[i] = resultFrame.imageId;
 
-              multiFrameSerie2.instances[multiFrameSerie2.imageIds[i]] = {
-                ...resultFrame
-              };
-            })
+                multiFrameSerie2.instances[multiFrameSerie2.imageIds[i]] = {
+                  ...resultinstance
+                };
+
+                multiFrameSerie2.images[multiFrameSerie2.imageIds[i]] =
+                  resultFrame;
+              }
+            )
           );
         }
 
         return Promise.all(promises).then(() => {
+          delete multiFrameSerie2.layer;
           multiFrameSerie2.seriesUID = multiFrameSerie2.seriesUID + "-DSA";
           multiFrameSerie2.studyUID = multiFrameSerie2.studyUID + "-DSA";
+          let instanceUIDs = multiFrameSerie2.seriesUID;
+
+          multiFrameSerie2.instanceUIDs[instanceUIDs] = "multiFrameLoader://1";
+          console.log(instanceUIDs);
+          multiFrameSerie2.larvitarSeriesInstanceUID =
+            multiFrameSerie2.larvitarSeriesInstanceUID + "-DSA";
           //TODO same with instanceUID
           return multiFrameSerie2;
         });
