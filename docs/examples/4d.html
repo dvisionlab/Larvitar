@@ -147,6 +147,8 @@
       crossorigin="anonymous"
     ></script>
     <script>
+      const cornerstoneTools = larvitar.cornerstoneTools;
+      let currentMode = "stack";
       let demoFiles = [];
       let counter = 0;
 
@@ -162,19 +164,28 @@
       // init all
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
+      //cornerstoneTools.init();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
-      let currentMode = "stack";
-      //const myScrollTool={ ...DEFAULT_TOOLS[toolName]?.options }
+
+      //let myScrollTool = larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"];
+      //console.log(myScrollTool);
       //const myScrollTool = new CustomMouseWheelScrollTool();
-      /*function triggerHandleToggle() {
+      function triggerHandleToggle() {
         let newMode = currentMode === "stack" ? "slice" : "stack";
-        myScrollTool.handleToggle(newMode);
-      }*/
+        larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode = newMode;
+        console.log(larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"]);
+        larvitar.DEFAULT_TOOLS[
+          "CustomMouseWheelScroll"
+        ].configuration.currentMode = newMode;
+        console.log(newMode);
+        currentMode = newMode;
+      }
 
       // Attach click event to the button
       const toggleButton = document.getElementById("toggleButton");
       toggleButton.addEventListener("click", triggerHandleToggle);
+
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/4d/" + fileName);
         let data = await response.blob();
@@ -220,19 +231,31 @@
                 frames_number = frames_number_mod2;
               }
 
+              //larvitar.addDefaultTools();
+              //larvitar.setToolActive("CustomMouseWheelScroll");
+              larvitar.addTool(
+                "CustomMouseWheelScroll",
+                larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"].configuration
+              );
+              let defaultOpt =
+                larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"].options;
+              const viewerElement = document.getElementById("viewer");
               larvitar.addDefaultTools();
-              larvitar.setToolActive("CustomMouseWheelScroll");
+              cornerstoneTools.setToolActiveForElement(
+                viewerElement,
+                "CustomMouseWheelScroll",
+                defaultOpt
+              );
+
               //const viewerElement = document.getElementById("viewer");
 
               // Add your custom tool to the stack of tools for the viewer element
               //cornerstoneTools.addTool(myScrollTool);
 
               // Set your custom tool as the active tool for the viewer element
-              /*cornerstoneTools.setToolActive(
-                "MouseWheel",
-                { mouseButtonMask: 1 },
-                myScrollTool
-              );*/
+              /*cornerstoneTools.setToolActive("CustomMouseWheelScroll", {
+                mouseButtonMask: 1
+              });*/
               let animation = false;
               let animationId = null;
               document.onkeypress = function (e) {

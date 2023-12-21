@@ -18,6 +18,7 @@ import {
   getLarvitarImageTracker,
   getSeriesDataFromLarvitarManager
 } from "../../loaders/commonLoader";
+import { DEFAULT_TOOLS } from "../default";
 
 // global variables
 type StackData = {
@@ -138,22 +139,13 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
 
   handleToggle(newcurrentMode: string) {
     // Toggle mode between 'stack' and 'slice' on Tab key press
-
     this.verify4D();
     if (this.is4D === false) {
-      if (this.isMultiframe === true) {
-        this.currentMode = newcurrentMode;
-        this.configuration.currentMode = newcurrentMode;
-      } else {
-        this.currentMode = newcurrentMode;
-        this.configuration.currentMode = newcurrentMode;
-      }
-
-      return;
+      this.currentMode = this.isMultiframe ? "slice" : "stack";
+      this.configuration.currentMode = this.isMultiframe ? "slice" : "stack";
     } else if (this.is4D === true) {
-      const element = this.element; // Get the tool's element
-      if (element) {
-        this.toggleScrollMode(element); // Pass the element to toggleScrollMode
+      if (this.currentMode != newcurrentMode) {
+        this.toggleScrollMode(this.element);
       }
     }
   }
@@ -203,13 +195,9 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
   mouseWheelCallback(evt?: CustomEvent<ToolEventDetail>) {
     const { direction: images, element } = evt!.detail;
 
-    this.verify4D();
-
-    if (this.is4D === false) {
-      // force current modality
-      this.currentMode = this.isMultiframe ? "slice" : "stack";
-      this.configuration.currentMode = this.isMultiframe ? "slice" : "stack";
-    }
+    this.handleToggle(
+      DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode as string
+    );
 
     // configure scroll direction
     const direction =
