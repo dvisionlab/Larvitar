@@ -32,16 +32,21 @@ export default class WSTool extends BaseBrushTool {
     this.touchDragCallback = this._paint.bind(this);
 
   }
-
+ /**
+   * Changes the radius of the brush 
+   *@method
+   * @name _changeRadius
+   * @protected
+   * @param  {scrollEvent} evt The data object associated with the event.
+   * @returns {void}
+   */
   _changeRadius(evt) {
-    console.log("CHANGERADIUS");
 
     const { configuration } = segmentationModule;
     const { deltaY } = evt;
-    console.log("DELTAY",evt.deltaY)
-    console.log(evt)
-    configuration.radius += (deltaY > 0) ? 1 : -1;
-    console.log(configuration.radius)
+    
+    configuration.radius += (deltaY > 0) ? 0.5 : -0.5;
+
     configuration.radius = Math.max(configuration.radius, 1);
 
     external.cornerstone.updateImage(this.element);
@@ -50,9 +55,9 @@ export default class WSTool extends BaseBrushTool {
 
  /**
    * Paints the data to the labelmap.
-   *
+   *@name _paint
    * @protected
-   * @param  {Object} evt The data object associated with the event.
+   * @param  {ClickEvent} evt The data object associated with the event.
    * @returns {void}
    */
  async _paint(evt) {
@@ -86,20 +91,19 @@ export default class WSTool extends BaseBrushTool {
         dicomPixelData,
         circleArray
       );
-      console.log(mean)
-      console.log(stddev)
+
       const minThreshold = this.getMin(dicomPixelData)   
       const maxThreshold = this.getMax(dicomPixelData);
       const meanNorm=this.mapToRange(mean, minThreshold, maxThreshold);
 
       const stdDevNorm=this.mapToRange(stddev, minThreshold, maxThreshold);
-      const XFactor=1.5;
+      const XFactor=2;
       const lowerThreshold =  meanNorm- XFactor* stdDevNorm;
       const upperThreshold = meanNorm +XFactor * stdDevNorm;
       this.lowerThreshold=lowerThreshold;
-      console.log(lowerThreshold)
+
       this.upperThreshold=upperThreshold;
-      console.log(upperThreshold)
+
      
       const height = DICOMimage.height;
       const width = DICOMimage.width;
@@ -128,17 +132,25 @@ export default class WSTool extends BaseBrushTool {
         src.data.set(pngPixelData);
         await this.WatershedSegmentation(src,dicomPixelData)
         // Draw / Erase the active color.
-        this.drawBrushPixels(evt,
+        this.drawBrushPixels(
         this.Mask_Array,
         labelmap2D.pixelData,
         labelmap3D.activeSegmentIndex,
-        columns,
         shouldErase
         );
 
     external.cornerstone.updateImage(evt.detail.element);
   }
 
+/**
+   * Applies Watershed segmentation algorithm on pixel data using opencv.js 
+   * and evaluates the mask to apply to the original dicom image
+   *@name _ WatershedSegmentation
+   * @protected
+   * @param  {Mat} src The png matrix associated with the original pixel array 
+   * @param  {Array} dicomPixelData The pixelDataArray obtained with dicomimage.getPixeldata()
+   * @returns {void}
+   */
    WatershedSegmentation(src,dicomPixelData){
   
     let dst = new cv.Mat();
@@ -152,8 +164,7 @@ export default class WSTool extends BaseBrushTool {
     let markers = new cv.Mat();
     //gray and threshold image
     cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-    console.log("LOWER",this.lowerThreshold)
-    console.log("UPPER",this.upperThreshold)
+
     let lowerBinary = new cv.Mat();
     let upperBinary = new cv.Mat();
 
@@ -188,15 +199,12 @@ export default class WSTool extends BaseBrushTool {
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
     cv.watershed(src, markers);
     // draw barriers
-    //const matrix = (rows, cols) => new Array(cols).fill(0).map((o, i) => new Array(rows).fill(0))
-    //let mask=matrix(markers.rows,markers.cols);
+
     let columns=markers.cols;
     let rightleft = [];
-    let rownumber=0;
-    // Iterate through rows
 
     // Find left and right indices for each row
-
+    //TODO: use threshold to remove background as in  VR mode DICOM/VISION
   for (let i = 0; i < dicomPixelData.length; i += columns) {
   let row = dicomPixelData.slice(i, i + columns);
 
@@ -218,9 +226,6 @@ export default class WSTool extends BaseBrushTool {
   rightleft.push({ left: i + leftIndex, right: i + rightIndex });
 }
 
-
-    console.log(rightleft);
-    
     let mask_array = [];
     for (let i = 0; i < markers.rows; i++) {
       for (let j = 0; j < markers.cols; j++) {
@@ -261,22 +266,28 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
   }
 }
 
-    console.log(mask_array);
-
-        //use mask array to mask a DICOM image 
+        //delete unused Mat elements 
     src.delete(); dst.delete(); gray.delete(); opening.delete(); Bg.delete();
     Fg.delete(); distTrans.delete(); unknown.delete(); markers.delete(); M.delete();
-    //pixel_array = imageObject.metadata.x7fe00010;
+// mask array to mask a DICOM image 
     this.Mask_Array=mask_array;
-    console.log(this.Mask_Array)
-    
       }
 
-      drawBrushPixels(evt,
+ /**
+   * Draws the WS mask on the original imae 
+   *@name _drawBrushPixels
+   * @protected
+   * @param  {Array} mask //The mask array retrieved from WS algorithm 
+   * @param  {Array} pixelData //the original dicom image array
+   * @param  {Array} segmentIndex //the index of the mask, in order to identify different features and change color (from 1 to n)
+   * 
+   * @returns {void}
+   */
+      drawBrushPixels(
         mask,
         pixelData,
         segmentIndex,
-        columns,shouldErase
+        shouldErase
       ) {
       
         for(let i=0;i<mask.length;i++){
@@ -294,12 +305,6 @@ for (let i = 0; i < dicomPixelData.length; i += columns) {
     
           }
         };
-        
-        let points=this.mask;
-        let operationData={pixelData,
-          segmentIndex,points}
-          console.log(operationData)
-        //fillFreehand(evt, operationData, true)
 
       }
     
