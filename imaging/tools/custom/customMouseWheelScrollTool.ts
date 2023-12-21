@@ -24,7 +24,7 @@ import { DEFAULT_TOOLS } from "../default";
 type StackData = {
   currentImageIdIndex: number;
   imageIds: string[];
-  pending: any[]; //TODO CHECK THIS
+  pending: any[];
 };
 
 type ToolEventDetail = {
@@ -75,8 +75,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     this.isMultiframe = false;
     this.animation = false;
     this.animationId = null;
-
-    // document.addEventListener("keydown", this.handleKeyDown.bind(this));
   }
 
   /*
@@ -131,14 +129,8 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     }
   }
 
-  // TODO
-  // avere una funzione esportabile esternamente
-  // prende in ingresso la variable currentMode
-  // la setta nella configurazione (this.currentMode)
-  // fa i suoi controlli e chiama la funzione toggleScrollMode
-
   handleToggle(newcurrentMode: string) {
-    // Toggle mode between 'stack' and 'slice' on Tab key press
+    // Toggle mode between 'stack' and 'slice' on Tab key press or other events
     this.verify4D();
     if (this.is4D === false) {
       this.currentMode = this.isMultiframe ? "slice" : "stack";
@@ -154,6 +146,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
    * @method toggleScrollMode
    * @param {element} HTMLElement
    * @desc Handle the toggle between 'stack' and 'slice' modes
+   * we enter in this function only if this.is4d===true so this.framesNumber!=0
    */
 
   toggleScrollMode(element: HTMLElement) {
@@ -171,8 +164,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
 
     switch (this.currentMode) {
       case "stack":
-        if (this.framesNumber === null || this.framesNumber === 0) {
-        }
         // Switching from 'stack' to 'slice'
         this.configuration.fixedSlice = Math.floor(
           (currentIndex + 1) / this.framesNumber
@@ -193,7 +184,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
   }
 
   mouseWheelCallback(evt?: CustomEvent<ToolEventDetail>) {
-    const { direction: images, element } = evt!.detail;
+    const { direction: invert, element } = evt!.detail;
 
     this.handleToggle(
       DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode as string
@@ -201,7 +192,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
 
     // configure scroll direction
     const direction =
-      images *
+      invert *
       (this.configuration.currentMode === "stack"
         ? this.configuration.framesNumber
         : 1);
@@ -239,8 +230,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
       scrollToIndex(element, validIndex);
     } else {
       // Handle 'slice' mode
-
-      // TODO MAYBE THIS CHECK IS USEFUL
       let lastIndex =
         this.isMultiframe === true || this.is4D === true
           ? store.get(["viewports", element.id, "sliceId"])
@@ -260,14 +249,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
       let nextIndex = lastIndex + direction;
 
       // Check if the new index is within the valid range for the current slice
-      // Calculate validIndex for looping within the specified range in 'slice' mode
-
-      // Calculate validIndex for looping within the specified range in 'slice' mode
-      //want to loop in slice mode through frames, not in stack mode,
-      //but i want to consider that the loop starts from fixed frame and loops from it
-      //in a range [currentframe,Y*numberofframes-1][(Y-1)*numberofframes,currentframe]
-      //knowing that Y is the current slice index=sliceIndex
-
       if (
         nextIndex < startFrame ||
         nextIndex > endFrame ||
@@ -279,7 +260,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
       // Scroll to the calculated index
       scrollToIndex(element, nextIndex);
 
-      // TODO EVENTUALLY SET IN STORE VARIABLES SUCH AS TIMEID
       if (this.is4D) {
         const viewport = store.get(["viewports", element.id]);
         const timeId = viewport.timeIds[nextIndex];
