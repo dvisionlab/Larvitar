@@ -201,9 +201,9 @@
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
-              larvitar.addDefaultTools();
               demoFiles = [];
               loadMasks();
+              larvitar.addDefaultTools();
             });
           })
           .catch(err => console.log(err));

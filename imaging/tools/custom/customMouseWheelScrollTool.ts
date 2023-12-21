@@ -79,16 +79,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
   verify4D() {
     const viewport: StoreViewport = store.get(["viewports", this.element.id]);
 
-    if (viewport.seriesUID === undefined) {
-      // multi-layered dicom
-      this.configuration.framesNumber = 1;
-      this.framesNumber = this.configuration.framesNumber;
-      this.is4D = false;
-      this.isMultiframe = false;
-      console.warn("no access to metadata");
-      return false;
-    }
-
     // check is4D and multiframe
     this.is4D = viewport.isTimeserie;
     this.isMultiframe = viewport.isMultiframe;

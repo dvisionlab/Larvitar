@@ -1005,7 +1005,7 @@ const getSeriesData = function (
   };
   type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
-  data.seriesUID = series.larvitarSeriesInstanceUID;
+  data.seriesUID = series.larvitarSeriesInstanceUID || series.seriesUID; //case of resliced series
   if (series.isMultiframe) {
     data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;
