@@ -251,6 +251,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
 
       const startFrame =
         this.configuration.fixedSlice * this.configuration.framesNumber;
+
       const endFrame =
         (this.configuration.fixedSlice + 1) * this.configuration.framesNumber -
         1;

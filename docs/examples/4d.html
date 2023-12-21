@@ -164,21 +164,15 @@
       // init all
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
-      //cornerstoneTools.init();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
-      //let myScrollTool = larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"];
-      //console.log(myScrollTool);
-      //const myScrollTool = new CustomMouseWheelScrollTool();
       function triggerHandleToggle() {
         let newMode = currentMode === "stack" ? "slice" : "stack";
         larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode = newMode;
-        console.log(larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"]);
         larvitar.DEFAULT_TOOLS[
           "CustomMouseWheelScroll"
         ].configuration.currentMode = newMode;
-        console.log(newMode);
         currentMode = newMode;
       }
 
@@ -231,31 +225,9 @@
                 frames_number = frames_number_mod2;
               }
 
-              //larvitar.addDefaultTools();
-              //larvitar.setToolActive("CustomMouseWheelScroll");
-              larvitar.addTool(
-                "CustomMouseWheelScroll",
-                larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"].configuration
-              );
-              let defaultOpt =
-                larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"].options;
-              const viewerElement = document.getElementById("viewer");
               larvitar.addDefaultTools();
-              cornerstoneTools.setToolActiveForElement(
-                viewerElement,
-                "CustomMouseWheelScroll",
-                defaultOpt
-              );
+              larvitar.setToolActive("CustomMouseWheelScroll");
 
-              //const viewerElement = document.getElementById("viewer");
-
-              // Add your custom tool to the stack of tools for the viewer element
-              //cornerstoneTools.addTool(myScrollTool);
-
-              // Set your custom tool as the active tool for the viewer element
-              /*cornerstoneTools.setToolActive("CustomMouseWheelScroll", {
-                mouseButtonMask: 1
-              });*/
               let animation = false;
               let animationId = null;
               document.onkeypress = function (e) {
