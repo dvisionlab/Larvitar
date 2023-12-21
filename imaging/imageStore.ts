@@ -49,11 +49,14 @@ type SetPayload =
         | "sliceId"
         | "timeId"
         | "thickness"
+        | "numberOfFrames"
+        | "numberOfTemporalPositions"
       ),
       string,
       number
     ]
   | ["timestamp", string, number | undefined]
+  | ["seriesUID", string, string | undefined]
   | ["pendingSliceId", string, number | undefined]
   | ["timestamps" | "timeIds", string, number[]]
   | [
@@ -193,6 +196,14 @@ const setValue = (store: Store, data: SetPayload) => {
       triggerSeriesListener(k);
       break;
 
+    case "seriesUID":
+      if (!viewport) {
+        return;
+      }
+      viewport[field] = (v as [string])[0];
+      triggerViewportListener(k);
+      break;
+
     case "isColor":
     case "isMultiframe":
     case "isPDF":
@@ -217,6 +228,8 @@ const setValue = (store: Store, data: SetPayload) => {
     case "pendingSliceId":
     case "timeId":
     case "timestamp":
+    case "numberOfFrames":
+    case "numberOfTemporalPositions":
       if (!viewport) {
         return;
       }

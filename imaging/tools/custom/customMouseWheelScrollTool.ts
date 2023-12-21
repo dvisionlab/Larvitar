@@ -4,21 +4,16 @@
  */
 
 // external libraries
-import cornerstone from "cornerstone-core";
 import { Image } from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
-import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
 const scrollToIndex = cornerstoneTools.importInternal("util/scrollToIndex");
 const getToolState = cornerstoneTools.getToolState;
 
 // internal libraries
 import store, { set as setStore } from "../../imageStore";
-import {
-  getLarvitarImageTracker,
-  getSeriesDataFromLarvitarManager
-} from "../../loaders/commonLoader";
 import { DEFAULT_TOOLS } from "../default";
+import { StoreViewport } from "../../types";
 
 // global variables
 type StackData = {
@@ -82,20 +77,9 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
    * @desc Verify if the image is 4D or not
    */
   verify4D() {
-    const enabledElement = cornerstone.getEnabledElement(this.element);
-    const imageId = enabledElement.image!.imageId;
-    let getter = cornerstone.metaData.get("generalSeriesModule", imageId);
+    const viewport: StoreViewport = store.get(["viewports", this.element.id]);
 
-    const parsedImageId =
-      cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
-    const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
-    const imageTracker = getLarvitarImageTracker();
-
-    const seriesId: string | undefined = getter
-      ? getter.seriesInstanceUID
-      : imageTracker[rootImageId];
-
-    if (seriesId === undefined) {
+    if (viewport.seriesUID === undefined) {
       // multi-layered dicom
       this.configuration.framesNumber = 1;
       this.framesNumber = this.configuration.framesNumber;
@@ -104,29 +88,22 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
       console.warn("no access to metadata");
       return false;
     }
-    const serie = getSeriesDataFromLarvitarManager(seriesId);
-    if (serie) {
-      // extract first instance metadata
-      const anInstance = serie.instances[serie.imageIds[0]];
-      const metadata = anInstance.metadata;
-      // check is4D and multiframe
-      this.is4D = metadata.is4D ? metadata.is4D : false;
-      this.isMultiframe = metadata.isMultiframe ? metadata.isMultiframe : false;
 
-      // extract frames number
-      if (this.is4D === true) {
-        this.configuration.framesNumber = metadata.x00200105;
-      } else if (this.isMultiframe === true) {
-        this.configuration.framesNumber = metadata.x00280008;
-        this.currentMode = "slice";
-        this.configuration.currentMode = "slice";
-      } else {
-        this.configuration.framesNumber = 1;
-      }
-      this.framesNumber = this.configuration.framesNumber;
+    // check is4D and multiframe
+    this.is4D = viewport.isTimeserie;
+    this.isMultiframe = viewport.isMultiframe;
+
+    // extract frames number
+    if (this.is4D === true) {
+      this.configuration.framesNumber = viewport.numberOfTemporalPositions;
+    } else if (this.isMultiframe === true) {
+      this.configuration.framesNumber = viewport.numberOfFrames;
+      this.currentMode = "slice";
+      this.configuration.currentMode = "slice";
     } else {
-      console.warn("Invalid Series ID");
+      this.configuration.framesNumber = 1;
     }
+    this.framesNumber = this.configuration.framesNumber;
   }
 
   handleToggle(newcurrentMode: string) {

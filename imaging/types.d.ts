@@ -21,6 +21,7 @@ export type StoreViewport = {
   maxSliceId: number;
   sliceId: number;
   pendingSliceId?: number;
+  seriesUID?: string;
   minTimeId: number;
   maxTimeId: number;
   timeId: number;
@@ -43,6 +44,7 @@ export type StoreViewport = {
   imageId?: string;
   numberOfSlices?: number;
   numberOfTemporalPositions?: number;
+  numberOfFrames?: number;
   timeIndex?: number;
   viewport: {
     scale: number;

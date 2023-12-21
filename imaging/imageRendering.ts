@@ -512,6 +512,7 @@ export const renderImage = function (
 
       storeViewportData(image, element.id, storedViewport as Viewport, data);
       setStore(["ready", element.id, true]);
+      setStore(["seriesUID", element.id, data.seriesUID]);
       const t1 = performance.now();
       console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
@@ -804,6 +805,11 @@ export const storeViewportData = function (
   }
 
   if (data.isTimeserie) {
+    setStore([
+      "numberOfTemporalPositions",
+      elementId,
+      data.numberOfTemporalPositions as number
+    ]);
     setStore(["minTimeId", elementId, 0]);
     setStore(["timeId", elementId, data.timeIndex || 0]);
     if (data.numberOfSlices && data.numberOfTemporalPositions) {
@@ -852,6 +858,9 @@ export const storeViewportData = function (
   ]);
   setStore(["isColor", elementId, data.isColor]);
   setStore(["isMultiframe", elementId, data.isMultiframe]);
+  if (data.isMultiframe) {
+    setStore(["numberOfFrames", elementId, data.numberOfFrames as number]);
+  }
   setStore(["isTimeserie", elementId, data.isTimeserie]);
   setStore(["isPDF", elementId, false]);
   setStore(["waveform", elementId, data.waveform]);
@@ -996,13 +1005,14 @@ const getSeriesData = function (
   };
   type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
-
+  data.seriesUID = series.larvitarSeriesInstanceUID;
   if (series.isMultiframe) {
     data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;
     data.imageIndex = 0;
     data.imageId = series.imageIds[data.imageIndex];
     data.isTimeserie = false;
+    data.numberOfFrames = series.numberOfFrames;
   } else if (series.is4D) {
     data.isMultiframe = false;
     data.isTimeserie = true;
