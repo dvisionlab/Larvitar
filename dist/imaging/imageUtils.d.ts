@@ -3,6 +3,7 @@
  *        manipulating image pixels and image metadata
  */
 import type { CustomDataSet, MetaData, ReslicedInstance, Series } from "./types";
+import { MetaDataTypes } from "./MetaDataTypes";
 /**
  * @typedef {Object} CornerstoneSeries
  * @property {Array} imageIds Array of the instances imageIds
@@ -47,7 +48,7 @@ export declare const getPixelRepresentation: (dataSet: CustomDataSet) => string;
  * @param {Object} dataType - The data type
  * @returns {TypedArray} The typed array
  */
-export declare const getTypedArrayFromDataType: (dataType: string) => Uint16ArrayConstructor | Int16ArrayConstructor | Uint8ArrayConstructor | Int8ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor | null;
+export declare const getTypedArrayFromDataType: (dataType: string) => Uint8ArrayConstructor | Int8ArrayConstructor | Uint16ArrayConstructor | Int16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor | null;
 /**
  * Sort the array of images ids of a series trying with:
  * - content time order, if the series has cardiacNumberOfImages tag > 1
@@ -152,7 +153,7 @@ export declare const getDistanceBetweenSlices: (seriesData: Series, sliceIndex1:
 export declare const getImageMetadata: (seriesId: string, instanceUID: string) => {
     tag: string;
     name: string;
-    value: string | number | number[] | import("./MetaDataTypes").MetaDataTypes[] | null | undefined;
+    value: string | number | number[] | MetaDataTypes[] | null | undefined;
 }[];
 /**
  * Check if a div tag is a valid DOM HTMLElement
