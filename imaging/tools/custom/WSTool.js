@@ -42,8 +42,11 @@ export default class WSTool extends BaseBrushTool {
     this.src = null;
     this.dicomPixelData = null;
     this.minThreshold = null;
+    this.pixelData=null;
+    this.seriesUID=null;
     this.maxThreshold = null;
-    this.segmentIndex=1
+    this.segmentIndex=1;
+    this.indexImage=0;
     this.imageId=null;
     this.seriesId=null;
     this.labelToErase=null;
@@ -113,15 +116,18 @@ export default class WSTool extends BaseBrushTool {
       const stackData = toolData.data[0];
 
     const image = eventData.image;
-    if(image.imageId!=this.imageId||viewport.seriesUID)//||store.get(["viewports", this.element.id]).seriesUID!=this.seriesId
+    if(image.imageId!=this.imageId||viewport.seriesUID!=this.seriesUID)//||store.get(["viewports", this.element.id]).seriesUID!=this.seriesId
     {
       this.dicomPixelData = null;
       this.minThreshold = null;
       this.maxThreshold = null;
       this.segmentIndex=1;
+      this.pixelData=(this.seriesUID != viewport.seriesUID)?null:this.pixelData
+      this.slicesNumber=(this.seriesUID != viewport.seriesUID)?null:stackData.imageIds.length
     }
     //this.seriesId=store.get(["viewports", this.element.id]).seriesUID;
     this.imageId=image.imageId;
+    this.seriesUID=viewport.seriesUID;
     const { rows, columns } = image;
     const { x, y } = eventData.currentPoints.image;
 
@@ -131,11 +137,8 @@ export default class WSTool extends BaseBrushTool {
 
     const radius = configuration.radius;
     const { labelmap2D, labelmap3D, shouldErase } = this.paintEventData;
-    console.log("LABELMAP3D",labelmap3D)
 
     let circleArray = getCircle(radius, rows, columns, x, y);
-    console.log("CIRCLE ARRAY",circleArray)
-    console.log(shouldErase)
     if (shouldErase===false||shouldErase===undefined){
       this.labelToErase=null;
  // threshold should be applied only if painting, not erasing
@@ -181,37 +184,52 @@ this.upperThreshold = meanNorm + xFactor * stdDevNorm;
 
 this.width = this.height || image.height;
 this.height = this.width || image.width;
-for(let i=0;i<stackData.imageIds.length;i++)
+this.slicesNumber=this.slicesNumber||stackData.imageIds.length;
+this.maskArray=new Array(this.slicesNumber)
+this.pixelData=new Array(this.slicesNumber)
+for(let i=0;i<this.slicesNumber;i++)
 {
-  let newimage= {};
+  let newimage= cornerstone.imageCache.cachedImages[i].image
+  if(newimage.imageId==this.ImageId)
+  {
+    this.pixelData[i]= dicomPixelData;
+    this.indexImage=i;
+  }
+  else{
+   this.pixelData[i]=this.pixelData[i]==null?newimage.getPixelData():this.pixelData[i];
+
+  }
+  
   let newMaskArray = await this._applyWatershedSegmentation(
     this.width,
     this.height,
-    newimage.getPixelData()
+    this.pixelData[i]
   );
-  this.maskArray=(this.maskArray).push(newMaskArray);
+  this.maskArray[i]=newMaskArray;
 
 }
-
+console.log(this.maskArray)
     }else{
+      this.labelToErase=null;
       if(this.maskArray!=null)
       {
-        for(let i=0;i<stackData.imageIds.length;i++)
+        for(let i=0;i<this.slicesNumber;i++)
         {
             this._labelToErase(circleArray,this.maskArray[i],image);
         }
     }
-   
+  }
 
     // Draw / Erase the active color.
-    this._drawBrushPixels(
+    let pixelMask3D=this._drawBrushPixels(
       this.maskArray,
       labelmap2D.pixelData,
-      labelmap3D.labelmaps2D
+      labelmap3D.labelmaps2D,this.slicesNumber
     );
-
+    labelmap3D.labelmaps2D=pixelMask3D
+    console.log(labelmap3D)
     external.cornerstone.updateImage(evt.detail.element);
-  }
+  
   }
   /**
    * Applies Watershed segmentation algorithm on pixel data using opencv.js
@@ -361,17 +379,29 @@ for(let i=0;i<stackData.imageIds.length;i++)
    * Draws the WS mask on the original imae
    *@name _drawBrushPixels
    * @protected
-   * @param  {Array} mask //The mask array retrieved from WS algorithm
+   * @param  {Array} masks //The mask array retrieved from WS algorithm
    * @param  {Array} pixelData //the original dicom image array
    * @param  {Array} segmentIndex //the index of the mask, in order to identify different features and change color (from 1 to n)
    *
    * @returns {void}
    */
-  _drawBrushPixels(mask, pixelData) {
+  _drawBrushPixels(masks, pixelData2D,pixelData3D,slicesNumber) {
     
-    for (let i = 0; i < mask.length; i++) {
-          pixelData[i] = mask[i];
+    for (let i = 0; i < masks[this.indexImage].length; i++) {
+          pixelData2D[i] = masks[this.indexImage][i];
     }
+    pixelData3D=new Array(slicesNumber)
+    for(let j = 0; j < masks.length; j++)
+    {
+      let pixelData=masks[j]
+      let segmentsOnLabelmap = Array.from(new Set(pixelData.filter(num => Number.isInteger(num)))).sort((a, b) => a - b);
+      console.log(segmentsOnLabelmap)
+      pixelData3D[j]={
+        pixelData,
+        segmentsOnLabelmap
+      }
+    }
+    return pixelData3D
   }
 
   /**

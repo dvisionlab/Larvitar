@@ -162,7 +162,7 @@ for hepatic tumor segmentation (and volumetry).*/
       larvitar.store.addViewport("viewer");
       larvitar.registerNRRDImageLoader();
       larvitar.initSegmentationModule();
-
+      const cornerstone = larvitar.cornerstone;
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/covid/" + fileName);
         let data = await response.blob();
@@ -174,7 +174,7 @@ for hepatic tumor segmentation (and volumetry).*/
         }
       }
 
-      function renderSerie() {
+      async function renderSerie() {
         larvitar.resetLarvitarManager();
         larvitar
           .readFiles(demoFiles)
@@ -184,14 +184,33 @@ for hepatic tumor segmentation (and volumetry).*/
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
-              larvitar.addDefaultTools();
-              loadMasks();
+              console.log("Image has been rendered");
             });
+            // optionally cache the series
+            larvitar.populateLarvitarManager(seriesId, serie);
+
+            larvitar
+              .cacheImages(serie, function (resp) {
+                if (resp.loading == 100) {
+                  let cache = larvitar.cornerstone.imageCache;
+                  console.log(
+                    "Cache size: ",
+                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                    "Mb"
+                  );
+                }
+              })
+              .then(() => {
+                console.log("Cache has been loaded. Calling loadMasks.");
+                larvitar.addDefaultTools();
+                loadMasks();
+              });
           })
           .catch(err => console.error(err));
       }
 
       async function loadMasks() {
+        console.log("loadMasks() called");
         let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
         let properties = {
           // color: "#00ff00",
@@ -199,11 +218,13 @@ for hepatic tumor segmentation (and volumetry).*/
           labelId: 0
         };
         // add to viewport
-        larvitar.addSegmentationMask(properties, data, "viewer").then(() => {
-          // activate brush on this labelmap
-          larvitar.setActiveLabelmap(0, "viewer");
-          larvitar.setToolActive("WS");
-        });
+        await larvitar
+          .addSegmentationMask(properties, data, "viewer")
+          .then(() => {
+            // activate brush on this labelmap
+            larvitar.setActiveLabelmap(0, "viewer");
+            larvitar.setToolActive("WS");
+          });
       }
 
       let demoFileList = getDemoFileNames();

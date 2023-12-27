@@ -9,12 +9,15 @@ export default class WSTool {
     constructor(props?: {});
     lowerThreshold: number | null;
     upperThreshold: number | null;
-    maskArray: any;
+    maskArray: any[] | null;
     src: any;
     dicomPixelData: any;
     minThreshold: any;
+    pixelData: any;
+    seriesUID: any;
     maxThreshold: any;
     segmentIndex: number;
+    indexImage: number;
     imageId: any;
     seriesId: any;
     labelToErase: number | null;
@@ -45,6 +48,7 @@ export default class WSTool {
      * @returns {void}
      */
     protected _paint(evt: ClickEvent): void;
+    slicesNumber: any;
     xFactor: number | undefined;
     width: any;
     height: any;
@@ -62,13 +66,13 @@ export default class WSTool {
      * Draws the WS mask on the original imae
      *@name _drawBrushPixels
      * @protected
-     * @param  {Array} mask //The mask array retrieved from WS algorithm
+     * @param  {Array} masks //The mask array retrieved from WS algorithm
      * @param  {Array} pixelData //the original dicom image array
      * @param  {Array} segmentIndex //the index of the mask, in order to identify different features and change color (from 1 to n)
      *
      * @returns {void}
      */
-    protected _drawBrushPixels(mask: any[], pixelData: any[]): void;
+    protected _drawBrushPixels(masks: any[], pixelData2D: any, pixelData3D: any, slicesNumber: any): void;
     /**
      * Allows to erase selected label parts (evaluating the label that appears the most in the selected area) when using cntrl+click
      *@name _labelToErase

@@ -155,7 +155,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     evt?: CustomEvent<ToolEventDetail> | KeyboardEvent | WheelEvent
   ) {
     const detail = evt!.detail as ToolEventDetail;
-    console.log("EVT", detail.detail);
+
     if (detail.detail.ctrlKey != true) {
       const { direction: invert, element } =
         (evt as CustomEvent<ToolEventDetail>)!.detail;

@@ -13,7 +13,7 @@ import type { ImageObject, MetaData, Series } from "../types";
  * @param {number} sliceIndex - Optional custom index to overwrite slice index as default one
  */
 export declare const updateLarvitarManager: (imageObject: ImageObject, customId?: string, sliceIndex?: number) => {
-    [key: string]: import("../types").NrrdSeries | Series;
+    [key: string]: Series | import("../types").NrrdSeries;
 };
 /**
  * This function can be called in order to populate the Larvitar manager
@@ -24,7 +24,7 @@ export declare const updateLarvitarManager: (imageObject: ImageObject, customId?
  * @returns {manager} the Larvitar manager
  */
 export declare const populateLarvitarManager: (larvitarSeriesInstanceUID: string, seriesData: Series) => {
-    [key: string]: import("../types").NrrdSeries | Series;
+    [key: string]: Series | import("../types").NrrdSeries;
 };
 /**
  * Return the common data loader manager
@@ -33,7 +33,7 @@ export declare const populateLarvitarManager: (larvitarSeriesInstanceUID: string
  * @returns {Object} the loader manager
  */
 export declare const getLarvitarManager: () => {
-    [key: string]: import("../types").NrrdSeries | Series;
+    [key: string]: Series | import("../types").NrrdSeries;
 };
 /**
  * Return the common image tracker
@@ -64,7 +64,7 @@ export declare const removeSeriesFromLarvitarManager: (seriesId: string) => void
  * @param {String} seriesId The Id of the series
  * @return {Object} larvitar manager data
  */
-export declare const getSeriesDataFromLarvitarManager: (seriesId: string) => import("../types").NrrdSeries | Series | null;
+export declare const getSeriesDataFromLarvitarManager: (seriesId: string) => Series | import("../types").NrrdSeries | null;
 /**
  * Compute and return image frame
  * @instance
