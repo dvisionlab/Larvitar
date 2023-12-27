@@ -33,7 +33,7 @@ import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
 import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
 import BorderMagnifyTool from "./custom/BorderMagnifyTool";
 import CustomMouseWheelScrollTool from "./custom/customMouseWheelScrollTool";
-
+import WSTool from "./custom/WSTool";
 import type {
   ToolConfig,
   ToolMouseKeys,
