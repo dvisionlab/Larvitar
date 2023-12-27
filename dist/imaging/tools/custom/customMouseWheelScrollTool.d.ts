@@ -13,6 +13,9 @@ type ToolEventDetail = {
     element: HTMLElement;
     image: Image;
     direction: number;
+    detail: {
+        [key: string]: any;
+    };
 };
 export default class CustomMouseWheelScrollTool extends BaseTool {
     currentMode: string;
@@ -24,7 +27,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     verify4D(): void;
     handleToggle(newcurrentMode: string): void;
     toggleScrollMode(element: HTMLElement): void;
-    mouseWheelCallback(evt?: CustomEvent<ToolEventDetail>): void;
+    mouseWheelCallback(evt?: CustomEvent<ToolEventDetail> | KeyboardEvent | WheelEvent): void;
     scrollWithoutSkipping(stackData: StackData, pendingEvent: any, element: HTMLElement): void;
 }
 export {};

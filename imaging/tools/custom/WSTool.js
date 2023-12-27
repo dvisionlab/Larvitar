@@ -15,8 +15,9 @@ const segmentationUtils = cornerstoneTools.importInternal(
 );
 const getCircle = segmentationUtils.getCircle;
 const segmentationModule = cornerstoneTools.getModule("segmentation");
+const getToolState = cornerstoneTools.getToolState;
 // internal libraries
-//import store, { set as setStore } from "../../imageStore";
+import store, { set as setStore } from "../../imageStore";
 
 /**
  * @public
@@ -45,6 +46,7 @@ export default class WSTool extends BaseBrushTool {
     this.segmentIndex=1
     this.imageId=null;
     this.seriesId=null;
+    this.labelToErase=null;
     this._handleMouseMove = this._handleMouseMove.bind(this);
     document.addEventListener('mousemove', this._handleMouseMove);
   }
@@ -104,11 +106,14 @@ export default class WSTool extends BaseBrushTool {
     const eventData = evt.detail;
     const element = eventData.element;
     this.element = element;
-  
+    const viewport = store.get(["viewports", this.element.id]);
+
       element.addEventListener("wheel", this._changeRadius.bind(this));
-    
+      const toolData = getToolState(element, "stack");
+      const stackData = toolData.data[0];
+
     const image = eventData.image;
-    if(image.imageId!=this.imageId)//||store.get(["viewports", this.element.id]).seriesUID!=this.seriesId
+    if(image.imageId!=this.imageId||viewport.seriesUID)//||store.get(["viewports", this.element.id]).seriesUID!=this.seriesId
     {
       this.dicomPixelData = null;
       this.minThreshold = null;
@@ -126,11 +131,13 @@ export default class WSTool extends BaseBrushTool {
 
     const radius = configuration.radius;
     const { labelmap2D, labelmap3D, shouldErase } = this.paintEventData;
+    console.log("LABELMAP3D",labelmap3D)
 
     let circleArray = getCircle(radius, rows, columns, x, y);
     console.log("CIRCLE ARRAY",circleArray)
     console.log(shouldErase)
     if (shouldErase===false||shouldErase===undefined){
+      this.labelToErase=null;
  // threshold should be applied only if painting, not erasing
  if (this.dicomPixelData === null) {
   this.dicomPixelData = image.getPixelData();
@@ -174,18 +181,25 @@ this.upperThreshold = meanNorm + xFactor * stdDevNorm;
 
 this.width = this.height || image.height;
 this.height = this.width || image.width;
+for(let i=0;i<stackData.imageIds.length;i++)
+{
+  let newimage= {};
+  let newMaskArray = await this._applyWatershedSegmentation(
+    this.width,
+    this.height,
+    newimage.getPixelData()
+  );
+  this.maskArray=(this.maskArray).push(newMaskArray);
 
-this.maskArray = await this._applyWatershedSegmentation(
-  this.width,
-  this.height,
-  dicomPixelData
-);
+}
 
     }else{
       if(this.maskArray!=null)
       {
-        this._labelToErase(circleArray,this.maskArray,image);
-      }
+        for(let i=0;i<stackData.imageIds.length;i++)
+        {
+            this._labelToErase(circleArray,this.maskArray[i],image);
+        }
     }
    
 
@@ -193,12 +207,12 @@ this.maskArray = await this._applyWatershedSegmentation(
     this._drawBrushPixels(
       this.maskArray,
       labelmap2D.pixelData,
-      shouldErase
+      labelmap3D.labelmaps2D
     );
 
     external.cornerstone.updateImage(evt.detail.element);
   }
-
+  }
   /**
    * Applies Watershed segmentation algorithm on pixel data using opencv.js
    * and evaluates the mask to apply to the original dicom image
@@ -356,12 +370,8 @@ this.maskArray = await this._applyWatershedSegmentation(
   _drawBrushPixels(mask, pixelData) {
     
     for (let i = 0; i < mask.length; i++) {
-      let point = mask[i];
-      const spIndex = i;
-          pixelData[spIndex] = point;
+          pixelData[i] = mask[i];
     }
-    this.segmentIndex=this.segmentIndex+1
-    console.log(pixelData)
   }
 
   /**
@@ -376,6 +386,7 @@ this.maskArray = await this._applyWatershedSegmentation(
    */
 _labelToErase(circleArray,maskArray,image)
 {
+  if(this.labelToErase==null){
   let counts=new Array(11).fill(0);
   circleArray.forEach(([x, y]) => {
     const label= maskArray[y * image.rows + x];
@@ -383,10 +394,11 @@ _labelToErase(circleArray,maskArray,image)
   });
   console.log(counts)
   let max=this.getMax(counts)
-  let labeltoerase=counts.findIndex(count => count === max);
+  this.labelToErase=counts.findIndex(count => count === max);}
+
   for(let i=0;i<maskArray.length;i++)
   {
-    maskArray[i]=maskArray[i]===labeltoerase ? 0:maskArray[i];
+    maskArray[i]=maskArray[i]===this.labelToErase ? 0:maskArray[i];
   }
   
 }

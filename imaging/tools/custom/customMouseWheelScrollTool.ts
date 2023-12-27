@@ -26,6 +26,7 @@ type ToolEventDetail = {
   element: HTMLElement;
   image: Image;
   direction: number;
+  detail: { [key: string]: any };
 };
 
 /*
@@ -150,89 +151,97 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     }
   }
 
-  mouseWheelCallback(evt?: CustomEvent<ToolEventDetail>) {
-    const { direction: invert, element } = evt!.detail;
+  mouseWheelCallback(
+    evt?: CustomEvent<ToolEventDetail> | KeyboardEvent | WheelEvent
+  ) {
+    const detail = evt!.detail as ToolEventDetail;
+    console.log("EVT", detail.detail);
+    if (detail.detail.ctrlKey != true) {
+      const { direction: invert, element } =
+        (evt as CustomEvent<ToolEventDetail>)!.detail;
 
-    this.handleToggle(
-      DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode as string
-    );
+      this.handleToggle(
+        DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode as string
+      );
 
-    // configure scroll direction
-    const direction =
-      invert *
-      (this.configuration.currentMode === "stack"
-        ? this.configuration.framesNumber
-        : 1);
+      // configure scroll direction
+      const direction =
+        invert *
+        (this.configuration.currentMode === "stack"
+          ? this.configuration.framesNumber
+          : 1);
 
-    const toolData = getToolState(element, "stack");
-    if (!toolData || !toolData.data || !toolData.data.length) {
-      return;
-    }
-    const stackData = toolData.data[0];
-
-    if (this.configuration.currentMode === "stack") {
-      // Handle 'stack' mode
-
-      // Calculate validIndex for 'stack' mode (no looping) between 0 and (N-1)*framesnumber where N=numberofslices=numberofimageids/numberofframes
-      let lastIndex = store.get(["viewports", element.id, "sliceId"]);
-      let nextIndex = lastIndex + direction;
-
-      if (lastIndex === -1) {
-        nextIndex = 0 + direction;
-        lastIndex = 0;
+      const toolData = getToolState(element, "stack");
+      if (!toolData || !toolData.data || !toolData.data.length) {
+        return;
       }
+      const stackData = toolData.data[0];
 
-      this.slicesnumber =
-        Math.ceil(stackData.imageIds.length / this.framesNumber) - 1;
+      if (this.configuration.currentMode === "stack") {
+        // Handle 'stack' mode
 
-      // Ensure nextIndex is between 0 and upperBound
-      const validIndex =
-        nextIndex >= 0 &&
-        nextIndex < stackData.imageIds.length - 1 &&
-        this.slicesnumber > 0
-          ? nextIndex
-          : lastIndex;
+        // Calculate validIndex for 'stack' mode (no looping) between 0 and (N-1)*framesnumber where N=numberofslices=numberofimageids/numberofframes
+        let lastIndex = store.get(["viewports", element.id, "sliceId"]);
+        let nextIndex = lastIndex + direction;
 
-      // Scroll to the calculated index
-      scrollToIndex(element, validIndex);
-    } else {
-      // Handle 'slice' mode
-      let lastIndex =
-        this.isMultiframe === true || this.is4D === true
-          ? store.get(["viewports", element.id, "sliceId"])
-          : stackData.currentImageIdIndex;
+        if (lastIndex === -1) {
+          nextIndex = 0 + direction;
+          lastIndex = 0;
+        }
 
-      this.slicesnumber =
-        Math.ceil(stackData.imageIds.length / this.framesNumber) - 1;
+        this.slicesnumber =
+          Math.ceil(stackData.imageIds.length / this.framesNumber) - 1;
 
-      const startFrame =
-        this.configuration.fixedSlice * this.configuration.framesNumber;
+        // Ensure nextIndex is between 0 and upperBound
+        const validIndex =
+          nextIndex >= 0 &&
+          nextIndex < stackData.imageIds.length - 1 &&
+          this.slicesnumber > 0
+            ? nextIndex
+            : lastIndex;
 
-      const endFrame =
-        (this.configuration.fixedSlice + 1) * this.configuration.framesNumber -
-        1;
+        // Scroll to the calculated index
+        scrollToIndex(element, validIndex);
+      } else {
+        // Handle 'slice' mode
+        let lastIndex =
+          this.isMultiframe === true || this.is4D === true
+            ? store.get(["viewports", element.id, "sliceId"])
+            : stackData.currentImageIdIndex;
 
-      // Calculate the potential new index without considering looping
-      let nextIndex = lastIndex + direction;
+        this.slicesnumber =
+          Math.ceil(stackData.imageIds.length / this.framesNumber) - 1;
 
-      // Check if the new index is within the valid range for the current slice
-      if (
-        nextIndex < startFrame ||
-        nextIndex > endFrame ||
-        nextIndex >= stackData.imageIds.length
-      ) {
-        nextIndex = startFrame;
-      }
+        const startFrame =
+          this.configuration.fixedSlice * this.configuration.framesNumber;
 
-      // Scroll to the calculated index
-      scrollToIndex(element, nextIndex);
+        const endFrame =
+          (this.configuration.fixedSlice + 1) *
+            this.configuration.framesNumber -
+          1;
 
-      if (this.is4D) {
-        const viewport = store.get(["viewports", element.id]);
-        const timeId = viewport.timeIds[nextIndex];
-        const timestamp = viewport.timestamps[nextIndex];
-        setStore(["timeId", element.id, timeId]);
-        setStore(["timestamp", element.id, timestamp]);
+        // Calculate the potential new index without considering looping
+        let nextIndex = lastIndex + direction;
+
+        // Check if the new index is within the valid range for the current slice
+        if (
+          nextIndex < startFrame ||
+          nextIndex > endFrame ||
+          nextIndex >= stackData.imageIds.length
+        ) {
+          nextIndex = startFrame;
+        }
+
+        // Scroll to the calculated index
+        scrollToIndex(element, nextIndex);
+
+        if (this.is4D) {
+          const viewport = store.get(["viewports", element.id]);
+          const timeId = viewport.timeIds[nextIndex];
+          const timestamp = viewport.timestamps[nextIndex];
+          setStore(["timeId", element.id, timeId]);
+          setStore(["timestamp", element.id, timestamp]);
+        }
       }
     }
   }
