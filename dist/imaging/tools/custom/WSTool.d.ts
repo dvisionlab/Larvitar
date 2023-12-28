@@ -84,6 +84,7 @@ export default class WSTool {
      * @returns {void}
      */
     protected _labelToErase(circleArray: any[], maskArray: any[], image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement): void;
+    _ManualEraser(circleArray: any, image: any): void;
     /**
       * Allows to calculate stats such as mean and stddev of the selected circle area
       *@name _labelToErase

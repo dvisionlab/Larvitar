@@ -112,6 +112,7 @@ export default class WSTool extends BaseBrushTool {
     const viewport = store.get(["viewports", this.element.id]);
 
       element.addEventListener("wheel", this._changeRadius.bind(this));
+   
       const toolData = getToolState(element, "stack");
       const stackData = toolData.data[0];
 
@@ -137,9 +138,10 @@ export default class WSTool extends BaseBrushTool {
 
     const radius = configuration.radius;
     const { labelmap2D, labelmap3D, shouldErase } = this.paintEventData;
-
+    let shouldEraseManually=evt.detail.event.altKey 
+    console.log(evt)
     let circleArray = getCircle(radius, rows, columns, x, y);
-    if (shouldErase===false||shouldErase===undefined){
+    if ((shouldErase===false||shouldErase===undefined)&&(shouldEraseManually===false||shouldEraseManually===undefined)){
       this.labelToErase=null;
  // threshold should be applied only if painting, not erasing
  if (this.dicomPixelData === null) {
@@ -209,15 +211,20 @@ for(let i=0;i<this.slicesNumber;i++)
 
 }
 console.log(this.maskArray)
-    }else{
+    }else if(shouldErase===true){
       this.labelToErase=null;
       if(this.maskArray!=null)
       {
         for(let i=0;i<this.slicesNumber;i++)
         {
+          if(i!=this.indexImage)
+          {
             this._labelToErase(circleArray,this.maskArray[i],image);
+          }
         }
     }
+  }else if(shouldEraseManually===true){
+    this._ManualEraser(circleArray,image)
   }
 
     // Draw / Erase the active color.
@@ -419,17 +426,30 @@ _labelToErase(circleArray,maskArray,image)
   if(this.labelToErase==null){
   let counts=new Array(11).fill(0);
   circleArray.forEach(([x, y]) => {
-    const label= maskArray[y * image.rows + x];
+    const label= this.maskArray[this.indexImage][y * image.rows + x];
     counts[label]=counts[label]+1;
   });
   console.log(counts)
   let max=this.getMax(counts)
-  this.labelToErase=counts.findIndex(count => count === max);}
+  this.labelToErase=counts.findIndex(count => count === max);
+  for(let i=0;i<maskArray.length;i++)
+  {
+    this.maskArray[this.indexImage][i]=this.maskArray[this.indexImage][i]===this.labelToErase ? 0:this.maskArray[this.indexImage][i];
+  }}
 
   for(let i=0;i<maskArray.length;i++)
   {
+    
     maskArray[i]=maskArray[i]===this.labelToErase ? 0:maskArray[i];
   }
+  
+}
+_ManualEraser(circleArray,image)
+{
+  
+  circleArray.forEach(([x, y]) => {
+    this.maskArray[this.indexImage][y * image.rows + x]=0;
+  });
   
 }
  /**
