@@ -50,7 +50,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
   constructor(props = {}) {
     const defaultProps = {
       name: "CustomMouseWheelScroll",
-      supportedInteractionTypes: ["MouseWheel", "Key"],
+      supportedInteractionTypes: ["MouseWheel"], //"Key"
       configuration: {
         loop: false,
         allowSkipping: true,

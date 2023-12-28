@@ -122,34 +122,26 @@ const DEFAULT_TOOLS: {
       currentMode: "stack", // 'stack' or 'slice'
       framesNumber: 1
     },
-    options: {},
+    options: {
+      mouseButtonMask: 0
+    },
     cleanable: false,
     defaultActive: true,
-    class: "CustomMouseWheelScrollTool"
+    class: "CustomMouseWheelScrollTool",
+    description: "scroll images/frames",
+    shortcut: "mouse wheel",
+    type: "utils"
   },
-  // Slice4DScrollMouseWheel: {
-  //   name: "Slice4DScrollMouseWheel",
-  //   viewports: "all",
-  //   configuration: {
-  //     loop: false, // default false
-  //     allowSkipping: false, // default true
-  //     invert: false,
-  //     framesNumber: 1
-  //   },
-  //   options: {},
-  //   cleanable: false,
-  //   defaultActive: true,
-  //   class: "Slice4DScrollMouseWheelTool"
-  // },
   Pan: {
     name: "Pan",
     viewports: "all",
     configuration: {},
     options: {
-      mouseButtonMask: 1,
+      mouseButtonMask: 2,
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: false,
+    defaultActive: true,
     class: "PanTool",
     description: "Move image xy",
     shortcut: "ctrl-p",
@@ -353,7 +345,7 @@ const DEFAULT_TOOLS: {
     },
     cleanable: false,
     class: "ZoomTouchPinchTool",
-    defaultActive: true
+    defaultActive: false
   },
   PanMultiTouch: {
     name: "PanMultiTouch",
@@ -367,7 +359,7 @@ const DEFAULT_TOOLS: {
     },
     cleanable: false,
     class: "PanMultiTouchTool",
-    defaultActive: true
+    defaultActive: false
   },
   Brush: {
     name: "Brush",
