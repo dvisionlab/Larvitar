@@ -21,7 +21,12 @@
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
-      <button id="toggleButton">Toggle Mode</button>
+      <button
+        id="toggleButton"
+        style="position: absolute; top: 0px; width: 200px; height: 30px"
+      >
+        Scroll Mode: Slices
+      </button>
       <div
         id="viewer"
         class="col-8 h-100"
@@ -30,109 +35,16 @@
 
       <p
         id="image-time"
-        style="position: absolute; top: 20px; color: white"
+        style="position: absolute; top: 35px; color: white"
       ></p>
-      <p id="timestamp" style="position: absolute; top: 40px; color: white"></p>
-      <p id="slicenum" style="position: absolute; top: 60px; color: white"></p>
+      <p id="timestamp" style="position: absolute; top: 55px; color: white"></p>
+      <p id="slicenum" style="position: absolute; top: 75px; color: white"></p>
 
       <div class="col-4 h-100">
         <pre class="h-100">
           <code class="javascript" style="background-color: #000000">
           <p style="font-size:0.6vw;">
-            let demoFiles = [];
-            let counter = 0;
-
-            const getDemoFileNames = function () {
-              let demoFileList = [];
-              for (let i = 1; i < 195; i++) {
-                let filename = "image_(" + i + ").dcm";
-                demoFileList.push(filename);
-              }
-              return demoFileList;
-            };
-
-            // init all
-            larvitar.initializeImageLoader();
-            larvitar.initializeCSTools();
-            larvitar.store.initialize();
-            larvitar.store.addViewport("viewer");
-
-            async function createFile(fileName, cb) {
-              let response = await fetch("./demo/4d/" + fileName);
-              let data = await response.blob();
-              let file = new File([data], fileName);
-              demoFiles.push(file);
-              counter++;
-              if (counter == 194) {
-                cb();
-              }
-            }
-
-            function renderSerie() {
-              larvitar.resetLarvitarManager();
-              larvitar
-                .readFiles(demoFiles)
-                .then(seriesStack => {
-                  // render the first series of the study
-                  let sliceId = 0;
-                  let seriesId = _.keys(seriesStack)[sliceId];
-                  let serie = seriesStack[seriesId];
-
-                  larvitar.renderImage(serie, "viewer").then(() => {
-                    console.log("Image has been rendered");
-
-                    $("#image-time").html(
-                      "Image Time Id: " +
-                        larvitar.store.get(["viewports", "viewer", "timeId"]) +
-                        " of " +
-                        larvitar.store.get(["viewports", "viewer", "maxTimeId"])
-                    );
-                    $("#timestamp").html(
-                      "Image Time: " +
-                        larvitar.store.get(["viewports", "viewer", "timestamp"])
-                    );
-                  });
-
-                  let animation = false;
-                  let animationId = null;
-                  document.onkeypress = function (e) {
-                    if (e.keyCode == 112) {
-                      animation = !animation;
-                      if (animation) {
-                        sliceId = larvitar.store.get([
-                          "viewports",
-                          "viewer",
-                          "sliceId"
-                        ]);
-                        animationId = setInterval(function () {
-                          sliceId = sliceId == 193 ? 0 : sliceId + 1;
-                          larvitar.updateImage(serie, "viewer", sliceId, false);
-                          $("#image-time").html(
-                            "Image Time Id: " +
-                              larvitar.store.get(["viewports", "viewer", "timeId"]) +
-                              " of " +
-                              larvitar.store.get(["viewports", "viewer", "maxTimeId"])
-                          );
-                          $("#timestamp").html(
-                            "Image Time: " +
-                              larvitar.store.get(["viewports", "viewer", "timestamp"])
-                          );
-                        }, 100);
-                      } else {
-                        clearInterval(animationId);
-                      }
-                    }
-                  };
-                  larvitar.addDefaultTools();
-                  larvitar.setToolActive("Wwwc");
-                })
-                .catch(err => console.log(err));
-            }
-
-            let demoFileList = getDemoFileNames();
-            _.each(demoFileList, function (demoFile) {
-              createFile(demoFile, renderSerie);
-            });
+           
           </p>
           </code>
         </pre>
@@ -147,7 +59,6 @@
       crossorigin="anonymous"
     ></script>
     <script>
-      const cornerstoneTools = larvitar.cornerstoneTools;
       let currentMode = "stack";
       let demoFiles = [];
       let counter = 0;
@@ -169,13 +80,14 @@
 
       function triggerHandleToggle() {
         let newMode = currentMode === "stack" ? "slice" : "stack";
+        let newModeTxt = newMode === "stack" ? "Slices" : "Frames";
         larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode = newMode;
         larvitar.DEFAULT_TOOLS[
           "CustomMouseWheelScroll"
         ].configuration.currentMode = newMode;
         currentMode = newMode;
+        $("#toggleButton").html("Scroll Mode: " + newModeTxt);
       }
-
       // Attach click event to the button
       const toggleButton = document.getElementById("toggleButton");
       toggleButton.addEventListener("click", triggerHandleToggle);
@@ -202,31 +114,27 @@
           larvitar
             .renderImage(multiFrameSerie, "viewer", frameId)
             .then(() => {
-              larvitar.cacheImages(serie, function (resp) {
-                if (resp.loading == 100) {
-                  let cache = larvitar.cornerstone.imageCache;
-                  console.log(
-                    "Cache size: ",
-                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                    "Mb"
-                  );
-                }
-              });
-              //extract framesNumber in two ways, depending on image acquisition mode
-              const instance = manager[seriesId].instances["dicomfile:0"];
-              const metadata = instance.metadata;
-              const frames_number_mod1 =
-                manager[seriesId].instances["dicomfile:0"].metadata.x00280008;
-              const frames_number_mod2 = metadata["numberOfTemporalPositions"];
-              let frames_number = 1;
-              if (frames_number_mod1 != undefined) {
-                frames_number = frames_number_mod1;
-              } else if (frames_number_mod2 != undefined) {
-                frames_number = frames_number_mod2;
-              }
-
+              let frames_number = manager[seriesId].numberOfTemporalPositions;
               larvitar.addDefaultTools();
               larvitar.setToolActive("CustomMouseWheelScroll");
+              // add information on UI regarding timeId, timestamp and sliceId
+              $("#image-time").html(
+                "Image Time Id: " +
+                  larvitar.store.get(["viewports", "viewer", "timeId"]) +
+                  " of " +
+                  larvitar.store.get(["viewports", "viewer", "maxTimeId"])
+              );
+              $("#timestamp").html(
+                "Image Time: " +
+                  larvitar.store.get(["viewports", "viewer", "timestamp"])
+              );
+              $("#slicenum").html(
+                "Slice Number: " +
+                  Math.floor(
+                    larvitar.store.get(["viewports", "viewer", "sliceId"]) /
+                      frames_number
+                  )
+              );
 
               let animation = false;
               let animationId = null;
@@ -240,53 +148,39 @@
                       "sliceId"
                     ]);
                     animationId = setInterval(function () {
-                      sliceId = sliceId == 193 ? 0 : sliceId + 1;
+                      // physical slice number
+                      const sliceNumber = Math.floor(sliceId / frames_number);
+
+                      // compute index slice Id
+                      sliceId =
+                        sliceId == (sliceNumber + 1) * frames_number - 1
+                          ? sliceId - (frames_number - 1)
+                          : sliceId + 1;
+
                       larvitar.updateImage(serie, "viewer", sliceId, false);
-                      document.onkeypress = function (e) {
-                        if (e.keyCode == 112) {
-                          animation = !animation;
-                          if (animation) {
-                            sliceId = larvitar.store.get([
-                              "viewports",
-                              "viewer",
-                              "sliceId"
-                            ]);
-                            animationId = setInterval(function () {
-                              sliceId = sliceId == 193 ? 0 : sliceId + 1;
-                              larvitar.updateImage(
-                                serie,
-                                "viewer",
-                                sliceId,
-                                false
-                              );
-                              $("#image-time").html(
-                                "Image Time Id: " +
-                                  larvitar.store.get([
-                                    "viewports",
-                                    "viewer",
-                                    "timeId"
-                                  ]) +
-                                  " of " +
-                                  larvitar.store.get([
-                                    "viewports",
-                                    "viewer",
-                                    "maxTimeId"
-                                  ])
-                              );
-                              $("#timestamp").html(
-                                "Image Time: " +
-                                  larvitar.store.get([
-                                    "viewports",
-                                    "viewer",
-                                    "timestamp"
-                                  ])
-                              );
-                            }, 100);
-                          } else {
-                            clearInterval(animationId);
-                          }
-                        }
-                      };
+                      $("#image-time").html(
+                        "Image Time Id: " +
+                          larvitar.store.get([
+                            "viewports",
+                            "viewer",
+                            "timeId"
+                          ]) +
+                          " of " +
+                          larvitar.store.get([
+                            "viewports",
+                            "viewer",
+                            "maxTimeId"
+                          ])
+                      );
+                      $("#timestamp").html(
+                        "Image Time: " +
+                          larvitar.store.get([
+                            "viewports",
+                            "viewer",
+                            "timestamp"
+                          ])
+                      );
+                      $("#slicenum").html("Slice Number: " + sliceNumber);
                     }, 100);
                   } else {
                     clearInterval(animationId);
@@ -302,17 +196,6 @@
       _.each(demoFileList, function (demoFile) {
         createFile(demoFile, renderSerie);
       });
-      // if (
-      //   this.imagetime != undefined &&
-      //   this.timestamp != undefined &&
-      //   this.slicenum != undefined
-      // ) {
-      //   this.imagetime.innerText =
-      //     "Press B or b to switch between stack/slice mode ";
-      //   this.timestamp.innerText = "Standard acquisitions: only stack mode ";
-      //   this.slicenum.innerText = "Multiframe acquisitions: scrolling slice mode";
-      // }
-      // TODO MOVE TO 4D EXAMPLE
     </script>
   </body>
 </html>
