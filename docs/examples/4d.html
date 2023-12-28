@@ -39,6 +39,7 @@
       ></p>
       <p id="timestamp" style="position: absolute; top: 55px; color: white"></p>
       <p id="slicenum" style="position: absolute; top: 75px; color: white"></p>
+      <p id="animation" style="position: absolute; top: 95px; color: white"></p>
 
       <div class="col-4 h-100">
         <pre class="h-100">
@@ -65,6 +66,7 @@
       let animation = false;
       let animationId = null;
       let frames_number = 0;
+
       const getDemoFileNames = function () {
         let demoFileList = [];
         for (let i = 1; i < 195; i++) {
@@ -80,6 +82,19 @@
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
+      // create files from the demo folder
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/4d/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 194) {
+          cb();
+        }
+      }
+
+      // handle button to change scroll modality
       function triggerHandleToggle() {
         let newMode = currentMode === "stack" ? "slice" : "stack";
         let newModeTxt = newMode === "stack" ? "Slices" : "Frames";
@@ -93,21 +108,15 @@
         ].configuration.currentMode = newMode;
         currentMode = newMode;
         $("#toggleButton").html("Scroll Mode: " + newModeTxt);
+        let animationText =
+          newMode === "stack" ? "" : "Press 'p' to start/stop animation";
+        $("#animation").html(animationText);
       }
       // Attach click event to the button
       const toggleButton = document.getElementById("toggleButton");
       toggleButton.addEventListener("click", triggerHandleToggle);
 
-      async function createFile(fileName, cb) {
-        let response = await fetch("./demo/4d/" + fileName);
-        let data = await response.blob();
-        let file = new File([data], fileName);
-        demoFiles.push(file);
-        counter++;
-        if (counter == 194) {
-          cb();
-        }
-      }
+      // Update UI regarding timeId, timestamp and sliceId
       function changeStamps() {
         $("#image-time").html(
           "Image Time Id: " +
@@ -119,16 +128,19 @@
           "Image Time: " +
             larvitar.store.get(["viewports", "viewer", "timestamp"])
         );
-        console.log(larvitar.store.get(["viewports", "viewer", "sliceId"]));
         $("#slicenum").html(
           "Slice Number: " +
-            Math.floor(
-              larvitar.store.get(["viewports", "viewer", "sliceId"]) /
-                frames_number
-            )
+            parseInt(
+              Math.floor(
+                larvitar.store.get(["viewports", "viewer", "sliceId"]) /
+                  frames_number
+              ) + 1
+            ) +
+            " of 2"
         );
       }
 
+      // main render function
       function renderSerie() {
         larvitar.readFiles(demoFiles).then(seriesStack => {
           let seriesId = _.keys(seriesStack)[0];
@@ -144,31 +156,16 @@
               larvitar.addDefaultTools();
               larvitar.setToolActive("CustomMouseWheelScroll");
               // add information on UI regarding timeId, timestamp and sliceId
+              changeStamps();
 
-              $("#image-time").html(
-                "Image Time Id: " +
-                  larvitar.store.get(["viewports", "viewer", "timeId"]) +
-                  " of " +
-                  larvitar.store.get(["viewports", "viewer", "maxTimeId"])
-              );
-              $("#timestamp").html(
-                "Image Time: " +
-                  larvitar.store.get(["viewports", "viewer", "timestamp"])
-              );
-
-              $("#slicenum").html(
-                "Slice Number: " +
-                  Math.floor(
-                    larvitar.store.get(["viewports", "viewer", "sliceId"]) /
-                      frames_number
-                  )
-              );
+              // add event listener to the wheel to update the UI
               document
                 .getElementById("viewer")
                 .addEventListener("wheel", function (event) {
                   changeStamps();
                 });
 
+              // add event listener to the keypress to start/stop the animation
               document.onkeypress = function (e) {
                 if (e.key === "p" && currentMode === "slice") {
                   animation = !animation;
