@@ -137,11 +137,11 @@ const DEFAULT_TOOLS: {
     viewports: "all",
     configuration: {},
     options: {
-      mouseButtonMask: 2,
+      mouseButtonMask: 1,
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: false,
-    defaultActive: true,
+    defaultActive: false,
     class: "PanTool",
     description: "Move image xy",
     shortcut: "ctrl-p",
@@ -157,13 +157,13 @@ const DEFAULT_TOOLS: {
       maxScale: 25.0
     },
     options: {
-      mouseButtonMask: 1,
+      mouseButtonMask: 2,
       supportedInteractionTypes: ["Mouse", "Touch"],
       defaultStrategy: "default" // can be 'default', 'translate' or 'zoomToCenter'
     },
     cleanable: false,
     class: "ZoomTool",
-    defaultActive: false,
+    defaultActive: true,
     description: "Zoom image at mouse position",
     shortcut: "ctrl-z",
     type: "utils"
