@@ -62,7 +62,9 @@
       let currentMode = "stack";
       let demoFiles = [];
       let counter = 0;
-
+      let animation = false;
+      let animationId = null;
+      let frames_number = 0;
       const getDemoFileNames = function () {
         let demoFileList = [];
         for (let i = 1; i < 195; i++) {
@@ -81,6 +83,10 @@
       function triggerHandleToggle() {
         let newMode = currentMode === "stack" ? "slice" : "stack";
         let newModeTxt = newMode === "stack" ? "Slices" : "Frames";
+        if (newMode === "stack") {
+          animation = false;
+          clearInterval(animationId);
+        }
         larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode = newMode;
         larvitar.DEFAULT_TOOLS[
           "CustomMouseWheelScroll"
@@ -102,6 +108,26 @@
           cb();
         }
       }
+      function changeStamps() {
+        $("#image-time").html(
+          "Image Time Id: " +
+            larvitar.store.get(["viewports", "viewer", "timeId"]) +
+            " of " +
+            larvitar.store.get(["viewports", "viewer", "maxTimeId"])
+        );
+        $("#timestamp").html(
+          "Image Time: " +
+            larvitar.store.get(["viewports", "viewer", "timestamp"])
+        );
+        console.log(larvitar.store.get(["viewports", "viewer", "sliceId"]));
+        $("#slicenum").html(
+          "Slice Number: " +
+            Math.floor(
+              larvitar.store.get(["viewports", "viewer", "sliceId"]) /
+                frames_number
+            )
+        );
+      }
 
       function renderSerie() {
         larvitar.readFiles(demoFiles).then(seriesStack => {
@@ -114,10 +140,11 @@
           larvitar
             .renderImage(multiFrameSerie, "viewer", frameId)
             .then(() => {
-              let frames_number = manager[seriesId].numberOfTemporalPositions;
+              frames_number = manager[seriesId].numberOfTemporalPositions;
               larvitar.addDefaultTools();
               larvitar.setToolActive("CustomMouseWheelScroll");
               // add information on UI regarding timeId, timestamp and sliceId
+
               $("#image-time").html(
                 "Image Time Id: " +
                   larvitar.store.get(["viewports", "viewer", "timeId"]) +
@@ -128,6 +155,7 @@
                 "Image Time: " +
                   larvitar.store.get(["viewports", "viewer", "timestamp"])
               );
+
               $("#slicenum").html(
                 "Slice Number: " +
                   Math.floor(
@@ -135,52 +163,30 @@
                       frames_number
                   )
               );
+              document
+                .getElementById("viewer")
+                .addEventListener("wheel", function (event) {
+                  changeStamps();
+                });
 
-              let animation = false;
-              let animationId = null;
               document.onkeypress = function (e) {
-                if (e.keyCode == 112) {
+                if (e.key === "p" && currentMode === "slice") {
                   animation = !animation;
                   if (animation) {
-                    sliceId = larvitar.store.get([
+                    let sliceId = larvitar.store.get([
                       "viewports",
                       "viewer",
                       "sliceId"
                     ]);
                     animationId = setInterval(function () {
-                      // physical slice number
                       const sliceNumber = Math.floor(sliceId / frames_number);
-
-                      // compute index slice Id
                       sliceId =
-                        sliceId == (sliceNumber + 1) * frames_number - 1
+                        sliceId === (sliceNumber + 1) * frames_number - 1
                           ? sliceId - (frames_number - 1)
                           : sliceId + 1;
 
                       larvitar.updateImage(serie, "viewer", sliceId, false);
-                      $("#image-time").html(
-                        "Image Time Id: " +
-                          larvitar.store.get([
-                            "viewports",
-                            "viewer",
-                            "timeId"
-                          ]) +
-                          " of " +
-                          larvitar.store.get([
-                            "viewports",
-                            "viewer",
-                            "maxTimeId"
-                          ])
-                      );
-                      $("#timestamp").html(
-                        "Image Time: " +
-                          larvitar.store.get([
-                            "viewports",
-                            "viewer",
-                            "timestamp"
-                          ])
-                      );
-                      $("#slicenum").html("Slice Number: " + sliceNumber);
+                      changeStamps();
                     }, 100);
                   } else {
                     clearInterval(animationId);
