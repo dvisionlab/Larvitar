@@ -161,6 +161,23 @@
             larvitar.addDefaultTools();
             larvitar.setToolActive("CustomMouseWheelScroll");
 
+            // add event listener to the wheel to update the UI
+            document
+              .getElementById("viewer")
+              .addEventListener("wheel", function (event) {
+                frameId = larvitar.store.get([
+                  "viewports",
+                  "viewer",
+                  "sliceId"
+                ]);
+                $("#image-time").html(
+                  "Current Frame: " +
+                    parseInt(frameId + 1) +
+                    " of " +
+                    numberOfFrames
+                );
+              });
+
             let animation = false;
             let animationId = null;
             let numberOfFrames = multiFrameSerie.numberOfFrames;
@@ -180,7 +197,6 @@
               }
               if (e.keyCode == 112) {
                 animation = !animation;
-                console.log(animation);
                 if (animation) {
                   frameId = larvitar.store.get([
                     "viewports",
