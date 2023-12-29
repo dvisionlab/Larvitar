@@ -86,7 +86,7 @@
             let manager = larvitar.getLarvitarManager();
             let serie =
               manager["1.2.276.0.7230010.3.1.3.296485376.1.1664404001.305752"];
-            larvitar.renderDICOMPDF(serie, "viewer");
+            larvitar.renderDICOMPDF(serie, "viewer", "png");
           })
           .catch(err => console.log(err));
       }

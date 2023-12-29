@@ -42,7 +42,7 @@ export declare function loadAndCacheImages(series: Series, callback: (payload: {
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when pdf is displayed
  */
-export declare const renderDICOMPDF: (seriesStack: Series, elementId: string | HTMLElement) => Promise<true>;
+export declare const renderDICOMPDF: (seriesStack: Series, elementId: string | HTMLElement, renderType: string) => Promise<true>;
 /**
  * Render an image (png or jpg) from File on a html div using cornerstone
  * @instance

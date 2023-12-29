@@ -7,6 +7,7 @@
 import cornerstone from "cornerstone-core";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { each, has } from "lodash";
+import { getDocument } from "pdfjs-dist";
 
 // internal libraries
 import { getPerformanceMonitor } from "./monitors/performance";
@@ -22,9 +23,11 @@ import {
   Series,
   StoreViewport,
   StoreViewportOptions,
-  Viewport
+  Viewport,
+  pdfType
 } from "./types";
 import { DEFAULT_TOOLS } from "./tools/default";
+import { populateFileManager } from "./loaders/fileLoader";
 
 /*
  * This module provides the following functions to be exported:
@@ -184,10 +187,14 @@ export function loadAndCacheImages(
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when pdf is displayed
  */
+//converts a pdf to png
+
 export const renderDICOMPDF = function (
   seriesStack: Series,
-  elementId: string | HTMLElement
+  elementId: string | HTMLElement,
+  renderType: string
 ) {
+  console.log(renderType);
   let t0 = performance.now();
   let element: HTMLElement | null = isElement(elementId)
     ? (elementId as HTMLElement)
@@ -222,22 +229,70 @@ export const renderDICOMPDF = function (
       let PDF: Blob | null = new Blob([pdfByteArray], {
         type: "application/pdf"
       });
+      console.log(PDF);
       let fileURL = URL.createObjectURL(PDF);
-      element.innerHTML =
-        '<object data="' +
-        fileURL +
-        '" type="application/pdf" width="100%" height="100%"></object>';
-      const id: string = isElement(elementId)
-        ? element.id
-        : (elementId as string);
-      setStore(["isPDF", id, true]);
-      let t1 = performance.now();
-      console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
-      image = null;
-      fileTag = undefined;
-      pdfByteArray = undefined;
-      PDF = null;
-      resolve(true);
+      if (renderType === "pdf") {
+        element.innerHTML =
+          '<object data="' +
+          fileURL +
+          '" type="application/pdf" width="100%" height="100%"></object>';
+        const id: string = isElement(elementId)
+          ? element.id
+          : (elementId as string);
+        setStore(["isPDF", id, true]);
+        let t1 = performance.now();
+        console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
+        image = null;
+        fileTag = undefined;
+        pdfByteArray = undefined;
+        PDF = null;
+        resolve(true);
+      } else if (renderType === "png") {
+        // PDF.js library is loaded, you can use pdfjsLib here
+        const convertToPNG = async function (pdf: pdfType, pageNumber: number) {
+          const page = await pdf.getPage(pageNumber);
+          const viewport = page.getViewport({ scale: 1.5 });
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          const renderContext = {
+            canvasContext: context,
+            viewport: viewport
+          };
+
+          await page.render(renderContext).promise;
+
+          return canvas.toDataURL("image/png");
+        };
+
+        getDocument(fileURL).promise.then(pdf => {
+          console.log(pdf);
+          const pageCount = pdf.numPages;
+          // Render each page
+          for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
+            convertToPNG(pdf, pageNumber).then(pngDataURL => {
+              const byteString = atob(pngDataURL.split(",")[1]);
+              const ab = new ArrayBuffer(byteString.length);
+              const ia = new Uint8Array(ab);
+              for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+              }
+              const blob = new Blob([ab], { type: "image/png" });
+
+              const file = new File([blob], `pdf_page_${pageNumber}.png`, {
+                type: "image/png"
+              });
+              console.log(file);
+              // Display the image using Cornerstone
+              populateFileManager(file);
+              renderFileImage(file, "viewer");
+              resolve(true);
+            });
+          }
+        });
+      }
     } else {
       reject("This is not a DICOM with a PDF");
     }

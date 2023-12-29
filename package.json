@@ -50,6 +50,8 @@
     "lodash": "^4.17.15",
     "pako": "^1.0.10",
     "papaparse": "^5.3.0",
+    "pdfjs": "^2.5.3",
+    "pdfjs-dist": "^4.0.269",
     "plotly.js-dist-min": "^2.27.1",
     "uuid": "^8.3.2"
   },
@@ -60,6 +62,7 @@
     "@types/hammerjs": "^2.0.41",
     "@types/lodash": "^4.14.192",
     "@types/papaparse": "^5.3.7",
+    "@types/pdfjs-dist": "^2.10.378",
     "@types/plotly.js": "^2.12.30",
     "@types/plotly.js-dist-min": "^2.3.4",
     "@types/uuid": "^9.0.1",
