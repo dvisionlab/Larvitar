@@ -268,6 +268,10 @@ const setToolActive = function (
   // mouseButtonMask is now an array, thanks to cs tools "setToolActiveForElement",
   // but only if it has a rendered image in the viewport (!)
   // so we must check the type anyway for type coherence
+
+  if (DEFAULT_TOOLS[toolName]?.defaultActive === true) {
+    doNotSetInStore = false;
+  }
   if (!doNotSetInStore && defaultOpt.mouseButtonMask) {
     if (typeof defaultOpt.mouseButtonMask == "number") {
       defaultOpt.mouseButtonMask = [defaultOpt.mouseButtonMask];

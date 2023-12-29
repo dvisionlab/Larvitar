@@ -34,7 +34,7 @@
         style="position: absolute; top: 20px; color: white"
       ></p>
       <p
-        id="current-frame"
+        id="image-time"
         style="position: absolute; top: 40px; color: white"
       ></p>
 
@@ -159,14 +159,31 @@
                 console.log("Image has been rendered");
               });
             larvitar.addDefaultTools();
-            larvitar.setToolActive("StackScroll");
+            larvitar.setToolActive("CustomMouseWheelScroll");
+
+            // add event listener to the wheel to update the UI
+            document
+              .getElementById("viewer")
+              .addEventListener("wheel", function (event) {
+                frameId = larvitar.store.get([
+                  "viewports",
+                  "viewer",
+                  "sliceId"
+                ]);
+                $("#image-time").html(
+                  "Current Frame: " +
+                    parseInt(frameId + 1) +
+                    " of " +
+                    numberOfFrames
+                );
+              });
 
             let animation = false;
             let animationId = null;
             let numberOfFrames = multiFrameSerie.numberOfFrames;
             let frameRate = multiFrameSerie.frameTime;
             $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
-            $("#current-frame").html("Current Frame: 1 of " + numberOfFrames);
+            $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
 
             document.onkeypress = function (e) {
               e = e || window.event;
@@ -192,7 +209,7 @@
                     frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
                     larvitar.updateImage(series, "viewer", frameId, false);
 
-                    $("#current-frame").html(
+                    $("#image-time").html(
                       "Current Frame: " +
                         parseInt(frameId + 1) +
                         " of " +
@@ -201,7 +218,7 @@
                   }, frameRate);
                 } else {
                   clearInterval(animationId);
-                  $("#current-frame").html();
+                  $("#image-time").html();
                 }
               }
             };

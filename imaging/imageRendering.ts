@@ -24,6 +24,7 @@ import {
   StoreViewportOptions,
   Viewport
 } from "./types";
+import { DEFAULT_TOOLS } from "./tools/default";
 
 /*
  * This module provides the following functions to be exported:
@@ -512,6 +513,7 @@ export const renderImage = function (
 
       storeViewportData(image, element.id, storedViewport as Viewport, data);
       setStore(["ready", element.id, true]);
+      setStore(["seriesUID", element.id, data.seriesUID]);
       const t1 = performance.now();
       console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
@@ -717,55 +719,56 @@ export const updateViewportData = function (
     console.error("invalid html element: " + elementId);
     return;
   }
-  // TODO: understand how to handle synchronized tools
-  switch (activeTool) {
-    case "Wwwc":
-    case "Wwwl":
-    case "WwwcRegion":
-      if (viewportData.voi) {
-        setStore([
-          "contrast",
-          elementId,
-          viewportData.voi.windowWidth,
-          viewportData.voi.windowCenter
-        ]);
-      }
-      break;
-    case "Pan":
-      if (viewportData.translation) {
-        setStore([
-          "translation",
-          elementId,
-          viewportData.translation.x,
-          viewportData.translation.y
-        ]);
-      }
-      break;
-    case "Zoom":
-      if (viewportData.scale) {
-        setStore(["scale", elementId, viewportData.scale]);
-      }
-      break;
-    case "Rotate":
-      if (viewportData.rotation) {
-        setStore(["rotation", elementId, viewportData.rotation]);
-      }
-      break;
-    case "mouseWheel":
-    case "stackscroll":
-      const viewport = store.get(["viewports", elementId]);
-      const isTimeserie = viewport.isTimeserie;
-      if (isTimeserie) {
-        const index = viewportData.newImageIdIndex;
-        const timeId = viewport.timeIds[index];
-        const timestamp = viewport.timestamps[index];
-        setStore(["timeId", elementId, timeId]);
-        setStore(["timestamp", elementId, timestamp]);
-      }
-      break;
-    default:
-      console.warn("unknown tool: " + activeTool);
-      break;
+  const toolsNames = Object.keys(DEFAULT_TOOLS);
+  const isValidTool = toolsNames.includes(activeTool);
+  if (isValidTool === true) {
+    switch (activeTool) {
+      case "WwwcRegion":
+        if (viewportData.voi) {
+          setStore([
+            "contrast",
+            elementId,
+            viewportData.voi.windowWidth,
+            viewportData.voi.windowCenter
+          ]);
+        }
+        break;
+      case "Pan":
+        if (viewportData.translation) {
+          setStore([
+            "translation",
+            elementId,
+            viewportData.translation.x,
+            viewportData.translation.y
+          ]);
+        }
+        break;
+      case "Zoom":
+        if (viewportData.scale) {
+          setStore(["scale", elementId, viewportData.scale]);
+        }
+        break;
+      case "Rotate":
+        if (viewportData.rotation) {
+          setStore(["rotation", elementId, viewportData.rotation]);
+        }
+        break;
+      case "CustomMouseWheelScroll":
+        const viewport = store.get(["viewports", elementId]);
+        const isTimeserie = viewport.isTimeserie;
+        if (isTimeserie) {
+          const index = viewportData.newImageIdIndex;
+          const timeId = viewport.timeIds[index];
+          const timestamp = viewport.timestamps[index];
+          setStore(["timeId", elementId, timeId]);
+          setStore(["timestamp", elementId, timestamp]);
+        }
+        break;
+      default:
+        break;
+    }
+  } else {
+    console.warn("unknown tool: " + activeTool);
   }
 };
 
@@ -804,6 +807,11 @@ export const storeViewportData = function (
   }
 
   if (data.isTimeserie) {
+    setStore([
+      "numberOfTemporalPositions",
+      elementId,
+      data.numberOfTemporalPositions as number
+    ]);
     setStore(["minTimeId", elementId, 0]);
     setStore(["timeId", elementId, data.timeIndex || 0]);
     if (data.numberOfSlices && data.numberOfTemporalPositions) {
@@ -852,6 +860,9 @@ export const storeViewportData = function (
   ]);
   setStore(["isColor", elementId, data.isColor]);
   setStore(["isMultiframe", elementId, data.isMultiframe]);
+  if (data.isMultiframe) {
+    setStore(["numberOfFrames", elementId, data.numberOfFrames as number]);
+  }
   setStore(["isTimeserie", elementId, data.isTimeserie]);
   setStore(["isPDF", elementId, false]);
   setStore(["waveform", elementId, data.waveform]);
@@ -996,13 +1007,14 @@ const getSeriesData = function (
   };
   type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
-
+  data.seriesUID = series.larvitarSeriesInstanceUID || series.seriesUID; //case of resliced series
   if (series.isMultiframe) {
     data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;
     data.imageIndex = 0;
     data.imageId = series.imageIds[data.imageIndex];
     data.isTimeserie = false;
+    data.numberOfFrames = series.numberOfFrames;
   } else if (series.is4D) {
     data.isMultiframe = false;
     data.isTimeserie = true;
