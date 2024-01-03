@@ -50,6 +50,7 @@ export default class WSTool extends BaseBrushTool {
     this.imageId=null;
     this.seriesId=null;
     this.labelToErase=null;
+    //this.touchDragCallback = this._paint.bind(this);
     this._handleMouseMove = this._handleMouseMove.bind(this);
     document.addEventListener('mousemove', this._handleMouseMove);
   }
@@ -103,7 +104,10 @@ export default class WSTool extends BaseBrushTool {
    * @event
    * @param {Object} evt - The event.
    */
- _handleMouseDrag(evt) {//TODO, INSERT IT FOR MAUAL ERASING
+ mouseDragCallback(evt) {//TODO, INSERT IT FOR MAUAL ERASING
+  const { currentPoints } = evt.detail;
+
+    this._lastImageCoords = currentPoints.image;
   let shouldEraseManually=evt.detail.event.altKey 
   if (evt.buttons === 1&&shouldEraseManually) {
     this._paint(evt);
@@ -479,10 +483,11 @@ _labelToErase(circleArray,maskArray,image)
 }
 _ManualEraser(circleArray,image)
 {
-  
+
   circleArray.forEach(([x, y]) => {
     this.maskArray[this.indexImage][y * image.rows + x]=0;
   });
+  
   
 }
  /**

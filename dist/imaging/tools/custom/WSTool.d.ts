@@ -48,7 +48,8 @@ export default class WSTool {
       * @event
       * @param {Object} evt - The event.
       */
-    override _handleMouseDrag(evt: Object): void;
+    override mouseDragCallback(evt: Object): void;
+    _lastImageCoords: any;
     /**
      * Paints the data to the labelmap.
      *@name _paint
