@@ -41,6 +41,15 @@ export default class WSTool {
      */
     protected _changeRadius(evt: scrollEvent): void;
     /**
+      * Event handler for MOUSE_DRAG event.
+      *
+      * @override
+      * @abstract
+      * @event
+      * @param {Object} evt - The event.
+      */
+    override _handleMouseDrag(evt: Object): void;
+    /**
      * Paints the data to the labelmap.
      *@name _paint
      * @protected

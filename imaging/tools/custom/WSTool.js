@@ -95,7 +95,20 @@ export default class WSTool extends BaseBrushTool {
     evt.preventDefault();//modify custom mouse scroll to not interefere with ctrl+wheel
     }
   }
-
+ /**
+   * Event handler for MOUSE_DRAG event.
+   *
+   * @override
+   * @abstract
+   * @event
+   * @param {Object} evt - The event.
+   */
+ _handleMouseDrag(evt) {//TODO, INSERT IT FOR MAUAL ERASING
+  let shouldEraseManually=evt.detail.event.altKey 
+  if (evt.buttons === 1&&shouldEraseManually) {
+    this._paint(evt);
+}
+}
   /**
    * Paints the data to the labelmap.
    *@name _paint
@@ -103,7 +116,7 @@ export default class WSTool extends BaseBrushTool {
    * @param  {ClickEvent} evt The data object associated with the event.
    * @returns {void}
    */
-  async _paint(evt) {
+  async _paint(evt) {//TODO CHECK IF A Connectivity Analysi Algorithm is necessary (depth-first search)
     
     const { configuration } = segmentationModule;
     const eventData = evt.detail;
@@ -115,7 +128,6 @@ export default class WSTool extends BaseBrushTool {
    
       const toolData = getToolState(element, "stack");
       const stackData = toolData.data[0];
-
     const image = eventData.image;
     if(image.imageId!=this.imageId||viewport.seriesUID!=this.seriesUID)//||store.get(["viewports", this.element.id]).seriesUID!=this.seriesId
     {
@@ -128,8 +140,10 @@ export default class WSTool extends BaseBrushTool {
     }
     //this.seriesId=store.get(["viewports", this.element.id]).seriesUID;
     this.imageId=image.imageId;
+    this.indexImage = stackData.imageIds.indexOf(this.imageId);
     this.seriesUID=viewport.seriesUID;
     const { rows, columns } = image;
+    
     const { x, y } = eventData.currentPoints.image;
 
     if (x < 0 || x > columns || y < 0 || y > rows) {
@@ -195,7 +209,6 @@ for(let i=0;i<this.slicesNumber;i++)
   if(newimage.imageId==this.ImageId)
   {
     this.pixelData[i]= dicomPixelData;
-    this.indexImage=i;
   }
   else{
    this.pixelData[i]=this.pixelData[i]==null?newimage.getPixelData():this.pixelData[i];
@@ -381,7 +394,31 @@ console.log(this.maskArray)
     // mask array to mask a DICOM image
     return mask_array;
   }
+  
+/*function connectLabels(slice1, slice2) {
+  // Assuming slice1 and slice2 are 2D arrays representing labels in each slice
+  // Iterate through connected components in slice1
+  for each component in getConnectedComponents(slice1) {
+    // Find corresponding components in slice2 based on connectivity criteria
+    let correspondingComponents = findCorrespondingComponents(component, slice1, slice2);
 
+    // Assign the same label to corresponding components in slice2
+    for each correspondingComponent in correspondingComponents {
+      slice2[correspondingComponent.x][correspondingComponent.y] = component.label;
+    }
+  }
+}
+
+function findCorrespondingComponents(component, slice1, slice2) {
+  // Implement logic to find components in slice2 that correspond to the given component in slice1
+  // Use criteria such as proximity, size, shape, etc.
+  // Return a list of corresponding components in slice2
+}
+
+// Iterate through slices and perform label propagation
+for (let i = 1; i < numberOfSlices; i++) {
+  connectLabels(slices[i - 1], slices[i]);
+}*/
   /**
    * Draws the WS mask on the original imae
    *@name _drawBrushPixels
