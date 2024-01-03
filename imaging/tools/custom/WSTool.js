@@ -215,15 +215,13 @@ for(let i=0;i<this.slicesNumber;i++)
 
   }
   
-  let newMaskArray = await this._applyWatershedSegmentation(
+  this.maskArray[i] = await this._applyWatershedSegmentation(
     this.width,
     this.height,
     this.pixelData[i]
   );
-  this.maskArray[i]=newMaskArray;
 
 }
-console.log(this.maskArray)
     }else if(shouldErase===true){
       this.labelToErase=null;
       if(this.maskArray!=null)
@@ -341,8 +339,6 @@ console.log(this.maskArray)
     cv.watershed(src, markers);
     // draw barriers
 
-    let columns = markers.cols;
-    let rightleft = [];
 
     
     let mask_array = [];
@@ -394,7 +390,7 @@ console.log(this.maskArray)
     // mask array to mask a DICOM image
     return mask_array;
   }
-  
+
 /*function connectLabels(slice1, slice2) {
   // Assuming slice1 and slice2 are 2D arrays representing labels in each slice
   // Iterate through connected components in slice1
