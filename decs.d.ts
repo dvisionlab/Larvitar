@@ -4,7 +4,7 @@ declare module "cornerstone-wado-image-loader";
 declare module "cornerstone-web-image-loader";
 declare module "cornerstone-file-image-loader";
 declare module "dicom-character-set";
-
+declare module "pdfjs-dist/build/pdf.min.mjs";
 declare global {
   interface Document {
     documentMode?: any;
