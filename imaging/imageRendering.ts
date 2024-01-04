@@ -7,7 +7,7 @@
 import cornerstone from "cornerstone-core";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { each, has } from "lodash";
-import { getDocument } from "pdfjs-dist";
+import * as pdfjsLib from "pdfjs-dist";
 
 // internal libraries
 import { getPerformanceMonitor } from "./monitors/performance";
@@ -248,6 +248,8 @@ export const renderDICOMPDF = function (
         PDF = null;
         resolve(true);
       } else if (renderType === "png") {
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "../node_modules/pdfjs-dist/build/pdf.worker.mjs";
         // PDF.js library is loaded, you can use pdfjsLib here
         const convertToPNG = async function (pdf: pdfType, pageNumber: number) {
           const page = await pdf.getPage(pageNumber);
@@ -267,7 +269,7 @@ export const renderDICOMPDF = function (
           return canvas.toDataURL("image/png");
         };
 
-        getDocument(fileURL).promise.then(pdf => {
+        pdfjsLib.getDocument(fileURL).promise.then(pdf => {
           console.log(pdf);
           const pageCount = pdf.numPages;
           // Render each page
@@ -341,9 +343,10 @@ export const renderFileImage = function (
           console.error("invalid viewport");
           return;
         }
-
-        viewport.displayedArea.brhc.x = image.width;
-        viewport.displayedArea.brhc.y = image.height;
+        if (viewport.displayedArea) {
+          viewport.displayedArea.brhc.x = image.width;
+          viewport.displayedArea.brhc.y = image.height;
+        }
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
         csToolsCreateStack(element);

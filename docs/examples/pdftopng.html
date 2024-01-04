@@ -99,7 +99,10 @@
       </div>
     </div>
     <!-- PDF.js -->
-    <script src="https://unpkg.com/pdfjs-dist@2.10.377/build/pdf.min.js"></script>
+    <script
+      type="module"
+      src="../../node_modules/pdfjs-dist/build/pdf.mjs"
+    ></script>
     <!-- Include Cornerstone -->
     <script src="https://unpkg.com/cornerstone-core/dist/cornerstone.js"></script>
     <!-- Include CornerstoneFileImageLoader -->
@@ -108,8 +111,9 @@
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>
+      console.log(pdfjsLib);
       pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://unpkg.com/pdfjs-dist@2.10.377/build/pdf.worker.min.js";
+        "../../node_modules/pdfjs-dist/build/pdf.worker.mjs";
       larvitar.initializeFileImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();
