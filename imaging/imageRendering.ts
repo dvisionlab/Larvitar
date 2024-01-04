@@ -7,7 +7,20 @@
 import cornerstone from "cornerstone-core";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { each, has } from "lodash";
-import * as pdfjsLib from "pdfjs-dist";
+import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
+/*const loadSpecificFunctions = async () => {
+  // Use dynamic import with await and webpackIgnore comment
+  const { GlobalWorkerOptions } = await import(
+    // webpackIgnore: true
+    "pdfjs-dist/types/src/display/worker_options"
+  );
+  const { getDocument } = await import(
+    // webpackIgnore: true
+    "pdfjs-dist/types/src/display/api"
+  );
+  console.log(GlobalWorkerOptions);
+  return { GlobalWorkerOptions, getDocument };
+};*/
 
 // internal libraries
 import { getPerformanceMonitor } from "./monitors/performance";
@@ -248,7 +261,10 @@ export const renderDICOMPDF = function (
         PDF = null;
         resolve(true);
       } else if (renderType === "png") {
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
+        // Do something with the functions x and y
+        //loadSpecificFunctions().then(({ GlobalWorkerOptions, getDocument }) => {
+        console.log(GlobalWorkerOptions);
+        GlobalWorkerOptions.workerSrc =
           "../node_modules/pdfjs-dist/build/pdf.worker.mjs";
         // PDF.js library is loaded, you can use pdfjsLib here
         const convertToPNG = async function (pdf: pdfType, pageNumber: number) {
@@ -269,7 +285,7 @@ export const renderDICOMPDF = function (
           return canvas.toDataURL("image/png");
         };
 
-        pdfjsLib.getDocument(fileURL).promise.then(pdf => {
+        getDocument(fileURL).promise.then(pdf => {
           console.log(pdf);
           const pageCount = pdf.numPages;
           // Render each page
@@ -294,6 +310,7 @@ export const renderDICOMPDF = function (
             });
           }
         });
+        // });
       }
     } else {
       reject("This is not a DICOM with a PDF");
