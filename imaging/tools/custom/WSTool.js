@@ -70,7 +70,7 @@ export default class WSTool extends BaseBrushTool {
       // Your existing code here
       this.element = document.elementFromPoint(e.pageX, e.pageY).parentElement;
       this.element.addEventListener("wheel", this._changeRadius.bind(this));
-      console.log(this.element);
+
     }
   }
 
@@ -108,8 +108,11 @@ export default class WSTool extends BaseBrushTool {
   const { currentPoints } = evt.detail;
 
     this._lastImageCoords = currentPoints.image;
-  let shouldEraseManually=evt.detail.event.altKey 
-  if (evt.buttons === 1&&shouldEraseManually) {
+    console.log("DRAG EVT",evt)
+  let shouldEraseManuallyDrag=evt.detail.shiftKey
+
+  if (evt.detail.buttons === 1&&shouldEraseManuallyDrag) {
+    console.log("you are here")
     this._paint(evt);
 }
 }
@@ -156,8 +159,9 @@ export default class WSTool extends BaseBrushTool {
 
     const radius = configuration.radius;
     const { labelmap2D, labelmap3D, shouldErase } = this.paintEventData;
-    let shouldEraseManually=evt.detail.event.altKey 
-    console.log(evt)
+    let shouldEraseManually=evt.detail.shiftKey===undefined?evt.detail.event.shiftKey:evt.detail.shiftKey
+
+    console.log("EVENT PAINT",evt)
     let circleArray = getCircle(radius, rows, columns, x, y);
     if ((shouldErase===false||shouldErase===undefined)&&(shouldEraseManually===false||shouldEraseManually===undefined)){
       this.labelToErase=null;
@@ -174,8 +178,7 @@ const { mean, stddev } = this._calculateStats(
   circleArray
 );
 
-console.log("MEAN", mean);
-console.log("STDDEV", stddev);
+
 
 this.minThreshold =
   this.minThreshold === null
@@ -249,7 +252,7 @@ for(let i=0;i<this.slicesNumber;i++)
       labelmap3D.labelmaps2D,this.slicesNumber
     );
     labelmap3D.labelmaps2D=pixelMask3D
-    console.log(labelmap3D)
+
     external.cornerstone.updateImage(evt.detail.element);
   
   }
@@ -439,7 +442,7 @@ for (let i = 1; i < numberOfSlices; i++) {
     {
       let pixelData=masks[j]
       let segmentsOnLabelmap = Array.from(new Set(pixelData.filter(num => Number.isInteger(num)))).sort((a, b) => a - b);
-      console.log(segmentsOnLabelmap)
+   
       pixelData3D[j]={
         pixelData,
         segmentsOnLabelmap
@@ -466,7 +469,7 @@ _labelToErase(circleArray,maskArray,image)
     const label= this.maskArray[this.indexImage][y * image.rows + x];
     counts[label]=counts[label]+1;
   });
-  console.log(counts)
+
   let max=this.getMax(counts)
   this.labelToErase=counts.findIndex(count => count === max);
   for(let i=0;i<maskArray.length;i++)
@@ -514,11 +517,8 @@ _ManualEraser(circleArray,image)
     const count = circleArray.length;
 
     const mean = sum / count;
-    console.log("count", count);
     const variance = sumSquaredDiff / count - mean * mean;
     const stddev = Math.sqrt(variance);
-    console.log("MEAN", mean);
-    console.log("STDDEV", stddev);
     return { mean, stddev };
   }
 
