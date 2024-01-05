@@ -106,13 +106,11 @@ export default class WSTool extends BaseBrushTool {
   const { currentPoints } = evt.detail;
 
     this._lastImageCoords = currentPoints.image;
-
-  let shouldEraseManuallyDrag=evt.detail.shiftKey //if true erase manually triggers the paint
   //let shouldActivateManualPainter=evt.detail.metaKey
-  console.log("EVENT DRAG:",evt)
-  if (evt.detail.buttons === 1&&shouldEraseManuallyDrag) {
-
+  if (evt.detail.buttons === 1&&evt.detail.shiftKey) {
+   
     this._paint(evt);
+    
 }
 //if (evt.detail.buttons === 1&&shouldActivateManualPainter) {
   //this._paint(evt)}
@@ -126,6 +124,7 @@ export default class WSTool extends BaseBrushTool {
    */
   async _paint(evt) {
     //TODO: ADD LABEL PICKER + BRUSH MANUAL PAINT WITH THAT LABEL 
+    
     const { configuration } = segmentationModule;
     const eventData = evt.detail;
     const element = eventData.element;
@@ -211,6 +210,8 @@ this.height = this.width || image.width;
 this.slicesNumber=this.slicesNumber||stackData.imageIds.length;
 this.maskArray=new Array(this.slicesNumber)
 this.pixelData=new Array(this.slicesNumber)
+console.log(this.configuration)
+//this.toggleUIVisibility(false, true);
 for(let i=0;i<this.slicesNumber;i++)
 {
   let newimage= cornerstone.imageCache.cachedImages[i].image
@@ -230,6 +231,7 @@ for(let i=0;i<this.slicesNumber;i++)
   );
 
 }
+//this.toggleUIVisibility(true, false)
     }else if(shouldErase===true){
       this.labelToErase=null;
       if(this.maskArray!=null)
@@ -247,7 +249,7 @@ for(let i=0;i<this.slicesNumber;i++)
   }//else if(shouldActivateManualPainter===true){
   // this._ManualPainter(circleArray,image)
   //}
-
+  
     // Draw / Erase the active color.
     let pixelMask3D=this._drawBrushPixels(
       this.maskArray,
@@ -257,8 +259,15 @@ for(let i=0;i<this.slicesNumber;i++)
     labelmap3D.labelmaps2D=pixelMask3D
 
     external.cornerstone.updateImage(evt.detail.element);
-  
+   
   }
+
+   toggleUIVisibility(showBrush, showLoader) {
+    
+    this.configuration.drawHandlesOnHover = showBrush;
+    document.getElementById('loading-bar-container').style.display = showLoader ? 'block' : 'none';
+  }
+  
   /**
    * Applies Watershed segmentation algorithm on pixel data using opencv.js
    * and evaluates the mask to apply to the original dicom image
@@ -269,6 +278,7 @@ for(let i=0;i<this.slicesNumber;i++)
    * @returns {void}
    */
   _applyWatershedSegmentation(width, height, dicomPixelData) {
+   
     let normalizedPixelData = new Uint8Array(width * height);
     for (let i = 0; i < dicomPixelData.length; i++) {
       normalizedPixelData[i] = this.mapToRange(
@@ -660,3 +670,7 @@ https://docs.opencv.org/3.4/d1/d5c/tutorial_py_kmeans_opencv.html
         } else if (markers.intPtr(i, j)[0] > 1) {
           // Inside pixel (non-zero marker values)
           mask_array.push(1);*/
+
+
+//+TRY SPEEDING UP THE CODE WITH WEBWORKERS
+//+CLEAN THE CODE 

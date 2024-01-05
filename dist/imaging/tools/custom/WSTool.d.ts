@@ -62,6 +62,7 @@ export default class WSTool {
     xFactor: number | undefined;
     width: any;
     height: any;
+    toggleUIVisibility(showBrush: any, showLoader: any): void;
     /**
      * Applies Watershed segmentation algorithm on pixel data using opencv.js
      * and evaluates the mask to apply to the original dicom image
