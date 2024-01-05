@@ -1,6 +1,4 @@
 /*
-TODO: check if label number is sufficient 
-TODO: apply on the whole volume the thresholded WS
 */
 //watershed segmentation is useful to segment features with distinguishable greyscale values that are
 //difficult to distinguish between them, in order to extract quantitative information
@@ -104,17 +102,20 @@ export default class WSTool extends BaseBrushTool {
    * @event
    * @param {Object} evt - The event.
    */
- mouseDragCallback(evt) {//TODO, INSERT IT FOR MAUAL ERASING
+ mouseDragCallback(evt) {
   const { currentPoints } = evt.detail;
 
     this._lastImageCoords = currentPoints.image;
-    console.log("DRAG EVT",evt)
-  let shouldEraseManuallyDrag=evt.detail.shiftKey
 
+  let shouldEraseManuallyDrag=evt.detail.shiftKey //if true erase manually triggers the paint
+  //let shouldActivateManualPainter=evt.detail.metaKey
+  console.log("EVENT DRAG:",evt)
   if (evt.detail.buttons === 1&&shouldEraseManuallyDrag) {
-    console.log("you are here")
+
     this._paint(evt);
 }
+//if (evt.detail.buttons === 1&&shouldActivateManualPainter) {
+  //this._paint(evt)}
 }
   /**
    * Paints the data to the labelmap.
@@ -123,8 +124,8 @@ export default class WSTool extends BaseBrushTool {
    * @param  {ClickEvent} evt The data object associated with the event.
    * @returns {void}
    */
-  async _paint(evt) {//TODO CHECK IF A Connectivity Analysi Algorithm is necessary (depth-first search)
-    
+  async _paint(evt) {
+    //TODO: ADD LABEL PICKER + BRUSH MANUAL PAINT WITH THAT LABEL 
     const { configuration } = segmentationModule;
     const eventData = evt.detail;
     const element = eventData.element;
@@ -160,8 +161,8 @@ export default class WSTool extends BaseBrushTool {
     const radius = configuration.radius;
     const { labelmap2D, labelmap3D, shouldErase } = this.paintEventData;
     let shouldEraseManually=evt.detail.shiftKey===undefined?evt.detail.event.shiftKey:evt.detail.shiftKey
+    //let shouldActivateManualPainter=evt.detail.ctrlKey
 
-    console.log("EVENT PAINT",evt)
     let circleArray = getCircle(radius, rows, columns, x, y);
     if ((shouldErase===false||shouldErase===undefined)&&(shouldEraseManually===false||shouldEraseManually===undefined)){
       this.labelToErase=null;
@@ -243,7 +244,9 @@ for(let i=0;i<this.slicesNumber;i++)
     }
   }else if(shouldEraseManually===true){
     this._ManualEraser(circleArray,image)
-  }
+  }//else if(shouldActivateManualPainter===true){
+  // this._ManualPainter(circleArray,image)
+  //}
 
     // Draw / Erase the active color.
     let pixelMask3D=this._drawBrushPixels(
@@ -343,7 +346,7 @@ for(let i=0;i<this.slicesNumber;i++)
       }
     }
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
-    cv.watershed(src, markers);
+    //cv.watershed(src, markers);
     // draw barriers
 
 
@@ -398,30 +401,7 @@ for(let i=0;i<this.slicesNumber;i++)
     return mask_array;
   }
 
-/*function connectLabels(slice1, slice2) {
-  // Assuming slice1 and slice2 are 2D arrays representing labels in each slice
-  // Iterate through connected components in slice1
-  for each component in getConnectedComponents(slice1) {
-    // Find corresponding components in slice2 based on connectivity criteria
-    let correspondingComponents = findCorrespondingComponents(component, slice1, slice2);
 
-    // Assign the same label to corresponding components in slice2
-    for each correspondingComponent in correspondingComponents {
-      slice2[correspondingComponent.x][correspondingComponent.y] = component.label;
-    }
-  }
-}
-
-function findCorrespondingComponents(component, slice1, slice2) {
-  // Implement logic to find components in slice2 that correspond to the given component in slice1
-  // Use criteria such as proximity, size, shape, etc.
-  // Return a list of corresponding components in slice2
-}
-
-// Iterate through slices and perform label propagation
-for (let i = 1; i < numberOfSlices; i++) {
-  connectLabels(slices[i - 1], slices[i]);
-}*/
   /**
    * Draws the WS mask on the original imae
    *@name _drawBrushPixels
@@ -544,3 +524,139 @@ _ManualEraser(circleArray,image)
     return ((value - inMin) / (inMax - inMin)) * 255;
   }
 }
+
+
+//eventually TODO:
+
+//1)TEST CONNECTED COMPONENTS 
+
+
+/*function connectLabels(slice1, slice2) {
+  // Assuming slice1 and slice2 are 2D arrays representing labels in each slice
+  // Iterate through connected components in slice1
+  for each component in getConnectedComponents(slice1) {
+    // Find corresponding components in slice2 based on connectivity criteria
+    let correspondingComponents = findCorrespondingComponents(component, slice1, slice2);
+
+    // Assign the same label to corresponding components in slice2
+    for each correspondingComponent in correspondingComponents {
+      slice2[correspondingComponent.x][correspondingComponent.y] = component.label;
+    }
+  }
+}
+
+function findCorrespondingComponents(component, slice1, slice2) {
+  // Implement logic to find components in slice2 that correspond to the given component in slice1
+  // Use criteria such as proximity, size, shape, etc.
+  // Return a list of corresponding components in slice2
+}
+
+// Iterate through slices and perform label propagation
+for (let i = 1; i < numberOfSlices; i++) {
+  connectLabels(slices[i - 1], slices[i]);
+}*/
+
+
+//2) TEST FUZZY C-MEAN CLUSTERING 
+
+
+/*
+https://www.semanticscholar.org/paper/MEDICAL-IMAGE-SEGMENTATION-USING-FUZZY-C-MEANS-AND-Christ-Parvathi/319e203d1994319ba7979a65ded8bb1d55a9c889 
+https://docs.opencv.org/3.4/d1/d5c/tutorial_py_kmeans_opencv.html
+
+*/
+
+
+//3)POST-PROCESSING: Merge labels that appear only a few times, connect labels 
+/*
+    let imgInput, imgGray, imgFuzzyOutput;
+
+    function onOpenCvReady() {
+      loadImage();
+    }
+
+    function loadImage() {
+      const fileInput = document.getElementById('fileInput');
+      const canvasInput = document.getElementById('canvasInput');
+      const ctxInput = canvasInput.getContext('2d');
+
+      const img = new Image();
+      img.src = URL.createObjectURL(fileInput.files[0]);
+      img.onload = function() {
+        canvasInput.width = img.width;
+        canvasInput.height = img.height;
+        ctxInput.drawImage(img, 0, 0);
+        performFuzzyCMeans();
+      };
+    }
+
+    function performFuzzyCMeans() {
+      const canvasInput = document.getElementById('canvasInput');
+      const ctxInput = canvasInput.getContext('2d');
+
+      const src = cv.imread(canvasInput);
+
+      // Convert to grayscale
+      const gray = new cv.Mat();
+      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+
+      // Convert to float32
+      const data = new cv.Mat();
+      gray.convertTo(data, cv.CV_32F);
+
+      // Reshape to a single column
+      data = data.reshape(1, gray.rows * gray.cols);
+
+      // Set the number of clusters (adjust as needed)
+      const k = 3;
+
+      // Term criteria for the algorithm
+      const termCriteria = new cv.TermCriteria(cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 100, 0.2);
+
+      // Apply Fuzzy C-means clustering
+      const labels = new cv.Mat();
+      const centers = new cv.Mat();
+      cv.kmeans(data, k, labels, termCriteria, 1, cv.KMEANS_RANDOM_CENTERS, centers);
+
+      // Reshape the labels to the original image size
+      labels = labels.reshape(1, gray.rows);
+
+      // Create a color map for visualization
+      const colormap = new cv.Mat();
+      cv.applyColorMap(labels, colormap, cv.COLORMAP_JET);
+
+      // Display the result
+      const canvasOutput = document.getElementById('canvasOutput');
+      const ctxOutput = canvasOutput.getContext('2d');
+      cv.imshow(canvasOutput, colormap);
+
+      // Clean up
+      src.delete();
+      gray.delete();
+      data.delete();
+      termCriteria.delete();
+      labels.delete();
+      centers.delete();
+      colormap.delete();
+    }
+*/
+
+//4)CREARE LABELS ad hoc per segmentare più di 10 features 
+
+//5)BG REMOVAL (tornare a versioni precedenti (solo label 1 )
+/* if (
+            i === 0 ||
+            j === 0 ||
+            i === markers.rows - 1 ||
+            j === markers.cols - 1
+          ) {
+            mask_array.push(0);
+          }
+          else {
+            mask_array.push(1);
+          }
+
+
+        } else if (markers.intPtr(i, j)[0] > 1) {
+          // Inside pixel (non-zero marker values)
+          mask_array.push(1);*/

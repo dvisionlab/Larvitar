@@ -201,9 +201,11 @@ for hepatic tumor segmentation (and volumetry).*/
                 }
               })
               .then(() => {
-                console.log("Cache has been loaded. Calling loadMasks.");
-                larvitar.addDefaultTools();
-                loadMasks();
+                setTimeout(function () {
+                  console.log("Cache has been loaded. Calling loadMasks.");
+                  larvitar.addDefaultTools();
+                  loadMasks();
+                }, 700);
               });
           })
           .catch(err => console.error(err));
