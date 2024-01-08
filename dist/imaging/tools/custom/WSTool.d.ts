@@ -21,6 +21,8 @@ export default class WSTool {
     imageId: any;
     seriesId: any;
     labelToErase: number | null;
+    click: number;
+    labelToChange: number | null;
     /**
      * Allows to get the canvas element when going over it with mouse
      * TODO check with multiple canvas and layouts
@@ -96,6 +98,9 @@ export default class WSTool {
      */
     protected _labelToErase(circleArray: any[], maskArray: any[], image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement): void;
     _ManualEraser(circleArray: any, image: any): void;
+    _labelPicker(circleArray: any, image: any): void;
+    pickedLabel: number | undefined;
+    _ManualPainter(circleArray: any, image: any): void;
     /**
       * Allows to calculate stats such as mean and stddev of the selected circle area
       *@name _labelToErase

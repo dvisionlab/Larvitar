@@ -369,7 +369,7 @@ for(let i=0;i<this.slicesNumber;i++)
   let row = dicomPixelData.slice(i, i + columns);
 
   // Find the first non-zero value from the left
-  let leftIndex = row.findIndex((value, i, array) => (i < array.length - 1) && (Math.abs(value - array[i - 1]) > 300))
+  let leftIndex = row.findIndex((value, i, array) => (i < array.length - 1) && (Math.abs(value - array[i - 1]) > 200))
   
   if (leftIndex === -1||leftIndex ===undefined) {
     leftIndex = row.length-1; // All values are zero
@@ -377,7 +377,7 @@ for(let i=0;i<this.slicesNumber;i++)
 
   // Find the first non-zero value from the right
   let reversedRow = [...row]; // Create a copy before reversing
-  let rightIndex = row.length - 1 - reversedRow.reverse().findIndex((value, i, array) => (i < array.length - 1) && (Math.abs(value - array[i - 1]) > 300))
+  let rightIndex = row.length - 1 - reversedRow.reverse().findIndex((value, i, array) => (i < array.length - 1) && (Math.abs(value - array[i - 1]) > 200))
 
   if (reversedRow.reverse().findIndex(value => value > 0) ===-1||rightIndex===undefined||rightIndex>=row.length) {
     rightIndex = row.length-1; // All values are zero
