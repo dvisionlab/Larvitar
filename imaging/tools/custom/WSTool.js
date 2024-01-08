@@ -48,6 +48,8 @@ export default class WSTool extends BaseBrushTool {
     this.imageId=null;
     this.seriesId=null;
     this.labelToErase=null;
+    this.click=0;
+    this.labelToChange=null;
     //this.touchDragCallback = this._paint.bind(this);
     this._handleMouseMove = this._handleMouseMove.bind(this);
     document.addEventListener('mousemove', this._handleMouseMove);
@@ -106,14 +108,11 @@ export default class WSTool extends BaseBrushTool {
   const { currentPoints } = evt.detail;
 
     this._lastImageCoords = currentPoints.image;
-  //let shouldActivateManualPainter=evt.detail.metaKey
   if (evt.detail.buttons === 1&&evt.detail.shiftKey) {
    
     this._paint(evt);
     
 }
-//if (evt.detail.buttons === 1&&shouldActivateManualPainter) {
-  //this._paint(evt)}
 }
   /**
    * Paints the data to the labelmap.
@@ -160,10 +159,9 @@ export default class WSTool extends BaseBrushTool {
     const radius = configuration.radius;
     const { labelmap2D, labelmap3D, shouldErase } = this.paintEventData;
     let shouldEraseManually=evt.detail.shiftKey===undefined?evt.detail.event.shiftKey:evt.detail.shiftKey
-    //let shouldActivateManualPainter=evt.detail.ctrlKey
-
+    let shouldActivateManualPainter=evt.detail.event===undefined?undefined:evt.detail.event.altKey
     let circleArray = getCircle(radius, rows, columns, x, y);
-    if ((shouldErase===false||shouldErase===undefined)&&(shouldEraseManually===false||shouldEraseManually===undefined)){
+    if ((shouldErase===false||shouldErase===undefined)&&(shouldEraseManually===false||shouldEraseManually===undefined)&&(shouldActivateManualPainter===false||shouldActivateManualPainter===undefined)){
       this.labelToErase=null;
  // threshold should be applied only if painting, not erasing
  if (this.dicomPixelData === null) {
@@ -210,7 +208,6 @@ this.height = this.width || image.width;
 this.slicesNumber=this.slicesNumber||stackData.imageIds.length;
 this.maskArray=new Array(this.slicesNumber)
 this.pixelData=new Array(this.slicesNumber)
-console.log(this.configuration)
 //this.toggleUIVisibility(false, true);
 for(let i=0;i<this.slicesNumber;i++)
 {
@@ -246,10 +243,20 @@ for(let i=0;i<this.slicesNumber;i++)
     }
   }else if(shouldEraseManually===true){
     this._ManualEraser(circleArray,image)
-  }//else if(shouldActivateManualPainter===true){
-  // this._ManualPainter(circleArray,image)
-  //}
-  
+  }else if(shouldActivateManualPainter===true){
+    this.click=this.click+1;
+    if(this.click===1)
+    {
+      this._labelPicker(circleArray,image)
+      console.log("color picked")
+    }
+    else if(this.click===2)
+    {
+      this._ManualPainter(circleArray,image)
+      this.click=0;
+    }
+   
+  }
     // Draw / Erase the active color.
     let pixelMask3D=this._drawBrushPixels(
       this.maskArray,
@@ -342,7 +349,7 @@ for(let i=0;i<this.slicesNumber;i++)
     cv.distanceTransform(opening, distTrans, cv.DIST_L2, 5);
     cv.normalize(distTrans, distTrans, 1, 0, cv.NORM_INF);
     // get foreground
-    cv.threshold(distTrans, Fg, 0.01, 255, cv.THRESH_BINARY);
+    cv.threshold(distTrans, Fg, 0, 255, cv.THRESH_BINARY);
     Fg.convertTo(Fg, cv.CV_8U, 1, 0);
     cv.subtract(Bg, Fg, unknown);
     // get connected components markers
@@ -356,7 +363,7 @@ for(let i=0;i<this.slicesNumber;i++)
       }
     }
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
-    //cv.watershed(src, markers);
+    cv.watershed(src, markers);
     // draw barriers
 
 
@@ -480,6 +487,39 @@ _ManualEraser(circleArray,image)
   circleArray.forEach(([x, y]) => {
     this.maskArray[this.indexImage][y * image.rows + x]=0;
   });
+  
+  
+}
+
+_labelPicker(circleArray,image){
+  let counts=new Array(11).fill(0);
+  circleArray.forEach(([x, y]) => {
+    const label= this.maskArray[this.indexImage][y * image.rows + x];
+    counts[label]=counts[label]+1;
+  });
+
+  let max=this.getMax(counts)
+  this.pickedLabel=counts.findIndex(count => count === max);
+ 
+}
+_ManualPainter(circleArray,image){
+
+    let counts=new Array(11).fill(0);
+    circleArray.forEach(([x, y]) => {
+      const label= this.maskArray[this.indexImage][y * image.rows + x];
+      counts[label]=counts[label]+1;
+    });
+  
+    let max=this.getMax(counts)
+    this.labelToChange=counts.findIndex(count => count === max);
+
+    for(let i=0;i<this.maskArray[this.indexImage].length;i++)
+    {
+      if(this.maskArray[this.indexImage][i]===this.labelToChange)
+      {
+        this.maskArray[this.indexImage][i]=this.pickedLabel
+      }
+    }
   
   
 }
