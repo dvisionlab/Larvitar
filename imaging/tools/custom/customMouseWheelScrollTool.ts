@@ -51,7 +51,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
   constructor(props = {}) {
     const defaultProps = {
       name: "CustomMouseWheelScroll",
-      supportedInteractionTypes: ["MouseWheel", "Key"],
+      supportedInteractionTypes: ["MouseWheel"],
       configuration: {
         loop: false,
         allowSkipping: true,
@@ -156,7 +156,11 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
   ) {
     const detail = evt!.detail as ToolEventDetail;
 
-    if (detail.detail.ctrlKey != true) {
+    if (
+      detail.detail.ctrlKey != true &&
+      detail.detail.altKey != true &&
+      detail.detail.shiftKey != true
+    ) {
       const { direction: invert, element } =
         (evt as CustomEvent<ToolEventDetail>)!.detail;
 

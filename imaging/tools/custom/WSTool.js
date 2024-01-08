@@ -83,7 +83,7 @@ export default class WSTool extends BaseBrushTool {
    * @returns {void}
    */
   _changeRadius(evt) {
-    if(evt.ctrlKey == true)
+    if(evt.ctrlKey == true||evt.altKey==true||evt.shiftKey==true)
     {
     const { configuration } = segmentationModule;
     const { deltaY } = evt;
@@ -198,7 +198,7 @@ const stdDevNorm = this.mapToRange(
   this.maxThreshold
 );
 
-let xFactor = 2;
+let xFactor = 1.7;
 this.xFactor=xFactor;
 this.lowerThreshold = meanNorm - xFactor * stdDevNorm;
 this.upperThreshold = meanNorm + xFactor * stdDevNorm;
@@ -226,7 +226,7 @@ for(let i=0;i<this.slicesNumber;i++)
     this.height,
     this.pixelData[i]
   );
-
+ 
 }
 //this.toggleUIVisibility(true, false)
     }else if(shouldErase===true){
@@ -274,7 +274,30 @@ for(let i=0;i<this.slicesNumber;i++)
     this.configuration.drawHandlesOnHover = showBrush;
     document.getElementById('loading-bar-container').style.display = showLoader ? 'block' : 'none';
   }
+  shiftAndZeroOut(array, minAppearance) {
+    // Count the occurrences of each integer
+    const countMap = array.reduce((acc, num) => {
+      acc[num] = (acc[num] || 0) + 1;
+      return acc;
+    }, {});
   
+    // Create a mapping for shifting
+    const shiftMap = {};
+    let shiftValue = 0;
+    
+    for (const num in countMap) {
+      if (countMap[num] >= minAppearance) {
+        shiftMap[num] = shiftValue++;
+      } else {
+        shiftMap[num] = -1; // Mark for zeroing out
+      }
+    }
+  
+    // Update the array with shifted values and zeros
+    const shiftedArray = array.map(num => (shiftMap[num] !== undefined) ? shiftMap[num] : num);
+  
+    return shiftedArray;
+  }
   /**
    * Applies Watershed segmentation algorithm on pixel data using opencv.js
    * and evaluates the mask to apply to the original dicom image
@@ -354,11 +377,14 @@ for(let i=0;i<this.slicesNumber;i++)
     cv.subtract(Bg, Fg, unknown);
     // get connected components markers
     cv.connectedComponents(Fg, markers);
+    let markersArray=new Array(markers.rows*markers.cols)
     for (let i = 0; i < markers.rows; i++) {
       for (let j = 0; j < markers.cols; j++) {
         markers.intPtr(i, j)[0] = markers.ucharPtr(i, j)[0] + 1;
+        markersArray[markers.cols*i+j-1]=markers.intPtr(i, j)[0]
         if (unknown.ucharPtr(i, j)[0] == 255) {
           markers.intPtr(i, j)[0] = 0;
+          markersArray[markers.cols*i+j-1]=markers.intPtr(i, j)[0]
         }
       }
     }
@@ -366,7 +392,7 @@ for(let i=0;i<this.slicesNumber;i++)
     cv.watershed(src, markers);
     // draw barriers
 
-
+    this.shiftAndZeroOut(markersArray,100)
     
     let mask_array = [];
     let label=1;
@@ -500,6 +526,7 @@ _labelPicker(circleArray,image){
 
   let max=this.getMax(counts)
   this.pickedLabel=counts.findIndex(count => count === max);
+  console.log(this.pickedLabel)
  
 }
 _ManualPainter(circleArray,image){
@@ -616,8 +643,6 @@ https://docs.opencv.org/3.4/d1/d5c/tutorial_py_kmeans_opencv.html
 
 */
 
-
-//3)POST-PROCESSING: Merge labels that appear only a few times, connect labels 
 /*
     let imgInput, imgGray, imgFuzzyOutput;
 
@@ -689,6 +714,33 @@ https://docs.opencv.org/3.4/d1/d5c/tutorial_py_kmeans_opencv.html
       centers.delete();
       colormap.delete();
     }
+*/
+
+//3)POST-PROCESSING: Merge labels that appear only a few times, connect labels 
+/* function shiftAndZeroOut(array, minAppearance) {
+  // Count the occurrences of each integer
+  const countMap = array.reduce((acc, num) => {
+    acc[num] = (acc[num] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Create a mapping for shifting
+  const shiftMap = {};
+  let shiftValue = 0;
+  
+  for (const num in countMap) {
+    if (countMap[num] >= minAppearance) {
+      shiftMap[num] = shiftValue++;
+    } else {
+      shiftMap[num] = -1; // Mark for zeroing out
+    }
+  }
+
+  // Update the array with shifted values and zeros
+  const shiftedArray = array.map(num => (shiftMap[num] !== undefined) ? shiftMap[num] : num);
+
+  return shiftedArray;
+}
 */
 
 //4)CREARE LABELS ad hoc per segmentare più di 10 features 
