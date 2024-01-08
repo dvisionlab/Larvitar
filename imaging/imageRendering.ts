@@ -41,7 +41,24 @@ import {
 } from "./types";
 import { DEFAULT_TOOLS } from "./tools/default";
 import { populateFileManager } from "./loaders/fileLoader";
+import * as pdfjs from "pdfjs-dist"; //import() syntax for ECMAScript modules within a CommonJS module
+/*let pdfjs ;
+export async function initializePdfjs() {
+    const pdfjsModule = await import("pdfjs-dist/build/pdf.min.mjs");
+    pdfjs = pdfjsModule.default;
+    console.log(pdfjs);
+}
+*/
 
+/*async function loadPdfjs() {
+  // Use import() for ECMAScript module syntax
+  const pdfjsModule = await import("pdfjs-dist/build/pdf.min.mjs");
+
+  // Access the imported module
+  pdfjs = pdfjsModule.default.keys; // or whatever the exported object is named
+  console.log("PDFJS", pdfjs);
+}
+loadPdfjs();*/
 /*
  * This module provides the following functions to be exported:
  * clearImageCache(seriesId)
@@ -264,7 +281,7 @@ export const renderDICOMPDF = function (
         // Do something with the functions x and y
         //loadSpecificFunctions().then(({ GlobalWorkerOptions, getDocument }) => {
         console.log(GlobalWorkerOptions);
-        GlobalWorkerOptions.workerSrc =
+        pdfjs.GlobalWorkerOptions.workerSrc =
           "../node_modules/pdfjs-dist/build/pdf.worker.mjs";
         // PDF.js library is loaded, you can use pdfjsLib here
         const convertToPNG = async function (pdf: pdfType, pageNumber: number) {
@@ -285,7 +302,7 @@ export const renderDICOMPDF = function (
           return canvas.toDataURL("image/png");
         };
 
-        getDocument(fileURL).promise.then(pdf => {
+        pdfjs.getDocument(fileURL).promise.then((pdf: pdfType) => {
           console.log(pdf);
           const pageCount = pdf.numPages;
           // Render each page
