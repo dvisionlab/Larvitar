@@ -51,11 +51,10 @@
     "lodash": "^4.17.15",
     "pako": "^1.0.10",
     "papaparse": "^5.3.0",
-    "pdfjs": "^2.5.3",
-    "pdfjs-dist": "^4.0.379",
+    "pdfjs-dist": "^3.8.162",
     "plotly.js-dist-min": "^2.27.1",
-    "uuid": "^8.3.2"
-  },
+    "uuid": "^8.3.2",
+    "canvas": "^2.11.2"  },
   "devDependencies": {
     "@babel/core": "^7.21.8",
     "@types/cornerstone-core": "^2.3.0",

@@ -8,20 +8,7 @@ import cornerstone from "cornerstone-core";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { each, has } from "lodash";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
-/*const loadSpecificFunctions = async () => {
-  // Use dynamic import with await and webpackIgnore comment
-  const { GlobalWorkerOptions } = await import(
-    // webpackIgnore: true
-    "pdfjs-dist/types/src/display/worker_options"
-  );
-  const { getDocument } = await import(
-    // webpackIgnore: true
-    "pdfjs-dist/types/src/display/api"
-  );
-  console.log(GlobalWorkerOptions);
-  return { GlobalWorkerOptions, getDocument };
-};*/
-
+GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker");
 // internal libraries
 import { getPerformanceMonitor } from "./monitors/performance";
 import { getFileImageId } from "./loaders/fileLoader";
@@ -41,47 +28,8 @@ import {
 } from "./types";
 import { DEFAULT_TOOLS } from "./tools/default";
 import { populateFileManager } from "./loaders/fileLoader";
-import * as pdfjs from "pdfjs-dist"; //import() syntax for ECMAScript modules within a CommonJS module
-/*let pdfjs ;
-export async function initializePdfjs() {
-    const pdfjsModule = await import("pdfjs-dist/build/pdf.min.mjs");
-    pdfjs = pdfjsModule.default;
-    console.log(pdfjs);
-}
-*/
-
-/*async function loadPdfjs() {
-  // Use import() for ECMAScript module syntax
-  const pdfjsModule = await import("pdfjs-dist/build/pdf.min.mjs");
-
-  // Access the imported module
-  pdfjs = pdfjsModule.default.keys; // or whatever the exported object is named
-  console.log("PDFJS", pdfjs);
-}
-loadPdfjs();*/
-/*
- * This module provides the following functions to be exported:
- * clearImageCache(seriesId)
- * loadAndCacheImage(imageIndex)
- * loadAndCacheImages(seriesData)
- * renderFileImage(file, elementId)
- * renderWebImage(url, elementId)
- * disableViewport(elementId)
- * unloadViewport(elementId, seriesId)
- * resizeViewport(elementId)
- * renderImage(series, elementId, defaultProps)
- * updateImage(series, elementId, imageIndex)
- * resetViewports([elementIds])
- * updateViewportData(elementId)
- * toggleMouseHandlers(elementId, disableFlag)
- * storeViewportData(params...)
- * invertImage(elementId)
- * flipImageHorizontal(elementId)
- * flipImageVertical(elementId)
- * rotateImageLeft(elementId)
- * rotateImageRight(elementId)
- */
-
+import { initializeFileImageLoader } from "./imageLoading";
+let imageIdPdf: string | null = null;
 /**
  * Purge the cornestone internal cache
  * If seriesId is passed as argument only imageIds of the series are purged from internal cache
@@ -224,7 +172,6 @@ export const renderDICOMPDF = function (
   elementId: string | HTMLElement,
   renderType: string
 ) {
-  console.log(renderType);
   let t0 = performance.now();
   let element: HTMLElement | null = isElement(elementId)
     ? (elementId as HTMLElement)
@@ -259,7 +206,6 @@ export const renderDICOMPDF = function (
       let PDF: Blob | null = new Blob([pdfByteArray], {
         type: "application/pdf"
       });
-      console.log(PDF);
       let fileURL = URL.createObjectURL(PDF);
       if (renderType === "pdf") {
         element.innerHTML =
@@ -280,9 +226,8 @@ export const renderDICOMPDF = function (
       } else if (renderType === "png") {
         // Do something with the functions x and y
         //loadSpecificFunctions().then(({ GlobalWorkerOptions, getDocument }) => {
-        console.log(GlobalWorkerOptions);
-        pdfjs.GlobalWorkerOptions.workerSrc =
-          "../node_modules/pdfjs-dist/build/pdf.worker.mjs";
+        initializeFileImageLoader();
+
         // PDF.js library is loaded, you can use pdfjsLib here
         const convertToPNG = async function (pdf: pdfType, pageNumber: number) {
           const page = await pdf.getPage(pageNumber);
@@ -301,34 +246,49 @@ export const renderDICOMPDF = function (
 
           return canvas.toDataURL("image/png");
         };
+        let imageIds: string[] = [];
+        getDocument(fileURL)
+          .promise.then(async (pdf: pdfType) => {
+            const pageCount = pdf.numPages;
+            // Render each page
+            const promises = Array.from({ length: pageCount }, async (_, i) => {
+              const imageIdPdf = await (async () => {
+                const pngDataURL: string = await convertToPNG(pdf, i + 1);
+                const byteString = atob(pngDataURL.split(",")[1]);
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let j = 0; j < byteString.length; j++) {
+                  ia[j] = byteString.charCodeAt(j);
+                }
+                const blob = await new Blob([ab], { type: "image/png" });
 
-        pdfjs.getDocument(fileURL).promise.then((pdf: pdfType) => {
-          console.log(pdf);
-          const pageCount = pdf.numPages;
-          // Render each page
-          for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
-            convertToPNG(pdf, pageNumber).then(pngDataURL => {
-              const byteString = atob(pngDataURL.split(",")[1]);
-              const ab = new ArrayBuffer(byteString.length);
-              const ia = new Uint8Array(ab);
-              for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-              }
-              const blob = new Blob([ab], { type: "image/png" });
+                const file = await new File([blob], `pdf_page_${i + 1}.png`, {
+                  type: "image/png"
+                });
+                // Display the image using Cornerstone
+                await populateFileManager(file);
+                await renderFileImage(file, "viewer", true);
 
-              const file = new File([blob], `pdf_page_${pageNumber}.png`, {
-                type: "image/png"
-              });
-              console.log(file);
-              // Display the image using Cornerstone
-              populateFileManager(file);
-              renderFileImage(file, "viewer");
-              resolve(true);
+                return getFileImageId(file);
+              })();
+              imageIds.push(imageIdPdf as string);
             });
-          }
-        });
-        // });
+            imageIdPdf = null;
+            // Wait for all promises to resolve
+            await Promise.all(promises);
+          })
+          .then(() => {
+            let element = isElement(elementId)
+              ? (elementId as HTMLElement)
+              : document.getElementById(elementId as string);
+            if (element) {
+              setTimeout(function () {
+                csToolsCreateStack(element as HTMLElement, imageIds);
+              }, 2000);
+            }
+          });
       }
+      resolve(true);
     } else {
       reject("This is not a DICOM with a PDF");
     }
@@ -344,9 +304,11 @@ export const renderDICOMPDF = function (
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when image is displayed
  */
+
 export const renderFileImage = function (
   file: File,
-  elementId: string | HTMLElement
+  elementId: string | HTMLElement,
+  isPdf?: boolean | undefined | null
 ) {
   let element = isElement(elementId)
     ? (elementId as HTMLElement)
@@ -361,9 +323,12 @@ export const renderFileImage = function (
     cornerstone.enable(element);
   }
 
-  let renderPromise = new Promise(resolve => {
+  let renderPromise = new Promise(async resolve => {
     // check if imageId is already stored in fileManager
-    const imageId = getFileImageId(file);
+    const imageId = await getFileImageId(file as File);
+    if (isPdf == true) {
+      imageIdPdf = imageId;
+    }
     if (imageId) {
       cornerstone.loadImage(imageId).then(function (image) {
         if (!element) {
@@ -383,7 +348,9 @@ export const renderFileImage = function (
         }
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
-        csToolsCreateStack(element);
+        if (isPdf == false || isPdf === undefined || isPdf === null) {
+          csToolsCreateStack(element);
+        }
         resolve(image);
       });
     }
