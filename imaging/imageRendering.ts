@@ -247,37 +247,36 @@ export const renderDICOMPDF = function (
           return canvas.toDataURL("image/png");
         };
         let imageIds: string[] = [];
-        getDocument(fileURL)
-          .promise.then(async (pdf: pdfType) => {
-            const pageCount = pdf.numPages;
-            // Render each page
-            const promises = Array.from({ length: pageCount }, async (_, i) => {
-              const imageIdPdf = await (async () => {
-                const pngDataURL: string = await convertToPNG(pdf, i + 1);
-                const byteString = atob(pngDataURL.split(",")[1]);
-                const ab = new ArrayBuffer(byteString.length);
-                const ia = new Uint8Array(ab);
-                for (let j = 0; j < byteString.length; j++) {
-                  ia[j] = byteString.charCodeAt(j);
-                }
-                const blob = await new Blob([ab], { type: "image/png" });
+        getDocument(fileURL).promise.then(async (pdf: pdfType) => {
+          const pageCount = pdf.numPages;
+          // Render each page
+          const promises = Array.from({ length: pageCount }, async (_, i) => {
+            const imageIdPdf = await (async () => {
+              const pngDataURL: string = await convertToPNG(pdf, i + 1);
+              const byteString = atob(pngDataURL.split(",")[1]);
+              const ab = new ArrayBuffer(byteString.length);
+              const ia = new Uint8Array(ab);
+              for (let j = 0; j < byteString.length; j++) {
+                ia[j] = byteString.charCodeAt(j);
+              }
+              const blob = await new Blob([ab], { type: "image/png" });
 
-                const file = await new File([blob], `pdf_page_${i + 1}.png`, {
-                  type: "image/png"
-                });
-                // Display the image using Cornerstone
-                await populateFileManager(file);
-                await renderFileImage(file, "viewer", true);
+              const file = await new File([blob], `pdf_page_${i + 1}.png`, {
+                type: "image/png"
+              });
+              // Display the image using Cornerstone
+              await populateFileManager(file);
+              await renderFileImage(file, "viewer", true);
 
-                return getFileImageId(file);
-              })();
-              imageIds.push(imageIdPdf as string);
-            });
-            imageIdPdf = null;
-            // Wait for all promises to resolve
-            await Promise.all(promises);
-          })
-          .then(() => {
+              return getFileImageId(file);
+            })();
+            imageIds.push(imageIdPdf as string);
+          });
+          imageIdPdf = null;
+          // Wait for all promises to resolve
+          await Promise.all(promises);
+        });
+        /*.then(() => {
             let element = isElement(elementId)
               ? (elementId as HTMLElement)
               : document.getElementById(elementId as string);
@@ -286,7 +285,7 @@ export const renderDICOMPDF = function (
                 csToolsCreateStack(element as HTMLElement, imageIds);
               }, 2000);
             }
-          });
+          });*/
       }
       resolve(true);
     } else {
