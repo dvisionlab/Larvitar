@@ -65,7 +65,7 @@ export default class WSTool {
     width: any;
     height: any;
     toggleUIVisibility(showBrush: any, showLoader: any): void;
-    shiftAndZeroOut(array: any, minAppearance: any): any;
+    _shiftAndZeroOut(array: any, minAppearance: any): any;
     /**
      * Applies Watershed segmentation algorithm on pixel data using opencv.js
      * and evaluates the mask to apply to the original dicom image
@@ -76,7 +76,14 @@ export default class WSTool {
      * @returns {void}
      */
     protected _applyWatershedSegmentation(width: any, height: any, dicomPixelData: any[]): void;
-    postProcess(markers: any, src: any): any;
+    /**
+     * Post processes the markers after WS //TODO check errors in drawContours
+     *@name _postProcess
+     * @protected
+     * @param  {cv.Mat} markers //The mask array retrieved from WS algorithm
+     * @returns {cv.Mat}
+     */
+    protected _postProcess(markers: cv.Mat): cv.Mat;
     /**
      * Draws the WS mask on the original imae
      *@name _drawBrushPixels
@@ -99,13 +106,40 @@ export default class WSTool {
      * @returns {void}
      */
     protected _labelToErase(circleArray: any[], maskArray: any[], image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement): void;
-    _ManualEraser(circleArray: any, image: any): void;
-    _labelPicker(circleArray: any, image: any): void;
+    /**
+      * Allows to erase selected label parts when using shift+click (allows to drag)
+      *@name _ManualEraser
+      * @protected
+      * @param  {Array} circleArray //The selected circle coordinates Array
+      * @param  {Image} image //the dicom image
+      *
+      * @returns {void}
+      */
+    protected _ManualEraser(circleArray: any[], image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement): void;
+    /**
+       * Allows to pick a selected label parts when using alt+click for the first time
+       *@name _labelPicker
+       * @protected
+       * @param  {Array} circleArray //The selected circle coordinates Array
+       * @param  {Image} image //the dicom image
+       *
+       * @returns {void}
+       */
+    protected _labelPicker(circleArray: any[], image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement): void;
     pickedLabel: number | undefined;
-    _ManualPainter(circleArray: any, image: any): void;
+    /**
+       * Allows to associate the previously picked label on the selected label area when using alt+click for the second time
+       *@name _ManualPainter
+       * @protected
+       * @param  {Array} circleArray //The selected circle coordinates Array
+       * @param  {Image} image //the dicom image
+       *
+       * @returns {void}
+       */
+    protected _ManualPainter(circleArray: any[], image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement): void;
     /**
       * Allows to calculate stats such as mean and stddev of the selected circle area
-      *@name _labelToErase
+      *@name  _calculateStats
       * @protected
       * @param  {Image} image //the dicom image
       * @param  {Array} imagePixelData
