@@ -76,6 +76,7 @@ export default class WSTool {
      * @returns {void}
      */
     protected _applyWatershedSegmentation(width: any, height: any, dicomPixelData: any[]): void;
+    postProcess(markers: any, src: any): any;
     /**
      * Draws the WS mask on the original imae
      *@name _drawBrushPixels
