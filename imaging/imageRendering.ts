@@ -7,8 +7,7 @@
 import cornerstone from "cornerstone-core";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { each, has } from "lodash";
-import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
-GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker");
+
 // internal libraries
 import { getPerformanceMonitor } from "./monitors/performance";
 import { getFileImageId } from "./loaders/fileLoader";
@@ -23,13 +22,12 @@ import {
   Series,
   StoreViewport,
   StoreViewportOptions,
-  Viewport,
-  pdfType
+  Viewport
 } from "./types";
 import { DEFAULT_TOOLS } from "./tools/default";
-import { populateFileManager } from "./loaders/fileLoader";
 import { initializeFileImageLoader } from "./imageLoading";
-let imageIdPdf: string | null = null;
+import { generateFiles } from "./parsers/pdf";
+import { populateFileManager } from "./loaders/fileLoader";
 /**
  * Purge the cornestone internal cache
  * If seriesId is passed as argument only imageIds of the series are purged from internal cache
@@ -163,24 +161,24 @@ export function loadAndCacheImages(
  * @function renderDICOMPDF
  * @param {Object} seriesStack - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Boolean} convertToImage - An optional flag to convert pdf to image, default is false
  * @returns {Promise} - Return a promise which will resolve when pdf is displayed
  */
-//converts a pdf to png
-
 export const renderDICOMPDF = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
-  renderType: string
+  convertToImage: boolean = false
 ) {
   let t0 = performance.now();
   let element: HTMLElement | null = isElement(elementId)
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
 
-  let renderPromise = new Promise<true>((resolve, reject) => {
+  let renderPromise = new Promise<true>(async (resolve, reject) => {
     let image: Instance | null = seriesStack.instances[seriesStack.imageIds[0]];
     const SOPUID = image.dataSet?.string("x00080016");
 
+    // check sopUID in order to detect pdf report array
     if (SOPUID === "1.2.840.10008.5.1.4.1.1.104.1") {
       let fileTag = image.dataSet?.elements.x00420011;
 
@@ -207,7 +205,8 @@ export const renderDICOMPDF = function (
         type: "application/pdf"
       });
       let fileURL = URL.createObjectURL(PDF);
-      if (renderType === "pdf") {
+      // Render using HTML PDF viewer
+      if (convertToImage === false) {
         element.innerHTML =
           '<object data="' +
           fileURL +
@@ -216,77 +215,19 @@ export const renderDICOMPDF = function (
           ? element.id
           : (elementId as string);
         setStore(["isPDF", id, true]);
-        let t1 = performance.now();
-        console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
-        image = null;
-        fileTag = undefined;
-        pdfByteArray = undefined;
-        PDF = null;
-        resolve(true);
-      } else if (renderType === "png") {
-        // Do something with the functions x and y
-        //loadSpecificFunctions().then(({ GlobalWorkerOptions, getDocument }) => {
+      } else if (convertToImage === true) {
         initializeFileImageLoader();
-
-        // PDF.js library is loaded, you can use pdfjsLib here
-        const convertToPNG = async function (pdf: pdfType, pageNumber: number) {
-          const page = await pdf.getPage(pageNumber);
-          const viewport = page.getViewport({ scale: 1.5 });
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
-
-          const renderContext = {
-            canvasContext: context,
-            viewport: viewport
-          };
-
-          await page.render(renderContext).promise;
-
-          return canvas.toDataURL("image/png");
-        };
-        let imageIds: string[] = [];
-        getDocument(fileURL).promise.then(async (pdf: pdfType) => {
-          const pageCount = pdf.numPages;
-          // Render each page
-          const promises = Array.from({ length: pageCount }, async (_, i) => {
-            const imageIdPdf = await (async () => {
-              const pngDataURL: string = await convertToPNG(pdf, i + 1);
-              const byteString = atob(pngDataURL.split(",")[1]);
-              const ab = new ArrayBuffer(byteString.length);
-              const ia = new Uint8Array(ab);
-              for (let j = 0; j < byteString.length; j++) {
-                ia[j] = byteString.charCodeAt(j);
-              }
-              const blob = await new Blob([ab], { type: "image/png" });
-
-              const file = await new File([blob], `pdf_page_${i + 1}.png`, {
-                type: "image/png"
-              });
-              // Display the image using Cornerstone
-              await populateFileManager(file);
-              await renderFileImage(file, "viewer", true);
-
-              return getFileImageId(file);
-            })();
-            imageIds.push(imageIdPdf as string);
-          });
-          imageIdPdf = null;
-          // Wait for all promises to resolve
-          await Promise.all(promises);
-        });
-        /*.then(() => {
-            let element = isElement(elementId)
-              ? (elementId as HTMLElement)
-              : document.getElementById(elementId as string);
-            if (element) {
-              setTimeout(function () {
-                csToolsCreateStack(element as HTMLElement, imageIds);
-              }, 2000);
-            }
-          });*/
+        let pngFiles = await generateFiles(fileURL);
+        // render first page // TODO: render all pages?
+        populateFileManager(pngFiles[0]);
+        renderFileImage(pngFiles[0], elementId);
       }
+      let t1 = performance.now();
+      console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
+      image = null;
+      fileTag = undefined;
+      pdfByteArray = undefined;
+      PDF = null;
       resolve(true);
     } else {
       reject("This is not a DICOM with a PDF");
@@ -306,8 +247,7 @@ export const renderDICOMPDF = function (
 
 export const renderFileImage = function (
   file: File,
-  elementId: string | HTMLElement,
-  isPdf?: boolean | undefined | null
+  elementId: string | HTMLElement
 ) {
   let element = isElement(elementId)
     ? (elementId as HTMLElement)
@@ -322,12 +262,9 @@ export const renderFileImage = function (
     cornerstone.enable(element);
   }
 
-  let renderPromise = new Promise(async resolve => {
+  let renderPromise = new Promise(resolve => {
     // check if imageId is already stored in fileManager
-    const imageId = await getFileImageId(file as File);
-    if (isPdf == true) {
-      imageIdPdf = imageId;
-    }
+    const imageId = getFileImageId(file as File);
     if (imageId) {
       cornerstone.loadImage(imageId).then(function (image) {
         if (!element) {
@@ -347,11 +284,12 @@ export const renderFileImage = function (
         }
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
-        if (isPdf == false || isPdf === undefined || isPdf === null) {
-          csToolsCreateStack(element);
-        }
+        // TODO CHECK THIS FOR PDF IMAGES
+        csToolsCreateStack(element);
         resolve(image);
       });
+    } else {
+      console.warn("imageId not found in fileManager");
     }
   });
   return renderPromise;
