@@ -271,14 +271,28 @@ for(let i=0;i<this.slicesNumber;i++)
 
 
 
-
+  /**
+   * Activates a loader in progress when WS is advancing
+   *@name _toggleUIVisibility
+   * @protected
+   * @param  {boolean} showBrush 
+   * @param  {boolean} showLoader 
+   * @returns {void}
+   */
    _toggleUIVisibility(showBrush, showLoader) {
     
     this.configuration.drawHandlesOnHover = showBrush;
     document.getElementById('loading-bar-container').style.display = showLoader ? 'block' : 'none';
   }
 
-
+  /**
+   * eliminates the label that appear less than minappearance
+   *@name _shiftAndZeroOut
+   * @protected
+   * @param  {Mat} array The marker array
+   * @param  {Array} minAppearance The pixelDataArray obtained with dicomimage.getPixeldata()
+   * @returns {void}
+   */
   _shiftAndZeroOut(array, minAppearance) {
     const shiftMap = {};
 let shiftValue = 0;
@@ -729,7 +743,19 @@ _ManualPainter(circleArray,image){
     const stddev = Math.sqrt(variance);
     return { mean, stddev };
   }
-
+   /**
+   * Allows to map a value to range 0,255 (8bit, png)
+   *@name  mapToRange
+   * @protected
+   * @param  {number} value //the greyscale value to convert
+   * @param  {number} inMin//The min gs value in the image
+   * @param  {number} inMax //The max gs value in the image
+   * 
+   * @returns {void}
+   */
+  mapToRange(value, inMin, inMax) {
+    return ((value - inMin) / (inMax - inMin)) * 255;
+  }
   getMax(arr) {
     let len = arr.length;
     let max = -Infinity;
@@ -748,9 +774,7 @@ _ManualPainter(circleArray,image){
     }
     return min;
   }
-  mapToRange(value, inMin, inMax) {
-    return ((value - inMin) / (inMax - inMin)) * 255;
-  }
+
 }
 
 
