@@ -64,7 +64,7 @@ export default class WSTool {
     xFactor: number | undefined;
     width: any;
     height: any;
-    toggleUIVisibility(showBrush: any, showLoader: any): void;
+    _toggleUIVisibility(showBrush: any, showLoader: any): void;
     _shiftAndZeroOut(array: any, minAppearance: any): any;
     /**
      * Applies Watershed segmentation algorithm on pixel data using opencv.js
@@ -76,6 +76,50 @@ export default class WSTool {
      * @returns {void}
      */
     protected _applyWatershedSegmentation(width: any, height: any, dicomPixelData: any[]): void;
+    /**
+     *
+      *@name _processChunk
+     * @protected
+     * @param  {number} i
+     * @param  {number} j
+     * @param  {number} markers//the markers,found and processed after WS
+     * @param  {Array} markersArray //the array of markers processed
+     * @param  {number} label //the label of the initial feature 1
+     * @param  {number}lastRowIndex //rows-1
+     * @param  {number}lastColIndex //cols-1
+     *
+     *
+     *
+     * @returns {void}
+     */
+    protected _processChunk(i: number, j: number, markers: number, markersArray: any[], label: number, lastRowIndex: number, lastColIndex: number): void;
+    /**
+     *
+     *@name _processRowsAsync
+     * @protected
+     * @param  {number} startRow //the markers rows found and processed after WS
+     * @param  {number} endRow //the markers rows found and processed after WS
+     * @param  {number} markers//the markers,found and processed after WS
+     * @param  {Array} markersArray //the array of markers processed
+     * @param  {number} label //the label of the initial feature 1
+     * @param  {number}lastRowIndex //rows-1
+     * @param  {number}lastColIndex //cols-1
+     *
+     * @returns {void}
+     */
+    protected _processRowsAsync(startRow: number, endRow: number, markers: number, markersArray: any[], label: number, lastRowIndex: number, lastColIndex: number): void;
+    /**
+     *
+     *@name _processAsync
+     * @protected
+     * @param  {Array} rowsPerChunk //deafult rows to be processed per chunk (10)
+     * @param  {number} markers//the markers,found and processed after WS
+     * @param  {Array} markersArray //the array of markers processed
+     * @param  {number} label //the label of the initial feature 1
+     *
+     * @returns {void}
+     */
+    protected _processAsync(rowsPerChunk: any[], markers: number, markersArray: any[], label: number): void;
     /**
      * Post processes the markers after WS //TODO check errors in drawContours
      *@name _postProcess
@@ -94,7 +138,7 @@ export default class WSTool {
      *
      * @returns {void}
      */
-    protected _drawBrushPixels(masks: any[], pixelData2D: any, pixelData3D: any, slicesNumber: any): void;
+    protected _drawBrushPixels(masks: any[], pixelData2D: any, pixelData3D: any): void;
     /**
      * Allows to erase selected label parts (evaluating the label that appears the most in the selected area) when using cntrl+click
      *@name _labelToErase

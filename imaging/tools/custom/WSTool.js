@@ -217,17 +217,19 @@ for(let i=0;i<this.slicesNumber;i++)
     this.pixelData[i]= dicomPixelData;
   }
   else{
+   
    this.pixelData[i]=this.pixelData[i]==null?newimage.getPixelData():this.pixelData[i];
-
-  }
   
-  this.maskArray[i] = await this._applyWatershedSegmentation(
-    this.width,
+  }
+
+   await this._applyWatershedSegmentation(this.width,
     this.height,
-    this.pixelData[i]
-  );
+    this.pixelData[i])
+  .then(result=> {this.maskArray[i] =result})
+
  
 }
+
 //this.toggleUIVisibility(true, false)
     }else if(shouldErase===true){
       this.labelToErase=null;
@@ -243,6 +245,7 @@ for(let i=0;i<this.slicesNumber;i++)
     }
   }else if(shouldEraseManually===true){
     this._ManualEraser(circleArray,image)
+     
   }else if(shouldActivateManualPainter===true){
     this.click=this.click+1;
     if(this.click===1)
@@ -255,46 +258,35 @@ for(let i=0;i<this.slicesNumber;i++)
       this._ManualPainter(circleArray,image)
       this.click=0;
     }
-   
-  }
-    // Draw / Erase the active color.
-    let pixelMask3D=this._drawBrushPixels(
-      this.maskArray,
-      labelmap2D.pixelData,
-      labelmap3D.labelmaps2D,this.slicesNumber
-    );
-    labelmap3D.labelmaps2D=pixelMask3D
-
-    external.cornerstone.updateImage(evt.detail.element);
-   
   }
 
-   toggleUIVisibility(showBrush, showLoader) {
+  let pixelMask3D=this._drawBrushPixels(
+    this.maskArray,
+    labelmap2D.pixelData,
+    labelmap3D.labelmaps2D
+  );
+  labelmap3D.labelmaps2D=pixelMask3D
+  external.cornerstone.updateImage(evt.detail.element)
+  }
+
+
+
+
+   _toggleUIVisibility(showBrush, showLoader) {
     
     this.configuration.drawHandlesOnHover = showBrush;
     document.getElementById('loading-bar-container').style.display = showLoader ? 'block' : 'none';
   }
+
+
   _shiftAndZeroOut(array, minAppearance) {
-    // Count the occurrences of each integer
-    const countMap = array.reduce((acc, num) => {
-      acc[num] = (acc[num] || 0) + 1;
-      return acc;
-    }, {});
-  
-    // Create a mapping for shifting
     const shiftMap = {};
-    let shiftValue = 0;
-    
-    for (const num in countMap) {
-      if (countMap[num] >= minAppearance) {
-        shiftMap[num] = shiftValue++;
-      } else {
-        shiftMap[num] = -1; // Mark for zeroing out
-      }
-    }
-  
-    // Update the array with shifted values and zeros
-    const shiftedArray = array.map(num => (shiftMap[num] !== undefined) ? shiftMap[num] : num);
+let shiftValue = 0;
+
+const shiftedArray = array.map((num, index) => {
+  const count = (shiftMap[num] = (shiftMap[num] || 0) + 1);
+  return count >= minAppearance ? shiftValue++ : -1;
+});
   
     return shiftedArray;
   }
@@ -308,30 +300,26 @@ for(let i=0;i<this.slicesNumber;i++)
    * @returns {void}
    */
   _applyWatershedSegmentation(width, height, dicomPixelData) {
-   
-    let normalizedPixelData = new Uint8Array(width * height);
+    return new Promise((resolve, reject) => {
+      try {
+        // Assuming 8-bit unsigned integer pixel values
+        // Create a new array for PNG pixel data with 4 channels: RGB
+        const pngPixelData = new Uint8Array(width * height * 4);
+ 
     for (let i = 0; i < dicomPixelData.length; i++) {
-      normalizedPixelData[i] = this.mapToRange(
+      // Assuming each integer represents a grayscale value
+      pngPixelData[i * 4] = this.mapToRange(
         dicomPixelData[i],
         this.minThreshold,
         this.maxThreshold
-      );
-    }
-
-    // Assuming 8-bit unsigned integer pixel values
-    // Create a new array for PNG pixel data with 4 channels: RGB
-    const pngPixelData = new Uint8Array(width * height * 4);
-    // Function to convert DICOM pixel data to PNG pixel data
-    for (let i = 0; i < dicomPixelData.length; i++) {
-      const pixelValue = normalizedPixelData[i];
-
-      // Assuming each integer represents a grayscale value
-      pngPixelData[i * 4] = pixelValue; // Red channel
-      pngPixelData[i * 4 + 1] = pixelValue; // Green channel
-      pngPixelData[i * 4 + 2] = pixelValue; // Blue channel
+      ) // Red channel
+      pngPixelData[i * 4 + 1] = pngPixelData[i * 4]; // Green channel
+      pngPixelData[i * 4 + 2] = pngPixelData[i * 4]; // Blue channel
       pngPixelData[i * 4 + 3] = 255; // Alpha channel (fully opaque)
     }
-
+ 
+   
+    
     // Create an OpenCV Mat object from the PNG pixel data
     let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
     src.data.set(pngPixelData);
@@ -350,7 +338,7 @@ for(let i=0;i<this.slicesNumber;i++)
     cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
     let lowerBinary = new cv.Mat();
     let upperBinary = new cv.Mat();
-
+   
     cv.threshold(gray, lowerBinary, this.lowerThreshold, 255, cv.THRESH_BINARY);
     cv.threshold(
       gray,
@@ -359,10 +347,10 @@ for(let i=0;i<this.slicesNumber;i++)
       255,
       cv.THRESH_BINARY_INV
     );
-
+   
     // Combine the binary masks using bitwise_and
     cv.bitwise_and(lowerBinary, upperBinary, gray);
-
+    
     // get background
     let M = cv.Mat.ones(3, 3, cv.CV_8U);
     cv.erode(gray, gray, M);
@@ -377,73 +365,159 @@ for(let i=0;i<this.slicesNumber;i++)
     cv.subtract(Bg, Fg, unknown);
     // get connected components markers
     cv.connectedComponents(Fg, markers);
+    
+    
     let markersArray=new Array(markers.rows*markers.cols)
     for (let i = 0; i < markers.rows; i++) {
       for (let j = 0; j < markers.cols; j++) {
-        markers.intPtr(i, j)[0] = markers.ucharPtr(i, j)[0] + 1;
-        markersArray[markers.cols*i+j-1]=markers.intPtr(i, j)[0]
-        if (unknown.ucharPtr(i, j)[0] == 255) {
-          markers.intPtr(i, j)[0] = 0;
-          markersArray[markers.cols*i+j-1]=markers.intPtr(i, j)[0]
-        }
+        const markerValue = markers.ucharPtr(i, j)[0] + 1;
+        markers.intPtr(i, j)[0] = (unknown.ucharPtr(i, j)[0] === 255) ? 0 : markerValue;
+        markersArray[markers.cols * i + j - 1] = markers.intPtr(i, j)[0];
       }
     }
+  
+    
+  
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
     cv.watershed(src, markers);
     //this._postProcess(markers)
-
-
-    this._shiftAndZeroOut(markersArray,100)
     
-    let mask_array = [];
-    let label=1;
-    for (let i = 0; i < markers.rows; i++) {
-      for (let j = 0; j < markers.cols; j++) {
-        if (markers.intPtr(i, j)[0] == -1) {
+    this._shiftAndZeroOut(markersArray, 100);
+
+    let label = 1;
+    const rows = markers.rows;
+    const cols = markers.cols;
+    const lastRowIndex=rows-1;
+    const lastColIndex=cols-1;
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        const markersArrayIndex = i * markers.cols + j;
+        const markerValue = markers.intPtr(i, j)[0];
+    
+        if (markerValue === -1) {
           // Border pixel
-          if (
-            i === 0 ||
-            j === 0 ||
-            i === markers.rows - 1 ||
-            j === markers.cols - 1
-          ) {
-            mask_array.push(0);
-          } else {
-            mask_array.push(label);
-          }
-        } else if (markers.intPtr(i, j)[0] > 1) {
+          markersArray[markersArrayIndex] = (i === 0 || j === 0 || i === lastRowIndex || j === lastColIndex) ? 0 : label;
+        } else if (markerValue >= 1) {
           // Inside pixel (non-zero marker values)
-         
-          if(markers.intPtr(i, j)[0]>10)
-          {
-            label=10
-          }
-          else{label=markers.intPtr(i, j)[0]}
-          mask_array.push(label)
-          
+          label = (markerValue > 10) ? 10 : markerValue;
+          markersArray[markersArrayIndex] = label;
         } else {
           // Background pixel (marker value == 0)
-          mask_array.push(0);
+          markersArray[markersArrayIndex] = 0;
         }
       }
     }
-   
-
-    // delete unused Mat elements
-    src.delete();
-    dst.delete();
-    gray.delete();
-    opening.delete();
-    Bg.delete();
-    Fg.delete();
-    distTrans.delete();
-    unknown.delete();
-    markers.delete();
-    M.delete();
-
-    // mask array to mask a DICOM image
-    return mask_array;
+    
+    //this._processAsync(10, markers, markersArray, label);
+      
+        // delete unused Mat elements
+        src.delete();
+        dst.delete();
+        gray.delete();
+        opening.delete();
+        Bg.delete();
+        Fg.delete();
+        distTrans.delete();
+        unknown.delete();
+        markers.delete();
+        M.delete();
+        // mask array to mask a DICOM image
+        resolve(markersArray);
+ 
+  } catch (error) {
+    reject(error);
   }
+});
+}
+
+  /**
+   *
+    *@name _processChunk
+   * @protected
+   * @param  {number} i 
+   * @param  {number} j 
+   * @param  {number} markers//the markers,found and processed after WS
+   * @param  {Array} markersArray //the array of markers processed 
+   * @param  {number} label //the label of the initial feature 1 
+   * @param  {number}lastRowIndex //rows-1
+   * @param  {number}lastColIndex //cols-1
+   * 
+   * 
+   * 
+   * @returns {void}
+   */
+   _processChunk(i, j, markers, markersArray, label, lastRowIndex, lastColIndex) {
+    const markersArrayIndex = i * markers.cols + j;
+    const markerValue = markers.intPtr(i, j)[0];
+  
+    if (markerValue === -1) {
+      // Border pixel
+      markersArray[markersArrayIndex] = (i === 0 || j === 0 || i === lastRowIndex || j === lastColIndex) ? 0 : label;
+    } else if (markerValue >= 1) {
+      // Inside pixel (non-zero marker values)
+      label = (markerValue > 10) ? 10 : markerValue;
+      markersArray[markersArrayIndex] = label;
+    } else {
+      // Background pixel (marker value == 0)
+      markersArray[markersArrayIndex] = 0;
+    }
+  }
+  /**
+   * 
+   *@name _processRowsAsync
+   * @protected
+   * @param  {number} startRow //the markers rows found and processed after WS
+   * @param  {number} endRow //the markers rows found and processed after WS
+   * @param  {number} markers//the markers,found and processed after WS
+   * @param  {Array} markersArray //the array of markers processed 
+   * @param  {number} label //the label of the initial feature 1 
+   * @param  {number}lastRowIndex //rows-1
+   * @param  {number}lastColIndex //cols-1
+   * 
+   * @returns {void}
+   */
+   _processRowsAsync(startRow, endRow, markers, markersArray, label, lastRowIndex, lastColIndex) {
+    for (let i = startRow; i < endRow; i++) {
+      for (let j = 0; j < markers.cols; j++) {
+        this._processChunk(i, j, markers, markersArray, label, lastRowIndex, lastColIndex);
+      }
+    }
+  }
+  
+  /**
+   * 
+   *@name _processAsync
+   * @protected
+   * @param  {Array} rowsPerChunk //deafult rows to be processed per chunk (10)
+   * @param  {number} markers//the markers,found and processed after WS
+   * @param  {Array} markersArray //the array of markers processed 
+   * @param  {number} label //the label of the initial feature 1 
+   * 
+   * @returns {void}
+   */
+   _processAsync(rowsPerChunk, markers, markersArray, label) {
+    let currentRow = 0;
+    const rows = markers.rows;
+    const cols = markers.cols;
+    const lastRowIndex=rows-1;
+    const lastColIndex=cols-1;
+    const processChunkAsync = () => {
+      const endRow = Math.min(currentRow + rowsPerChunk, markers.rows);
+      this._processRowsAsync(currentRow, endRow, markers, markersArray, label, lastRowIndex, lastColIndex);
+      currentRow = endRow;
+  
+      if (currentRow < markers.rows) {
+        // Schedule the next chunk
+        setTimeout(processChunkAsync, 0);
+      } else {
+        // All rows processed, resolve or do any further processing
+        resolve(markersArray);
+      }
+    };
+  
+    processChunkAsync();
+  }
+  
   /**
    * Post processes the markers after WS //TODO check errors in drawContours
    *@name _postProcess
@@ -514,22 +588,14 @@ for(let i=0;i<this.slicesNumber;i++)
    *
    * @returns {void}
    */
-  _drawBrushPixels(masks, pixelData2D,pixelData3D,slicesNumber) {
+  _drawBrushPixels(masks, pixelData2D,pixelData3D) {
+
+    pixelData2D = masks[this.indexImage].slice();
+    pixelData3D = masks.map(pixelData => {
+      const segmentsOnLabelmap = [...new Set(pixelData.filter(Number.isInteger))].sort((a, b) => a - b);
+      return { pixelData, segmentsOnLabelmap };
+    });
     
-    for (let i = 0; i < masks[this.indexImage].length; i++) {
-          pixelData2D[i] = masks[this.indexImage][i];
-    }
-    pixelData3D=new Array(slicesNumber)
-    for(let j = 0; j < masks.length; j++)
-    {
-      let pixelData=masks[j]
-      let segmentsOnLabelmap = Array.from(new Set(pixelData.filter(num => Number.isInteger(num)))).sort((a, b) => a - b);
-   
-      pixelData3D[j]={
-        pixelData,
-        segmentsOnLabelmap
-      }
-    }
     return pixelData3D
   }
 
@@ -604,8 +670,6 @@ _labelPicker(circleArray,image){
 
   let max=this.getMax(counts)
   this.pickedLabel=counts.findIndex(count => count === max);
-  console.log(this.pickedLabel)
- 
 }
 /**
    * Allows to associate the previously picked label on the selected label area when using alt+click for the second time
