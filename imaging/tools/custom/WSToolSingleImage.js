@@ -39,7 +39,9 @@ export default class WSTool extends BaseBrushTool {
       name: "WS",
       supportedInteractionTypes: ["Mouse", "Touch"],
       configuration: {
-        multiImage: false
+        multiImage: false,
+        startIndex:null,
+        endIndex:null
       },
       mixins: ["renderBrushMixin"]
     };
@@ -61,7 +63,6 @@ export default class WSTool extends BaseBrushTool {
     this.labelToErase=null;
     this.click=0;
     this.labelToChange=null;
-    this.multiImage===false;
     //this.touchDragCallback = this._paint.bind(this);
     this._handleMouseMove = this._handleMouseMove.bind(this);
     document.addEventListener('mousemove', this._handleMouseMove);
@@ -129,11 +130,19 @@ export default class WSTool extends BaseBrushTool {
 }
 }
 
-handleToggle(defaultToolsParameter) {
+handleToggle(defaultToolsParameter,startIndex,endIndex) {
     // Toggle mode between 'stack' and 'slice' on Tab key press or other events
 
-    this.multiImage=defaultToolsParameter;
     this.configuration.multiImage=defaultToolsParameter;
+    if(this.configuration.multiImage===true)
+    {
+        this.configuration.startIndex=startIndex===undefined|null?0:startIndex
+        this.configuration.endIndex=endIndex===undefined|null?this.slicesNumber:endIndex
+    }
+    else{
+        this.configuration.startIndex=null
+        this.configuration.endIndex=null
+    }
   }
   /**
    * Paints the data to the labelmap.
@@ -144,9 +153,7 @@ handleToggle(defaultToolsParameter) {
    */
   async _paint(evt) {
     //TODO: ADD LABEL PICKER + BRUSH MANUAL PAINT WITH THAT LABEL 
-    this.handleToggle(
-        DEFAULT_TOOLS["WSTool"].multiImage
-      );
+    
     const { configuration } = segmentationModule;
     const eventData = evt.detail;
     const element = eventData.element;
@@ -184,6 +191,10 @@ handleToggle(defaultToolsParameter) {
     let shouldEraseManually=evt.detail.shiftKey===undefined?evt.detail.event.shiftKey:evt.detail.shiftKey
     let shouldActivateManualPainter=evt.detail.event===undefined?undefined:evt.detail.event.altKey
     let circleArray = getCircle(radius, rows, columns, x, y);
+    this.handleToggle(
+        DEFAULT_TOOLS["WSTool"].multiImage, DEFAULT_TOOLS["WSTool"].startIndex,DEFAULT_TOOLS["WSTool"].endIndex
+      );
+
     if ((shouldErase===false||shouldErase===undefined)&&(shouldEraseManually===false||shouldEraseManually===undefined)&&(shouldActivateManualPainter===false||shouldActivateManualPainter===undefined)){
       this.labelToErase=null;
  // threshold should be applied only if painting, not erasing
@@ -231,7 +242,7 @@ this.height = this.width || image.width;
 this.slicesNumber=this.slicesNumber||stackData.imageIds.length;
 this.maskArray=new Array(this.slicesNumber)
 this.pixelData=new Array(this.slicesNumber)
-if(this.multiImage===false)
+if(this.configuration.multiImage===false)
 {
     await this._applyWatershedSegmentation(this.width,
         this.height,
@@ -242,9 +253,9 @@ if(this.multiImage===false)
         labelmap2D.pixelData)
     external.cornerstone.updateImage(evt.detail.element)
 }
-else if(this.multiImage===true){
+else if(this.configuration.multiImage===true){
 //this.toggleUIVisibility(false, true);
-for(let i=0;i<this.slicesNumber;i++)
+for(let i=this.configuration.startIndex;i<this.configuration.endIndex;i++)
 {
   let newimage= cornerstone.imageCache.cachedImages[i].image
   if(newimage.imageId==this.ImageId)
@@ -275,7 +286,7 @@ let pixelMask3D=this._drawBrushPixels(
 //this.toggleUIVisibility(true, false)
     }else if(shouldErase===true){
       this.labelToErase=null;
-      if(this.multiImage===false)
+      if(this.configuration.multiImage===false)
       {
         this._labelToErase(circleArray,this.maskArray[i],image);
         this._drawBrushPixels(
@@ -283,7 +294,7 @@ let pixelMask3D=this._drawBrushPixels(
             labelmap2D.pixelData)
         external.cornerstone.updateImage(evt.detail.element)
       }
-      else if(this.multiImage===true)
+      else if(this.configuration.multiImage===true)
       {
         if(this.maskArray!=null)
       {
@@ -708,7 +719,7 @@ const shiftedArray = array.map((num, index) => {
   _drawBrushPixels(masks, pixelData2D,pixelData3D) {
     pixelData2D = masks[this.indexImage].slice();
 
-    if(this.multiImage===true)
+    if(this.configuration.multiImage===true)
     {pixelData3D = masks.map(pixelData => {
         const segmentsOnLabelmap = [...new Set(pixelData.filter(Number.isInteger))].sort((a, b) => a - b);
         return { pixelData, segmentsOnLabelmap };
