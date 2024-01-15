@@ -27,6 +27,30 @@ import {
 import { DEFAULT_TOOLS } from "./tools/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
+
+/*
+ * This module provides the following functions to be exported:
+ * clearImageCache(seriesId)
+ * loadAndCacheImage(imageIndex)
+ * loadAndCacheImages(seriesData)
+ * renderFileImage(file, elementId)
+ * renderWebImage(url, elementId)
+ * disableViewport(elementId)
+ * unloadViewport(elementId, seriesId)
+ * resizeViewport(elementId)
+ * renderImage(series, elementId, defaultProps)
+ * updateImage(series, elementId, imageIndex)
+ * resetViewports([elementIds])
+ * updateViewportData(elementId)
+ * toggleMouseHandlers(elementId, disableFlag)
+ * storeViewportData(params...)
+ * invertImage(elementId)
+ * flipImageHorizontal(elementId)
+ * flipImageVertical(elementId)
+ * rotateImageLeft(elementId)
+ * rotateImageRight(elementId)
+ */
+
 /**
  * Purge the cornestone internal cache
  * If seriesId is passed as argument only imageIds of the series are purged from internal cache

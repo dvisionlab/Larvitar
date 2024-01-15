@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>loaders/resliceLoader - Larvitar</title>
+    <title>imaging/parsers/pdf - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -41,7 +41,7 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 <div id="main">
     
-    <h1 class="page-title">loaders/resliceLoader</h1>
+    <h1 class="page-title">imaging/parsers/pdf</h1>
     
 
     
@@ -65,7 +65,7 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
         
             
                 <div class="description usertext"><p>This file provides functionalities for<br>
-custom Reslice Loader</p></div>
+managing pdf files using pdfjs-dist library</p></div>
             
 
             
@@ -79,7 +79,7 @@ custom Reslice Loader</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line161977">line 161977</a>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162396">line 162396</a>
     </li></ul></dd>
     
 
@@ -172,7 +172,7 @@ custom Reslice Loader</p></div>
 
     
 
-    <h4 class="name" id="createCustomImage"><span class="type-signature"></span>createCustomImage<span class="signature">(imageId, metadata, pixelData, dataSet)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="convertToPNG"><span class="type-signature"></span>convertToPNG<span class="signature">(pdf, pageNumber)</span><span class="type-signature"> &rarr; {string}</span></h4>
 
     
 
@@ -184,7 +184,7 @@ custom Reslice Loader</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162013">line 162013</a>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162420">line 162420</a>
     </li></ul></dd>
     
 
@@ -224,7 +224,7 @@ custom Reslice Loader</p></div>
 
 
 <div class="description usertext">
-    <p>Create the custom image object for cornerstone from custom image</p>
+    <p>Convert a pdf page to a png image in base64 format</p>
 </div>
 
 
@@ -262,13 +262,13 @@ custom Reslice Loader</p></div>
 
         <tr>
             
-                <td class="name"><code>imageId</code></td>
+                <td class="name"><code>pdf</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">pdfType</span>
 
 
             
@@ -278,20 +278,20 @@ custom Reslice Loader</p></div>
 
             
 
-            <td class="description last"><p>The Id of the image</p></td>
+            <td class="description last"><p>The pdf object</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>metadata</code></td>
+                <td class="name"><code>pageNumber</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">number</span>
 
 
             
@@ -301,53 +301,7 @@ custom Reslice Loader</p></div>
 
             
 
-            <td class="description last"><p>the metadata object</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>pixelData</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>pixel data object</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>dataSet</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>dataset object</p></td>
+            <td class="description last"><p>The page number to be converted</p></td>
         </tr>
 
     
@@ -373,7 +327,7 @@ custom Reslice Loader</p></div>
 
         
 <div class="param-desc">
-    <p>custom image object</p>
+    <p>The png image in base64 format</p>
 </div>
 
 
@@ -384,7 +338,7 @@ custom Reslice Loader</p></div>
     </dt>
     <dd>
         
-<span class="param-type">Object</span>
+<span class="param-type">string</span>
 
 
     </dd>
@@ -399,7 +353,7 @@ custom Reslice Loader</p></div>
 
     
 
-    <h4 class="name" id="loadReslicedImage"><span class="type-signature"></span>loadReslicedImage<span class="signature">(imageId)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="generateFile"><span class="type-signature"></span>generateFile<span class="signature">(pdf, pageNumber)</span><span class="type-signature"> &rarr; {File}</span></h4>
 
     
 
@@ -411,7 +365,184 @@ custom Reslice Loader</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line161995">line 161995</a>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162471">line 162471</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>pdf</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">pdfType</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The pdf object</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>pageNumber</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The page number to be converted</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The png image of the pdf page in a File object</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">File</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="generateFiles"><span class="type-signature"></span>generateFiles<span class="signature">(fileURL)</span><span class="type-signature"> &rarr; {Array.&lt;File>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162448">line 162448</a>
     </li></ul></dd>
     
 
@@ -451,7 +582,7 @@ custom Reslice Loader</p></div>
 
 
 <div class="description usertext">
-    <p>Custom Loader for DICOMImageLoader</p>
+    <p>Generate an array of files from a pdf file</p>
 </div>
 
 
@@ -489,13 +620,13 @@ custom Reslice Loader</p></div>
 
         <tr>
             
-                <td class="name"><code>imageId</code></td>
+                <td class="name"><code>fileURL</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">string</span>
 
 
             
@@ -505,7 +636,7 @@ custom Reslice Loader</p></div>
 
             
 
-            <td class="description last"><p>The Id of the image</p></td>
+            <td class="description last"><p>The url of the pdf file</p></td>
         </tr>
 
     
@@ -531,7 +662,7 @@ custom Reslice Loader</p></div>
 
         
 <div class="param-desc">
-    <p>custom image object</p>
+    <p>An array of files</p>
 </div>
 
 
@@ -542,7 +673,7 @@ custom Reslice Loader</p></div>
     </dt>
     <dd>
         
-<span class="param-type">Object</span>
+<span class="param-type">Array.&lt;File></span>
 
 
     </dd>
