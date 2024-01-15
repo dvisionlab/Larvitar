@@ -6,6 +6,8 @@
 
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
+import cornerstone from "cornerstone-core";
+import { each, extend} from "lodash";
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(
@@ -15,8 +17,15 @@ const getCircle = segmentationUtils.getCircle;
 const segmentationModule = cornerstoneTools.getModule("segmentation");
 const getToolState = cornerstoneTools.getToolState;
 // internal libraries
-import store, { set as setStore } from "../../imageStore";
-
+import store from "../../imageStore";
+const setSegmentationConfig = function (config) {
+  let { configuration } = cornerstoneTools.getModule("segmentation");
+  extend(configuration, config);
+  let enabledElements = cornerstone.getEnabledElements();
+  each(enabledElements, el => {
+    cornerstone.updateImage(el.element);
+  });
+};
 /**
  * @public
  * @class WSTool
@@ -53,6 +62,8 @@ export default class WSTool extends BaseBrushTool {
     //this.touchDragCallback = this._paint.bind(this);
     this._handleMouseMove = this._handleMouseMove.bind(this);
     document.addEventListener('mousemove', this._handleMouseMove);
+    //setSegmentationConfig({segmentsPerLabelmap:15})
+    const { configuration } = segmentationModule;
   }
   /**
    * Allows to get the canvas element when going over it with mouse
@@ -338,9 +349,41 @@ const shiftedArray = array.map((num, index) => {
     let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
     src.data.set(pngPixelData);
 
-    let dst = new cv.Mat();
-
+    
     let gray = new cv.Mat();
+    // Detect contours on the original DICOM image
+    let contours = new cv.MatVector();
+    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+
+    // Assuming your OpenCV.js version uses these constants
+    let hierarchy = new cv.Mat();  
+    cv.findContours(gray, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    // Create an array of contours 
+    let contourArray = new Array(gray.rows * gray.cols).fill(0);
+
+    for (let i = 0; i < contours.size(); i++) {
+      let currentContour = contours.get(i);
+  
+      // Loop through the matrix to extract coordinates and values
+      for (let row = 0; row < currentContour.rows; row++) {
+          for (let col = 0; col < currentContour.cols; col++) {
+              // Get the pixel value at (row, col) in the current Mat
+              // Check if the pixel is on the contour
+            let isOnContour = cv.pointPolygonTest(currentContour, { x: col, y: row }, true) === 0;
+          
+            // Set the corresponding value in contourArray
+            contourArray[row * gray.cols + col] = isOnContour ? 1 : 0;
+          }
+      }
+  
+      // Release the current Mat object
+      currentContour.delete();
+  }
+    
+    // clean up
+    contours.delete();
+    hierarchy.delete();
+
     let opening = new cv.Mat();
     let Bg = new cv.Mat();
     let Fg = new cv.Mat();
@@ -348,7 +391,7 @@ const shiftedArray = array.map((num, index) => {
     let unknown = new cv.Mat();
     let markers = new cv.Mat();
     //gray and threshold image
-    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+    
     cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
     let lowerBinary = new cv.Mat();
     let upperBinary = new cv.Mat();
@@ -419,6 +462,11 @@ const shiftedArray = array.map((num, index) => {
           // Background pixel (marker value == 0)
           markersArray[markersArrayIndex] = 0;
         }
+        /*if(contourArray[markersArrayIndex]===1)
+        {
+          console.log("contour")
+          markersArray[markersArrayIndex] = 1;
+        }*/
       }
     }
     
@@ -426,7 +474,6 @@ const shiftedArray = array.map((num, index) => {
       
         // delete unused Mat elements
         src.delete();
-        dst.delete();
         gray.delete();
         opening.delete();
         Bg.delete();

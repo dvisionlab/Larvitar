@@ -8,7 +8,7 @@
 export default class WSTool {
     constructor(props?: {});
     lowerThreshold: number | null;
-    upperThreshold: number | null;
+    upperThreshold: any;
     maskArray: any[] | null;
     src: any;
     dicomPixelData: any;
@@ -64,8 +64,24 @@ export default class WSTool {
     xFactor: number | undefined;
     width: any;
     height: any;
-    _toggleUIVisibility(showBrush: any, showLoader: any): void;
-    _shiftAndZeroOut(array: any, minAppearance: any): any;
+    /**
+     * Activates a loader in progress when WS is advancing
+     *@name _toggleUIVisibility
+     * @protected
+     * @param  {boolean} showBrush
+     * @param  {boolean} showLoader
+     * @returns {void}
+     */
+    protected _toggleUIVisibility(showBrush: boolean, showLoader: boolean): void;
+    /**
+     * eliminates the label that appear less than minappearance
+     *@name _shiftAndZeroOut
+     * @protected
+     * @param  {Mat} array The marker array
+     * @param  {Array} minAppearance The pixelDataArray obtained with dicomimage.getPixeldata()
+     * @returns {void}
+     */
+    protected _shiftAndZeroOut(array: Mat, minAppearance: any[]): void;
     /**
      * Applies Watershed segmentation algorithm on pixel data using opencv.js
      * and evaluates the mask to apply to the original dicom image
@@ -192,7 +208,17 @@ export default class WSTool {
       * @returns {void}
       */
     protected _calculateStats(image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement, imagePixelData: any[], circleArray: any[]): void;
+    /**
+    * Allows to map a value to range 0,255 (8bit, png)
+    *@name  mapToRange
+    * @protected
+    * @param  {number} value //the greyscale value to convert
+    * @param  {number} inMin//The min gs value in the image
+    * @param  {number} inMax //The max gs value in the image
+    *
+    * @returns {void}
+    */
+    protected mapToRange(value: number, inMin: number, inMax: number): void;
     getMax(arr: any): number;
     getMin(arr: any): number;
-    mapToRange(value: any, inMin: any, inMax: any): number;
 }
