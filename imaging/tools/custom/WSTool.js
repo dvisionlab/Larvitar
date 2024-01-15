@@ -327,10 +327,11 @@ const shiftedArray = array.map((num, index) => {
   _applyWatershedSegmentation(width, height, dicomPixelData) {
     return new Promise((resolve, reject) => {
       try {
+        console.time("0")
         // Assuming 8-bit unsigned integer pixel values
         // Create a new array for PNG pixel data with 4 channels: RGB
         const pngPixelData = new Uint8Array(width * height * 4);
- 
+ console.time("1")
     for (let i = 0; i < dicomPixelData.length; i++) {
       // Assuming each integer represents a grayscale value
       pngPixelData[i * 4] = this.mapToRange(
@@ -342,9 +343,9 @@ const shiftedArray = array.map((num, index) => {
       pngPixelData[i * 4 + 2] = pngPixelData[i * 4]; // Blue channel
       pngPixelData[i * 4 + 3] = 255; // Alpha channel (fully opaque)
     }
- 
+    console.timeEnd("1")
    
-    
+    console.time("2")
     // Create an OpenCV Mat object from the PNG pixel data
     let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
     src.data.set(pngPixelData);
@@ -352,10 +353,10 @@ const shiftedArray = array.map((num, index) => {
     
     let gray = new cv.Mat();
     // Detect contours on the original DICOM image
-    let contours = new cv.MatVector();
+    //let contours = new cv.MatVector();
     cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
 
-    // Assuming your OpenCV.js version uses these constants
+    /* Assuming your OpenCV.js version uses these constants
     let hierarchy = new cv.Mat();  
     cv.findContours(gray, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
     // Create an array of contours 
@@ -382,7 +383,7 @@ const shiftedArray = array.map((num, index) => {
     
     // clean up
     contours.delete();
-    hierarchy.delete();
+    hierarchy.delete();*/
 
     let opening = new cv.Mat();
     let Bg = new cv.Mat();
@@ -422,25 +423,34 @@ const shiftedArray = array.map((num, index) => {
     cv.subtract(Bg, Fg, unknown);
     // get connected components markers
     cv.connectedComponents(Fg, markers);
-    
-    
-    let markersArray=new Array(markers.rows*markers.cols)
+    console.timeEnd("2")
+    console.time("3")
+    let markersArray = new Array(markers.rows * markers.cols);
+
     for (let i = 0; i < markers.rows; i++) {
+      const markersRow = markers.intPtr(i, 0);
+      const unknownRow = unknown.ucharPtr(i, 0);
+    
+      const baseIndex = markers.cols * i;
+    
       for (let j = 0; j < markers.cols; j++) {
-        const markerValue = markers.ucharPtr(i, j)[0] + 1;
-        markers.intPtr(i, j)[0] = (unknown.ucharPtr(i, j)[0] === 255) ? 0 : markerValue;
-        markersArray[markers.cols * i + j - 1] = markers.intPtr(i, j)[0];
+        const markerValue = markersRow[j] + 1;
+        const isUnknown = unknownRow[j] === 255;
+    
+        markersRow[j] = isUnknown ? 0 : markerValue;
+        markersArray[baseIndex + j - 1] = markersRow[j];
       }
     }
-  
-    
-  
+    console.timeEnd("3")
+  console.time("4")
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
     cv.watershed(src, markers);
     //this._postProcess(markers)
-    
+    console.timeEnd("4")
+    console.time("5")
     this._shiftAndZeroOut(markersArray, 100);
-
+    console.timeEnd("5")
+    console.time("6")
     let label = 1;
     const rows = markers.rows;
     const cols = markers.cols;
@@ -469,7 +479,7 @@ const shiftedArray = array.map((num, index) => {
         }*/
       }
     }
-    
+    console.timeEnd("6")
     //this._processAsync(10, markers, markersArray, label);
       
         // delete unused Mat elements
@@ -484,7 +494,16 @@ const shiftedArray = array.map((num, index) => {
         M.delete();
         // mask array to mask a DICOM image
         resolve(markersArray);
- 
+        console.timeEnd("0")
+ /*
+WSTool.js:400 1: 2.546875 ms
+WSTool.js:426 2: 30.880126953125 ms
+WSTool.js:444 3: 28.0478515625 ms
+WSTool.js:449 4: 18.072021484375 ms
+WSTool.js:452 5: 13.97314453125 ms
+WSTool.js:482 6: 134.23095703125 ms
+WSTool.js:497 0: 228.614013671875 ms
+x slice */
   } catch (error) {
     reject(error);
   }
