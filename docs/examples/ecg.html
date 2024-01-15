@@ -215,6 +215,18 @@
             $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
             $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
 
+            // add event listener to the wheel to update the UI
+            document
+              .getElementById("viewer")
+              .addEventListener("wheel", function (event) {
+                $("#image-time").html(
+                  "Current Frame: " +
+                    larvitar.store.get(["viewports", "viewer", "sliceId"]) +
+                    " of " +
+                    numberOfFrames
+                );
+              });
+
             document.onkeypress = function (e) {
               e = e || window.event;
               if (e.keyCode == 112) {

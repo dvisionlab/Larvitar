@@ -52,7 +52,7 @@ export declare const renderDICOMPDF: (seriesStack: Series, elementId: string | H
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when image is displayed
  */
-export declare const renderFileImage: (file: File, elementId: string | HTMLElement) => Promise<unknown> | undefined;
+export declare const renderFileImage: (file: File, elementId: string | HTMLElement) => Promise<true>;
 /**
  * Render an image (png or jpg) from web url on a html div using cornerstone
  * @instance

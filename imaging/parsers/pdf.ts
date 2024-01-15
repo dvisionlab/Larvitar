@@ -14,6 +14,7 @@ GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker");
 
 // internal libraries
 import { pdfType } from "../types";
+import { populateFileManager } from "../loaders/fileLoader";
 
 /**
  * This module provides the following functions to be exported:
@@ -96,6 +97,7 @@ async function generateFile(pdf: pdfType, pageNumber: number): Promise<File> {
   let file: File | null = new File([blob], `pdf_page_${pageNumber}.png`, {
     type: "image/png"
   });
+  populateFileManager(file);
   byteString = null;
   ab = null;
   ia = null;

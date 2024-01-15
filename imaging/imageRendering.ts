@@ -27,7 +27,6 @@ import {
 import { DEFAULT_TOOLS } from "./tools/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
-import { populateFileManager } from "./loaders/fileLoader";
 /**
  * Purge the cornestone internal cache
  * If seriesId is passed as argument only imageIds of the series are purged from internal cache
@@ -168,7 +167,7 @@ export const renderDICOMPDF = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
   convertToImage: boolean = false
-) {
+): Promise<true> {
   let t0 = performance.now();
   let element: HTMLElement | null = isElement(elementId)
     ? (elementId as HTMLElement)
@@ -205,30 +204,38 @@ export const renderDICOMPDF = function (
         type: "application/pdf"
       });
       let fileURL = URL.createObjectURL(PDF);
+      const id: string = isElement(elementId)
+        ? element.id
+        : (elementId as string);
       // Render using HTML PDF viewer
       if (convertToImage === false) {
         element.innerHTML =
           '<object data="' +
           fileURL +
           '" type="application/pdf" width="100%" height="100%"></object>';
-        const id: string = isElement(elementId)
-          ? element.id
-          : (elementId as string);
         setStore(["isPDF", id, true]);
+        let t1 = performance.now();
+        console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
+        image = null;
+        fileTag = undefined;
+        pdfByteArray = undefined;
+        PDF = null;
+        resolve(true);
       } else if (convertToImage === true) {
         initializeFileImageLoader();
         let pngFiles = await generateFiles(fileURL);
         // render first page // TODO: render all pages?
-        populateFileManager(pngFiles[0]);
-        renderFileImage(pngFiles[0], elementId);
+        renderFileImage(pngFiles[0], elementId).then(() => {
+          let t1 = performance.now();
+          console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
+          image = null;
+          fileTag = undefined;
+          pdfByteArray = undefined;
+          PDF = null;
+          toggleMouseToolsListeners(id, false);
+          resolve(true);
+        });
       }
-      let t1 = performance.now();
-      console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
-      image = null;
-      fileTag = undefined;
-      pdfByteArray = undefined;
-      PDF = null;
-      resolve(true);
     } else {
       reject("This is not a DICOM with a PDF");
     }
@@ -248,27 +255,28 @@ export const renderDICOMPDF = function (
 export const renderFileImage = function (
   file: File,
   elementId: string | HTMLElement
-) {
+): Promise<true> {
+  const t0 = performance.now();
   let element = isElement(elementId)
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
 
   if (!element) {
     console.error("invalid html element: " + elementId);
-    return;
+    return new Promise((_, reject) =>
+      reject("invalid html element: " + elementId)
+    );
   }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+  cornerstone.enable(element);
 
-  if (cornerstone.getEnabledElements().length == 0) {
-    cornerstone.enable(element);
-  }
-
-  let renderPromise = new Promise(resolve => {
+  let renderPromise = new Promise<true>(resolve => {
     // check if imageId is already stored in fileManager
     const imageId = getFileImageId(file as File);
     if (imageId) {
       cornerstone.loadImage(imageId).then(function (image) {
         if (!element) {
-          console.error("invalid html element: " + elementId);
+          console.error("invalid html element: " + id);
           return;
         }
         cornerstone.displayImage(element, image);
@@ -284,9 +292,14 @@ export const renderFileImage = function (
         }
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
-        // TODO CHECK THIS FOR PDF IMAGES
-        csToolsCreateStack(element);
-        resolve(image);
+
+        const t1 = performance.now();
+        console.log(`Call to renderFileImage took ${t1 - t0} milliseconds.`);
+        //@ts-ignore
+        image = null;
+        //@ts-ignore
+        file = null;
+        resolve(true);
       });
     } else {
       console.warn("imageId not found in fileManager");

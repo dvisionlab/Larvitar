@@ -50,7 +50,7 @@ const initializeCSTools = function (
 /**
  * Create stack object to sync stack tools
  * @function csToolsCreateStack
- * @param {HTMLElement} element - The target hmtl element.
+ * @param {HTMLElement} element - The target html element.
  * @param {Array?} imageIds - Stack image ids.
  * @param {String} currentImageId - The current image id.
  */
@@ -66,7 +66,6 @@ const csToolsCreateStack = function (
         currentImageIndex === undefined ? 0 : currentImageIndex,
       imageIds: imageIds
     };
-    console.log("STACK", stack);
   } else {
     stack = {
       currentImageIdIndex: 0,
@@ -77,11 +76,6 @@ const csToolsCreateStack = function (
     }
   }
   cornerstoneTools.addStackStateManager(element, ["stack"]);
-  //TODO check why when converting a pdf
-  //larvitar.js:25009 Uncaught TypeError: Cannot read properties of undefined
-  //(reading 'getEnabledElement')
-  //at getElementToolStateManager (larvitar.js:25009:96)
-  //at Object.addStackStateManager (larvitar.js:24732:105)
   cornerstoneTools.addToolState(element, "stack", stack);
 };
 
@@ -192,6 +186,7 @@ export const addDefaultTools = function (elementId: string) {
   each(DEFAULT_TOOLS, tool => {
     // check if already added
     if (!isToolMissing(tool.name)) {
+      console.log("missing");
       return;
     }
     // check target viewports and call add tool with options
