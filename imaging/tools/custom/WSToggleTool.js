@@ -133,14 +133,14 @@ export default class WSToggleTool extends BaseBrushTool {
 }
 }
 
-handleToggle(isMultiImage,startIndex,endIndex,masksNumber) {
+_handleToggle(isMultiImage,startIndex,endIndex,masksNumber) {
     // Toggle mode between 'stack' and 'slice' on Tab key press or other events
    
     this.configuration.multiImage=isMultiImage;
     if(isMultiImage===true)
     {
-        this.configuration.startIndex=startIndex===null?0:startIndex
-        this.configuration.endIndex=endIndex===null?this.slicesNumber:endIndex
+        this.configuration.startIndex=startIndex===null?0:parseInt(startIndex,10)
+        this.configuration.endIndex=endIndex===null?this.slicesNumber:parseInt(endIndex,10)
     }
     else{
         this.configuration.startIndex=null
@@ -196,7 +196,7 @@ handleToggle(isMultiImage,startIndex,endIndex,masksNumber) {
  
     
     let circleArray = getCircle(radius, rows, columns, x, y);
-    this.handleToggle(
+    this._handleToggle(
         DEFAULT_TOOLS["WSToggle"].configuration.multiImage, DEFAULT_TOOLS["WSToggle"].configuration.startIndex,DEFAULT_TOOLS["WSToggle"].configuration.endIndex,DEFAULT_TOOLS["WSToggle"].configuration.masksNumber
       );
       const isMultiImage = this.configuration.multiImage;
@@ -246,43 +246,27 @@ this.upperThreshold = meanNorm + xFactor * stdDevNorm;
 if(isMultiImage===false)
 {
   this.maskArrayCurrentImage=new Array(this.width*this.height)
-    await this._applyWatershedSegmentation(this.width,
+     this._applyWatershedSegmentation(this.width,
         this.height,
         dicomPixelData)
-      .then(result=> {this.maskArrayCurrentImage=result})
-      labelmap2D.pixelData=this.maskArrayCurrentImage
-      external.cornerstone.updateImage(evt.detail.element)
+      .then(result=> {this.maskArrayCurrentImage=result
+        labelmap2D.pixelData=this.maskArrayCurrentImage
+        external.cornerstone.updateImage(evt.detail.element)})
+      
 }
 else if(isMultiImage===true){
 this.maskArray=new Array(this.slicesNumber)
 this.pixelData=new Array(this.slicesNumber)
 //this.toggleUIVisibility(false, true);
-for(let i=this.configuration.startIndex;i<this.configuration.endIndex;i++)
-{
-  let newimage= cornerstone.imageCache.cachedImages[i].image
-  if(newimage.imageId==this.ImageId)
-  {
-    this.pixelData[i]= dicomPixelData;
-  }
-  else{
-   
-   this.pixelData[i]=this.pixelData[i]==null?newimage.getPixelData():this.pixelData[i];
-  
-  }
-   await this._applyWatershedSegmentation(this.width,
-    this.height,
-    this.pixelData[i])
-  .then(result=> {this.maskArray[i] =result})
- 
-}
-
-//labelmap2D.pixelData=this.maskArray[this.indexImage].slice();
-let pixelMask3D=this._drawBrushPixels(
+this._processImagesAsync(cornerstone.imageCache.cachedImages,this.indexImage,this.configuration.startIndex,this.configuration.endIndex,dicomPixelData).then(() => {
+  let pixelMask3D=this._drawBrushPixels(
     this.maskArray,
     labelmap3D.labelmaps2D
   );
   labelmap3D.labelmaps2D=pixelMask3D
   external.cornerstone.updateImage(evt.detail.element)
+});
+
 }
 //this.toggleUIVisibility(true, false)
     }else if(shouldErase===true){
@@ -376,6 +360,38 @@ external.cornerstone.updateImage(evt.detail.element)
   external.cornerstone.updateImage(evt.detail.element)*/
   }
 
+ /**
+   * resets data when imageId or seriesUID changes
+   *@name _processImagesAsync
+   * @protected
+   * @param  {Image[]} cachedImages
+   * @param  {string}ImageId
+   * @param  {number}startIndex
+   * @param  {number}endIndex
+   * @param  {number[]}dicomPixelData //current image 
+   * @returns {Promise<number[]>[]}
+   */
+  async _processImagesAsync(cachedImages,ImageId,startIndex,endIndex,dicomPixelData) {
+    const promises = [];
+  
+    cachedImages.slice(startIndex, endIndex).forEach((item, index) => {
+
+      if (item.image.imageId === ImageId) {
+        this.pixelData[startIndex+index] = dicomPixelData;
+      } else {
+        this.pixelData[startIndex+index] = this.pixelData[startIndex+index] === undefined ? item.image.getPixelData() : this.pixelData[startIndex+index];
+      }
+  
+      promises.push(
+        this._applyWatershedSegmentation(this.width, this.height, this.pixelData[startIndex+index])
+          .then(result => {
+            this.maskArray[startIndex+index] = result;
+          })
+      );
+    });
+  
+    await Promise.all(promises);
+  }
  /**
    * resets data when imaegId or seriesUID changes
    *@name _resetData

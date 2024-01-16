@@ -53,7 +53,7 @@ export default class WSToggleTool {
       */
     override mouseDragCallback(evt: Object): void;
     _lastImageCoords: any;
-    handleToggle(isMultiImage: any, startIndex: any, endIndex: any, masksNumber: any): void;
+    _handleToggle(isMultiImage: any, startIndex: any, endIndex: any, masksNumber: any): void;
     /**
      * Paints the data to the labelmap.
      *@name _paint
@@ -66,6 +66,18 @@ export default class WSToggleTool {
     width: any;
     height: any;
     xFactor: number | undefined;
+    /**
+      * resets data when imageId or seriesUID changes
+      *@name _processImagesAsync
+      * @protected
+      * @param  {Image[]} cachedImages
+      * @param  {string}ImageId
+      * @param  {number}startIndex
+      * @param  {number}endIndex
+      * @param  {number[]}dicomPixelData //current image
+      * @returns {Promise<number[]>[]}
+      */
+    protected _processImagesAsync(cachedImages: (new (width?: number | undefined, height?: number | undefined) => HTMLImageElement)[], ImageId: string, startIndex: number, endIndex: number, dicomPixelData: number[]): Promise<number[]>[];
     /**
       * resets data when imaegId or seriesUID changes
       *@name _resetData
