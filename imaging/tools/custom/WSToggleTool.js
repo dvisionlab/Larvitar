@@ -139,8 +139,8 @@ _handleToggle(isMultiImage,startIndex,endIndex,masksNumber) {
     this.configuration.multiImage=isMultiImage;
     if(isMultiImage===true)
     {
-        this.configuration.startIndex=startIndex===null?0:parseInt(startIndex,10)
-        this.configuration.endIndex=endIndex===null?this.slicesNumber:parseInt(endIndex,10)
+        this.configuration.startIndex=startIndex===null?0:Math.max(parseInt(startIndex,10),0)
+        this.configuration.endIndex=endIndex===null?this.slicesNumber:(Math.min(parseInt(endIndex,10)+1,this.slicesNumber))
     }
     else{
         this.configuration.startIndex=null
@@ -259,6 +259,7 @@ this.maskArray=new Array(this.slicesNumber)
 this.pixelData=new Array(this.slicesNumber)
 //this.toggleUIVisibility(false, true);
 this._processImagesAsync(cornerstone.imageCache.cachedImages,this.indexImage,this.configuration.startIndex,this.configuration.endIndex,dicomPixelData).then(() => {
+  console.log(this.maskArray)
   let pixelMask3D=this._drawBrushPixels(
     this.maskArray,
     labelmap3D.labelmaps2D
@@ -375,17 +376,17 @@ external.cornerstone.updateImage(evt.detail.element)
     const promises = [];
   
     cachedImages.slice(startIndex, endIndex).forEach((item, index) => {
-
+    let trueindex=startIndex+index;
       if (item.image.imageId === ImageId) {
-        this.pixelData[startIndex+index] = dicomPixelData;
+        this.pixelData[trueindex] = dicomPixelData;
       } else {
-        this.pixelData[startIndex+index] = this.pixelData[startIndex+index] === undefined ? item.image.getPixelData() : this.pixelData[startIndex+index];
+        this.pixelData[trueindex] = this.pixelData[trueindex] === undefined ? item.image.getPixelData() : this.pixelData[trueindex];
       }
   
       promises.push(
-        this._applyWatershedSegmentation(this.width, this.height, this.pixelData[startIndex+index])
+        this._applyWatershedSegmentation(this.width, this.height, this.pixelData[trueindex])
           .then(result => {
-            this.maskArray[startIndex+index] = result;
+            this.maskArray[trueindex] = result;
           })
       );
     });
