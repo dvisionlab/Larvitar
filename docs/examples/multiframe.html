@@ -161,29 +161,26 @@
             larvitar.addDefaultTools();
             larvitar.setToolActive("CustomMouseWheelScroll");
 
-            // add event listener to the wheel to update the UI
-            document
-              .getElementById("viewer")
-              .addEventListener("wheel", function (event) {
-                frameId = larvitar.store.get([
-                  "viewports",
-                  "viewer",
-                  "sliceId"
-                ]);
-                $("#image-time").html(
-                  "Current Frame: " +
-                    parseInt(frameId + 1) +
-                    " of " +
-                    numberOfFrames
-                );
-              });
-
             let animation = false;
             let animationId = null;
             let numberOfFrames = multiFrameSerie.numberOfFrames;
             let frameRate = multiFrameSerie.frameTime;
             $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
             $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
+
+            // add event listener to the wheel to update the UI
+            document
+              .getElementById("viewer")
+              .addEventListener("wheel", function (event) {
+                $("#image-time").html(
+                  "Current Frame: " +
+                    parseInt(
+                      larvitar.store.get(["viewports", "viewer", "sliceId"]) + 1
+                    ) +
+                    " of " +
+                    numberOfFrames
+                );
+              });
 
             document.onkeypress = function (e) {
               e = e || window.event;

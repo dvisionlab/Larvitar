@@ -13,7 +13,7 @@ import { MetaDataReadable } from "./MetaDataReadable";
   | null
   | Array
   | undefined; // null or undefined is only for nrrd*/
-
+export type pdfType = { getPage: function; numPages: number };
 export type StoreViewport = {
   loading: number;
   ready: boolean;
