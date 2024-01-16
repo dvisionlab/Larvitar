@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>imaging/parsers/ecg - Larvitar</title>
+    <title>imaging/parsers/pdf - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -44,7 +44,7 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 <div id="main">
     
-    <h1 class="page-title">imaging/parsers/ecg</h1>
+    <h1 class="page-title">imaging/parsers/pdf</h1>
     
 
     
@@ -68,7 +68,7 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
         
             
                 <div class="description usertext"><p>This file provides functionalities for<br>
-handling ECG signales in DICOM files</p></div>
+managing pdf files using pdfjs-dist library</p></div>
             
 
             
@@ -81,13 +81,13 @@ handling ECG signales in DICOM files</p></div>
     
     <dt class="tag-description">Description:</dt>
     <dd class="tag-description"><ul class="dummy"><li><p>This file provides functionalities for<br>
-handling ECG signales in DICOM files</p></li></ul></dd>
+managing pdf files using pdfjs-dist library</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162348">line 162348</a>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162400">line 162400</a>
     </li></ul></dd>
     
 
@@ -178,7 +178,7 @@ handling ECG signales in DICOM files</p></li></ul></dd>
 
     
 
-    <h4 class="name" id="parseECG"><span class="type-signature"></span>parseECG<span class="signature">(dataSet, tag, nSampling)</span><span class="type-signature"> &rarr; {void}</span></h4>
+    <h4 class="name" id="convertToPNG"><span class="type-signature"></span>convertToPNG<span class="signature">(pdf, pageNumber)</span><span class="type-signature"> &rarr; {string}</span></h4>
 
     
 
@@ -188,13 +188,13 @@ handling ECG signales in DICOM files</p></li></ul></dd>
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Generate an array of points representing the ECG signal</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Convert a pdf page to a png image in base64 format</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162359">line 162359</a>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162424">line 162424</a>
     </li></ul></dd>
     
 
@@ -266,13 +266,13 @@ handling ECG signales in DICOM files</p></li></ul></dd>
 
         <tr>
             
-                <td class="name"><code>dataSet</code></td>
+                <td class="name"><code>pdf</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">DataSet</span>
+<span class="param-type">pdfType</span>
 
 
 
@@ -283,20 +283,20 @@ handling ECG signales in DICOM files</p></li></ul></dd>
 
             
 
-            <td class="description last"><p>the DICOM dataset</p></td>
+            <td class="description last"><p>The pdf object</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>tag</code></td>
+                <td class="name"><code>pageNumber</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">number</span>
 
 
 
@@ -307,31 +307,7 @@ handling ECG signales in DICOM files</p></li></ul></dd>
 
             
 
-            <td class="description last"><p>the tag of the ECG signal</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>nSampling</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>the sampling rate</p></td>
+            <td class="description last"><p>The page number to be converted</p></td>
         </tr>
 
     
@@ -356,6 +332,10 @@ handling ECG signales in DICOM files</p></li></ul></dd>
 <h5 class="h5-returns">Returns:</h5>
 
         
+<div class="param-desc">
+    <p>The png image in base64 format</p>
+</div>
+
 
 
 <dl class="param-type">
@@ -364,7 +344,344 @@ handling ECG signales in DICOM files</p></li></ul></dd>
     </dt>
     <dd>
         
-<span class="param-type">void</span>
+<span class="param-type">string</span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="generateFile"><span class="type-signature"></span>generateFile<span class="signature">(pdf, pageNumber)</span><span class="type-signature"> &rarr; {File}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162475">line 162475</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>pdf</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">pdfType</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The pdf object</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>pageNumber</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The page number to be converted</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The png image of the pdf page in a File object</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">File</span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="generateFiles"><span class="type-signature"></span>generateFiles<span class="signature">(fileURL)</span><span class="type-signature"> &rarr; {Array.&lt;File>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Generate an array of files from a pdf file</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162452">line 162452</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fileURL</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The url of the pdf file</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>An array of files</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;File></span>
 
 
 
