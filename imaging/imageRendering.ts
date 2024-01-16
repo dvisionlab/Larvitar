@@ -10,7 +10,7 @@ import { each, has } from "lodash";
 
 // internal libraries
 import { getPerformanceMonitor } from "./monitors/performance";
-import { getFileImageId } from "./loaders/fileLoader";
+import { getFileImageId, getFileManager } from "./loaders/fileLoader";
 import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
@@ -25,6 +25,8 @@ import {
   Viewport
 } from "./types";
 import { DEFAULT_TOOLS } from "./tools/default";
+import { initializeFileImageLoader } from "./imageLoading";
+import { generateFiles } from "./parsers/pdf";
 
 /*
  * This module provides the following functions to be exported:
@@ -182,21 +184,24 @@ export function loadAndCacheImages(
  * @function renderDICOMPDF
  * @param {Object} seriesStack - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Boolean} convertToImage - An optional flag to convert pdf to image, default is false
  * @returns {Promise} - Return a promise which will resolve when pdf is displayed
  */
 export const renderDICOMPDF = function (
   seriesStack: Series,
-  elementId: string | HTMLElement
-) {
+  elementId: string | HTMLElement,
+  convertToImage: boolean = false
+): Promise<true> {
   let t0 = performance.now();
   let element: HTMLElement | null = isElement(elementId)
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
 
-  let renderPromise = new Promise<true>((resolve, reject) => {
+  let renderPromise = new Promise<true>(async (resolve, reject) => {
     let image: Instance | null = seriesStack.instances[seriesStack.imageIds[0]];
     const SOPUID = image.dataSet?.string("x00080016");
 
+    // check sopUID in order to detect pdf report array
     if (SOPUID === "1.2.840.10008.5.1.4.1.1.104.1") {
       let fileTag = image.dataSet?.elements.x00420011;
 
@@ -223,21 +228,42 @@ export const renderDICOMPDF = function (
         type: "application/pdf"
       });
       let fileURL = URL.createObjectURL(PDF);
-      element.innerHTML =
-        '<object data="' +
-        fileURL +
-        '" type="application/pdf" width="100%" height="100%"></object>';
       const id: string = isElement(elementId)
         ? element.id
         : (elementId as string);
-      setStore(["isPDF", id, true]);
-      let t1 = performance.now();
-      console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
-      image = null;
-      fileTag = undefined;
-      pdfByteArray = undefined;
-      PDF = null;
-      resolve(true);
+      // Render using HTML PDF viewer
+      if (convertToImage === false) {
+        element.innerHTML =
+          '<object data="' +
+          fileURL +
+          '" type="application/pdf" width="100%" height="100%"></object>';
+        setStore(["isPDF", id, true]);
+        let t1 = performance.now();
+        console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
+        image = null;
+        fileTag = undefined;
+        pdfByteArray = undefined;
+        PDF = null;
+        resolve(true);
+      } else if (convertToImage === true) {
+        initializeFileImageLoader();
+        let pngFiles = await generateFiles(fileURL);
+        // render first page // TODO: render all pages?
+        renderFileImage(pngFiles[0], elementId).then(() => {
+          let t1 = performance.now();
+          console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
+          image = null;
+          fileTag = undefined;
+          pdfByteArray = undefined;
+          PDF = null;
+          // activate the scroll stack tool
+          if (element) {
+            csToolsCreateStack(element, Object.values(getFileManager()), 0);
+          }
+          toggleMouseToolsListeners(id, false);
+          resolve(true);
+        });
+      }
     } else {
       reject("This is not a DICOM with a PDF");
     }
@@ -253,30 +279,32 @@ export const renderDICOMPDF = function (
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when image is displayed
  */
+
 export const renderFileImage = function (
   file: File,
   elementId: string | HTMLElement
-) {
+): Promise<true> {
+  const t0 = performance.now();
   let element = isElement(elementId)
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
 
   if (!element) {
     console.error("invalid html element: " + elementId);
-    return;
+    return new Promise((_, reject) =>
+      reject("invalid html element: " + elementId)
+    );
   }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+  cornerstone.enable(element);
 
-  if (cornerstone.getEnabledElements().length == 0) {
-    cornerstone.enable(element);
-  }
-
-  let renderPromise = new Promise(resolve => {
+  let renderPromise = new Promise<true>(resolve => {
     // check if imageId is already stored in fileManager
-    const imageId = getFileImageId(file);
+    const imageId = getFileImageId(file as File);
     if (imageId) {
       cornerstone.loadImage(imageId).then(function (image) {
         if (!element) {
-          console.error("invalid html element: " + elementId);
+          console.error("invalid html element: " + id);
           return;
         }
         cornerstone.displayImage(element, image);
@@ -286,14 +314,23 @@ export const renderFileImage = function (
           console.error("invalid viewport");
           return;
         }
-
-        viewport.displayedArea.brhc.x = image.width;
-        viewport.displayedArea.brhc.y = image.height;
+        if (viewport.displayedArea) {
+          viewport.displayedArea.brhc.x = image.width;
+          viewport.displayedArea.brhc.y = image.height;
+        }
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
-        csToolsCreateStack(element);
-        resolve(image);
+
+        const t1 = performance.now();
+        console.log(`Call to renderFileImage took ${t1 - t0} milliseconds.`);
+        //@ts-ignore
+        image = null;
+        //@ts-ignore
+        file = null;
+        resolve(true);
       });
+    } else {
+      console.warn("imageId not found in fileManager");
     }
   });
   return renderPromise;

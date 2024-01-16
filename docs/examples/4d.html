@@ -45,7 +45,145 @@
         <pre class="h-100">
           <code class="javascript" style="background-color: #000000">
           <p style="font-size:0.6vw;">
-           
+            let currentMode = "stack";
+            let demoFiles = [];
+            let counter = 0;
+            let animation = false;
+            let animationId = null;
+            let frames_number = 0;
+      
+            const getDemoFileNames = function () {
+              let demoFileList = [];
+              for (let i = 1; i < 195; i++) {
+                let filename = "image_(" + i + ").dcm";
+                demoFileList.push(filename);
+              }
+              return demoFileList;
+            };
+      
+            // init all
+            larvitar.initializeImageLoader();
+            larvitar.initializeCSTools();
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
+      
+            // create files from the demo folder
+            async function createFile(fileName, cb) {
+              let response = await fetch("./demo/4d/" + fileName);
+              let data = await response.blob();
+              let file = new File([data], fileName);
+              demoFiles.push(file);
+              counter++;
+              if (counter == 194) {
+                cb();
+              }
+            }
+      
+            // handle button to change scroll modality
+            function triggerHandleToggle() {
+              let newMode = currentMode === "stack" ? "slice" : "stack";
+              let newModeTxt = newMode === "stack" ? "Slices" : "Frames";
+              if (newMode === "stack") {
+                animation = false;
+                clearInterval(animationId);
+              }
+              larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode = newMode;
+              larvitar.DEFAULT_TOOLS[
+                "CustomMouseWheelScroll"
+              ].configuration.currentMode = newMode;
+              currentMode = newMode;
+              $("#toggleButton").html("Scroll Mode: " + newModeTxt);
+              let animationText =
+                newMode === "stack" ? "" : "Press 'p' to start/stop animation";
+              $("#animation").html(animationText);
+            }
+            // Attach click event to the button
+            const toggleButton = document.getElementById("toggleButton");
+            toggleButton.addEventListener("click", triggerHandleToggle);
+      
+            // Update UI regarding timeId, timestamp and sliceId
+            function changeStamps() {
+              $("#image-time").html(
+                "Image Time Id: " +
+                  larvitar.store.get(["viewports", "viewer", "timeId"]) +
+                  " of " +
+                  larvitar.store.get(["viewports", "viewer", "maxTimeId"])
+              );
+              $("#timestamp").html(
+                "Image Time: " +
+                  larvitar.store.get(["viewports", "viewer", "timestamp"])
+              );
+              $("#slicenum").html(
+                "Slice Number: " +
+                  parseInt(
+                    Math.floor(
+                      larvitar.store.get(["viewports", "viewer", "sliceId"]) /
+                        frames_number
+                    ) + 1
+                  ) +
+                  " of 2"
+              );
+            }
+      
+            // main render function
+            function renderSerie() {
+              larvitar.readFiles(demoFiles).then(seriesStack => {
+                let seriesId = _.keys(seriesStack)[0];
+                let serie = seriesStack[seriesId];
+                larvitar.populateLarvitarManager(seriesId, serie);
+                let manager = larvitar.getLarvitarManager();
+                let multiFrameSerie = manager[seriesId];
+                let frameId = 0;
+                larvitar
+                  .renderImage(multiFrameSerie, "viewer", frameId)
+                  .then(() => {
+                    frames_number = manager[seriesId].numberOfTemporalPositions;
+                    larvitar.addDefaultTools();
+                    larvitar.setToolActive("CustomMouseWheelScroll");
+                    // add information on UI regarding timeId, timestamp and sliceId
+                    changeStamps();
+      
+                    // add event listener to the wheel to update the UI
+                    document
+                      .getElementById("viewer")
+                      .addEventListener("wheel", function (event) {
+                        changeStamps();
+                      });
+      
+                    // add event listener to the keypress to start/stop the animation
+                    document.onkeypress = function (e) {
+                      if (e.key === "p" && currentMode === "slice") {
+                        animation = !animation;
+                        if (animation) {
+                          let sliceId = larvitar.store.get([
+                            "viewports",
+                            "viewer",
+                            "sliceId"
+                          ]);
+                          animationId = setInterval(function () {
+                            const sliceNumber = Math.floor(sliceId / frames_number);
+                            sliceId =
+                              sliceId === (sliceNumber + 1) * frames_number - 1
+                                ? sliceId - (frames_number - 1)
+                                : sliceId + 1;
+      
+                            larvitar.updateImage(serie, "viewer", sliceId, false);
+                            changeStamps();
+                          }, 100);
+                        } else {
+                          clearInterval(animationId);
+                        }
+                      }
+                    };
+                  })
+                  .catch(err => console.error(err));
+              });
+            }
+      
+            let demoFileList = getDemoFileNames();
+            _.each(demoFileList, function (demoFile) {
+              createFile(demoFile, renderSerie);
+            });
           </p>
           </code>
         </pre>
