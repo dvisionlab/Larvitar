@@ -251,7 +251,7 @@ if(isMultiImage===false)
         dicomPixelData)
       .then(result=> {this.maskArrayCurrentImage=result})
       labelmap2D.pixelData=this.maskArrayCurrentImage
-
+      external.cornerstone.updateImage(evt.detail.element)
 }
 else if(isMultiImage===true){
 this.maskArray=new Array(this.slicesNumber)
@@ -291,56 +291,62 @@ let pixelMask3D=this._drawBrushPixels(
       {
         if(this.maskArrayCurrentImage!=null)
         {
-          this._labelToErase(circleArray,this.maskArrayCurrentImage,image);
+          this._labelToErase(circleArray,this.maskArrayCurrentImage,image,this.maskArrayCurrentImage);
           labelmap2D.pixelData=this.maskArrayCurrentImage
-        
+          external.cornerstone.updateImage(evt.detail.element)
         }
      
       }
       else if(isMultiImage===true)
       {
-        if(this.maskArrayCurrentImage!=null)
+        if(this.maskArrayCurrentImage!=null&&this.maskArray===null)
         {
-          this.maskArray=new Array(this.slicesNumber)
-          this.maskArray[this.indexImage]=this.maskArrayCurrentImage
-        }
-      
-        if(this.maskArray!=null)
+          //this.maskArray=new Array(this.slicesNumber)
+          //this.maskArray[this.indexImage]=this.maskArrayCurrentImage
+          this._labelToErase(circleArray,this.maskArrayCurrentImage,image,this.maskArrayCurrentImage);
+          labelmap2D.pixelData=this.maskArrayCurrentImage
+          external.cornerstone.updateImage(evt.detail.element)
+        } else if(this.maskArray!=null)
       {
         
         for(let i=0;i<this.slicesNumber;i++)
         {
-          if(i!=this.indexImage)
-          {
+          //if(i!=this.indexImage)
+          //{
             this._labelToErase(circleArray,this.maskArray[this.indexImage],image,this.maskArray[i]);
-          }
+          //}
         }
+        let pixelMask3D=this._drawBrushPixels(
+          this.maskArray,
+          labelmap3D.labelmaps2D
+        );
+        labelmap3D.labelmaps2D=pixelMask3D
+        external.cornerstone.updateImage(evt.detail.element)
     }
-    let pixelMask3D=this._drawBrushPixels(
-        this.maskArray,
-        labelmap3D.labelmaps2D
-      );
-      labelmap3D.labelmaps2D=pixelMask3D
-      external.cornerstone.updateImage(evt.detail.element)
+    
 }
   }else if(shouldEraseManually===true){
-    let inputEraserArray=this.configuration.multiImage===false?this.maskArrayCurrentImage:this.maskArray[this.indexImage]
+
+    let inputEraserArray=isMultiImage?((this.maskArrayCurrentImage!=null&&this.maskArray===null)?this.maskArrayCurrentImage:this.maskArray[this.indexImage]):this.maskArrayCurrentImage
+    
     this._ManualEraser(circleArray,image,inputEraserArray)
     labelmap2D.pixelData=inputEraserArray
-   if(isMultiImage){
+   if(isMultiImage&&this.maskArray!=null){
     let pixelMask3D=this._drawBrushPixels(
       this.maskArray,
       labelmap3D.labelmaps2D
     );
     labelmap3D.labelmaps2D=pixelMask3D
-    external.cornerstone.updateImage(evt.detail.element)
+    
     }
-
+    external.cornerstone.updateImage(evt.detail.element)
   }else if(shouldActivateManualPainter===true){
+    
+
     this.click = this.click + 1;
 
-const currentArray = isMultiImage ? this.maskArray[this.indexImage] : this.maskArrayCurrentImage;
-
+    let currentArray=isMultiImage?((this.maskArrayCurrentImage!=null&&this.maskArray===null)?this.maskArrayCurrentImage:this.maskArray[this.indexImage]):this.maskArrayCurrentImage
+    
 if (this.click === 1) {
   this._labelPicker(circleArray, image, currentArray);
   console.log("color picked");
@@ -349,15 +355,16 @@ if (this.click === 1) {
   this.click = 0;
 }
 labelmap2D.pixelData = currentArray;
-if(isMultiImage)
+if(isMultiImage&&this.maskArray!=null)
 {
   let pixelMask3D=this._drawBrushPixels(
     this.maskArray,
     labelmap3D.labelmaps2D
   );
   labelmap3D.labelmaps2D=pixelMask3D
-  external.cornerstone.updateImage(evt.detail.element)
+  
 }
+external.cornerstone.updateImage(evt.detail.element)
   }
 
   /*let pixelMask3D=this._drawBrushPixels(
@@ -779,17 +786,17 @@ _labelToErase(circleArray,selectedSlice,image,slicei)
 
   let max=this.getMax(counts)
   this.labelToErase=counts.findIndex(count => count === max);
-  for(let i=0;i<selectedSlice.length;i++)
+  /*for(let i=0;i<selectedSlice.length;i++)
   {
     selectedSlice[i]=selectedSlice[i]===this.labelToErase ? 0:selectedSlice[i];
-  }}
-if(this.configuration.multiImage){
+  }*/}
+
   for(let i=0;i<slicei.length;i++)
   {
     
     slicei[i]=slicei[i]===this.labelToErase ? 0:slicei[i];
   }
-}
+
 }
  /**
    * Allows to erase selected label parts when using shift+click (allows to drag)
