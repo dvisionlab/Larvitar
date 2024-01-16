@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta http-equiv="Content-type" content="text/html" charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <style>
+      #loading-bar-container {
+        display: none;
+        position: relative;
+        height: 20px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      #loading-bar {
+        height: 100%;
+        width: 0;
+        background-color: #3498db;
+        transition: width 0.3s ease-in-out;
+      }
+
+      .loading-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #333;
+        font-weight: bold;
+      }
+      #buttonBar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .button {
+        padding: 10px; /* Adjust the padding to make the buttons bigger */
+        font-size: 16px; /* Adjust the font size for better visibility */
+      }
+
+      .manualInput {
+        width: 150px; /* Adjust the width of manual input for better visibility */
+        padding: 8px; /* Adjust the padding for better alignment */
+        font-size: 14px; /* Adjust the font size for better visibility */
+      }
+    </style>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
+    <title>Watershed segmentation implemented in OpenCV.js</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+    <div class="row h-100">
+      <div id="buttonBar">
+        <button id="toggleButton">Toggle</button>
+        <input
+          type="number"
+          class="manualInput"
+          id="startImage"
+          placeholder="startImage"
+        />
+        <input
+          type="number"
+          class="manualInput"
+          id="endImage"
+          placeholder="endImage"
+        />
+        <input
+          type="number"
+          class="manualInput"
+          id="masksNumber"
+          placeholder="Masks Number"
+        />
+      </div>
+
+      <div
+        id="viewer"
+        class="col-4 h-100"
+        style="background-color: black"
+      ></div>
+      <div
+        id="canvasOutput"
+        class="col-4 h-100"
+        style="background-color: black"
+      ></div>
+
+      <div class="col-3 h-100">
+        <pre class="h-100">
+          <div id="loading-bar-container">
+            <div id="loading-bar"></div>
+            <div class="loading-text">Loading...</div>
+          </div>
+        <code class="typescript" style="background-color: #000000">
+          <p style="font-size:0.7vw;">
+            let demoFiles = [];
+      let counter = 0;
+
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+      larvitar.registerExternalTool("Test", WatershedSegmentationTool);
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 24) {
+          cb();
+        }
+      }
+
+      function renderSerie() {
+        larvitar.resetLarvitarManager();
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            // render the first series of the study
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            larvitar.renderImage(serie, "viewer").then(() => {
+              console.log("Image has been rendered");
+            });
+            // optionally cache the series
+            larvitar.populateLarvitarManager(seriesId, serie);
+            larvitar.cacheImages(serie, function (resp) {
+              if (resp.loading == 100) {
+                let cache = larvitar.cornerstone.imageCache;
+                console.log(
+                  "Cache size: ",
+                  cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                  "Mb"
+                );
+              }
+            });
+            larvitar.addTool("Test");
+            larvitar.setToolActive("Test");
+          })
+          .catch(err => console.error(err));
+      }
+
+      let demoFileList = getDemoFileNames();
+      _.each(demoFileList, function (demoFile) {
+        createFile(demoFile, renderSerie);
+      });
+
+/*Hahn and Peitgen [2000] extracted the brain with a single watershed transform from MRI data. 
+Also, the cerebral ventricles were reliably segmented with minimal interaction. 
+Hahn and Peitgen [2003] demonstrated the application to the challenging problem of
+delineating individual bones in the human wrist (see Fig. 4.17). 
+Kuhnigk et al. [2003] employed the above-described variant of the watershed segmentation 
+to the delineation of lung lobes in CT data. 
+Ray et al. [2008] used the iterative watershed transform 
+for hepatic tumor segmentation (and volumetry).*/
+
+
+        </p>    
+    </code>
+  </pre>
+      </div>
+    </div>
+    <script src="../../dist/larvitar.js"></script>
+    <script src="../../node_modules/cornerstone-core/dist/cornerstone.js"></script>
+    <script src="../../node_modules/cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoader.bundle.min.js"></script>
+    <script src="../../node_modules/dicom-parser/dist/dicomParser.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+
+    <script>
+      function onOpenCvReady() {
+        console.log("OpenCV Ready", cv);
+      }
+    </script>
+    <script
+      src="https://docs.opencv.org/4.5.4/opencv.js"
+      onload="onOpenCvReady();"
+      type="text/javascript"
+    ></script>
+
+    <script>
+      function triggerHandleToggle() {
+        let isMultiImage =
+          larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage === false
+            ? true
+            : false;
+        larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage =
+          isMultiImage;
+        console.log(isMultiImage);
+      }
+
+      // Attach click event to the button
+      const toggleButton = document.getElementById("toggleButton");
+      toggleButton.addEventListener("click", triggerHandleToggle);
+
+      let demoFiles = [];
+      let counter = 0;
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 101; i < 125; i++) {
+          let filename = "I" + i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+      larvitar.registerNRRDImageLoader();
+      larvitar.initSegmentationModule();
+      const cornerstone = larvitar.cornerstone;
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/covid/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 24) {
+          cb();
+        }
+      }
+
+      async function renderSerie() {
+        larvitar.resetLarvitarManager();
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            console.log(seriesStack);
+            // render the first series of the study
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            larvitar.renderImage(serie, "viewer").then(() => {
+              console.log("Image has been rendered");
+            });
+            // optionally cache the series
+            larvitar.populateLarvitarManager(seriesId, serie);
+
+            larvitar
+              .cacheImages(serie, function (resp) {
+                if (resp.loading == 100) {
+                  let cache = larvitar.cornerstone.imageCache;
+                  console.log(
+                    "Cache size: ",
+                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                    "Mb"
+                  );
+                }
+              })
+              .then(() => {
+                setTimeout(function () {
+                  console.log("Cache has been loaded. Calling loadMasks.");
+                  larvitar.addDefaultTools();
+                  loadMasks();
+                }, 3000);
+              });
+          })
+          .catch(err => console.error(err));
+      }
+
+      async function loadMasks() {
+        console.log("loadMasks() called");
+        let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
+        let properties = {
+          // color: "#00ff00",
+          opacity: 0.2,
+          labelId: 0
+        };
+        // add to viewport
+        await larvitar
+          .addSegmentationMask(properties, data, "viewer")
+          .then(() => {
+            // activate brush on this labelmap
+            larvitar.setActiveLabelmap(0, "viewer");
+            larvitar.setToolActive("WSToggle");
+          });
+      }
+
+      let demoFileList = getDemoFileNames();
+      _.each(demoFileList, function (demoFile) {
+        createFile(demoFile, renderSerie);
+      });
+      /*Hahn and Peitgen [2000] extracted the brain with a single watershed transform from MRI data.
+      Also, the cerebral ventricles were reliably segmented with minimal interaction.
+      Hahn and Peitgen [2003] demonstrated the application to the challenging problem of
+      delineating individual bones in the human wrist (see Fig. 4.17).
+      Kuhnigk et al. [2003] employed the above-described variant of the watershed segmentation
+      to the delineation of lung lobes in CT data.
+      Ray et al. [2008] used the iterative watershed transform
+      for hepatic tumor segmentation (and volumetry).*/
+    </script>
+  </body>
+</html>

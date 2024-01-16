@@ -28,6 +28,7 @@
 import { filter, isArray } from "lodash";
 import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
 import WSTool from "./custom/WSTool";
+import WSToggleTool from "./custom/WSToggleTool";
 // import Slice4DScrollMouseWheelTool from "./custom/4dSliceScrollTool";
 import PolylineScissorsTool from "./custom/polylineScissorsTool";
 import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
@@ -399,7 +400,23 @@ const DEFAULT_TOOLS: {
     options: { mouseButtonMask: 1 },
     cleanable: true,
     class: "WSTool",
-    description: "Watershed Segmentation Alggorithm based on selected area",
+    description: "Watershed Segmentation Algorithm based on selected area",
+    shortcut: "ctrl-t",
+    type: "segmentation"
+  },
+  WSToggle: {
+    name: "WSToggle",
+    viewports: "all",
+    configuration: {
+      multiImage: false,
+      startIndex: null,
+      endIndex: null,
+      masksNumber: 10
+    },
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "WSToggleTool",
+    description: "Watershed Segmentation Algorithm based on selected area",
     shortcut: "ctrl-t",
     type: "segmentation"
   },
@@ -468,6 +485,7 @@ const dvTools: {
 } = {
   ThresholdsBrushTool: ThresholdsBrushTool,
   WSTool: WSTool,
+  WSToggleTool: WSToggleTool,
   PolylineScissorsTool: PolylineScissorsTool,
   // Slice4DScrollMouseWheelTool: Slice4DScrollMouseWheelTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
