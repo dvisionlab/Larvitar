@@ -7,7 +7,7 @@
  */
 export default class WSToggleTool {
     constructor(props?: {});
-    lowerThreshold: number | null;
+    lowerThreshold: any;
     upperThreshold: any;
     maskArray: any;
     maskArrayCurrentImage: any;
@@ -44,16 +44,25 @@ export default class WSToggleTool {
      */
     protected _changeRadius(evt: scrollEvent): void;
     /**
-      * Event handler for MOUSE_DRAG event.
-      *
-      * @override
-      * @abstract
-      * @event
-      * @param {Object} evt - The event.
-      */
+     * Event handler for MOUSE_DRAG event.
+     * @override
+     * @abstract
+     * @event
+     * @param {Object} evt - The event.
+     */
     override mouseDragCallback(evt: Object): void;
     _lastImageCoords: any;
-    _handleToggle(isMultiImage: any, startIndex: any, endIndex: any, masksNumber: any): void;
+    /**
+     * allow to toggle between single image or multiimage configuration
+     *@name _handleToggle
+     * @protected
+     * @param  {Boolean} isMultiImage if WS has to be applied to single image is false, else is true
+     * @param  {number} startIndex startindex if isMultiImage is true
+     * @param  {number} endIndex  endindex if isMultiImage is true
+     * @param  {number} masksNumber number of masks to be searched with WS
+     * @returns {void}
+     */
+    protected _handleToggle(isMultiImage: boolean, startIndex: number, endIndex: number, masksNumber: number): void;
     /**
      * Paints the data to the labelmap.
      *@name _paint
@@ -62,48 +71,43 @@ export default class WSToggleTool {
      * @returns {void}
      */
     protected _paint(evt: ClickEvent): void;
-    slicesNumber: any;
-    width: any;
-    height: any;
-    xFactor: number | undefined;
     /**
-      * resets data when imageId or seriesUID changes
-      *@name _processImagesAsync
-      * @protected
-      * @param  {Image[]} cachedImages
-      * @param  {string}ImageId
-      * @param  {number}startIndex
-      * @param  {number}endIndex
-      * @param  {number[]}dicomPixelData //current image
-      * @returns {Promise<number[]>[]}
-      */
-    protected _processImagesAsync(cachedImages: (new (width?: number | undefined, height?: number | undefined) => HTMLImageElement)[], ImageId: string, startIndex: number, endIndex: number, dicomPixelData: number[]): Promise<number[]>[];
-    /**
-      * resets data when imaegId or seriesUID changes
-      *@name _resetData
-      * @protected
-      * @param  {string} seriesUID
-      * @returns {void}
-      */
-    protected _resetData(seriesUID: string, stackData: any): void;
-    /**
-     * Activates a loader in progress when WS is advancing
-     *@name _toggleUIVisibility
+     * applies the selected processtype on the current image
+     *@name _processMultiImage
      * @protected
-     * @param  {boolean} showBrush
-     * @param  {boolean} showLoader
-     * @returns {void}
+     * @param  {string} processType //process type "WS"/"LabelEraser"/"ManualEraser"/"LabelPicker"
+     * @param  {Object} labelmap2D
+     * @param  {ClickEvent} evt //click event
+     * @param  {Image} image //current image
+     * @param  {Number[][]} circleArray //circle array of selected area
+     * @returns {Promise<number[]>[]}
      */
-    protected _toggleUIVisibility(showBrush: boolean, showLoader: boolean): void;
+    protected _processSingleImage(processType: string, labelmap2D: Object, evt: ClickEvent, image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement, circleArray: number[][]): Promise<number[]>[];
     /**
-     * eliminates the label that appear less than minappearance
-     *@name _shiftAndZeroOut
+     * applies the selected processtype on images
+     *@name _processMultiImage
      * @protected
-     * @param  {Mat} array The marker array
-     * @param  {Array} minAppearance The pixelDataArray obtained with dicomimage.getPixeldata()
-     * @returns {void}
+     * @param  {string} processType //process type "WS"/"LabelEraser"/"ManualEraser"/"LabelPicker"
+     * @param  {Object} labelmap2D
+     * @param  {Object} labelmap3D
+     * @param  {ClickEvent} evt //click event
+     * @param  {Image} image //current image
+     * @param  {Number[][]} circleArray //circle array of selected area
+     * @returns {Promise<number[]>[]}
      */
-    protected _shiftAndZeroOut(array: Mat, minAppearance: any[]): void;
+    protected _processMultiImage(processType: string, labelmap2D: Object, labelmap3D: Object, evt: ClickEvent, image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement, circleArray: number[][]): Promise<number[]>[];
+    /**
+     * applies WS on multiple images from startindex to endindex
+     *@name _applyWatershedSegmentationMultiImage
+     * @protected
+     * @param  {Image[]} cachedImages
+     * @param  {string}ImageId
+     * @param  {number}startIndex
+     * @param  {number}endIndex
+     * @param  {number[]}dicomPixelData //current image
+     * @returns {Promise<number[]>[]}
+     */
+    protected _applyWatershedSegmentationMultiImage(cachedImages: (new (width?: number | undefined, height?: number | undefined) => HTMLImageElement)[], ImageId: string, startIndex: number, endIndex: number, dicomPixelData: number[], minThreshold: any, maxThreshold: any, lowerThreshold: any, upperThreshold: any): Promise<number[]>[];
     /**
      * Applies Watershed segmentation algorithm on pixel data using opencv.js
      * and evaluates the mask to apply to the original dicom image
@@ -113,59 +117,7 @@ export default class WSToggleTool {
      * @param  {Array} dicomPixelData The pixelDataArray obtained with dicomimage.getPixeldata()
      * @returns {void}
      */
-    protected _applyWatershedSegmentation(width: any, height: any, dicomPixelData: any[]): void;
-    /**
-     *
-      *@name _processChunk
-     * @protected
-     * @param  {number} i
-     * @param  {number} j
-     * @param  {number} markers//the markers,found and processed after WS
-     * @param  {Array} markersArray //the array of markers processed
-     * @param  {number} label //the label of the initial feature 1
-     * @param  {number}lastRowIndex //rows-1
-     * @param  {number}lastColIndex //cols-1
-     *
-     *
-     *
-     * @returns {void}
-     */
-    protected _processChunk(i: number, j: number, markers: number, markersArray: any[], label: number, lastRowIndex: number, lastColIndex: number): void;
-    /**
-     *
-     *@name _processRowsAsync
-     * @protected
-     * @param  {number} startRow //the markers rows found and processed after WS
-     * @param  {number} endRow //the markers rows found and processed after WS
-     * @param  {number} markers//the markers,found and processed after WS
-     * @param  {Array} markersArray //the array of markers processed
-     * @param  {number} label //the label of the initial feature 1
-     * @param  {number}lastRowIndex //rows-1
-     * @param  {number}lastColIndex //cols-1
-     *
-     * @returns {void}
-     */
-    protected _processRowsAsync(startRow: number, endRow: number, markers: number, markersArray: any[], label: number, lastRowIndex: number, lastColIndex: number): void;
-    /**
-     *
-     *@name _processAsync
-     * @protected
-     * @param  {Array} rowsPerChunk //deafult rows to be processed per chunk (10)
-     * @param  {number} markers//the markers,found and processed after WS
-     * @param  {Array} markersArray //the array of markers processed
-     * @param  {number} label //the label of the initial feature 1
-     *
-     * @returns {void}
-     */
-    protected _processAsync(rowsPerChunk: any[], markers: number, markersArray: any[], label: number): void;
-    /**
-     * Post processes the markers after WS //TODO check errors in drawContours
-     *@name _postProcess
-     * @protected
-     * @param  {cv.Mat} markers //The mask array retrieved from WS algorithm
-     * @returns {cv.Mat}
-     */
-    protected _postProcess(markers: cv.Mat): cv.Mat;
+    protected _applyWatershedSegmentation(width: any, height: any, dicomPixelData: any[], minThreshold: any, maxThreshold: any, lowerThreshold: any, upperThreshold: any): void;
     /**
      * Draws the WS mask on the original imae
      *@name _drawBrushPixels
@@ -189,58 +141,54 @@ export default class WSToggleTool {
      */
     protected _labelToErase(circleArray: any[], selectedSlice: any, image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement, slicei: any): void;
     /**
-      * Allows to erase selected label parts when using shift+click (allows to drag)
-      *@name _ManualEraser
-      * @protected
-      * @param  {Array} circleArray //The selected circle coordinates Array
-      * @param  {Image} image //the dicom image
-      *
-      * @returns {void}
-      */
-    protected _ManualEraser(circleArray: any[], image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement, array: any): void;
+     * Allows to erase selected label parts when using shift+click (allows to drag)
+     *@name _manualEraser
+     * @protected
+     * @param  {Array} circleArray //The selected circle coordinates Array
+     * @param  {Image} image //the dicom image
+     *
+     * @returns {void}
+     */
+    protected _manualEraser(circleArray: any[], image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement, array: any): void;
     /**
-       * Allows to pick a selected label parts when using alt+click for the first time
-       *@name _labelPicker
-       * @protected
-       * @param  {Array} circleArray //The selected circle coordinates Array
-       * @param  {Image} image //the dicom image
-       *
-       * @returns {void}
-       */
+     * Allows to pick a selected label parts when using alt+click for the first time
+     *@name _labelPicker
+     * @protected
+     * @param  {Array} circleArray //The selected circle coordinates Array
+     * @param  {Image} image //the dicom image
+     *
+     * @returns {void}
+     */
     protected _labelPicker(circleArray: any[], image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement, currentArray: any): void;
     pickedLabel: number | undefined;
     /**
-       * Allows to associate the previously picked label on the selected label area when using alt+click for the second time
-       *@name _ManualPainter
-       * @protected
-       * @param  {Array} circleArray //The selected circle coordinates Array
-       * @param  {Image} image //the dicom image
-       *
-       * @returns {void}
-       */
-    protected _ManualPainter(circleArray: any[], image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement, array: any): void;
+     * Allows to associate the previously picked label on the selected label area when using alt+click for the second time
+     *@name _manualPainter
+     * @protected
+     * @param  {Array} circleArray //The selected circle coordinates Array
+     * @param  {Image} image //the dicom image
+     *
+     * @returns {void}
+     */
+    protected _manualPainter(circleArray: any[], image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement, array: any): void;
     /**
-      * Allows to calculate stats such as mean and stddev of the selected circle area
-      *@name  _calculateStats
-      * @protected
-      * @param  {Image} image //the dicom image
-      * @param  {Array} imagePixelData
-      * @param  {Array} circleArray //The selected circle coordinates Array
-      *
-      * @returns {void}
-      */
-    protected _calculateStats(image: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement, imagePixelData: any[], circleArray: any[]): void;
+     * initializes parameters that are useful in _paint() function
+     *@name _resetData
+     * @protected
+     * @param  {ClickEvent} evt
+     * @param  {Object} eventData
+     * @returns {void}
+     */
+    protected _paintInit(evt: ClickEvent, eventData: Object): void;
+    slicesNumber: any;
+    width: any;
+    height: any;
     /**
-    * Allows to map a value to range 0,255 (8bit, png)
-    *@name  mapToRange
-    * @protected
-    * @param  {number} value //the greyscale value to convert
-    * @param  {number} inMin//The min gs value in the image
-    * @param  {number} inMax //The max gs value in the image
-    *
-    * @returns {void}
-    */
-    protected mapToRange(value: number, inMin: number, inMax: number): void;
-    getMax(arr: any): number;
-    getMin(arr: any): number;
+     * resets data when imaegId or seriesUID changes
+     *@name _resetData
+     * @protected
+     * @param  {string} seriesUID
+     * @returns {void}
+     */
+    protected _resetData(seriesUID: string, stackData: any): void;
 }

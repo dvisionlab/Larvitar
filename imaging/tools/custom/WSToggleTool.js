@@ -1,7 +1,7 @@
 /*
  */
 //watershed segmentation is useful to segment features with distinguishable greyscale values that are
-//difficult to distinguish between them, in order to extract quantitative information
+//difficult to distinguish, in order to extract quantitative information
 //(see example here https://www.geeksforgeeks.org/image-segmentation-with-watershed-algorithm-opencv-python/)
 
 // external libraries
@@ -16,11 +16,28 @@ const segmentationUtils = cornerstoneTools.importInternal(
 const getCircle = segmentationUtils.getCircle;
 const segmentationModule = cornerstoneTools.getModule("segmentation");
 const getToolState = cornerstoneTools.getToolState;
-
 // internal libraries
 import { DEFAULT_TOOLS } from "../default";
 import store from "../../imageStore";
-
+const setSegmentationConfig = function (config) {
+  let { configuration } = cornerstoneTools.getModule("segmentation");
+  extend(configuration, config);
+  let enabledElements = cornerstone.getEnabledElements();
+  each(enabledElements, el => {
+    cornerstone.updateImage(el.element);
+  });
+};
+import {
+  calculateStats,
+  mapToRange,
+  getMin,
+  getMax,
+  //preProcess,
+  //postProcess,
+  calculateThresholds,
+  //toggleUIVisibility,
+  shiftAndZeroOut
+} from "./utilsWatershedSegmentation";
 /**
  * @public
  * @class WSTool
@@ -60,13 +77,11 @@ export default class WSToggleTool extends BaseBrushTool {
     this.labelToErase = null;
     this.click = 0;
     this.labelToChange = null;
-    //this.touchDragCallback = this._paint.bind(this);
     this._handleMouseMove = this._handleMouseMove.bind(this);
     document.addEventListener("mousemove", this._handleMouseMove);
     setSegmentationConfig({
       segmentsPerLabelmap: this.configuration.masksNumber
     });
-    //const { configuration } = segmentationModule;
   }
 
   /**
@@ -116,7 +131,6 @@ export default class WSToggleTool extends BaseBrushTool {
 
   /**
    * Event handler for MOUSE_DRAG event.
-   *
    * @override
    * @abstract
    * @event
@@ -130,7 +144,16 @@ export default class WSToggleTool extends BaseBrushTool {
       this._paint(evt);
     }
   }
-
+  /**
+   * allow to toggle between single image or multiimage configuration
+   *@name _handleToggle
+   * @protected
+   * @param  {Boolean} isMultiImage if WS has to be applied to single image is false, else is true
+   * @param  {number} startIndex startindex if isMultiImage is true
+   * @param  {number} endIndex  endindex if isMultiImage is true
+   * @param  {number} masksNumber number of masks to be searched with WS
+   * @returns {void}
+   */
   _handleToggle(isMultiImage, startIndex, endIndex, masksNumber) {
     // Toggle mode between 'stack' and 'slice' on Tab key press or other events
 
@@ -159,46 +182,23 @@ export default class WSToggleTool extends BaseBrushTool {
    * @returns {void}
    */
   async _paint(evt) {
-    //TODO: ADD LABEL PICKER + BRUSH MANUAL PAINT WITH THAT LABEL
-
     const { configuration } = segmentationModule;
     const eventData = evt.detail;
-    const element = eventData.element;
-    this.element = element;
-    const viewport = store.get(["viewports", this.element.id]);
+    let {
+      image,
+      shouldEraseManually,
+      shouldActivateLabelPicker,
+      shouldApplyWatershed,
+      shouldErase
+    } = this._paintInit(evt, eventData);
 
-    element.addEventListener("wheel", this._changeRadius.bind(this));
-
-    const toolData = getToolState(element, "stack");
-    const stackData = toolData.data[0];
-    const image = eventData.image;
-    if (image.imageId != this.imageId || viewport.seriesUID != this.seriesUID) {
-      //||store.get(["viewports", this.element.id]).seriesUID!=this.seriesId
-      this._resetData(viewport.seriesUID, stackData);
-    }
-    //this.seriesId=store.get(["viewports", this.element.id]).seriesUID;
-    this.imageId = image.imageId;
-    this.indexImage = stackData.imageIds.indexOf(this.imageId);
-
-    this.slicesNumber = this.slicesNumber || stackData.imageIds.length;
-    this.seriesUID = viewport.seriesUID;
     const { rows, columns } = image;
-    this.width = this.height || image.height;
-    this.height = this.width || image.width;
     const { x, y } = eventData.currentPoints.image;
-
     if (x < 0 || x > columns || y < 0 || y > rows) {
       return;
     }
-
     const radius = configuration.radius;
-    const { labelmap2D, labelmap3D, shouldErase } = this.paintEventData;
-    let shouldEraseManually =
-      evt.detail.shiftKey === undefined
-        ? evt.detail.event.shiftKey
-        : evt.detail.shiftKey;
-    let shouldActivateManualPainter =
-      evt.detail.event === undefined ? undefined : evt.detail.event.altKey;
+    const { labelmap2D, labelmap3D } = this.paintEventData;
 
     let circleArray = getCircle(radius, rows, columns, x, y);
     this._handleToggle(
@@ -207,89 +207,84 @@ export default class WSToggleTool extends BaseBrushTool {
       DEFAULT_TOOLS["WSToggle"].configuration.endIndex,
       DEFAULT_TOOLS["WSToggle"].configuration.masksNumber
     );
-    const isMultiImage = this.configuration.multiImage;
-
-    if (
-      (shouldErase === false || shouldErase === undefined) &&
-      (shouldEraseManually === false || shouldEraseManually === undefined) &&
-      (shouldActivateManualPainter === false ||
-        shouldActivateManualPainter === undefined)
-    ) {
+    let processType;
+    if (shouldApplyWatershed) {
+      processType = "WS"; //only click
+    } else if (shouldErase) {
+      processType = "LabelEraser"; //ctrl+click
       this.labelToErase = null;
-      // threshold should be applied only if painting, not erasing
-      if (this.dicomPixelData === null) {
-        this.dicomPixelData = image.getPixelData();
-      }
+    } else if (shouldEraseManually) {
+      processType = "ManualEraser"; //shift+click
+    } else if (shouldActivateLabelPicker) {
+      processType = "LabelPicker"; //alt+click
+    }
+    const isMultiImage = this.configuration.multiImage;
+    isMultiImage
+      ? this._processMultiImage(
+          processType,
+          labelmap2D,
+          labelmap3D,
+          evt,
+          image,
+          circleArray
+        )
+      : this._processSingleImage(
+          processType,
+          labelmap2D,
+          evt,
+          image,
+          circleArray
+        );
+  }
 
-      const dicomPixelData = this.dicomPixelData;
+  /**
+   * applies the selected processtype on the current image
+   *@name _processMultiImage
+   * @protected
+   * @param  {string} processType //process type "WS"/"LabelEraser"/"ManualEraser"/"LabelPicker"
+   * @param  {Object} labelmap2D
+   * @param  {ClickEvent} evt //click event
+   * @param  {Image} image //current image
+   * @param  {Number[][]} circleArray //circle array of selected area
+   * @returns {Promise<number[]>[]}
+   */
+  _processSingleImage(processType, labelmap2D, evt, image, circleArray) {
+    console.log(processType);
+    switch (processType) {
+      case "WS":
+        this.labelToErase = null;
+        // threshold should be applied only if painting, not erasing
+        if (this.dicomPixelData === null) {
+          this.dicomPixelData = image.getPixelData();
+        }
 
-      const { mean, stddev } = this._calculateStats(
-        image,
-        dicomPixelData,
-        circleArray
-      );
-
-      this.minThreshold =
-        this.minThreshold === null
-          ? this.getMin(dicomPixelData)
-          : this.minThreshold;
-      this.maxThreshold =
-        this.maxThreshold === null
-          ? this.getMax(dicomPixelData)
-          : this.maxThreshold;
-
-      const meanNorm = this.mapToRange(
-        mean,
-        this.minThreshold,
-        this.maxThreshold
-      );
-      const stdDevNorm = this.mapToRange(
-        stddev,
-        this.minThreshold,
-        this.maxThreshold
-      );
-
-      let xFactor = 1.7;
-      this.xFactor = xFactor;
-      this.lowerThreshold = meanNorm - xFactor * stdDevNorm;
-      this.upperThreshold = meanNorm + xFactor * stdDevNorm;
-
-      if (isMultiImage === false) {
+        const { minThreshold, maxThreshold, lowerThreshold, upperThreshold } =
+          calculateThresholds(
+            image,
+            this.dicomPixelData,
+            circleArray,
+            this.minThreshold,
+            this.maxThreshold
+          );
 
         this.maskArrayCurrentImage = new Array(this.width * this.height);
         this._applyWatershedSegmentation(
           this.width,
           this.height,
-          dicomPixelData
+          this.dicomPixelData,
+          minThreshold,
+          maxThreshold,
+          lowerThreshold,
+          upperThreshold
         ).then(result => {
           this.maskArrayCurrentImage = result;
           labelmap2D.pixelData = this.maskArrayCurrentImage;
           external.cornerstone.updateImage(evt.detail.element);
         });
-      } else if (isMultiImage === true) {
-        this.maskArray = new Array(this.slicesNumber);
-        this.pixelData = new Array(this.slicesNumber);
-        //this.toggleUIVisibility(false, true);
-        this._processImagesAsync(
-          cornerstone.imageCache.cachedImages,
-          this.indexImage,
-          this.configuration.startIndex,
-          this.configuration.endIndex,
-          dicomPixelData
-        ).then(() => {
+        break;
 
-          let pixelMask3D = this._drawBrushPixels(
-            this.maskArray,
-            labelmap3D.labelmaps2D
-          );
-          labelmap3D.labelmaps2D = pixelMask3D;
-          external.cornerstone.updateImage(evt.detail.element);
-        });
-      }
-      //this.toggleUIVisibility(true, false)
-    } else if (shouldErase === true) {
-      this.labelToErase = null;
-      if (isMultiImage === false) {
+      case "LabelEraser":
+        this.labelToErase = null;
         if (this.maskArrayCurrentImage != null) {
           this._labelToErase(
             circleArray,
@@ -300,10 +295,90 @@ export default class WSToggleTool extends BaseBrushTool {
           labelmap2D.pixelData = this.maskArrayCurrentImage;
           external.cornerstone.updateImage(evt.detail.element);
         }
-      } else if (isMultiImage === true) {
+        break;
+
+      case "ManualEraser":
+        let inputEraserArray = this.maskArrayCurrentImage;
+
+        this._manualEraser(circleArray, image, inputEraserArray);
+        labelmap2D.pixelData = inputEraserArray;
+        external.cornerstone.updateImage(evt.detail.element);
+        break;
+
+      case "LabelPicker":
+        this.click = this.click + 1;
+        let currentArray = this.maskArrayCurrentImage;
+
+        if (this.click === 1) {
+          this._labelPicker(circleArray, image, currentArray);
+          console.log("color picked");
+        } else if (this.click === 2) {
+          this._manualPainter(circleArray, image, currentArray);
+          this.click = 0;
+        }
+        labelmap2D.pixelData = currentArray;
+        external.cornerstone.updateImage(evt.detail.element);
+        break;
+    }
+  }
+  /**
+   * applies the selected processtype on images
+   *@name _processMultiImage
+   * @protected
+   * @param  {string} processType //process type "WS"/"LabelEraser"/"ManualEraser"/"LabelPicker"
+   * @param  {Object} labelmap2D
+   * @param  {Object} labelmap3D
+   * @param  {ClickEvent} evt //click event
+   * @param  {Image} image //current image
+   * @param  {Number[][]} circleArray //circle array of selected area
+   * @returns {Promise<number[]>[]}
+   */
+  _processMultiImage(
+    processType,
+    labelmap2D,
+    labelmap3D,
+    evt,
+    image,
+    circleArray
+  ) {
+    switch (processType) {
+      case "WS":
+        this.labelToErase = null;
+        // threshold should be applied only if painting, not erasing
+        if (this.dicomPixelData === null) {
+          this.dicomPixelData = image.getPixelData();
+        }
+
+        const { minThreshold, maxThreshold, lowerThreshold, upperThreshold } =
+          calculateThresholds(image, this.dicomPixelData, circleArray);
+        this.maskArray = new Array(this.slicesNumber);
+        this.pixelData = new Array(this.slicesNumber);
+        //toggleUIVisibility(false, true,this.configuration.drawHandlesOnHover);
+        this._applyWatershedSegmentationMultiImage(
+          cornerstone.imageCache.cachedImages,
+          this.indexImage,
+          this.configuration.startIndex,
+          this.configuration.endIndex,
+          this.dicomPixelData,
+          minThreshold,
+          maxThreshold,
+          lowerThreshold,
+          upperThreshold
+        ).then(() => {
+          console.log(this.maskArray);
+          let pixelMask3D = this._drawBrushPixels(
+            this.maskArray,
+            labelmap3D.labelmaps2D
+          );
+          labelmap3D.labelmaps2D = pixelMask3D;
+          external.cornerstone.updateImage(evt.detail.element);
+        });
+        break;
+      //toggleUIVisibility(true, false,this.configuration.drawHandlesOnHover)
+
+      case "LabelEraser":
+        this.labelToErase = null;
         if (this.maskArrayCurrentImage != null && this.maskArray === null) {
-          //this.maskArray=new Array(this.slicesNumber)
-          //this.maskArray[this.indexImage]=this.maskArrayCurrentImage
           this._labelToErase(
             circleArray,
             this.maskArrayCurrentImage,
@@ -314,15 +389,12 @@ export default class WSToggleTool extends BaseBrushTool {
           external.cornerstone.updateImage(evt.detail.element);
         } else if (this.maskArray != null) {
           for (let i = 0; i < this.slicesNumber; i++) {
-            //if(i!=this.indexImage)
-            //{
             this._labelToErase(
               circleArray,
               this.maskArray[this.indexImage],
               image,
               this.maskArray[i]
             );
-            //}
           }
           let pixelMask3D = this._drawBrushPixels(
             this.maskArray,
@@ -331,63 +403,57 @@ export default class WSToggleTool extends BaseBrushTool {
           labelmap3D.labelmaps2D = pixelMask3D;
           external.cornerstone.updateImage(evt.detail.element);
         }
-      }
-    } else if (shouldEraseManually === true) {
-      let inputEraserArray = isMultiImage
-        ? this.maskArrayCurrentImage != null && this.maskArray === null
-          ? this.maskArrayCurrentImage
-          : this.maskArray[this.indexImage]
-        : this.maskArrayCurrentImage;
+        break;
 
-      this._ManualEraser(circleArray, image, inputEraserArray);
-      labelmap2D.pixelData = inputEraserArray;
-      if (isMultiImage && this.maskArray != null) {
-        let pixelMask3D = this._drawBrushPixels(
-          this.maskArray,
-          labelmap3D.labelmaps2D
-        );
-        labelmap3D.labelmaps2D = pixelMask3D;
-      }
-      external.cornerstone.updateImage(evt.detail.element);
-    } else if (shouldActivateManualPainter === true) {
-      this.click = this.click + 1;
+      case "ManualEraser":
+        let inputEraserArray =
+          this.maskArrayCurrentImage != null && this.maskArray === null
+            ? this.maskArrayCurrentImage
+            : this.maskArray[this.indexImage];
 
-      let currentArray = isMultiImage
-        ? this.maskArrayCurrentImage != null && this.maskArray === null
-          ? this.maskArrayCurrentImage
-          : this.maskArray[this.indexImage]
-        : this.maskArrayCurrentImage;
+        this._manualEraser(circleArray, image, inputEraserArray);
+        labelmap2D.pixelData = inputEraserArray;
+        if (this.maskArray != null) {
+          let pixelMask3D = this._drawBrushPixels(
+            this.maskArray,
+            labelmap3D.labelmaps2D
+          );
+          labelmap3D.labelmaps2D = pixelMask3D;
+        }
+        external.cornerstone.updateImage(evt.detail.element);
+        break;
 
-      if (this.click === 1) {
-        this._labelPicker(circleArray, image, currentArray);
-        console.log("color picked");
-      } else if (this.click === 2) {
-        this._ManualPainter(circleArray, image, currentArray);
-        this.click = 0;
-      }
-      labelmap2D.pixelData = currentArray;
-      if (isMultiImage && this.maskArray != null) {
-        let pixelMask3D = this._drawBrushPixels(
-          this.maskArray,
-          labelmap3D.labelmaps2D
-        );
-        labelmap3D.labelmaps2D = pixelMask3D;
-      }
-      external.cornerstone.updateImage(evt.detail.element);
+      case "LabelPicker":
+        this.click = this.click + 1;
+
+        let currentArray =
+          this.maskArrayCurrentImage != null && this.maskArray === null
+            ? this.maskArrayCurrentImage
+            : this.maskArray[this.indexImage];
+
+        if (this.click === 1) {
+          this._labelPicker(circleArray, image, currentArray);
+          console.log("color picked");
+        } else if (this.click === 2) {
+          this._manualPainter(circleArray, image, currentArray);
+          this.click = 0;
+        }
+        labelmap2D.pixelData = currentArray;
+        if (this.maskArray != null) {
+          let pixelMask3D = this._drawBrushPixels(
+            this.maskArray,
+            labelmap3D.labelmaps2D
+          );
+          labelmap3D.labelmaps2D = pixelMask3D;
+        }
+        external.cornerstone.updateImage(evt.detail.element);
+        break;
     }
-
-    /*let pixelMask3D=this._drawBrushPixels(
-    this.maskArray,
-    labelmap2D.pixelData,
-    labelmap3D.labelmaps2D
-  );
-  labelmap3D.labelmaps2D=pixelMask3D
-  external.cornerstone.updateImage(evt.detail.element)*/
   }
 
   /**
-   * resets data when imageId or seriesUID changes
-   *@name _processImagesAsync
+   * applies WS on multiple images from startindex to endindex
+   *@name _applyWatershedSegmentationMultiImage
    * @protected
    * @param  {Image[]} cachedImages
    * @param  {string}ImageId
@@ -396,18 +462,20 @@ export default class WSToggleTool extends BaseBrushTool {
    * @param  {number[]}dicomPixelData //current image
    * @returns {Promise<number[]>[]}
    */
-  async _processImagesAsync(
+  async _applyWatershedSegmentationMultiImage(
     cachedImages,
     ImageId,
     startIndex,
     endIndex,
-    dicomPixelData
+    dicomPixelData,
+    minThreshold,
+    maxThreshold,
+    lowerThreshold,
+    upperThreshold
   ) {
     const promises = [];
 
     cachedImages.slice(startIndex, endIndex).forEach((item, index) => {
-
-
       let trueindex = startIndex + index;
       if (item.image.imageId === ImageId) {
         this.pixelData[trueindex] = dicomPixelData;
@@ -422,8 +490,11 @@ export default class WSToggleTool extends BaseBrushTool {
         this._applyWatershedSegmentation(
           this.width,
           this.height,
-
-          this.pixelData[trueindex]
+          this.pixelData[trueindex],
+          minThreshold,
+          maxThreshold,
+          lowerThreshold,
+          upperThreshold
         ).then(result => {
           this.maskArray[trueindex] = result;
         })
@@ -431,59 +502,48 @@ export default class WSToggleTool extends BaseBrushTool {
     });
 
     await Promise.all(promises);
-  }
-  /**
-   * resets data when imaegId or seriesUID changes
-   *@name _resetData
-   * @protected
-   * @param  {string} seriesUID
-   * @returns {void}
-   */
-  _resetData(seriesUID, stackData) {
-    this.dicomPixelData = null;
-    this.minThreshold = null;
-    this.maxThreshold = null;
-    this.segmentIndex = 1;
-    this.pixelData = this.seriesUID != seriesUID ? null : this.pixelData;
-    this.slicesNumber =
-      this.seriesUID != seriesUID ? null : stackData.imageIds.length;
-    this.maskArray = this.seriesUID != seriesUID ? null : this.maskArray;
-    this.maskArrayCurrentImage = null;
-  }
-  /**
-   * Activates a loader in progress when WS is advancing
-   *@name _toggleUIVisibility
-   * @protected
-   * @param  {boolean} showBrush
-   * @param  {boolean} showLoader
-   * @returns {void}
-   */
-  _toggleUIVisibility(showBrush, showLoader) {
-    this.configuration.drawHandlesOnHover = showBrush;
-    document.getElementById("loading-bar-container").style.display = showLoader
-      ? "block"
-      : "none";
+    //ALTERNATIVE, THIS DOES NOT BLOCK THE UI BUT THE WS DOESNT WORK ANYMORE
+    //PROCESSES GET MIXED
+    //TODO check why this doesnt work and fix it
+    /*const promises = [];
+    let selectedItems = cachedImages.slice(startIndex, endIndex);
+    function processIteration(i) {
+      let item = selectedItems[i];
+      let trueindex = startIndex + i;
+      if (trueindex < endIndex) {
+        if (item.image.imageId === ImageId) {
+          this.pixelData[trueindex] = dicomPixelData;
+        } else {
+          this.pixelData[trueindex] =
+            this.pixelData[trueindex] === undefined
+              ? item.image.getPixelData()
+              : this.pixelData[trueindex];
+        }
+        promises.push(
+          this._applyWatershedSegmentation(
+            this.width,
+            this.height,
+            this.pixelData[trueindex],
+            minThreshold,
+            maxThreshold,
+            lowerThreshold,
+            upperThreshold
+          ).then(result => {
+            this.maskArray[trueindex] = result;
+          })
+        );
+
+        // Move on to the next image
+        let nextImageindex = i + 1;
+        setTimeout(() => {
+          processIteration.call(this, nextImageindex);
+        }, 0);
+      }
+    }
+    processIteration.call(this, 0);
+    await Promise.all(promises);*/
   }
 
-  /**
-   * eliminates the label that appear less than minappearance
-   *@name _shiftAndZeroOut
-   * @protected
-   * @param  {Mat} array The marker array
-   * @param  {Array} minAppearance The pixelDataArray obtained with dicomimage.getPixeldata()
-   * @returns {void}
-   */
-  _shiftAndZeroOut(array, minAppearance) {
-    const shiftMap = {};
-    let shiftValue = 0;
-
-    const shiftedArray = array.map((num, index) => {
-      const count = (shiftMap[num] = (shiftMap[num] || 0) + 1);
-      return count >= minAppearance ? shiftValue++ : -1;
-    });
-
-    return shiftedArray;
-  }
   /**
    * Applies Watershed segmentation algorithm on pixel data using opencv.js
    * and evaluates the mask to apply to the original dicom image
@@ -493,7 +553,15 @@ export default class WSToggleTool extends BaseBrushTool {
    * @param  {Array} dicomPixelData The pixelDataArray obtained with dicomimage.getPixeldata()
    * @returns {void}
    */
-  _applyWatershedSegmentation(width, height, dicomPixelData) {
+  _applyWatershedSegmentation(
+    width,
+    height,
+    dicomPixelData,
+    minThreshold,
+    maxThreshold,
+    lowerThreshold,
+    upperThreshold
+  ) {
     return new Promise((resolve, reject) => {
       try {
         // Assuming 8-bit unsigned integer pixel values
@@ -502,10 +570,10 @@ export default class WSToggleTool extends BaseBrushTool {
 
         for (let i = 0; i < dicomPixelData.length; i++) {
           // Assuming each integer represents a grayscale value
-          pngPixelData[i * 4] = this.mapToRange(
+          pngPixelData[i * 4] = mapToRange(
             dicomPixelData[i],
-            this.minThreshold,
-            this.maxThreshold
+            minThreshold,
+            maxThreshold
           ); // Red channel
           pngPixelData[i * 4 + 1] = pngPixelData[i * 4]; // Green channel
           pngPixelData[i * 4 + 2] = pngPixelData[i * 4]; // Blue channel
@@ -517,38 +585,9 @@ export default class WSToggleTool extends BaseBrushTool {
         src.data.set(pngPixelData);
 
         let gray = new cv.Mat();
-        // Detect contours on the original DICOM image
-        //let contours = new cv.MatVector();
         cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
 
-        /* Assuming your OpenCV.js version uses these constants
-    let hierarchy = new cv.Mat();  
-    cv.findContours(gray, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
-    // Create an array of contours 
-    let contourArray = new Array(gray.rows * gray.cols).fill(0);
-
-    for (let i = 0; i < contours.size(); i++) {
-      let currentContour = contours.get(i);
-  
-      // Loop through the matrix to extract coordinates and values
-      for (let row = 0; row < currentContour.rows; row++) {
-          for (let col = 0; col < currentContour.cols; col++) {
-              // Get the pixel value at (row, col) in the current Mat
-              // Check if the pixel is on the contour
-            let isOnContour = cv.pointPolygonTest(currentContour, { x: col, y: row }, true) === 0;
-          
-            // Set the corresponding value in contourArray
-            contourArray[row * gray.cols + col] = isOnContour ? 1 : 0;
-          }
-      }
-  
-      // Release the current Mat object
-      currentContour.delete();
-  }
-    
-    // clean up
-    contours.delete();
-    hierarchy.delete();*/
+        //let contourArray=preProcess(gray,src)//OPTIONAL
 
         let opening = new cv.Mat();
         let Bg = new cv.Mat();
@@ -557,22 +596,15 @@ export default class WSToggleTool extends BaseBrushTool {
         let unknown = new cv.Mat();
         let markers = new cv.Mat();
         //gray and threshold image
-
         cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
         let lowerBinary = new cv.Mat();
         let upperBinary = new cv.Mat();
 
-        cv.threshold(
-          gray,
-          lowerBinary,
-          this.lowerThreshold,
-          255,
-          cv.THRESH_BINARY
-        );
+        cv.threshold(gray, lowerBinary, lowerThreshold, 255, cv.THRESH_BINARY);
         cv.threshold(
           gray,
           upperBinary,
-          this.upperThreshold,
+          upperThreshold,
           255,
           cv.THRESH_BINARY_INV
         );
@@ -607,9 +639,9 @@ export default class WSToggleTool extends BaseBrushTool {
 
         cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
         cv.watershed(src, markers);
-        //this._postProcess(markers)
+        //postProcess(markers)//OPTIONAL
 
-        this._shiftAndZeroOut(markersArray, 100);
+        shiftAndZeroOut(markersArray, 100);
 
         let label = 1;
         const rows = markers.rows;
@@ -619,42 +651,47 @@ export default class WSToggleTool extends BaseBrushTool {
 
         console.time();
 
-        function processIteration(i, j, configuration) {
-          const markersArrayIndex = i * markers.cols + j;
-          const markerValue = markers.intPtr(i, j)[0];
+        function processRow(i, configuration) {
+          for (let j = 0; j < cols; j++) {
+            const markersArrayIndex = i * cols + j;
+            const markerValue = markers.intPtr(i, j)[0];
 
-          if (markerValue === -1) {
-            // Border pixel
-            markersArray[markersArrayIndex] =
-              i === 0 || j === 0 || i === lastRowIndex || j === lastColIndex
-                ? 0
-                : label;
-          } else if (markerValue >= 1) {
-            // Inside pixel (non-zero marker values)
-            label =
-              markerValue > configuration.masksNumber
-                ? configuration.masksNumber
-                : markerValue;
-            markersArray[markersArrayIndex] = label;
-          } else {
-            // Background pixel (marker value == 0)
-            markersArray[markersArrayIndex] = 0;
+            if (markerValue === -1) {
+              // Border pixel
+              markersArray[markersArrayIndex] =
+                i === 0 || j === 0 || i === lastRowIndex || j === lastColIndex
+                  ? 0
+                  : label;
+            } else if (markerValue >= 1) {
+              // Inside pixel (non-zero marker values)
+              label =
+                markerValue > configuration.masksNumber
+                  ? configuration.masksNumber
+                  : markerValue;
+              markersArray[markersArrayIndex] = label;
+            } else {
+              // Background pixel (marker value == 0)
+              markersArray[markersArrayIndex] = 0;
+            }
           }
+          /*if(contourArray[markersArrayIndex]===1)
+        {
+          console.log("contour")
+          markersArray[markersArrayIndex] = 1;
+        }*/ //IF PREPROCESS IS USED
+        }
+        //iteration to set mask markers
+        function processIteration(i, configuration) {
+          if (i < rows) {
+            processRow(i, configuration);
 
-          if (j + 1 < cols) {
-            let nextCol = j + 1;
-            setTimeout(() => {
-              processIteration(i, nextCol, configuration);
-            }, 0);
-          } else if (i + 1 < rows) {
-            console.timeLog();
+            // Move on to the next row
             let nextRow = i + 1;
-            console.log("next row", nextRow);
             setTimeout(() => {
-              processIteration(nextRow, 0, configuration);
+              processIteration(nextRow, configuration);
             }, 0);
           } else {
-            // delete unused Mat elements
+            // Delete unused Mat elements
             src.delete();
             gray.delete();
             opening.delete();
@@ -669,267 +706,63 @@ export default class WSToggleTool extends BaseBrushTool {
             resolve(markersArray);
           }
         }
-
-        processIteration(0, 0, this.configuration);
-
-        /* Previous code with a for cycle
-
-
-        for (let i = 0; i < rows; i++) {
-          for (let j = 0; j < cols; j++) {
-            const markersArrayIndex = i * markers.cols + j;
-            const markerValue = markers.intPtr(i, j)[0];
-
-            if (markerValue === -1) {
-              // Border pixel
-              markersArray[markersArrayIndex] =
-                i === 0 || j === 0 || i === lastRowIndex || j === lastColIndex
-                  ? 0
-                  : label;
-            } else if (markerValue >= 1) {
-              // Inside pixel (non-zero marker values)
-              label =
-                markerValue > this.configuration.masksNumber
-                  ? this.configuration.masksNumber
-                  : markerValue;
-              markersArray[markersArrayIndex] = label;
-            } else {
-              // Background pixel (marker value == 0)
-              markersArray[markersArrayIndex] = 0;
-            }
-
-            //     if(contourArray[markersArrayIndex]===1)
-            // {
-            //   console.log("contour")
-            //   markersArray[markersArrayIndex] = 1;
-            // }
-
-          }
-        }
-
-        //this._processAsync(10, markers, markersArray, label);
-
-        // delete unused Mat elements
-        src.delete();
-        gray.delete();
-        opening.delete();
-        Bg.delete();
-        Fg.delete();
-        distTrans.delete();
-        unknown.delete();
-        markers.delete();
-        M.delete();
-        // mask array to mask a DICOM image
-        resolve(markersArray);
-        */
-
+        processIteration(0, this.configuration);
       } catch (error) {
         reject(error);
       }
     });
+    //ALTERNATIVE INSTEAD OF PROCESSITERATION, FASTER
+    //TODO: check if this is better
+    //for (let i = 0; i < rows; i++) {
+    //for (let j = 0; j < cols; j++) {
+    //const markersArrayIndex = i * markers.cols + j;
+    //const markerValue = markers.intPtr(i, j)[0];
+
+    //if (markerValue === -1) {
+    // Border pixel
+    //markersArray[markersArrayIndex] =
+    //  i === 0 || j === 0 || i === lastRowIndex || j === lastColIndex
+    //   ? 0
+    //   : label;
+    //} else if (markerValue >= 1) {
+    // // Inside pixel (non-zero marker values)
+    //label =
+    // markerValue > this.configuration.masksNumber
+    //   ? this.configuration.masksNumber
+    //  : markerValue;
+    // markersArray[markersArrayIndex] = label;
+    // } else {
+    //// Background pixel (marker value == 0)
+    // markersArray[markersArrayIndex] = 0;
+    // }
+    /*if(contourArray[markersArrayIndex]===1)
+        {
+          console.log("contour")
+          markersArray[markersArrayIndex] = 1;
+        }*/
+    //}
+    //}
+
+    //this._processAsync(10, markers, markersArray, label);
+
+    // delete unused Mat elements
+    //src.delete();
+    //gray.delete();
+    //opening.delete();
+    //Bg.delete();
+    //Fg.delete();
+    //distTrans.delete();
+    //unknown.delete();
+    //markers.delete();
+    //M.delete();
+    //// mask array to mask a DICOM image
+    //resolve(markersArray);
+    //} catch (error) {
+    //reject(error);
+    //}
+    //});
   }
 
-  /**
-   *
-   *@name _processChunk
-   * @protected
-   * @param  {number} i
-   * @param  {number} j
-   * @param  {number} markers//the markers,found and processed after WS
-   * @param  {Array} markersArray //the array of markers processed
-   * @param  {number} label //the label of the initial feature 1
-   * @param  {number}lastRowIndex //rows-1
-   * @param  {number}lastColIndex //cols-1
-   *
-   *
-   *
-   * @returns {void}
-   */
-  _processChunk(
-    i,
-    j,
-    markers,
-    markersArray,
-    label,
-    lastRowIndex,
-    lastColIndex
-  ) {
-    const markersArrayIndex = i * markers.cols + j;
-    const markerValue = markers.intPtr(i, j)[0];
-
-    if (markerValue === -1) {
-      // Border pixel
-      markersArray[markersArrayIndex] =
-        i === 0 || j === 0 || i === lastRowIndex || j === lastColIndex
-          ? 0
-          : label;
-    } else if (markerValue >= 1) {
-      // Inside pixel (non-zero marker values)
-      label = markerValue > 10 ? 10 : markerValue;
-      markersArray[markersArrayIndex] = label;
-    } else {
-      // Background pixel (marker value == 0)
-      markersArray[markersArrayIndex] = 0;
-    }
-  }
-  /**
-   *
-   *@name _processRowsAsync
-   * @protected
-   * @param  {number} startRow //the markers rows found and processed after WS
-   * @param  {number} endRow //the markers rows found and processed after WS
-   * @param  {number} markers//the markers,found and processed after WS
-   * @param  {Array} markersArray //the array of markers processed
-   * @param  {number} label //the label of the initial feature 1
-   * @param  {number}lastRowIndex //rows-1
-   * @param  {number}lastColIndex //cols-1
-   *
-   * @returns {void}
-   */
-  _processRowsAsync(
-    startRow,
-    endRow,
-    markers,
-    markersArray,
-    label,
-    lastRowIndex,
-    lastColIndex
-  ) {
-    for (let i = startRow; i < endRow; i++) {
-      for (let j = 0; j < markers.cols; j++) {
-        this._processChunk(
-          i,
-          j,
-          markers,
-          markersArray,
-          label,
-          lastRowIndex,
-          lastColIndex
-        );
-      }
-    }
-  }
-
-  /**
-   *
-   *@name _processAsync
-   * @protected
-   * @param  {Array} rowsPerChunk //deafult rows to be processed per chunk (10)
-   * @param  {number} markers//the markers,found and processed after WS
-   * @param  {Array} markersArray //the array of markers processed
-   * @param  {number} label //the label of the initial feature 1
-   *
-   * @returns {void}
-   */
-  _processAsync(rowsPerChunk, markers, markersArray, label) {
-    let currentRow = 0;
-    const rows = markers.rows;
-    const cols = markers.cols;
-    const lastRowIndex = rows - 1;
-    const lastColIndex = cols - 1;
-    const processChunkAsync = () => {
-      const endRow = Math.min(currentRow + rowsPerChunk, markers.rows);
-      this._processRowsAsync(
-        currentRow,
-        endRow,
-        markers,
-        markersArray,
-        label,
-        lastRowIndex,
-        lastColIndex
-      );
-      currentRow = endRow;
-
-      if (currentRow < markers.rows) {
-        // Schedule the next chunk
-        setTimeout(processChunkAsync, 0);
-      } else {
-        // All rows processed, resolve or do any further processing
-        resolve(markersArray);
-      }
-    };
-
-    processChunkAsync();
-  }
-
-  /**
-   * Post processes the markers after WS //TODO check errors in drawContours
-   *@name _postProcess
-   * @protected
-   * @param  {cv.Mat} markers //The mask array retrieved from WS algorithm
-   * @returns {cv.Mat}
-   */
-  _postProcess(markers) {
-    console.log("Code is executing!");
-    try {
-      console.log("Code is trying!");
-      // Apply morphological operations to fill gaps and smooth boundaries
-      let kernel = cv.Mat.ones(5, 5, cv.CV_8U);
-      markers.convertTo(markers, cv.CV_8U);
-      console.log("Code is still trying!");
-      cv.morphologyEx(
-        markers,
-        markers,
-        cv.MORPH_CLOSE,
-        kernel,
-        new cv.Point(-1, -1),
-        1
-      );
-
-      // Find contours in the markers
-      let contours = new cv.MatVector();
-      let hierarchy = new cv.Mat();
-      cv.findContours(
-        markers,
-        contours,
-        hierarchy,
-        cv.RETR_CCOMP,
-        cv.CHAIN_APPROX_SIMPLE
-      );
-
-      // Filter contours based on area (adjust the threshold as needed)
-      let minContourArea = 100;
-      let filteredContours = [];
-      for (let i = 0; i < contours.size(); i++) {
-        let contour = contours.get(i);
-        let area = cv.contourArea(contour);
-
-        // Log the area of each contour
-
-        if (area > minContourArea) {
-          filteredContours.push(contour);
-        }
-      }
-      let matVector = new cv.MatVector();
-      for (let i = 0; i < filteredContours.length; i++) {
-        matVector.push_back(filteredContours[i]);
-      }
-      // Create a new mask for the filtered contours
-      let postProcessedMarkers = cv.Mat.zeros(
-        markers.rows,
-        markers.cols,
-        cv.CV_8U
-      );
-
-      cv.drawContours(
-        postProcessedMarkers,
-        matVector,
-        -1,
-        new cv.Scalar(255),
-        cv.FILLED
-      );
-
-      // Release Mats to free memory
-      kernel.delete();
-      contours.delete();
-      hierarchy.delete();
-
-      return postProcessedMarkers;
-    } catch (error) {
-      console.error("Error in postProcess:", error);
-      throw error; // Rethrow the error to propagate it further if needed
-    }
-  }
   /**
    * Draws the WS mask on the original imae
    *@name _drawBrushPixels
@@ -969,12 +802,8 @@ export default class WSToggleTool extends BaseBrushTool {
         counts[label] = counts[label] + 1;
       });
 
-      let max = this.getMax(counts);
+      let max = getMax(counts);
       this.labelToErase = counts.findIndex(count => count === max);
-      /*for(let i=0;i<selectedSlice.length;i++)
-  {
-    selectedSlice[i]=selectedSlice[i]===this.labelToErase ? 0:selectedSlice[i];
-  }*/
     }
 
     for (let i = 0; i < slicei.length; i++) {
@@ -983,7 +812,7 @@ export default class WSToggleTool extends BaseBrushTool {
   }
   /**
    * Allows to erase selected label parts when using shift+click (allows to drag)
-   *@name _ManualEraser
+   *@name _manualEraser
    * @protected
    * @param  {Array} circleArray //The selected circle coordinates Array
    * @param  {Image} image //the dicom image
@@ -991,7 +820,7 @@ export default class WSToggleTool extends BaseBrushTool {
    * @returns {void}
    */
 
-  _ManualEraser(circleArray, image, array) {
+  _manualEraser(circleArray, image, array) {
     circleArray.forEach(([x, y]) => {
       array[y * image.rows + x] = 0;
     });
@@ -1013,26 +842,26 @@ export default class WSToggleTool extends BaseBrushTool {
       counts[label] = counts[label] + 1;
     });
 
-    let max = this.getMax(counts);
+    let max = getMax(counts);
     this.pickedLabel = counts.findIndex(count => count === max);
   }
   /**
    * Allows to associate the previously picked label on the selected label area when using alt+click for the second time
-   *@name _ManualPainter
+   *@name _manualPainter
    * @protected
    * @param  {Array} circleArray //The selected circle coordinates Array
    * @param  {Image} image //the dicom image
    *
    * @returns {void}
    */
-  _ManualPainter(circleArray, image, array) {
+  _manualPainter(circleArray, image, array) {
     let counts = new Array(this.configuration.masksNumber + 1).fill(0);
     circleArray.forEach(([x, y]) => {
       const label = array[y * image.rows + x];
       counts[label] = counts[label] + 1;
     });
 
-    let max = this.getMax(counts);
+    let max = getMax(counts);
     this.labelToChange = counts.findIndex(count => count === max);
 
     for (let i = 0; i < array.length; i++) {
@@ -1041,223 +870,75 @@ export default class WSToggleTool extends BaseBrushTool {
       }
     }
   }
+
   /**
-   * Allows to calculate stats such as mean and stddev of the selected circle area
-   *@name  _calculateStats
+   * initializes parameters that are useful in _paint() function
+   *@name _resetData
    * @protected
-   * @param  {Image} image //the dicom image
-   * @param  {Array} imagePixelData
-   * @param  {Array} circleArray //The selected circle coordinates Array
-   *
+   * @param  {ClickEvent} evt
+   * @param  {Object} eventData
    * @returns {void}
    */
-  _calculateStats(image, imagePixelData, circleArray) {
-    let sum = 0;
-    let sumSquaredDiff = 0;
+  _paintInit(evt, eventData) {
+    const element = eventData.element;
+    this.element = element;
+    const viewport = store.get(["viewports", this.element.id]);
 
-    circleArray.forEach(([x, y]) => {
-      const value = imagePixelData[y * image.rows + x];
+    element.addEventListener("wheel", this._changeRadius.bind(this));
 
-      sum += value;
-      sumSquaredDiff += value * value;
-    });
+    const toolData = getToolState(element, "stack");
+    const stackData = toolData.data[0];
+    const image = eventData.image;
+    if (image.imageId != this.imageId || viewport.seriesUID != this.seriesUID) {
+      this._resetData(viewport.seriesUID, stackData);
+    }
+    this.imageId = image.imageId;
+    this.indexImage = stackData.imageIds.indexOf(this.imageId);
 
-    const count = circleArray.length;
+    this.slicesNumber = this.slicesNumber || stackData.imageIds.length;
+    this.seriesUID = viewport.seriesUID;
 
-    const mean = sum / count;
-    const variance = sumSquaredDiff / count - mean * mean;
-    const stddev = Math.sqrt(variance);
-    return { mean, stddev };
+    this.width = this.height || image.height;
+    this.height = this.width || image.width;
+
+    const { shouldErase } = this.paintEventData;
+    let shouldEraseManually =
+      evt.detail.shiftKey === undefined
+        ? evt.detail.event.shiftKey
+        : evt.detail.shiftKey;
+    let shouldActivateLabelPicker =
+      evt.detail.event === undefined ? undefined : evt.detail.event.altKey;
+    let shouldApplyWatershed =
+      (shouldErase === false || shouldErase === undefined) &&
+      (shouldEraseManually === false || shouldEraseManually === undefined) &&
+      (shouldActivateLabelPicker === false ||
+        shouldActivateLabelPicker === undefined);
+
+    return {
+      image,
+      shouldEraseManually,
+      shouldActivateLabelPicker,
+      shouldApplyWatershed,
+      shouldErase
+    };
   }
+
   /**
-   * Allows to map a value to range 0,255 (8bit, png)
-   *@name  mapToRange
+   * resets data when imaegId or seriesUID changes
+   *@name _resetData
    * @protected
-   * @param  {number} value //the greyscale value to convert
-   * @param  {number} inMin//The min gs value in the image
-   * @param  {number} inMax //The max gs value in the image
-   *
+   * @param  {string} seriesUID
    * @returns {void}
    */
-  mapToRange(value, inMin, inMax) {
-    return ((value - inMin) / (inMax - inMin)) * 255;
-  }
-  getMax(arr) {
-    let len = arr.length;
-    let max = -Infinity;
-
-    while (len--) {
-      max = arr[len] > max ? arr[len] : max;
-    }
-    return max;
-  }
-  getMin(arr) {
-    let len = arr.length;
-    let min = +Infinity;
-
-    while (len--) {
-      min = arr[len] < min ? arr[len] : min;
-    }
-    return min;
+  _resetData(seriesUID, stackData) {
+    this.dicomPixelData = null;
+    this.minThreshold = null;
+    this.maxThreshold = null;
+    this.segmentIndex = 1;
+    this.pixelData = this.seriesUID != seriesUID ? null : this.pixelData;
+    this.slicesNumber =
+      this.seriesUID != seriesUID ? null : stackData.imageIds.length;
+    this.maskArray = this.seriesUID != seriesUID ? null : this.maskArray;
+    this.maskArrayCurrentImage = null;
   }
 }
-
-//eventually TODO:
-
-//1)TEST CONNECTED COMPONENTS
-
-/*function connectLabels(slice1, slice2) {
-  // Assuming slice1 and slice2 are 2D arrays representing labels in each slice
-  // Iterate through connected components in slice1
-  for each component in getConnectedComponents(slice1) {
-    // Find corresponding components in slice2 based on connectivity criteria
-    let correspondingComponents = findCorrespondingComponents(component, slice1, slice2);
-
-    // Assign the same label to corresponding components in slice2
-    for each correspondingComponent in correspondingComponents {
-      slice2[correspondingComponent.x][correspondingComponent.y] = component.label;
-    }
-  }
-}
-
-function findCorrespondingComponents(component, slice1, slice2) {
-  // Implement logic to find components in slice2 that correspond to the given component in slice1
-  // Use criteria such as proximity, size, shape, etc.
-  // Return a list of corresponding components in slice2
-}
-
-// Iterate through slices and perform label propagation
-for (let i = 1; i < numberOfSlices; i++) {
-  connectLabels(slices[i - 1], slices[i]);
-}*/
-
-//2) TEST FUZZY C-MEAN CLUSTERING
-
-/*
-https://www.semanticscholar.org/paper/MEDICAL-IMAGE-SEGMENTATION-USING-FUZZY-C-MEANS-AND-Christ-Parvathi/319e203d1994319ba7979a65ded8bb1d55a9c889 
-https://docs.opencv.org/3.4/d1/d5c/tutorial_py_kmeans_opencv.html
-
-*/
-
-/*
-    let imgInput, imgGray, imgFuzzyOutput;
-
-    function onOpenCvReady() {
-      loadImage();
-    }
-
-    function loadImage() {
-      const fileInput = document.getElementById('fileInput');
-      const canvasInput = document.getElementById('canvasInput');
-      const ctxInput = canvasInput.getContext('2d');
-
-      const img = new Image();
-      img.src = URL.createObjectURL(fileInput.files[0]);
-      img.onload = function() {
-        canvasInput.width = img.width;
-        canvasInput.height = img.height;
-        ctxInput.drawImage(img, 0, 0);
-        performFuzzyCMeans();
-      };
-    }
-
-    function performFuzzyCMeans() {
-      const canvasInput = document.getElementById('canvasInput');
-      const ctxInput = canvasInput.getContext('2d');
-
-      const src = cv.imread(canvasInput);
-
-      // Convert to grayscale
-      const gray = new cv.Mat();
-      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-
-      // Convert to float32
-      const data = new cv.Mat();
-      gray.convertTo(data, cv.CV_32F);
-
-      // Reshape to a single column
-      data = data.reshape(1, gray.rows * gray.cols);
-
-      // Set the number of clusters (adjust as needed)
-      const k = 3;
-
-      // Term criteria for the algorithm
-      const termCriteria = new cv.TermCriteria(cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 100, 0.2);
-
-      // Apply Fuzzy C-means clustering
-      const labels = new cv.Mat();
-      const centers = new cv.Mat();
-      cv.kmeans(data, k, labels, termCriteria, 1, cv.KMEANS_RANDOM_CENTERS, centers);
-
-      // Reshape the labels to the original image size
-      labels = labels.reshape(1, gray.rows);
-
-      // Create a color map for visualization
-      const colormap = new cv.Mat();
-      cv.applyColorMap(labels, colormap, cv.COLORMAP_JET);
-
-      // Display the result
-      const canvasOutput = document.getElementById('canvasOutput');
-      const ctxOutput = canvasOutput.getContext('2d');
-      cv.imshow(canvasOutput, colormap);
-
-      // Clean up
-      src.delete();
-      gray.delete();
-      data.delete();
-      termCriteria.delete();
-      labels.delete();
-      centers.delete();
-      colormap.delete();
-    }
-*/
-
-//3)POST-PROCESSING: Merge labels that appear only a few times, connect labels
-/* function shiftAndZeroOut(array, minAppearance) {
-  // Count the occurrences of each integer
-  const countMap = array.reduce((acc, num) => {
-    acc[num] = (acc[num] || 0) + 1;
-    return acc;
-  }, {});
-
-  // Create a mapping for shifting
-  const shiftMap = {};
-  let shiftValue = 0;
-  
-  for (const num in countMap) {
-    if (countMap[num] >= minAppearance) {
-      shiftMap[num] = shiftValue++;
-    } else {
-      shiftMap[num] = -1; // Mark for zeroing out
-    }
-  }
-
-  // Update the array with shifted values and zeros
-  const shiftedArray = array.map(num => (shiftMap[num] !== undefined) ? shiftMap[num] : num);
-
-  return shiftedArray;
-}
-*/
-
-//4)CREARE LABELS ad hoc per segmentare più di 10 features
-
-//5)BG REMOVAL (tornare a versioni precedenti (solo label 1 )
-/* if (
-            i === 0 ||
-            j === 0 ||
-            i === markers.rows - 1 ||
-            j === markers.cols - 1
-          ) {
-            mask_array.push(0);
-          }
-          else {
-            mask_array.push(1);
-          }
-
-
-        } else if (markers.intPtr(i, j)[0] > 1) {
-          // Inside pixel (non-zero marker values)
-          mask_array.push(1);*/
-
-//+TRY SPEEDING UP THE CODE WITH WEBWORKERS
-//+CLEAN THE CODE
