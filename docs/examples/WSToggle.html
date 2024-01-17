@@ -47,6 +47,16 @@
         padding: 8px; /* Adjust the padding for better alignment */
         font-size: 14px; /* Adjust the font size for better visibility */
       }
+
+      .loader {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 16px;
+      }
     </style>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -73,6 +83,8 @@
     ></script>
     <div class="row h-100">
       <div id="buttonBar">
+        <div class="loader" id="loader"></div>
+
         <button id="toggleButton">Toggle</button>
         <input
           type="number"
@@ -209,6 +221,20 @@ for hepatic tumor segmentation (and volumetry).*/
       onload="onOpenCvReady();"
       type="text/javascript"
     ></script>
+    <script>
+      const loader = document.getElementById("loader");
+      let rotation = 0;
+
+      function rotateLoader() {
+        rotation += 5; // You can adjust the rotation speed
+
+        loader.style.transform = `rotate(${rotation}deg)`;
+
+        requestAnimationFrame(rotateLoader);
+      }
+
+      rotateLoader();
+    </script>
 
     <script>
       function triggerHandleToggle() {
