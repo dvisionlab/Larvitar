@@ -16,17 +16,11 @@ const segmentationUtils = cornerstoneTools.importInternal(
 const getCircle = segmentationUtils.getCircle;
 const segmentationModule = cornerstoneTools.getModule("segmentation");
 const getToolState = cornerstoneTools.getToolState;
+
 // internal libraries
 import { DEFAULT_TOOLS } from "../default";
 import store from "../../imageStore";
-const setSegmentationConfig = function (config) {
-  let { configuration } = cornerstoneTools.getModule("segmentation");
-  extend(configuration, config);
-  let enabledElements = cornerstone.getEnabledElements();
-  each(enabledElements, el => {
-    cornerstone.updateImage(el.element);
-  });
-};
+
 /**
  * @public
  * @class WSTool
@@ -74,6 +68,7 @@ export default class WSToggleTool extends BaseBrushTool {
     });
     //const { configuration } = segmentationModule;
   }
+
   /**
    * Allows to get the canvas element when going over it with mouse
    * TODO check with multiple canvas and layouts
@@ -118,6 +113,7 @@ export default class WSToggleTool extends BaseBrushTool {
       evt.preventDefault(); //modify custom mouse scroll to not interefere with ctrl+wheel
     }
   }
+
   /**
    * Event handler for MOUSE_DRAG event.
    *
@@ -154,6 +150,7 @@ export default class WSToggleTool extends BaseBrushTool {
     this.configuration.masksNumber =
       (masksNumber === undefined) | null ? 10 : masksNumber;
   }
+
   /**
    * Paints the data to the labelmap.
    *@name _paint
@@ -258,6 +255,7 @@ export default class WSToggleTool extends BaseBrushTool {
       this.upperThreshold = meanNorm + xFactor * stdDevNorm;
 
       if (isMultiImage === false) {
+
         this.maskArrayCurrentImage = new Array(this.width * this.height);
         this._applyWatershedSegmentation(
           this.width,
@@ -279,7 +277,7 @@ export default class WSToggleTool extends BaseBrushTool {
           this.configuration.endIndex,
           dicomPixelData
         ).then(() => {
-          console.log(this.maskArray);
+
           let pixelMask3D = this._drawBrushPixels(
             this.maskArray,
             labelmap3D.labelmaps2D
@@ -408,6 +406,8 @@ export default class WSToggleTool extends BaseBrushTool {
     const promises = [];
 
     cachedImages.slice(startIndex, endIndex).forEach((item, index) => {
+
+
       let trueindex = startIndex + index;
       if (item.image.imageId === ImageId) {
         this.pixelData[trueindex] = dicomPixelData;
@@ -422,6 +422,7 @@ export default class WSToggleTool extends BaseBrushTool {
         this._applyWatershedSegmentation(
           this.width,
           this.height,
+
           this.pixelData[trueindex]
         ).then(result => {
           this.maskArray[trueindex] = result;
@@ -615,6 +616,65 @@ export default class WSToggleTool extends BaseBrushTool {
         const cols = markers.cols;
         const lastRowIndex = rows - 1;
         const lastColIndex = cols - 1;
+
+        console.time();
+
+        function processIteration(i, j, configuration) {
+          const markersArrayIndex = i * markers.cols + j;
+          const markerValue = markers.intPtr(i, j)[0];
+
+          if (markerValue === -1) {
+            // Border pixel
+            markersArray[markersArrayIndex] =
+              i === 0 || j === 0 || i === lastRowIndex || j === lastColIndex
+                ? 0
+                : label;
+          } else if (markerValue >= 1) {
+            // Inside pixel (non-zero marker values)
+            label =
+              markerValue > configuration.masksNumber
+                ? configuration.masksNumber
+                : markerValue;
+            markersArray[markersArrayIndex] = label;
+          } else {
+            // Background pixel (marker value == 0)
+            markersArray[markersArrayIndex] = 0;
+          }
+
+          if (j + 1 < cols) {
+            let nextCol = j + 1;
+            setTimeout(() => {
+              processIteration(i, nextCol, configuration);
+            }, 0);
+          } else if (i + 1 < rows) {
+            console.timeLog();
+            let nextRow = i + 1;
+            console.log("next row", nextRow);
+            setTimeout(() => {
+              processIteration(nextRow, 0, configuration);
+            }, 0);
+          } else {
+            // delete unused Mat elements
+            src.delete();
+            gray.delete();
+            opening.delete();
+            Bg.delete();
+            Fg.delete();
+            distTrans.delete();
+            unknown.delete();
+            markers.delete();
+            M.delete();
+            // mask array to mask a DICOM image
+            console.timeEnd();
+            resolve(markersArray);
+          }
+        }
+
+        processIteration(0, 0, this.configuration);
+
+        /* Previous code with a for cycle
+
+
         for (let i = 0; i < rows; i++) {
           for (let j = 0; j < cols; j++) {
             const markersArrayIndex = i * markers.cols + j;
@@ -637,11 +697,13 @@ export default class WSToggleTool extends BaseBrushTool {
               // Background pixel (marker value == 0)
               markersArray[markersArrayIndex] = 0;
             }
-            /*if(contourArray[markersArrayIndex]===1)
-        {
-          console.log("contour")
-          markersArray[markersArrayIndex] = 1;
-        }*/
+
+            //     if(contourArray[markersArrayIndex]===1)
+            // {
+            //   console.log("contour")
+            //   markersArray[markersArrayIndex] = 1;
+            // }
+
           }
         }
 
@@ -659,6 +721,8 @@ export default class WSToggleTool extends BaseBrushTool {
         M.delete();
         // mask array to mask a DICOM image
         resolve(markersArray);
+        */
+
       } catch (error) {
         reject(error);
       }
