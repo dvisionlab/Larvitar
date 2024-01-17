@@ -350,7 +350,13 @@ export default class WSToggleTool extends BaseBrushTool {
         }
 
         const { minThreshold, maxThreshold, lowerThreshold, upperThreshold } =
-          calculateThresholds(image, this.dicomPixelData, circleArray);
+          calculateThresholds(
+            image,
+            this.dicomPixelData,
+            circleArray,
+            this.minThreshold,
+            this.maxThreshold
+          );
         this.maskArray = new Array(this.slicesNumber);
         this.pixelData = new Array(this.slicesNumber);
         //toggleUIVisibility(false, true,this.configuration.drawHandlesOnHover);
@@ -365,7 +371,6 @@ export default class WSToggleTool extends BaseBrushTool {
           lowerThreshold,
           upperThreshold
         ).then(() => {
-          console.log(this.maskArray);
           let pixelMask3D = this._drawBrushPixels(
             this.maskArray,
             labelmap3D.labelmaps2D
@@ -502,9 +507,11 @@ export default class WSToggleTool extends BaseBrushTool {
     });
 
     await Promise.all(promises);
-    //ALTERNATIVE, THIS DOES NOT BLOCK THE UI BUT THE WS DOESNT WORK ANYMORE
-    //PROCESSES GET MIXED
-    //TODO check why this doesnt work and fix it
+    //ALTERNATIVE CHUNKS TO AVOID UI FREEZING:
+    //TODO check why this doesnt work and fix it (il mask array risulta empty durante il drawBrush
+    // ma in realtà se si logga non lo è)
+    //problemi di asincronia, come gestirli?
+
     /*const promises = [];
     let selectedItems = cachedImages.slice(startIndex, endIndex);
     function processIteration(i) {
@@ -711,8 +718,11 @@ export default class WSToggleTool extends BaseBrushTool {
         reject(error);
       }
     });
-    //ALTERNATIVE INSTEAD OF PROCESSITERATION, FASTER
-    //TODO: check if this is better
+    //ALTERNATIVE INSTEAD OF PROCESSITERATION: SIMPLE NESTED FOR CYCLE
+    //pros: +VELOCE, SPECIALMENTE NELLA WS SU SINGOLA SLICE
+    //cons: BLOCKS THE UI (NOTARE CHE LA UI E' COMUNQUE BLOCCATA NEL CASO MULTISLICE ANCHE USANDO PROCESSITERATION,
+    //ANDREBBE SPEZZATO IN CHUNKS ANCHE IL CICLO FOR SULLE IMMAGINI NEL CASO MULTISLICE, MA SI ROMPE)
+    //TODO: check se conviene tenere la versione vecchia
     //for (let i = 0; i < rows; i++) {
     //for (let j = 0; j < cols; j++) {
     //const markersArrayIndex = i * markers.cols + j;
