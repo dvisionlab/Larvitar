@@ -263,7 +263,7 @@ const DEFAULT_TOOLS: {
   RectangleRoi: {
     name: "RectangleRoi",
     viewports: "all",
-    configuration: {},
+    configuration: { showMinMax: true },
     options: { mouseButtonMask: 1 },
     cleanable: true,
     defaultActive: false,

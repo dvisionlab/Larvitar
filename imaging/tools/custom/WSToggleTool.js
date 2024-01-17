@@ -8,7 +8,6 @@
 import cornerstoneTools from "cornerstone-tools";
 import cornerstone from "cornerstone-core";
 import { each, extend } from "lodash";
-
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(
@@ -64,7 +63,7 @@ export default class WSToggleTool extends BaseBrushTool {
     //this.touchDragCallback = this._paint.bind(this);
     this._handleMouseMove = this._handleMouseMove.bind(this);
     document.addEventListener("mousemove", this._handleMouseMove);
-    larvitar.setSegmentationConfig({
+    setSegmentationConfig({
       segmentsPerLabelmap: this.configuration.masksNumber
     });
     //const { configuration } = segmentationModule;
@@ -138,9 +137,11 @@ export default class WSToggleTool extends BaseBrushTool {
     this.configuration.multiImage = isMultiImage;
     if (isMultiImage === true) {
       this.configuration.startIndex =
-        startIndex === null ? 0 : parseInt(startIndex, 10);
+        startIndex === null ? 0 : Math.max(parseInt(startIndex, 10), 0);
       this.configuration.endIndex =
-        endIndex === null ? this.slicesNumber : parseInt(endIndex, 10);
+        endIndex === null
+          ? this.slicesNumber
+          : Math.min(parseInt(endIndex, 10) + 1, this.slicesNumber);
     } else {
       this.configuration.startIndex = null;
       this.configuration.endIndex = null;
@@ -254,7 +255,7 @@ export default class WSToggleTool extends BaseBrushTool {
       this.upperThreshold = meanNorm + xFactor * stdDevNorm;
 
       if (isMultiImage === false) {
-        console.log("isMultiImage === false");
+
         this.maskArrayCurrentImage = new Array(this.width * this.height);
         this._applyWatershedSegmentation(
           this.width,
@@ -276,6 +277,7 @@ export default class WSToggleTool extends BaseBrushTool {
           this.configuration.endIndex,
           dicomPixelData
         ).then(() => {
+
           let pixelMask3D = this._drawBrushPixels(
             this.maskArray,
             labelmap3D.labelmaps2D
@@ -404,22 +406,26 @@ export default class WSToggleTool extends BaseBrushTool {
     const promises = [];
 
     cachedImages.slice(startIndex, endIndex).forEach((item, index) => {
+
+
+      let trueindex = startIndex + index;
       if (item.image.imageId === ImageId) {
-        this.pixelData[startIndex + index] = dicomPixelData;
+        this.pixelData[trueindex] = dicomPixelData;
       } else {
-        this.pixelData[startIndex + index] =
-          this.pixelData[startIndex + index] === undefined
+        this.pixelData[trueindex] =
+          this.pixelData[trueindex] === undefined
             ? item.image.getPixelData()
-            : this.pixelData[startIndex + index];
+            : this.pixelData[trueindex];
       }
 
       promises.push(
         this._applyWatershedSegmentation(
           this.width,
           this.height,
-          this.pixelData[startIndex + index]
+
+          this.pixelData[trueindex]
         ).then(result => {
-          this.maskArray[startIndex + index] = result;
+          this.maskArray[trueindex] = result;
         })
       );
     });
@@ -668,6 +674,7 @@ export default class WSToggleTool extends BaseBrushTool {
 
         /* Previous code with a for cycle
 
+
         for (let i = 0; i < rows; i++) {
           for (let j = 0; j < cols; j++) {
             const markersArrayIndex = i * markers.cols + j;
@@ -690,11 +697,13 @@ export default class WSToggleTool extends BaseBrushTool {
               // Background pixel (marker value == 0)
               markersArray[markersArrayIndex] = 0;
             }
+
             //     if(contourArray[markersArrayIndex]===1)
             // {
             //   console.log("contour")
             //   markersArray[markersArrayIndex] = 1;
             // }
+
           }
         }
 
@@ -713,6 +722,7 @@ export default class WSToggleTool extends BaseBrushTool {
         // mask array to mask a DICOM image
         resolve(markersArray);
         */
+
       } catch (error) {
         reject(error);
       }
