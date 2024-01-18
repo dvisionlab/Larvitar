@@ -125,6 +125,19 @@ const DEFAULT_TOOLS: {
     defaultActive: false,
     class: "StackScrollTool"
   },
+  StackScrollMouseWheel: {
+    name: "StackScrollMouseWheel",
+    viewports: "all",
+    configuration: {
+      loop: false, // default false
+      allowSkipping: true, // default true
+      invert: false
+    },
+    options: {},
+    cleanable: false,
+    defaultActive: true,
+    class: "StackScrollMouseWheelTool"
+  },
   CustomMouseWheelScroll: {
     name: "CustomMouseWheelScroll",
     viewports: "all",
