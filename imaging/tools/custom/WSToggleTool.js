@@ -28,9 +28,9 @@ const setSegmentationConfig = function (config) {
   });
 };
 import {
-  calculateStats,
+  //calculateStats,
   mapToRange,
-  getMin,
+  //getMin,
   getMax,
   //preProcess,
   //postProcess,
@@ -38,6 +38,7 @@ import {
   //toggleUIVisibility,
   shiftAndZeroOut
 } from "./utilsWatershedSegmentation";
+
 /**
  * @public
  * @class WSTool
@@ -77,6 +78,7 @@ export default class WSToggleTool extends BaseBrushTool {
     this.labelToErase = null;
     this.click = 0;
     this.labelToChange = null;
+
     this._handleMouseMove = this._handleMouseMove.bind(this);
     document.addEventListener("mousemove", this._handleMouseMove);
     setSegmentationConfig({
@@ -156,7 +158,10 @@ export default class WSToggleTool extends BaseBrushTool {
    */
   _handleToggle(isMultiImage, startIndex, endIndex, masksNumber) {
     // Toggle mode between 'stack' and 'slice' on Tab key press or other events
-
+    if (endIndex < startIndex) {
+      endIndex = startIndex;
+      startIndex = endIndex;
+    }
     this.configuration.multiImage = isMultiImage;
     if (isMultiImage === true) {
       this.configuration.startIndex =
@@ -371,6 +376,7 @@ export default class WSToggleTool extends BaseBrushTool {
           lowerThreshold,
           upperThreshold
         ).then(() => {
+          console.log("draw");
           let pixelMask3D = this._drawBrushPixels(
             this.maskArray,
             labelmap3D.labelmaps2D
@@ -479,44 +485,11 @@ export default class WSToggleTool extends BaseBrushTool {
     upperThreshold
   ) {
     const promises = [];
-
-    cachedImages.slice(startIndex, endIndex).forEach((item, index) => {
-      let trueindex = startIndex + index;
-      if (item.image.imageId === ImageId) {
-        this.pixelData[trueindex] = dicomPixelData;
-      } else {
-        this.pixelData[trueindex] =
-          this.pixelData[trueindex] === undefined
-            ? item.image.getPixelData()
-            : this.pixelData[trueindex];
-      }
-
-      promises.push(
-        this._applyWatershedSegmentation(
-          this.width,
-          this.height,
-          this.pixelData[trueindex],
-          minThreshold,
-          maxThreshold,
-          lowerThreshold,
-          upperThreshold
-        ).then(result => {
-          this.maskArray[trueindex] = result;
-        })
-      );
-    });
-
-    await Promise.all(promises);
-    //ALTERNATIVE CHUNKS TO AVOID UI FREEZING:
-    //TODO check why this doesnt work and fix it (il mask array risulta empty durante il drawBrush
-    // ma in realtà se si logga non lo è)
-    //problemi di asincronia, come gestirli?
-
-    /*const promises = [];
-    let selectedItems = cachedImages.slice(startIndex, endIndex);
-    function processIteration(i) {
+    const selectedItems = cachedImages.slice(startIndex, endIndex);
+    async function processIteration(i) {
       let item = selectedItems[i];
       let trueindex = startIndex + i;
+
       if (trueindex < endIndex) {
         if (item.image.imageId === ImageId) {
           this.pixelData[trueindex] = dicomPixelData;
@@ -526,29 +499,35 @@ export default class WSToggleTool extends BaseBrushTool {
               ? item.image.getPixelData()
               : this.pixelData[trueindex];
         }
-        promises.push(
-          this._applyWatershedSegmentation(
-            this.width,
-            this.height,
-            this.pixelData[trueindex],
-            minThreshold,
-            maxThreshold,
-            lowerThreshold,
-            upperThreshold
-          ).then(result => {
-            this.maskArray[trueindex] = result;
-          })
+
+        // Wait for watershed segmentation algorithm to finish
+        const result = await this._applyWatershedSegmentation(
+          this.width,
+          this.height,
+          this.pixelData[trueindex],
+          minThreshold,
+          maxThreshold,
+          lowerThreshold,
+          upperThreshold
         );
 
+        this.maskArray[trueindex] = result;
+
+        // Push the promise into the vector
+        promises.push(Promise.resolve(result));
+        console.log(promises);
         // Move on to the next image
         let nextImageindex = i + 1;
-        setTimeout(() => {
-          processIteration.call(this, nextImageindex);
-        }, 0);
+
+        // Call the next iteration asynchronously
+        await processIteration.call(this, nextImageindex);
       }
     }
-    processIteration.call(this, 0);
-    await Promise.all(promises);*/
+
+    // Start the processing
+    await processIteration.call(this, 0);
+    // Wait for all promises to resolve
+    await Promise.all(promises);
   }
 
   /**
