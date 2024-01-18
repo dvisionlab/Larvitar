@@ -1,3 +1,6 @@
+import * as cv from "@techstark/opencv-js";
+
+import { Image } from "cornerstone-core";
 /**
  * calculates thresholds for watershed
  *@name calculateThresholds
@@ -43,7 +46,7 @@ export function toggleUIVisibility(
   drawHandlesOnHover: boolean
 ) {
   drawHandlesOnHover = showBrush;
-  document.getElementById("loading-bar-container").style.display = showLoader
+  document.getElementById("loading-bar-container")!.style.display = showLoader
     ? "block"
     : "none";
 }
@@ -56,11 +59,14 @@ export function toggleUIVisibility(
  * @param  {Array} minAppearance The pixelDataArray obtained with dicomimage.getPixeldata()
  * @returns {void}
  */
-export function shiftAndZeroOut(array: number[], minAppearance: number) {
-  const shiftMap = {};
+export function shiftAndZeroOut(
+  array: number[],
+  minAppearance: number
+): number[] {
+  const shiftMap: Record<number, number> = {};
   let shiftValue = 0;
 
-  const shiftedArray = array.map((num, index) => {
+  const shiftedArray: number[] = array.map((num, index) => {
     const count = (shiftMap[num] = (shiftMap[num] || 0) + 1);
     return count >= minAppearance ? shiftValue++ : -1;
   });
@@ -124,7 +130,11 @@ export function preProcess(gray: cv.Mat, src: cv.Mat) {
  * @param  {cv.Mat} markers //The mask array retrieved from WS algorithm
  * @returns {cv.Mat}
  */
-export function postProcess(markers: cv.Mat, gray: cv.Mat) {
+export function postProcess(
+  markers: cv.Mat,
+  gray: cv.Mat,
+  markersArray: number[]
+) {
   console.log("Code is executing!");
   try {
     console.log("Code is trying!");
@@ -181,7 +191,8 @@ export function postProcess(markers: cv.Mat, gray: cv.Mat) {
 
           // Set the corresponding value in contourArray
           contourArray[row * gray.cols + col] = isOnContour ? 1 : 0;
-          markers[row * gray.cols + col] = contourArray[row * gray.cols + col];
+          markersArray[row * gray.cols + col] =
+            contourArray[row * gray.cols + col];
         }
       }
 
@@ -194,7 +205,7 @@ export function postProcess(markers: cv.Mat, gray: cv.Mat) {
     contours.delete();
     hierarchy.delete();
 
-    return markers;
+    return markersArray;
   } catch (error) {
     console.error("Error in postProcess:", error);
     throw error; // Rethrow the error to propagate it further if needed

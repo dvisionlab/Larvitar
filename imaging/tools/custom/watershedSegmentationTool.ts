@@ -6,7 +6,7 @@
 
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
-import cornerstone, { Image, imageCache } from "cornerstone-core";
+import cornerstone, { Image } from "cornerstone-core";
 import { each, extend } from "lodash";
 import * as cv from "@techstark/opencv-js";
 const external = cornerstoneTools.external;
@@ -33,7 +33,7 @@ import {
   getMax,
   calculateThresholds,
   shiftAndZeroOut
-} from "./utilsWatershedSegmentation";
+} from "./WSUtils";
 import { ToolOptions } from "../types";
 import { Series } from "../../types";
 interface WSConfig {
@@ -684,7 +684,7 @@ export default class WSToggleTool extends BaseBrushTool {
 
         cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
         cv.watershed(src, markers);
-        //postProcess(markers)//OPTIONAL
+        //postProcess(markers: cv.Mat,gray: cv.Mat,markersArray: number[]) //OPTIONAL
 
         shiftAndZeroOut(markersArray, 100);
 
