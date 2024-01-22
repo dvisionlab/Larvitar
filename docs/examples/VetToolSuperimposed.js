@@ -2,24 +2,28 @@ const cornerstoneTools = larvitar.cornerstoneTools;
 const cornerstone = larvitar.cornerstone;
 const external = cornerstoneTools.external;
 // State
-const getToolState = cornerstoneTools.getToolState;//check
+const getToolState = cornerstoneTools.getToolState; //check
 const toolStyle = cornerstoneTools.toolStyle;
 const toolColors = cornerstoneTools.toolColors;
 // Drawing
 const EVENTS = cornerstoneTools.EVENTS;
 const draw = cornerstoneTools.importInternal("drawing/draw");
-const drawLine=cornerstoneTools.importInternal("drawing/drawLine");
-const setShadow=cornerstoneTools.importInternal("drawing/setShadow");
+const drawLine = cornerstoneTools.importInternal("drawing/drawLine");
+const setShadow = cornerstoneTools.importInternal("drawing/setShadow");
 const getNewContext = cornerstoneTools.importInternal("drawing/getNewContext");
-const drawLinkedTextBox = cornerstoneTools.importInternal("drawing/drawLinkedTextBox");
+const drawLinkedTextBox = cornerstoneTools.importInternal(
+  "drawing/drawLinkedTextBox"
+);
 const drawHandles = cornerstoneTools.importInternal("drawing/drawHandles");
 const { lengthCursor } = cornerstoneTools.importInternal("tools/cursors");
 const getLogger = cornerstoneTools.importInternal("util/getLogger");
 const throttle = cornerstoneTools.importInternal("util/throttle");
 const getModule = cornerstoneTools.getModule;
 const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
-const lineSegDistance =cornerstoneTools.importInternal("util/lineSegDistance");
-const BaseAnnotationTool=cornerstoneTools.importInternal("base/BaseAnnotationTool");
+const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
+const BaseAnnotationTool = cornerstoneTools.importInternal(
+  "base/BaseAnnotationTool"
+);
 // import cornerstoneTools from "cornerstone-tools";
 
 /**
@@ -32,16 +36,16 @@ const BaseAnnotationTool=cornerstoneTools.importInternal("base/BaseAnnotationToo
 class VetTool extends BaseAnnotationTool {
   constructor(props = {}) {
     const defaultProps = {
-      name: 'HorizontalTool',
-      supportedInteractionTypes: ['Mouse'],
+      name: "HorizontalTool",
+      supportedInteractionTypes: ["Mouse"],
       svgCursor: lengthCursor,
       configuration: {
         drawHandles: true,
         drawHandlesOnHover: false,
         hideHandlesIfMoving: false,
         renderDashed: false,
-        digits: 2,
-      },
+        digits: 2
+      }
     };
 
     super(props, defaultProps);
@@ -49,45 +53,46 @@ class VetTool extends BaseAnnotationTool {
     this.datahandles;
     this.measuring = false; // New variable to track measurement state
     this.color;
-    this.plotlydata=[];
-    this.measures=0;
+    this.plotlydata = [];
+    this.measures = 0;
     this.handleMouseUp = this.handleMouseUp.bind(this);
     // Add event listeners to start and stop measurements
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
   getRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
+    const letters = "0123456789ABCDEF";
+    let color = "#";
     for (let i = 0; i < 6; i++) {
       color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
   }
 
-  handleMouseUp= (event) => {
+  handleMouseUp = event => {
     console.log("stop");
     this.measuring = false;
     const eventData = this.eventData;
-  
-    const points = this.getPointsAlongLine(this.datahandles.start,
+
+    const points = this.getPointsAlongLine(
+      this.datahandles.start,
       this.datahandles.end,
       getPixelSpacing(eventData.image).colPixelSpacing
     );
-  console.log(points);
+    console.log(points);
     const pixelValues = this.getPixelValuesAlongLine(
       this.datahandles.start,
       points,
-      getPixelSpacing(eventData.image).colPixelSpacing, 
+      getPixelSpacing(eventData.image).colPixelSpacing,
       eventData
     );
-  
+
     // Plot the graph using the extracted points and pixel values
     this.createPlot(points, pixelValues);
-  }
+  };
 
   createNewMeasurement(eventData) {
-    this.measures=this.measures+1;
-this.eventData=eventData;
+    this.measures = this.measures + 1;
+    this.eventData = eventData;
     console.log("start");
     this.measuring = true;
     const goodEventData =
@@ -100,10 +105,10 @@ this.eventData=eventData;
 
       return;
     }
-    let color=this.getRandomColor();
-    this.color=color;
+    let color = this.getRandomColor();
+    this.color = color;
     const { x, y } = eventData.currentPoints.image;
-  
+
     return {
       visible: true,
       active: true,
@@ -114,13 +119,13 @@ this.eventData=eventData;
           x,
           y,
           highlight: true,
-          active: false,
+          active: false
         },
         end: {
           x,
           y,
           highlight: true,
-          active: true,
+          active: true
         },
         textBox: {
           active: false,
@@ -128,9 +133,9 @@ this.eventData=eventData;
           movesIndependently: false,
           drawnIndependently: true,
           allowedOutsideImage: true,
-          hasBoundingBox: true,
-        },
-      },
+          hasBoundingBox: true
+        }
+      }
     };
   }
 
@@ -185,13 +190,13 @@ this.eventData=eventData;
   renderToolData(evt) {
     const eventData = evt.detail;
     const { image, element } = eventData;
-    element.addEventListener('mouseup', this.handleMouseUp);
+    element.addEventListener("mouseup", this.handleMouseUp);
     const {
       handleRadius,
       drawHandlesOnHover,
       hideHandlesIfMoving,
       renderDashed,
-      digits,
+      digits
     } = this.configuration;
     const toolData = getToolState(evt.currentTarget, this.name);
 
@@ -201,11 +206,11 @@ this.eventData=eventData;
 
     // We have tool data for this element - iterate over each one and draw it
     const context = getNewContext(eventData.canvasContext.canvas);
-    
+
     const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
 
     const lineWidth = toolStyle.getToolWidth();
-    const lineDash = getModule('globalConfiguration').configuration.lineDash;
+    const lineDash = getModule("globalConfiguration").configuration.lineDash;
     let data = toolData.data;
     let start;
     let end;
@@ -229,9 +234,9 @@ this.eventData=eventData;
         if (renderDashed) {
           lineOptions.lineDash = lineDash;
         }
-        start=data.handles.start;
-        end=data.handles.end;
-        data.handles.end.y=data.handles.start.y;
+        start = data.handles.start;
+        end = data.handles.end;
+        data.handles.end.y = data.handles.start.y;
         // Draw the measurement line
         drawLine(
           context,
@@ -246,12 +251,12 @@ this.eventData=eventData;
           color,
           handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving,
+          hideHandlesIfMoving
         };
 
         if (this.configuration.drawHandles) {
           drawHandles(context, eventData, data.handles, handleOptions);
-          this.datahandles=data.handles;
+          this.datahandles = data.handles;
         }
 
         if (!data.handles.textBox.hasMoved) {
@@ -276,9 +281,9 @@ this.eventData=eventData;
           }
         }
 
-        const text = textBoxText(data, rowPixelSpacing, colPixelSpacing);
+        //const text = textBoxText(data, rowPixelSpacing, colPixelSpacing);
 
-        drawLinkedTextBox(
+        /*drawLinkedTextBox(
           context,
           element,
           data.handles.textBox,
@@ -289,25 +294,24 @@ this.eventData=eventData;
           lineWidth,
           xOffset,
           true
-        );
-        
+        );*/
       });
     }
-    
+
     // - SideEffect: Updates annotation 'suffix'
     function textBoxText(annotation, rowPixelSpacing, colPixelSpacing) {
       const measuredValue = _sanitizeMeasuredValue(annotation.length);
 
       // Measured value is not defined, return empty string
       if (!measuredValue) {
-        return '';
+        return "";
       }
 
       // Set the length text suffix depending on whether or not pixelSpacing is available
-      let suffix = 'mm';
+      let suffix = "mm";
 
       if (!rowPixelSpacing || !colPixelSpacing) {
-        suffix = 'pixels';
+        suffix = "pixels";
       }
 
       annotation.unit = suffix;
@@ -318,35 +322,31 @@ this.eventData=eventData;
     function textBoxAnchorPoints(handles) {
       const midpoint = {
         x: (handles.start.x + handles.end.x) / 2,
-        y: (handles.start.y + handles.end.y) / 2,
+        y: (handles.start.y + handles.end.y) / 2
       };
 
       return [handles.start, midpoint, handles.end];
-    }    
-
+    }
   }
 
-
-
-  getPointsAlongLine(startHandle, endHandle,colPixelSpacing) {
+  getPointsAlongLine(startHandle, endHandle, colPixelSpacing) {
     const points = [];
-    const numPoints = (Math.floor(endHandle.x) - Math.floor(startHandle.x));
+    const numPoints = Math.floor(endHandle.x) - Math.floor(startHandle.x);
     let x = Math.floor(startHandle.x) + 1;
-    points.push(x*colPixelSpacing);
+    points.push(x * colPixelSpacing);
     for (let i = 0; i < numPoints; i++) {
       x = x + 1;
-      points.push(x*colPixelSpacing); //from pixels to mm
+      points.push(x * colPixelSpacing); //from pixels to mm
     }
     return points;
   }
 
-
-  getPixelValuesAlongLine(startHandle, points, colPixelSpacing,eventData) {
+  getPixelValuesAlongLine(startHandle, points, colPixelSpacing, eventData) {
     const pixelValues = [];
     const yPoint = Math.floor(startHandle.y); // Adjust this if needed
     console.log(points);
     for (let i = 0; i < points.length; i++) {
-      const xPoint=Math.floor(points[i] / colPixelSpacing); 
+      const xPoint = Math.floor(points[i] / colPixelSpacing);
       const pixelValue = cornerstone.getStoredPixels(
         eventData.element,
         xPoint,
@@ -356,46 +356,52 @@ this.eventData=eventData;
       )[0];
       // Use cornerstone to get pixel value at the specified location
       //const pixelValue = cornerstone.getPixelValue(image, xPoint, yPoint);
-  
+
       pixelValues.push(pixelValue);
     }
-  
+
     return pixelValues;
   }
   createPlot(points, pixelValues) {
     console.log("plot");
-  
+
     // Create a new trace for each measurement
     const trace = {
       x: points,
       y: pixelValues,
       type: "lines",
       line: {
-        color: this.color,
-      },
+        color: this.color
+      }
     };
-  
+
     // Add the trace to the existing data array
     this.plotlydata.push(trace);
-  
+
     // Combine all traces into a single data array
     const data = [...this.plotlydata];
-  
+
     // Adjust the axis range based on all data
-    const allXValues = data.flatMap((trace) => trace.x);
-    const allYValues = data.flatMap((trace) => trace.y);
-  
+    const allXValues = data.flatMap(trace => trace.x);
+    const allYValues = data.flatMap(trace => trace.y);
+
     const layout = {
-      xaxis: { range: [Math.min(...allXValues), Math.max(...allXValues)], title: "position (mm)" },
-      yaxis: { range: [Math.min(...allYValues), Math.max(...allYValues)], title: "GreyScaleValue (HU)" },
+      xaxis: {
+        range: [Math.min(...allXValues), Math.max(...allXValues)],
+        title: "position (mm)"
+      },
+      yaxis: {
+        range: [Math.min(...allYValues), Math.max(...allYValues)],
+        title: "GreyScaleValue (HU)"
+      },
       title: "GreyScaleValues vs position",
-      responsive: true,
+      responsive: true
     };
-  
+
     // Display using Plotly
-    const myPlotDiv = document.getElementById('myPlot');
+    const myPlotDiv = document.getElementById("myPlot");
     Plotly.newPlot(myPlotDiv, data, layout);
-  
+
     console.log("Data:", data);
     console.log("Layout:", layout);
     console.log(myPlotDiv);

@@ -359,9 +359,9 @@ class VetTool extends BaseAnnotationTool {
           }
         }
 
-        const text = textBoxText(data, rowPixelSpacing, colPixelSpacing);
+        // const text = textBoxText(data, rowPixelSpacing, colPixelSpacing);
 
-        drawLinkedTextBox(
+        /*drawLinkedTextBox(
           context,
           element,
           data.handles.textBox,
@@ -372,7 +372,7 @@ class VetTool extends BaseAnnotationTool {
           lineWidth,
           xOffset,
           true
-        );
+        );*/
       });
     }
 
