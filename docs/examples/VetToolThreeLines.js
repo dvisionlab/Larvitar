@@ -275,7 +275,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
           data.handles.end,
           lineOptions
         );
-        //const offset =DEFAULT_TOOLS["VetToolThreeLines"].configuration.offset | this.configuration.offset;
+        //const offset =DEFAULT_TOOLS["VetToolThreeLines"].configuration.offset!=15?DEFAULT_TOOLS["VetToolThreeLines"].configuration.offset : this.configuration.offset;
         const offset = this.configuration.offset;
         console.log(data.handles);
         const aboveHandles = {

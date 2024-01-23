@@ -22,6 +22,12 @@
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
+      <input
+        type="number"
+        class="manualInput"
+        id="offset"
+        placeholder="offset"
+      />
       <div id="viewer" class="col-8 h-100" style="background-color: black">
         <p style="font-size: 25px; position: absolute; top: 40px; color: white">
           Press n to toggle between tools:
@@ -128,7 +134,12 @@
       larvitar.registerExternalTool("Test1", VetToolClassic);
       larvitar.registerExternalTool("Test2", VetToolSuperimposed);
       larvitar.registerExternalTool("Test3", VetToolThreeLines);
-
+      const offset = document.getElementById("offset");
+      offset.style.display = "none";
+      offset.addEventListener("input", function (event) {
+        // Update the variable with the input value
+        VetToolThreeLines.configuration.offset = event.target.value;
+      });
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
         let data = await response.blob();
@@ -183,7 +194,13 @@
           }
 
           clearToolData(element, tools[i - 1]);
+
           let next = tools[i];
+          if (next === "Test3") {
+            offset.style.display = "block";
+          } else {
+            offset.style.display = "none";
+          }
           larvitar.setToolActive(next);
           console.log('The "n" key was pressed. Next Tool', tools[i]);
         }
