@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <style>
+      #loading-bar-container {
+        display: none;
+        position: relative;
+        height: 20px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      #loading-bar {
+        height: 100%;
+        width: 0;
+        background-color: #3498db;
+        transition: width 0.3s ease-in-out;
+      }
+
+      .loading-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #333;
+        font-weight: bold;
+      }
+      #buttonBar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        left: 200px;
+      }
+
+      .button {
+        padding: 10px; /* Adjust the padding to make the buttons bigger */
+        font-size: 16px; /* Adjust the font size for better visibility */
+      }
+
+      .manualInput {
+        width: 100px; /* Adjust the width of manual input for better visibility */
+        padding: 8px; /* Adjust the padding for better alignment */
+        font-size: 14px; /* Adjust the font size for better visibility */
+      }
+
+      .loader {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin-right: 100px;
+      }
+    </style>
+    <script>
+      hljs.highlightAll();
+    </script>
+    <title>Larvitar - Default Tools example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div id="viewer" class="col-8 h-100" style="background-color: black">
+        <p style="position: absolute; color: white">
+          <b>Left Mouse Button:</b> Press "t" to cycle through tools
+        </p>
+        <p id="active-tool" style="position: absolute; top: 20px; color: white">
+          Active Tool: Wwwc
+        </p>
+        <p style="position: absolute; top: 40px; color: white">
+          <b>Right Mouse Button:</b> drag >> Zoom || drag + Ctrl >> Pan
+        </p>
+        <div id="buttonBar" class="col-3 offset-4" style="display: none">
+          <button id="toggleButton">Toggle</button>
+          <input
+            type="number"
+            class="manualInput"
+            id="startImage"
+            placeholder="startImage"
+          />
+          <input
+            type="number"
+            class="manualInput"
+            id="endImage"
+            placeholder="endImage"
+          />
+          <input
+            type="number"
+            class="manualInput"
+            id="masksNumber"
+            placeholder="N° Masks"
+          />
+        </div>
+      </div>
+
+      <div class="col-4 h-100">
+        <pre class="h-100">
+          <code class="javascript" style="background-color: #000000">
+          <p style="font-size:0.6vw;">
+            let demoFiles = [];
+            let counter = 0;
+
+            const getDemoFileNames = function () {
+              let demoFileList = [];
+              for (let i = 1; i < 25; i++) {
+                let filename = "anon" + i;
+                demoFileList.push(filename);
+              }
+              return demoFileList;
+            };
+
+            // init all
+            larvitar.initializeImageLoader();
+            larvitar.initializeCSTools();
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
+
+            async function createFile(fileName, cb) {
+              let response = await fetch("./demo/" + fileName);
+              let data = await response.blob();
+              let file = new File([data], fileName);
+              demoFiles.push(file);
+              counter++;
+              if (counter == 24) {
+                cb();
+              }
+            }
+
+            function renderSerie() {
+              larvitar
+                .readFiles(demoFiles)
+                .then(seriesStack => {
+                  let seriesId = _.keys(seriesStack)[0];
+                  let serie = seriesStack[seriesId];
+                  larvitar.renderImage(serie, "viewer").then(() => {
+                    console.log("Image has been rendered");
+                  });
+                  larvitar.addDefaultTools();
+
+                  let mouseConfig = {
+                    keyboard_shortcuts: {
+                      KEY_A: "Angle",
+                      KEY_L: "Length"
+                    },
+                    mouse_button_left: {
+                      ctrl: "Pan",
+                      default: "Wwwc"
+                    },
+                    mouse_button_right: {
+                      ctrl: "Pan",
+                      default: "Zoom"
+                    },
+                    debug: true
+                  };
+
+                  // NOTE: this also activate the tools marked as default for each mouse button
+                  larvitar.addMouseKeyHandlers(mouseConfig);
+                })
+                .catch(err => console.log(err));
+            }
+
+            let demoFileList = getDemoFileNames();
+            _.each(demoFileList, function (demoFile) {
+              createFile(demoFile, renderSerie);
+            });
+
+            let tool_counter = 0;
+            document.onkeypress = function (e) {
+              e = e || window.event;
+              if (e.keyCode == 116 || e.keyCode == 84) {
+                let tools = _.map(larvitar.DEFAULT_TOOLS, "name");
+                // remove useless tools for the live example
+                tools = _.without(
+                  tools,
+                  "StackScrollMouseWheel",
+                  "TextMarker",
+                  "ZoomTouchPinch",
+                  "PanMultiTouch",
+                  "OrientationMarkers",
+                  "ScaleOverlay"
+                );
+                // remove not working tools for the live example
+                // see open issue
+                tools = _.without(
+                  tools,
+                  "Brush",
+                  "ThresholdsBrush",
+                  "RectangleScissors",
+                  "FreehandScissors",
+                  "CircleScissors",
+                  "CorrectionScissors",
+                  "PolylineScissors"
+                );
+                let increment = e.shiftKey ? -1 : 1;
+                tool_counter =
+                  tool_counter == tools.length - 1 ? 0 : tool_counter + increment;
+                tool_counter = tool_counter < 0 ? 0 : tool_counter;
+                let tool = tools[tool_counter];
+                larvitar.setToolActive(tool);
+                $("#active-tool").html("Active Tool: " + tool);
+              }
+            };
+          </p>
+          </code>
+        </pre>
+      </div>
+    </div>
+
+    <script src="./larvitar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      function onOpenCvReady() {
+        console.log("OpenCV Ready", cv);
+      }
+    </script>
+    <script
+      src="https://docs.opencv.org/4.5.4/opencv.js"
+      onload="onOpenCvReady();"
+      type="text/javascript"
+    ></script>
+
+    <script>
+      function triggerHandleToggle() {
+        let isMultiImage =
+          larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage === false
+            ? true
+            : false;
+        larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage =
+          isMultiImage;
+        console.log(isMultiImage);
+      }
+      const masksNumberInput = document.getElementById("masksNumber");
+      // Add an input event listener
+      masksNumberInput.addEventListener("input", function (event) {
+        // Update the variable with the input value
+        larvitar.DEFAULT_TOOLS["WSToggle"].configuration.masksNumber =
+          event.target.value;
+      });
+      const startInput = document.getElementById("startImage");
+      // Add an input event listener
+      startInput.addEventListener("input", function (event) {
+        // Update the variable with the input value
+        console.log("Start", event.target.value);
+        larvitar.DEFAULT_TOOLS["WSToggle"].configuration.startIndex =
+          event.target.value;
+      });
+      const endInput = document.getElementById("endImage");
+      // Add an input event listener
+      endInput.addEventListener("input", function (event) {
+        // Update the variable with the input value
+        console.log("end", event.target.value);
+        larvitar.DEFAULT_TOOLS["WSToggle"].configuration.endIndex =
+          event.target.value;
+      });
+      // Attach click event to the button
+      const toggleButton = document.getElementById("toggleButton");
+      toggleButton.addEventListener("click", triggerHandleToggle);
+
+      let demoFiles = [];
+      let counter = 0;
+
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+      larvitar.registerNRRDImageLoader();
+      larvitar.initSegmentationModule();
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 24) {
+          cb();
+        }
+      }
+
+      async function renderSerie() {
+        larvitar.resetLarvitarManager();
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            console.log(seriesStack);
+            // render the first series of the study
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            larvitar.renderImage(serie, "viewer").then(() => {
+              console.log("Image has been rendered");
+            });
+            // optionally cache the series
+            larvitar.populateLarvitarManager(seriesId, serie);
+
+            larvitar
+              .cacheImages(serie, function (resp) {
+                if (resp.loading == 100) {
+                  let cache = larvitar.cornerstone.imageCache;
+                  console.log(
+                    "Cache size: ",
+                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                    "Mb"
+                  );
+                }
+              })
+              .then(() => {
+                setTimeout(function () {
+                  console.log("Cache has been loaded. Calling loadMasks.");
+                  larvitar.addDefaultTools();
+                  loadMasks();
+                }, 3000);
+              });
+            let mouseConfig = {
+              mouse_button_left: {
+                ctrl: "Pan",
+                default: "Wwwc"
+              },
+              mouse_button_right: {
+                ctrl: "Pan",
+                default: "Zoom"
+              },
+              debug: true
+            };
+
+            // NOTE: this also activate the tools marked as default for each mouse button
+            larvitar.addMouseKeyHandlers(mouseConfig);
+          })
+          .catch(err => console.error(err));
+      }
+
+      async function loadMasks() {
+        console.log("loadMasks() called");
+        let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
+        let properties = {
+          // color: "#00ff00",
+          opacity: 0.2,
+          labelId: 0
+        };
+        // add to viewport
+        await larvitar
+          .addSegmentationMask(properties, data, "viewer")
+          .then(() => {
+            // activate brush on this labelmap
+            larvitar.setActiveLabelmap(0, "viewer");
+          });
+      }
+
+      let demoFileList = getDemoFileNames();
+      _.each(demoFileList, function (demoFile) {
+        createFile(demoFile, renderSerie);
+      });
+
+      let tool_counter = 0;
+      document.onkeypress = function (e) {
+        e = e || window.event;
+        if (e.keyCode == 116 || e.keyCode == 84) {
+          const selectedNames = [
+            "Brush",
+            "ThresholdsBrush",
+            "RectangleScissors",
+            "FreehandScissors",
+            "CircleScissors",
+            "CorrectionScissors",
+            "PolylineScissors",
+            "WSToggle"
+          ]; // Replace with your selected names
+          const selectedTools = _.filter(larvitar.DEFAULT_TOOLS, tool =>
+            _.includes(selectedNames, tool.name)
+          );
+
+          const tools = _.map(selectedTools, "name");
+
+          let increment = e.shiftKey ? -1 : 1;
+          tool_counter =
+            tool_counter == tools.length - 1 ? 0 : tool_counter + increment;
+          tool_counter = tool_counter < 0 ? 0 : tool_counter;
+          let tool = tools[tool_counter];
+          larvitar.setToolActive(tool);
+          if (tool === "WSToggle") {
+            buttonBar.style.display = "block"; // make it visible
+          } else {
+            buttonBar.style.display = "none"; // make it invisible
+          }
+          $("#active-tool").html("Active Tool: " + tool);
+        }
+      };
+    </script>
+  </body>
+</html>
