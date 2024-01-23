@@ -28,6 +28,7 @@
         width: 0;
         background-color: #3498db;
         transition: width 0.3s ease-in-out;
+        left: 200px;
       }
 
       .loading-text {
@@ -40,20 +41,10 @@
       }
       #buttonBar {
         display: flex;
+        align-items: center; /* Center items vertically */
         gap: 10px;
         margin-bottom: 20px;
-        left: 200px;
-      }
-
-      .button {
-        padding: 10px; /* Adjust the padding to make the buttons bigger */
-        font-size: 16px; /* Adjust the font size for better visibility */
-      }
-
-      .manualInput {
-        width: 100px; /* Adjust the width of manual input for better visibility */
-        padding: 8px; /* Adjust the padding for better alignment */
-        font-size: 14px; /* Adjust the font size for better visibility */
+        justify-content: center; /* Center the items horizontally */
       }
 
       .loader {
@@ -63,7 +54,18 @@
         width: 50px;
         height: 50px;
         animation: spin 1s linear infinite;
-        margin-right: 100px;
+      }
+
+      /* Adjust the styling for the other elements as needed */
+      .button {
+        padding: 10px;
+        font-size: 16px;
+      }
+
+      .manualInput {
+        width: 100px;
+        padding: 8px;
+        font-size: 14px;
       }
     </style>
     <script>
@@ -76,16 +78,18 @@
     <div class="row h-100">
       <div id="viewer" class="col-8 h-100" style="background-color: black">
         <p style="position: absolute; color: white">
-          <b>Left Mouse Button:</b> Press "t" to cycle through tools
+          Press "t" to cycle through tools<br /><b id="info"> </b>
         </p>
-        <p id="active-tool" style="position: absolute; top: 20px; color: white">
-          Active Tool: Wwwc
+        <p id="active-tool" style="position: absolute; top: 45px; color: white">
+          Active Tool: Brush
         </p>
-        <p style="position: absolute; top: 40px; color: white">
+        <p style="position: absolute; top: 65px; color: white">
           <b>Right Mouse Button:</b> drag >> Zoom || drag + Ctrl >> Pan
         </p>
         <div id="buttonBar" class="col-3 offset-4" style="display: none">
+          <div class="loader" id="loader"></div>
           <button id="toggleButton">Toggle</button>
+
           <input
             type="number"
             class="manualInput"
@@ -232,6 +236,24 @@
         console.log("OpenCV Ready", cv);
       }
     </script>
+    <script>
+      const loader = document.getElementById("loader");
+      let rotation = 0;
+
+      function rotateLoader() {
+        loader.style.display = "block";
+
+        if (larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload) {
+          rotation += 10; // You can adjust the rotation speed
+          loader.style.transform = `rotate(${rotation}deg)`;
+          requestAnimationFrame(rotateLoader);
+        } else {
+          loader.style.display = "none";
+        }
+      }
+
+      //rotateLoader();
+    </script>
     <script
       src="https://docs.opencv.org/4.5.4/opencv.js"
       onload="onOpenCvReady();"
@@ -336,14 +358,11 @@
                 setTimeout(function () {
                   console.log("Cache has been loaded. Calling loadMasks.");
                   larvitar.addDefaultTools();
+                  larvitar.setToolActive("Brush");
                   loadMasks();
                 }, 3000);
               });
             let mouseConfig = {
-              mouse_button_left: {
-                ctrl: "Pan",
-                default: "Wwwc"
-              },
               mouse_button_right: {
                 ctrl: "Pan",
                 default: "Zoom"
@@ -378,11 +397,15 @@
       _.each(demoFileList, function (demoFile) {
         createFile(demoFile, renderSerie);
       });
-
+      let element = document.getElementById("viewer");
       let tool_counter = 0;
+      let tool;
       document.onkeypress = function (e) {
         e = e || window.event;
         if (e.keyCode == 116 || e.keyCode == 84) {
+          if (tool != undefined) {
+            //clearToolData(element, tool);
+          }
           const selectedNames = [
             "Brush",
             "ThresholdsBrush",
@@ -403,16 +426,37 @@
           tool_counter =
             tool_counter == tools.length - 1 ? 0 : tool_counter + increment;
           tool_counter = tool_counter < 0 ? 0 : tool_counter;
-          let tool = tools[tool_counter];
+          tool = tools[tool_counter];
+
           larvitar.setToolActive(tool);
           if (tool === "WSToggle") {
+            document.getElementById("info").innerHTML =
+              "click on the feature of interest to apply watershed segmentation<br>";
             buttonBar.style.display = "block"; // make it visible
+            loader.style.display = "none";
+            element.addEventListener("click", rotateLoader);
           } else {
+            document.getElementById("info").innerHTML = "<br>";
             buttonBar.style.display = "none"; // make it invisible
+            element.removeEventListener("click", rotateLoader);
           }
           $("#active-tool").html("Active Tool: " + tool);
         }
       };
+      /*function clearToolData(element, toolName) {
+        const toolData = larvitar.cornerstoneTools.getToolState(
+          element,
+          toolName
+        );
+        console.log(element);
+        console.log(toolName);
+        console.log(toolData);
+        if (toolData && toolData.data && toolData.data.length > 0) {
+          toolData.data.forEach(data => {
+            data.visible = false;
+          });
+        }
+      }*/
     </script>
   </body>
 </html>

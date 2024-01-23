@@ -411,7 +411,8 @@ const DEFAULT_TOOLS: {
       multiImage: false,
       startIndex: null,
       endIndex: null,
-      masksNumber: 10
+      masksNumber: 10,
+      onload: false
     },
     options: { mouseButtonMask: 1 },
     cleanable: true,

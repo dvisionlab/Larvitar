@@ -1,4 +1,4 @@
-import * as cv from "@techstark/opencv-js";
+import * as cv from "../../../node_modules/@techstark/opencv-js";
 
 import { Image } from "cornerstone-core";
 /**

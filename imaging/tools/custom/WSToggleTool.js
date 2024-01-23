@@ -55,7 +55,8 @@ export default class WSToggleTool extends BaseBrushTool {
         multiImage: false,
         startIndex: null,
         endIndex: null,
-        masksNumber: 10
+        masksNumber: 10,
+        onload: false
       },
       mixins: ["renderBrushMixin"]
     };
@@ -187,6 +188,8 @@ export default class WSToggleTool extends BaseBrushTool {
    * @returns {void}
    */
   async _paint(evt) {
+    larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload = true;
+    console.log(this.configuration.onload);
     const { configuration } = segmentationModule;
     const eventData = evt.detail;
     let {
@@ -285,6 +288,7 @@ export default class WSToggleTool extends BaseBrushTool {
           this.maskArrayCurrentImage = result;
           labelmap2D.pixelData = this.maskArrayCurrentImage;
           external.cornerstone.updateImage(evt.detail.element);
+          larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload = false;
         });
         break;
 
@@ -299,6 +303,7 @@ export default class WSToggleTool extends BaseBrushTool {
           );
           labelmap2D.pixelData = this.maskArrayCurrentImage;
           external.cornerstone.updateImage(evt.detail.element);
+          larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload = false;
         }
         break;
 
@@ -308,6 +313,7 @@ export default class WSToggleTool extends BaseBrushTool {
         this._manualEraser(circleArray, image, inputEraserArray);
         labelmap2D.pixelData = inputEraserArray;
         external.cornerstone.updateImage(evt.detail.element);
+        larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload = false;
         break;
 
       case "LabelPicker":
@@ -323,6 +329,7 @@ export default class WSToggleTool extends BaseBrushTool {
         }
         labelmap2D.pixelData = currentArray;
         external.cornerstone.updateImage(evt.detail.element);
+        larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload = false;
         break;
     }
   }
@@ -383,6 +390,7 @@ export default class WSToggleTool extends BaseBrushTool {
           );
           labelmap3D.labelmaps2D = pixelMask3D;
           external.cornerstone.updateImage(evt.detail.element);
+          larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload = false;
         });
         break;
       //toggleUIVisibility(true, false,this.configuration.drawHandlesOnHover)
@@ -398,6 +406,7 @@ export default class WSToggleTool extends BaseBrushTool {
           );
           labelmap2D.pixelData = this.maskArrayCurrentImage;
           external.cornerstone.updateImage(evt.detail.element);
+          larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload = false;
         } else if (this.maskArray != null) {
           for (let i = 0; i < this.slicesNumber; i++) {
             this._labelToErase(
@@ -413,6 +422,7 @@ export default class WSToggleTool extends BaseBrushTool {
           );
           labelmap3D.labelmaps2D = pixelMask3D;
           external.cornerstone.updateImage(evt.detail.element);
+          larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload = false;
         }
         break;
 
@@ -432,6 +442,7 @@ export default class WSToggleTool extends BaseBrushTool {
           labelmap3D.labelmaps2D = pixelMask3D;
         }
         external.cornerstone.updateImage(evt.detail.element);
+        larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload = false;
         break;
 
       case "LabelPicker":
@@ -458,6 +469,7 @@ export default class WSToggleTool extends BaseBrushTool {
           labelmap3D.labelmaps2D = pixelMask3D;
         }
         external.cornerstone.updateImage(evt.detail.element);
+        larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload = false;
         break;
     }
   }
@@ -785,7 +797,7 @@ export default class WSToggleTool extends BaseBrushTool {
    */
   _labelToErase(circleArray, selectedSlice, image, slicei) {
     if (this.labelToErase == null) {
-      let counts = new Array(this.configuration.masksNumber).fill(0);
+      let counts = new Array(this.configuration.masksNumber + 1).fill(0);
       circleArray.forEach(([x, y]) => {
         const label = selectedSlice[y * image.rows + x];
         counts[label] = counts[label] + 1;

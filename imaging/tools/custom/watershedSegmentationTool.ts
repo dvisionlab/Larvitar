@@ -8,7 +8,7 @@
 import cornerstoneTools from "cornerstone-tools";
 import cornerstone, { Image } from "cornerstone-core";
 import { each, extend } from "lodash";
-import * as cv from "@techstark/opencv-js";
+import * as cv from "../../../node_modules/@techstark/opencv-js";
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(

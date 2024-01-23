@@ -226,14 +226,18 @@ for hepatic tumor segmentation (and volumetry).*/
       let rotation = 0;
 
       function rotateLoader() {
-        rotation += 1; // You can adjust the rotation speed
+        loader.style.display = "block";
 
-        loader.style.transform = `rotate(${rotation}deg)`;
-
-        requestAnimationFrame(rotateLoader);
+        if (larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload) {
+          rotation += 10; // You can adjust the rotation speed
+          loader.style.transform = `rotate(${rotation}deg)`;
+          requestAnimationFrame(rotateLoader);
+        } else {
+          loader.style.display = "none";
+        }
       }
-
-      rotateLoader();
+      loader.style.display = "none";
+      //rotateLoader();
     </script>
 
     <script>
@@ -288,6 +292,8 @@ for hepatic tumor segmentation (and volumetry).*/
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+      let element = document.getElementById("viewer");
+      element.addEventListener("click", rotateLoader);
       larvitar.registerNRRDImageLoader();
       larvitar.initSegmentationModule();
       const cornerstone = larvitar.cornerstone;
