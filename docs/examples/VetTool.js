@@ -33,7 +33,7 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
  * @classdesc Tool for measuring distances.
  * @extends Tools.Base.BaseAnnotationTool
  */
-class VetTool extends BaseAnnotationTool {
+class VetToolClassic extends BaseAnnotationTool {
   constructor(props = {}) {
     const defaultProps = {
       name: "HorizontalTool",

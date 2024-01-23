@@ -22,11 +22,11 @@
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
-      <div
-        id="viewer"
-        class="col-8 h-100"
-        style="background-color: black"
-      ></div>
+      <div id="viewer" class="col-8 h-100" style="background-color: black">
+        <p style="font-size: 25px; position: absolute; top: 40px; color: white">
+          Press n to toggle between tools:
+        </p>
+      </div>
 
       <div class="col-4 h-100">
         <pre class="h-100">
@@ -102,6 +102,8 @@
     </div>
 
     <script src="./larvitar.js"></script>
+    <script src="./VetTool.js"></script>
+    <script src="./VetToolSuperimposed.js"></script>
     <script src="./VetToolThreeLines.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
@@ -123,7 +125,9 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
-      larvitar.registerExternalTool("Test", VetTool);
+      larvitar.registerExternalTool("Test1", VetToolClassic);
+      larvitar.registerExternalTool("Test2", VetToolSuperimposed);
+      larvitar.registerExternalTool("Test3", VetToolThreeLines);
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
@@ -159,16 +163,45 @@
                 );
               }
             });
-            larvitar.addTool("Test");
-            larvitar.setToolActive("Test");
+            larvitar.addTool("Test1");
+            larvitar.addTool("Test2");
+            larvitar.addTool("Test3");
+            larvitar.setToolActive("Test1");
           })
           .catch(err => console.error(err));
       }
 
+      let tools = ["Test1", "Test2", "Test3"];
+      let i = 0;
+      let element = document.getElementById("viewer");
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "n") {
+          i = i + 1;
+          if (i === tools.length) {
+            clearToolData(element, tools[i - 1]);
+            i = 0;
+          }
+
+          clearToolData(element, tools[i - 1]);
+          let next = tools[i];
+          larvitar.setToolActive(next);
+          console.log('The "n" key was pressed. Next Tool', tools[i]);
+        }
+      });
       let demoFileList = getDemoFileNames();
       _.each(demoFileList, function (demoFile) {
         createFile(demoFile, renderSerie);
       });
+
+      function clearToolData(element, toolName) {
+        const toolData = getToolState(element, toolName);
+
+        if (toolData && toolData.data && toolData.data.length > 0) {
+          toolData.data.forEach(data => {
+            data.visible = false;
+          });
+        }
+      }
     </script>
   </body>
 </html>

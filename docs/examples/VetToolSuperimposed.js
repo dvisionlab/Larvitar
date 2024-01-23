@@ -1,4 +1,4 @@
-const cornerstoneTools = larvitar.cornerstoneTools;
+/*const cornerstoneTools = larvitar.cornerstoneTools;
 const cornerstone = larvitar.cornerstone;
 const external = cornerstoneTools.external;
 // State
@@ -23,7 +23,7 @@ const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
 const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
-);
+);*/
 // import cornerstoneTools from "cornerstone-tools";
 
 /**
@@ -33,7 +33,7 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
  * @classdesc Tool for measuring distances.
  * @extends Tools.Base.BaseAnnotationTool
  */
-class VetTool extends BaseAnnotationTool {
+class VetToolSuperimposed extends BaseAnnotationTool {
   constructor(props = {}) {
     const defaultProps = {
       name: "HorizontalTool",
