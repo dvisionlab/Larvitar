@@ -404,23 +404,7 @@ const DEFAULT_TOOLS: {
     shortcut: "ctrl-t",
     type: "segmentation"
   },
-  WSToggle: {
-    name: "WSToggle",
-    viewports: "all",
-    configuration: {
-      multiImage: false,
-      startIndex: null,
-      endIndex: null,
-      masksNumber: 10,
-      onload: false
-    },
-    options: { mouseButtonMask: 1 },
-    cleanable: true,
-    class: "WSToggleTool",
-    description: "Watershed Segmentation Algorithm based on selected area",
-    shortcut: "ctrl-t",
-    type: "segmentation"
-  },
+
   RectangleScissors: {
     name: "RectangleScissors",
     viewports: "all",
@@ -474,6 +458,23 @@ const DEFAULT_TOOLS: {
     class: "PolylineScissorsTool",
     description: "A polyline segmentation tool",
     shortcut: "ctrl-s",
+    type: "segmentation"
+  },
+  WSToggle: {
+    name: "WSToggle",
+    viewports: "all",
+    configuration: {
+      multiImage: false,
+      startIndex: null,
+      endIndex: null,
+      masksNumber: 10,
+      onload: false
+    },
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "WSToggleTool",
+    description: "Watershed Segmentation Algorithm based on selected area",
+    shortcut: "ctrl-t",
     type: "segmentation"
   }
 };
