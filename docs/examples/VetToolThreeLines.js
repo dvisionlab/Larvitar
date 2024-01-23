@@ -44,7 +44,8 @@ class VetToolThreeLines extends BaseAnnotationTool {
         drawHandlesOnHover: false,
         hideHandlesIfMoving: false,
         renderDashed: false,
-        digits: 2
+        digits: 2,
+        offset: 15
       }
     };
 
@@ -274,7 +275,8 @@ class VetToolThreeLines extends BaseAnnotationTool {
           data.handles.end,
           lineOptions
         );
-        const offset = 15;
+        //const offset =DEFAULT_TOOLS["VetToolThreeLines"].configuration.offset | this.configuration.offset;
+        const offset = this.configuration.offset;
         console.log(data.handles);
         const aboveHandles = {
           ...data.handles,
