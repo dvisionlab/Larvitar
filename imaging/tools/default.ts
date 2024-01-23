@@ -28,7 +28,7 @@
 import { filter, isArray } from "lodash";
 import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
 import WSTool from "./custom/WSTool";
-import WSToggleTool from "./custom/WSToggleTool";
+import WSToggleTool from "./custom/watershedSegmentationTool";
 // import Slice4DScrollMouseWheelTool from "./custom/4dSliceScrollTool";
 import PolylineScissorsTool from "./custom/polylineScissorsTool";
 import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
@@ -591,8 +591,8 @@ const setDefaultToolsProps = function (newProps: Partial<ToolConfig>[]) {
 
 const registerExternalTool = function (toolName: string, toolClass: any) {
   if (dvTools[toolName] || DEFAULT_TOOLS[toolName]) {
-    console.error(`${toolName} already exists`);
-    return;
+    console.warn(`warning! ${toolName} already exists, it will be replaced`); //pantera
+    // return;
   }
 
   dvTools[toolClass.name] = toolClass;

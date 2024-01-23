@@ -22,6 +22,11 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".js", ".d.ts"]
+    extensions: [".tsx", ".ts", ".js", ".d.ts"],
+    fallback: {
+      fs: false,
+      path: false,
+      crypto: false
+    }
   }
 };
