@@ -153,7 +153,7 @@ const addTool = function (
       );
     }
 
-    const toolClass = cornerstoneTools[toolClassName] || dvTools[toolClassName];
+    const toolClass = dvTools[toolClassName] || cornerstoneTools[toolClassName];
 
     if (targetElementId) {
       let element = document.getElementById(targetElementId);
