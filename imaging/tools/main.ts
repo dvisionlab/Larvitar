@@ -16,7 +16,7 @@ import {
   DEFAULT_TOOLS,
   DEFAULT_STYLE,
   DEFAULT_SETTINGS,
-  dvTools
+  dvTools,
 } from "./default";
 import { set as setStore } from "../imageStore";
 import type { ToolConfig, ToolSettings, ToolStyle } from "./types";
@@ -64,12 +64,12 @@ const csToolsCreateStack = function (
     stack = {
       currentImageIdIndex:
         currentImageIndex === undefined ? 0 : currentImageIndex,
-      imageIds: imageIds
+      imageIds: imageIds,
     };
   } else {
     stack = {
       currentImageIdIndex: 0,
-      imageIds: "imageLoader://0"
+      imageIds: "imageLoader://0",
     };
     if (cornerstone.getEnabledElements().length == 0) {
       cornerstone.enable(element);
@@ -154,7 +154,7 @@ const addTool = function (
       );
     }
 
-    const toolClass = cornerstoneTools[toolClassName] || dvTools[toolClassName];
+    const toolClass = dvTools[toolClassName] || cornerstoneTools[toolClassName];
 
     if (targetElementId) {
       let element = document.getElementById(targetElementId);
@@ -183,7 +183,7 @@ export const addDefaultTools = function (elementId: string) {
   }
 
   // for each default tool
-  each(DEFAULT_TOOLS, tool => {
+  each(DEFAULT_TOOLS, (tool) => {
     // check if already added
     if (!isToolMissing(tool.name)) {
       console.log("missing");
@@ -194,7 +194,7 @@ export const addDefaultTools = function (elementId: string) {
       addTool(tool.name, tool.configuration);
     } else {
       // call add tool for element for each element
-      each(tool.viewports, targetElementId => {
+      each(tool.viewports, (targetElementId) => {
         addTool(tool.name, tool.configuration, targetElementId);
       });
     }
@@ -205,7 +205,7 @@ export const addDefaultTools = function (elementId: string) {
         "cornerstoneimagerendered",
         cornerstoneTools[tool.sync]
       );
-      elements.forEach(element => {
+      elements.forEach((element) => {
         synchronizer.add(element.element);
       });
 
@@ -261,7 +261,7 @@ const setToolActive = function (
     // activate and update all
     cornerstoneTools.setToolActive(toolName, defaultOpt);
     let enabledElements = cornerstone.getEnabledElements();
-    each(enabledElements, enel => {
+    each(enabledElements, (enel) => {
       tryUpdateImage(enel.element);
     });
   }
@@ -318,7 +318,7 @@ const setToolDisabled = function (
     // disable and update all
     cornerstoneTools.setToolDisabled(toolName);
     let enabledElements = cornerstone.getEnabledElements();
-    each(enabledElements, enel => {
+    each(enabledElements, (enel) => {
       if (resetCursor) {
         // restore native cursor
         enel.element.style.cursor = "initial";
@@ -359,7 +359,7 @@ const setToolEnabled = function (
     // enable and update all
     cornerstoneTools.setToolEnabled(toolName);
     let enabledElements = cornerstone.getEnabledElements();
-    each(enabledElements, enel => {
+    each(enabledElements, (enel) => {
       if (resetCursor) {
         // restore native cursor
         enel.element.style.cursor = "initial";
@@ -391,7 +391,7 @@ const setToolPassive = function (toolName: string, viewports?: string[]) {
     // activate and update all
     cornerstoneTools.setToolPassive(toolName);
     let enabledElements = cornerstone.getEnabledElements();
-    each(enabledElements, enel => {
+    each(enabledElements, (enel) => {
       tryUpdateImage(enel.element);
     });
   }
@@ -429,5 +429,5 @@ export {
   setToolPassive,
   saveAnnotations,
   loadAnnotations,
-  exportAnnotations
+  exportAnnotations,
 };
