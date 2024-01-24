@@ -13,6 +13,11 @@ type ToolEventDetail = {
     element: HTMLElement;
     image: Image;
     direction: number;
+    detail: {
+        shiftKey: boolean;
+        altKey: boolean;
+        ctrlKey: boolean;
+    };
 };
 export default class CustomMouseWheelScrollTool extends BaseTool {
     currentMode: string;
