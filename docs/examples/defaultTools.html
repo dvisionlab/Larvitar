@@ -192,27 +192,27 @@
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               console.log("Image has been rendered");
+              larvitar.addDefaultTools();
+
+              let mouseConfig = {
+                keyboard_shortcuts: {
+                  KEY_A: "Angle",
+                  KEY_L: "Length"
+                },
+                mouse_button_left: {
+                  ctrl: "Pan",
+                  default: "Wwwc"
+                },
+                mouse_button_right: {
+                  ctrl: "Pan",
+                  default: "Zoom"
+                },
+                debug: true
+              };
+
+              // NOTE: this also activate the tools marked as default for each mouse button
+              larvitar.addMouseKeyHandlers(mouseConfig);
             });
-            larvitar.addDefaultTools();
-
-            let mouseConfig = {
-              keyboard_shortcuts: {
-                KEY_A: "Angle",
-                KEY_L: "Length"
-              },
-              mouse_button_left: {
-                ctrl: "Pan",
-                default: "Wwwc"
-              },
-              mouse_button_right: {
-                ctrl: "Pan",
-                default: "Zoom"
-              },
-              debug: true
-            };
-
-            // NOTE: this also activate the tools marked as default for each mouse button
-            larvitar.addMouseKeyHandlers(mouseConfig);
           })
           .catch(err => console.log(err));
       }
@@ -230,7 +230,7 @@
           // remove useless tools for the live example
           tools = _.without(
             tools,
-            "StackScrollMouseWheel",
+            "CustomMouseWheelScroll",
             "TextMarker",
             "ZoomTouchPinch",
             "PanMultiTouch",
@@ -254,7 +254,7 @@
             tool_counter == tools.length - 1 ? 0 : tool_counter + increment;
           tool_counter = tool_counter < 0 ? 0 : tool_counter;
           let tool = tools[tool_counter];
-          larvitar.setToolActive(tool);
+          larvitar.setToolActive(tool, { mouseButtonMask: 1 });
           $("#active-tool").html("Active Tool: " + tool);
         }
       };

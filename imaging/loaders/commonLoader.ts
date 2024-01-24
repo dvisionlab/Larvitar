@@ -6,7 +6,7 @@
 // external libraries
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { DataSet } from "dicom-parser";
-import { each } from "lodash";
+import { each, cloneDeep } from "lodash";
 import { updateLoadedStack } from "../imageLoading";
 import type {
   ImageObject,
@@ -73,27 +73,22 @@ export const updateLarvitarManager = function (
  * This function can be called in order to populate the Larvitar manager
  * @instance
  * @function populateLarvitarManager
- * @param {String} seriesId The Id of the series
+ * @param {String} larvitarSeriesInstanceUID The Id of the manager stack
  * @param {Object} seriesData The series data
  * @returns {manager} the Larvitar manager
  */
 export const populateLarvitarManager = function (
-  seriesId: string,
+  larvitarSeriesInstanceUID: string,
   seriesData: Series
 ) {
   if (larvitarManager === null) {
     larvitarManager = {};
   }
-  if (seriesId.includes("DSA")) {
-    larvitarManager[seriesId] = _.cloneDeep(seriesData);
-    console.log("MANAGER CLONED:", larvitarManager[seriesId].imageIds.length);
-    return larvitarManager;
-  }
   let data = { ...seriesData };
   if (data.isMultiframe) {
-    buildMultiFrameImage(seriesId, data);
+    buildMultiFrameImage(larvitarSeriesInstanceUID, data);
   } else {
-    larvitarManager[seriesId] = data;
+    larvitarManager[larvitarSeriesInstanceUID] = data;
   }
   return larvitarManager;
 };

@@ -18,6 +18,7 @@ import { getSortedStack, getSortedUIDs } from "./imageUtils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
 import { loadMultiFrameImage } from "./loaders/multiframeLoader";
+import { loadDsaImage } from "./loaders/dsaImageLoader";
 import { ImageObject, Instance, Series, StagedProtocol } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
 
@@ -119,6 +120,15 @@ export const registerResliceLoader = function () {
  */
 export const registerMultiFrameImageLoader = function () {
   cornerstone.registerImageLoader("multiFrameLoader", loadMultiFrameImage);
+};
+
+/**
+ * Register custom DSA ImageLoader
+ * @instance
+ * @function registerDsaImageLoader
+ */
+export const registerDsaImageLoader = function () {
+  cornerstone.registerImageLoader("dsaImageLoader", loadDsaImage);
 };
 
 /**

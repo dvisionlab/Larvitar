@@ -36,6 +36,7 @@ import { parseECG } from "./imaging/parsers/ecg";
 
 import {
   renderECG,
+  unrenderECG,
   syncECGFrame,
   updateECGFrame,
   getDefaultECGLayout
@@ -67,7 +68,8 @@ import {
   getCachedPixelData,
   buildData,
   buildDataAsync,
-  importNRRDImage
+  importNRRDImage,
+  exportImageToBase64
 } from "./imaging/imageIo";
 
 import { anonymize } from "./imaging/imageAnonymization";
@@ -86,6 +88,7 @@ import {
   registerNRRDImageLoader,
   registerResliceLoader,
   registerMultiFrameImageLoader,
+  registerDsaImageLoader,
   updateLoadedStack
 } from "./imaging/imageLoading";
 
@@ -215,8 +218,10 @@ import {
   clearMultiFrameCache
 } from "./imaging/loaders/multiframeLoader";
 
+import { populateDsaImageIds } from "./imaging/loaders/dsaImageLoader";
+
 import {
-  fileManager,
+  getFileManager,
   resetFileLoader,
   resetFileManager,
   populateFileManager,
@@ -262,6 +267,7 @@ export {
   parseECG,
   // waveforms
   renderECG,
+  unrenderECG,
   syncECGFrame,
   updateECGFrame,
   getDefaultECGLayout,
@@ -288,6 +294,7 @@ export {
   buildData,
   buildDataAsync,
   importNRRDImage,
+  exportImageToBase64,
   // imageAnonymization
   anonymize,
   // imageLayers
@@ -302,6 +309,7 @@ export {
   registerNRRDImageLoader,
   registerResliceLoader,
   registerMultiFrameImageLoader,
+  registerDsaImageLoader,
   updateLoadedStack,
   // imageParsing
   readFile,
@@ -366,8 +374,10 @@ export {
   buildMultiFrameImage,
   getMultiFrameImageId,
   clearMultiFrameCache,
+  // loaders/dsaImageLoader
+  populateDsaImageIds,
   // loaders/fileLoader
-  fileManager,
+  getFileManager,
   resetFileLoader,
   resetFileManager,
   populateFileManager,

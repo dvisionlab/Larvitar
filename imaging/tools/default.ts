@@ -32,6 +32,7 @@ import PolylineScissorsTool from "./custom/polylineScissorsTool";
 import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
 import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
 import BorderMagnifyTool from "./custom/BorderMagnifyTool";
+import CustomMouseWheelScrollTool from "./custom/customMouseWheelScrollTool";
 
 import type {
   ToolConfig,
@@ -137,20 +138,28 @@ const DEFAULT_TOOLS: {
     defaultActive: true,
     class: "StackScrollMouseWheelTool"
   },
-  // Slice4DScrollMouseWheel: {
-  //   name: "Slice4DScrollMouseWheel",
-  //   viewports: "all",
-  //   configuration: {
-  //     loop: false, // default false
-  //     allowSkipping: false, // default true
-  //     invert: false,
-  //     framesNumber: 1
-  //   },
-  //   options: {},
-  //   cleanable: false,
-  //   defaultActive: true,
-  //   class: "Slice4DScrollMouseWheelTool"
-  // },
+  CustomMouseWheelScroll: {
+    name: "CustomMouseWheelScroll",
+    viewports: "all",
+    configuration: {
+      loop: false,
+      allowSkipping: true,
+      invert: false,
+      fixedFrame: 1,
+      fixedSlice: 0,
+      currentMode: "stack", // 'stack' or 'slice'
+      framesNumber: 1
+    },
+    options: {
+      mouseButtonMask: 0
+    },
+    cleanable: false,
+    defaultActive: true,
+    class: "CustomMouseWheelScrollTool",
+    description: "scroll images/frames",
+    shortcut: "mouse wheel",
+    type: "utils"
+  },
   Pan: {
     name: "Pan",
     viewports: "all",
@@ -160,6 +169,7 @@ const DEFAULT_TOOLS: {
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: false,
+    defaultActive: false,
     class: "PanTool",
     description: "Move image xy",
     shortcut: "ctrl-p",
@@ -175,13 +185,13 @@ const DEFAULT_TOOLS: {
       maxScale: 25.0
     },
     options: {
-      mouseButtonMask: 1,
+      mouseButtonMask: 2,
       supportedInteractionTypes: ["Mouse", "Touch"],
       defaultStrategy: "default" // can be 'default', 'translate' or 'zoomToCenter'
     },
     cleanable: false,
     class: "ZoomTool",
-    defaultActive: false,
+    defaultActive: true,
     description: "Zoom image at mouse position",
     shortcut: "ctrl-z",
     type: "utils"
@@ -363,7 +373,7 @@ const DEFAULT_TOOLS: {
     },
     cleanable: false,
     class: "ZoomTouchPinchTool",
-    defaultActive: true
+    defaultActive: false
   },
   PanMultiTouch: {
     name: "PanMultiTouch",
@@ -377,7 +387,7 @@ const DEFAULT_TOOLS: {
     },
     cleanable: false,
     class: "PanMultiTouchTool",
-    defaultActive: true
+    defaultActive: false
   },
   Brush: {
     name: "Brush",
@@ -469,7 +479,8 @@ const dvTools: {
   // Slice4DScrollMouseWheelTool: Slice4DScrollMouseWheelTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
-  BorderMagnifyTool: BorderMagnifyTool
+  BorderMagnifyTool: BorderMagnifyTool,
+  CustomMouseWheelScrollTool: CustomMouseWheelScrollTool
 };
 
 /**

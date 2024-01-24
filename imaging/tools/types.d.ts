@@ -18,6 +18,7 @@ export type ToolConfig = {
   shortcut?: string;
   type?: "utils" | "annotation" | "segmentation" | "overlay";
   description?: string;
+  currentMode?: string;
 };
 
 export type ToolStyle = {

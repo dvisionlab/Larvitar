@@ -4,7 +4,7 @@
 
 // external libraries
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
-import { each, range, reject } from "lodash";
+import { each, range } from "lodash";
 
 // internal libraries
 import {
@@ -57,23 +57,11 @@ export const loadMultiFrameImage = function (imageId: string) {
     multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId];
   } else if (manager) {
     multiframeDatasetCache[rootImageId] = manager[seriesId] as Series;
-
-    if (seriesId.includes("DSA")) {
-      let image = manager[seriesId].images![imageId];
-      let promise: Promise<Image> = new Promise((resolve, reject) =>
-        resolve(image as Image)
-      );
-      /*return createCustomImage(
-        rootImageId,
-        imageId,
-        parsedImageId.frame,
-        manager[seriesId]
-      );*/
-      return { promise };
-    }
   } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
   }
+
+  console.log("render using custom loader", imageId);
 
   let metadata =
     multiframeDatasetCache[rootImageId]?.instances[imageId].metadata;
@@ -87,7 +75,10 @@ export const loadMultiFrameImage = function (imageId: string) {
  * @param {String} seriesId - SeriesId tag
  * @param {Object} serie - parsed serie object
  */
-export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
+export const buildMultiFrameImage = function (
+  larvitarSeriesInstanceUID: string,
+  serie: Series
+) {
   let t0 = performance.now();
   let manager = getLarvitarManager();
   let imageTracker = getLarvitarImageTracker();
@@ -98,13 +89,13 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
   let sopInstanceUID = serie.metadata!["x00080018"] as string;
   let dataSet = serie.dataSet;
   let imageId = getMultiFrameImageId("multiFrameLoader");
-  imageTracker[imageId] = seriesId;
+  imageTracker[imageId] = larvitarSeriesInstanceUID;
 
   // check if manager exists for this seriesId
-  if (!manager[seriesId]) {
-    manager[seriesId] = serie;
-    manager[seriesId].imageIds = [];
-    manager[seriesId].instances = {};
+  if (!manager[larvitarSeriesInstanceUID]) {
+    manager[larvitarSeriesInstanceUID] = serie;
+    manager[larvitarSeriesInstanceUID].imageIds = [];
+    manager[larvitarSeriesInstanceUID].instances = {};
   }
 
   each(range(numberOfFrames as number), function (frameNumber) {
@@ -117,10 +108,9 @@ export const buildMultiFrameImage = function (seriesId: string, serie: Series) {
       frameId: frameNumber
     });
 
-    // TODO-ts REMOVE "AS" WHEN METADATA VALUES ARE TYPED
     // store file references
-    const managerSeriesId = manager[seriesId] as Series;
-    managerSeriesId.seriesUID = seriesId;
+    const managerSeriesId = manager[larvitarSeriesInstanceUID] as Series;
+    managerSeriesId.seriesUID = serie.metadata!["x0020000e"] as string;
     managerSeriesId.studyUID = serie.metadata!["x0020000d"] as string;
     managerSeriesId.modality = serie.metadata!["x00080060"] as string;
     managerSeriesId.color = cornerstoneDICOMImageLoader.isColorImage(

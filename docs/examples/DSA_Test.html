@@ -27,17 +27,10 @@
       <div class="col-5 h-100">
         <div id="imageResult" class="h-100"></div>
       </div>
-
-      <div class="col-2">
-        <button id="DSA" class="btn btn-primary" onclick="applyDSA()">
-          Apply DSA
-        </button>
-      </div>
     </div>
 
-    <script src="./larvitar.js"></script>
+    <script src="../../dist/larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <script src="https://unpkg.com/dicom-parser/dist/dicomParser.js"></script>
     <script src="./DSA_singleimage.js"></script>
     <script>
       let demoFiles = [];
@@ -45,6 +38,7 @@
       // init all
       larvitar.initializeImageLoader();
       larvitar.registerMultiFrameImageLoader();
+      larvitar.registerDsaImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
@@ -54,36 +48,52 @@
         let seriesId = _.keys(manager)[0];
         let multiFrameSerie = manager[seriesId];
         const imageIds = multiFrameSerie.imageIds;
-        const targetImageId = evt ? evt.detail.image.imageId : imageIds[5];
-        console.warn("targetImageId", targetImageId);
-        apply_DSA_Mask(multiFrameSerie, targetImageId);
+        const targetImageId = evt ? evt.detail.image.imageId : imageIds[0];
+        setTimeout(() => {
+          apply_DSA_Mask(multiFrameSerie, targetImageId);
+        }, 500);
       }
 
       document
         .getElementById("viewer")
         .addEventListener("cornerstonetoolsmousewheel", applyDSA);
 
-      function renderSerie() {
-        larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
-            let serie = seriesStack[seriesId];
-            larvitar.populateLarvitarManager(seriesId, serie);
-            let manager = larvitar.getLarvitarManager();
-            let multiFrameSerie = manager[seriesId];
-            let frameId = 0;
-            larvitar.cacheImages(multiFrameSerie);
-            larvitar
-              .renderImage(multiFrameSerie, "viewer", frameId)
-              .then(() => {
-                console.log("Image has been rendered");
-              });
-            larvitar.addDefaultTools();
-            larvitar.setToolActive("Wwwc");
-          })
-          .catch(err => console.log(err));
+      async function renderSerie() {
+        const seriesStack = await larvitar.readFiles(demoFiles);
+        // render the first series of the study
+        let seriesId = _.keys(seriesStack)[0];
+        let serie = seriesStack[seriesId];
+        larvitar.populateLarvitarManager(seriesId, serie);
+        let manager = larvitar.getLarvitarManager();
+        let multiFrameSerie = manager[seriesId];
+        console.log(multiFrameSerie);
+
+        let frameId = 0;
+        await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        console.log("Image has been rendered");
+
+        larvitar.addDefaultTools();
+        larvitar.setToolActive("Wwwc");
+
+        await larvitar.cacheImages(multiFrameSerie);
+        // capire come mai non è bloccante
+        setTimeout(() => {
+          console.log(larvitar.cornerstone.imageCache);
+          // la si chiama nel build multiframe solo se
+          // abbiamo la chiave x00286100
+          larvitar.populateDsaImageIds(seriesId);
+          console.log(larvitar.getLarvitarManager());
+        }, 500);
+
+        // console.log("Images has been cached");
+        // // apply DSA mask to first frameId
+        // setTimeout(() => {
+        //   apply_DSA_Mask(multiFrameSerie, multiFrameSerie.imageIds[frameId]);
+        //   // setInterval(() => {
+        //   //   frameId = frameId + 1;
+        //   //   apply_DSA_Mask(multiFrameSerie, multiFrameSerie.imageIds[frameId]);
+        //   // }, 1000);
+        // }, 500);
       }
 
       async function createFile(fileName, cb) {
@@ -95,6 +105,20 @@
       }
 
       createFile("XA-DSA-Shutter.dcm", renderSerie);
+
+      /* so che una serie dicom a cui applicare la dsa
+      vado buildare il manager con la serie multiframe originale
+      cacho tutti i multiframe 
+      e poi cacho tutti i multiframe con la dsa con degli imageID diversi
+      questi imageID devo costruirli in qualche modo evitando di duplicare oggetti
+    
+
+
+      avere una funzione che prende in input una lista di custom imageIDS
+      per poterli cachare tutti insieme
+      costruire quindi un custom loader
+
+      */
     </script>
   </body>
 </html>

@@ -249,7 +249,7 @@ export const toggleMouseToolsListeners = function (
     // TODO-ts fix type (should be a cornerstoneTools event type)
     // @mronzoni does cornerstoneTools have a type for this event?
     setStore(["sliceId", evt.target.id, evt.detail.newImageIdIndex]);
-    updateViewportData(evt.srcElement.id, evt.detail, "mouseWheel");
+    updateViewportData(evt.srcElement.id, evt.detail, "CustomMouseWheelScroll");
   }
 
   if (disable) {

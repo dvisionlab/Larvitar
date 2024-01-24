@@ -50,7 +50,7 @@ const initializeCSTools = function (
 /**
  * Create stack object to sync stack tools
  * @function csToolsCreateStack
- * @param {HTMLElement} element - The target hmtl element.
+ * @param {HTMLElement} element - The target html element.
  * @param {Array?} imageIds - Stack image ids.
  * @param {String} currentImageId - The current image id.
  */
@@ -62,7 +62,8 @@ const csToolsCreateStack = function (
   let stack;
   if (imageIds) {
     stack = {
-      currentImageIdIndex: currentImageIndex,
+      currentImageIdIndex:
+        currentImageIndex === undefined ? 0 : currentImageIndex,
       imageIds: imageIds
     };
   } else {
@@ -185,6 +186,7 @@ export const addDefaultTools = function (elementId: string) {
   each(DEFAULT_TOOLS, tool => {
     // check if already added
     if (!isToolMissing(tool.name)) {
+      console.log("missing");
       return;
     }
     // check target viewports and call add tool with options
@@ -268,6 +270,10 @@ const setToolActive = function (
   // mouseButtonMask is now an array, thanks to cs tools "setToolActiveForElement",
   // but only if it has a rendered image in the viewport (!)
   // so we must check the type anyway for type coherence
+
+  if (DEFAULT_TOOLS[toolName]?.defaultActive === true) {
+    doNotSetInStore = false;
+  }
   if (!doNotSetInStore && defaultOpt.mouseButtonMask) {
     if (typeof defaultOpt.mouseButtonMask == "number") {
       defaultOpt.mouseButtonMask = [defaultOpt.mouseButtonMask];

@@ -10,7 +10,7 @@ import { each, has } from "lodash";
 
 // internal libraries
 import { getPerformanceMonitor } from "./monitors/performance";
-import { getFileImageId } from "./loaders/fileLoader";
+import { getFileImageId, getFileManager } from "./loaders/fileLoader";
 import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
@@ -24,6 +24,9 @@ import {
   StoreViewportOptions,
   Viewport
 } from "./types";
+import { DEFAULT_TOOLS } from "./tools/default";
+import { initializeFileImageLoader } from "./imageLoading";
+import { generateFiles } from "./parsers/pdf";
 
 /*
  * This module provides the following functions to be exported:
@@ -181,21 +184,24 @@ export function loadAndCacheImages(
  * @function renderDICOMPDF
  * @param {Object} seriesStack - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Boolean} convertToImage - An optional flag to convert pdf to image, default is false
  * @returns {Promise} - Return a promise which will resolve when pdf is displayed
  */
 export const renderDICOMPDF = function (
   seriesStack: Series,
-  elementId: string | HTMLElement
-) {
+  elementId: string | HTMLElement,
+  convertToImage: boolean = false
+): Promise<true> {
   let t0 = performance.now();
   let element: HTMLElement | null = isElement(elementId)
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
 
-  let renderPromise = new Promise<true>((resolve, reject) => {
+  let renderPromise = new Promise<true>(async (resolve, reject) => {
     let image: Instance | null = seriesStack.instances[seriesStack.imageIds[0]];
     const SOPUID = image.dataSet?.string("x00080016");
 
+    // check sopUID in order to detect pdf report array
     if (SOPUID === "1.2.840.10008.5.1.4.1.1.104.1") {
       let fileTag = image.dataSet?.elements.x00420011;
 
@@ -222,21 +228,42 @@ export const renderDICOMPDF = function (
         type: "application/pdf"
       });
       let fileURL = URL.createObjectURL(PDF);
-      element.innerHTML =
-        '<object data="' +
-        fileURL +
-        '" type="application/pdf" width="100%" height="100%"></object>';
       const id: string = isElement(elementId)
         ? element.id
         : (elementId as string);
-      setStore(["isPDF", id, true]);
-      let t1 = performance.now();
-      console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
-      image = null;
-      fileTag = undefined;
-      pdfByteArray = undefined;
-      PDF = null;
-      resolve(true);
+      // Render using HTML PDF viewer
+      if (convertToImage === false) {
+        element.innerHTML =
+          '<object data="' +
+          fileURL +
+          '" type="application/pdf" width="100%" height="100%"></object>';
+        setStore(["isPDF", id, true]);
+        let t1 = performance.now();
+        console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
+        image = null;
+        fileTag = undefined;
+        pdfByteArray = undefined;
+        PDF = null;
+        resolve(true);
+      } else if (convertToImage === true) {
+        initializeFileImageLoader();
+        let pngFiles = await generateFiles(fileURL);
+        // render first page // TODO: render all pages?
+        renderFileImage(pngFiles[0], elementId).then(() => {
+          let t1 = performance.now();
+          console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
+          image = null;
+          fileTag = undefined;
+          pdfByteArray = undefined;
+          PDF = null;
+          // activate the scroll stack tool
+          if (element) {
+            csToolsCreateStack(element, Object.values(getFileManager()), 0);
+          }
+          toggleMouseToolsListeners(id, false);
+          resolve(true);
+        });
+      }
     } else {
       reject("This is not a DICOM with a PDF");
     }
@@ -252,30 +279,32 @@ export const renderDICOMPDF = function (
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when image is displayed
  */
+
 export const renderFileImage = function (
   file: File,
   elementId: string | HTMLElement
-) {
+): Promise<true> {
+  const t0 = performance.now();
   let element = isElement(elementId)
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
 
   if (!element) {
     console.error("invalid html element: " + elementId);
-    return;
+    return new Promise((_, reject) =>
+      reject("invalid html element: " + elementId)
+    );
   }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+  cornerstone.enable(element);
 
-  if (cornerstone.getEnabledElements().length == 0) {
-    cornerstone.enable(element);
-  }
-
-  let renderPromise = new Promise(resolve => {
+  let renderPromise = new Promise<true>(resolve => {
     // check if imageId is already stored in fileManager
-    const imageId = getFileImageId(file);
+    const imageId = getFileImageId(file as File);
     if (imageId) {
       cornerstone.loadImage(imageId).then(function (image) {
         if (!element) {
-          console.error("invalid html element: " + elementId);
+          console.error("invalid html element: " + id);
           return;
         }
         cornerstone.displayImage(element, image);
@@ -285,14 +314,23 @@ export const renderFileImage = function (
           console.error("invalid viewport");
           return;
         }
-
-        viewport.displayedArea.brhc.x = image.width;
-        viewport.displayedArea.brhc.y = image.height;
+        if (viewport.displayedArea) {
+          viewport.displayedArea.brhc.x = image.width;
+          viewport.displayedArea.brhc.y = image.height;
+        }
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
-        csToolsCreateStack(element);
-        resolve(image);
+
+        const t1 = performance.now();
+        console.log(`Call to renderFileImage took ${t1 - t0} milliseconds.`);
+        //@ts-ignore
+        image = null;
+        //@ts-ignore
+        file = null;
+        resolve(true);
       });
+    } else {
+      console.warn("imageId not found in fileManager");
     }
   });
   return renderPromise;
@@ -427,7 +465,6 @@ export const renderImage = function (
 
   let series = { ...seriesStack };
   let data = getSeriesData(series, defaultProps);
-  console.log("DATA:", data);
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) => {
@@ -438,8 +475,8 @@ export const renderImage = function (
 
   const renderPromise = new Promise<true>((resolve, reject) => {
     // load and display one image (imageId)
-    console.log(data.imageId);
-    console.log(series.instances[data.imageId!]);
+    // console.log(data.imageId);
+    // console.log(series.instances[data.imageId!]);
     /*if (seriesStack.seriesUID.includes("DSA")) {
       cornerstone.loadImage(data.imageId as string).then(function (image) {
         if (!element) {
@@ -463,19 +500,19 @@ export const renderImage = function (
         cornerstone.updateImage(element);*/
     // });
     //  } else {
-    console.log("DATA IMAGEID:", data.imageId);
+    // console.log("DATA IMAGEID:", data.imageId);
     cornerstone.loadImage(data.imageId as string).then(function (image) {
       if (!element) {
         console.error("invalid html element: " + elementId);
         reject("invalid html element: " + elementId);
         return;
       }
-      console.log("IMAGE LOADED:", image);
-      console.log(image);
-      console.log(image.getPixelData());
+      // console.log("IMAGE LOADED:", image);
+      // console.log(image);
+      // console.log(image.getPixelData());
       cornerstone.displayImage(element, image);
-      console.log("ELEMENT:", element);
-      console.log("SERIES LAYER :", series.layer);
+      // console.log("ELEMENT:", element);
+      // console.log("SERIES LAYER :", series.layer);
 
       if (series.layer) {
         // assign the image to its layer and return its id
@@ -542,8 +579,9 @@ export const renderImage = function (
       }
 
       storeViewportData(image, element.id, storedViewport as Viewport, data);
-      console.log("STORED VIEWPORT: ", storedViewport);
+      // console.log("STORED VIEWPORT: ", storedViewport);
       setStore(["ready", element.id, true]);
+      setStore(["seriesUID", element.id, data.seriesUID]);
       const t1 = performance.now();
       console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
@@ -750,54 +788,56 @@ export const updateViewportData = function (
     console.error("invalid html element: " + elementId);
     return;
   }
-  // TODO: understand how to handle synchronized tools
-  switch (activeTool) {
-    case "Wwwc":
-    case "WwwcRegion":
-      if (viewportData.voi) {
-        setStore([
-          "contrast",
-          elementId,
-          viewportData.voi.windowWidth,
-          viewportData.voi.windowCenter
-        ]);
-      }
-      break;
-    case "Pan":
-      if (viewportData.translation) {
-        setStore([
-          "translation",
-          elementId,
-          viewportData.translation.x,
-          viewportData.translation.y
-        ]);
-      }
-      break;
-    case "Zoom":
-      if (viewportData.scale) {
-        setStore(["scale", elementId, viewportData.scale]);
-      }
-      break;
-    case "Rotate":
-      if (viewportData.rotation) {
-        setStore(["rotation", elementId, viewportData.rotation]);
-      }
-      break;
-    case "mouseWheel":
-    case "stackscroll":
-      const viewport = store.get(["viewports", elementId]);
-      console.log("VIEWPORT", viewport);
-      const isTimeserie = viewport.isTimeserie;
-      if (isTimeserie) {
-        const index = viewportData.newImageIdIndex;
-        const timeId = viewport.timeIds[index];
-        const timestamp = viewport.timestamps[index];
-        setStore(["timeId", elementId, timeId]);
-        setStore(["timestamp", elementId, timestamp]);
-      }
-      break;
-    default:
-      break;
+  const toolsNames = Object.keys(DEFAULT_TOOLS);
+  const isValidTool = toolsNames.includes(activeTool);
+  if (isValidTool === true) {
+    switch (activeTool) {
+      case "WwwcRegion":
+        if (viewportData.voi) {
+          setStore([
+            "contrast",
+            elementId,
+            viewportData.voi.windowWidth,
+            viewportData.voi.windowCenter
+          ]);
+        }
+        break;
+      case "Pan":
+        if (viewportData.translation) {
+          setStore([
+            "translation",
+            elementId,
+            viewportData.translation.x,
+            viewportData.translation.y
+          ]);
+        }
+        break;
+      case "Zoom":
+        if (viewportData.scale) {
+          setStore(["scale", elementId, viewportData.scale]);
+        }
+        break;
+      case "Rotate":
+        if (viewportData.rotation) {
+          setStore(["rotation", elementId, viewportData.rotation]);
+        }
+        break;
+      case "CustomMouseWheelScroll":
+        const viewport = store.get(["viewports", elementId]);
+        const isTimeserie = viewport.isTimeserie;
+        if (isTimeserie) {
+          const index = viewportData.newImageIdIndex;
+          const timeId = viewport.timeIds[index];
+          const timestamp = viewport.timestamps[index];
+          setStore(["timeId", elementId, timeId]);
+          setStore(["timestamp", elementId, timestamp]);
+        }
+        break;
+      default:
+        break;
+    }
+  } else {
+    console.warn("unknown tool: " + activeTool);
   }
 };
 
@@ -836,6 +876,11 @@ export const storeViewportData = function (
   }
 
   if (data.isTimeserie) {
+    setStore([
+      "numberOfTemporalPositions",
+      elementId,
+      data.numberOfTemporalPositions as number
+    ]);
     setStore(["minTimeId", elementId, 0]);
     setStore(["timeId", elementId, data.timeIndex || 0]);
     if (data.numberOfSlices && data.numberOfTemporalPositions) {
@@ -884,6 +929,9 @@ export const storeViewportData = function (
   ]);
   setStore(["isColor", elementId, data.isColor]);
   setStore(["isMultiframe", elementId, data.isMultiframe]);
+  if (data.isMultiframe) {
+    setStore(["numberOfFrames", elementId, data.numberOfFrames as number]);
+  }
   setStore(["isTimeserie", elementId, data.isTimeserie]);
   setStore(["isPDF", elementId, false]);
   setStore(["waveform", elementId, data.waveform]);
@@ -1028,13 +1076,14 @@ const getSeriesData = function (
   };
   type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
-
+  data.seriesUID = series.larvitarSeriesInstanceUID || series.seriesUID; //case of resliced series
   if (series.isMultiframe) {
     data.isMultiframe = series.isMultiframe || true;
     data.numberOfSlices = series.imageIds.length;
     data.imageIndex = 0;
     data.imageId = series.imageIds[data.imageIndex];
     data.isTimeserie = false;
+    data.numberOfFrames = series.numberOfFrames;
   } else if (series.is4D) {
     data.isMultiframe = false;
     data.isTimeserie = true;

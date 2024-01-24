@@ -21,28 +21,37 @@
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
+      <button
+        id="toggleButton"
+        style="position: absolute; top: 0px; width: 200px; height: 30px"
+      >
+        Scroll Mode: Slices
+      </button>
       <div
         id="viewer"
         class="col-8 h-100"
         style="background-color: black"
       ></div>
 
-      <p style="position: absolute; color: white">
-        Press "p" to play/pause timeserie animation
-      </p>
       <p
         id="image-time"
-        style="position: absolute; top: 20px; color: white"
+        style="position: absolute; top: 35px; color: white"
       ></p>
-      <p id="timestamp" style="position: absolute; top: 40px; color: white"></p>
+      <p id="timestamp" style="position: absolute; top: 55px; color: white"></p>
+      <p id="slicenum" style="position: absolute; top: 75px; color: white"></p>
+      <p id="animation" style="position: absolute; top: 95px; color: white"></p>
 
       <div class="col-4 h-100">
         <pre class="h-100">
           <code class="javascript" style="background-color: #000000">
           <p style="font-size:0.6vw;">
+            let currentMode = "stack";
             let demoFiles = [];
             let counter = 0;
-
+            let animation = false;
+            let animationId = null;
+            let frames_number = 0;
+      
             const getDemoFileNames = function () {
               let demoFileList = [];
               for (let i = 1; i < 195; i++) {
@@ -51,13 +60,14 @@
               }
               return demoFileList;
             };
-
+      
             // init all
             larvitar.initializeImageLoader();
             larvitar.initializeCSTools();
             larvitar.store.initialize();
             larvitar.store.addViewport("viewer");
-
+      
+            // create files from the demo folder
             async function createFile(fileName, cb) {
               let response = await fetch("./demo/4d/" + fileName);
               let data = await response.blob();
@@ -68,68 +78,108 @@
                 cb();
               }
             }
-
-            function renderSerie() {
-              larvitar.resetLarvitarManager();
-              larvitar
-                .readFiles(demoFiles)
-                .then(seriesStack => {
-                  // render the first series of the study
-                  let sliceId = 0;
-                  let seriesId = _.keys(seriesStack)[sliceId];
-                  let serie = seriesStack[seriesId];
-
-                  larvitar.renderImage(serie, "viewer").then(() => {
-                    console.log("Image has been rendered");
-
-                    $("#image-time").html(
-                      "Image Time Id: " +
-                        larvitar.store.get(["viewports", "viewer", "timeId"]) +
-                        " of " +
-                        larvitar.store.get(["viewports", "viewer", "maxTimeId"])
-                    );
-                    $("#timestamp").html(
-                      "Image Time: " +
-                        larvitar.store.get(["viewports", "viewer", "timestamp"])
-                    );
-                  });
-
-                  let animation = false;
-                  let animationId = null;
-                  document.onkeypress = function (e) {
-                    if (e.keyCode == 112) {
-                      animation = !animation;
-                      if (animation) {
-                        sliceId = larvitar.store.get([
-                          "viewports",
-                          "viewer",
-                          "sliceId"
-                        ]);
-                        animationId = setInterval(function () {
-                          sliceId = sliceId == 193 ? 0 : sliceId + 1;
-                          larvitar.updateImage(serie, "viewer", sliceId, false);
-                          $("#image-time").html(
-                            "Image Time Id: " +
-                              larvitar.store.get(["viewports", "viewer", "timeId"]) +
-                              " of " +
-                              larvitar.store.get(["viewports", "viewer", "maxTimeId"])
-                          );
-                          $("#timestamp").html(
-                            "Image Time: " +
-                              larvitar.store.get(["viewports", "viewer", "timestamp"])
-                          );
-                        }, 100);
-                      } else {
-                        clearInterval(animationId);
-                      }
-                    }
-                  };
-                  larvitar.addDefaultTools();
-                  larvitar.setToolActive("Wwwc");
-                })
-                .catch(err => console.log(err));
+      
+            // handle button to change scroll modality
+            function triggerHandleToggle() {
+              let newMode = currentMode === "stack" ? "slice" : "stack";
+              let newModeTxt = newMode === "stack" ? "Slices" : "Frames";
+              if (newMode === "stack") {
+                animation = false;
+                clearInterval(animationId);
+              }
+              larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode = newMode;
+              larvitar.DEFAULT_TOOLS[
+                "CustomMouseWheelScroll"
+              ].configuration.currentMode = newMode;
+              currentMode = newMode;
+              $("#toggleButton").html("Scroll Mode: " + newModeTxt);
+              let animationText =
+                newMode === "stack" ? "" : "Press 'p' to start/stop animation";
+              $("#animation").html(animationText);
             }
-
+            // Attach click event to the button
+            const toggleButton = document.getElementById("toggleButton");
+            toggleButton.addEventListener("click", triggerHandleToggle);
+      
+            // Update UI regarding timeId, timestamp and sliceId
+            function changeStamps() {
+              $("#image-time").html(
+                "Image Time Id: " +
+                  larvitar.store.get(["viewports", "viewer", "timeId"]) +
+                  " of " +
+                  larvitar.store.get(["viewports", "viewer", "maxTimeId"])
+              );
+              $("#timestamp").html(
+                "Image Time: " +
+                  larvitar.store.get(["viewports", "viewer", "timestamp"])
+              );
+              $("#slicenum").html(
+                "Slice Number: " +
+                  parseInt(
+                    Math.floor(
+                      larvitar.store.get(["viewports", "viewer", "sliceId"]) /
+                        frames_number
+                    ) + 1
+                  ) +
+                  " of 2"
+              );
+            }
+      
+            // main render function
+            function renderSerie() {
+              larvitar.readFiles(demoFiles).then(seriesStack => {
+                let seriesId = _.keys(seriesStack)[0];
+                let serie = seriesStack[seriesId];
+                larvitar.populateLarvitarManager(seriesId, serie);
+                let manager = larvitar.getLarvitarManager();
+                let multiFrameSerie = manager[seriesId];
+                let frameId = 0;
+                larvitar
+                  .renderImage(multiFrameSerie, "viewer", frameId)
+                  .then(() => {
+                    frames_number = manager[seriesId].numberOfTemporalPositions;
+                    larvitar.addDefaultTools();
+                    larvitar.setToolActive("CustomMouseWheelScroll");
+                    // add information on UI regarding timeId, timestamp and sliceId
+                    changeStamps();
+      
+                    // add event listener to the wheel to update the UI
+                    document
+                      .getElementById("viewer")
+                      .addEventListener("wheel", function (event) {
+                        changeStamps();
+                      });
+      
+                    // add event listener to the keypress to start/stop the animation
+                    document.onkeypress = function (e) {
+                      if (e.key === "p" && currentMode === "slice") {
+                        animation = !animation;
+                        if (animation) {
+                          let sliceId = larvitar.store.get([
+                            "viewports",
+                            "viewer",
+                            "sliceId"
+                          ]);
+                          animationId = setInterval(function () {
+                            const sliceNumber = Math.floor(sliceId / frames_number);
+                            sliceId =
+                              sliceId === (sliceNumber + 1) * frames_number - 1
+                                ? sliceId - (frames_number - 1)
+                                : sliceId + 1;
+      
+                            larvitar.updateImage(serie, "viewer", sliceId, false);
+                            changeStamps();
+                          }, 100);
+                        } else {
+                          clearInterval(animationId);
+                        }
+                      }
+                    };
+                  })
+                  .catch(err => console.error(err));
+              });
+            }
+      
             let demoFileList = getDemoFileNames();
             _.each(demoFileList, function (demoFile) {
               createFile(demoFile, renderSerie);
@@ -147,10 +197,13 @@
       integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
       crossorigin="anonymous"
     ></script>
-
     <script>
+      let currentMode = "stack";
       let demoFiles = [];
       let counter = 0;
+      let animation = false;
+      let animationId = null;
+      let frames_number = 0;
 
       const getDemoFileNames = function () {
         let demoFileList = [];
@@ -160,12 +213,14 @@
         }
         return demoFileList;
       };
+
       // init all
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
+      // create files from the demo folder
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/4d/" + fileName);
         let data = await response.blob();
@@ -177,74 +232,105 @@
         }
       }
 
+      // handle button to change scroll modality
+      function triggerHandleToggle() {
+        let newMode = currentMode === "stack" ? "slice" : "stack";
+        let newModeTxt = newMode === "stack" ? "Slices" : "Frames";
+        if (newMode === "stack") {
+          animation = false;
+          clearInterval(animationId);
+        }
+        larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode = newMode;
+        larvitar.DEFAULT_TOOLS[
+          "CustomMouseWheelScroll"
+        ].configuration.currentMode = newMode;
+        currentMode = newMode;
+        $("#toggleButton").html("Scroll Mode: " + newModeTxt);
+        let animationText =
+          newMode === "stack" ? "" : "Press 'p' to start/stop animation";
+        $("#animation").html(animationText);
+      }
+      // Attach click event to the button
+      const toggleButton = document.getElementById("toggleButton");
+      toggleButton.addEventListener("click", triggerHandleToggle);
+
+      // Update UI regarding timeId, timestamp and sliceId
+      function changeStamps() {
+        $("#image-time").html(
+          "Image Time Id: " +
+            larvitar.store.get(["viewports", "viewer", "timeId"]) +
+            " of " +
+            larvitar.store.get(["viewports", "viewer", "maxTimeId"])
+        );
+        $("#timestamp").html(
+          "Image Time: " +
+            larvitar.store.get(["viewports", "viewer", "timestamp"])
+        );
+        $("#slicenum").html(
+          "Slice Number: " +
+            parseInt(
+              Math.floor(
+                larvitar.store.get(["viewports", "viewer", "sliceId"]) /
+                  frames_number
+              ) + 1
+            ) +
+            " of 2"
+        );
+      }
+
+      // main render function
       function renderSerie() {
-        larvitar.resetLarvitarManager();
-        larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            // render the first series of the study
-            let sliceId = 0;
-            let seriesId = _.keys(seriesStack)[sliceId];
-            let serie = seriesStack[seriesId];
+        larvitar.readFiles(demoFiles).then(seriesStack => {
+          let seriesId = _.keys(seriesStack)[0];
+          let serie = seriesStack[seriesId];
+          larvitar.populateLarvitarManager(seriesId, serie);
+          let manager = larvitar.getLarvitarManager();
+          let multiFrameSerie = manager[seriesId];
+          let frameId = 0;
+          larvitar
+            .renderImage(multiFrameSerie, "viewer", frameId)
+            .then(() => {
+              frames_number = manager[seriesId].numberOfTemporalPositions;
+              larvitar.addDefaultTools();
+              larvitar.setToolActive("CustomMouseWheelScroll");
+              // add information on UI regarding timeId, timestamp and sliceId
+              changeStamps();
 
-            larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
+              // add event listener to the wheel to update the UI
+              document
+                .getElementById("viewer")
+                .addEventListener("wheel", function (event) {
+                  changeStamps();
+                });
 
-              $("#image-time").html(
-                "Image Time Id: " +
-                  larvitar.store.get(["viewports", "viewer", "timeId"]) +
-                  " of " +
-                  larvitar.store.get(["viewports", "viewer", "maxTimeId"])
-              );
-              $("#timestamp").html(
-                "Image Time: " +
-                  larvitar.store.get(["viewports", "viewer", "timestamp"])
-              );
-            });
+              // add event listener to the keypress to start/stop the animation
+              document.onkeypress = function (e) {
+                if (e.key === "p" && currentMode === "slice") {
+                  animation = !animation;
+                  if (animation) {
+                    let sliceId = larvitar.store.get([
+                      "viewports",
+                      "viewer",
+                      "sliceId"
+                    ]);
+                    animationId = setInterval(function () {
+                      const sliceNumber = Math.floor(sliceId / frames_number);
+                      sliceId =
+                        sliceId === (sliceNumber + 1) * frames_number - 1
+                          ? sliceId - (frames_number - 1)
+                          : sliceId + 1;
 
-            let animation = false;
-            let animationId = null;
-            document.onkeypress = function (e) {
-              if (e.keyCode == 112) {
-                animation = !animation;
-                if (animation) {
-                  sliceId = larvitar.store.get([
-                    "viewports",
-                    "viewer",
-                    "sliceId"
-                  ]);
-                  animationId = setInterval(function () {
-                    sliceId = sliceId == 193 ? 0 : sliceId + 1;
-                    larvitar.updateImage(serie, "viewer", sliceId, false);
-                    $("#image-time").html(
-                      "Image Time Id: " +
-                        larvitar.store.get(["viewports", "viewer", "timeId"]) +
-                        " of " +
-                        larvitar.store.get(["viewports", "viewer", "maxTimeId"])
-                    );
-                    $("#timestamp").html(
-                      "Image Time: " +
-                        larvitar.store.get(["viewports", "viewer", "timestamp"])
-                    );
-                  }, 100);
-                } else {
-                  clearInterval(animationId);
+                      larvitar.updateImage(serie, "viewer", sliceId, false);
+                      changeStamps();
+                    }, 100);
+                  } else {
+                    clearInterval(animationId);
+                  }
                 }
-              }
-            };
-            // larvitar.addTool("Slice4DScrollMouseWheel", {
-            //   configuration: {
-            //     loop: false,
-            //     allowSkipping: false,
-            //     invert: false,
-            //     framesNumber: 97
-            //   }
-            // });
-            // larvitar.setToolActive("Slice4DScrollMouseWheel");
-            larvitar.addDefaultTools();
-            larvitar.setToolActive("Wwwc");
-          })
-          .catch(err => console.log(err));
+              };
+            })
+            .catch(err => console.error(err));
+        });
       }
 
       let demoFileList = getDemoFileNames();

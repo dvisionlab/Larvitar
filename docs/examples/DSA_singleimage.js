@@ -25,22 +25,20 @@ let maskSubPixelShift;
 let frameRangeAvg;
 
 let resultFramesTid;
-let TidOffset
+let TidOffset;
 let contrastFrameAveragingTid;
 let frameRangeTid;
 
-
 let resultFramesRevTid;
-let RevTidOffset
+let RevTidOffset;
 let contrastFrameAveragingRevTid;
 let frameRangeRevTid;
 
-let maxPixel 
-let minPixel 
-let windowWidth
+let maxPixel;
+let minPixel;
+let windowWidth;
 
-
-function apply_DSA_Mask( multiFrameSerie, frameId) {
+function apply_DSA_Mask(multiFrameSerie, frameId) {
   const frameNumber = multiFrameSerie.imageIds.length;
   const imageIds = multiFrameSerie.imageIds;
   const metadata_info = multiFrameSerie.metadata["x00286100"];
@@ -50,79 +48,76 @@ function apply_DSA_Mask( multiFrameSerie, frameId) {
 
   if (typeof frame_index_number === "number") {
     frame_index_number = [frame_index_number];
-}
-
+  }
   // Check mask type
   if (mask_type === "NONE") {
     return;
   } else if (mask_type === "AVG_SUB") {
-    
     const imageCache = larvitar.cornerstone.imageCache;
     const cachedImages = imageCache.cachedImages;
-     maskSubPixelShift =  maskSubPixelShift||metadataInfo.x00286114 || 0;
-    contrastFrameAveragingAvg = contrastFrameAveragingAvg||metadataInfo.x00286112 || 1;
-     frameRangeAvg = frameRangeAvg||metadataInfo.x00286102 || [
-      0,
-      frameNumber - 1 - contrastFrameAveragingAvg + 1
-    ];
+    maskSubPixelShift = maskSubPixelShift || metadataInfo.x00286114 || 0;
+    contrastFrameAveragingAvg =
+      contrastFrameAveragingAvg || metadataInfo.x00286112 || 1;
+    frameRangeAvg = frameRangeAvg ||
+      metadataInfo.x00286102 || [
+        0,
+        frameNumber - 1 - contrastFrameAveragingAvg + 1
+      ];
 
-    let isFrameIncluded 
-      for(let i=0;i<frameRangeAvg.length/2;i++)
-      {
-        isFrameIncluded =imageIds.includes(frameId) &&
+    let isFrameIncluded;
+    for (let i = 0; i < frameRangeAvg.length / 2; i++) {
+      isFrameIncluded =
+        imageIds.includes(frameId) &&
         imageIds.indexOf(frameId) >= frameRangeAvg[i] &&
-        imageIds.indexOf(frameId) <= frameRangeAvg[i+1];
-      }
+        imageIds.indexOf(frameId) <= frameRangeAvg[i + 1];
+    }
     if (isFrameIncluded) {
       const t = performance.now();
-      let image =cachedImages[imageIds.indexOf(frameId)].image;
+      let image = cachedImages[imageIds.indexOf(frameId)].image;
       let contrastFrame = image.getPixelData();
       let len_pixeldata = contrastFrame.length;
-      const t0 = performance.now();
-      console.log("t0", t0 - t);
+      // const t0 = performance.now();
+      // console.log("t0", t0 - t);
       maskFramesAvg =
         maskFramesAvg ||
         frame_index_number.map(index =>
           cachedImages[index].image.getPixelData()
         );
-      const t1 = performance.now();
-      console.log("t1", t1 - t0);
-      
+      // const t1 = performance.now();
+      // console.log("t1", t1 - t0);
+
       resultFramesAvg = resultFramesAvg || new Float32Array(len_pixeldata);
       let average = false;
-      const t2 = performance.now();
-      console.log("t2", t2 - t1);
+      // const t2 = performance.now();
+      // console.log("t2", t2 - t1);
       if (Array.isArray(maskFramesAvg) && maskFramesAvg.length > 1) {
         average = true;
       }
-      let shiftValue = (maskSubPixelShift !== 0) ? maskSubPixelShift : 0;
-if(average)
-{
-  averagedMaskFramesAvg =
-      averagedMaskFramesAvg || new Float32Array(len_pixeldata);
-  for (j = 0; j < len_pixeldata; j++) {
-    let value = contrastFrame[j];
-      let value_average;
-      for (i = 0; i <maskFramesAvg.length; i++) {
-        value_average = value_average + maskFramesAvg[i][j];
+      let shiftValue = maskSubPixelShift !== 0 ? maskSubPixelShift : 0;
+      if (average) {
+        averagedMaskFramesAvg =
+          averagedMaskFramesAvg || new Float32Array(len_pixeldata);
+        for (j = 0; j < len_pixeldata; j++) {
+          let value = contrastFrame[j];
+          let value_average;
+          for (i = 0; i < maskFramesAvg.length; i++) {
+            value_average = value_average + maskFramesAvg[i][j];
+          }
+          averagedMaskFramesAvg[j] = value_average / maskframeslength;
+          resultFramesAvg[j] = value - averagedMaskFramesAvg[j] + shiftValue;
+        }
+      } else {
+        for (let j = 0; j < len_pixeldata; j++) {
+          resultFramesAvg[j] =
+            contrastFrame[j] - maskFramesAvg[0][j] + shiftValue;
+        }
       }
-      averagedMaskFramesAvg[j] = value_average / maskframeslength;
-      resultFramesAvg[j] = value - averagedMaskFramesAvg[j] + shiftValue;
-  }
+      // const t3 = performance.now();
+      maxPixel = maxPixel || getMax(resultFramesAvg);
+      minPixel = minPixel || getMin(resultFramesAvg);
+      windowWidth = windowWidth || (maxPixel - minPixel) / 2;
 
-}
-else{
- 
-  for (let j = 0; j < len_pixeldata; j++) {
-    resultFramesAvg[j] = contrastFrame[j] - maskFramesAvg[0][j] + shiftValue;
-}
-    }
-      const t3 = performance.now();
-      maxPixel = maxPixel||getMax(resultFramesAvg);
-      minPixel = minPixel||getMin(resultFramesAvg);
-      windowWidth= windowWidth||(maxPixel-minPixel)/2
-
-      console.log("t3", t3 - t2);
+      // console.log("t3", t3 - t2);
 
       const modifiedImage = {
         imageId: imageIds.indexOf(frameId), // Keep the same imageId
@@ -144,117 +139,132 @@ else{
 
       const element = document.getElementById("imageResult");
       larvitar.cornerstone.enable(element);
+      console.log(modifiedImage);
       larvitar.cornerstone.displayImage(element, modifiedImage);
       // larvitar.addDefaultTools();
       // larvitar.setToolActive("Wwwc");
-      const t4 = performance.now();
-      console.log("t4", t4 - t3);
+      // const t4 = performance.now();
+      // console.log("t4", t4 - t3);
     } else {
       return;
     }
   } else if (mask_type === "TID") {
     // Check if Applicable Frame Range is present
-     contrastFrameAveragingTid = contrastFrameAveragingTid||metadataInfo.x00286112 || 1;
-     TidOffset=TidOffset||metadataInfo.x00286120||1
-      frameRangeTid = frameRangeTid||metadataInfo.x00286102 || [ Math.abs(tidOffset)-1,frameNumber-Math.abs(tidOffset)-1];
+    contrastFrameAveragingTid =
+      contrastFrameAveragingTid || metadataInfo.x00286112 || 1;
+    TidOffset = TidOffset || metadataInfo.x00286120 || 1;
+    frameRangeTid = frameRangeTid ||
+      metadataInfo.x00286102 || [
+        Math.abs(tidOffset) - 1,
+        frameNumber - Math.abs(tidOffset) - 1
+      ];
     // Filter frames within the Applicable Frame Range
-    for(let i=0;i<frameRangeTid.length/2;i++)
-    {
-      isFrameIncluded =imageIds.includes(frameId) &&
-      imageIds.indexOf(frameId) >= frameRangeTid[i] &&
-      imageIds.indexOf(frameId) <= frameRangeTid[i+1];
+    for (let i = 0; i < frameRangeTid.length / 2; i++) {
+      isFrameIncluded =
+        imageIds.includes(frameId) &&
+        imageIds.indexOf(frameId) >= frameRangeTid[i] &&
+        imageIds.indexOf(frameId) <= frameRangeTid[i + 1];
     }
     if (isFrameIncluded) {
       let image = cachedImages[imageIds.indexOf(frameId)].image;
       let contrastFrame = image.getPixelData();
-      let maskimage = cachedImages[imageIds.indexOf(frameId-tidOffset)].image;
+      let maskimage = cachedImages[imageIds.indexOf(frameId - tidOffset)].image;
       let contrastMaskFrame = maskimage.getPixelData();
       let len_pixeldata = contrastFrame.length;
-    // Apply Time Interval Differencing
-     resultFramesTid =resultFramesTid || new Float32Array(len_pixeldata); 
+      // Apply Time Interval Differencing
+      resultFramesTid = resultFramesTid || new Float32Array(len_pixeldata);
 
-    for(let i=0;i<len_pixeldata;i++)
-    {
-      resultFramesTid[i]=contrastFrame[i]-contrastMaskFrame[i]
-    }
-    maxPixel = maxPixel||getMax(resultFramesTid);
-      minPixel = minPixel||getMin(resultFramesTid);
-      windowWidth= windowWidth||(maxPixel-minPixel)/2
-          const modifiedImage = {
-      imageId: imageIds.indexOf(frameId), // Keep the same imageId
-      minPixelValue: minPixel,
-      maxPixelValue:maxPixel,
-      slope: image.slope,
-      intercept: image.intercept,
-      windowCenter: 0,
-      windowWidth: windowWidth,
-      getPixelData: () => resultFramesTid,
-      rows: image.rows,
-      columns: image.columns,
-      height: image.height,
-      width: image.width,
-      color: image.color,
-      columnPixelSpacing: image.columnPixelSpacing,
-      rowPixelSpacing: image.rowPixelSpacing
-    };
-
-    const element = document.getElementById("viewer");
-    // larvitar.cornerstone.enable(element);
-    larvitar.cornerstone.displayImage(element, modifiedImage);
-  }
-  } else if (mask_type === "REV_TID") {
-    contrastFrameAveragingRevTid = contrastFrameAveragingRevTid||metadataInfo.x00286112 || 1;
-     const RevTidOffset=metadataInfo.x00286120||1
-      frameRangeRevTid = frameRangeRevTid||metadataInfo.x00286102 || [ Math.abs(RevTidOffset)-1,frameNumber-Math.abs(RevTidOffset)-1];
-    
-      // Filter frames within the Applicable Frame Range
-      let isFrameIncluded 
-      for(let i=0;i<frameRangeRevTid.length/2;i++)
-      {
-        isFrameIncluded =imageIds.includes(frameId) &&
-        imageIds.indexOf(frameId) >= frameRangeRevTid[i] &&
-        imageIds.indexOf(frameId) <= frameRangeRevTid[i+1];
+      for (let i = 0; i < len_pixeldata; i++) {
+        resultFramesTid[i] = contrastFrame[i] - contrastMaskFrame[i];
       }
-      
+      maxPixel = maxPixel || getMax(resultFramesTid);
+      minPixel = minPixel || getMin(resultFramesTid);
+      windowWidth = windowWidth || (maxPixel - minPixel) / 2;
+      const modifiedImage = {
+        imageId: imageIds.indexOf(frameId), // Keep the same imageId
+        minPixelValue: minPixel,
+        maxPixelValue: maxPixel,
+        slope: image.slope,
+        intercept: image.intercept,
+        windowCenter: 0,
+        windowWidth: windowWidth,
+        getPixelData: () => resultFramesTid,
+        rows: image.rows,
+        columns: image.columns,
+        height: image.height,
+        width: image.width,
+        color: image.color,
+        columnPixelSpacing: image.columnPixelSpacing,
+        rowPixelSpacing: image.rowPixelSpacing
+      };
+
+      const element = document.getElementById("viewer");
+      // larvitar.cornerstone.enable(element);
+      larvitar.cornerstone.displayImage(element, modifiedImage);
+    }
+  } else if (mask_type === "REV_TID") {
+    contrastFrameAveragingRevTid =
+      contrastFrameAveragingRevTid || metadataInfo.x00286112 || 1;
+    const RevTidOffset = metadataInfo.x00286120 || 1;
+    frameRangeRevTid = frameRangeRevTid ||
+      metadataInfo.x00286102 || [
+        Math.abs(RevTidOffset) - 1,
+        frameNumber - Math.abs(RevTidOffset) - 1
+      ];
+
+    // Filter frames within the Applicable Frame Range
+    let isFrameIncluded;
+    for (let i = 0; i < frameRangeRevTid.length / 2; i++) {
+      isFrameIncluded =
+        imageIds.includes(frameId) &&
+        imageIds.indexOf(frameId) >= frameRangeRevTid[i] &&
+        imageIds.indexOf(frameId) <= frameRangeRevTid[i + 1];
+    }
+
     if (isFrameIncluded) {
       let image = cachedImages[imageIds.indexOf(frameId)].image;
       let contrastFrame = image.getPixelData();
-      let maskimage = cachedImages[imageIds.indexOf((frameRangeRevTid[0]-RevTidOffset)-(frameId-frameRangeRevTid[0]))].image;
+      let maskimage =
+        cachedImages[
+          imageIds.indexOf(
+            frameRangeRevTid[0] - RevTidOffset - (frameId - frameRangeRevTid[0])
+          )
+        ].image;
       let contrastMaskFrame = maskimage.getPixelData();
       let len_pixeldata = contrastFrame.length;
-    // Apply Time Interval Differencing
-     resultFramesRevTid =resultFramesRevTid || new Float32Array(len_pixeldata); 
+      // Apply Time Interval Differencing
+      resultFramesRevTid =
+        resultFramesRevTid || new Float32Array(len_pixeldata);
 
-    for(let i=0;i<len_pixeldata;i++)
-    {
-      resultFramesRevTid[i]=contrastFrame[i]-contrastMaskFrame[i]
+      for (let i = 0; i < len_pixeldata; i++) {
+        resultFramesRevTid[i] = contrastFrame[i] - contrastMaskFrame[i];
+      }
+      maxPixel = maxPixel || getMax(resultFramesRevTid);
+      minPixel = minPixel || getMin(resultFramesRevTid);
+      windowWidth = windowWidth || (maxPixel - minPixel) / 2;
+      const modifiedImage = {
+        imageId: imageIds.indexOf(frameId), // Keep the same imageId
+        minPixelValue: minPixel,
+        maxPixelValue: maxPixel,
+        slope: image.slope,
+        intercept: image.intercept,
+        windowCenter: 0,
+        windowWidth: windowWidth,
+        getPixelData: () => resultFramesRevTid,
+        rows: image.rows,
+        columns: image.columns,
+        height: image.height,
+        width: image.width,
+        color: image.color,
+        columnPixelSpacing: image.columnPixelSpacing,
+        rowPixelSpacing: image.rowPixelSpacing
+      };
+
+      const element = document.getElementById("viewer");
+      // larvitar.cornerstone.enable(element);
+      larvitar.cornerstone.displayImage(element, modifiedImage);
     }
-    maxPixel = maxPixel||getMax( resultFramesRevTid);
-      minPixel = minPixel||getMin( resultFramesRevTid);
-      windowWidth= windowWidth||(maxPixel-minPixel)/2
-    const modifiedImage = {
-      imageId: imageIds.indexOf(frameId), // Keep the same imageId
-      minPixelValue: minPixel,
-      maxPixelValue:maxPixel,
-      slope: image.slope,
-      intercept: image.intercept,
-      windowCenter: 0,
-      windowWidth:  windowWidth,
-      getPixelData: () => resultFramesRevTid,
-      rows: image.rows,
-      columns: image.columns,
-      height: image.height,
-      width: image.width,
-      color: image.color,
-      columnPixelSpacing: image.columnPixelSpacing,
-      rowPixelSpacing: image.rowPixelSpacing
-    };
-
-    const element = document.getElementById("viewer");
-    // larvitar.cornerstone.enable(element);
-    larvitar.cornerstone.displayImage(element, modifiedImage);
   }
-}
 }
 
 //x00286100:Defines a Sequence that describes mask subtraction operations for a Multi-frame Image.

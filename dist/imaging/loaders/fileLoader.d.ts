@@ -31,3 +31,12 @@ export declare const populateFileManager: (file: File) => void;
  * @return {String} current file image id
  */
 export declare const getFileImageId: (file: File) => string | null;
+/**
+ * Return the common data file manager
+ * @instance
+ * @function getFileManager
+ * @returns {Object} the file manager
+ */
+export declare const getFileManager: () => {
+    [key: string]: string;
+};

@@ -13,7 +13,7 @@ import { MetaDataReadable } from "./MetaDataReadable";
   | null
   | Array
   | undefined; // null or undefined is only for nrrd*/
-
+export type pdfType = { getPage: function; numPages: number };
 export type StoreViewport = {
   loading: number;
   ready: boolean;
@@ -21,6 +21,7 @@ export type StoreViewport = {
   maxSliceId: number;
   sliceId: number;
   pendingSliceId?: number;
+  seriesUID?: string;
   minTimeId: number;
   maxTimeId: number;
   timeId: number;
@@ -43,6 +44,7 @@ export type StoreViewport = {
   imageId?: string;
   numberOfSlices?: number;
   numberOfTemporalPositions?: number;
+  numberOfFrames?: number;
   timeIndex?: number;
   viewport: {
     scale: number;
@@ -112,6 +114,19 @@ export type StagedProtocol = {
   viewNumber?: number; // Number of the view
 };
 
+export type DSA = {
+  imageIds: string[];
+  x00286101?: string; // DSA MaskOperation
+  x00286102?: number; // DSA ApplicableFrameRange
+  x00286110?: number; // DSA MaskFrameNumbers
+  x00286112?: number; // DSA ContrastFrameAveraging
+  x00286114?: number; // DSA MaskSubPixelShift
+  x00286120?: number; // DSA TIDOffset
+  x00286190?: string; // DSA MaskOperationExplanation
+  x00289416?: number; // DSA SubtractionItemID
+  x00289454?: string; // DSA MaskSelectionMode
+};
+
 export type Series = {
   imageIds: string[];
   instances: { [key: string]: Instance };
@@ -135,6 +150,7 @@ export type Series = {
   traceData?: Partial<Plotly.PlotData>[];
   isPDF: boolean;
   stagedProtocol?: StagedProtocol;
+  dsa?: DSA;
   modality: string;
   numberOfFrames: number;
   numberOfSlices: number;
@@ -287,6 +303,8 @@ export type NrrdSeries = {
   metadata?: MetaData;
   ecgData?: number[];
   images?: { [key: string]: Image };
+  isMultiframe?: boolean;
+  numberOfFrames?: number;
 };
 
 export type NrrdHeader = {
