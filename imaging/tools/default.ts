@@ -466,6 +466,23 @@ const DEFAULT_TOOLS: {
     shortcut: "ctrl-s",
     type: "segmentation",
   },
+  WSToggle: {
+    name: "WSToggle",
+    viewports: "all",
+    configuration: {
+      multiImage: false,
+      startIndex: null,
+      endIndex: null,
+      masksNumber: 10,
+      onload: false,
+    },
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "WSToggleTool",
+    description: "Watershed Segmentation Algorithm based on selected area",
+    shortcut: "ctrl-t",
+    type: "segmentation",
+  },
 };
 
 /**
@@ -477,6 +494,7 @@ const dvTools: {
   ThresholdsBrushTool: ThresholdsBrushTool,
   PolylineScissorsTool: PolylineScissorsTool,
   // Slice4DScrollMouseWheelTool: Slice4DScrollMouseWheelTool,
+  WSToggleTool: WSToggleTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
   BorderMagnifyTool: BorderMagnifyTool,
