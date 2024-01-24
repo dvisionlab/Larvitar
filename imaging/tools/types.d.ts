@@ -228,7 +228,7 @@ export type SegmentationConfig = {
 export const enum MaskVisualizations {
   FILL,
   CONTOUR,
-  HIDDEN
+  HIDDEN,
 }
 
 export type MaskProperties = {
