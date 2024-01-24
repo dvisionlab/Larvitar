@@ -121,7 +121,7 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
-      larvitar.registerExternalTool("Test", TestTool);
+      larvitar.registerExternalTool("Pan", PanTool);
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
@@ -157,8 +157,8 @@
                 );
               }
             });
-            larvitar.addTool("Test");
-            larvitar.setToolActive("Test");
+            larvitar.addTool("Pan");
+            larvitar.setToolActive("Pan");
           })
           .catch(err => console.error(err));
       }

@@ -23,10 +23,10 @@ const { probeCursor } = cornerstoneTools.importInternal("tools/cursors");
  * input position on drag.
  * @extends Tools.Base.BaseTool
  */
-class TestTool extends BaseTool {
+class PanTool extends BaseTool {
   constructor(props = {}) {
     const defaultProps = {
-      name: "Test",
+      name: "Pan",
       supportedInteractionTypes: ["Mouse", "Touch"],
       svgCursor: probeCursor
     };
