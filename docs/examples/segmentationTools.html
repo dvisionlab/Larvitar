@@ -51,9 +51,10 @@
         border: 8px solid #f3f3f3;
         border-top: 8px solid #3498db;
         border-radius: 50%;
-        width: 50px;
-        height: 50px;
+        width: 30px;
+        height: 30px;
         animation: spin 1s linear infinite;
+        margin: 3px;
       }
 
       /* Adjust the styling for the other elements as needed */
@@ -77,36 +78,35 @@
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
       <div id="viewer" class="col-8 h-100" style="background-color: black">
-        <p style="position: absolute; color: white">
-          Press "t" to cycle through tools<br /><b id="info"> </b>
+        <p style="position: absolute; color: white; top: 0">
+          Press "t" to cycle through tools<br />
         </p>
-        <p id="active-tool" style="position: absolute; top: 45px; color: white">
-          Active Tool: Brush
+        <p id="active-tool" style="position: absolute; top: 20px; color: white">
+          Active Tool: Brush<br />
         </p>
-        <p style="position: absolute; top: 65px; color: white">
-          <b>Right Mouse Button:</b> drag >> Zoom || drag + Ctrl >> Pan
-        </p>
+        <p id="info" style="position: absolute; top: 40px; color: white"></p>
         <div id="buttonBar" class="col-3 offset-4" style="display: none">
           <div class="loader" id="loader"></div>
-          <button id="toggleButton">Toggle</button>
-
+          <button id="toggleButton">Current Image</button>
+          <input
+            type="number"
+            class="manualInput"
+            id="masksNumber"
+            placeholder="N° Masks"
+          />
           <input
             type="number"
             class="manualInput"
             id="startImage"
             placeholder="startImage"
+            style="display: none"
           />
           <input
             type="number"
             class="manualInput"
             id="endImage"
             placeholder="endImage"
-          />
-          <input
-            type="number"
-            class="manualInput"
-            id="masksNumber"
-            placeholder="N° Masks"
+            style="display: none"
           />
         </div>
       </div>
@@ -361,7 +361,10 @@
             : false;
         larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage =
           isMultiImage;
-        console.log(isMultiImage);
+        toggleButton.innerHTML =
+          isMultiImage === true ? "Multi Image" : "Current Image";
+        startInput.style.display = isMultiImage === true ? "block" : "none";
+        endInput.style.display = isMultiImage === true ? "block" : "none";
       }
       const masksNumberInput = document.getElementById("masksNumber");
       // Add an input event listener
@@ -524,7 +527,14 @@
           larvitar.setToolActive(tool);
           if (tool === "WSToggle") {
             document.getElementById("info").innerHTML =
-              "click on the feature of interest to apply watershed segmentation<br>";
+              "<b>ctrl+mouse wheel to change brush radius</b><br />" +
+              "<b>click to activate watershed segmentation of features with greyscale " +
+              "value of interest</b><br />" +
+              "<b>ctrl+click for Label Eraser:</b> erases selected label<br />" +
+              "<b>alt+click for LabelPicker: </b>allows you to pick a label, click again to " +
+              "apply the picked label<br />" +
+              "<b>shift+click+drag for Manual Eraser</b>";
+
             buttonBar.style.display = "block"; // make it visible
             loader.style.display = "none";
             element.addEventListener("click", rotateLoader);
