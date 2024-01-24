@@ -154,7 +154,6 @@ const addTool = function (
     }
 
     const toolClass = dvTools[toolClassName] || cornerstoneTools[toolClassName];
-    console.log(toolClass);
     if (targetElementId) {
       let element = document.getElementById(targetElementId);
       cornerstoneTools.addToolForElement(element, toolClass, defaultConfig);
