@@ -45,14 +45,19 @@ class VetToolThreeLines extends BaseAnnotationTool {
         hideHandlesIfMoving: false,
         renderDashed: false,
         digits: 2,
-        offset: 15
-      }
+        offset: 15,
+      },
     };
 
     super(props, defaultProps);
     this.eventData;
     this.datahandles;
+    this.abovehandles;
+    this.belowhandles;
     this.color;
+    this.measureonload;
+    this.belowcolor;
+    this.abovecolor;
     this.plotlydata = [];
     this.measuring = false; // New variable to track measurement state
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -68,11 +73,18 @@ class VetToolThreeLines extends BaseAnnotationTool {
     return color;
   }
 
-  handleMouseUp = event => {
+  handleMouseUp = (event) => {
     console.log("stop");
     this.measuring = false;
     const eventData = this.eventData;
-
+    //const toolData = getToolState(event.currentTarget, this.name);
+    //let abovedata = { ...toolData.data[toolData.data.length - 1] };
+    //abovedata.handles = this.abovehandles;
+    //let belowdata = { ...toolData.data[toolData.data.length - 1] };
+    //belowdata.handles = this.belowhandles;
+    //console.log(toolData);
+    //toolData.data.push(abovedata);
+    //toolData.data.push(belowdata);
     const points = this.getPointsAlongLine(
       this.datahandles.start,
       this.datahandles.end,
@@ -149,13 +161,13 @@ class VetToolThreeLines extends BaseAnnotationTool {
           x,
           y,
           highlight: true,
-          active: false
+          active: false,
         },
         end: {
           x,
           y,
           highlight: true,
-          active: true
+          active: true,
         },
         textBox: {
           active: false,
@@ -163,9 +175,9 @@ class VetToolThreeLines extends BaseAnnotationTool {
           movesIndependently: false,
           drawnIndependently: true,
           allowedOutsideImage: true,
-          hasBoundingBox: true
-        }
-      }
+          hasBoundingBox: true,
+        },
+      },
     };
   }
 
@@ -219,14 +231,13 @@ class VetToolThreeLines extends BaseAnnotationTool {
 
   renderToolData(evt) {
     const eventData = evt.detail;
-    const { image, element } = eventData;
+    const { element } = eventData;
     element.addEventListener("mouseup", this.handleMouseUp);
     const {
       handleRadius,
       drawHandlesOnHover,
       hideHandlesIfMoving,
       renderDashed,
-      digits
     } = this.configuration;
     const toolData = getToolState(evt.currentTarget, this.name);
 
@@ -237,22 +248,20 @@ class VetToolThreeLines extends BaseAnnotationTool {
     // We have tool data for this element - iterate over each one and draw it
     const context = getNewContext(eventData.canvasContext.canvas);
 
-    const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
-
-    const lineWidth = toolStyle.getToolWidth();
     const lineDash = getModule("globalConfiguration").configuration.lineDash;
-    let data = toolData.data;
     let start;
     let end;
+    console.log(toolData);
 
     for (let i = 0; i < toolData.data.length; i++) {
       const data = toolData.data[i];
 
+      console.log(toolData.data.length);
       if (data.visible === false) {
         continue;
       }
 
-      draw(context, context => {
+      draw(context, (context) => {
         console.log("drawing");
         // Configurable shadow
         setShadow(context, this.configuration);
@@ -278,22 +287,18 @@ class VetToolThreeLines extends BaseAnnotationTool {
         //const offset =DEFAULT_TOOLS["VetToolThreeLines"].configuration.offset!=15?DEFAULT_TOOLS["VetToolThreeLines"].configuration.offset : this.configuration.offset;
         const offset = this.configuration.offset;
         console.log(data.handles);
+
+        // Create separate handles for green and blue lines
         const aboveHandles = {
-          ...data.handles,
-          start: { ...data.handles.start },
-          end: { ...data.handles.end }
+          start: { x: start.x, y: start.y - offset },
+          end: { x: end.x, y: end.y - offset },
         };
 
         const belowHandles = {
-          ...data.handles,
-          start: { ...data.handles.start },
-          end: { ...data.handles.end }
+          start: { x: start.x, y: start.y + offset },
+          end: { x: end.x, y: end.y + offset },
         };
 
-        aboveHandles.start.y = data.handles.start.y - offset;
-        aboveHandles.end.y = data.handles.end.y - offset;
-        belowHandles.start.y = data.handles.start.y + offset;
-        belowHandles.end.y = data.handles.end.y + offset;
         const abovelineOptions = { color: "green" };
         const belowlineOptions = { color: "blue" };
         drawLine(
@@ -315,19 +320,19 @@ class VetToolThreeLines extends BaseAnnotationTool {
           color,
           handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving
+          hideHandlesIfMoving,
         };
         const abovehandleOptions = {
           color: abovelineOptions.color,
           handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving
+          hideHandlesIfMoving,
         };
         const belowhandleOptions = {
           color: belowlineOptions.color,
           handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving
+          hideHandlesIfMoving,
         };
 
         if (this.configuration.drawHandles) {
@@ -338,74 +343,9 @@ class VetToolThreeLines extends BaseAnnotationTool {
           drawHandles(context, eventData, aboveHandles, abovehandleOptions);
           drawHandles(context, eventData, belowHandles, belowhandleOptions);
         }
-
-        if (!data.handles.textBox.hasMoved) {
-          const coords = {
-            x: Math.max(data.handles.start.x, data.handles.end.x),
-            y: data.handles.start.y
-          };
-          data.handles.textBox.x = coords.x;
-          data.handles.textBox.y = coords.y;
-        }
-
-        // Move the textbox slightly to the right and upwards
-        // So that it sits beside the length tool handle
-        const xOffset = 10;
-
-        // Update textbox stats
-        if (data.invalidated === true) {
-          if (data.length) {
-            this.throttledUpdateCachedStats(image, element, data);
-          } else {
-            this.updateCachedStats(image, element, data);
-          }
-        }
-
-        // const text = textBoxText(data, rowPixelSpacing, colPixelSpacing);
-
-        /*drawLinkedTextBox(
-          context,
-          element,
-          data.handles.textBox,
-          text,
-          data.handles,
-          textBoxAnchorPoints,
-          color,
-          lineWidth,
-          xOffset,
-          true
-        );*/
       });
-    }
 
-    // - SideEffect: Updates annotation 'suffix'
-    function textBoxText(annotation, rowPixelSpacing, colPixelSpacing) {
-      const measuredValue = _sanitizeMeasuredValue(annotation.length);
-
-      // Measured value is not defined, return empty string
-      if (!measuredValue) {
-        return "";
-      }
-
-      // Set the length text suffix depending on whether or not pixelSpacing is available
-      let suffix = "mm";
-
-      if (!rowPixelSpacing || !colPixelSpacing) {
-        suffix = "pixels";
-      }
-
-      annotation.unit = suffix;
-
-      return `${measuredValue.toFixed(digits)} ${suffix}`;
-    }
-
-    function textBoxAnchorPoints(handles) {
-      const midpoint = {
-        x: (handles.start.x + handles.end.x) / 2,
-        y: (handles.start.y + handles.end.y) / 2
-      };
-
-      return [handles.start, midpoint, handles.end];
+      console.log(getToolState(evt.currentTarget, this.name));
     }
   }
 
@@ -470,24 +410,24 @@ class VetToolThreeLines extends BaseAnnotationTool {
       y: pixelValues,
       type: "lines",
       line: {
-        color: this.color
-      }
+        color: this.color,
+      },
     };
     const abovetrace = {
       x: abovepoints,
       y: abovepixelValues,
       type: "lines",
       line: {
-        color: "green"
-      }
+        color: "green",
+      },
     };
     const belowtrace = {
       x: belowpoints,
       y: belowpixelValues,
       type: "lines",
       line: {
-        color: "blue"
-      }
+        color: "blue",
+      },
     };
     // Add the trace to the existing data array
 
@@ -497,20 +437,20 @@ class VetToolThreeLines extends BaseAnnotationTool {
     const data = [...this.plotlydata];
 
     // Adjust the axis range based on all data
-    const allXValues = data.flatMap(trace => trace.x);
-    const allYValues = data.flatMap(trace => trace.y);
+    const allXValues = data.flatMap((trace) => trace.x);
+    const allYValues = data.flatMap((trace) => trace.y);
 
     const layout = {
       xaxis: {
         range: [Math.min(...allXValues), Math.max(...allXValues)],
-        title: "position (mm)"
+        title: "position (mm)",
       },
       yaxis: {
         range: [Math.min(...allYValues), Math.max(...allYValues)],
-        title: "GreyScaleValue (HU)"
+        title: "GreyScaleValue (HU)",
       },
       title: "GreyScaleValues vs position",
-      responsive: true
+      responsive: true,
     };
 
     // Display using Plotly
@@ -550,7 +490,7 @@ function clearToolData(element, toolName) {
   const toolData = getToolState(element, toolName);
 
   if (toolData && toolData.data && toolData.data.length > 0) {
-    toolData.data.forEach(data => {
+    toolData.data.forEach((data) => {
       data.visible = false;
     });
   }
