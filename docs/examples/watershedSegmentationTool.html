@@ -7,22 +7,6 @@
       content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
     />
     <style>
-      #loading-bar-container {
-        display: none;
-        position: relative;
-        height: 10px;
-        background-color: #f0f0f0;
-        border-radius: 4px;
-        overflow: hidden;
-      }
-
-      #loading-bar {
-        height: 100%;
-        width: 0;
-        background-color: #3498db;
-        transition: width 0.3s ease-in-out;
-      }
-
       .loading-text {
         position: absolute;
         top: 50%;
@@ -85,7 +69,7 @@
     ></script>
     <div class="row h-100 d-flex align-items-center justify-content-center">
       <div id="buttonBar">
-        <div class="loader" id="loader"></div>
+        <div class="loader" id="loader" style="display: none"></div>
 
         <button id="toggleButton">Current Image</button>
         <input
@@ -124,10 +108,7 @@
 
       <div class="col-4 h-100">
         <pre class="h-100">
-          <div id="loading-bar-container">
-            <div id="loading-bar"></div>
-            <div class="loading-text">Loading...</div>
-          </div>
+       
         <code class="typescript" style="background-color: #000000">
           <p style="font-size:0.7vw;">
             let demoFiles = [];
@@ -320,7 +301,7 @@ for hepatic tumor segmentation (and volumetry).*/
         larvitar.resetLarvitarManager();
         larvitar
           .readFiles(demoFiles)
-          .then((seriesStack) => {
+          .then(seriesStack => {
             console.log(seriesStack);
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
@@ -350,7 +331,7 @@ for hepatic tumor segmentation (and volumetry).*/
                 }, 3000);
               });
           })
-          .catch((err) => console.error(err));
+          .catch(err => console.error(err));
       }
 
       async function loadMasks() {
@@ -359,7 +340,7 @@ for hepatic tumor segmentation (and volumetry).*/
         let properties = {
           // color: "#00ff00",
           opacity: 0.2,
-          labelId: 0,
+          labelId: 0
         };
         // add to viewport
         await larvitar

@@ -2,51 +2,33 @@
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
-      crossorigin="anonymous"
-    />
+
     <link
       rel="stylesheet"
       href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
     />
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+
+    <!-- Bootstrap JS and Popper.js (required for some Bootstrap components) -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <style>
-      #loading-bar-container {
-        display: none;
-        position: relative;
-        height: 20px;
-        background-color: #f0f0f0;
-        border-radius: 4px;
-        overflow: hidden;
-      }
-
-      #loading-bar {
-        height: 100%;
-        width: 0;
-        background-color: #3498db;
-        transition: width 0.3s ease-in-out;
-        left: 200px;
-      }
-
-      .loading-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: #333;
-        font-weight: bold;
-      }
-      #buttonBar {
+      .buttonbar {
+        background-color: #f4f4f4;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         display: flex;
-        align-items: center; /* Center items vertically */
-        gap: 10px;
-        margin-bottom: 20px;
-        justify-content: center; /* Center the items horizontally */
+        align-items: center;
       }
-
+      .buttonbar > * {
+        margin-right: 5px;
+      }
       .loader {
         border: 8px solid #f3f3f3;
         border-top: 8px solid #3498db;
@@ -68,6 +50,9 @@
         padding: 8px;
         font-size: 14px;
       }
+      .custom-width {
+        width: calc(1% - 1px); /* Adjust the width as needed */
+      }
     </style>
     <script>
       hljs.highlightAll();
@@ -76,6 +61,53 @@
   </head>
 
   <body class="h-100" style="background-color: #000000">
+    <div class="container">
+      <div
+        id="buttonBar"
+        class="row justify-content-md-center"
+        style="display: none"
+      >
+        <div class="col-md-auto">
+          <div class="loader" id="loader"></div>
+        </div>
+
+        <!-- Bootstrap grid system for alignment -->
+        <div class="col-md-auto">
+          <button id="toggleButton" class="btn btn-primary">
+            Current Image
+          </button>
+        </div>
+
+        <div class="col-md-auto">
+          <input
+            type="number"
+            class="form-control manualInput"
+            id="masksNumber"
+            placeholder="N° Masks"
+          />
+        </div>
+
+        <div class="col-md-auto">
+          <input
+            type="number"
+            class="form-control manualInput"
+            id="startImage"
+            placeholder="startImage"
+            style="display: none"
+          />
+        </div>
+
+        <div class="col-md-auto">
+          <input
+            type="number"
+            class="form-control manualInput"
+            id="endImage"
+            placeholder="endImage"
+            style="display: none"
+          />
+        </div>
+      </div>
+    </div>
     <div class="row h-100">
       <div id="viewer" class="col-8 h-100" style="background-color: black">
         <p style="position: absolute; color: white; top: 0">
@@ -85,30 +117,6 @@
           Active Tool: Brush<br />
         </p>
         <p id="info" style="position: absolute; top: 40px; color: white"></p>
-        <div id="buttonBar" class="col-3 offset-4" style="display: none">
-          <div class="loader" id="loader"></div>
-          <button id="toggleButton">Current Image</button>
-          <input
-            type="number"
-            class="manualInput"
-            id="masksNumber"
-            placeholder="N° Masks"
-          />
-          <input
-            type="number"
-            class="manualInput"
-            id="startImage"
-            placeholder="startImage"
-            style="display: none"
-          />
-          <input
-            type="number"
-            class="manualInput"
-            id="endImage"
-            placeholder="endImage"
-            style="display: none"
-          />
-        </div>
       </div>
 
       <div class="col-4 h-100">
@@ -504,7 +512,6 @@
           }
           const selectedNames = [
             "Brush",
-            "ThresholdsBrush", //TODO ADD UI FOR SELECTING THRESHOLDS
             "RectangleScissors",
             "FreehandScissors",
             "CircleScissors",
