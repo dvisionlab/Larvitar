@@ -8,7 +8,7 @@
 import cornerstoneTools from "cornerstone-tools";
 import cornerstone, { Image } from "cornerstone-core";
 import { each, extend } from "lodash";
-import * as cv from "../../../node_modules/@techstark/opencv-js";
+import cv, { bool } from "@techstark/opencv-js";
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(
@@ -24,7 +24,7 @@ const setSegmentationConfig = function (config: Object) {
   let { configuration } = cornerstoneTools.getModule("segmentation");
   extend(configuration, config);
   let enabledElements = cornerstone.getEnabledElements();
-  each(enabledElements, el => {
+  each(enabledElements, (el) => {
     cornerstone.updateImage(el.element);
   });
 };
@@ -32,7 +32,7 @@ import {
   mapToRange,
   getMax,
   calculateThresholds,
-  shiftAndZeroOut
+  shiftAndZeroOut,
 } from "./WSUtils";
 import { ToolOptions } from "../types";
 import { Series } from "../../types";
@@ -41,6 +41,7 @@ interface WSConfig {
   startIndex?: number;
   endIndex?: number;
   masksNumber?: number;
+  onload?: boolean;
 }
 interface WSToolConfig {
   name: string;
@@ -105,9 +106,9 @@ export default class WSToggleTool extends BaseBrushTool {
         multiImage: false,
         startIndex: null,
         endIndex: null,
-        masksNumber: 10
+        masksNumber: 10,
       },
-      mixins: ["renderBrushMixin"]
+      mixins: ["renderBrushMixin"],
     };
 
     super(props, defaultProps);
@@ -132,7 +133,7 @@ export default class WSToggleTool extends BaseBrushTool {
     this._handleMouseMove = this._handleMouseMove.bind(this);
     document.addEventListener("mousemove", this._handleMouseMove);
     setSegmentationConfig({
-      segmentsPerLabelmap: this.configuration.masksNumber
+      segmentsPerLabelmap: this.configuration.masksNumber,
     });
   }
 
@@ -252,6 +253,7 @@ export default class WSToggleTool extends BaseBrushTool {
    * @returns {void}
    */
   async _paint(evt: WSMouseEvent) {
+    (DEFAULT_TOOLS["WSToggle"] as WSToolConfig).configuration.onload = true;
     const { configuration } = segmentationModule;
     const eventData = evt.detail;
     let {
@@ -259,7 +261,7 @@ export default class WSToggleTool extends BaseBrushTool {
       shouldEraseManually,
       shouldActivateLabelPicker,
       shouldApplyWatershed,
-      shouldErase
+      shouldErase,
     } = this._paintInit(evt, eventData);
 
     const { rows, columns } = image;
@@ -328,6 +330,8 @@ export default class WSToggleTool extends BaseBrushTool {
     console.log(processType);
     switch (processType) {
       case "WS":
+        //cv.onRuntimeInitialized = () => {
+        console.log("opencv loaded");
         this.labelToErase = null;
         // threshold should be applied only if painting, not erasing
         if (this.dicomPixelData === null) {
@@ -344,6 +348,7 @@ export default class WSToggleTool extends BaseBrushTool {
           );
 
         this.maskArrayCurrentImage = new Array(this.width * this.height);
+
         this._applyWatershedSegmentation(
           this.width,
           this.height,
@@ -352,11 +357,15 @@ export default class WSToggleTool extends BaseBrushTool {
           maxThreshold,
           lowerThreshold,
           upperThreshold
-        ).then(result => {
+        ).then((result) => {
           this.maskArrayCurrentImage = result;
           labelmap2D.pixelData = this.maskArrayCurrentImage;
           external.cornerstone.updateImage(evt.detail.element);
+          (DEFAULT_TOOLS["WSToggle"] as WSToolConfig).configuration.onload =
+            false;
         });
+        //};
+
         break;
 
       case "LabelEraser":
@@ -370,6 +379,8 @@ export default class WSToggleTool extends BaseBrushTool {
           );
           labelmap2D.pixelData = this.maskArrayCurrentImage;
           external.cornerstone.updateImage(evt.detail.element);
+          (DEFAULT_TOOLS["WSToggle"] as WSToolConfig).configuration.onload =
+            false;
         }
         break;
 
@@ -379,6 +390,8 @@ export default class WSToggleTool extends BaseBrushTool {
         this._manualEraser(circleArray, image, inputEraserArray);
         labelmap2D.pixelData = inputEraserArray;
         external.cornerstone.updateImage(evt.detail.element);
+        (DEFAULT_TOOLS["WSToggle"] as WSToolConfig).configuration.onload =
+          false;
         break;
 
       case "LabelPicker":
@@ -394,6 +407,8 @@ export default class WSToggleTool extends BaseBrushTool {
         }
         labelmap2D.pixelData = currentArray;
         external.cornerstone.updateImage(evt.detail.element);
+        (DEFAULT_TOOLS["WSToggle"] as WSToolConfig).configuration.onload =
+          false;
         break;
     }
   }
@@ -419,6 +434,8 @@ export default class WSToggleTool extends BaseBrushTool {
   ) {
     switch (processType) {
       case "WS":
+        //cv.onRuntimeInitialized = () => {
+        console.log("opencv loaded");
         this.labelToErase = null;
         // threshold should be applied only if painting, not erasing
         if (this.dicomPixelData === null) {
@@ -451,7 +468,10 @@ export default class WSToggleTool extends BaseBrushTool {
           let pixelMask3D = this._drawBrushPixels(this.maskArray);
           labelmap3D.labelmaps2D = pixelMask3D;
           external.cornerstone.updateImage(evt.detail.element);
+          (DEFAULT_TOOLS["WSToggle"] as WSToolConfig).configuration.onload =
+            false;
         });
+        //};
         break;
       //toggleUIVisibility(true, false,this.configuration.drawHandlesOnHover)
 
@@ -466,6 +486,8 @@ export default class WSToggleTool extends BaseBrushTool {
           );
           labelmap2D.pixelData = this.maskArrayCurrentImage;
           external.cornerstone.updateImage(evt.detail.element);
+          (DEFAULT_TOOLS["WSToggle"] as WSToolConfig).configuration.onload =
+            false;
         } else if (this.maskArray != null) {
           for (let i = 0; i < this.slicesNumber; i++) {
             this._labelToErase(
@@ -478,6 +500,8 @@ export default class WSToggleTool extends BaseBrushTool {
           let pixelMask3D = this._drawBrushPixels(this.maskArray);
           labelmap3D.labelmaps2D = pixelMask3D;
           external.cornerstone.updateImage(evt.detail.element);
+          (DEFAULT_TOOLS["WSToggle"] as WSToolConfig).configuration.onload =
+            false;
         }
         break;
 
@@ -494,6 +518,8 @@ export default class WSToggleTool extends BaseBrushTool {
           labelmap3D.labelmaps2D = pixelMask3D;
         }
         external.cornerstone.updateImage(evt.detail.element);
+        (DEFAULT_TOOLS["WSToggle"] as WSToolConfig).configuration.onload =
+          false;
         break;
 
       case "LabelPicker":
@@ -517,6 +543,8 @@ export default class WSToggleTool extends BaseBrushTool {
           labelmap3D.labelmaps2D = pixelMask3D;
         }
         external.cornerstone.updateImage(evt.detail.element);
+        (DEFAULT_TOOLS["WSToggle"] as WSToolConfig).configuration.onload =
+          false;
         break;
     }
   }
@@ -822,9 +850,9 @@ export default class WSToggleTool extends BaseBrushTool {
    * @returns {void}
    */
   _drawBrushPixels(masks: number[][]) {
-    let pixelData3D = masks.map(pixelData => {
+    let pixelData3D = masks.map((pixelData) => {
       const segmentsOnLabelmap = [
-        ...new Set(pixelData.filter(Number.isInteger))
+        ...new Set(pixelData.filter(Number.isInteger)),
       ].sort((a, b) => a - b);
       return { pixelData, segmentsOnLabelmap };
     });
@@ -856,7 +884,7 @@ export default class WSToggleTool extends BaseBrushTool {
       });
 
       let max = getMax(counts);
-      this.labelToErase = counts.findIndex(count => count === max);
+      this.labelToErase = counts.findIndex((count) => count === max);
     }
 
     for (let i = 0; i < slicei.length; i++) {
@@ -896,7 +924,7 @@ export default class WSToggleTool extends BaseBrushTool {
     });
 
     let max = getMax(counts);
-    this.pickedLabel = counts.findIndex(count => count === max);
+    this.pickedLabel = counts.findIndex((count) => count === max);
   }
   /**
    * Allows to associate the previously picked label on the selected label area when using alt+click for the second time
@@ -915,7 +943,7 @@ export default class WSToggleTool extends BaseBrushTool {
     });
 
     let max = getMax(counts);
-    this.labelToChange = counts.findIndex(count => count === max);
+    this.labelToChange = counts.findIndex((count) => count === max);
 
     for (let i = 0; i < array.length; i++) {
       if (array[i] === this.labelToChange) {
@@ -975,7 +1003,7 @@ export default class WSToggleTool extends BaseBrushTool {
       shouldEraseManually,
       shouldActivateLabelPicker,
       shouldApplyWatershed,
-      shouldErase
+      shouldErase,
     };
   }
 

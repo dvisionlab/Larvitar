@@ -50,4 +50,4 @@ declare const setDefaultToolsProps: (newProps: Partial<ToolConfig>[]) => void;
  * NOTE: toolClass must be a valid cornerstone tool
  */
 declare const registerExternalTool: (toolName: string, toolClass: any) => void;
-export { DEFAULT_TOOLS, DEFAULT_STYLE, DEFAULT_SETTINGS, DEFAULT_MOUSE_KEYS, dvTools, getDefaultToolsByType, setDefaultToolsProps, registerExternalTool };
+export { DEFAULT_TOOLS, DEFAULT_STYLE, DEFAULT_SETTINGS, DEFAULT_MOUSE_KEYS, dvTools, getDefaultToolsByType, setDefaultToolsProps, registerExternalTool, };

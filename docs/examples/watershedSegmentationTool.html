@@ -10,7 +10,7 @@
       #loading-bar-container {
         display: none;
         position: relative;
-        height: 20px;
+        height: 10px;
         background-color: #f0f0f0;
         border-radius: 4px;
         overflow: hidden;
@@ -35,11 +35,15 @@
         display: flex;
         gap: 10px;
         margin-bottom: 20px;
+        right: 1000px;
       }
 
       .button {
-        padding: 10px; /* Adjust the padding to make the buttons bigger */
-        font-size: 16px; /* Adjust the font size for better visibility */
+        padding: 10px;
+        font-size: 16px;
+        background-color: black;
+        color: white;
+        border: none; /* Optionally, remove border for a cleaner look */
       }
 
       .manualInput {
@@ -52,10 +56,10 @@
         border: 8px solid #f3f3f3;
         border-top: 8px solid #3498db;
         border-radius: 50%;
-        width: 50px;
-        height: 50px;
+        width: 30px;
+        height: 30px;
         animation: spin 1s linear infinite;
-        margin: 16px;
+        margin: 3px;
       }
     </style>
     <link
@@ -81,43 +85,46 @@
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
     ></script>
-    <div class="row h-100">
+    <div class="row h-100 d-flex align-items-center justify-content-center">
       <div id="buttonBar">
         <div class="loader" id="loader"></div>
 
-        <button id="toggleButton">Toggle</button>
-        <input
-          type="number"
-          class="manualInput"
-          id="startImage"
-          placeholder="startImage"
-        />
-        <input
-          type="number"
-          class="manualInput"
-          id="endImage"
-          placeholder="endImage"
-        />
+        <button id="toggleButton">Current Image</button>
         <input
           type="number"
           class="manualInput"
           id="masksNumber"
           placeholder="Masks Number"
         />
+        <input
+          type="number"
+          class="manualInput"
+          id="startImage"
+          placeholder="startImage"
+          style="display: none"
+        />
+        <input
+          type="number"
+          class="manualInput"
+          id="endImage"
+          placeholder="endImage"
+          style="display: none"
+        />
+      </div>
+      <div id="viewer" class="col-8 h-100" style="background-color: black">
+        <p id="info " style="position: absolute; color: white">
+          <b>ctrl+mouse wheel to change brush radius</b><br /><b
+            >click to activate watershed segmentation of features with greyscale
+            value of interest</b
+          ><br />
+          <b>ctrl+click for Label Eraser:</b> erases selected label<br />
+          <b>alt+click for LabelPicker: </b>allows to pick label, click again to
+          apply picked label<br />
+          <b>shift+click+drag for Manual Eraser</b>
+        </p>
       </div>
 
-      <div
-        id="viewer"
-        class="col-4 h-100"
-        style="background-color: black"
-      ></div>
-      <div
-        id="canvasOutput"
-        class="col-4 h-100"
-        style="background-color: black"
-      ></div>
-
-      <div class="col-3 h-100">
+      <div class="col-4 h-100">
         <pre class="h-100">
           <div id="loading-bar-container">
             <div id="loading-bar"></div>
@@ -248,7 +255,10 @@ for hepatic tumor segmentation (and volumetry).*/
             : false;
         larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage =
           isMultiImage;
-        console.log(isMultiImage);
+        toggleButton.innerHTML =
+          isMultiImage === true ? "Multi Image" : "Current Image";
+        startInput.style.display = isMultiImage === true ? "block" : "none";
+        endInput.style.display = isMultiImage === true ? "block" : "none";
       }
       const masksNumberInput = document.getElementById("masksNumber");
       // Add an input event listener
@@ -312,7 +322,7 @@ for hepatic tumor segmentation (and volumetry).*/
         larvitar.resetLarvitarManager();
         larvitar
           .readFiles(demoFiles)
-          .then(seriesStack => {
+          .then((seriesStack) => {
             console.log(seriesStack);
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
@@ -342,7 +352,7 @@ for hepatic tumor segmentation (and volumetry).*/
                 }, 3000);
               });
           })
-          .catch(err => console.error(err));
+          .catch((err) => console.error(err));
       }
 
       async function loadMasks() {
@@ -351,7 +361,7 @@ for hepatic tumor segmentation (and volumetry).*/
         let properties = {
           // color: "#00ff00",
           opacity: 0.2,
-          labelId: 0
+          labelId: 0,
         };
         // add to viewport
         await larvitar
