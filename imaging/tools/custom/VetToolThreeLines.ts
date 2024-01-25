@@ -291,11 +291,12 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           data.handles.end,
           lineOptions
         );
-        const defaultOffset = DEFAULT_TOOLS["VetToolThreeLines"].offset;
-        const offset =
-          defaultOffset != 15 && defaultOffset != undefined
-            ? defaultOffset
-            : this.configuration.offset;
+        //const defaultOffset = DEFAULT_TOOLS["VetToolThreeLines"].offset;
+        /*const offset =
+        defaultOffset != 15 && defaultOffset != undefined
+        ? defaultOffset:
+        this.configuration.offset;*/ //offset customisable
+        const offset = this.configuration.offset;
 
         const aboveHandles: Handles = {
           start: { x: start.x, y: start.y - offset },
@@ -397,7 +398,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     const addPixelValues = (xPoints: number[], startIndex: number) => {
       const pixelValuesBatch = cornerstone.getStoredPixels(
         eventData.element,
-        xPoints,
+        xPoints[0],
         yPoint,
         xPoints.length,
         1

@@ -136,7 +136,7 @@
         larvitar.resetLarvitarManager();
         larvitar
           .readFiles(demoFiles)
-          .then((seriesStack) => {
+          .then(seriesStack => {
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
@@ -157,9 +157,9 @@
               }
             });
             larvitar.addDefaultTools();
-            larvitar.setToolActive("LengthPlot");
+            larvitar.setToolActive("Wwwc");
           })
-          .catch((err) => console.error(err));
+          .catch(err => console.error(err));
       }
 
       let demoFileList = getDemoFileNames();
