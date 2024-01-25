@@ -19,6 +19,7 @@ export type ToolConfig = {
   type?: "utils" | "annotation" | "segmentation" | "overlay";
   description?: string;
   currentMode?: string;
+  offset?: number;
 };
 
 export type ToolStyle = {
@@ -60,10 +61,10 @@ export type ToolMouseKeys = {
 };
 
 type HandlePosition = {
-  active: boolean;
+  active?: boolean;
   allowedOutsideImage?: boolean;
   drawnIndependently?: boolean;
-  highlight: boolean;
+  highlight?: boolean;
   index?: number;
   locked?: boolean;
   moving?: boolean;
@@ -228,7 +229,7 @@ export type SegmentationConfig = {
 export const enum MaskVisualizations {
   FILL,
   CONTOUR,
-  HIDDEN
+  HIDDEN,
 }
 
 export type MaskProperties = {
