@@ -1,24 +1,18 @@
+import { bool } from "@techstark/opencv-js";
 import larvitar from "larvitar";
 import Plotly from "plotly.js-dist-min";
 const cornerstoneTools = larvitar.cornerstoneTools;
 const cornerstone = larvitar.cornerstone;
-const external = cornerstoneTools.external;
 // State
 const getToolState = cornerstoneTools.getToolState; //check
-const toolStyle = cornerstoneTools.toolStyle;
 const toolColors = cornerstoneTools.toolColors;
 // Drawing
-const EVENTS = cornerstoneTools.EVENTS;
 const draw = cornerstoneTools.importInternal("drawing/draw");
 const drawLine = cornerstoneTools.importInternal("drawing/drawLine");
 const setShadow = cornerstoneTools.importInternal("drawing/setShadow");
 const getNewContext = cornerstoneTools.importInternal("drawing/getNewContext");
-const drawLinkedTextBox = cornerstoneTools.importInternal(
-  "drawing/drawLinkedTextBox"
-);
 const drawHandles = cornerstoneTools.importInternal("drawing/drawHandles");
 const { lengthCursor } = cornerstoneTools.importInternal("tools/cursors");
-const getLogger = cornerstoneTools.importInternal("util/getLogger");
 const throttle = cornerstoneTools.importInternal("util/throttle");
 const getModule = cornerstoneTools.getModule;
 const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
@@ -26,18 +20,73 @@ const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
 );
+
+interface data {
+  visible: boolean;
+  active: boolean;
+  color: string;
+  invalidated: boolean;
+  handles: Handles;
+  length: number;
+}
+interface Handles {
+  start: {
+    x: number;
+    y: number;
+    highlight?: boolean;
+    active?: boolean;
+  };
+  end: {
+    x: number;
+    y: number;
+    highlight?: boolean;
+    active?: boolean;
+  };
+  textBox?: {
+    active: boolean;
+    hasMoved: boolean;
+    movesIndependently: boolean;
+    drawnIndependently: boolean;
+    allowedOutsideImage: boolean;
+    hasBoundingBox: boolean;
+  };
+}
+interface ToolMouseEvent {
+  detail: EventData;
+  currentTarget: any;
+}
+interface EventData {
+  currentPoints: {
+    image: { x: number; y: number };
+  };
+  element: HTMLElement;
+  buttons: number;
+  shiftKey: boolean;
+  event: {
+    altKey: boolean;
+    shiftKey: boolean;
+  };
+  image: cornerstone.Image;
+  canvasContext: {
+    canvas: any;
+  };
+}
+interface PlotlyData {
+  x: number[];
+  y: number[];
+  type: string;
+  line: {
+    color: string;
+  };
+}
 // import cornerstoneTools from "cornerstone-tools";
 class VetToolThreeLines extends BaseAnnotationTool {
   name: "HorizontalTool";
-  eventData?: any;
-  datahandles?: any;
-  abovehandles?: any;
-  belowhandles?: any;
-  color?: string;
-  measureonload?: any;
-  belowcolor?: any;
-  abovecolor?: any;
-  plotlydata: any[] = [];
+  eventData?: EventData;
+  datahandles?: Handles;
+  abovehandles?: Handles;
+  belowhandles?: Handles;
+  plotlydata: Array<PlotlyData> = [];
   measuring = false;
   throttledUpdateCachedStats: any;
   constructor(props = {}) {
@@ -60,10 +109,6 @@ class VetToolThreeLines extends BaseAnnotationTool {
     this.datahandles;
     this.abovehandles;
     this.belowhandles;
-    this.color;
-    this.measureonload;
-    this.belowcolor;
-    this.abovecolor;
     this.plotlydata = [];
     this.measuring = false;
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -79,7 +124,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
     return color;
   }
 
-  handleMouseUp = (event) => {
+  handleMouseUp = (event: ToolMouseEvent) => {
     console.log("stop");
     this.measuring = false;
     const eventData = this.eventData;
@@ -88,12 +133,12 @@ class VetToolThreeLines extends BaseAnnotationTool {
       const points = this.getPointsAlongLine(
         handles.start,
         handles.end,
-        getPixelSpacing(eventData.image).colPixelSpacing
+        getPixelSpacing(eventData!.image).colPixelSpacing
       );
       const pixelValues = this.getPixelValuesAlongLine(
         handles.start,
         points,
-        getPixelSpacing(eventData.image).colPixelSpacing,
+        getPixelSpacing(eventData!.image).colPixelSpacing,
         eventData
       );
       let color = "red";
@@ -109,7 +154,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
     this.createPlot(...data);
   };
 
-  createNewMeasurement(eventData) {
+  createNewMeasurement(eventData: EventData) {
     this.eventData = eventData;
     clearToolData(eventData.element, this.name);
     console.log("start");
@@ -124,7 +169,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
       return;
     }
     let color = "red";
-    this.color = color;
+
     const { x, y } = eventData.currentPoints.image;
 
     return {
@@ -157,7 +202,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
     };
   }
 
-  pointNearTool(element, data, coords) {
+  pointNearTool(element: HTMLElement, data: data, coords) {
     const hasStartAndEndHandles =
       data && data.handles && data.handles.start && data.handles.end;
     const validParameters = hasStartAndEndHandles;
@@ -179,7 +224,11 @@ class VetToolThreeLines extends BaseAnnotationTool {
     );
   }
 
-  updateCachedStats(image, element, data) {
+  updateCachedStats(
+    image: cornerstone.Image,
+    element: HTMLElement,
+    data: data
+  ) {
     const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
 
     const dx =
@@ -193,10 +242,10 @@ class VetToolThreeLines extends BaseAnnotationTool {
     data.invalidated = false;
   }
 
-  renderToolData(evt) {
+  renderToolData(evt: ToolMouseEvent) {
     const eventData = evt.detail;
     const { element } = eventData;
-    element.addEventListener("mouseup", this.handleMouseUp);
+    element.addEventListener("mouseup", this.handleMouseUp.bind(this));
     const {
       handleRadius,
       drawHandlesOnHover,
@@ -245,12 +294,12 @@ class VetToolThreeLines extends BaseAnnotationTool {
 
         const offset = this.configuration.offset;
 
-        const aboveHandles = {
+        const aboveHandles: Handles = {
           start: { x: start.x, y: start.y - offset },
           end: { x: end.x, y: end.y - offset },
         };
 
-        const belowHandles = {
+        const belowHandles: Handles = {
           start: { x: start.x, y: start.y + offset },
           end: { x: end.x, y: end.y + offset },
         };
@@ -362,7 +411,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
       },
     }));
 
-    this.plotlydata = traces;
+    this.plotlydata = traces as PlotlyData[];
 
     const allXValues = dataSets.flatMap((dataSet) => dataSet.points);
     const allYValues = dataSets.flatMap((dataSet) => dataSet.pixelValues);
@@ -391,7 +440,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
   }
 }
 
-function clearToolData(element, toolName) {
+function clearToolData(element: HTMLElement, toolName: string) {
   const toolData = getToolState(element, toolName);
 
   if (toolData && toolData.data && toolData.data.length > 0) {
