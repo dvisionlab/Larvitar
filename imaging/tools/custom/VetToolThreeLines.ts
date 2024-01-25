@@ -1,9 +1,9 @@
 //external imports
 import { HandlePosition } from "../types";
-import larvitar from "larvitar";
 import Plotly from "plotly.js-dist-min";
-const cornerstoneTools = larvitar.cornerstoneTools;
-const cornerstone = larvitar.cornerstone;
+import cornerstone from "cornerstone-core";
+import cornerstoneTools from "cornerstone-tools";
+
 // State
 const getToolState = cornerstoneTools.getToolState; //check
 const toolColors = cornerstoneTools.toolColors;
@@ -74,8 +74,8 @@ interface PlotlyData {
   };
 }
 // import cornerstoneTools from "cornerstone-tools";
-class VetToolThreeLines extends BaseAnnotationTool {
-  name: string = "VetToolThreeLines";
+export default class LengthPlotTool extends BaseAnnotationTool {
+  name: string = "LengthPlot";
   eventData?: EventData;
   datahandles?: Handles;
   abovehandles?: Handles;
@@ -85,7 +85,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
   throttledUpdateCachedStats: any;
   constructor(props = {}) {
     const defaultProps = {
-      name: "VetToolThreeLines",
+      name: "LengthPlot",
       supportedInteractionTypes: ["Mouse"],
       svgCursor: lengthCursor,
       configuration: {
@@ -94,8 +94,8 @@ class VetToolThreeLines extends BaseAnnotationTool {
         hideHandlesIfMoving: false,
         renderDashed: false,
         digits: 2,
-        offset: 15,
-      },
+        offset: 15
+      }
     };
 
     super(props, defaultProps);
@@ -176,13 +176,13 @@ class VetToolThreeLines extends BaseAnnotationTool {
           x,
           y,
           highlight: true,
-          active: false,
+          active: false
         },
         end: {
           x,
           y,
           highlight: true,
-          active: true,
+          active: true
         },
         textBox: {
           active: false,
@@ -190,9 +190,9 @@ class VetToolThreeLines extends BaseAnnotationTool {
           movesIndependently: false,
           drawnIndependently: true,
           allowedOutsideImage: true,
-          hasBoundingBox: true,
-        },
-      },
+          hasBoundingBox: true
+        }
+      }
     };
   }
 
@@ -250,7 +250,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
       handleRadius,
       drawHandlesOnHover,
       hideHandlesIfMoving,
-      renderDashed,
+      renderDashed
     } = this.configuration;
     const toolData = getToolState(evt.currentTarget, this.name);
 
@@ -299,12 +299,12 @@ class VetToolThreeLines extends BaseAnnotationTool {
 
         const aboveHandles: Handles = {
           start: { x: start.x, y: start.y - offset },
-          end: { x: end.x, y: end.y - offset },
+          end: { x: end.x, y: end.y - offset }
         };
 
         const belowHandles: Handles = {
           start: { x: start.x, y: start.y + offset },
-          end: { x: end.x, y: end.y + offset },
+          end: { x: end.x, y: end.y + offset }
         };
 
         const abovelineOptions = { color: "green" };
@@ -328,19 +328,19 @@ class VetToolThreeLines extends BaseAnnotationTool {
           color,
           handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving,
+          hideHandlesIfMoving
         };
         const abovehandleOptions = {
           color: abovelineOptions.color,
           handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving,
+          hideHandlesIfMoving
         };
         const belowhandleOptions = {
           color: belowlineOptions.color,
           handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving,
+          hideHandlesIfMoving
         };
 
         if (this.configuration.drawHandles) {
@@ -425,26 +425,26 @@ class VetToolThreeLines extends BaseAnnotationTool {
       y: pixelValues,
       type: "lines",
       line: {
-        color,
-      },
+        color
+      }
     }));
 
     this.plotlydata = traces as PlotlyData[];
 
-    const allXValues = dataSets.flatMap((dataSet) => dataSet.points);
-    const allYValues = dataSets.flatMap((dataSet) => dataSet.pixelValues);
+    const allXValues = dataSets.flatMap(dataSet => dataSet.points);
+    const allYValues = dataSets.flatMap(dataSet => dataSet.pixelValues);
 
     const layout = {
       xaxis: {
         range: [Math.min(...allXValues), Math.max(...allXValues)],
-        title: "position (mm)",
+        title: "position (mm)"
       },
       yaxis: {
         range: [Math.min(...allYValues), Math.max(...allYValues)],
-        title: "GreyScaleValue (HU)",
+        title: "GreyScaleValue (HU)"
       },
       title: "GreyScaleValues vs position",
-      responsive: true,
+      responsive: true
     };
 
     const myPlotDiv = document.getElementById("myPlot");

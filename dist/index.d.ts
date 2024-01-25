@@ -1,4 +1,5 @@
 /// <reference path="../decs.d.ts" />
+/// <reference types="larvitar/decs" />
 declare const VERSION: string;
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
