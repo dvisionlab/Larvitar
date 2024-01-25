@@ -5,13 +5,13 @@
 // external libraries
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { each, range } from "lodash";
-
+import { applyDSA } from "./applyDSA";
 // internal libraries
 import {
   getImageFrame,
   getLarvitarImageTracker,
   getLarvitarManager,
-  getSeriesDataFromLarvitarManager
+  getSeriesDataFromLarvitarManager,
 } from "./commonLoader";
 import { parseDataSet } from "../imageParsing";
 import type {
@@ -21,7 +21,7 @@ import type {
   LarvitarManager,
   MetaData,
   NrrdSeries,
-  Series
+  Series,
 } from "../types";
 
 // global module variables
@@ -47,28 +47,32 @@ let multiframeDatasetCache: { [key: string]: Series | null } | null = null;
  */
 export const loadDsaImage = function (imageId: string) {
   let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
-
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
   let imageTracker = getLarvitarImageTracker();
   let seriesId = imageTracker[rootImageId];
   let manager = getLarvitarManager() as LarvitarManager;
-  if (multiframeDatasetCache === null) {
-    multiframeDatasetCache = {};
+  if (manager) {
+    let multiFrameSerie = manager[seriesId];
+    const imageIds = multiFrameSerie.imageIds;
+    const index = imageIds.indexOf(imageId);
+    if (multiFrameSerie.dsa) {
+      const DSAFrameId = multiFrameSerie.dsa.imageIds[index];
+      const metadataDSA = multiFrameSerie.dsa;
+      const maskType = metadataDSA.x00286101 ? metadataDSA.x00286101 : "NONE"; // Mask Operation Attribute
+      if (maskType === "NONE") {
+        console.warn("no DSA can be applied on this dataset");
+        return;
+      } else {
+        const DSAPixelData = applyDSA(metadataDSA, imageId, maskType);
+
+        return createCustomDSAImage(
+          DSAFrameId,
+          DSAPixelData!,
+          metadata
+        );
+      }
+    }
   }
-
-  if (multiframeDatasetCache[rootImageId]) {
-    multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId];
-  } else if (manager) {
-    multiframeDatasetCache[rootImageId] = manager[seriesId] as Series;
-  } else {
-    throw new Error("No multiframe dataset found for seriesId: " + seriesId);
-  }
-
-  console.log("render using custom loader", imageId);
-
-  let metadata =
-    multiframeDatasetCache[rootImageId]?.instances[imageId].metadata;
-  return createCustomImage(rootImageId, imageId, parsedImageId.frame, metadata);
 };
 
 /**
@@ -104,7 +108,7 @@ export const populateDsaImageIds = function (
       x00286120: serie.metadata!.x00286100![0].x00286120,
       x00286190: serie.metadata!.x00286100![0].x00286190,
       x00289416: serie.metadata!.x00286100![0].x00289416,
-      x00289454: serie.metadata!.x00286100![0].x00289454
+      x00289454: serie.metadata!.x00286100![0].x00289454,
     };
     serie.dsa = dsa;
   } else {
@@ -162,7 +166,21 @@ export const clearMultiFrameCache = function (seriesId: string) {
     multiframeDatasetCache = null;
   }
 };
+/**
+ * Create the custom image object for cornerstone from custom image
+ * @instance
+ * @function createCustomImage
+ * @param {String} DSAFrameId The Id of the new DSA image
+ * @param {Object} metadata the original image metadata object
+ * @param {Object} DSAPixelData: pixel data object
+ * @returns {Object} custom image object
+ */
+let createCustomDSAImage = function (
+  DSAFrameId: string,
+  DSAPixelData: number[]
+  metadata?: MetaData,
 
+) {};
 /**
  * Create the custom image object for cornerstone from custom image
  * @instance
@@ -185,7 +203,7 @@ let createCustomImage = function (
     enabled:
       options.preScale && options.preScale.enabled !== undefined
         ? options.preScale.enabled
-        : false
+        : false,
   };
 
   if (multiframeDatasetCache === null || !multiframeDatasetCache[id]) {
@@ -236,7 +254,7 @@ let createCustomImage = function (
     if (scalingParameters) {
       options.preScale = {
         ...options.preScale,
-        scalingParameters
+        scalingParameters,
       };
     }
   }
@@ -301,7 +319,7 @@ let createCustomImage = function (
         windowCenter: windowCenter as number,
         windowWidth: windowWidth as number,
         decodeTimeInMS: undefined, // TODO
-        loadTimeInMS: undefined // TODO
+        loadTimeInMS: undefined, // TODO
       };
       // add function to return pixel data
       image.getPixelData = function () {
@@ -389,7 +407,7 @@ let createCustomImage = function (
   // Return an object containing the Promise to cornerstone so it can setup callbacks to be
   // invoked asynchronously for the success/resolve and failure/reject scenarios.
   return {
-    promise
+    promise,
   };
 };
 

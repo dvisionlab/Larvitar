@@ -61,7 +61,7 @@ function apply_DSA_Mask(multiFrameSerie, frameId) {
     frameRangeAvg = frameRangeAvg ||
       metadataInfo.x00286102 || [
         0,
-        frameNumber - 1 - contrastFrameAveragingAvg + 1
+        frameNumber - 1 - contrastFrameAveragingAvg + 1,
       ];
 
     let isFrameIncluded;
@@ -81,7 +81,7 @@ function apply_DSA_Mask(multiFrameSerie, frameId) {
       // console.log("t0", t0 - t);
       maskFramesAvg =
         maskFramesAvg ||
-        frame_index_number.map(index =>
+        frame_index_number.map((index) =>
           cachedImages[index].image.getPixelData()
         );
       // const t1 = performance.now();
@@ -135,7 +135,7 @@ function apply_DSA_Mask(multiFrameSerie, frameId) {
         width: image.width,
         color: image.color,
         columnPixelSpacing: image.columnPixelSpacing,
-        rowPixelSpacing: image.rowPixelSpacing
+        rowPixelSpacing: image.rowPixelSpacing,
       };
 
       const element = document.getElementById("imageResult");
@@ -157,7 +157,7 @@ function apply_DSA_Mask(multiFrameSerie, frameId) {
     frameRangeTid = frameRangeTid ||
       metadataInfo.x00286102 || [
         Math.abs(tidOffset) - 1,
-        frameNumber - Math.abs(tidOffset) - 1
+        frameNumber - Math.abs(tidOffset) - 1,
       ];
     // Filter frames within the Applicable Frame Range
     for (let i = 0; i < frameRangeTid.length / 2; i++) {
@@ -196,7 +196,7 @@ function apply_DSA_Mask(multiFrameSerie, frameId) {
         width: image.width,
         color: image.color,
         columnPixelSpacing: image.columnPixelSpacing,
-        rowPixelSpacing: image.rowPixelSpacing
+        rowPixelSpacing: image.rowPixelSpacing,
       };
 
       const element = document.getElementById("viewer");
@@ -210,7 +210,7 @@ function apply_DSA_Mask(multiFrameSerie, frameId) {
     frameRangeRevTid = frameRangeRevTid ||
       metadataInfo.x00286102 || [
         Math.abs(RevTidOffset) - 1,
-        frameNumber - Math.abs(RevTidOffset) - 1
+        frameNumber - Math.abs(RevTidOffset) - 1,
       ];
 
     // Filter frames within the Applicable Frame Range
@@ -258,7 +258,7 @@ function apply_DSA_Mask(multiFrameSerie, frameId) {
         width: image.width,
         color: image.color,
         columnPixelSpacing: image.columnPixelSpacing,
-        rowPixelSpacing: image.rowPixelSpacing
+        rowPixelSpacing: image.rowPixelSpacing,
       };
 
       const element = document.getElementById("viewer");

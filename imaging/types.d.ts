@@ -80,6 +80,7 @@ export type StoreViewport = {
 };
 
 export type MetaData = MetaDataTypes & MetaDataReadable;
+
 export interface Image extends cornerstone.Image {
   render?: Function;
   decodeTimeInMS?: number;
@@ -118,7 +119,7 @@ export type DSA = {
   imageIds: string[];
   x00286101?: string; // DSA MaskOperation
   x00286102?: number; // DSA ApplicableFrameRange
-  x00286110?: number; // DSA MaskFrameNumbers
+  x00286110?: number | number[]; // DSA MaskFrameNumbers
   x00286112?: number; // DSA ContrastFrameAveraging
   x00286114?: number; // DSA MaskSubPixelShift
   x00286120?: number; // DSA TIDOffset
@@ -139,6 +140,7 @@ export type Series = {
   isMultiframe: boolean;
   color?: boolean;
   dataSet: DataSet | null;
+  dsa?: DSA;
   metadata?: MetaData;
   frameDelay?: number;
   frameTime?: number;
@@ -300,6 +302,7 @@ export type NrrdSeries = {
   nrrdHeader: NrrdHeader;
   bytes: number;
   dataSet?: DataSet;
+  dsa?: DSA;
   metadata?: MetaData;
   ecgData?: number[];
   images?: { [key: string]: Image };
