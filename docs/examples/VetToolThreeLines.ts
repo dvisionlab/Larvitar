@@ -1,4 +1,5 @@
 import larvitar from "larvitar";
+import Plotly from "plotly.js-dist-min";
 const cornerstoneTools = larvitar.cornerstoneTools;
 const cornerstone = larvitar.cornerstone;
 const external = cornerstoneTools.external;
