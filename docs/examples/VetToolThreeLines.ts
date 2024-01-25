@@ -1,4 +1,5 @@
-/*const cornerstoneTools = larvitar.cornerstoneTools;
+import larvitar from "larvitar";
+const cornerstoneTools = larvitar.cornerstoneTools;
 const cornerstone = larvitar.cornerstone;
 const external = cornerstoneTools.external;
 // State
@@ -23,10 +24,21 @@ const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
 const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
-);*/
+);
 // import cornerstoneTools from "cornerstone-tools";
-
 class VetToolThreeLines extends BaseAnnotationTool {
+  name: "HorizontalTool";
+  eventData?: any;
+  datahandles?: any;
+  abovehandles?: any;
+  belowhandles?: any;
+  color?: string;
+  measureonload?: any;
+  belowcolor?: any;
+  abovecolor?: any;
+  plotlydata: any[] = [];
+  measuring = false;
+  throttledUpdateCachedStats: any;
   constructor(props = {}) {
     const defaultProps = {
       name: "HorizontalTool",
@@ -105,7 +117,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
     if (!goodEventData) {
-      logger.error(
+      console.error(
         `required eventData not supplied to tool ${this.name}'s createNewMeasurement`
       );
       return;
@@ -150,7 +162,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
     const validParameters = hasStartAndEndHandles;
 
     if (!validParameters) {
-      logger.warn(
+      console.warn(
         `invalid parameters supplied to tool ${this.name}'s pointNearTool`
       );
       return false;
@@ -214,7 +226,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
 
         const color = toolColors.getColorIfActive(data);
 
-        const lineOptions = { color };
+        const lineOptions: { color: string; lineDash?: boolean } = { color };
 
         if (renderDashed) {
           lineOptions.lineDash = lineDash;
@@ -368,12 +380,12 @@ class VetToolThreeLines extends BaseAnnotationTool {
     };
 
     const myPlotDiv = document.getElementById("myPlot");
-    Plotly.newPlot(myPlotDiv, traces, layout);
+    Plotly.newPlot(myPlotDiv as Plotly.Root, traces as Plotly.Data[], layout);
   }
 
   clearPlotlyData() {
     const myPlotDiv = document.getElementById("myPlot");
-    Plotly.purge(myPlotDiv);
+    Plotly.purge(myPlotDiv as Plotly.Root);
     this.plotlydata = [];
   }
 }
