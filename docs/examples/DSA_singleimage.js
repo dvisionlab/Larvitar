@@ -74,6 +74,7 @@ function apply_DSA_Mask(multiFrameSerie, frameId) {
     if (isFrameIncluded) {
       const t = performance.now();
       let image = cachedImages[imageIds.indexOf(frameId)].image;
+      console.log(cachedImages[0]);
       let contrastFrame = image.getPixelData();
       let len_pixeldata = contrastFrame.length;
       // const t0 = performance.now();

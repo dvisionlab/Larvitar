@@ -20,6 +20,14 @@ export declare const cacheImage: (seriesData: Series, imageIndex: number) => Pro
  */
 export declare const cacheImages: (seriesData: Series, callback?: Function) => Promise<void>;
 /**
+ * Load and cache image stack
+ * @instance
+ * @function loadAndCacheImageStack
+ * @param {Object} seriesData The series data
+ * @return {Promise} Promise object represents the loading and caching of the image stack
+ */
+export declare const loadAndCacheImageStack: (seriesData: Series) => Promise<void>;
+/**
  * Get the dicom imageId from dicom loader
  * @instance
  * @function getDicomImageId

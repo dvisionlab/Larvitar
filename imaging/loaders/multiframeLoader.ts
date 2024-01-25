@@ -20,6 +20,8 @@ import type {
   MetaData,
   Series
 } from "../types";
+import { populateDsaImageIds } from "./dsaImageLoader";
+import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -42,7 +44,9 @@ let multiframeDatasetCache: { [key: string]: Series | null } | null = null;
  * @param {String} imageId - ImageId tag
  * @returns {Function} Custom Image Creation Function
  */
-export const loadMultiFrameImage = function (imageId: string) {
+export const loadMultiFrameImage: ImageLoader = function (
+  imageId: string
+): ImageLoadObject {
   let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
 
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
@@ -60,8 +64,6 @@ export const loadMultiFrameImage = function (imageId: string) {
   } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
   }
-
-  console.log("render using custom loader", imageId);
 
   let metadata =
     multiframeDatasetCache[rootImageId]?.instances[imageId].metadata;
@@ -136,6 +138,11 @@ export const buildMultiFrameImage = function (
     managerSeriesId.seriesDescription = serie.metadata!
       .seriesDescription as string;
   });
+
+  // check for DSA
+  if (serie.metadata!["x00282110"] !== undefined) {
+    populateDsaImageIds(larvitarSeriesInstanceUID);
+  }
 
   let t1 = performance.now();
   console.log(`Call to buildMultiFrameImage took ${t1 - t0} milliseconds.`);

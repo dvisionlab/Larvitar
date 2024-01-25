@@ -75,24 +75,14 @@
         larvitar.addDefaultTools();
         larvitar.setToolActive("Wwwc");
 
-        await larvitar.cacheImages(multiFrameSerie);
+        await larvitar.loadAndCacheImageStack(multiFrameSerie);
+        console.log("OK");
+        console.log(larvitar.cornerstone.imageCache);
+        console.log(larvitar.store.get("series"));
+        apply_DSA_Mask(multiFrameSerie, multiFrameSerie.imageIds[0]);
         // capire come mai non è bloccante
-        setTimeout(() => {
-          console.log(larvitar.cornerstone.imageCache);
-          // la si chiama nel build multiframe solo se
-          // abbiamo la chiave x00286100
-          larvitar.populateDsaImageIds(seriesId);
-          console.log(larvitar.getLarvitarManager());
-        }, 500);
-
-        // console.log("Images has been cached");
-        // // apply DSA mask to first frameId
         // setTimeout(() => {
-        //   apply_DSA_Mask(multiFrameSerie, multiFrameSerie.imageIds[frameId]);
-        //   // setInterval(() => {
-        //   //   frameId = frameId + 1;
-        //   //   apply_DSA_Mask(multiFrameSerie, multiFrameSerie.imageIds[frameId]);
-        //   // }, 1000);
+        //   console.log(larvitar.cornerstone.imageCache);
         // }, 500);
       }
 
