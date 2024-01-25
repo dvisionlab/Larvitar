@@ -21,11 +21,8 @@
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
-      <div class="col-5 h-100">
+      <div class="col-10 h-100">
         <div id="viewer" class="h-100"></div>
-      </div>
-      <div class="col-5 h-100">
-        <div id="imageResult" class="h-100"></div>
       </div>
     </div>
 
@@ -43,20 +40,19 @@
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
-      function applyDSA(evt) {
-        let manager = larvitar.getLarvitarManager();
-        let seriesId = _.keys(manager)[0];
-        let multiFrameSerie = manager[seriesId];
-        const imageIds = multiFrameSerie.imageIds;
-        const targetImageId = evt ? evt.detail.image.imageId : imageIds[0];
-        setTimeout(() => {
-          apply_DSA_Mask(multiFrameSerie, targetImageId);
-        }, 500);
-      }
+      // function renderDSA(evt) {
+      //   let manager = larvitar.getLarvitarManager();
+      //   let seriesId = _.keys(manager)[0];
+      //   let multiFrameSerie = manager[seriesId];
+      //   const imageIds = multiFrameSerie.dsa.imageIds;
+      //   console.log(imageIds);
+      //   console.log(evt);
+      //   //const targetImageId = evt ? evt.detail.image.imageId : imageIds[0];
+      // }
 
-      document
-        .getElementById("viewer")
-        .addEventListener("cornerstonetoolsmousewheel", applyDSA);
+      // document
+      //   .getElementById("viewer")
+      //   .addEventListener("cornerstonetoolsmousewheel", renderDSA);
 
       async function renderSerie() {
         const seriesStack = await larvitar.readFiles(demoFiles);
@@ -74,16 +70,36 @@
 
         larvitar.addDefaultTools();
         larvitar.setToolActive("Wwwc");
-
         await larvitar.loadAndCacheImageStack(multiFrameSerie);
-        console.log("OK");
-        console.log(larvitar.cornerstone.imageCache);
-        console.log(larvitar.store.get("series"));
-        apply_DSA_Mask(multiFrameSerie, multiFrameSerie.imageIds[0]);
-        // capire come mai non è bloccante
-        // setTimeout(() => {
-        //   console.log(larvitar.cornerstone.imageCache);
-        // }, 500);
+
+        document.onkeypress = function (e) {
+          e = e || window.event;
+          switch (e.keyCode) {
+            case 49:
+              larvitar.store.setDSAEnabled(["viewer"], false);
+              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+              break;
+            case 50:
+              larvitar.store.setDSAEnabled(["viewer"], true);
+              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+              break;
+            case 51:
+              setInterval(function () {
+                frameId =
+                  frameId == multiFrameSerie.numberOfFrames - 1
+                    ? 0
+                    : frameId + 1;
+                larvitar.updateImage(multiFrameSerie, "viewer", frameId, false);
+              }, multiFrameSerie.frameTime);
+              break;
+          }
+        };
+
+        setTimeout(function () {
+          // TODO FIX WHEEL EVENT
+          // TODO FIX WW/WL ON CANVAS WHEN SWITCHING FROM DSA TO NON DSA
+          larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+        }, 1000);
       }
 
       async function createFile(fileName, cb) {

@@ -29,6 +29,7 @@ type SetPayload =
         | "isPDF"
         | "waveform"
         | "isTimeserie"
+        | "isDSAEnabled"
         | "ready"
       ),
       string,
@@ -123,6 +124,7 @@ const DEFAULT_VIEWPORT: StoreViewport = {
   isColor: false,
   isMultiframe: false,
   isTimeserie: false,
+  isDSAEnabled: false,
   isPDF: false,
   waveform: false,
   viewport: {
@@ -209,6 +211,7 @@ const setValue = (store: Store, data: SetPayload) => {
     case "isPDF":
     case "waveform":
     case "isTimeserie":
+    case "isDSAEnabled":
     case "ready":
       if (!viewport) {
         return;
@@ -423,6 +426,9 @@ export default {
   },
   setTimeId: (elementId: string, timeIndex: number) => {
     set(["timeId", elementId, timeIndex]);
+  },
+  setDSAEnabled: (elementId: string, enabled: boolean) => {
+    set(["isDSAEnabled", elementId, enabled]);
   },
   // get
   get: (props: string | string[]) => {

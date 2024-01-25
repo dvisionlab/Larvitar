@@ -1,7 +1,7 @@
 /** @module loaders/multiframeLoader
  *  @desc This file is a custom DICOM loader for multiframe images
  */
-import type { Image } from "../types";
+import { ImageLoader } from "cornerstone-core";
 /**
  * Custom DSA Image Loader Function
  * @export
@@ -9,9 +9,7 @@ import type { Image } from "../types";
  * @param {String} imageId - ImageId tag
  * @returns {Function} Custom Image Creation Function
  */
-export declare const loadDsaImage: (imageId: string) => {
-    promise: Promise<Image>;
-};
+export declare const loadDsaImage: ImageLoader;
 /**
  * r
  * @export
@@ -20,18 +18,3 @@ export declare const loadDsaImage: (imageId: string) => {
  * @param {Object} serie - parsed serie object
  */
 export declare const populateDsaImageIds: (larvitarSeriesInstanceUID: string) => void;
-/**
- * Get the custom imageId from custom loader
- * @instance
- * @function getDsaImageId
- * @param {String} customLoaderName The custom loader name
- * @return {String} the custom image id
- */
-export declare const getDsaImageId: (customLoaderName: string) => string;
-/**
- * Clear the multiframe cache
- * @instance
- * @function clearMultiFrameCache
- * @param {String} seriesId - SeriesId tag
- */
-export declare const clearMultiFrameCache: (seriesId: string) => void;

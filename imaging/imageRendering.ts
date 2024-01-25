@@ -475,45 +475,13 @@ export const renderImage = function (
 
   const renderPromise = new Promise<true>((resolve, reject) => {
     // load and display one image (imageId)
-    // console.log(data.imageId);
-    // console.log(series.instances[data.imageId!]);
-    /*if (seriesStack.seriesUID.includes("DSA")) {
-      cornerstone.loadImage(data.imageId as string).then(function (image) {
-        if (!element) {
-          console.error("invalid html element: " + elementId);
-          reject("invalid html element: " + elementId);
-          return;
-        }
-        console.log("IMAGE LOADED:", image);
-        console.log(image);
-        console.log(image.getPixelData());
-        cornerstone.displayImage(element, image);
-
-        if (series.layer) {
-          // assign the image to its layer and return its id
-          series.layer.id = cornerstone.addLayer(
-            element,
-            image,
-            series.layer.options
-          );
-        }
-        cornerstone.updateImage(element);*/
-    // });
-    //  } else {
-    // console.log("DATA IMAGEID:", data.imageId);
     cornerstone.loadImage(data.imageId as string).then(function (image) {
       if (!element) {
         console.error("invalid html element: " + elementId);
         reject("invalid html element: " + elementId);
         return;
       }
-      // console.log("IMAGE LOADED:", image);
-      // console.log(image);
-      // console.log(image.getPixelData());
       cornerstone.displayImage(element, image);
-      // console.log("ELEMENT:", element);
-      // console.log("SERIES LAYER :", series.layer);
-
       if (series.layer) {
         // assign the image to its layer and return its id
         series.layer.id = cornerstone.addLayer(
@@ -629,7 +597,12 @@ export const updateImage = async function (
   }
 
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-  const imageId = series.imageIds[imageIndex];
+  const isDSAEnabled = store.get(["viewports", id, "isDSAEnabled"]);
+  const imageId =
+    isDSAEnabled === true
+      ? series.dsa!.imageIds[imageIndex]
+      : series.imageIds[imageIndex];
+
   if (!imageId) {
     setStore(["pendingSliceId", id, imageIndex]);
     throw `Error: wrong image index ${imageIndex}, no imageId available`;

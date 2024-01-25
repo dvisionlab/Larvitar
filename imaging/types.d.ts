@@ -38,6 +38,7 @@ export type StoreViewport = {
   isColor: boolean;
   isMultiframe: boolean;
   isTimeserie: boolean;
+  isDSAEnabled: boolean;
   isPDF: boolean;
   waveform: boolean;
   imageIndex?: number;
@@ -118,7 +119,7 @@ export type StagedProtocol = {
 export type DSA = {
   imageIds: string[];
   x00286101?: string; // DSA MaskOperation
-  x00286102?: number; // DSA ApplicableFrameRange
+  x00286102?: number[]; // DSA ApplicableFrameRange
   x00286110?: number | number[]; // DSA MaskFrameNumbers
   x00286112?: number; // DSA ContrastFrameAveraging
   x00286114?: number; // DSA MaskSubPixelShift
@@ -140,7 +141,6 @@ export type Series = {
   isMultiframe: boolean;
   color?: boolean;
   dataSet: DataSet | null;
-  dsa?: DSA;
   metadata?: MetaData;
   frameDelay?: number;
   frameTime?: number;
@@ -302,7 +302,6 @@ export type NrrdSeries = {
   nrrdHeader: NrrdHeader;
   bytes: number;
   dataSet?: DataSet;
-  dsa?: DSA;
   metadata?: MetaData;
   ecgData?: number[];
   images?: { [key: string]: Image };

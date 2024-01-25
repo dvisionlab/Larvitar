@@ -21,7 +21,7 @@ type Store = {
     [key: string]: any;
 };
 type SetPayload = ["errorLog" | "leftActiveTool" | "rightActiveTool", string] | [
-    ("isColor" | "isMultiframe" | "isPDF" | "waveform" | "isTimeserie" | "ready"),
+    ("isColor" | "isMultiframe" | "isPDF" | "waveform" | "isTimeserie" | "isDSAEnabled" | "ready"),
     string,
     boolean
 ] | [
@@ -56,6 +56,7 @@ declare const _default: {
     setPendingSliceId: (elementId: string, imageIndex: number) => void;
     setMaxSliceId: (elementId: string, imageIndex: number) => void;
     setTimeId: (elementId: string, timeIndex: number) => void;
+    setDSAEnabled: (elementId: string, enabled: boolean) => void;
     get: (props: string | string[]) => any;
     addStoreListener: (listener: (data: Store) => {}) => (data: Store) => {};
     removeStoreListener: () => undefined;
