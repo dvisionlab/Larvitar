@@ -318,7 +318,7 @@ export default class WSToggleTool extends BaseBrushTool {
    * @param  {ClickEvent} evt //click event
    * @param  {Image} image //current image
    * @param  {Number[][]} circleArray //circle array of selected area
-   *  @returns {Promise<Array<number>>}
+   *  @returns {void}
    */
   _processSingleImage(
     processType: string,
@@ -422,7 +422,7 @@ export default class WSToggleTool extends BaseBrushTool {
    * @param  {ClickEvent} evt //click event
    * @param  {Image} image //current image
    * @param  {Number[][]} circleArray //circle array of selected area
-   *  @returns {Promise<Array<number>>}
+   *  @returns {void}
    */
   _processMultiImage(
     processType: string,
@@ -558,7 +558,7 @@ export default class WSToggleTool extends BaseBrushTool {
    * @param  {number}startIndex
    * @param  {number}endIndex
    * @param  {number[]}dicomPixelData //current image
-   *  @returns {Promise<Array<number>>}
+   *  @returns {void}
    *
    */
   async _applyWatershedSegmentationMultiImage(
