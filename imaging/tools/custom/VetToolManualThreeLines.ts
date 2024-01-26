@@ -3,7 +3,7 @@ import { BaseToolStateData, HandlePosition } from "../types";
 import Plotly from "plotly.js-dist-min";
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
-
+import { find } from "lodash";
 // State
 const getToolState = cornerstoneTools.getToolState; //check
 const toolColors = cornerstoneTools.toolColors;
@@ -37,6 +37,7 @@ type data = {
   invalidated: boolean;
   handles: Handles;
   length: number;
+  uuid: string;
 };
 type Handles = {
   start: HandlePosition;
@@ -158,6 +159,9 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
     //TODO Laura check if the uuid (data[i].uuid) is already existent
     //and in that case update its array values and not write another one
     //also doable with handles color
+    find(toolData.data, {
+      uuid: this.currentuuid
+    });
     const points = this.getPointsAlongLine(
       this.datahandles!.start,
       this.datahandles!.end,
@@ -367,6 +371,7 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
           this.datahandles = data.handles;
         }
 
+        this.currentuuid = data.uuid;
         // Update textbox stats
         if (data.invalidated === true) {
           if (data.length) {
