@@ -1,2 +1,12 @@
+/** @module imaging/postProcessing/applyDSA
+ *  @desc This file provides digital subtraction algorithm for XA images
+ */
 import { Series } from "../types";
-export declare function applyDSA(multiframeSerie: Series, index: number): void | number[];
+/**
+ * Apply DSA to a multiframe serie
+ * @function applyDSA
+ * @param {Series} multiframeSerie - multiframe serie to apply DSA
+ * @param {number} index - index of the frame to apply DSA
+ * @returns {number[]} - pixel data of the frame after DSA
+ */
+export declare function applyDSA(multiframeSerie: Series, index: number): number[];

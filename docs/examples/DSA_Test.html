@@ -26,9 +26,8 @@
       </div>
     </div>
 
-    <script src="../../dist/larvitar.js"></script>
+    <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <script src="./DSA_singleimage.js"></script>
     <script>
       let demoFiles = [];
 
@@ -39,20 +38,6 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
-
-      // function renderDSA(evt) {
-      //   let manager = larvitar.getLarvitarManager();
-      //   let seriesId = _.keys(manager)[0];
-      //   let multiFrameSerie = manager[seriesId];
-      //   const imageIds = multiFrameSerie.dsa.imageIds;
-      //   console.log(imageIds);
-      //   console.log(evt);
-      //   //const targetImageId = evt ? evt.detail.image.imageId : imageIds[0];
-      // }
-
-      // document
-      //   .getElementById("viewer")
-      //   .addEventListener("cornerstonetoolsmousewheel", renderDSA);
 
       async function renderSerie() {
         const seriesStack = await larvitar.readFiles(demoFiles);
