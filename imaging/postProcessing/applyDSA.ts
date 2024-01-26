@@ -10,10 +10,10 @@ export function applyDSA(multiframeSerie: Series, index: number) {
   ) {
     case "AVG_SUB":
       return avgSubMask(dsaMetadata, imageIds, index);
-    // case "TID":
-    //   return tidMask(dsaMetadata, index);
-    // case "REV_TID":
-    //   return revTidMask(dsaMetadata, index);
+    case "TID":
+      return tidMask(dsaMetadata, imageIds, index);
+    case "REV_TID":
+      return revTidMask(dsaMetadata, imageIds, index);
   }
 }
 
@@ -99,121 +99,84 @@ function avgSubMask(metadataInfo: DSA, imageIds: string[], index: number) {
   }
 }
 
-// function tidMask(metadataInfo: DSA, index: number) {
-//   // Check if Applicable Frame Range is present
-//   const imageIds = metadataInfo.imageIds;
-//   const frameNumber = imageIds.length;
-//   const cachedImages = cornerstone.imageCache.cachedImages;
-//   contrastFrameAveragingTid =
-//     contrastFrameAveragingTid || metadataInfo.x00286112 || 1;
-//   TidOffset = TidOffset || metadataInfo.x00286120 || 1;
-//   frameRangeTid = frameRangeTid ||
-//     metadataInfo.x00286102 || [
-//       Math.abs(TidOffset) - 1,
-//       frameNumber - Math.abs(TidOffset) - 1
-//     ];
-//   // Filter frames within the Applicable Frame Range
-//   let isFrameIncluded;
-//   for (let i = 0; i < frameRangeTid.length / 2; i++) {
-//     isFrameIncluded =
-//       imageIds.includes(frameId) &&
-//       imageIds.indexOf(frameId) >= frameRangeTid[i] &&
-//       imageIds.indexOf(frameId) <= frameRangeTid[i + 1];
-//   }
-//   if (isFrameIncluded) {
-//     let image = cachedImages[imageIds.indexOf(frameId)].image;
-//     let contrastFrame = image.getPixelData();
-//     let maskimage = cachedImages[imageIds.indexOf(frameId) - TidOffset].image;
-//     let contrastMaskFrame = maskimage.getPixelData();
-//     let len_pixeldata = contrastFrame.length;
-//     // Apply Time Interval Differencing
-//     resultFramesTid = resultFramesTid || new Float32Array(len_pixeldata);
+function tidMask(metadataInfo: DSA, imageIds: string[], index: number) {
+  // Check if Applicable Frame Range is present
 
-//     for (let i = 0; i < len_pixeldata; i++) {
-//       resultFramesTid[i] = contrastFrame[i] - contrastMaskFrame[i];
-//     }
-//     return resultFramesTid;
-//   }
-// }
+  const cachedImages = cornerstone.imageCache.cachedImages;
+  //TID Offset to be subtracted from the respective frame number.
+  const TidOffset: number = metadataInfo.x00286120 || 1;
 
-// function revTidMask(metadataInfo: DSA, index: number) {
-//   const imageIds = metadataInfo.imageIds;
-//   const frameNumber = imageIds.length;
-//   const cachedImages = cornerstone.imageCache.cachedImages;
-//   contrastFrameAveragingRevTid =
-//     contrastFrameAveragingRevTid || metadataInfo.x00286112 || 1;
-//   RevTidOffset = metadataInfo.x00286120 || 1;
-//   frameRangeRevTid = frameRangeRevTid ||
-//     metadataInfo.x00286102 || [
-//       Math.abs(RevTidOffset) - 1,
-//       frameNumber - Math.abs(RevTidOffset) - 1
-//     ];
+  // Applicable Frame Range
+  const frameRangeTid: number[] = metadataInfo.x00286102 || [
+    Math.abs(TidOffset) - 1,
+    imageIds.length - Math.abs(TidOffset) - 1
+  ];
+  // Filter frames within the Applicable Frame Range
+  let isFrameIncluded: boolean = false;
+  for (let i: number = 0; i < frameRangeTid.length; i += 2) {
+    isFrameIncluded =
+      index >= frameRangeTid[i] && index <= frameRangeTid[i + 1];
+  }
 
-//   // Filter frames within the Applicable Frame Range
-//   let isFrameIncluded;
-//   for (let i = 0; i < frameRangeRevTid.length / 2; i++) {
-//     isFrameIncluded =
-//       imageIds.includes(frameId) &&
-//       imageIds.indexOf(frameId) >= frameRangeRevTid[i] &&
-//       imageIds.indexOf(frameId) <= frameRangeRevTid[i + 1];
-//   }
+  // source image where mask will be applied
+  const srcImage: Image = find(cachedImages, {
+    imageId: imageIds[index]
+  }).image;
+  if (isFrameIncluded) {
+    // get pixel data from source image
+    const contrastFrame: number[] = srcImage.getPixelData();
+    let maskImage: Image = find(cachedImages, {
+      imageId: imageIds[index - TidOffset]
+    }).image;
+    let contrastMaskFrame: number[] = maskImage.getPixelData();
+    // Apply Time Interval Differencing
+    const resultFramesTid: number[] = new Array(contrastFrame.length);
 
-//   if (isFrameIncluded) {
-//     let image = cachedImages[imageIds.indexOf(frameId)].image;
-//     let contrastFrame = image.getPixelData();
-//     let maskimage =
-//       cachedImages[
-//         frameRangeRevTid[0] -
-//           RevTidOffset -
-//           imageIds.indexOf(frameId) -
-//           frameRangeRevTid[0]
-//       ].image;
-//     let contrastMaskFrame = maskimage.getPixelData();
-//     let len_pixeldata = contrastFrame.length;
-//     // Apply Time Interval Differencing
-//     resultFramesRevTid = resultFramesRevTid || new Float32Array(len_pixeldata);
+    for (let i = 0; i < contrastFrame.length; i++) {
+      resultFramesTid[i] = contrastFrame[i] - contrastMaskFrame[i];
+    }
+    return resultFramesTid;
+  }
+}
 
-//     for (let i = 0; i < len_pixeldata; i++) {
-//       resultFramesRevTid[i] = contrastFrame[i] - contrastMaskFrame[i];
-//     }
-//   }
-// }
+function revTidMask(metadataInfo: DSA, imageIds: string[], index: number) {
+  const cachedImages = cornerstone.imageCache.cachedImages;
 
-//x00286100:Defines a Sequence that describes mask subtraction operations for a Multi-frame Image.
-//SUBITEMS x00286101:Defined Term identifying the type of mask operation to be performed.
-//& x00286110 Specifies the frame numbers of the pixel data used to generate this mask.
-//Frames in a Multi-frame Image are specified by sequentially increasing number values beginning with 1.
-//Required if Mask Operation x00286101 is AVG_SUB.
+  //TID Offset to be subtracted from the first frame within the Applicable Frame Range,
+  //TID Offset +2 from the second frame within the Applicable Frame Range,
+  // TID Offset (0028,6120)+4 from the third frame and so on.
+  const RevTidOffset: number = metadataInfo.x00286120 || 1;
+  //Applicable Frame Range, shall be present in this case
+  const frameRangeRevTid: number[] = metadataInfo.x00286102 || [
+    Math.abs(RevTidOffset) - 1,
+    imageIds.length - Math.abs(RevTidOffset) - 1
+  ];
 
-/*(Average Subtraction) 
-     The frames specified by the Mask Frame Numbers x00286110 are averaged together, 
-     shifted by the amount specified in the Mask Sub-pixel Shift x00286114, 
-     then subtracted from the contrast frames in the range specified in the Applicable 
-     Frame Range x00286102. 
-     Contrast Frame Averaging x00286112 number of frames starting with the current 
-     frame are averaged together before the subtraction. 
-     If the Applicable Frame Range is not present in this Sequence Item, the Applicable 
-     Frame Range is assumed to end at the last frame number of the image minus Contrast 
-     Frame Averaging x00286112 plus one;
-     */
+  // Filter frames within the Applicable Frame Range
+  let isFrameIncluded: boolean = false;
+  for (let i: number = 0; i < frameRangeRevTid.length; i += 2) {
+    isFrameIncluded =
+      index >= frameRangeRevTid[i] && index <= frameRangeRevTid[i + 1];
+  }
 
-/*(Time Interval Differencing) 
-    The mask for each frame within the Applicable Frame Range (0028,6102)
-    is selected by subtracting TID Offset (0028,6120) from the respective 
-    frame number. 
-    If the Applicable Frame Range is not present in this Sequence Item, 
-    the Applicable Frame Range is assumed to be a range where TID offset subtracted 
-    from any frame number with the range results in a valid frame number within 
-    the Multi-frame image.*/
+  const srcImage: Image = find(cachedImages, {
+    imageId: imageIds[index]
+  }).image;
+  if (isFrameIncluded) {
+    // get pixel data from source image
+    const contrastFrame: number[] = srcImage.getPixelData();
+    let maskimage: Image = find(cachedImages, {
+      imageId:
+        imageIds[
+          frameRangeRevTid[0] - RevTidOffset - index - frameRangeRevTid[0]
+        ]
+    }).image;
+    let contrastMaskFrame: number[] = maskimage.getPixelData();
+    // Apply Time Interval Differencing
+    const resultFramesRevTid: number[] = new Array(contrastFrame.length);
 
-/*(Reversed Time Interval Differencing) 
-    The number of the mask frame for each contrast frame within 
-    the Applicable Frame Range (0028,6102) is calculated by subtracting TID Offset (0028,6120) 
-    from the first frame within the Applicable Frame Range, TID Offset (0028,6120) 
-    +2 from the second frame within the Applicable Frame Range, TID Offset (0028,6120)
-    +4 from the third frame and so on. 
-    The Applicable Frame Range (0028,6102) shall be present.
-    When multiple pairs of frame numbers are specified in the Applicable Frame Range Attribute,
-    the beginning frame numbers (i.e., the first frame number in each pair)
-    shall be in increasing order.
-    Algorithm to calculate the Mask Frame Number: see dicom site*/
+    for (let i = 0; i < contrastFrame.length; i++) {
+      resultFramesRevTid[i] = contrastFrame[i] - contrastMaskFrame[i];
+    }
+  }
+}
