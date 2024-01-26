@@ -47,7 +47,6 @@
         larvitar.populateLarvitarManager(seriesId, serie);
         let manager = larvitar.getLarvitarManager();
         let multiFrameSerie = manager[seriesId];
-        console.log(multiFrameSerie);
 
         let frameId = 0;
         await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
