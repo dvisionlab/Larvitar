@@ -111,6 +111,7 @@
     <script src="./VetTool.js"></script>
     <script src="./VetToolSuperimposed.js"></script>
     <script src="./VetToolThreeLines.js"></script>
+    <script src="./VetToolManualThreeLines.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>
@@ -134,6 +135,7 @@
       larvitar.registerExternalTool("Test1", VetToolClassic);
       larvitar.registerExternalTool("Test2", VetToolSuperimposed);
       larvitar.registerExternalTool("Test3", VetToolThreeLines);
+      larvitar.registerExternalTool("Test4", VetToolManualThreeLines);
       const offset = document.getElementById("offset");
       offset.style.display = "none";
       offset.addEventListener("input", function (event) {
@@ -155,7 +157,7 @@
         larvitar.resetLarvitarManager();
         larvitar
           .readFiles(demoFiles)
-          .then((seriesStack) => {
+          .then(seriesStack => {
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
@@ -177,12 +179,13 @@
             larvitar.addTool("Test1");
             larvitar.addTool("Test2");
             larvitar.addTool("Test3");
+            larvitar.addTool("Test4");
             larvitar.setToolActive("Test1");
           })
-          .catch((err) => console.error(err));
+          .catch(err => console.error(err));
       }
 
-      let tools = ["Test1", "Test2", "Test3"];
+      let tools = ["Test1", "Test2", "Test3", "Test4"];
       let i = 0;
       let element = document.getElementById("viewer");
       document.addEventListener("keydown", function (event) {
@@ -214,10 +217,12 @@
         const toolData = getToolState(element, toolName);
 
         if (toolData && toolData.data && toolData.data.length > 0) {
-          toolData.data.forEach((data) => {
+          toolData.data.forEach(data => {
             data.visible = false;
           });
         }
+        const myPlotDiv = document.getElementById("myPlot");
+        Plotly.purge(myPlotDiv);
       }
     </script>
   </body>

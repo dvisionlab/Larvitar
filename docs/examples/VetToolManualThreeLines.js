@@ -33,7 +33,7 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
  * @classdesc Tool for measuring distances.
  * @extends Tools.Base.BaseAnnotationTool
  */
-class VetToolSuperimposed extends BaseAnnotationTool {
+class VetToolManualThreeLines extends BaseAnnotationTool {
   constructor(props = {}) {
     const defaultProps = {
       name: "HorizontalTool",
@@ -55,15 +55,31 @@ class VetToolSuperimposed extends BaseAnnotationTool {
     this.color;
     this.plotlydata = [];
     this.measures = 0;
+    this.lineNumber = null;
+    this.redlineY;
     this.handleMouseUp = this.handleMouseUp.bind(this);
     // Add event listeners to start and stop measurements
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
-  getColor() {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
+  getColor(y) {
+    let color;
+    console.log(this.lineNumber);
+    if (this.lineNumber === null || this.lineNumber === 3) {
+      color = "red";
+      this.redlineY = y;
+      this.lineNumber = 1;
+    } else if (
+      y > this.redlineY ||
+      (this.lineNumber === 2 && this.color === "green")
+    ) {
+      color = "blue";
+      this.lineNumber = this.lineNumber + 1;
+    } else if (
+      y < this.redlineY ||
+      (this.lineNumber === 2 && this.color === "blue")
+    ) {
+      color = "green";
+      this.lineNumber = this.lineNumber + 1;
     }
     return color;
   }
@@ -89,8 +105,25 @@ class VetToolSuperimposed extends BaseAnnotationTool {
     // Plot the graph using the extracted points and pixel values
     this.createPlot(points, pixelValues);
   };
+  clearCanvasAndPlot() {
+    // Clear the canvas
+    const toolData = getToolState(element, this.name);
 
+    if (toolData && toolData.data && toolData.data.length > 0) {
+      toolData.data.forEach(data => {
+        data.visible = false;
+      });
+    }
+    // Clear the Plotly plot
+    const myPlotDiv = document.getElementById("myPlot");
+    Plotly.purge(myPlotDiv);
+    this.plotlydata = [];
+  }
   createNewMeasurement(eventData) {
+    console.log(this.lineNumber);
+    if (this.lineNumber === 3) {
+      this.clearCanvasAndPlot();
+    }
     this.measures = this.measures + 1;
     this.eventData = eventData;
     console.log("start");
@@ -105,9 +138,9 @@ class VetToolSuperimposed extends BaseAnnotationTool {
 
       return;
     }
-    let color = this.getColor();
-    this.color = color;
     const { x, y } = eventData.currentPoints.image;
+    let color = this.getColor(y);
+    this.color = color;
 
     return {
       visible: true,
@@ -284,17 +317,17 @@ class VetToolSuperimposed extends BaseAnnotationTool {
         //const text = textBoxText(data, rowPixelSpacing, colPixelSpacing);
 
         /*drawLinkedTextBox(
-          context,
-          element,
-          data.handles.textBox,
-          text,
-          data.handles,
-          textBoxAnchorPoints,
-          color,
-          lineWidth,
-          xOffset,
-          true
-        );*/
+            context,
+            element,
+            data.handles.textBox,
+            text,
+            data.handles,
+            textBoxAnchorPoints,
+            color,
+            lineWidth,
+            xOffset,
+            true
+          );*/
       });
     }
 
@@ -401,10 +434,6 @@ class VetToolSuperimposed extends BaseAnnotationTool {
     // Display using Plotly
     const myPlotDiv = document.getElementById("myPlot");
     Plotly.newPlot(myPlotDiv, data, layout);
-
-    console.log("Data:", data);
-    console.log("Layout:", layout);
-    console.log(myPlotDiv);
   }
 }
 
