@@ -25,6 +25,10 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 import { DEFAULT_TOOLS } from "../default";
 
 //interfaces/types
+type PixelSpacing = {
+  rowPixelSpacing: number;
+  colPixelSpacing: number;
+};
 interface data {
   visible: boolean;
   active: boolean;
@@ -83,6 +87,22 @@ export default class LengthPlotTool extends BaseAnnotationTool {
   plotlydata: Array<PlotlyData> = [];
   measuring = false;
   throttledUpdateCachedStats: any;
+  configuration: {
+    drawHandles: boolean;
+    drawHandlesOnHover: boolean;
+    hideHandlesIfMoving: boolean;
+    renderDashed: boolean;
+    digits: number;
+    handleRadius?: number;
+    offset: number;
+  } = {
+    drawHandles: true,
+    drawHandlesOnHover: false,
+    hideHandlesIfMoving: false,
+    renderDashed: false,
+    digits: 2,
+    offset: 15
+  };
   constructor(props = {}) {
     const defaultProps = {
       name: "LengthPlot",
@@ -227,7 +247,8 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     element: HTMLElement,
     data: data
   ) {
-    const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+    const { rowPixelSpacing, colPixelSpacing }: PixelSpacing =
+      getPixelSpacing(image);
 
     const dx =
       (data.handles.end.x - data.handles.start.x) * (colPixelSpacing || 1);
@@ -252,17 +273,23 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       hideHandlesIfMoving,
       renderDashed
     } = this.configuration;
-    const toolData = getToolState(evt.currentTarget, this.name);
+    const toolData: { data: data[] } = getToolState(
+      evt.currentTarget,
+      this.name
+    );
 
     if (!toolData) {
       return;
     }
 
-    const context = getNewContext(eventData.canvasContext.canvas);
+    const context: CanvasRenderingContext2D = getNewContext(
+      eventData.canvasContext.canvas
+    );
 
-    const lineDash = getModule("globalConfiguration").configuration.lineDash;
-    let start;
-    let end;
+    const lineDash: boolean = getModule("globalConfiguration").configuration
+      .lineDash;
+    let start: HandlePosition;
+    let end: HandlePosition;
 
     for (let i = 0; i < toolData.data.length; i++) {
       const data = toolData.data[i];
@@ -271,7 +298,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         continue;
       }
 
-      draw(context, (context: any) => {
+      draw(context, (context: CanvasRenderingContext2D) => {
         setShadow(context, this.configuration);
 
         const color = toolColors.getColorIfActive(data);
@@ -392,7 +419,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     colPixelSpacing: number,
     eventData: EventData
   ) {
-    const pixelValues = new Array(points.length);
+    const pixelValues: number[] = new Array(points.length);
     const yPoint = Math.floor(startHandle.y);
 
     const addPixelValues = (xPoints: number[], startIndex: number) => {
@@ -460,10 +487,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
 }
 
 function clearToolData(element: HTMLElement, toolName: string) {
-  const toolData = getToolState(element, toolName);
+  const toolData: { data: data[] } = getToolState(element, toolName);
 
   if (toolData && toolData.data && toolData.data.length > 0) {
-    toolData.data.forEach((data: any) => {
+    toolData.data.forEach((data: data) => {
       data.visible = false;
     });
   }

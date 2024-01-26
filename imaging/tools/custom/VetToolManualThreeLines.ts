@@ -1,5 +1,5 @@
 //external imports
-import { HandlePosition } from "../types";
+import { BaseToolStateData, HandlePosition } from "../types";
 import Plotly from "plotly.js-dist-min";
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
@@ -23,15 +23,22 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 );
 
 //interfaces/types
-interface data {
+type PixelSpacing = {
+  rowPixelSpacing: number;
+  colPixelSpacing: number;
+};
+type ToolData = {
+  data: data[];
+};
+type data = {
   visible: boolean;
   active: boolean;
   color: string;
   invalidated: boolean;
   handles: Handles;
   length: number;
-}
-interface Handles {
+};
+type Handles = {
   start: HandlePosition;
   end: HandlePosition;
   textBox?: {
@@ -42,12 +49,12 @@ interface Handles {
     allowedOutsideImage: boolean;
     hasBoundingBox: boolean;
   };
-}
-interface ToolMouseEvent {
+};
+type ToolMouseEvent = {
   detail: EventData;
   currentTarget: any;
-}
-interface EventData {
+};
+type EventData = {
   currentPoints: {
     image: { x: number; y: number };
   };
@@ -62,15 +69,15 @@ interface EventData {
   canvasContext: {
     canvas: any;
   };
-}
-interface PlotlyData {
+};
+type PlotlyData = {
   x: number[];
   y: number[];
   type: string;
   line: {
     color: string;
   };
-}
+};
 /**
  * @public
  * @class LengthTool
@@ -87,6 +94,20 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
   throttledUpdateCachedStats: any;
   lineNumber: number | null = null;
   redlineY: number | null = null;
+  configuration: {
+    drawHandles: boolean;
+    drawHandlesOnHover: boolean;
+    hideHandlesIfMoving: boolean;
+    renderDashed: boolean;
+    digits: number;
+    handleRadius?: number;
+  } = {
+    drawHandles: true,
+    drawHandlesOnHover: false,
+    hideHandlesIfMoving: false,
+    renderDashed: false,
+    digits: 2
+  };
   constructor(props = {}) {
     const defaultProps = {
       name: "HorizontalTool",
@@ -152,7 +173,7 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
   clearCanvasAndPlot(eventData: EventData) {
     // Clear the canvas
     const { element } = eventData;
-    const toolData = getToolState(element, this.name);
+    const toolData: ToolData = getToolState(element, this.name);
 
     if (toolData && toolData.data && toolData.data.length > 0) {
       toolData.data.forEach((data: data) => {
@@ -255,7 +276,8 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
     element: HTMLElement,
     data: data
   ) {
-    const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+    const { rowPixelSpacing, colPixelSpacing }: PixelSpacing =
+      getPixelSpacing(image);
 
     // Set rowPixelSpacing and columnPixelSpacing to 1 if they are undefined (or zero)
     const dx =
@@ -279,20 +301,21 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
       handleRadius,
       drawHandlesOnHover,
       hideHandlesIfMoving,
-      renderDashed,
-      digits
+      renderDashed
     } = this.configuration;
-    const toolData = getToolState(evt.currentTarget, this.name);
+    const toolData: ToolData = getToolState(evt.currentTarget, this.name);
 
     if (!toolData) {
       return;
     }
 
     // We have tool data for this element - iterate over each one and draw it
-    const context = getNewContext(eventData.canvasContext.canvas);
+    const context: CanvasRenderingContext2D = getNewContext(
+      eventData.canvasContext.canvas
+    );
 
-    const lineDash = getModule("globalConfiguration").configuration.lineDash;
-    let data = toolData.data;
+    const lineDash: boolean = getModule("globalConfiguration").configuration
+      .lineDash;
     let start;
     let end;
 
@@ -303,7 +326,7 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
         continue;
       }
 
-      draw(context, (context: any) => {
+      draw(context, (context: CanvasRenderingContext2D) => {
         console.log("drawing");
         // Configurable shadow
         setShadow(context, this.configuration);
@@ -340,19 +363,6 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
           this.datahandles = data.handles;
         }
 
-        if (!data.handles.textBox.hasMoved) {
-          const coords = {
-            x: Math.max(data.handles.start.x, data.handles.end.x),
-            y: data.handles.start.y
-          };
-          data.handles.textBox.x = coords.x;
-          data.handles.textBox.y = coords.y;
-        }
-
-        // Move the textbox slightly to the right and upwards
-        // So that it sits beside the length tool handle
-        const xOffset = 10;
-
         // Update textbox stats
         if (data.invalidated === true) {
           if (data.length) {
@@ -361,21 +371,6 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
             this.updateCachedStats(image, element, data);
           }
         }
-
-        //const text = textBoxText(data, rowPixelSpacing, colPixelSpacing);
-
-        /*drawLinkedTextBox(
-            context,
-            element,
-            data.handles.textBox,
-            text,
-            data.handles,
-            textBoxAnchorPoints,
-            color,
-            lineWidth,
-            xOffset,
-            true
-          );*/
       });
     }
   }
@@ -385,7 +380,7 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
     endHandle: HandlePosition,
     colPixelSpacing: number
   ) {
-    const points = [];
+    const points: number[] = [];
     const numPoints = Math.floor(endHandle.x) - Math.floor(startHandle.x);
     let x = Math.floor(startHandle.x) + 1;
     points.push(x * colPixelSpacing);
@@ -402,7 +397,7 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
     colPixelSpacing: number,
     eventData: EventData
   ) {
-    const pixelValues = [];
+    const pixelValues: number[] = [];
     const yPoint = Math.floor(startHandle.y); // Adjust this if needed
     console.log(points);
     for (let i = 0; i < points.length; i++) {
