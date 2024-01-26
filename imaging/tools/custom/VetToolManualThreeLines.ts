@@ -153,7 +153,11 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
   handleMouseUp = (event: MouseEvent) => {
     console.log("stop");
     const eventData = this.eventData;
-
+    const { element } = eventData!;
+    const toolData: ToolData = getToolState(element, this.name);
+    //TODO Laura check if the uuid (data[i].uuid) is already existent
+    //and in that case update its array values and not write another one
+    //also doable with handles color
     const points = this.getPointsAlongLine(
       this.datahandles!.start,
       this.datahandles!.end,
