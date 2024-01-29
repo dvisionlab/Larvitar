@@ -436,7 +436,7 @@
         larvitar.resetLarvitarManager();
         larvitar
           .readFiles(demoFiles)
-          .then((seriesStack) => {
+          .then(seriesStack => {
             console.log(seriesStack);
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
@@ -469,15 +469,15 @@
             let mouseConfig = {
               mouse_button_right: {
                 ctrl: "Pan",
-                default: "Zoom",
+                default: "Zoom"
               },
-              debug: true,
+              debug: true
             };
 
             // NOTE: this also activate the tools marked as default for each mouse button
             larvitar.addMouseKeyHandlers(mouseConfig);
           })
-          .catch((err) => console.error(err));
+          .catch(err => console.error(err));
       }
 
       async function loadMasks() {
@@ -486,7 +486,7 @@
         let properties = {
           // color: "#00ff00",
           opacity: 0.2,
-          labelId: 0,
+          labelId: 0
         };
         // add to viewport
         await larvitar
@@ -517,9 +517,9 @@
             "CircleScissors",
             "CorrectionScissors",
             "PolylineScissors",
-            "WSToggle",
+            "WSToggle"
           ]; // Replace with your selected names
-          const selectedTools = _.filter(larvitar.DEFAULT_TOOLS, (tool) =>
+          const selectedTools = _.filter(larvitar.DEFAULT_TOOLS, tool =>
             _.includes(selectedNames, tool.name)
           );
 
