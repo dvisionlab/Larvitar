@@ -159,9 +159,10 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
     //TODO Laura check if the uuid (data[i].uuid) is already existent
     //and in that case update its array values and not write another one
     //also doable with handles color
-    find(toolData.data, {
+    const datauiuiui = find(toolData.data, {
       uuid: this.currentuuid
     });
+
     const points = this.getPointsAlongLine(
       this.datahandles!.start,
       this.datahandles!.end,
