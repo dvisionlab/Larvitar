@@ -213,14 +213,10 @@ export const updateLoadedStack = function (
     allSeriesStack[id] = series as Series;
   }
 
-  // get instance number from metadata
-  const instanceNumber = seriesData.metadata["x00200013"];
-  const defaultMethod = instanceNumber ? "instanceNumber" : "imagePosition";
   const sortMethods: Array<"imagePosition" | "contentTime" | "instanceNumber"> =
-    is4D ? [defaultMethod, "contentTime"] : [defaultMethod];
+    is4D ? ["imagePosition", "contentTime"] : ["imagePosition"];
 
   // if the parsed file is a new series instance, keep it
-
   if (isMultiframe) {
     allSeriesStack[id].bytes += seriesData.file.size;
     allSeriesStack[id].dataSet = seriesData.dataSet;
