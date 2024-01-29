@@ -7,14 +7,14 @@
 import { Image } from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
-const scrollToIndex = cornerstoneTools.importInternal("util/scrollToIndex");
+//const scrollToIndex = cornerstoneTools.importInternal("util/scrollToIndex");
 const getToolState = cornerstoneTools.getToolState;
 
 // internal libraries
 import store, { set as setStore } from "../../imageStore";
 import { DEFAULT_TOOLS } from "../default";
 import { StoreViewport } from "../../types";
-
+import scrollToIndex from "./customMouseWheelUtils";
 // global variables
 type StackData = {
   currentImageIdIndex: number;
@@ -219,7 +219,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
       ) {
         nextIndex = startFrame;
       }
-
+      console.log(stackData);
       // Scroll to the calculated index
       scrollToIndex(element, nextIndex);
 
