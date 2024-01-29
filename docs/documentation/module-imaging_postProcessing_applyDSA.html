@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>RotateTouchTool - Larvitar</title>
+    <title>imaging/postProcessing/applyDSA - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -44,7 +44,7 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 <div id="main">
     
-    <h1 class="page-title">RotateTouchTool</h1>
+    <h1 class="page-title">imaging/postProcessing/applyDSA</h1>
     
 
     
@@ -56,13 +56,8 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 <header>
     
-        <h2>
         
-            RotateTouchTool
-        
-        </h2>
-        
-            <div class="class-description usertext"><p>Tool for rotating the image using touch.</p></div>
+            
         
     
 </header>
@@ -72,25 +67,25 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
         <div class="container-overview">
         
             
+                <div class="description usertext"><p>This file provides digital subtraction algorithm for XA images</p></div>
+            
 
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="RotateTouchTool"><span class="type-signature"></span>new RotateTouchTool<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
+            
+                
 
 
 
 
 <dl class="details">
     
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>This file provides digital subtraction algorithm for XA images</p></li></ul></dd>
+    
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line33738">line 33738</a>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162735">line 162735</a>
     </li></ul></dd>
     
 
@@ -154,20 +149,10 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 
 
+            
         
         </div>
     
-
-    
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="Tools.Base.html#.BaseTool">Tools.Base.BaseTool</a></li>
-    </ul>
-
 
     
 
@@ -183,6 +168,818 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
     
 
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="~applyDSA"><span class="type-signature type-signature-inner">(inner) </span>applyDSA<span class="signature">(multiframeSerie, index)</span><span class="type-signature"> &rarr; {Array.&lt;number>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Apply DSA to a multiframe serie</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162750">line 162750</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>multiframeSerie</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Series</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>multiframe serie to apply DSA</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>index of the frame to apply DSA</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>pixel data of the frame after DSA</li>
+</ul>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;number></span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~avgSubMask"><span class="type-signature type-signature-inner">(inner) </span>avgSubMask<span class="signature">(metadataInfo, imageIds, index)</span><span class="type-signature"> &rarr; {Array.&lt;number>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Compute the digital subtraction with avgSub mask</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162774">line 162774</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>metadataInfo</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">DSA</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>DSA metadata</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>imageIds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>imageIds of the serie</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>index of the frame to apply DSA</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>pixel data of the frame after DSA</li>
+</ul>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;number></span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~revTidMask"><span class="type-signature type-signature-inner">(inner) </span>revTidMask<span class="signature">(metadataInfo, imageIds, index)</span><span class="type-signature"> &rarr; {Array.&lt;number>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Compute the digital subtraction with revTid mask</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162921">line 162921</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>metadataInfo</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">DSA</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>DSA metadata</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>imageIds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>imageIds of the serie</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>index of the frame to apply DSA</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>pixel data of the frame after DSA</li>
+</ul>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;number></span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~tidMask"><span class="type-signature type-signature-inner">(inner) </span>tidMask<span class="signature">(metadataInfo, imageIds, index)</span><span class="type-signature"> &rarr; {Array.&lt;number>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Compute the digital subtraction with tid mask</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line162860">line 162860</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>metadataInfo</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">DSA</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>DSA metadata</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>imageIds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>imageIds of the serie</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>index of the frame to apply DSA</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>pixel data of the frame after DSA</li>
+</ul>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;number></span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
     
 
     
