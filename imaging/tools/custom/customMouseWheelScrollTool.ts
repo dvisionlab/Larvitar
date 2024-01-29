@@ -14,7 +14,7 @@ const getToolState = cornerstoneTools.getToolState;
 import store, { set as setStore } from "../../imageStore";
 import { DEFAULT_TOOLS } from "../default";
 import { StoreViewport } from "../../types";
-import scrollToIndex from "./customMouseWheelUtils";
+import scrollToIndex from "./utils/customMouseWheelUtils";
 // global variables
 type StackData = {
   currentImageIdIndex: number;
@@ -219,7 +219,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
       ) {
         nextIndex = startFrame;
       }
-      console.log(stackData);
       // Scroll to the calculated index
       scrollToIndex(element, nextIndex);
 
