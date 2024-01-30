@@ -18,11 +18,13 @@ import { getMaxPixelValue, getMinPixelValue } from "../imageUtils";
 import { applyDSA } from "../postProcessing/applyDSA";
 
 // global module variables
-let customImageLoaderCounter = 0;
+let customImageLoaderCounter: number = 0;
+let PIXEL_SHIFT: number[] | undefined = undefined;
 
 /*
  * This module provides the following functions to be exported:
  * loadDsaImage(imageId)
+ * setPixelShift(pixelShift)
  * populateDsaImageIds(seriesId)
  */
 
@@ -44,11 +46,11 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
     let multiFrameSerie = manager[seriesId] as Series;
     const imageIds: string[] = multiFrameSerie.dsa!.imageIds;
     const index: number = imageIds.indexOf(imageId);
-    const inputMaskSubPixelShift = [0, 0];
-    const pixelData = applyDSA(multiFrameSerie, index, inputMaskSubPixelShift);
+    const pixelData = applyDSA(multiFrameSerie, index, PIXEL_SHIFT);
     const srcImage: Image = find(cornerstone.imageCache.cachedImages, {
       imageId: multiFrameSerie.imageIds[index]
     }).image;
+    console.debug(`Load DSA Image with custom loader for imageId: ${imageId}`);
     return createCustomImage(imageId, srcImage, pixelData!);
   } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
@@ -56,7 +58,7 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
 };
 
 /**
- * r
+ * Populate the DSA imageIds for a given seriesId
  * @export
  * @function populateDsaImageIds
  * @param {String} seriesId - SeriesId tag
@@ -101,6 +103,16 @@ export const populateDsaImageIds = function (
 
   let t1 = performance.now();
   console.log(`Call to populateDsaImageIds took ${t1 - t0} milliseconds.`);
+};
+
+/**
+ * Set the pixel shift for DSA
+ * @instance
+ * @function setPixelShift
+ * @param {Array} pixelShift The pixel shift array
+ */
+export const setPixelShift = function (pixelShift: number[] | undefined): void {
+  PIXEL_SHIFT = pixelShift;
 };
 
 /**

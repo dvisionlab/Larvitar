@@ -159,15 +159,12 @@
         cb();
       }
 
-      // FUNZIONE
-      // mettere nello store informazione sullo shift
-      // uncache immagine
-      // richiamare rendering con updateImage
-
-      // FUNZIONE
-      // uncacha tutto e ricalcola DSA
-
       createFile("XA-DSA-Shutter.dcm", renderSerie);
+
+      // how to apply pixelShift
+      // applyDSAShift(elementId, multiFrameSerie, frameId, inputMaskSubPixelShift);
+      // when ok
+      // unloadAndRecacheImageStackDSA(multiFrameSerie)
     </script>
   </body>
 </html>

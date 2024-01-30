@@ -7,11 +7,11 @@
 import { get as _get, cloneDeep as _cloneDeep } from "lodash";
 import type { StoreViewport } from "./types.d";
 
-type StoreSeries = { imageIds: string[]; progress: number };
+type StoreSeries = { imageIds: string[]; progress: number; elementId: string };
 
 type Store = {
   colormapId: string;
-  errorLog: string; // TODO review this, should be an array?
+  errorLog: string;
   leftActiveTool?: string;
   rightActiveTool?: string;
   series: { [seriesUID: string]: StoreSeries };
@@ -59,7 +59,7 @@ type SetPayload =
   | ["timestamp", string, number | undefined]
   | ["seriesUID", string, string | undefined]
   | ["pendingSliceId", string, number | undefined]
-  | ["timestamps" | "timeIds", string, number[]]
+  | ["timestamps" | "timeIds" | "pixelShift", string, number[]]
   | [
       "contrast" | "dimensions" | "spacing" | "translation",
       string,
@@ -242,6 +242,7 @@ const setValue = (store: Store, data: SetPayload) => {
 
     case "timestamps":
     case "timeIds":
+    case "pixelShift":
       if (!viewport) {
         return;
       }
@@ -430,10 +431,13 @@ export default {
   setDSAEnabled: (elementId: string, enabled: boolean) => {
     set(["isDSAEnabled", elementId, enabled]);
   },
+  setDSAPixelShift: (elementId: string, pixelShift: number[]) => {
+    set(["pixelShift", elementId, pixelShift]);
+  },
   // get
-  get: (props: string | string[]) => {
+  get: (props: string | string[] | undefined) => {
     validateStore();
-    return _get(STORE, props);
+    return props ? _get(STORE, props) : STORE;
   },
   // watch store
   addStoreListener: (listener: (data: Store) => {}) =>

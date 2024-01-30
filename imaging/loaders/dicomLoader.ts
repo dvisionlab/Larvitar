@@ -15,6 +15,7 @@ import type { Series, CachingResponse } from "../types";
  * This module provides the following functions to be exported:
  * cacheImage(seriesData, imageIndex)
  * loadAndCacheImageStack(seriesData)
+ * unloadAndRecacheImageStackDSA(seriesData)
  * cacheImages(seriesData, callback)
  * getDicomImageId(dicomLoaderName)
  */
@@ -54,6 +55,55 @@ export const cacheImages = async function (
     if (callback) {
       callback(resp);
     }
+  });
+};
+
+/**
+ * Unload DSA Image Stack and Recache Image Stack for DSA
+ * @instance
+ * @function unloadAndRecacheImageStackDSA
+ * @param {Object} seriesData The series data
+ * @return {Promise} Promise object represents the loading and caching of the image stack
+ */
+export const unloadAndRecacheImageStackDSA = async function (
+  seriesData: Series
+): Promise<void> {
+  return new Promise(async (resolve, reject) => {
+    const t0 = performance.now();
+    // add DSA imageIds to store
+    if (seriesData.dsa === undefined) {
+      console.warn("DSA image stack is not available");
+      reject();
+      return;
+    }
+    let promises: Promise<cornerstone.Image>[] = new Array(
+      seriesData.dsa.imageIds.length
+    );
+
+    async function cacheImageStack(imageIds: string[], index: number) {
+      if (index < imageIds.length) {
+        const imageId = imageIds[index];
+        if (imageId) {
+          await cornerstone.imageCache.removeImageLoadObject(imageId);
+          await cornerstone.loadAndCacheImage(imageId).then(promise => {
+            promises[index] = Promise.resolve(promise);
+          });
+        } else {
+          console.warn(
+            `Stack is not fully loaded, skipping cache for index ${index}`
+          );
+        }
+        await cacheImageStack(imageIds, index + 1);
+      }
+    }
+    await cacheImageStack(seriesData.dsa.imageIds, 0);
+    await Promise.all(promises);
+
+    const t1 = performance.now();
+    console.debug(
+      `Call to unloadAndRecacheImageStackDSA took ${t1 - t0} milliseconds.`
+    );
+    resolve();
   });
 };
 
@@ -98,7 +148,7 @@ export const loadAndCacheImageStack = async function (
     await Promise.all(promises);
 
     const t1 = performance.now();
-    console.log(`Call to cacheImages took ${t1 - t0} milliseconds.`);
+    console.log(`Call to loadAndCacheImageStack took ${t1 - t0} milliseconds.`);
     resolve();
   });
 };

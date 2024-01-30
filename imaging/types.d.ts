@@ -28,6 +28,7 @@ export type StoreViewport = {
   timestamp: number;
   timestamps: number[];
   timeIds: number[];
+  pixelShift?: number[];
   rows: number;
   cols: number;
   spacing_x: number;

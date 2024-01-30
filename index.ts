@@ -207,7 +207,8 @@ import {
   getDicomImageId,
   cacheImage,
   cacheImages,
-  loadAndCacheImageStack
+  loadAndCacheImageStack,
+  unloadAndRecacheImageStackDSA
 } from "./imaging/loaders/dicomLoader";
 
 import { loadReslicedImage } from "./imaging/loaders/resliceLoader";
@@ -371,6 +372,7 @@ export {
   cacheImage,
   cacheImages,
   loadAndCacheImageStack,
+  unloadAndRecacheImageStackDSA,
   // loaders/multiframeLoader
   loadMultiFrameImage,
   buildMultiFrameImage,

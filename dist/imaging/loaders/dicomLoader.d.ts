@@ -20,6 +20,14 @@ export declare const cacheImage: (seriesData: Series, imageIndex: number) => Pro
  */
 export declare const cacheImages: (seriesData: Series, callback?: Function) => Promise<void>;
 /**
+ * Unload DSA Image Stack and Recache Image Stack for DSA
+ * @instance
+ * @function unloadAndRecacheImageStackDSA
+ * @param {Object} seriesData The series data
+ * @return {Promise} Promise object represents the loading and caching of the image stack
+ */
+export declare const unloadAndRecacheImageStackDSA: (seriesData: Series) => Promise<void>;
+/**
  * Load and cache image stack
  * @instance
  * @function loadAndCacheImageStack

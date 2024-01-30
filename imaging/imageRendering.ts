@@ -27,6 +27,7 @@ import {
 import { DEFAULT_TOOLS } from "./tools/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
+import { setPixelShift } from "./loaders/dsaImageLoader";
 
 /*
  * This module provides the following functions to be exported:
@@ -602,6 +603,12 @@ export const updateImage = async function (
     isDSAEnabled === true
       ? series.dsa!.imageIds[imageIndex]
       : series.imageIds[imageIndex];
+
+  if (isDSAEnabled === true) {
+    // get the optional custom pixel shift
+    const pixelShift = store.get(["viewports", id, "pixelShift"]);
+    setPixelShift(pixelShift);
+  }
 
   if (!imageId) {
     setStore(["pendingSliceId", id, imageIndex]);
