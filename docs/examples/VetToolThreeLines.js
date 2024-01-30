@@ -82,11 +82,11 @@ class VetToolThreeLines extends BaseAnnotationTool {
         getPixelSpacing(eventData.image).colPixelSpacing,
         eventData
       );
-      let color = "red";
+      let color = "green";
       return { points, pixelValues, color };
     };
     const aboveResults = handleData(this.abovehandles);
-    aboveResults.color = "green";
+    aboveResults.color = "red";
     const belowResults = handleData(this.belowhandles);
     belowResults.color = "blue";
     const data = [handleData(this.datahandles), aboveResults, belowResults];
@@ -107,7 +107,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
       );
       return;
     }
-    let color = "red";
+    let color = "green";
     this.color = color;
     const { x, y } = eventData.currentPoints.image;
 
@@ -239,7 +239,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
           end: { x: end.x, y: end.y + offset }
         };
 
-        const abovelineOptions = { color: "green" };
+        const abovelineOptions = { color: "red" };
         const belowlineOptions = { color: "blue" };
         drawLine(
           context,

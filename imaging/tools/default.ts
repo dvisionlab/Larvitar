@@ -260,12 +260,32 @@ const DEFAULT_TOOLS: {
       digits: 2,
       offset: 15
     },
+
     options: {
       mouseButtonMask: 1,
       supportedInteractionTypes: ["Mouse"]
     },
     cleanable: true,
     class: "LengthPlotTool"
+  },
+  ManualLengthPlot: {
+    name: "ManualLengthPlot",
+    viewports: "all",
+    configuration: {
+      drawHandles: true,
+      drawHandlesOnHover: false,
+      hideHandlesIfMoving: false,
+      renderDashed: false,
+      digits: 2,
+      offset: 15
+    },
+
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse"]
+    },
+    cleanable: true,
+    class: "ManualLengthPlotTool"
   },
   Angle: {
     name: "Angle",
@@ -500,7 +520,8 @@ const dvTools: {
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
   BorderMagnifyTool: BorderMagnifyTool,
   CustomMouseWheelScrollTool: CustomMouseWheelScrollTool,
-  LengthPlotTool: LengthPlotTool
+  LengthPlotTool: LengthPlotTool,
+  ManualLengthPlotTool: ManualLengthPlotTool
 };
 
 /**

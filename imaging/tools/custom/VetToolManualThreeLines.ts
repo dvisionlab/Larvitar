@@ -86,7 +86,7 @@ type PlotlyData = {
  * @classdesc Tool for measuring distances.
  * @extends Tools.Base.BaseAnnotationTool
  */
-class ManualLengthPlotTool extends BaseAnnotationTool {
+export default class ManualLengthPlotTool extends BaseAnnotationTool {
   name: string = "ManualLengthPlot";
   eventData?: EventData;
   datahandles?: Handles;
@@ -94,7 +94,7 @@ class ManualLengthPlotTool extends BaseAnnotationTool {
   measuring = false;
   throttledUpdateCachedStats: any;
   lineNumber: number | null = null;
-  redlineY: number | null = null;
+  greenlineY: number | null = null;
   newMeasurement: boolean = false;
   configuration: {
     drawHandles: boolean;
@@ -133,14 +133,14 @@ class ManualLengthPlotTool extends BaseAnnotationTool {
     let color: string = "red";
 
     if (this.lineNumber === null || this.lineNumber === 3) {
-      color = "red";
-      this.redlineY = y;
+      color = "green";
+      this.greenlineY = y;
       this.lineNumber = 1;
-    } else if (y < this.redlineY!) {
-      color = this.color === "blue" ? "green" : "blue";
+    } else if (y < this.greenlineY!) {
+      color = this.color === "blue" ? "red" : "blue";
       this.lineNumber = this.lineNumber + 1;
-    } else if (y > this.redlineY!) {
-      color = this.color === "green" ? "blue" : "green";
+    } else if (y > this.greenlineY!) {
+      color = this.color === "red" ? "blue" : "red";
       this.lineNumber = this.lineNumber + 1;
     }
 

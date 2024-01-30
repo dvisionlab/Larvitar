@@ -154,11 +154,11 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         getPixelSpacing(eventData!.image).colPixelSpacing,
         eventData!
       );
-      let color = "red";
+      let color = "green";
       return { points, pixelValues, color };
     };
     const aboveResults = handleData(this.abovehandles!);
-    aboveResults.color = "green";
+    aboveResults.color = "red";
     const belowResults = handleData(this.belowhandles!);
     belowResults.color = "blue";
     const data = [handleData(this.datahandles!), aboveResults, belowResults];
@@ -179,7 +179,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       );
       return;
     }
-    let color = "red";
+    let color = "green";
 
     const { x, y } = eventData.currentPoints.image;
 
@@ -316,11 +316,12 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           lineOptions
         );
         //const defaultOffset = DEFAULT_TOOLS["VetToolThreeLines"].offset;
-        /*const offset =
-        defaultOffset != 15 && defaultOffset != undefined
-        ? defaultOffset:
-        this.configuration.offset;*/ //offset customisable
-        const offset = this.configuration.offset;
+        const offset =
+          DEFAULT_TOOLS["LengthPlot"].offset === this.configuration.offset ||
+          DEFAULT_TOOLS["LengthPlot"].offset === undefined
+            ? this.configuration.offset
+            : DEFAULT_TOOLS["LengthPlot"].offset; //offset customisable
+        //const offset = this.configuration.offset;
 
         const aboveHandles: Handles = {
           start: { x: start.x, y: start.y - offset },
@@ -332,7 +333,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           end: { x: end.x, y: end.y + offset }
         };
 
-        const abovelineOptions = { color: "green" };
+        const abovelineOptions = { color: "red" };
         const belowlineOptions = { color: "blue" };
         drawLine(
           context,

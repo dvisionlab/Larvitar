@@ -55,7 +55,7 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
     this.plotlydata = [];
     this.measures = 0;
     this.lineNumber = null;
-    this.redlineY;
+    this.greenlineY;
     this.newMeasurement = false;
     this.handleMouseUp = this.handleMouseUp.bind(this);
     // Add event listeners to start and stop measurements
@@ -65,14 +65,14 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
     let color;
 
     if (this.lineNumber === null || this.lineNumber === 3) {
-      color = "red";
-      this.redlineY = y;
+      color = "green";
+      this.greenlineY = y;
       this.lineNumber = 1;
-    } else if (y < this.redlineY) {
-      color = this.color === "blue" ? "green" : "blue";
+    } else if (y < this.greenlineY) {
+      color = this.color === "blue" ? "red" : "blue";
       this.lineNumber = this.lineNumber + 1;
-    } else if (y > this.redlineY) {
-      color = this.color === "green" ? "blue" : "green";
+    } else if (y > this.greenlineY) {
+      color = this.color === "red" ? "blue" : "red";
       this.lineNumber = this.lineNumber + 1;
     }
 
