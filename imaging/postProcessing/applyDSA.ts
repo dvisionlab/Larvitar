@@ -119,20 +119,63 @@ function avgSubMask(
       Array.isArray(maskFramesAvg) && maskFramesAvg.length > 1 ? true : false;
 
     if (applyAverage) {
+      const valueAveraged: number[] = new Array(contrastFrame.length);
       for (let j: number = 0; j < contrastFrame.length; j++) {
         let valueAverage: number = 0;
         for (let i: number = 0; i < maskFramesAvg.length; i++) {
           valueAverage = valueAverage + maskFramesAvg[i][j];
         }
-        resultFramesAvg[j] =
-          contrastFrame[j] -
-          valueAverage / maskFramesAvg.length +
-          maskSubPixelShift;
+        valueAveraged[j] = valueAverage / maskFramesAvg.length;
+      }
+      // Extract fractional vertical and horizontal pixel shifts from maskSubPixelShift
+      const rowOffset = maskSubPixelShift[0];
+      const colOffset = maskSubPixelShift[1];
+      for (let j = 0; j < contrastFrame.length; j++) {
+        // Apply sub-pixel shift to the averaged frame
+        if (colOffset !== 0 || rowOffset !== 0) {
+          let rowNumber = Math.floor(j / srcImage.columns);
+          if (
+            colOffset + j >= rowNumber * srcImage.columns ||
+            colOffset + j < 0 ||
+            rowOffset * srcImage.columns + j >= contrastFrame.length ||
+            rowOffset * srcImage.columns + j < 0 ||
+            rowOffset * srcImage.columns + colOffset + j >=
+              contrastFrame.length ||
+            rowOffset * srcImage.columns + colOffset + j < 0
+          ) {
+            resultFramesAvg[j] = contrastFrame[j];
+          } else {
+            const shiftedj = j + colOffset + rowOffset * srcImage.columns;
+            resultFramesAvg[j] = contrastFrame[j] - valueAveraged[shiftedj];
+          }
+        } else {
+          resultFramesAvg[j] = contrastFrame[j] - valueAveraged[j];
+        }
       }
     } else {
-      for (let j: number = 0; j < contrastFrame.length; j++) {
-        resultFramesAvg[j] =
-          contrastFrame[j] - maskFramesAvg[0][j] + maskSubPixelShift;
+      const rowOffset = maskSubPixelShift[0];
+      const colOffset = maskSubPixelShift[1];
+      for (let j = 0; j < contrastFrame.length; j++) {
+        // Apply sub-pixel shift to the averaged frame
+        if (colOffset !== 0 || rowOffset !== 0) {
+          let rowNumber = Math.floor(j / srcImage.columns);
+          if (
+            colOffset + j >= rowNumber * srcImage.columns ||
+            colOffset + j < 0 ||
+            rowOffset * srcImage.columns + j >= contrastFrame.length ||
+            rowOffset * srcImage.columns + j < 0 ||
+            rowOffset * srcImage.columns + colOffset + j >=
+              contrastFrame.length ||
+            rowOffset * srcImage.columns + colOffset + j < 0
+          ) {
+            resultFramesAvg[j] = contrastFrame[j];
+          } else {
+            const shiftedj = j + colOffset + rowOffset * srcImage.columns;
+            resultFramesAvg[j] = contrastFrame[j] - maskFramesAvg[0][shiftedj];
+          }
+        } else {
+          resultFramesAvg[j] = contrastFrame[j] - maskFramesAvg[0][j];
+        }
       }
       let t1 = performance.now();
       console.debug(`Call to DSA avgSubMask took ${t1 - t0} milliseconds.`);
