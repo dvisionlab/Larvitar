@@ -22,12 +22,38 @@
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
       <div class="col-10 h-100">
-        <div id="viewer" class="h-100"></div>
+        <div
+          id="viewer"
+          class="col-8 h-100"
+          style="background-color: black"
+        ></div>
+        <p style="position: absolute; top: 0px; color: white">
+          Press "s" to render standard image
+        </p>
+        <p style="position: absolute; top: 20px; color: white">
+          Press "d" to apply digital subtraction angiography mask
+        </p>
+        <p style="position: absolute; top: 40px; color: white">
+          Press "p" to play/pause frame animation
+        </p>
+        <p
+          id="frame-rate"
+          style="position: absolute; top: 60px; color: white"
+        ></p>
+        <p
+          id="image-time"
+          style="position: absolute; top: 80px; color: white"
+        ></p>
       </div>
     </div>
 
     <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
     <script>
       let demoFiles = [];
 
@@ -56,34 +82,73 @@
         larvitar.setToolActive("Wwwc");
         await larvitar.loadAndCacheImageStack(multiFrameSerie);
 
+        let animation = false;
+        let animationId = null;
+        let numberOfFrames = multiFrameSerie.numberOfFrames;
+        let frameRate = multiFrameSerie.frameTime;
+        $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
+        $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
+
+        // add event listener to the wheel to update the UI
+        document
+          .getElementById("viewer")
+          .addEventListener("wheel", function (event) {
+            $("#image-time").html(
+              "Current Frame: " +
+                parseInt(
+                  larvitar.store.get(["viewports", "viewer", "sliceId"]) + 1
+                ) +
+                " of " +
+                numberOfFrames
+            );
+          });
+
         document.onkeypress = function (e) {
           e = e || window.event;
           switch (e.keyCode) {
-            case 49:
+            case 115: // S
+              // standard Mode
               larvitar.store.setDSAEnabled(["viewer"], false);
               larvitar.updateImage(multiFrameSerie, "viewer", frameId);
               break;
-            case 50:
+            case 100: // D
+              // DSA Mode
               larvitar.store.setDSAEnabled(["viewer"], true);
               larvitar.updateImage(multiFrameSerie, "viewer", frameId);
               break;
-            case 51:
-              setInterval(function () {
-                frameId =
-                  frameId == multiFrameSerie.numberOfFrames - 1
-                    ? 0
-                    : frameId + 1;
-                larvitar.updateImage(multiFrameSerie, "viewer", frameId, false);
-              }, multiFrameSerie.frameTime);
+            case 112: // P
+              animation = !animation;
+              if (animation) {
+                frameId = larvitar.store.get([
+                  "viewports",
+                  "viewer",
+                  "sliceId"
+                ]);
+                animationId = setInterval(function () {
+                  frameId =
+                    frameId == multiFrameSerie.numberOfFrames - 1
+                      ? 0
+                      : frameId + 1;
+                  larvitar.updateImage(
+                    multiFrameSerie,
+                    "viewer",
+                    frameId,
+                    false
+                  );
+                  $("#image-time").html(
+                    "Current Frame: " +
+                      parseInt(frameId + 1) +
+                      " of " +
+                      numberOfFrames
+                  );
+                }, multiFrameSerie.frameTime);
+              } else {
+                clearInterval(animationId);
+                $("#image-time").html();
+              }
               break;
           }
         };
-
-        setTimeout(function () {
-          // TODO FIX WHEEL EVENT
-          // TODO FIX WW/WL ON CANVAS WHEN SWITCHING FROM DSA TO NON DSA
-          larvitar.updateImage(multiFrameSerie, "viewer", frameId);
-        }, 1000);
       }
 
       async function createFile(fileName, cb) {
@@ -94,21 +159,15 @@
         cb();
       }
 
+      // FUNZIONE
+      // mettere nello store informazione sullo shift
+      // uncache immagine
+      // richiamare rendering con updateImage
+
+      // FUNZIONE
+      // uncacha tutto e ricalcola DSA
+
       createFile("XA-DSA-Shutter.dcm", renderSerie);
-
-      /* so che una serie dicom a cui applicare la dsa
-      vado buildare il manager con la serie multiframe originale
-      cacho tutti i multiframe 
-      e poi cacho tutti i multiframe con la dsa con degli imageID diversi
-      questi imageID devo costruirli in qualche modo evitando di duplicare oggetti
-    
-
-
-      avere una funzione che prende in input una lista di custom imageIDS
-      per poterli cachare tutti insieme
-      costruire quindi un custom loader
-
-      */
     </script>
   </body>
 </html>

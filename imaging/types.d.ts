@@ -122,7 +122,7 @@ export type DSA = {
   x00286102?: number[]; // DSA ApplicableFrameRange
   x00286110?: number | number[]; // DSA MaskFrameNumbers
   x00286112?: number; // DSA ContrastFrameAveraging
-  x00286114?: number; // DSA MaskSubPixelShift
+  x00286114?: number[]; // DSA MaskSubPixelShift
   x00286120?: number; // DSA TIDOffset
   x00286190?: string; // DSA MaskOperationExplanation
   x00289416?: number; // DSA SubtractionItemID

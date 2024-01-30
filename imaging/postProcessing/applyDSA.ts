@@ -19,9 +19,14 @@ import cornerstone, { Image } from "cornerstone-core";
  * @function applyDSA
  * @param {Series} multiframeSerie - multiframe serie to apply DSA
  * @param {number} index - index of the frame to apply DSA
+ * @param {number[]} inputMaskSubPixelShift - pixel shift applied to the mask
  * @returns {number[]} - pixel data of the frame after DSA
  */
-export function applyDSA(multiframeSerie: Series, index: number): number[] {
+export function applyDSA(
+  multiframeSerie: Series,
+  index: number,
+  inputMaskSubPixelShift?: number[]
+): number[] {
   const dsaMetadata = multiframeSerie.dsa as DSA;
   const imageIds: string[] = multiframeSerie.imageIds;
 
@@ -30,7 +35,7 @@ export function applyDSA(multiframeSerie: Series, index: number): number[] {
     dsaMetadata.x00286101 // DSA MaskOperation
   ) {
     case "AVG_SUB":
-      return avgSubMask(dsaMetadata, imageIds, index);
+      return avgSubMask(dsaMetadata, imageIds, index, inputMaskSubPixelShift);
     case "TID":
       return tidMask(dsaMetadata, imageIds, index);
     case "REV_TID":
@@ -51,7 +56,8 @@ export function applyDSA(multiframeSerie: Series, index: number): number[] {
 function avgSubMask(
   metadataInfo: DSA,
   imageIds: string[],
-  index: number
+  index: number,
+  inputMaskSubPixelShift?: number[]
 ): number[] {
   const t0 = performance.now();
   // Mask Frame Numbers Attribute (might be an array) Required if AVGSUB
@@ -66,7 +72,13 @@ function avgSubMask(
   // A pair of floating point numbers specifying the fractional vertical
   // [adjacent row spacing] and horizontal [adjacent column spacing] pixel
   // shift applied to the mask before subtracting it from the contrast frame.
-  const maskSubPixelShift: number = metadataInfo.x00286114 || 0;
+  // The row offset results in a shift of the pixels along the column axis.
+  // The column offset results in a shift of the pixels along the row axis.
+  // A positive row offset is a shift toward the pixels of the lower row of the pixel plane.
+  // A positive column offset is a shift toward the pixels of the left hand side column of the pixel plane.
+  const maskSubPixelShift: number[] = inputMaskSubPixelShift
+    ? inputMaskSubPixelShift
+    : metadataInfo.x00286114 || [0.0, 0.0];
 
   // Specifies the number of contrast frames to average together
   // before performing the mask operation.

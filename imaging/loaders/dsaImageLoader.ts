@@ -44,7 +44,8 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
     let multiFrameSerie = manager[seriesId] as Series;
     const imageIds: string[] = multiFrameSerie.dsa!.imageIds;
     const index: number = imageIds.indexOf(imageId);
-    const pixelData = applyDSA(multiFrameSerie, index);
+    const inputMaskSubPixelShift = [0, 0];
+    const pixelData = applyDSA(multiFrameSerie, index, inputMaskSubPixelShift);
     const srcImage: Image = find(cornerstone.imageCache.cachedImages, {
       imageId: multiFrameSerie.imageIds[index]
     }).image;
