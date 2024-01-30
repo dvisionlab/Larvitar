@@ -4,7 +4,7 @@
 
 // internal libraries
 import { DSA, Series } from "../types";
-import { updateImage } from "../imageRendering";
+import { updateImage, redrawImage } from "../imageRendering";
 import store from "../imageStore";
 
 // external libraries
@@ -71,7 +71,9 @@ export const applyDSAShift = function (
   cornerstone.imageCache.removeImageLoadObject(imageId);
 
   // update image
-  updateImage(multiFrameSerie, elementId, frameId, false);
+  updateImage(multiFrameSerie, elementId, frameId, true);
+  redrawImage(elementId);
+
   const t1 = performance.now();
   console.debug(`Call to DSA applyDSAShift took ${t1 - t0} milliseconds.`);
 };
@@ -159,12 +161,12 @@ function avgSubMask(
         valueAveraged[j] = valueAverage / maskFramesAvg.length;
       }
       // Extract fractional vertical and horizontal pixel shifts from maskSubPixelShift
-      const rowOffset = maskSubPixelShift[0];
+      const rowOffset = -1.0 * maskSubPixelShift[0];
       const colOffset = maskSubPixelShift[1];
       for (let j = 0; j < contrastFrame.length; j++) {
         // Apply sub-pixel shift to the averaged frame
         if (colOffset !== 0 || rowOffset !== 0) {
-          let rowNumber = Math.floor(j / srcImage.columns);
+          let rowNumber = Math.floor(j / srcImage.columns) + 1;
           if (
             colOffset + j >= rowNumber * srcImage.columns ||
             colOffset + j < 0 ||
@@ -184,12 +186,12 @@ function avgSubMask(
         }
       }
     } else {
-      const rowOffset = maskSubPixelShift[0];
+      const rowOffset = -1.0 * maskSubPixelShift[0];
       const colOffset = maskSubPixelShift[1];
       for (let j = 0; j < contrastFrame.length; j++) {
         // Apply sub-pixel shift to the averaged frame
         if (colOffset !== 0 || rowOffset !== 0) {
-          let rowNumber = Math.floor(j / srcImage.columns);
+          let rowNumber = Math.floor(j / srcImage.columns) + 1;
           if (
             colOffset + j >= rowNumber * srcImage.columns ||
             colOffset + j < 0 ||
@@ -224,6 +226,7 @@ function avgSubMask(
     srcImage = null;
     let t1 = performance.now();
     console.debug(`Call to DSA avgSubMask took ${t1 - t0} milliseconds.`);
+    console.warn("Frame not included in the Applicable Frame Range");
     return contrastFrame;
   }
 }

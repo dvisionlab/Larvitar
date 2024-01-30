@@ -110,6 +110,7 @@ import {
   resizeViewport,
   renderImage,
   updateImage,
+  redrawImage,
   resetViewports,
   updateViewportData,
   storeViewportData,
@@ -238,6 +239,8 @@ import {
   HSVToRGB
 } from "./imaging/imageColormaps";
 
+import { applyDSAShift } from "./imaging/postProcessing/applyDSA";
+
 import { saveAnnotations, loadAnnotations } from "./imaging/tools/io";
 
 import {
@@ -329,6 +332,7 @@ export {
   resizeViewport,
   renderImage,
   updateImage,
+  redrawImage,
   resetViewports,
   updateViewportData,
   toggleMouseToolsListeners,
@@ -386,6 +390,8 @@ export {
   resetFileManager,
   populateFileManager,
   getFileImageId,
+  // imaging/postProcessing
+  applyDSAShift,
   // imageTools
   addDiameterTool,
   addContoursTool,

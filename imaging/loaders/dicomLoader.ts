@@ -100,7 +100,7 @@ export const unloadAndRecacheImageStackDSA = async function (
     await Promise.all(promises);
 
     const t1 = performance.now();
-    console.debug(
+    console.log(
       `Call to unloadAndRecacheImageStackDSA took ${t1 - t0} milliseconds.`
     );
     resolve();

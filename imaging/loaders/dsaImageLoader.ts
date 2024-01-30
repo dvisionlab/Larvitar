@@ -51,7 +51,7 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
       imageId: multiFrameSerie.imageIds[index]
     }).image;
     console.debug(`Load DSA Image with custom loader for imageId: ${imageId}`);
-    return createCustomImage(imageId, srcImage, pixelData!);
+    return createCustomImage(imageId, srcImage, pixelData);
   } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
   }

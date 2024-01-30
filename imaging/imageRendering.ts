@@ -548,7 +548,6 @@ export const renderImage = function (
       }
 
       storeViewportData(image, element.id, storedViewport as Viewport, data);
-      // console.log("STORED VIEWPORT: ", storedViewport);
       setStore(["ready", element.id, true]);
       setStore(["seriesUID", element.id, data.seriesUID]);
       const t1 = performance.now();
@@ -573,6 +572,17 @@ export const renderImage = function (
   toggleMouseToolsListeners(id, false);
 
   return renderPromise;
+};
+
+/**
+ * Redraw the cornerstone image
+ * @instance
+ * @function redrawImage
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const redrawImage = function (elementId: string) {
+  let el = cornerstone.getEnabledElement(document.getElementById(elementId)!);
+  cornerstone.drawImage(el, true);
 };
 
 /**
@@ -628,7 +638,6 @@ export const updateImage = async function (
     if (getPerformanceMonitor() === true) {
       t0 = performance.now();
     }
-
     const image = await cornerstone.loadAndCacheImage(imageId);
     cornerstone.displayImage(element, image);
 
@@ -636,7 +645,9 @@ export const updateImage = async function (
       const t1 = performance.now();
       if (t0 !== undefined) {
         // check if t0 is defined before using it
-        console.log(`Call to updateImage took ${t1 - t0} milliseconds.`);
+        console.log(
+          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
+        );
       }
     }
 
@@ -654,13 +665,16 @@ export const updateImage = async function (
     }
 
     const image = await cornerstone.loadImage(imageId);
-    cornerstone.displayImage(element, image);
+    await cornerstone.displayImage(element, image);
+    cornerstone.updateImage(element);
 
     if (getPerformanceMonitor() === true) {
       const t1 = performance.now();
       if (t0 !== undefined) {
         // check if t0 is defined before using it
-        console.log(`Call to updateImage took ${t1 - t0} milliseconds.`);
+        console.log(
+          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
+        );
       }
     }
 

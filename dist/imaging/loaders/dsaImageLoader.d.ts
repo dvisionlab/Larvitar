@@ -2,7 +2,6 @@
  *  @desc This file is a custom DICOM loader for multiframe images
  */
 import { ImageLoader } from "cornerstone-core";
-export declare var PIXEL_SHIFT: number[] | undefined;
 /**
  * Custom DSA Image Loader Function
  * @export
