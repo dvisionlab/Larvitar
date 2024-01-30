@@ -63,24 +63,19 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
   }
   getColor(y) {
     let color;
-    console.log(this.lineNumber);
+
     if (this.lineNumber === null || this.lineNumber === 3) {
       color = "red";
       this.redlineY = y;
       this.lineNumber = 1;
-    } else if (
-      y > this.redlineY ||
-      (this.lineNumber === 2 && this.color === "green")
-    ) {
-      color = "blue";
+    } else if (y < this.redlineY) {
+      color = this.color === "blue" ? "green" : "blue";
       this.lineNumber = this.lineNumber + 1;
-    } else if (
-      y < this.redlineY ||
-      (this.lineNumber === 2 && this.color === "blue")
-    ) {
-      color = "green";
+    } else if (y > this.redlineY) {
+      color = this.color === "green" ? "blue" : "green";
       this.lineNumber = this.lineNumber + 1;
     }
+
     return color;
   }
 

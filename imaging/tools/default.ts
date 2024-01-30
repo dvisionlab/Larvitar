@@ -34,6 +34,7 @@ import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
 import BorderMagnifyTool from "./custom/BorderMagnifyTool";
 import CustomMouseWheelScrollTool from "./custom/customMouseWheelScrollTool";
 import LengthPlotTool from "./custom/VetToolThreeLines";
+import ManualLengthPlotTool from "./custom/VetToolManualThreeLines";
 import type {
   ToolConfig,
   ToolMouseKeys,

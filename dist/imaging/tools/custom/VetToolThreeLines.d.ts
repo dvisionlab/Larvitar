@@ -61,6 +61,15 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     plotlydata: Array<PlotlyData>;
     measuring: boolean;
     throttledUpdateCachedStats: any;
+    configuration: {
+        drawHandles: boolean;
+        drawHandlesOnHover: boolean;
+        hideHandlesIfMoving: boolean;
+        renderDashed: boolean;
+        digits: number;
+        handleRadius?: number;
+        offset: number;
+    };
     constructor(props?: {});
     getRandomColor(): string;
     handleMouseUp: (event: MouseEvent) => void;
@@ -99,7 +108,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     updateCachedStats(image: cornerstone.Image, element: HTMLElement, data: data): void;
     renderToolData(evt: ToolMouseEvent): void;
     getPointsAlongLine(startHandle: HandlePosition, endHandle: HandlePosition, colPixelSpacing: number): number[];
-    getPixelValuesAlongLine(startHandle: HandlePosition, points: number[], colPixelSpacing: number, eventData: EventData): any[];
+    getPixelValuesAlongLine(startHandle: HandlePosition, points: number[], colPixelSpacing: number, eventData: EventData): number[];
     createPlot(...dataSets: {
         points: number[];
         pixelValues: number[];

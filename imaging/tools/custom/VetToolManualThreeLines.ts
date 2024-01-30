@@ -86,7 +86,7 @@ type PlotlyData = {
  * @classdesc Tool for measuring distances.
  * @extends Tools.Base.BaseAnnotationTool
  */
-class VetToolManualThreeLines extends BaseAnnotationTool {
+class ManualLengthPlotTool extends BaseAnnotationTool {
   name: string = "ManualLengthPlot";
   eventData?: EventData;
   datahandles?: Handles;
@@ -95,6 +95,7 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
   throttledUpdateCachedStats: any;
   lineNumber: number | null = null;
   redlineY: number | null = null;
+  newMeasurement: boolean = false;
   configuration: {
     drawHandles: boolean;
     drawHandlesOnHover: boolean;
@@ -129,25 +130,20 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
   getColor(y: number) {
-    let color;
-    console.log(this.lineNumber);
+    let color: string = "red";
+
     if (this.lineNumber === null || this.lineNumber === 3) {
       color = "red";
       this.redlineY = y;
       this.lineNumber = 1;
-    } else if (
-      y > this.redlineY! ||
-      (this.lineNumber === 2 && this.color === "green")
-    ) {
-      color = "blue";
+    } else if (y < this.redlineY!) {
+      color = this.color === "blue" ? "green" : "blue";
       this.lineNumber = this.lineNumber + 1;
-    } else if (
-      y < this.redlineY! ||
-      (this.lineNumber === 2 && this.color === "blue")
-    ) {
-      color = "green";
+    } else if (y > this.redlineY!) {
+      color = this.color === "green" ? "blue" : "green";
       this.lineNumber = this.lineNumber + 1;
     }
+
     return color;
   }
 
@@ -155,13 +151,7 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
     console.log("stop");
     const eventData = this.eventData;
     const { element } = eventData!;
-    const toolData: ToolData = getToolState(element, this.name);
-    //TODO Laura check if the uuid (data[i].uuid) is already existent
-    //and in that case update its array values and not write another one
-    //also doable with handles color
-    const datauiuiui = find(toolData.data, {
-      uuid: this.currentuuid
-    });
+    //const toolData: ToolData = getToolState(element, this.name);
 
     const points = this.getPointsAlongLine(
       this.datahandles!.start,
@@ -195,6 +185,7 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
     this.plotlydata = [];
   }
   createNewMeasurement(eventData: EventData) {
+    this.newMeasurement = true;
     console.log(this.lineNumber);
     if (this.lineNumber === 3) {
       this.clearCanvasAndPlot(eventData);
@@ -441,10 +432,16 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
     };
 
     // Add the trace to the existing data array
-    this.plotlydata.push(trace);
-
-    // Combine all traces into a single data array
+    if (this.newMeasurement) {
+      this.plotlydata.push(trace);
+    } else {
+      const indexOfExistentData = this.plotlydata.findIndex(
+        obj => obj.line.color === this.color
+      );
+      this.plotlydata[indexOfExistentData] = trace;
+    }
     const data = [...this.plotlydata];
+    // Combine all traces into a single data array
 
     // Adjust the axis range based on all data
     const allXValues = data.flatMap(trace => trace.x);
@@ -466,5 +463,6 @@ class VetToolManualThreeLines extends BaseAnnotationTool {
     // Display using Plotly
     const myPlotDiv = document.getElementById("myPlot");
     Plotly.newPlot(myPlotDiv as Plotly.Root, data as Plotly.Data[], layout);
+    this.newMeasurement = false;
   }
 }
