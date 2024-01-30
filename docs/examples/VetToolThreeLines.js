@@ -38,8 +38,8 @@ class VetToolThreeLines extends BaseAnnotationTool {
         hideHandlesIfMoving: false,
         renderDashed: false,
         digits: 2,
-        offset: 15,
-      },
+        offset: 15
+      }
     };
 
     super(props, defaultProps);
@@ -66,12 +66,11 @@ class VetToolThreeLines extends BaseAnnotationTool {
     return color;
   }
 
-  handleMouseUp = (event) => {
-    console.log("stop");
+  handleMouseUp = event => {
     this.measuring = false;
     const eventData = this.eventData;
 
-    const handleData = (handles) => {
+    const handleData = handles => {
       const points = this.getPointsAlongLine(
         handles.start,
         handles.end,
@@ -86,7 +85,6 @@ class VetToolThreeLines extends BaseAnnotationTool {
       let color = "red";
       return { points, pixelValues, color };
     };
-    console.log(handleData(this.abovehandles).color);
     const aboveResults = handleData(this.abovehandles);
     aboveResults.color = "green";
     const belowResults = handleData(this.belowhandles);
@@ -99,7 +97,6 @@ class VetToolThreeLines extends BaseAnnotationTool {
   createNewMeasurement(eventData) {
     this.eventData = eventData;
     clearToolData(eventData.element, this.name);
-    console.log("start");
     this.measuring = true;
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
@@ -124,13 +121,13 @@ class VetToolThreeLines extends BaseAnnotationTool {
           x,
           y,
           highlight: true,
-          active: false,
+          active: false
         },
         end: {
           x,
           y,
           highlight: true,
-          active: true,
+          active: true
         },
         textBox: {
           active: false,
@@ -138,9 +135,9 @@ class VetToolThreeLines extends BaseAnnotationTool {
           movesIndependently: false,
           drawnIndependently: true,
           allowedOutsideImage: true,
-          hasBoundingBox: true,
-        },
-      },
+          hasBoundingBox: true
+        }
+      }
     };
   }
 
@@ -188,7 +185,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
       handleRadius,
       drawHandlesOnHover,
       hideHandlesIfMoving,
-      renderDashed,
+      renderDashed
     } = this.configuration;
     const toolData = getToolState(evt.currentTarget, this.name);
 
@@ -209,7 +206,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
         continue;
       }
 
-      draw(context, (context) => {
+      draw(context, context => {
         setShadow(context, this.configuration);
 
         const color = toolColors.getColorIfActive(data);
@@ -234,12 +231,12 @@ class VetToolThreeLines extends BaseAnnotationTool {
 
         const aboveHandles = {
           start: { x: start.x, y: start.y - offset },
-          end: { x: end.x, y: end.y - offset },
+          end: { x: end.x, y: end.y - offset }
         };
 
         const belowHandles = {
           start: { x: start.x, y: start.y + offset },
-          end: { x: end.x, y: end.y + offset },
+          end: { x: end.x, y: end.y + offset }
         };
 
         const abovelineOptions = { color: "green" };
@@ -263,19 +260,19 @@ class VetToolThreeLines extends BaseAnnotationTool {
           color,
           handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving,
+          hideHandlesIfMoving
         };
         const abovehandleOptions = {
           color: abovelineOptions.color,
           handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving,
+          hideHandlesIfMoving
         };
         const belowhandleOptions = {
           color: belowlineOptions.color,
           handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving,
+          hideHandlesIfMoving
         };
 
         if (this.configuration.drawHandles) {
@@ -339,32 +336,31 @@ class VetToolThreeLines extends BaseAnnotationTool {
   }
 
   createPlot(...dataSets) {
-    console.log(dataSets);
     const traces = dataSets.map(({ points, pixelValues, color }) => ({
       x: points,
       y: pixelValues,
       type: "lines",
       line: {
-        color,
-      },
+        color
+      }
     }));
 
     this.plotlydata = traces;
 
-    const allXValues = dataSets.flatMap((dataSet) => dataSet.points);
-    const allYValues = dataSets.flatMap((dataSet) => dataSet.pixelValues);
+    const allXValues = dataSets.flatMap(dataSet => dataSet.points);
+    const allYValues = dataSets.flatMap(dataSet => dataSet.pixelValues);
 
     const layout = {
       xaxis: {
         range: [Math.min(...allXValues), Math.max(...allXValues)],
-        title: "position (mm)",
+        title: "position (mm)"
       },
       yaxis: {
         range: [Math.min(...allYValues), Math.max(...allYValues)],
-        title: "GreyScaleValue (HU)",
+        title: "GreyScaleValue (HU)"
       },
       title: "GreyScaleValues vs position",
-      responsive: true,
+      responsive: true
     };
 
     const myPlotDiv = document.getElementById("myPlot");
@@ -382,7 +378,7 @@ function clearToolData(element, toolName) {
   const toolData = getToolState(element, toolName);
 
   if (toolData && toolData.data && toolData.data.length > 0) {
-    toolData.data.forEach((data) => {
+    toolData.data.forEach(data => {
       data.visible = false;
     });
   }

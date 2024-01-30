@@ -51,8 +51,8 @@ class VetToolSuperimposed extends BaseAnnotationTool {
     super(props, defaultProps);
     this.eventData;
     this.datahandles;
-    this.measuring = false; // New variable to track measurement state
     this.color;
+    this.newMeasurement = false;
     this.plotlydata = [];
     this.measures = 0;
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -69,8 +69,6 @@ class VetToolSuperimposed extends BaseAnnotationTool {
   }
 
   handleMouseUp = event => {
-    console.log("stop");
-    this.measuring = false;
     const eventData = this.eventData;
 
     const points = this.getPointsAlongLine(
@@ -78,7 +76,6 @@ class VetToolSuperimposed extends BaseAnnotationTool {
       this.datahandles.end,
       getPixelSpacing(eventData.image).colPixelSpacing
     );
-    console.log(points);
     const pixelValues = this.getPixelValuesAlongLine(
       this.datahandles.start,
       points,
@@ -91,10 +88,10 @@ class VetToolSuperimposed extends BaseAnnotationTool {
   };
 
   createNewMeasurement(eventData) {
+    this.newMeasurement = true;
+
     this.measures = this.measures + 1;
     this.eventData = eventData;
-    console.log("start");
-    this.measuring = true;
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
@@ -223,7 +220,6 @@ class VetToolSuperimposed extends BaseAnnotationTool {
       }
 
       draw(context, context => {
-        console.log("drawing");
         // Configurable shadow
         setShadow(context, this.configuration);
 
@@ -237,6 +233,10 @@ class VetToolSuperimposed extends BaseAnnotationTool {
         start = data.handles.start;
         end = data.handles.end;
         data.handles.end.y = data.handles.start.y;
+        if (data.active) {
+          this.color = color;
+          this.datahandles = data.handles;
+        }
         // Draw the measurement line
         drawLine(
           context,
@@ -256,7 +256,6 @@ class VetToolSuperimposed extends BaseAnnotationTool {
 
         if (this.configuration.drawHandles) {
           drawHandles(context, eventData, data.handles, handleOptions);
-          this.datahandles = data.handles;
         }
 
         if (!data.handles.textBox.hasMoved) {
@@ -344,7 +343,6 @@ class VetToolSuperimposed extends BaseAnnotationTool {
   getPixelValuesAlongLine(startHandle, points, colPixelSpacing, eventData) {
     const pixelValues = [];
     const yPoint = Math.floor(startHandle.y); // Adjust this if needed
-    console.log(points);
     for (let i = 0; i < points.length; i++) {
       const xPoint = Math.floor(points[i] / colPixelSpacing);
       const pixelValue = cornerstone.getStoredPixels(
@@ -363,8 +361,6 @@ class VetToolSuperimposed extends BaseAnnotationTool {
     return pixelValues;
   }
   createPlot(points, pixelValues) {
-    console.log("plot");
-
     // Create a new trace for each measurement
     const trace = {
       x: points,
@@ -376,8 +372,14 @@ class VetToolSuperimposed extends BaseAnnotationTool {
     };
 
     // Add the trace to the existing data array
-    this.plotlydata.push(trace);
-
+    if (this.newMeasurement) {
+      this.plotlydata.push(trace);
+    } else {
+      const indexOfExistentData = this.plotlydata.findIndex(
+        obj => obj.line.color === this.color
+      );
+      this.plotlydata[indexOfExistentData] = trace;
+    }
     // Combine all traces into a single data array
     const data = [...this.plotlydata];
 
@@ -401,10 +403,7 @@ class VetToolSuperimposed extends BaseAnnotationTool {
     // Display using Plotly
     const myPlotDiv = document.getElementById("myPlot");
     Plotly.newPlot(myPlotDiv, data, layout);
-
-    console.log("Data:", data);
-    console.log("Layout:", layout);
-    console.log(myPlotDiv);
+    this.newMeasurement = false;
   }
 }
 

@@ -148,7 +148,6 @@ class ManualLengthPlotTool extends BaseAnnotationTool {
   }
 
   handleMouseUp = (event: MouseEvent) => {
-    console.log("stop");
     const eventData = this.eventData;
     const { element } = eventData!;
     //const toolData: ToolData = getToolState(element, this.name);
@@ -158,7 +157,6 @@ class ManualLengthPlotTool extends BaseAnnotationTool {
       this.datahandles!.end,
       getPixelSpacing(eventData!.image).colPixelSpacing
     );
-    console.log(points);
     const pixelValues = this.getPixelValuesAlongLine(
       this.datahandles!.start,
       points,
@@ -186,12 +184,10 @@ class ManualLengthPlotTool extends BaseAnnotationTool {
   }
   createNewMeasurement(eventData: EventData) {
     this.newMeasurement = true;
-    console.log(this.lineNumber);
     if (this.lineNumber === 3) {
       this.clearCanvasAndPlot(eventData);
     }
     this.eventData = eventData;
-    console.log("start");
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
@@ -327,12 +323,14 @@ class ManualLengthPlotTool extends BaseAnnotationTool {
       }
 
       draw(context, (context: CanvasRenderingContext2D) => {
-        console.log("drawing");
         // Configurable shadow
         setShadow(context, this.configuration);
 
         const color = toolColors.getColorIfActive(data);
-
+        if (data.active) {
+          this.color = color;
+          this.datahandles = data.handles;
+        }
         const lineOptions: { color: string; lineDash?: boolean } = { color };
 
         if (renderDashed) {
@@ -360,7 +358,6 @@ class ManualLengthPlotTool extends BaseAnnotationTool {
 
         if (this.configuration.drawHandles) {
           drawHandles(context, eventData, data.handles, handleOptions);
-          this.datahandles = data.handles;
         }
 
         this.currentuuid = data.uuid;
@@ -400,7 +397,6 @@ class ManualLengthPlotTool extends BaseAnnotationTool {
   ) {
     const pixelValues: number[] = [];
     const yPoint = Math.floor(startHandle.y); // Adjust this if needed
-    console.log(points);
     for (let i = 0; i < points.length; i++) {
       const xPoint = Math.floor(points[i] / colPixelSpacing);
       const pixelValue = cornerstone.getStoredPixels(
@@ -419,8 +415,6 @@ class ManualLengthPlotTool extends BaseAnnotationTool {
     return pixelValues;
   }
   createPlot(points: number[], pixelValues: number[]) {
-    console.log("plot");
-
     // Create a new trace for each measurement
     const trace = {
       x: points,

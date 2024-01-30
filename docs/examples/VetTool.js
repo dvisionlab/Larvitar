@@ -44,8 +44,8 @@ class VetToolClassic extends BaseAnnotationTool {
         drawHandlesOnHover: false,
         hideHandlesIfMoving: false,
         renderDashed: false,
-        digits: 2,
-      },
+        digits: 2
+      }
     };
 
     super(props, defaultProps);
@@ -66,8 +66,7 @@ class VetToolClassic extends BaseAnnotationTool {
     return color;
   }
 
-  handleMouseUp = (event) => {
-    console.log("stop");
+  handleMouseUp = event => {
     this.measuring = false;
     const eventData = this.eventData;
 
@@ -76,7 +75,6 @@ class VetToolClassic extends BaseAnnotationTool {
       this.datahandles.end,
       getPixelSpacing(eventData.image).colPixelSpacing
     );
-    console.log(points);
     const pixelValues = this.getPixelValuesAlongLine(
       this.datahandles.start,
       points,
@@ -90,7 +88,6 @@ class VetToolClassic extends BaseAnnotationTool {
 
   createNewMeasurement(eventData) {
     this.eventData = eventData;
-    console.log("start");
     this.measuring = true;
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
@@ -116,13 +113,13 @@ class VetToolClassic extends BaseAnnotationTool {
           x,
           y,
           highlight: true,
-          active: false,
+          active: false
         },
         end: {
           x,
           y,
           highlight: true,
-          active: true,
+          active: true
         },
         textBox: {
           active: false,
@@ -130,9 +127,9 @@ class VetToolClassic extends BaseAnnotationTool {
           movesIndependently: false,
           drawnIndependently: true,
           allowedOutsideImage: true,
-          hasBoundingBox: true,
-        },
-      },
+          hasBoundingBox: true
+        }
+      }
     };
   }
 
@@ -193,7 +190,7 @@ class VetToolClassic extends BaseAnnotationTool {
       drawHandlesOnHover,
       hideHandlesIfMoving,
       renderDashed,
-      digits,
+      digits
     } = this.configuration;
     const toolData = getToolState(evt.currentTarget, this.name);
 
@@ -219,8 +216,7 @@ class VetToolClassic extends BaseAnnotationTool {
         continue;
       }
 
-      draw(context, (context) => {
-        console.log("drawing");
+      draw(context, context => {
         // Configurable shadow
         setShadow(context, this.configuration);
 
@@ -248,7 +244,7 @@ class VetToolClassic extends BaseAnnotationTool {
           color,
           handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving,
+          hideHandlesIfMoving
         };
 
         if (this.configuration.drawHandles) {
@@ -259,7 +255,7 @@ class VetToolClassic extends BaseAnnotationTool {
         if (!data.handles.textBox.hasMoved) {
           const coords = {
             x: Math.max(data.handles.start.x, data.handles.end.x),
-            y: data.handles.start.y,
+            y: data.handles.start.y
           };
           data.handles.textBox.x = coords.x;
           data.handles.textBox.y = coords.y;
@@ -319,7 +315,7 @@ class VetToolClassic extends BaseAnnotationTool {
     function textBoxAnchorPoints(handles) {
       const midpoint = {
         x: (handles.start.x + handles.end.x) / 2,
-        y: (handles.start.y + handles.end.y) / 2,
+        y: (handles.start.y + handles.end.y) / 2
       };
 
       return [handles.start, midpoint, handles.end];
@@ -353,7 +349,6 @@ class VetToolClassic extends BaseAnnotationTool {
   getPixelValuesAlongLine(startHandle, points, colPixelSpacing, eventData) {
     const pixelValues = [];
     const yPoint = Math.floor(startHandle.y); // Adjust this if needed
-    console.log(points);
     for (let i = 0; i < points.length; i++) {
       const xPoint = Math.floor(points[i] / colPixelSpacing);
       const pixelValue = cornerstone.getStoredPixels(
@@ -372,15 +367,11 @@ class VetToolClassic extends BaseAnnotationTool {
     return pixelValues;
   }
   createPlot(points, pixelValues) {
-    console.log("plot");
     const xValues = points;
-    console.log(xValues);
 
     const firstpixel = Math.min(...xValues);
-    console.log(firstpixel);
 
     const lastpixel = Math.max(...xValues);
-    console.log(lastpixel);
     const yValues = pixelValues; //pixelValues;
     const minGV = Math.min.apply(null, yValues);
     const maxGV = Math.max.apply(null, yValues);
@@ -390,9 +381,9 @@ class VetToolClassic extends BaseAnnotationTool {
         y: yValues,
         mode: "scatter",
         line: {
-          color: this.color,
-        },
-      },
+          color: this.color
+        }
+      }
     ];
 
     // Define Layout
@@ -401,16 +392,13 @@ class VetToolClassic extends BaseAnnotationTool {
       yaxis: { range: [minGV, maxGV], title: "GreyScaleValue (HU)" },
       title: "GreyScaleValues vs position",
       responsive: true,
-      type: "log",
+      type: "log"
       //plot_bgcolor : "black"
     };
 
     // Display using Plotly
     const myPlotDiv = document.getElementById("myPlot");
     Plotly.newPlot(myPlotDiv, data, layout);
-    console.log("Data:", data);
-    console.log("Layout:", layout);
-    console.log(myPlotDiv);
   }
 }
 

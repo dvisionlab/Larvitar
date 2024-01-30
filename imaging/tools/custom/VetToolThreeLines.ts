@@ -139,7 +139,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
   }
 
   handleMouseUp = (event: MouseEvent) => {
-    console.log("stop");
     this.measuring = false;
     const eventData = this.eventData;
 
@@ -158,7 +157,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       let color = "red";
       return { points, pixelValues, color };
     };
-    console.log(handleData(this.abovehandles!).color);
     const aboveResults = handleData(this.abovehandles!);
     aboveResults.color = "green";
     const belowResults = handleData(this.belowhandles!);
@@ -171,7 +169,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
   createNewMeasurement(eventData: EventData) {
     this.eventData = eventData;
     clearToolData(eventData.element, this.name);
-    console.log("start");
     this.measuring = true;
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
@@ -447,7 +444,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
   createPlot(
     ...dataSets: { points: number[]; pixelValues: number[]; color: string }[]
   ) {
-    console.log(dataSets);
     const traces = dataSets.map(({ points, pixelValues, color }) => ({
       x: points,
       y: pixelValues,
