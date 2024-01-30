@@ -16,10 +16,9 @@
         font-weight: bold;
       }
       #buttonBar {
-        display: flex;
         gap: 10px;
         margin-bottom: 20px;
-        text-align: center;
+        position: relative;
       }
 
       .button {
@@ -34,7 +33,6 @@
         padding: 8px; /* Adjust the padding for better alignment */
         font-size: 14px; /* Adjust the font size for better visibility */
       }
-
       .loader {
         border: 8px solid #f3f3f3;
         border-top: 8px solid #3498db;
@@ -42,7 +40,7 @@
         width: 30px;
         height: 30px;
         animation: spin 1s linear infinite;
-        margin: 3px;
+        z-index: -12;
       }
     </style>
     <link
@@ -68,11 +66,15 @@
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
     ></script>
-    <div class="row h-100 d-flex align-items-center justify-content-center">
+    <div class="row h-100">
       <div id="buttonBar">
-        <div class="loader" id="loader" style="display: none"></div>
-
-        <button id="toggleButton">Current Image</button>
+        <button
+          id="toggleButton"
+          class="btn btn-primary"
+          style="margin-left: 600px"
+        >
+          Current Image
+        </button>
         <input
           type="number"
           class="manualInput"
@@ -93,6 +95,9 @@
           placeholder="endImage"
           style="display: none"
         />
+        <div id="loaderDiv" class="d-flex align-items-center">
+          <div class="loader" id="loader" style="display: none"></div>
+        </div>
       </div>
       <div id="viewer" class="col-8 h-100" style="background-color: black">
         <p id="info " style="position: absolute; color: white">
@@ -210,10 +215,12 @@ for hepatic tumor segmentation (and volumetry).*/
     ></script>
     <script>
       const loader = document.getElementById("loader");
+      const loaderDiv = document.getElementById("loaderDiv");
       let rotation = 0;
 
       function rotateLoader() {
-        loader.style.display = "block";
+        loaderDiv.style.flexGrow = 0;
+        loader.style.removeProperty("display");
 
         if (larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload) {
           rotation += 10; // You can adjust the rotation speed
@@ -237,8 +244,13 @@ for hepatic tumor segmentation (and volumetry).*/
           isMultiImage;
         toggleButton.innerHTML =
           isMultiImage === true ? "Multi Image" : "Current Image";
-        startInput.style.display = isMultiImage === true ? "block" : "none";
-        endInput.style.display = isMultiImage === true ? "block" : "none";
+        if (isMultiImage) {
+          startInput.style.removeProperty("display");
+          endInput.style.removeProperty("display");
+        } else {
+          startInput.style.display = "none";
+          endInput.style.display = "none";
+        }
       }
       const masksNumberInput = document.getElementById("masksNumber");
       // Add an input event listener

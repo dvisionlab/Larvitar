@@ -62,23 +62,19 @@
 
   <body class="h-100" style="background-color: #000000">
     <div class="container">
-      <div
-        id="buttonBar"
-        class="row justify-content-md-center"
-        style="display: none"
-      >
-        <div class="col-md-auto">
+      <div id="buttonBar" class="row" style="display: none">
+        <div id="loaderDiv" class="col">
           <div class="loader" id="loader"></div>
         </div>
 
         <!-- Bootstrap grid system for alignment -->
-        <div class="col-md-auto">
+        <div id="toggleButtonDiv" class="col">
           <button id="toggleButton" class="btn btn-primary">
             Current Image
           </button>
         </div>
 
-        <div class="col-md-auto">
+        <div id="masksNumberDiv" class="col">
           <input
             type="number"
             class="form-control manualInput"
@@ -87,7 +83,7 @@
           />
         </div>
 
-        <div class="col-md-auto">
+        <div id="startImageDiv" class="col">
           <input
             type="number"
             class="form-control manualInput"
@@ -97,7 +93,7 @@
           />
         </div>
 
-        <div class="col-md-auto">
+        <div id="endImageDiv" class="col">
           <input
             type="number"
             class="form-control manualInput"
@@ -400,7 +396,11 @@
       // Attach click event to the button
       const toggleButton = document.getElementById("toggleButton");
       toggleButton.addEventListener("click", triggerHandleToggle);
-
+      const buttonDiv = document.getElementById("toggleButtonDiv");
+      const loaderDiv = document.getElementById("loaderDiv");
+      const startDiv = document.getElementById("startImageDiv");
+      const endDiv = document.getElementById("endImageDiv");
+      const maskDiv = document.getElementById("masksNumberDiv");
       let demoFiles = [];
       let counter = 0;
 
@@ -542,8 +542,17 @@
               "apply the picked label<br />" +
               "<b>shift+click+drag for Manual Eraser</b>";
 
-            buttonBar.style.display = "block"; // make it visible
+            buttonBar.style.removeProperty("display"); // make it visible
+            //TODO: do not use block, delete display parameter from style instead
+            //to make it return to boostrap's default (flex)
+            //remove flex grow for
             loader.style.display = "none";
+            console.log(maskDiv.style);
+            maskDiv.style.flexGrow = 0;
+            loaderDiv.style.flexGrow = 0;
+            startDiv.style.flexGrow = 0;
+            endDiv.style.flexGrow = 0;
+            buttonDiv.style.flexGrow = 0;
             element.addEventListener("click", rotateLoader);
           } else {
             document.getElementById("info").innerHTML = "<br>";
