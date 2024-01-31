@@ -619,8 +619,7 @@ const setDefaultToolsProps = function (newProps: Partial<ToolConfig>[]) {
 
 const registerExternalTool = function (toolName: string, toolClass: any) {
   if (dvTools[toolName] || DEFAULT_TOOLS[toolName]) {
-    console.error(`${toolName} already exists`);
-    return;
+    console.warn(`${toolName} already exists, it will be replaced`);
   }
 
   dvTools[toolClass.name] = toolClass;
