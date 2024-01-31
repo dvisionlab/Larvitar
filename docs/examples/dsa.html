@@ -35,20 +35,24 @@
         </p>
         <p style="position: absolute; top: 40px; color: white">
           Press "w | a | s | d" to apply a pixel shift in the designed direction
+          on current frame
         </p>
         <p style="position: absolute; top: 60px; color: white">
-          Press "3" to apply pixel shift on all the stack
+          Press "x" to reset pixel shift on current frame
         </p>
         <p style="position: absolute; top: 80px; color: white">
+          Press "3" to apply pixel shift on all the stack
+        </p>
+        <p style="position: absolute; top: 100px; color: white">
           Press "p" to play/pause frame animation
         </p>
         <p
           id="frame-rate"
-          style="position: absolute; top: 100px; color: white"
+          style="position: absolute; top: 120px; color: white"
         ></p>
         <p
           id="image-time"
-          style="position: absolute; top: 120px; color: white"
+          style="position: absolute; top: 140px; color: white"
         ></p>
       </div>
     </div>
@@ -132,11 +136,8 @@
             case 51: // 3
               // async function
               larvitar.unloadAndRecacheImageStackDSA(multiFrameSerie);
-              setTimeout(function () {
-                larvitar.updateImage(multiFrameSerie, "viewer", frameId);
-                larvitar.redrawImage("viewer");
-              }, 1000);
-
+              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+              larvitar.redrawImage("viewer");
               break;
             case 119: // W
               // vertical shift to the upper part of the image
@@ -169,6 +170,16 @@
                 storedPixelShift[0],
                 storedPixelShift[1] - delta
               ]);
+              break;
+            case 120: // x
+              // RESET pixel shift
+              // async function
+              larvitar.applyDSAShift(
+                "viewer",
+                multiFrameSerie,
+                frameId,
+                [0.0, 0.0]
+              );
               break;
             case 112: // P
               animation = !animation;
