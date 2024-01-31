@@ -219,7 +219,7 @@ import {
 } from "./imaging/loaders/multiframeLoader";
 
 import {
-  fileManager,
+  getFileManager,
   resetFileLoader,
   resetFileManager,
   populateFileManager,
@@ -373,7 +373,7 @@ export {
   getMultiFrameImageId,
   clearMultiFrameCache,
   // loaders/fileLoader
-  fileManager,
+  getFileManager,
   resetFileLoader,
   resetFileManager,
   populateFileManager,

@@ -15,7 +15,7 @@ declare const initializeCSTools: (settings?: ToolSettings, style?: ToolStyle) =>
 /**
  * Create stack object to sync stack tools
  * @function csToolsCreateStack
- * @param {HTMLElement} element - The target hmtl element.
+ * @param {HTMLElement} element - The target html element.
  * @param {Array?} imageIds - Stack image ids.
  * @param {String} currentImageId - The current image id.
  */
@@ -78,4 +78,4 @@ declare const setToolPassive: (toolName: string, viewports?: string[]) => void;
  * @param {Object} style - the style object (see tools/defaults.js)
  */
 declare const setToolsStyle: (style?: ToolStyle) => void;
-export { initializeCSTools, setToolsStyle, csToolsCreateStack, addTool, setToolActive, setToolEnabled, setToolDisabled, setToolPassive, saveAnnotations, loadAnnotations, exportAnnotations };
+export { initializeCSTools, setToolsStyle, csToolsCreateStack, addTool, setToolActive, setToolEnabled, setToolDisabled, setToolPassive, saveAnnotations, loadAnnotations, exportAnnotations, };

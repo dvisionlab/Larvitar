@@ -50,7 +50,7 @@ const initializeCSTools = function (
 /**
  * Create stack object to sync stack tools
  * @function csToolsCreateStack
- * @param {HTMLElement} element - The target hmtl element.
+ * @param {HTMLElement} element - The target html element.
  * @param {Array?} imageIds - Stack image ids.
  * @param {String} currentImageId - The current image id.
  */
@@ -62,7 +62,8 @@ const csToolsCreateStack = function (
   let stack;
   if (imageIds) {
     stack = {
-      currentImageIdIndex: currentImageIndex,
+      currentImageIdIndex:
+        currentImageIndex === undefined ? 0 : currentImageIndex,
       imageIds: imageIds
     };
   } else {
@@ -153,7 +154,7 @@ const addTool = function (
       );
     }
 
-    const toolClass = cornerstoneTools[toolClassName] || dvTools[toolClassName];
+    const toolClass = dvTools[toolClassName] || cornerstoneTools[toolClassName];
 
     if (targetElementId) {
       let element = document.getElementById(targetElementId);
@@ -185,6 +186,7 @@ export const addDefaultTools = function (elementId: string) {
   each(DEFAULT_TOOLS, tool => {
     // check if already added
     if (!isToolMissing(tool.name)) {
+      console.log("missing");
       return;
     }
     // check target viewports and call add tool with options

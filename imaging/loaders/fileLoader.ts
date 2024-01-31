@@ -69,3 +69,16 @@ export const getFileImageId = function (file: File) {
   const imageId = has(fileManager, uuid) ? fileManager[uuid] : null;
   return imageId;
 };
+
+/**
+ * Return the common data file manager
+ * @instance
+ * @function getFileManager
+ * @returns {Object} the file manager
+ */
+export const getFileManager = function () {
+  if (fileManager == null) {
+    fileManager = {};
+  }
+  return fileManager;
+};

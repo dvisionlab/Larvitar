@@ -156,7 +156,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     this.handleToggle(
       DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode as string
     );
-
     // configure scroll direction
     const direction =
       invert *
@@ -181,18 +180,15 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
         nextIndex = 0 + direction;
         lastIndex = 0;
       }
-
       this.slicesnumber =
         Math.ceil(stackData.imageIds.length / this.framesNumber) - 1;
-
       // Ensure nextIndex is between 0 and upperBound
       const validIndex =
         nextIndex >= 0 &&
-        nextIndex < stackData.imageIds.length - 1 &&
+        nextIndex < stackData.imageIds.length &&
         this.slicesnumber > 0
           ? nextIndex
           : lastIndex;
-
       // Scroll to the calculated index
       scrollToIndex(element, validIndex);
     } else {

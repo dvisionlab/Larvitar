@@ -40,9 +40,10 @@ export declare function loadAndCacheImages(series: Series, callback: (payload: {
  * @function renderDICOMPDF
  * @param {Object} seriesStack - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Boolean} convertToImage - An optional flag to convert pdf to image, default is false
  * @returns {Promise} - Return a promise which will resolve when pdf is displayed
  */
-export declare const renderDICOMPDF: (seriesStack: Series, elementId: string | HTMLElement) => Promise<true>;
+export declare const renderDICOMPDF: (seriesStack: Series, elementId: string | HTMLElement, convertToImage?: boolean) => Promise<true>;
 /**
  * Render an image (png or jpg) from File on a html div using cornerstone
  * @instance
@@ -51,7 +52,7 @@ export declare const renderDICOMPDF: (seriesStack: Series, elementId: string | H
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  * @returns {Promise} - Return a promise which will resolve when image is displayed
  */
-export declare const renderFileImage: (file: File, elementId: string | HTMLElement) => Promise<unknown> | undefined;
+export declare const renderFileImage: (file: File, elementId: string | HTMLElement) => Promise<true>;
 /**
  * Render an image (png or jpg) from web url on a html div using cornerstone
  * @instance
