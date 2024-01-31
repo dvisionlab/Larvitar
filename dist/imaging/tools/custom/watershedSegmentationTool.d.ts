@@ -1,6 +1,14 @@
 import cornerstone, { Image } from "cornerstone-core";
+import cv from "@techstark/opencv-js";
 declare const BaseBrushTool: any;
 import { Series } from "../../types";
+interface WSConfig {
+    multiImage: boolean;
+    startIndex: number | null;
+    endIndex: number | null;
+    masksNumber: number;
+    onload?: boolean;
+}
 interface WSMouseEvent {
     detail: WSEventData;
 }
@@ -11,7 +19,7 @@ interface WSEventData {
             y: number;
         };
     };
-    element: Element;
+    element: Element | HTMLElement;
     buttons: number;
     shiftKey: boolean;
     event: {
@@ -42,6 +50,29 @@ interface labelmaps2DType {
  * @extends Tools.Base.BaseBrushTool
  */
 export default class WSToggleTool extends BaseBrushTool {
+    lowerThreshold: number | null;
+    upperThreshold: number | null;
+    maskArray: number[][] | null;
+    maskArrayCurrentImage: number[] | null;
+    src: cv.Mat | null;
+    dicomPixelData: number[] | null;
+    minThreshold: number | null;
+    pixelData: number[][] | null;
+    seriesUID: string | null;
+    maxThreshold: number | null;
+    segmentIndex: number;
+    indexImage: number;
+    imageId: string | null;
+    seriesId: string | null;
+    labelToErase: number | null;
+    click: number;
+    labelToChange: number | null;
+    element: HTMLElement | null;
+    _lastImageCoords: {
+        x: number;
+        y: number;
+    } | null;
+    configuration: WSConfig;
     constructor(props?: {});
     /**
      * Allows to get the canvas element when going over it with mouse
@@ -125,7 +156,7 @@ export default class WSToggleTool extends BaseBrushTool {
      *  @returns {void}
      *
      */
-    _applyWatershedSegmentationMultiImage(cachedImages: CachedImage[], ImageId: string, startIndex: number, endIndex: number, dicomPixelData: number[], minThreshold: number, maxThreshold: number, lowerThreshold: number, upperThreshold: number): Promise<void>;
+    _applyWatershedSegmentationMultiImage(cachedImages: CachedImage[], startIndex: number, endIndex: number, dicomPixelData: number[], minThreshold: number, maxThreshold: number, lowerThreshold: number, upperThreshold: number): Promise<void>;
     /**
      * Applies Watershed segmentation algorithm on pixel data using opencv.js
      * and evaluates the mask to apply to the original dicom image
