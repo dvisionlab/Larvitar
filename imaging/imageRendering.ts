@@ -482,7 +482,9 @@ export const renderImage = function (
         reject("invalid html element: " + elementId);
         return;
       }
+
       cornerstone.displayImage(element, image);
+
       if (series.layer) {
         // assign the image to its layer and return its id
         series.layer.id = cornerstone.addLayer(
@@ -580,9 +582,14 @@ export const renderImage = function (
  * @function redrawImage
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  */
-export const redrawImage = function (elementId: string) {
-  let el = cornerstone.getEnabledElement(document.getElementById(elementId)!);
-  cornerstone.drawImage(el, true);
+export const redrawImage = function (elementId: string): void {
+  const element = document.getElementById(elementId);
+  if (element) {
+    const cornestoneElement = cornerstone.getEnabledElement(element);
+    cornerstone.drawImage(cornestoneElement, true);
+  } else {
+    console.error("invalid html element: " + elementId);
+  }
 };
 
 /**
@@ -638,6 +645,7 @@ export const updateImage = async function (
     if (getPerformanceMonitor() === true) {
       t0 = performance.now();
     }
+
     const image = await cornerstone.loadAndCacheImage(imageId);
     cornerstone.displayImage(element, image);
 
@@ -665,8 +673,7 @@ export const updateImage = async function (
     }
 
     const image = await cornerstone.loadImage(imageId);
-    await cornerstone.displayImage(element, image);
-    cornerstone.updateImage(element);
+    cornerstone.displayImage(element, image);
 
     if (getPerformanceMonitor() === true) {
       const t1 = performance.now();
@@ -1072,7 +1079,7 @@ const getSeriesData = function (
   const data: RecursivePartial<SeriesData> = {};
   data.seriesUID = series.larvitarSeriesInstanceUID || series.seriesUID; //case of resliced series
   if (series.isMultiframe) {
-    data.isMultiframe = series.isMultiframe || true;
+    data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;
     data.imageIndex = 0;
     data.imageId = series.imageIds[data.imageIndex];

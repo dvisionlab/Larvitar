@@ -163,7 +163,6 @@ export type Series = {
   elements?: { [key: string]: any } | null;
   layer: Layer;
   orientation?: "axial" | "coronal" | "sagittal"; // this is needed for legacy reslice
-  images?: { [key: string]: Image };
 };
 
 export interface Layer extends cornerstone.EnabledElementLayer {
@@ -305,7 +304,6 @@ export type NrrdSeries = {
   dataSet?: DataSet;
   metadata?: MetaData;
   ecgData?: number[];
-  images?: { [key: string]: Image };
   isMultiframe?: boolean;
   numberOfFrames?: number;
 };

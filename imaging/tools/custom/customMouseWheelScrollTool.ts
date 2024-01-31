@@ -8,7 +8,6 @@ import { Image } from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
-//const scrollToIndex = cornerstoneTools.importInternal("util/scrollToIndex");
 const getToolState = cornerstoneTools.getToolState;
 
 // internal libraries
@@ -19,6 +18,7 @@ import scrollToIndex from "./utils/customMouseWheelUtils";
 import { getLarvitarImageTracker } from "../../loaders/commonLoader";
 import { getLarvitarManager } from "../../loaders/commonLoader";
 import { LarvitarManager, Series } from "../../types";
+
 // global variables
 type StackData = {
   currentImageIdIndex: number;

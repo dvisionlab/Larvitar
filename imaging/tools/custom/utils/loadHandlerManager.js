@@ -1,4 +1,7 @@
+// external libraries
 import cornerstoneTools from "cornerstone-tools";
+
+// global variables
 const external = cornerstoneTools.external;
 const _DEFAULT_LOAD_HANDLER = "DEFAULT";
 

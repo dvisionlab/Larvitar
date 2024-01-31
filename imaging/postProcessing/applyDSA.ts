@@ -2,18 +2,19 @@
  *  @desc This file provides digital subtraction algorithm for XA images
  */
 
+// external libraries
+import { find } from "lodash";
+import cornerstone, { Image } from "cornerstone-core";
+
 // internal libraries
 import { DSA, Series } from "../types";
 import { updateImage, redrawImage } from "../imageRendering";
 import store from "../imageStore";
 
-// external libraries
-import { find } from "lodash";
-import cornerstone, { Image } from "cornerstone-core";
-
 /*
  * This module provides the following functions to be exported:
  * applyDSA(multiframeSerie: Series, index: number): number[]
+ * applyDSAShift(elementId: string, multiFrameSerie: Series, frameId: number, inputMaskSubPixelShift: number[]): void
  */
 
 /**

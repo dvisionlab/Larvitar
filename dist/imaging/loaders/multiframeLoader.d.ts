@@ -1,8 +1,8 @@
 /** @module loaders/multiframeLoader
  *  @desc This file is a custom DICOM loader for multiframe images
  */
-import type { Series } from "../types";
 import { ImageLoader } from "cornerstone-core";
+import type { Series } from "../types";
 /**
  * Custom MultiFrame Loader Function
  * @export

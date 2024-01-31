@@ -6,7 +6,7 @@
 // external libraries
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { DataSet } from "dicom-parser";
-import { each, cloneDeep } from "lodash";
+import { each } from "lodash";
 import { updateLoadedStack } from "../imageLoading";
 import type {
   ImageObject,

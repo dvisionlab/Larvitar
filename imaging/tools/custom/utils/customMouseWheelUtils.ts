@@ -1,26 +1,31 @@
+// external libraries
 import cornerstoneTools from "cornerstone-tools";
-const EVENTS = cornerstoneTools.EVENTS;
-const external = cornerstoneTools.external;
-const getToolState = cornerstoneTools.getToolState;
-const triggerEvent = cornerstoneTools.importInternal("util/triggerEvent");
+import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
+
+// internal libraries
+import { getLarvitarManager } from "../../../loaders/commonLoader";
+import { LarvitarManager, Series } from "../../../types";
+import store from "../../../imageStore";
+import { getLarvitarImageTracker } from "../../../loaders/commonLoader";
 import loadHandlerManager from "./loadHandlerManager";
 //const loadHandlerManager = cornerstoneTools.importInternal(
 //  "stateManagement/loadHandlerManager"
 //);// TODO LAURA CHECK HOW TO IMPORT IT
 
-import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
-import { getLarvitarManager } from "../../../loaders/commonLoader";
-import { LarvitarManager, Series } from "../../../types";
-import store from "../../../imageStore";
-import { getLarvitarImageTracker } from "../../../loaders/commonLoader";
+// global variables
+const EVENTS = cornerstoneTools.EVENTS;
+const external = cornerstoneTools.external;
+const getToolState = cornerstoneTools.getToolState;
+const triggerEvent = cornerstoneTools.importInternal("util/triggerEvent");
+
 /**
  * Scrolls through the stack to the image index requested.
  * @export @public @method
  * @name scrollToIndex
  *
- * @param  {type} element         The element to scroll through.
- * @param  {type} newImageIdIndex The target image index.
- * @returns {void}
+ * @param {type} element - The element to scroll through.
+ * @param {type} newImageIdIndex - The target image index.
+ * @returns{void}
  */
 interface StackData {
   currentImageIdIndex: number;

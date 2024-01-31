@@ -4,6 +4,7 @@
 
 // external libraries
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
+import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 import { each, range } from "lodash";
 
 // internal libraries
@@ -21,7 +22,6 @@ import type {
   Series
 } from "../types";
 import { populateDsaImageIds } from "./dsaImageLoader";
-import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 
 // global module variables
 let customImageLoaderCounter = 0;
