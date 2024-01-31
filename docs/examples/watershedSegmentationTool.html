@@ -114,79 +114,148 @@
        
         <code class="typescript" style="background-color: #000000">
           <p style="font-size:0.7vw;">
-            let demoFiles = [];
-      let counter = 0;
-
-      const getDemoFileNames = function () {
-        let demoFileList = [];
-        for (let i = 1; i < 25; i++) {
-          let filename = "anon" + i;
-          demoFileList.push(filename);
-        }
-        return demoFileList;
-      };
-
-      // init all
-      larvitar.initializeImageLoader();
-      larvitar.initializeCSTools();
-      larvitar.store.initialize();
-      larvitar.store.addViewport("viewer");
-      larvitar.registerExternalTool("Test", WatershedSegmentationTool);
-
-      async function createFile(fileName, cb) {
-        let response = await fetch("./demo/" + fileName);
-        let data = await response.blob();
-        let file = new File([data], fileName);
-        demoFiles.push(file);
-        counter++;
-        if (counter == 24) {
-          cb();
-        }
-      }
-
-      function renderSerie() {
-        larvitar.resetLarvitarManager();
-        larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
-            let serie = seriesStack[seriesId];
-            larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
-            });
-            // optionally cache the series
-            larvitar.populateLarvitarManager(seriesId, serie);
-            larvitar.cacheImages(serie, function (resp) {
-              if (resp.loading == 100) {
-                let cache = larvitar.cornerstone.imageCache;
-                console.log(
-                  "Cache size: ",
-                  cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                  "Mb"
-                );
+            function triggerHandleToggle() {
+              let isMultiImage =
+                larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage === false
+                  ? true
+                  : false;
+              larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage =
+                isMultiImage;
+              toggleButton.innerHTML =
+                isMultiImage === true ? "Multi Image" : "Current Image";
+              if (isMultiImage) {
+                startInput.style.removeProperty("display");
+                endInput.style.removeProperty("display");
+              } else {
+                startInput.style.display = "none";
+                endInput.style.display = "none";
               }
+            }
+            const masksNumberInput = document.getElementById("masksNumber");
+            // Add an input event listener
+            masksNumberInput.addEventListener("input", function (event) {
+              // Update the variable with the input value
+              larvitar.DEFAULT_TOOLS["WSToggle"].configuration.masksNumber =
+                event.target.value;
             });
-            larvitar.addTool("Test");
-            larvitar.setToolActive("Test");
-          })
-          .catch(err => console.error(err));
-      }
-
-      let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
-        createFile(demoFile, renderSerie);
-      });
-
-/*Hahn and Peitgen [2000] extracted the brain with a single watershed transform from MRI data. 
-Also, the cerebral ventricles were reliably segmented with minimal interaction. 
-Hahn and Peitgen [2003] demonstrated the application to the challenging problem of
-delineating individual bones in the human wrist (see Fig. 4.17). 
-Kuhnigk et al. [2003] employed the above-described variant of the watershed segmentation 
-to the delineation of lung lobes in CT data. 
-Ray et al. [2008] used the iterative watershed transform 
-for hepatic tumor segmentation (and volumetry).*/
-
+            const startInput = document.getElementById("startImage");
+            // Add an input event listener
+            startInput.addEventListener("input", function (event) {
+              // Update the variable with the input value
+              console.log("Start", event.target.value);
+              larvitar.DEFAULT_TOOLS["WSToggle"].configuration.startIndex =
+                event.target.value;
+            });
+            const endInput = document.getElementById("endImage");
+            // Add an input event listener
+            endInput.addEventListener("input", function (event) {
+              // Update the variable with the input value
+              console.log("end", event.target.value);
+              larvitar.DEFAULT_TOOLS["WSToggle"].configuration.endIndex =
+                event.target.value;
+            });
+            // Attach click event to the button
+            const toggleButton = document.getElementById("toggleButton");
+            toggleButton.addEventListener("click", triggerHandleToggle);
+      
+            let demoFiles = [];
+            let counter = 0;
+            const getDemoFileNames = function () {
+              let demoFileList = [];
+              for (let i = 101; i < 125; i++) {
+                let filename = "I" + i;
+                demoFileList.push(filename);
+              }
+              return demoFileList;
+            };
+            // init all
+            larvitar.initializeImageLoader();
+            larvitar.initializeCSTools();
+            larvitar.store.initialize();
+            larvitar.store.addViewport("viewer");
+            let element = document.getElementById("viewer");
+            element.addEventListener("click", rotateLoader);
+            larvitar.registerNRRDImageLoader();
+            larvitar.initSegmentationModule();
+            const cornerstone = larvitar.cornerstone;
+            async function createFile(fileName, cb) {
+              let response = await fetch("./demo/covid/" + fileName);
+              let data = await response.blob();
+              let file = new File([data], fileName);
+              demoFiles.push(file);
+              counter++;
+              if (counter == 24) {
+                cb();
+              }
+            }
+      
+            async function renderSerie() {
+              larvitar.resetLarvitarManager();
+              larvitar
+                .readFiles(demoFiles)
+                .then(seriesStack => {
+                  console.log(seriesStack);
+                  // render the first series of the study
+                  let seriesId = _.keys(seriesStack)[0];
+                  let serie = seriesStack[seriesId];
+                  larvitar.renderImage(serie, "viewer").then(() => {
+                    console.log("Image has been rendered");
+                  });
+                  // optionally cache the series
+                  larvitar.populateLarvitarManager(seriesId, serie);
+      
+                  larvitar
+                    .cacheImages(serie, function (resp) {
+                      if (resp.loading == 100) {
+                        let cache = larvitar.cornerstone.imageCache;
+                        console.log(
+                          "Cache size: ",
+                          cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                          "Mb"
+                        );
+                      }
+                    })
+                    .then(() => {
+                      setTimeout(function () {
+                        console.log("Cache has been loaded. Calling loadMasks.");
+                        larvitar.addDefaultTools();
+                        loadMasks();
+                      }, 3000);
+                    });
+                })
+                .catch(err => console.error(err));
+            }
+      
+            async function loadMasks() {
+              console.log("loadMasks() called");
+              let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
+              let properties = {
+                // color: "#00ff00",
+                opacity: 0.2,
+                labelId: 0
+              };
+              // add to viewport
+              await larvitar
+                .addSegmentationMask(properties, data, "viewer")
+                .then(() => {
+                  // activate brush on this labelmap
+                  larvitar.setActiveLabelmap(0, "viewer");
+                  larvitar.setToolActive("WSToggle");
+                });
+            }
+      
+            let demoFileList = getDemoFileNames();
+            _.each(demoFileList, function (demoFile) {
+              createFile(demoFile, renderSerie);
+            });
+            /*Hahn and Peitgen [2000] extracted the brain with a single watershed transform from MRI data.
+            Also, the cerebral ventricles were reliably segmented with minimal interaction.
+            Hahn and Peitgen [2003] demonstrated the application to the challenging problem of
+            delineating individual bones in the human wrist (see Fig. 4.17).
+            Kuhnigk et al. [2003] employed the above-described variant of the watershed segmentation
+            to the delineation of lung lobes in CT data.
+            Ray et al. [2008] used the iterative watershed transform
+            for hepatic tumor segmentation (and volumetry).*/
 
         </p>    
     </code>
