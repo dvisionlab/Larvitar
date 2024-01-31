@@ -108,10 +108,10 @@
     </div>
 
     <script src="./larvitar.js"></script>
-    <script src="./VetTool.js"></script>
-    <script src="./VetToolSuperimposed.js"></script>
-    <script src="./VetToolThreeLines.js"></script>
-    <script src="./VetToolManualThreeLines.js"></script>
+    <script src="./externalTools/OriginalPlotTool.js"></script>
+    <script src="./externalTools/PlotSuperimposedTool.js"></script>
+    <script src="./externalTools/ManualLengthPlotTool.js"></script>
+    <script src="./externalTools/LengthPlotTool.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>
@@ -132,10 +132,10 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
-      larvitar.registerExternalTool("Test1", VetToolClassic);
-      larvitar.registerExternalTool("Test2", VetToolSuperimposed);
-      larvitar.registerExternalTool("Test3", VetToolThreeLines);
-      larvitar.registerExternalTool("Test4", VetToolManualThreeLines);
+      larvitar.registerExternalTool("OriginalPlot", OriginalPlotTool);
+      larvitar.registerExternalTool("PlotSuperimposed", PlotSuperimposedTool);
+      larvitar.registerExternalTool("LengthPlot3", LengthPlot3Tool);
+      larvitar.registerExternalTool("ManualLengthPlot3", ManualLengthPlot3Tool);
       const offset = document.getElementById("offset");
       offset.style.display = "none";
       offset.addEventListener("input", function (event) {
@@ -176,16 +176,22 @@
                 );
               }
             });
-            larvitar.addTool("Test1");
-            larvitar.addTool("Test2");
-            larvitar.addTool("Test3");
-            larvitar.addTool("Test4");
-            larvitar.setToolActive("Test1");
+            //larvitar.addDefaultTools();
+            larvitar.addTool("OriginalPlot");
+            larvitar.addTool("PlotSuperimposed");
+            larvitar.addTool("LengthPlot3");
+            larvitar.addTool("ManualLengthPlot3");
+            larvitar.setToolActive("OriginalPlot");
           })
           .catch(err => console.error(err));
       }
 
-      let tools = ["Test1", "Test2", "Test3", "Test4"];
+      let tools = [
+        "OriginalPlot",
+        "PlotSuperimposed",
+        "LengthPlot3",
+        "ManualLengthPlot3"
+      ];
       let i = 0;
       let element = document.getElementById("viewer");
       document.addEventListener("keydown", function (event) {
@@ -199,7 +205,7 @@
           clearToolData(element, tools[i - 1]);
 
           let next = tools[i];
-          if (next === "Test3") {
+          if (next === "LengthPlot3") {
             offset.style.display = "block";
           } else {
             offset.style.display = "none";

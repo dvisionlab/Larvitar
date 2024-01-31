@@ -1,84 +1,31 @@
-//external imports
-import { BaseToolStateData, HandlePosition } from "../types";
-import Plotly from "plotly.js-dist-min";
-import cornerstone from "cornerstone-core";
-import cornerstoneTools from "cornerstone-tools";
-import { find } from "lodash";
+/*const cornerstoneTools = larvitar.cornerstoneTools;
+const cornerstone = larvitar.cornerstone;
+const external = cornerstoneTools.external;
 // State
 const getToolState = cornerstoneTools.getToolState; //check
+const toolStyle = cornerstoneTools.toolStyle;
 const toolColors = cornerstoneTools.toolColors;
 // Drawing
+const EVENTS = cornerstoneTools.EVENTS;
 const draw = cornerstoneTools.importInternal("drawing/draw");
 const drawLine = cornerstoneTools.importInternal("drawing/drawLine");
 const setShadow = cornerstoneTools.importInternal("drawing/setShadow");
 const getNewContext = cornerstoneTools.importInternal("drawing/getNewContext");
+const drawLinkedTextBox = cornerstoneTools.importInternal(
+  "drawing/drawLinkedTextBox"
+);
 const drawHandles = cornerstoneTools.importInternal("drawing/drawHandles");
 const { lengthCursor } = cornerstoneTools.importInternal("tools/cursors");
+const getLogger = cornerstoneTools.importInternal("util/getLogger");
 const throttle = cornerstoneTools.importInternal("util/throttle");
 const getModule = cornerstoneTools.getModule;
 const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
 const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
-);
+);*/
+// import cornerstoneTools from "cornerstone-tools";
 
-//interfaces/types
-type PixelSpacing = {
-  rowPixelSpacing: number;
-  colPixelSpacing: number;
-};
-type ToolData = {
-  data: data[];
-};
-type data = {
-  visible: boolean;
-  active: boolean;
-  color: string;
-  invalidated: boolean;
-  handles: Handles;
-  length: number;
-  uuid: string;
-};
-type Handles = {
-  start: HandlePosition;
-  end: HandlePosition;
-  textBox?: {
-    active: boolean;
-    hasMoved: boolean;
-    movesIndependently: boolean;
-    drawnIndependently: boolean;
-    allowedOutsideImage: boolean;
-    hasBoundingBox: boolean;
-  };
-};
-type ToolMouseEvent = {
-  detail: EventData;
-  currentTarget: any;
-};
-type EventData = {
-  currentPoints: {
-    image: { x: number; y: number };
-  };
-  element: HTMLElement;
-  buttons: number;
-  shiftKey: boolean;
-  event: {
-    altKey: boolean;
-    shiftKey: boolean;
-  };
-  image: cornerstone.Image;
-  canvasContext: {
-    canvas: any;
-  };
-};
-type PlotlyData = {
-  x: number[];
-  y: number[];
-  type: string;
-  line: {
-    color: string;
-  };
-};
 /**
  * @public
  * @class LengthTool
@@ -86,33 +33,10 @@ type PlotlyData = {
  * @classdesc Tool for measuring distances.
  * @extends Tools.Base.BaseAnnotationTool
  */
-export default class ManualLengthPlotTool extends BaseAnnotationTool {
-  name: string = "ManualLengthPlot";
-  eventData?: EventData;
-  datahandles?: Handles;
-  plotlydata: Array<PlotlyData> = [];
-  measuring = false;
-  throttledUpdateCachedStats: any;
-  lineNumber: number | null = null;
-  greenlineY: number | null = null;
-  newMeasurement: boolean = false;
-  configuration: {
-    drawHandles: boolean;
-    drawHandlesOnHover: boolean;
-    hideHandlesIfMoving: boolean;
-    renderDashed: boolean;
-    digits: number;
-    handleRadius?: number;
-  } = {
-    drawHandles: true,
-    drawHandlesOnHover: false,
-    hideHandlesIfMoving: false,
-    renderDashed: false,
-    digits: 2
-  };
+class PlotSuperimposedTool extends BaseAnnotationTool {
   constructor(props = {}) {
     const defaultProps = {
-      name: "HorizontalTool",
+      name: "PlotSuperimposed",
       supportedInteractionTypes: ["Mouse"],
       svgCursor: lengthCursor,
       configuration: {
@@ -125,82 +49,62 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
     };
 
     super(props, defaultProps);
+    this.eventData;
+    this.datahandles;
+    this.color;
+    this.newMeasurement = false;
+    this.plotlydata = [];
+    this.measures = 0;
     this.handleMouseUp = this.handleMouseUp.bind(this);
     // Add event listeners to start and stop measurements
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
-  getColor(y: number) {
-    let color: string = "red";
-
-    if (this.lineNumber === null || this.lineNumber === 3) {
-      color = "green";
-      this.greenlineY = y;
-      this.lineNumber = 1;
-    } else if (y < this.greenlineY!) {
-      color = this.color === "blue" ? "red" : "blue";
-      this.lineNumber = this.lineNumber + 1;
-    } else if (y > this.greenlineY!) {
-      color = this.color === "red" ? "blue" : "red";
-      this.lineNumber = this.lineNumber + 1;
+  getColor() {
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
     }
-
     return color;
   }
 
-  handleMouseUp = (event: MouseEvent) => {
+  handleMouseUp = event => {
     const eventData = this.eventData;
-    const { element } = eventData!;
-    //const toolData: ToolData = getToolState(element, this.name);
 
     const points = this.getPointsAlongLine(
-      this.datahandles!.start,
-      this.datahandles!.end,
-      getPixelSpacing(eventData!.image).colPixelSpacing
+      this.datahandles.start,
+      this.datahandles.end,
+      getPixelSpacing(eventData.image).colPixelSpacing
     );
     const pixelValues = this.getPixelValuesAlongLine(
-      this.datahandles!.start,
+      this.datahandles.start,
       points,
-      getPixelSpacing(eventData!.image).colPixelSpacing,
-      eventData!
+      getPixelSpacing(eventData.image).colPixelSpacing,
+      eventData
     );
 
     // Plot the graph using the extracted points and pixel values
     this.createPlot(points, pixelValues);
   };
-  clearCanvasAndPlot(eventData: EventData) {
-    // Clear the canvas
-    const { element } = eventData;
-    const toolData: ToolData = getToolState(element, this.name);
 
-    if (toolData && toolData.data && toolData.data.length > 0) {
-      toolData.data.forEach((data: data) => {
-        data.visible = false;
-      });
-    }
-    // Clear the Plotly plot
-    const myPlotDiv = document.getElementById("myPlot");
-    Plotly.purge(myPlotDiv as Plotly.Root);
-    this.plotlydata = [];
-  }
-  createNewMeasurement(eventData: EventData) {
+  createNewMeasurement(eventData) {
     this.newMeasurement = true;
-    if (this.lineNumber === 3) {
-      this.clearCanvasAndPlot(eventData);
-    }
+
+    this.measures = this.measures + 1;
     this.eventData = eventData;
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
     if (!goodEventData) {
-      console.error(
+      logger.error(
         `required eventData not supplied to tool ${this.name}'s createNewMeasurement`
       );
 
       return;
     }
-    const { x, y } = eventData.currentPoints.image;
-    let color = this.getColor(y);
+    let color = this.getColor();
     this.color = color;
+    const { x, y } = eventData.currentPoints.image;
 
     return {
       visible: true,
@@ -240,17 +144,13 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
    * @param {*} coords
    * @returns {Boolean}
    */
-  pointNearTool(
-    element: HTMLElement,
-    data: data,
-    coords: { x: number; y: number }
-  ) {
+  pointNearTool(element, data, coords) {
     const hasStartAndEndHandles =
       data && data.handles && data.handles.start && data.handles.end;
     const validParameters = hasStartAndEndHandles;
 
     if (!validParameters) {
-      console.warn(
+      logger.warn(
         `invalid parameters supplied to tool ${this.name}'s pointNearTool`
       );
 
@@ -267,13 +167,8 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
     );
   }
 
-  updateCachedStats(
-    image: cornerstone.Image,
-    element: HTMLElement,
-    data: data
-  ) {
-    const { rowPixelSpacing, colPixelSpacing }: PixelSpacing =
-      getPixelSpacing(image);
+  updateCachedStats(image, element, data) {
+    const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
 
     // Set rowPixelSpacing and columnPixelSpacing to 1 if they are undefined (or zero)
     const dx =
@@ -289,7 +184,7 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
     data.invalidated = false;
   }
 
-  renderToolData(evt: ToolMouseEvent) {
+  renderToolData(evt) {
     const eventData = evt.detail;
     const { image, element } = eventData;
     element.addEventListener("mouseup", this.handleMouseUp);
@@ -297,21 +192,23 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
       handleRadius,
       drawHandlesOnHover,
       hideHandlesIfMoving,
-      renderDashed
+      renderDashed,
+      digits
     } = this.configuration;
-    const toolData: ToolData = getToolState(evt.currentTarget, this.name);
+    const toolData = getToolState(evt.currentTarget, this.name);
 
     if (!toolData) {
       return;
     }
 
     // We have tool data for this element - iterate over each one and draw it
-    const context: CanvasRenderingContext2D = getNewContext(
-      eventData.canvasContext.canvas
-    );
+    const context = getNewContext(eventData.canvasContext.canvas);
 
-    const lineDash: boolean = getModule("globalConfiguration").configuration
-      .lineDash;
+    const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+
+    const lineWidth = toolStyle.getToolWidth();
+    const lineDash = getModule("globalConfiguration").configuration.lineDash;
+    let data = toolData.data;
     let start;
     let end;
 
@@ -322,16 +219,13 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
         continue;
       }
 
-      draw(context, (context: CanvasRenderingContext2D) => {
+      draw(context, context => {
         // Configurable shadow
         setShadow(context, this.configuration);
 
         const color = toolColors.getColorIfActive(data);
-        if (data.active) {
-          this.color = color;
-          this.datahandles = data.handles;
-        }
-        const lineOptions: { color: string; lineDash?: boolean } = { color };
+
+        const lineOptions = { color };
 
         if (renderDashed) {
           lineOptions.lineDash = lineDash;
@@ -339,6 +233,10 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
         start = data.handles.start;
         end = data.handles.end;
         data.handles.end.y = data.handles.start.y;
+        if (data.active) {
+          this.color = color;
+          this.datahandles = data.handles;
+        }
         // Draw the measurement line
         drawLine(
           context,
@@ -360,7 +258,19 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
           drawHandles(context, eventData, data.handles, handleOptions);
         }
 
-        this.currentuuid = data.uuid;
+        if (!data.handles.textBox.hasMoved) {
+          const coords = {
+            x: Math.max(data.handles.start.x, data.handles.end.x),
+            y: data.handles.start.y
+          };
+          data.handles.textBox.x = coords.x;
+          data.handles.textBox.y = coords.y;
+        }
+
+        // Move the textbox slightly to the right and upwards
+        // So that it sits beside the length tool handle
+        const xOffset = 10;
+
         // Update textbox stats
         if (data.invalidated === true) {
           if (data.length) {
@@ -369,16 +279,57 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
             this.updateCachedStats(image, element, data);
           }
         }
+
+        //const text = textBoxText(data, rowPixelSpacing, colPixelSpacing);
+
+        /*drawLinkedTextBox(
+          context,
+          element,
+          data.handles.textBox,
+          text,
+          data.handles,
+          textBoxAnchorPoints,
+          color,
+          lineWidth,
+          xOffset,
+          true
+        );*/
       });
+    }
+
+    // - SideEffect: Updates annotation 'suffix'
+    function textBoxText(annotation, rowPixelSpacing, colPixelSpacing) {
+      const measuredValue = _sanitizeMeasuredValue(annotation.length);
+
+      // Measured value is not defined, return empty string
+      if (!measuredValue) {
+        return "";
+      }
+
+      // Set the length text suffix depending on whether or not pixelSpacing is available
+      let suffix = "mm";
+
+      if (!rowPixelSpacing || !colPixelSpacing) {
+        suffix = "pixels";
+      }
+
+      annotation.unit = suffix;
+
+      return `${measuredValue.toFixed(digits)} ${suffix}`;
+    }
+
+    function textBoxAnchorPoints(handles) {
+      const midpoint = {
+        x: (handles.start.x + handles.end.x) / 2,
+        y: (handles.start.y + handles.end.y) / 2
+      };
+
+      return [handles.start, midpoint, handles.end];
     }
   }
 
-  getPointsAlongLine(
-    startHandle: HandlePosition,
-    endHandle: HandlePosition,
-    colPixelSpacing: number
-  ) {
-    const points: number[] = [];
+  getPointsAlongLine(startHandle, endHandle, colPixelSpacing) {
+    const points = [];
     const numPoints = Math.floor(endHandle.x) - Math.floor(startHandle.x);
     let x = Math.floor(startHandle.x) + 1;
     points.push(x * colPixelSpacing);
@@ -389,13 +340,8 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
     return points;
   }
 
-  getPixelValuesAlongLine(
-    startHandle: HandlePosition,
-    points: number[],
-    colPixelSpacing: number,
-    eventData: EventData
-  ) {
-    const pixelValues: number[] = [];
+  getPixelValuesAlongLine(startHandle, points, colPixelSpacing, eventData) {
+    const pixelValues = [];
     const yPoint = Math.floor(startHandle.y); // Adjust this if needed
     for (let i = 0; i < points.length; i++) {
       const xPoint = Math.floor(points[i] / colPixelSpacing);
@@ -414,7 +360,7 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
 
     return pixelValues;
   }
-  createPlot(points: number[], pixelValues: number[]) {
+  createPlot(points, pixelValues) {
     // Create a new trace for each measurement
     const trace = {
       x: points,
@@ -434,8 +380,8 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
       );
       this.plotlydata[indexOfExistentData] = trace;
     }
-    const data = [...this.plotlydata];
     // Combine all traces into a single data array
+    const data = [...this.plotlydata];
 
     // Adjust the axis range based on all data
     const allXValues = data.flatMap(trace => trace.x);
@@ -456,7 +402,21 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
 
     // Display using Plotly
     const myPlotDiv = document.getElementById("myPlot");
-    Plotly.newPlot(myPlotDiv as Plotly.Root, data as Plotly.Data[], layout);
+    Plotly.newPlot(myPlotDiv, data, layout);
     this.newMeasurement = false;
   }
+}
+
+/**
+ * Attempts to sanitize a value by casting as a number; if unable to cast,
+ * we return `undefined`
+ *
+ * @param {*} value
+ * @returns a number or undefined
+ */
+function _sanitizeMeasuredValue(value) {
+  const parsedValue = Number(value);
+  const isNumber = !isNaN(parsedValue);
+
+  return isNumber ? parsedValue : undefined;
 }

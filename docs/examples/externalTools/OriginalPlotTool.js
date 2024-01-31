@@ -1,4 +1,4 @@
-/*const cornerstoneTools = larvitar.cornerstoneTools;
+const cornerstoneTools = larvitar.cornerstoneTools;
 const cornerstone = larvitar.cornerstone;
 const external = cornerstoneTools.external;
 // State
@@ -23,7 +23,7 @@ const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
 const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
-);*/
+);
 // import cornerstoneTools from "cornerstone-tools";
 
 /**
@@ -33,10 +33,10 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
  * @classdesc Tool for measuring distances.
  * @extends Tools.Base.BaseAnnotationTool
  */
-class VetToolSuperimposed extends BaseAnnotationTool {
+class OriginalPlotTool extends BaseAnnotationTool {
   constructor(props = {}) {
     const defaultProps = {
-      name: "HorizontalTool",
+      name: "OriginalPlot",
       supportedInteractionTypes: ["Mouse"],
       svgCursor: lengthCursor,
       configuration: {
@@ -52,14 +52,12 @@ class VetToolSuperimposed extends BaseAnnotationTool {
     this.eventData;
     this.datahandles;
     this.color;
-    this.newMeasurement = false;
-    this.plotlydata = [];
-    this.measures = 0;
+    this.measuring = false; // New variable to track measurement state
     this.handleMouseUp = this.handleMouseUp.bind(this);
     // Add event listeners to start and stop measurements
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
-  getColor() {
+  getRandomColor() {
     const letters = "0123456789ABCDEF";
     let color = "#";
     for (let i = 0; i < 6; i++) {
@@ -69,6 +67,7 @@ class VetToolSuperimposed extends BaseAnnotationTool {
   }
 
   handleMouseUp = event => {
+    this.measuring = false;
     const eventData = this.eventData;
 
     const points = this.getPointsAlongLine(
@@ -88,10 +87,8 @@ class VetToolSuperimposed extends BaseAnnotationTool {
   };
 
   createNewMeasurement(eventData) {
-    this.newMeasurement = true;
-
-    this.measures = this.measures + 1;
     this.eventData = eventData;
+    this.measuring = true;
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
@@ -102,7 +99,7 @@ class VetToolSuperimposed extends BaseAnnotationTool {
 
       return;
     }
-    let color = this.getColor();
+    let color = this.getRandomColor();
     this.color = color;
     const { x, y } = eventData.currentPoints.image;
 
@@ -233,10 +230,6 @@ class VetToolSuperimposed extends BaseAnnotationTool {
         start = data.handles.start;
         end = data.handles.end;
         data.handles.end.y = data.handles.start.y;
-        if (data.active) {
-          this.color = color;
-          this.datahandles = data.handles;
-        }
         // Draw the measurement line
         drawLine(
           context,
@@ -256,6 +249,7 @@ class VetToolSuperimposed extends BaseAnnotationTool {
 
         if (this.configuration.drawHandles) {
           drawHandles(context, eventData, data.handles, handleOptions);
+          this.datahandles = data.handles;
         }
 
         if (!data.handles.textBox.hasMoved) {
@@ -330,12 +324,24 @@ class VetToolSuperimposed extends BaseAnnotationTool {
 
   getPointsAlongLine(startHandle, endHandle, colPixelSpacing) {
     const points = [];
-    const numPoints = Math.floor(endHandle.x) - Math.floor(startHandle.x);
-    let x = Math.floor(startHandle.x) + 1;
-    points.push(x * colPixelSpacing);
-    for (let i = 0; i < numPoints; i++) {
-      x = x + 1;
-      points.push(x * colPixelSpacing); //from pixels to mm
+
+    if (endHandle.x > startHandle.x) {
+      const numPoints = Math.floor(endHandle.x) - Math.floor(startHandle.x);
+      let x = Math.floor(startHandle.x) + 1;
+      points.push(x * colPixelSpacing);
+      for (let i = 0; i < numPoints; i++) {
+        x = x + 1;
+        points.push(x * colPixelSpacing); //from pixels to mm
+      }
+    }
+    if (endHandle.x < startHandle.x) {
+      const numPoints = Math.floor(startHandle.x) - Math.floor(endHandle.x);
+      let x = Math.floor(endHandle.x) + 1;
+      points.push(x * colPixelSpacing);
+      for (let i = 0; i < numPoints; i++) {
+        x = x + 1;
+        points.push(x * colPixelSpacing); //from pixels to mm
+      }
     }
     return points;
   }
@@ -361,49 +367,38 @@ class VetToolSuperimposed extends BaseAnnotationTool {
     return pixelValues;
   }
   createPlot(points, pixelValues) {
-    // Create a new trace for each measurement
-    const trace = {
-      x: points,
-      y: pixelValues,
-      type: "lines",
-      line: {
-        color: this.color
+    const xValues = points;
+
+    const firstpixel = Math.min(...xValues);
+
+    const lastpixel = Math.max(...xValues);
+    const yValues = pixelValues; //pixelValues;
+    const minGV = Math.min.apply(null, yValues);
+    const maxGV = Math.max.apply(null, yValues);
+    const data = [
+      {
+        x: xValues,
+        y: yValues,
+        mode: "scatter",
+        line: {
+          color: this.color
+        }
       }
-    };
+    ];
 
-    // Add the trace to the existing data array
-    if (this.newMeasurement) {
-      this.plotlydata.push(trace);
-    } else {
-      const indexOfExistentData = this.plotlydata.findIndex(
-        obj => obj.line.color === this.color
-      );
-      this.plotlydata[indexOfExistentData] = trace;
-    }
-    // Combine all traces into a single data array
-    const data = [...this.plotlydata];
-
-    // Adjust the axis range based on all data
-    const allXValues = data.flatMap(trace => trace.x);
-    const allYValues = data.flatMap(trace => trace.y);
-
+    // Define Layout
     const layout = {
-      xaxis: {
-        range: [Math.min(...allXValues), Math.max(...allXValues)],
-        title: "position (mm)"
-      },
-      yaxis: {
-        range: [Math.min(...allYValues), Math.max(...allYValues)],
-        title: "GreyScaleValue (HU)"
-      },
+      xaxis: { range: [firstpixel, lastpixel], title: "position (mm)" },
+      yaxis: { range: [minGV, maxGV], title: "GreyScaleValue (HU)" },
       title: "GreyScaleValues vs position",
-      responsive: true
+      responsive: true,
+      type: "log"
+      //plot_bgcolor : "black"
     };
 
     // Display using Plotly
     const myPlotDiv = document.getElementById("myPlot");
     Plotly.newPlot(myPlotDiv, data, layout);
-    this.newMeasurement = false;
   }
 }
 

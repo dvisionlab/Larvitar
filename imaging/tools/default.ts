@@ -33,8 +33,8 @@ import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
 import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
 import BorderMagnifyTool from "./custom/BorderMagnifyTool";
 import CustomMouseWheelScrollTool from "./custom/customMouseWheelScrollTool";
-import LengthPlotTool from "./custom/VetToolThreeLines";
-import ManualLengthPlotTool from "./custom/VetToolManualThreeLines";
+import LengthPlotTool from "./custom/LengthPlotTool";
+import ManualLengthPlotTool from "./custom/ManualLengthPlotTool";
 import type {
   ToolConfig,
   ToolMouseKeys,

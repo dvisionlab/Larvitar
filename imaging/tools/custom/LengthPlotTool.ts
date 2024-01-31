@@ -1,35 +1,126 @@
-/*const cornerstoneTools = larvitar.cornerstoneTools;
-const cornerstone = larvitar.cornerstone;
-const external = cornerstoneTools.external;
+//to set custom offset do this: DEFAULT_TOOLS["LengthPlot"].offset=parseInt(document.getElementById("offset").value,10)
+//create plot in viewport in layeout doable like this:
+//const currentDiv = eventData.element //viewport element
+//const newDiv = document.createElement("div");
+//newDiv.id=currentDiv.id+"-Plotly"
+//newDiv.style="width: 100%; max-width: 600px; height: 500px;"
+//currentDiv.appendChild(newDiv);
+//offsetInput=document.createElement("input");
+// Set the attributes for the input element
+//offsetInput.type = "number";
+//offsetInput.classList.add("manualInput");
+//offsetInput.id = currentDiv.id+"-offset";
+//offsetInput.placeholder = "offset";
+//newDiv.appendChild(offsetInput);
+
+//external imports
+import { HandlePosition } from "../types";
+import Plotly from "plotly.js-dist-min";
+import cornerstone from "cornerstone-core";
+import cornerstoneTools from "cornerstone-tools";
+
 // State
 const getToolState = cornerstoneTools.getToolState; //check
-const toolStyle = cornerstoneTools.toolStyle;
 const toolColors = cornerstoneTools.toolColors;
 // Drawing
-const EVENTS = cornerstoneTools.EVENTS;
 const draw = cornerstoneTools.importInternal("drawing/draw");
 const drawLine = cornerstoneTools.importInternal("drawing/drawLine");
 const setShadow = cornerstoneTools.importInternal("drawing/setShadow");
 const getNewContext = cornerstoneTools.importInternal("drawing/getNewContext");
-const drawLinkedTextBox = cornerstoneTools.importInternal(
-  "drawing/drawLinkedTextBox"
-);
 const drawHandles = cornerstoneTools.importInternal("drawing/drawHandles");
 const { lengthCursor } = cornerstoneTools.importInternal("tools/cursors");
-const getLogger = cornerstoneTools.importInternal("util/getLogger");
 const throttle = cornerstoneTools.importInternal("util/throttle");
 const getModule = cornerstoneTools.getModule;
 const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
 const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
-);*/
-// import cornerstoneTools from "cornerstone-tools";
+);
+//internal imports
+import { DEFAULT_TOOLS } from "../default";
 
-class VetToolThreeLines extends BaseAnnotationTool {
+//interfaces/types
+type PixelSpacing = {
+  rowPixelSpacing: number;
+  colPixelSpacing: number;
+};
+interface data {
+  visible: boolean;
+  active: boolean;
+  color: string;
+  invalidated: boolean;
+  handles: Handles;
+  length: number;
+}
+interface Handles {
+  start: HandlePosition;
+  end: HandlePosition;
+  textBox?: {
+    active: boolean;
+    hasMoved: boolean;
+    movesIndependently: boolean;
+    drawnIndependently: boolean;
+    allowedOutsideImage: boolean;
+    hasBoundingBox: boolean;
+  };
+}
+interface ToolMouseEvent {
+  detail: EventData;
+  currentTarget: any;
+}
+interface EventData {
+  currentPoints: {
+    image: { x: number; y: number };
+  };
+  element: HTMLElement;
+  buttons: number;
+  shiftKey: boolean;
+  event: {
+    altKey: boolean;
+    shiftKey: boolean;
+  };
+  image: cornerstone.Image;
+  canvasContext: {
+    canvas: any;
+  };
+}
+interface PlotlyData {
+  x: number[];
+  y: number[];
+  type: string;
+  line: {
+    color: string;
+  };
+}
+// import cornerstoneTools from "cornerstone-tools";
+export default class LengthPlotTool extends BaseAnnotationTool {
+  name: string = "LengthPlot";
+  eventData?: EventData;
+  datahandles?: Handles;
+  abovehandles?: Handles;
+  belowhandles?: Handles;
+  plotlydata: Array<PlotlyData> = [];
+  measuring = false;
+  throttledUpdateCachedStats: any;
+  configuration: {
+    drawHandles: boolean;
+    drawHandlesOnHover: boolean;
+    hideHandlesIfMoving: boolean;
+    renderDashed: boolean;
+    digits: number;
+    handleRadius?: number;
+    offset: number;
+  } = {
+    drawHandles: true,
+    drawHandlesOnHover: false,
+    hideHandlesIfMoving: false,
+    renderDashed: false,
+    digits: 2,
+    offset: 15
+  };
   constructor(props = {}) {
     const defaultProps = {
-      name: "HorizontalTool",
+      name: "LengthPlot",
       supportedInteractionTypes: ["Mouse"],
       svgCursor: lengthCursor,
       configuration: {
@@ -47,10 +138,6 @@ class VetToolThreeLines extends BaseAnnotationTool {
     this.datahandles;
     this.abovehandles;
     this.belowhandles;
-    this.color;
-    this.measureonload;
-    this.belowcolor;
-    this.abovecolor;
     this.plotlydata = [];
     this.measuring = false;
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -66,35 +153,35 @@ class VetToolThreeLines extends BaseAnnotationTool {
     return color;
   }
 
-  handleMouseUp = event => {
+  handleMouseUp = (event: MouseEvent) => {
     this.measuring = false;
     const eventData = this.eventData;
 
-    const handleData = handles => {
+    const handleData = (handles: Handles) => {
       const points = this.getPointsAlongLine(
         handles.start,
         handles.end,
-        getPixelSpacing(eventData.image).colPixelSpacing
+        getPixelSpacing(eventData!.image).colPixelSpacing
       );
       const pixelValues = this.getPixelValuesAlongLine(
         handles.start,
         points,
-        getPixelSpacing(eventData.image).colPixelSpacing,
-        eventData
+        getPixelSpacing(eventData!.image).colPixelSpacing,
+        eventData!
       );
       let color = "green";
       return { points, pixelValues, color };
     };
-    const aboveResults = handleData(this.abovehandles);
+    const aboveResults = handleData(this.abovehandles!);
     aboveResults.color = "red";
-    const belowResults = handleData(this.belowhandles);
+    const belowResults = handleData(this.belowhandles!);
     belowResults.color = "blue";
-    const data = [handleData(this.datahandles), aboveResults, belowResults];
+    const data = [handleData(this.datahandles!), aboveResults, belowResults];
 
     this.createPlot(...data);
   };
 
-  createNewMeasurement(eventData) {
+  createNewMeasurement(eventData: EventData) {
     this.eventData = eventData;
     clearToolData(eventData.element, this.name);
     this.measuring = true;
@@ -102,13 +189,13 @@ class VetToolThreeLines extends BaseAnnotationTool {
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
     if (!goodEventData) {
-      logger.error(
+      console.error(
         `required eventData not supplied to tool ${this.name}'s createNewMeasurement`
       );
       return;
     }
     let color = "green";
-    this.color = color;
+
     const { x, y } = eventData.currentPoints.image;
 
     return {
@@ -141,13 +228,17 @@ class VetToolThreeLines extends BaseAnnotationTool {
     };
   }
 
-  pointNearTool(element, data, coords) {
+  pointNearTool(
+    element: HTMLElement,
+    data: data,
+    coords: { x: number; y: number }
+  ) {
     const hasStartAndEndHandles =
       data && data.handles && data.handles.start && data.handles.end;
     const validParameters = hasStartAndEndHandles;
 
     if (!validParameters) {
-      logger.warn(
+      console.warn(
         `invalid parameters supplied to tool ${this.name}'s pointNearTool`
       );
       return false;
@@ -163,8 +254,13 @@ class VetToolThreeLines extends BaseAnnotationTool {
     );
   }
 
-  updateCachedStats(image, element, data) {
-    const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+  updateCachedStats(
+    image: cornerstone.Image,
+    element: HTMLElement,
+    data: data
+  ) {
+    const { rowPixelSpacing, colPixelSpacing }: PixelSpacing =
+      getPixelSpacing(image);
 
     const dx =
       (data.handles.end.x - data.handles.start.x) * (colPixelSpacing || 1);
@@ -177,27 +273,35 @@ class VetToolThreeLines extends BaseAnnotationTool {
     data.invalidated = false;
   }
 
-  renderToolData(evt) {
+  renderToolData(evt: ToolMouseEvent) {
     const eventData = evt.detail;
     const { element } = eventData;
-    element.addEventListener("mouseup", this.handleMouseUp);
+    element.addEventListener("mouseup", (event: MouseEvent) =>
+      this.handleMouseUp(event)
+    );
     const {
       handleRadius,
       drawHandlesOnHover,
       hideHandlesIfMoving,
       renderDashed
     } = this.configuration;
-    const toolData = getToolState(evt.currentTarget, this.name);
+    const toolData: { data: data[] } = getToolState(
+      evt.currentTarget,
+      this.name
+    );
 
     if (!toolData) {
       return;
     }
 
-    const context = getNewContext(eventData.canvasContext.canvas);
+    const context: CanvasRenderingContext2D = getNewContext(
+      eventData.canvasContext.canvas
+    );
 
-    const lineDash = getModule("globalConfiguration").configuration.lineDash;
-    let start;
-    let end;
+    const lineDash: boolean = getModule("globalConfiguration").configuration
+      .lineDash;
+    let start: HandlePosition;
+    let end: HandlePosition;
 
     for (let i = 0; i < toolData.data.length; i++) {
       const data = toolData.data[i];
@@ -206,12 +310,12 @@ class VetToolThreeLines extends BaseAnnotationTool {
         continue;
       }
 
-      draw(context, context => {
+      draw(context, (context: CanvasRenderingContext2D) => {
         setShadow(context, this.configuration);
 
         const color = toolColors.getColorIfActive(data);
 
-        const lineOptions = { color };
+        const lineOptions: { color: string; lineDash?: boolean } = { color };
 
         if (renderDashed) {
           lineOptions.lineDash = lineDash;
@@ -226,15 +330,19 @@ class VetToolThreeLines extends BaseAnnotationTool {
           data.handles.end,
           lineOptions
         );
+        const offset =
+          DEFAULT_TOOLS["LengthPlot"].offset === this.configuration.offset ||
+          DEFAULT_TOOLS["LengthPlot"].offset === undefined
+            ? this.configuration.offset
+            : DEFAULT_TOOLS["LengthPlot"].offset; //offset customisable
+        //const offset = this.configuration.offset;
 
-        const offset = this.configuration.offset;
-
-        const aboveHandles = {
+        const aboveHandles: Handles = {
           start: { x: start.x, y: start.y - offset },
           end: { x: end.x, y: end.y - offset }
         };
 
-        const belowHandles = {
+        const belowHandles: Handles = {
           start: { x: start.x, y: start.y + offset },
           end: { x: end.x, y: end.y + offset }
         };
@@ -287,9 +395,17 @@ class VetToolThreeLines extends BaseAnnotationTool {
     }
   }
 
-  getPointsAlongLine(startHandle, endHandle, colPixelSpacing) {
-    let points;
-    const addPoints = (start, end, step) => {
+  getPointsAlongLine(
+    startHandle: HandlePosition,
+    endHandle: HandlePosition,
+    colPixelSpacing: number
+  ) {
+    let points: number[] = [];
+    const addPoints = (
+      start: HandlePosition,
+      end: HandlePosition,
+      step: number
+    ) => {
       const startX = Math.floor(start.x) + 1;
       const numPoints = Math.floor(end.x) - startX;
       points = new Array(numPoints + 1);
@@ -309,14 +425,19 @@ class VetToolThreeLines extends BaseAnnotationTool {
     return points;
   }
 
-  getPixelValuesAlongLine(startHandle, points, colPixelSpacing, eventData) {
-    const pixelValues = new Array(points.length);
+  getPixelValuesAlongLine(
+    startHandle: HandlePosition,
+    points: number[],
+    colPixelSpacing: number,
+    eventData: EventData
+  ) {
+    const pixelValues: number[] = new Array(points.length);
     const yPoint = Math.floor(startHandle.y);
 
-    const addPixelValues = (xPoints, startIndex) => {
+    const addPixelValues = (xPoints: number[], startIndex: number) => {
       const pixelValuesBatch = cornerstone.getStoredPixels(
         eventData.element,
-        xPoints,
+        xPoints[0],
         yPoint,
         xPoints.length,
         1
@@ -335,7 +456,9 @@ class VetToolThreeLines extends BaseAnnotationTool {
     return pixelValues;
   }
 
-  createPlot(...dataSets) {
+  createPlot(
+    ...dataSets: { points: number[]; pixelValues: number[]; color: string }[]
+  ) {
     const traces = dataSets.map(({ points, pixelValues, color }) => ({
       x: points,
       y: pixelValues,
@@ -345,7 +468,7 @@ class VetToolThreeLines extends BaseAnnotationTool {
       }
     }));
 
-    this.plotlydata = traces;
+    this.plotlydata = traces as PlotlyData[];
 
     const allXValues = dataSets.flatMap(dataSet => dataSet.points);
     const allYValues = dataSets.flatMap(dataSet => dataSet.pixelValues);
@@ -364,21 +487,21 @@ class VetToolThreeLines extends BaseAnnotationTool {
     };
 
     const myPlotDiv = document.getElementById("myPlot");
-    Plotly.newPlot(myPlotDiv, traces, layout);
+    Plotly.newPlot(myPlotDiv as Plotly.Root, traces as Plotly.Data[], layout);
   }
 
   clearPlotlyData() {
     const myPlotDiv = document.getElementById("myPlot");
-    Plotly.purge(myPlotDiv);
+    Plotly.purge(myPlotDiv as Plotly.Root);
     this.plotlydata = [];
   }
 }
 
-function clearToolData(element, toolName) {
-  const toolData = getToolState(element, toolName);
+function clearToolData(element: HTMLElement, toolName: string) {
+  const toolData: { data: data[] } = getToolState(element, toolName);
 
   if (toolData && toolData.data && toolData.data.length > 0) {
-    toolData.data.forEach(data => {
+    toolData.data.forEach((data: data) => {
       data.visible = false;
     });
   }
