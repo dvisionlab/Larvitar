@@ -78,4 +78,4 @@ declare const setToolPassive: (toolName: string, viewports?: string[]) => void;
  * @param {Object} style - the style object (see tools/defaults.js)
  */
 declare const setToolsStyle: (style?: ToolStyle) => void;
-export { initializeCSTools, setToolsStyle, csToolsCreateStack, addTool, setToolActive, setToolEnabled, setToolDisabled, setToolPassive, saveAnnotations, loadAnnotations, exportAnnotations, };
+export { initializeCSTools, setToolsStyle, csToolsCreateStack, addTool, setToolActive, setToolEnabled, setToolDisabled, setToolPassive, saveAnnotations, loadAnnotations, exportAnnotations };
