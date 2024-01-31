@@ -190,7 +190,8 @@ import {
   removeSeriesFromLarvitarManager,
   getSeriesDataFromLarvitarManager,
   getImageFrame,
-  getSopInstanceUIDFromLarvitarManager
+  getSopInstanceUIDFromLarvitarManager,
+  updateViewportDataInLarvitarManager,
 } from "./imaging/loaders/commonLoader";
 
 import {
@@ -352,6 +353,7 @@ export {
   getSeriesDataFromLarvitarManager,
   getImageFrame,
   getSopInstanceUIDFromLarvitarManager,
+  updateViewportDataInLarvitarManager,
   // loaders/nrrdLoader
   buildNrrdImage,
   getNrrdImageId,

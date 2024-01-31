@@ -998,7 +998,7 @@ export const rotateImageRight = function (elementId: string | HTMLElement) {
  * @param {Object} defaultProps - Optional default properties
  * @return {Object} data - A data dictionary with parsed tags' values
  */
-const getSeriesData = function (
+export const getSeriesData = function (
   series: Series,
   defaultProps: StoreViewportOptions
 ) {

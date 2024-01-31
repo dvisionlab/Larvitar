@@ -92,12 +92,12 @@ export declare const getImageFrame: (metadata: MetaData, dataSet: DataSet) => {
     pixelData: undefined;
     ImageData: undefined;
 };
+export declare const getSopInstanceUIDFromLarvitarManager: (larvitarSeriesInstanceUID: string, imageId: string) => string | null | undefined;
 /**
  * Return the SOP Instance UID of a specific imageId stored in the Larvitar Manager
  * @instance
- * @function getSopInstanceUIDFromLarvitarManager
- * @param {String} larvitarSeriesInstanceUID The Id of the series
- * @param {String} imageId The Id of the image
- * @returns {String} sopInstanceUID
+ * @function updateViewportDataInLarvitarManager
+ * @param {Series} seriesStack The Id of the series
+ * @param {String} elementId The Id of the image
  */
-export declare const getSopInstanceUIDFromLarvitarManager: (larvitarSeriesInstanceUID: string, imageId: string) => string | null | undefined;
+export declare const updateViewportDataInLarvitarManager: (seriesStack: Series, elementId: string) => void;
