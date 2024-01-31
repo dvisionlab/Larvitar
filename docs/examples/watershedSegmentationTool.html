@@ -33,15 +33,6 @@
         padding: 8px; /* Adjust the padding for better alignment */
         font-size: 14px; /* Adjust the font size for better visibility */
       }
-      .loader {
-        border: 8px solid #f3f3f3;
-        border-top: 8px solid #3498db;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        animation: spin 1s linear infinite;
-        z-index: -12;
-      }
     </style>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -95,9 +86,15 @@
           placeholder="endImage"
           style="display: none"
         />
-        <div id="loaderDiv" class="d-flex align-items-center">
-          <div class="loader" id="loader" style="display: none"></div>
-        </div>
+        <button id="loaderDiv" class="btn btn-primary" type="button" disabled>
+          <span
+            id="loader"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          Loading...
+        </button>
       </div>
       <div id="viewer" class="col-8 h-100" style="background-color: black">
         <p id="info " style="position: absolute; color: white">
@@ -220,17 +217,23 @@ for hepatic tumor segmentation (and volumetry).*/
 
       function rotateLoader() {
         loaderDiv.style.flexGrow = 0;
+        if (loaderDiv.innerHTML === "Loaded") {
+          loaderDiv.innerHTML =
+            '<span id="loader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+        }
+
         loader.style.removeProperty("display");
 
         if (larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload) {
-          rotation += 10; // You can adjust the rotation speed
-          loader.style.transform = `rotate(${rotation}deg)`;
           requestAnimationFrame(rotateLoader);
         } else {
           loader.style.display = "none";
+          loaderDiv.innerHTML = "Loaded";
         }
       }
       loader.style.display = "none";
+      loaderDiv.innerHTML = "Loaded";
+
       //rotateLoader();
     </script>
 
