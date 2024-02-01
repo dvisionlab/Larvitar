@@ -27,6 +27,7 @@ import {
 import { DEFAULT_TOOLS } from "./tools/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
+import { setPixelShift } from "./loaders/dsaImageLoader";
 
 /*
  * This module provides the following functions to be exported:
@@ -566,12 +567,29 @@ export const renderImage = function (
       data = null;
       resolve(true);
     });
+    // }
   });
 
   csToolsCreateStack(element, series.imageIds, (data.imageIndex as number) - 1);
   toggleMouseToolsListeners(id, false);
 
   return renderPromise;
+};
+
+/**
+ * Redraw the cornerstone image
+ * @instance
+ * @function redrawImage
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const redrawImage = function (elementId: string): void {
+  const element = document.getElementById(elementId);
+  if (element) {
+    const cornestoneElement = cornerstone.getEnabledElement(element);
+    cornerstone.drawImage(cornestoneElement, true);
+  } else {
+    console.error("invalid html element: " + elementId);
+  }
 };
 
 /**
@@ -597,7 +615,18 @@ export const updateImage = async function (
   }
 
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-  const imageId = series.imageIds[imageIndex];
+  const isDSAEnabled = store.get(["viewports", id, "isDSAEnabled"]);
+  const imageId =
+    isDSAEnabled === true
+      ? series.dsa!.imageIds[imageIndex]
+      : series.imageIds[imageIndex];
+
+  if (isDSAEnabled === true) {
+    // get the optional custom pixel shift
+    const pixelShift = store.get(["viewports", id, "pixelShift"]);
+    setPixelShift(pixelShift);
+  }
+
   if (!imageId) {
     setStore(["pendingSliceId", id, imageIndex]);
     throw `Error: wrong image index ${imageIndex}, no imageId available`;
@@ -624,7 +653,9 @@ export const updateImage = async function (
       const t1 = performance.now();
       if (t0 !== undefined) {
         // check if t0 is defined before using it
-        console.log(`Call to updateImage took ${t1 - t0} milliseconds.`);
+        console.log(
+          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
+        );
       }
     }
 
@@ -648,7 +679,9 @@ export const updateImage = async function (
       const t1 = performance.now();
       if (t0 !== undefined) {
         // check if t0 is defined before using it
-        console.log(`Call to updateImage took ${t1 - t0} milliseconds.`);
+        console.log(
+          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
+        );
       }
     }
 

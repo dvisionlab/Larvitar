@@ -53,6 +53,12 @@ export declare const registerResliceLoader: () => void;
  */
 export declare const registerMultiFrameImageLoader: () => void;
 /**
+ * Register custom DSA ImageLoader
+ * @instance
+ * @function registerDsaImageLoader
+ */
+export declare const registerDsaImageLoader: () => void;
+/**
  * Update the allSeriesStack object using DICOMImageLoader fileManager
  * @instance
  * @function updateLoadedStack

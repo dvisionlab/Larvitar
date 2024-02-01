@@ -4,6 +4,7 @@
 
 // external libraries
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
+import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 import { each, range } from "lodash";
 
 // internal libraries
@@ -20,6 +21,7 @@ import type {
   MetaData,
   Series
 } from "../types";
+import { populateDsaImageIds } from "./dsaImageLoader";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -42,8 +44,11 @@ let multiframeDatasetCache: { [key: string]: Series | null } | null = null;
  * @param {String} imageId - ImageId tag
  * @returns {Function} Custom Image Creation Function
  */
-export const loadMultiFrameImage = function (imageId: string) {
+export const loadMultiFrameImage: ImageLoader = function (
+  imageId: string
+): ImageLoadObject {
   let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
+
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
   let imageTracker = getLarvitarImageTracker();
   let seriesId = imageTracker[rootImageId];
@@ -134,6 +139,11 @@ export const buildMultiFrameImage = function (
       .seriesDescription as string;
   });
 
+  // check for DSA
+  if (serie.metadata!["x00282110"] !== undefined) {
+    populateDsaImageIds(larvitarSeriesInstanceUID);
+  }
+
   let t1 = performance.now();
   console.log(`Call to buildMultiFrameImage took ${t1 - t0} milliseconds.`);
 };
@@ -183,8 +193,6 @@ export const clearMultiFrameCache = function (seriesId: string) {
     multiframeDatasetCache = null;
   }
 };
-
-/* Internal module functions */
 
 /**
  * Create the custom image object for cornerstone from custom image

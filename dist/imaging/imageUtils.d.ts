@@ -18,21 +18,19 @@ import { MetaDataTypes } from "./MetaDataTypes";
  */
 export declare const getNormalOrientation: (el: [number, number, number, number, number, number]) => number[];
 /**
- * If a value is provided, returns it, otherwise get the min pixel value from pixelData
+ * Get the min pixel value from pixelData
  * @instance
  * @function getMinPixelValue
- * @param {Number} value - The min value
  * @param {Array} pixelData - Pixel data array
  */
-export declare const getMinPixelValue: (value: number, pixelData: Uint16Array) => number | undefined;
+export declare const getMinPixelValue: (pixelData: number[]) => number;
 /**
- * If a value is provided, returns it, otherwise get the max pixel value from pixelData
+ * Get the max pixel value from pixelData
  * @instance
  * @function getMaxPixelValue
- * @param {Number} value - The max value
  * @param {Array} pixelData - Pixel data array
  */
-export declare const getMaxPixelValue: (value: string, pixelData: Uint16Array) => string | number | undefined;
+export declare const getMaxPixelValue: (pixelData: number[]) => number;
 /**
  * Create the pixel representation string (type and length) from dicom tags
  * @instance
@@ -132,7 +130,7 @@ export declare const getCmprMetadata: (reslicedSeriesId: string, imageLoaderName
  * @param {Object} reslicedData - The resliced series data (target)
  * @return {Object} - A single resliced slice pixel array
  */
-export declare const getReslicedPixeldata: (imageId: string, originalData: Series, reslicedData: Series) => Uint16Array | Float64Array | Uint8Array | Int8Array | Int16Array | Int32Array | Uint32Array | Float32Array;
+export declare const getReslicedPixeldata: (imageId: string, originalData: Series, reslicedData: Series) => Float64Array | Uint8Array | Int8Array | Uint16Array | Int16Array | Int32Array | Uint32Array | Float32Array;
 /**
  * Get distance between two slices
  * @instance
