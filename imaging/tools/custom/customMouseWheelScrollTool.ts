@@ -195,6 +195,18 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     } else {
       imageIds = stackData.imageIds;
     }
+
+      const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
+      const imageTracker = getLarvitarImageTracker();
+      const seriesId: string = imageTracker[rootImageId];
+      const manager = getLarvitarManager() as LarvitarManager;
+
+      const multiFrameSerie = manager![seriesId] as Series;
+
+      imageIds = multiFrameSerie.dsa!.imageIds;
+    } else {
+      imageIds = stackData.imageIds;
+    }
     if (this.configuration.currentMode === "stack") {
       // Handle 'stack' mode
 

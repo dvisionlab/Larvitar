@@ -89,10 +89,13 @@ export default function scrollToIndex(
   const manager = getLarvitarManager() as LarvitarManager;
 
   const multiFrameSerie = manager![seriesId] as Series;
+
   const id: string = element.id;
   const isDSAEnabled: boolean = store.get(["viewports", id, "isDSAEnabled"]);
   const imageIds: string[] =
-    isDSAEnabled === true ? multiFrameSerie.dsa!.imageIds : stackData.imageIds;
+    isDSAEnabled === true
+      ? multiFrameSerie.dsa!.imageIds
+      : multiFrameSerie.imageIds;
 
   // Allow for negative indexing
   if (newImageIdIndex < 0) {
