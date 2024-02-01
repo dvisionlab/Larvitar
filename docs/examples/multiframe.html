@@ -159,7 +159,7 @@
                 console.log("Image has been rendered");
               });
             larvitar.addDefaultTools();
-            larvitar.setToolActive("CustomMouseWheelScroll");
+            larvitar.setToolActive("StackScroll");
 
             let animation = false;
             let animationId = null;
@@ -172,11 +172,14 @@
             document
               .getElementById("viewer")
               .addEventListener("wheel", function (event) {
+                frameId = larvitar.store.get([
+                  "viewports",
+                  "viewer",
+                  "sliceId"
+                ]);
                 $("#image-time").html(
                   "Current Frame: " +
-                    parseInt(
-                      larvitar.store.get(["viewports", "viewer", "sliceId"]) + 1
-                    ) +
+                    parseInt(frameId + 1) +
                     " of " +
                     numberOfFrames
                 );
