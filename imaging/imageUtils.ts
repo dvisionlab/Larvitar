@@ -94,20 +94,13 @@ export const getNormalOrientation = function (
 };
 
 /**
- * If a value is provided, returns it, otherwise get the min pixel value from pixelData
+ * Get the min pixel value from pixelData
  * @instance
  * @function getMinPixelValue
- * @param {Number} value - The min value
  * @param {Array} pixelData - Pixel data array
  */
-export const getMinPixelValue = function (
-  value: number,
-  pixelData: Uint16Array
-) {
-  if (value !== undefined) {
-    return value;
-  }
-  let min;
+export const getMinPixelValue = function (pixelData: number[]): number {
+  let min = 0;
   for (let i = 0; i < pixelData.length; i++) {
     if (!min || min > pixelData[i]) {
       min = pixelData[i];
@@ -117,21 +110,13 @@ export const getMinPixelValue = function (
 };
 
 /**
- * If a value is provided, returns it, otherwise get the max pixel value from pixelData
+ * Get the max pixel value from pixelData
  * @instance
  * @function getMaxPixelValue
- * @param {Number} value - The max value
  * @param {Array} pixelData - Pixel data array
  */
-export const getMaxPixelValue = function (
-  value: string,
-  pixelData: Uint16Array
-) {
-  if (value !== undefined) {
-    return value;
-  }
-
-  let max;
+export const getMaxPixelValue = function (pixelData: number[]): number {
+  let max = 0;
   for (let i = 0; i < pixelData.length; i++) {
     if (!max || max < pixelData[i]) {
       max = pixelData[i];

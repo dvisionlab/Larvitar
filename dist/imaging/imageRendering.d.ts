@@ -97,6 +97,13 @@ export declare const resizeViewport: (elementId: string | HTMLElement) => void;
  */
 export declare const renderImage: (seriesStack: Series, elementId: string | HTMLElement, defaultProps: StoreViewportOptions) => Promise<true>;
 /**
+ * Redraw the cornerstone image
+ * @instance
+ * @function redrawImage
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export declare const redrawImage: (elementId: string) => void;
+/**
  * Update the cornerstone image with new imageIndex
  * @instance
  * @function updateImage
