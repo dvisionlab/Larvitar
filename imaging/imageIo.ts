@@ -10,7 +10,8 @@ import { forEach, find } from "lodash";
 import {
   getMeanValue,
   getDistanceBetweenSlices,
-  getTypedArrayFromDataType
+  getTypedArrayFromDataType,
+  getSortedStack
 } from "./imageUtils";
 import store from "./imageStore";
 import { parse } from "./parsers/nrrd";
@@ -207,6 +208,8 @@ export const buildDataAsync = function (
 
     let data = new typedArray(len);
     let offsetData = 0;
+
+    series.imageIds = getSortedStack(series as Series, ["imagePosition"], true);
 
     let imageIds = series.imageIds.slice();
     store.addSeriesId(series.seriesUID, series.imageIds);
