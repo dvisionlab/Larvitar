@@ -255,8 +255,14 @@ export const getImageFrame = function (metadata: MetaData, dataSet: DataSet) {
     ImageData: undefined
   };
 };
-
-
+/**
+ * Return the SOP Instance UID of a specific imageId stored in the Larvitar Manager
+ * @instance
+ * @function getSopInstanceUIDFromLarvitarManager
+ * @param {String} larvitarSeriesInstanceUID The Id of the series
+ * @param {String} imageId The Id of the image
+ * @returns {String} sopInstanceUID
+ */
 export const getSopInstanceUIDFromLarvitarManager = function (
   larvitarSeriesInstanceUID: string,
   imageId: string
@@ -269,80 +275,3 @@ export const getSopInstanceUIDFromLarvitarManager = function (
     key => series.instanceUIDs[key] === imageId
   );
 };
-const getTemporalSeriesData = function( series: Series,) {
-  type RecursivePartial<T> = {
-    [P in keyof T]?: RecursivePartial<T[P]>;
-  };
-  type SeriesData = StoreViewport;
-  const data: RecursivePartial<SeriesData> = {};
-  if (series.is4D) {
-    data.isMultiframe = false;
-    data.isTimeserie = true;
-    // check with real indices
-    data.numberOfSlices = series.numberOfImages;
-    data.numberOfTemporalPositions = series.numberOfTemporalPositions;
-    data.imageIndex = 0;
-    data.timeIndex = 0;
-    data.imageId = series.imageIds[data.imageIndex];
-    data.timestamp = series.instances[data.imageId].metadata[
-      "x00080033"
-    ] as number;
-    data.timestamps = [];
-    data.timeIds = [];
-    each(series.imageIds, function (imageId: string) {
-      (data.timestamps as any[]).push(
-        series.instances[imageId].metadata.contentTime
-      );
-      (data.timeIds as any[]).push(
-        series.instances[imageId].metadata.temporalPositionIdentifier! - 1 // timeId from 0 to N
-      );
-    });
-  }
-  return data as SeriesData;
-};
-/**
- * Return the SOP Instance UID of a specific imageId stored in the Larvitar Manager
- * @instance
- * @function updateViewportDataInLarvitarManager
- * @param {Series} seriesStack The Id of the series
- * @param {String} elementId The Id of the image
- */
-export const updateViewportDataInLarvitarManager = function(
-  seriesStack: Series,
-  elementId: string,
-) {
-    let series = { ...seriesStack };
-
-    const data = getTemporalSeriesData(series);
-    if (series.is4D) {
-      setStore([
-        "numberOfTemporalPositions",
-        elementId,
-        data.numberOfTemporalPositions as number
-      ]);
-      setStore(["minTimeId", elementId, 0]);
-      // preserve actual timeId
-      /*
-      let timeId = data.timeIndex || 0;
-      timeId = store.get([elementId, 'timeId']); 
-      console.log('timeId ');
-      console.log(timeId);
-      setStore(["timeId", elementId, timeId || 0]);
-      */
-      if (data.numberOfSlices && data.numberOfTemporalPositions) {
-        setStore(["maxTimeId", elementId, data.numberOfTemporalPositions - 1]);
-        let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
-        setStore(["maxSliceId", elementId, maxSliceId]);
-      }
-      setStore(["timestamps", elementId, data.timestamps || []]);
-      setStore(["timeIds", elementId, data.timeIds || []]);
-      // let data = getSeriesData(series, defaultProps);
-   } else {
-    setStore(["minTimeId", elementId, 0]);
-    setStore(["timeId", elementId, 0]);
-    setStore(["maxTimeId", elementId, 0]);
-    setStore(["timestamp", elementId, 0]);
-    setStore(["timestamps", elementId, []]);
-    setStore(["timeIds", elementId, []]);
-  }
-}

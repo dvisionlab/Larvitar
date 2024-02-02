@@ -111,12 +111,14 @@ import {
   updateImage,
   resetViewports,
   updateViewportData,
+  updateTemporalViewportData,
   storeViewportData,
   invertImage,
   flipImageHorizontal,
   flipImageVertical,
   rotateImageLeft,
-  rotateImageRight
+  rotateImageRight,
+  
 } from "./imaging/imageRendering";
 
 import { resliceSeries } from "./imaging/imageReslice";
@@ -191,7 +193,6 @@ import {
   getSeriesDataFromLarvitarManager,
   getImageFrame,
   getSopInstanceUIDFromLarvitarManager,
-  updateViewportDataInLarvitarManager,
 } from "./imaging/loaders/commonLoader";
 
 import {
@@ -353,7 +354,7 @@ export {
   getSeriesDataFromLarvitarManager,
   getImageFrame,
   getSopInstanceUIDFromLarvitarManager,
-  updateViewportDataInLarvitarManager,
+  updateTemporalViewportData,
   // loaders/nrrdLoader
   buildNrrdImage,
   getNrrdImageId,
