@@ -744,7 +744,7 @@ let sortStackCallback = function (
         sortIndex = 2;
       }
 
-      if (!sortIndex) {
+      if (sortIndex === -1) {
         throw new Error("Invalid sort index");
       }
 
