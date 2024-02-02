@@ -140,7 +140,8 @@ export const buildMultiFrameImage = function (
   });
 
   // check for DSA
-  if (serie.metadata!["x00282110"] !== undefined) {
+
+  if (serie.metadata!["x00286100"] !== undefined) {
     populateDsaImageIds(larvitarSeriesInstanceUID);
   }
 
