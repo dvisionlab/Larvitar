@@ -27,7 +27,6 @@
 
 import { filter, isArray } from "lodash";
 import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
-// import Slice4DScrollMouseWheelTool from "./custom/4dSliceScrollTool";
 import PolylineScissorsTool from "./custom/polylineScissorsTool";
 import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
 import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";

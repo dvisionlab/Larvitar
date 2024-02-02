@@ -17,6 +17,7 @@ const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
 );
+
 //internal imports
 import { HandlePosition } from "../types";
 

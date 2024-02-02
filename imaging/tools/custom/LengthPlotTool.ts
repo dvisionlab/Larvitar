@@ -1,5 +1,4 @@
 //external imports
-
 import Plotly from "plotly.js-dist-min";
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
@@ -18,6 +17,7 @@ const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
 );
+
 //internal imports
 import { HandlePosition } from "../types";
 import { DEFAULT_TOOLS } from "../default";
