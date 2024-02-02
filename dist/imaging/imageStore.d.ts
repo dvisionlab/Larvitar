@@ -6,6 +6,7 @@ import type { StoreViewport } from "./types.d";
 type StoreSeries = {
     imageIds: string[];
     progress: number;
+    elementId: string;
 };
 type Store = {
     colormapId: string;
@@ -21,14 +22,14 @@ type Store = {
     [key: string]: any;
 };
 type SetPayload = ["errorLog" | "leftActiveTool" | "rightActiveTool", string] | [
-    ("isColor" | "isMultiframe" | "isPDF" | "waveform" | "isTimeserie" | "ready"),
+    ("isColor" | "isMultiframe" | "isPDF" | "waveform" | "isTimeserie" | "isDSAEnabled" | "ready"),
     string,
     boolean
 ] | [
     ("progress" | "loading" | "minPixelValue" | "maxPixelValue" | "minSliceId" | "maxSliceId" | "minTimeId" | "maxTimeId" | "rotation" | "scale" | "sliceId" | "timeId" | "thickness" | "numberOfFrames" | "numberOfTemporalPositions"),
     string,
     number
-] | ["timestamp", string, number | undefined] | ["seriesUID", string, string | undefined] | ["pendingSliceId", string, number | undefined] | ["timestamps" | "timeIds", string, number[]] | [
+] | ["timestamp", string, number | undefined] | ["seriesUID", string, string | undefined] | ["pendingSliceId", string, number | undefined] | ["timestamps" | "timeIds" | "pixelShift", string, number[]] | [
     "contrast" | "dimensions" | "spacing" | "translation",
     string,
     number,
@@ -56,7 +57,9 @@ declare const _default: {
     setPendingSliceId: (elementId: string, imageIndex: number) => void;
     setMaxSliceId: (elementId: string, imageIndex: number) => void;
     setTimeId: (elementId: string, timeIndex: number) => void;
-    get: (props: string | string[]) => any;
+    setDSAEnabled: (elementId: string, enabled: boolean) => void;
+    setDSAPixelShift: (elementId: string, pixelShift: number[]) => void;
+    get: (props: string | string[] | undefined) => any;
     addStoreListener: (listener: (data: Store) => {}) => (data: Store) => {};
     removeStoreListener: () => undefined;
     addViewportListener: (elementId: string, listener: (data: StoreViewport) => {}) => void;

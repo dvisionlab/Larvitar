@@ -28,6 +28,7 @@ export type StoreViewport = {
   timestamp: number;
   timestamps: number[];
   timeIds: number[];
+  pixelShift?: number[];
   rows: number;
   cols: number;
   spacing_x: number;
@@ -38,6 +39,7 @@ export type StoreViewport = {
   isColor: boolean;
   isMultiframe: boolean;
   isTimeserie: boolean;
+  isDSAEnabled: boolean;
   isPDF: boolean;
   waveform: boolean;
   imageIndex?: number;
@@ -80,6 +82,7 @@ export type StoreViewport = {
 };
 
 export type MetaData = MetaDataTypes & MetaDataReadable;
+
 export interface Image extends cornerstone.Image {
   render?: Function;
   decodeTimeInMS?: number;
@@ -114,6 +117,19 @@ export type StagedProtocol = {
   viewNumber?: number; // Number of the view
 };
 
+export type DSA = {
+  imageIds: string[];
+  x00286101?: string; // DSA MaskOperation
+  x00286102?: number[]; // DSA ApplicableFrameRange
+  x00286110?: number | number[]; // DSA MaskFrameNumbers
+  x00286112?: number; // DSA ContrastFrameAveraging
+  x00286114?: number[]; // DSA MaskSubPixelShift
+  x00286120?: number; // DSA TIDOffset
+  x00286190?: string; // DSA MaskOperationExplanation
+  x00289416?: number; // DSA SubtractionItemID
+  x00289454?: string; // DSA MaskSelectionMode
+};
+
 export type Series = {
   imageIds: string[];
   instances: { [key: string]: Instance };
@@ -137,6 +153,7 @@ export type Series = {
   traceData?: Partial<Plotly.PlotData>[];
   isPDF: boolean;
   stagedProtocol?: StagedProtocol;
+  dsa?: DSA;
   modality: string;
   numberOfFrames: number;
   numberOfSlices: number;

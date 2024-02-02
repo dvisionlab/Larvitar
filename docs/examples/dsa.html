@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
+    <title>Larvitar - Basic rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div class="col-10 h-100">
+        <div
+          id="viewer"
+          class="col-8 h-100"
+          style="background-color: black"
+        ></div>
+        <p style="position: absolute; top: 0px; color: white">
+          Press "1" to render standard image
+        </p>
+        <p style="position: absolute; top: 20px; color: white">
+          Press "2" to apply digital subtraction angiography mask
+        </p>
+        <p style="position: absolute; top: 40px; color: white">
+          Press "w | a | s | d" to apply a pixel shift in the designed direction
+          on current frame
+        </p>
+        <p style="position: absolute; top: 60px; color: white">
+          Press "x" to reset pixel shift on current frame
+        </p>
+        <p style="position: absolute; top: 80px; color: white">
+          Press "3" to apply pixel shift on all the stack
+        </p>
+        <p style="position: absolute; top: 100px; color: white">
+          Press "p" to play/pause frame animation
+        </p>
+        <p
+          id="frame-rate"
+          style="position: absolute; top: 120px; color: white"
+        ></p>
+        <p
+          id="image-time"
+          style="position: absolute; top: 140px; color: white"
+        ></p>
+      </div>
+    </div>
+
+    <script src="./larvitar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      let demoFiles = [];
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.registerMultiFrameImageLoader();
+      larvitar.registerDsaImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+
+      async function renderSerie() {
+        const seriesStack = await larvitar.readFiles(demoFiles);
+        // render the first series of the study
+        let seriesId = _.keys(seriesStack)[0];
+        let serie = seriesStack[seriesId];
+        larvitar.populateLarvitarManager(seriesId, serie);
+        let manager = larvitar.getLarvitarManager();
+        let multiFrameSerie = manager[seriesId];
+
+        let frameId = 0;
+        await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        console.log("Image has been rendered");
+
+        larvitar.addDefaultTools();
+        larvitar.setToolActive("Wwwc");
+        await larvitar.loadAndCacheImageStack(multiFrameSerie);
+
+        let animation = false;
+        let animationId = null;
+        let numberOfFrames = multiFrameSerie.numberOfFrames;
+        let frameRate = multiFrameSerie.frameTime;
+        $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
+        $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
+
+        // add event listener to the wheel to update the UI
+        document
+          .getElementById("viewer")
+          .addEventListener("wheel", function (event) {
+            frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
+            $("#image-time").html(
+              "Current Frame: " +
+                parseInt(frameId + 1) +
+                " of " +
+                numberOfFrames
+            );
+          });
+
+        document.onkeypress = function (e) {
+          e = e || window.event;
+          let storedPixelShift = larvitar.store.get([
+            "viewports",
+            "viewer",
+            "pixelShift"
+          ])
+            ? larvitar.store.get(["viewports", "viewer", "pixelShift"])
+            : [0.0, 0.0];
+          const delta = 1;
+          switch (e.keyCode) {
+            case 49: // 1
+              // standard Mode
+              larvitar.store.setDSAEnabled(["viewer"], false);
+              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+              break;
+            case 50: // 2
+              // DSA Mode
+              larvitar.store.setDSAEnabled(["viewer"], true);
+              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+              break;
+            case 51: // 3
+              // async function
+              larvitar.unloadAndRecacheImageStackDSA(multiFrameSerie);
+              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+              larvitar.redrawImage("viewer");
+              break;
+            case 119: // W
+              // vertical shift to the upper part of the image
+              // value has to be negative
+              larvitar.applyDSAShift("viewer", multiFrameSerie, frameId, [
+                storedPixelShift[0] - delta,
+                storedPixelShift[1]
+              ]);
+              break;
+            case 97: // A
+              // horizontal shift to the left part of the image
+              // value has to be positive
+              larvitar.applyDSAShift("viewer", multiFrameSerie, frameId, [
+                storedPixelShift[0],
+                storedPixelShift[1] + delta
+              ]);
+              break;
+            case 115: // S
+              // vertical shift to the bottom part of the image
+              // value has to be positive
+              larvitar.applyDSAShift("viewer", multiFrameSerie, frameId, [
+                storedPixelShift[0] + delta,
+                storedPixelShift[1]
+              ]);
+              break;
+            case 100: // D
+              // horizontal shift to the right part of the image
+              // value has to be negative
+              larvitar.applyDSAShift("viewer", multiFrameSerie, frameId, [
+                storedPixelShift[0],
+                storedPixelShift[1] - delta
+              ]);
+              break;
+            case 120: // x
+              // RESET pixel shift
+              // async function
+              larvitar.applyDSAShift(
+                "viewer",
+                multiFrameSerie,
+                frameId,
+                [0.0, 0.0]
+              );
+              break;
+            case 112: // P
+              animation = !animation;
+              if (animation) {
+                frameId = larvitar.store.get([
+                  "viewports",
+                  "viewer",
+                  "sliceId"
+                ]);
+                animationId = setInterval(function () {
+                  frameId =
+                    frameId == multiFrameSerie.numberOfFrames - 1
+                      ? 0
+                      : frameId + 1;
+                  larvitar.updateImage(
+                    multiFrameSerie,
+                    "viewer",
+                    frameId,
+                    false
+                  );
+                  $("#image-time").html(
+                    "Current Frame: " +
+                      parseInt(frameId + 1) +
+                      " of " +
+                      numberOfFrames
+                  );
+                }, multiFrameSerie.frameTime);
+              } else {
+                clearInterval(animationId);
+                $("#image-time").html();
+              }
+              break;
+          }
+        };
+      }
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/DSA/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        cb();
+      }
+
+      createFile("XA-DSA-Shutter.dcm", renderSerie);
+
+      // how to apply pixelShift
+      // applyDSAShift(elementId, multiFrameSerie, frameId, inputMaskSubPixelShift);
+      // when ok
+      // unloadAndRecacheImageStackDSA(multiFrameSerie)
+    </script>
+  </body>
+</html>

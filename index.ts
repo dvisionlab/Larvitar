@@ -88,6 +88,7 @@ import {
   registerNRRDImageLoader,
   registerResliceLoader,
   registerMultiFrameImageLoader,
+  registerDsaImageLoader,
   updateLoadedStack
 } from "./imaging/imageLoading";
 
@@ -109,6 +110,7 @@ import {
   resizeViewport,
   renderImage,
   updateImage,
+  redrawImage,
   resetViewports,
   updateViewportData,
   storeViewportData,
@@ -205,7 +207,9 @@ import {
 import {
   getDicomImageId,
   cacheImage,
-  cacheImages
+  cacheImages,
+  loadAndCacheImageStack,
+  unloadAndRecacheImageStackDSA
 } from "./imaging/loaders/dicomLoader";
 
 import { loadReslicedImage } from "./imaging/loaders/resliceLoader";
@@ -216,6 +220,8 @@ import {
   getMultiFrameImageId,
   clearMultiFrameCache
 } from "./imaging/loaders/multiframeLoader";
+
+import { populateDsaImageIds } from "./imaging/loaders/dsaImageLoader";
 
 import {
   getFileManager,
@@ -232,6 +238,8 @@ import {
   fillPixelData,
   HSVToRGB
 } from "./imaging/imageColormaps";
+
+import { applyDSAShift } from "./imaging/postProcessing/applyDSA";
 
 import { saveAnnotations, loadAnnotations } from "./imaging/tools/io";
 
@@ -306,6 +314,7 @@ export {
   registerNRRDImageLoader,
   registerResliceLoader,
   registerMultiFrameImageLoader,
+  registerDsaImageLoader,
   updateLoadedStack,
   // imageParsing
   readFile,
@@ -323,6 +332,7 @@ export {
   resizeViewport,
   renderImage,
   updateImage,
+  redrawImage,
   resetViewports,
   updateViewportData,
   toggleMouseToolsListeners,
@@ -365,17 +375,23 @@ export {
   getDicomImageId,
   cacheImage,
   cacheImages,
+  loadAndCacheImageStack,
+  unloadAndRecacheImageStackDSA,
   // loaders/multiframeLoader
   loadMultiFrameImage,
   buildMultiFrameImage,
   getMultiFrameImageId,
   clearMultiFrameCache,
+  // loaders/dsaImageLoader
+  populateDsaImageIds,
   // loaders/fileLoader
   getFileManager,
   resetFileLoader,
   resetFileManager,
   populateFileManager,
   getFileImageId,
+  // imaging/postProcessing
+  applyDSAShift,
   // imageTools
   addDiameterTool,
   addContoursTool,
