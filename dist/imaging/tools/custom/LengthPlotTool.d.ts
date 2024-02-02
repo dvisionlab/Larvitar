@@ -72,7 +72,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     };
     constructor(props?: {});
     getRandomColor(): string;
-    handleMouseUp: (event: MouseEvent) => void;
+    handleMouseUp(): void;
     createNewMeasurement(eventData: EventData): {
         visible: boolean;
         active: boolean;

@@ -80,7 +80,7 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
     };
     constructor(props?: {});
     getColor(y: number): string;
-    handleMouseUp: (event: MouseEvent) => void;
+    handleMouseUp: () => void;
     clearCanvasAndPlot(eventData: EventData): void;
     createNewMeasurement(eventData: EventData): {
         visible: boolean;

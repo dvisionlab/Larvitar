@@ -145,7 +145,7 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
     return color;
   }
 
-  handleMouseUp = (event: MouseEvent) => {
+  handleMouseUp = () => {
     const eventData = this.eventData;
     const { element } = eventData!;
     //const toolData: ToolData = getToolState(element, this.name);
@@ -185,6 +185,7 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
     if (this.lineNumber === 3) {
       this.clearCanvasAndPlot(eventData);
     }
+    eventData.element.addEventListener("mouseup", () => this.handleMouseUp());
     this.eventData = eventData;
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
@@ -290,7 +291,6 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
   renderToolData(evt: ToolMouseEvent) {
     const eventData = evt.detail;
     const { image, element } = eventData;
-    element.addEventListener("mouseup", this.handleMouseUp);
     const {
       handleRadius,
       drawHandlesOnHover,
@@ -454,7 +454,7 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
 
     // Display using Plotly
     const myPlotDiv = document.getElementById("myPlot");
-    Plotly.newPlot(myPlotDiv as Plotly.Root, data as Plotly.Data[], layout);
+    Plotly.react(myPlotDiv as Plotly.Root, data as Plotly.Data[], layout);
     this.newMeasurement = false;
   }
 }

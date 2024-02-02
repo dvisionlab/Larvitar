@@ -136,7 +136,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     return color;
   }
 
-  handleMouseUp = (event: MouseEvent) => {
+  handleMouseUp() {
     this.measuring = false;
     const eventData = this.eventData;
 
@@ -162,11 +162,12 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     const data = [handleData(this.datahandles!), aboveResults, belowResults];
 
     this.createPlot(...data);
-  };
+  }
 
   createNewMeasurement(eventData: EventData) {
     this.eventData = eventData;
     clearToolData(eventData.element, this.name);
+    eventData.element.addEventListener("mouseup", () => this.handleMouseUp());
     this.measuring = true;
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
@@ -259,9 +260,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
   renderToolData(evt: ToolMouseEvent) {
     const eventData = evt.detail;
     const { element } = eventData;
-    element.addEventListener("mouseup", (event: MouseEvent) =>
-      this.handleMouseUp(event)
-    );
+
     const {
       handleRadius,
       drawHandlesOnHover,
@@ -470,7 +469,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     };
 
     const myPlotDiv = document.getElementById("myPlot");
-    Plotly.newPlot(myPlotDiv as Plotly.Root, traces as Plotly.Data[], layout);
+    Plotly.react(myPlotDiv as Plotly.Root, traces as Plotly.Data[], layout);
   }
 
   clearPlotlyData() {
