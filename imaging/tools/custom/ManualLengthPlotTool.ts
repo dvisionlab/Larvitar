@@ -1,13 +1,9 @@
 //external imports
-import { BaseToolStateData, HandlePosition } from "../types";
 import Plotly from "plotly.js-dist-min";
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
-import { find } from "lodash";
-// State
 const getToolState = cornerstoneTools.getToolState; //check
 const toolColors = cornerstoneTools.toolColors;
-// Drawing
 const draw = cornerstoneTools.importInternal("drawing/draw");
 const drawLine = cornerstoneTools.importInternal("drawing/drawLine");
 const setShadow = cornerstoneTools.importInternal("drawing/setShadow");
@@ -21,6 +17,8 @@ const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
 );
+//internal imports
+import { HandlePosition } from "../types";
 
 //interfaces/types
 type PixelSpacing = {

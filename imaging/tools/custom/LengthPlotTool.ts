@@ -1,28 +1,10 @@
-//to set custom offset do this: DEFAULT_TOOLS["LengthPlot"].offset=parseInt(document.getElementById("offset").value,10)
-//create plot in viewport in layeout doable like this:
-//const currentDiv = eventData.element //viewport element
-//const newDiv = document.createElement("div");
-//newDiv.id=currentDiv.id+"-Plotly"
-//newDiv.style="width: 100%; max-width: 600px; height: 500px;"
-//currentDiv.appendChild(newDiv);
-//offsetInput=document.createElement("input");
-// Set the attributes for the input element
-//offsetInput.type = "number";
-//offsetInput.classList.add("manualInput");
-//offsetInput.id = currentDiv.id+"-offset";
-//offsetInput.placeholder = "offset";
-//newDiv.appendChild(offsetInput);
-
 //external imports
-import { HandlePosition } from "../types";
+
 import Plotly from "plotly.js-dist-min";
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
-
-// State
-const getToolState = cornerstoneTools.getToolState; //check
+const getToolState = cornerstoneTools.getToolState;
 const toolColors = cornerstoneTools.toolColors;
-// Drawing
 const draw = cornerstoneTools.importInternal("drawing/draw");
 const drawLine = cornerstoneTools.importInternal("drawing/drawLine");
 const setShadow = cornerstoneTools.importInternal("drawing/setShadow");
@@ -37,6 +19,7 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
 );
 //internal imports
+import { HandlePosition } from "../types";
 import { DEFAULT_TOOLS } from "../default";
 
 //interfaces/types
@@ -506,3 +489,18 @@ function clearToolData(element: HTMLElement, toolName: string) {
     });
   }
 }
+
+//to set custom offset do this: DEFAULT_TOOLS["LengthPlot"].offset=parseInt(document.getElementById("offset").value,10)
+//create plot in viewport in layeout doable like this:
+//const currentDiv = eventData.element //viewport element
+//const newDiv = document.createElement("div");
+//newDiv.id=currentDiv.id+"-Plotly"
+//newDiv.style="width: 100%; max-width: 600px; height: 500px;"
+//currentDiv.appendChild(newDiv);
+//offsetInput=document.createElement("input");
+// Set the attributes for the input element
+//offsetInput.type = "number";
+//offsetInput.classList.add("manualInput");
+//offsetInput.id = currentDiv.id+"-offset";
+//offsetInput.placeholder = "offset";
+//newDiv.appendChild(offsetInput);

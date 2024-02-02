@@ -1,6 +1,6 @@
-import { HandlePosition } from "../types";
 import cornerstone from "cornerstone-core";
 declare const BaseAnnotationTool: any;
+import { HandlePosition } from "../types";
 interface data {
     visible: boolean;
     active: boolean;
