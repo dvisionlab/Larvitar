@@ -195,7 +195,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     } else {
       imageIds = stackData.imageIds;
     }
-
     if (this.configuration.currentMode === "stack") {
       // Handle 'stack' mode
 
