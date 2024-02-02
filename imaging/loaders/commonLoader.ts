@@ -7,7 +7,6 @@
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { DataSet } from "dicom-parser";
 import { each } from "lodash";
-import store, { set as setStore } from "../imageStore";
 import { updateLoadedStack } from "../imageLoading";
 import type {
   ImageObject,
@@ -15,12 +14,10 @@ import type {
   LarvitarManager,
   MetaData,
   Series,
-  StoreViewport
 } from "../types";
 
 // internal libraries
 import { buildMultiFrameImage, clearMultiFrameCache } from "./multiframeLoader";
-import { storeViewportData, getSeriesData } from "../imageRendering";
 // global variables
 var larvitarManager: LarvitarManager = null;
 var imageTracker: ImageTracker = null;
