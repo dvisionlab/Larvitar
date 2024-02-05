@@ -888,7 +888,7 @@ export default class WSToggleTool extends BaseBrushTool {
     slicei: number[]
   ) {
     if (this.labelToErase == null) {
-      let counts = new Array(this.configuration.masksNumber).fill(0);
+      let counts = new Array(this.configuration.masksNumber + 1).fill(0);
       circleArray.forEach(([x, y]) => {
         const label = selectedSlice[y * image.rows + x];
         counts[label] = counts[label] + 1;
