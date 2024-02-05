@@ -35,6 +35,7 @@
 
       <div class="col-4 h-100">
         <pre class="h-100">
+          <div id="myPlot" style="width: 100%; max-width: 600px; height: 500px;"></div>
           <code class="javascript" style="background-color: #000000">
           <p style="font-size:0.6vw;">
             let demoFiles = [];
@@ -231,11 +232,13 @@
           tools = _.without(
             tools,
             "CustomMouseWheelScroll",
+            "StackScrollMouseWheel",
             "TextMarker",
             "ZoomTouchPinch",
             "PanMultiTouch",
             "OrientationMarkers",
-            "ScaleOverlay"
+            "ScaleOverlay",
+            "ManualLengthPlot"
           );
           // remove not working tools for the live example
           // see open issue

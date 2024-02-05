@@ -27,13 +27,13 @@
 
 import { filter, isArray } from "lodash";
 import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
-// import Slice4DScrollMouseWheelTool from "./custom/4dSliceScrollTool";
 import PolylineScissorsTool from "./custom/polylineScissorsTool";
 import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
 import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
 import BorderMagnifyTool from "./custom/BorderMagnifyTool";
 import CustomMouseWheelScrollTool from "./custom/customMouseWheelScrollTool";
-
+import LengthPlotTool from "./custom/LengthPlotTool";
+import ManualLengthPlotTool from "./custom/ManualLengthPlotTool";
 import type {
   ToolConfig,
   ToolMouseKeys,
@@ -247,6 +247,44 @@ const DEFAULT_TOOLS: {
     },
     cleanable: true,
     class: "LengthTool"
+  },
+  LengthPlot: {
+    name: "LengthPlot",
+    viewports: "all",
+    configuration: {
+      drawHandles: true,
+      drawHandlesOnHover: false,
+      hideHandlesIfMoving: false,
+      renderDashed: false,
+      digits: 2,
+      offset: 15
+    },
+
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse"]
+    },
+    cleanable: true,
+    class: "LengthPlotTool"
+  },
+  ManualLengthPlot: {
+    name: "ManualLengthPlot",
+    viewports: "all",
+    configuration: {
+      drawHandles: true,
+      drawHandlesOnHover: false,
+      hideHandlesIfMoving: false,
+      renderDashed: false,
+      digits: 2,
+      offset: 15
+    },
+
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse"]
+    },
+    cleanable: true,
+    class: "ManualLengthPlotTool"
   },
   Angle: {
     name: "Angle",
@@ -480,7 +518,9 @@ const dvTools: {
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
   BorderMagnifyTool: BorderMagnifyTool,
-  CustomMouseWheelScrollTool: CustomMouseWheelScrollTool
+  CustomMouseWheelScrollTool: CustomMouseWheelScrollTool,
+  LengthPlotTool: LengthPlotTool,
+  ManualLengthPlotTool: ManualLengthPlotTool
 };
 
 /**
