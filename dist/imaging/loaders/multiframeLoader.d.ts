@@ -1,7 +1,8 @@
 /** @module loaders/multiframeLoader
  *  @desc This file is a custom DICOM loader for multiframe images
  */
-import type { Image, Series } from "../types";
+import { ImageLoader } from "cornerstone-core";
+import type { Series } from "../types";
 /**
  * Custom MultiFrame Loader Function
  * @export
@@ -9,9 +10,7 @@ import type { Image, Series } from "../types";
  * @param {String} imageId - ImageId tag
  * @returns {Function} Custom Image Creation Function
  */
-export declare const loadMultiFrameImage: (imageId: string) => {
-    promise: Promise<Image>;
-};
+export declare const loadMultiFrameImage: ImageLoader;
 /**
  * Build the multiframe layout in the larvitar Manager
  * @export
