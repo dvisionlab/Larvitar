@@ -936,6 +936,7 @@ export const storeViewportData = function (
   setStore(["isTimeserie", elementId, data.isTimeserie]);
   setStore(["isPDF", elementId, false]);
   setStore(["waveform", elementId, data.waveform]);
+  setStore(["dsa", elementId, data.dsa]);
 };
 
 /**
@@ -1129,6 +1130,7 @@ const getSeriesData = function (
   data.isColor = series.color as boolean;
   data.isPDF = series.isPDF;
   data.waveform = series.waveform;
+  data.dsa = series.dsa ? true : false;
   if (instance) {
     data.rows = instance.metadata.x00280010!;
     data.cols = instance.metadata.x00280011!;
