@@ -3,6 +3,13 @@
 import { ByteArray } from "dicom-parser";
 import { MetaData, Series } from "./types";
 
+/**
+ * called when metadata are modified with custom values
+ * @function customizeByteArray
+ * @param {Series} series - series to customize
+ * @param {MetaData} customTags - customized tags
+ * @returns {Series} anonymized series
+ */
 export const customizeByteArray = function (
   series: Series,
   customTags: MetaData //only string values
@@ -12,29 +19,26 @@ export const customizeByteArray = function (
     let image = series.instances[imageId];
     if (image.dataSet) {
       //sort custom tags from lowest offset to highest one
-      let offsets: { tag: string; offset: number; index: number }[] = [];
       let shiftTotal = 0;
       let shift = 0;
       //all tags sorted by their offset from min to max
       const sortedTags = Object.values(image.dataSet.elements)
         .sort((a, b) => a.dataOffset - b.dataOffset)
         .map(element => ({ [element.tag]: element }));
-      for (const tag in customTags) {
-        offsets.push({
-          tag: image.dataSet.elements[tag].tag,
-          offset: image.dataSet.elements[tag].dataOffset,
-          index: sortedTags.findIndex(obj => obj.tag.tag === tag)
-        });
-        shiftTotal =
-          // @ts-ignore always string
-          shiftTotal + customTags[tag] - image.dataSet.elements[tag].length;
-      }
       //custom tags sorted by their offset from min to max
-      const sortedCustomTags = offsets
-        .slice()
+      const sortedCustomTags = Object.entries(customTags)
+        .map(([tag, shift]) => {
+          shiftTotal += shift - image.dataSet!.elements[tag].length;
+          return {
+            tag,
+            // @ts-ignore always string
+            value: customTags[tag],
+            offset: image.dataSet!.elements[tag].dataOffset,
+            index: sortedTags.findIndex(obj => obj.tag.tag === tag)
+          };
+        })
         .sort((a, b) => a.offset - b.offset);
 
-      //shift byteArray elements given shifts for every customtag value changed
       for (let i = 0; i < sortedCustomTags.length; i++) {
         let tag = sortedCustomTags[i].tag;
 
@@ -43,12 +47,11 @@ export const customizeByteArray = function (
           image.dataSet.byteArray.length + shiftTotal
         );
         const vr = element.vr;
-        // @ts-ignore always string
-        let newText: string = customTags[tag]; //.ToString()
         if (vr) {
-          if (newText !== undefined) {
-            if (newText.length != element.length) {
-              shift = shift + newText.length - element.length;
+          //shift byteArray elements given shifts for every customtag value changed
+          if (sortedCustomTags[i].value !== undefined) {
+            if (sortedCustomTags[i].value.length != element.length) {
+              shift = shift + sortedCustomTags[i].value.length - element.length;
             }
 
             const startCustomTag = element.dataOffset + shift;
@@ -58,8 +61,14 @@ export const customizeByteArray = function (
                 : sortedCustomTags[i + 1].offset + shift;
 
             for (let j: number = startCustomTag; j < endCustomTag; j++) {
-              if (j < element.dataOffset + shift + newText.length) {
-                const char = newText.length > j ? newText.charCodeAt(j) : 32;
+              if (
+                j <
+                element.dataOffset + shift + sortedCustomTags[i].value.length
+              ) {
+                const char =
+                  sortedCustomTags[i].value.length > j
+                    ? sortedCustomTags[i].value.charCodeAt(j)
+                    : 32;
                 newByteArray[j] = char;
               } else {
                 newByteArray[j] = image.dataSet.byteArray[j - shift];
@@ -70,8 +79,8 @@ export const customizeByteArray = function (
           // @ts-ignore always string
           image.metadata[tag] = newText;
           element.dataOffset += shift;
-          element.length = newText.length;
-          //change dataset info about offset accordingly
+          element.length = sortedCustomTags[i].value.length;
+          //change dataset infos about offset accordingly
           let start = sortedCustomTags[i].index + 1;
           let end =
             i === sortedCustomTags.length - 1
@@ -83,7 +92,7 @@ export const customizeByteArray = function (
           }
         }
       }
-
+      //update image metadata if changed
       image.metadata.seriesUID = image.metadata["x0020000e"];
       image.metadata.instanceUID = image.metadata["x00080018"];
       image.metadata.studyUID = image.metadata["x0020000d"];
