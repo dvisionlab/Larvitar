@@ -28,6 +28,7 @@ type SetPayload =
         | "isMultiframe"
         | "isPDF"
         | "waveform"
+        | "dsa"
         | "isTimeserie"
         | "isDSAEnabled"
         | "ready"
@@ -127,6 +128,7 @@ const DEFAULT_VIEWPORT: StoreViewport = {
   isDSAEnabled: false,
   isPDF: false,
   waveform: false,
+  dsa: false,
   viewport: {
     scale: 0.0,
     rotation: 0.0,
@@ -210,6 +212,7 @@ const setValue = (store: Store, data: SetPayload) => {
     case "isMultiframe":
     case "isPDF":
     case "waveform":
+    case "dsa":
     case "isTimeserie":
     case "isDSAEnabled":
     case "ready":
