@@ -118,7 +118,8 @@ import {
   flipImageHorizontal,
   flipImageVertical,
   rotateImageLeft,
-  rotateImageRight
+  rotateImageRight,
+  updateTemporalViewportData
 } from "./imaging/imageRendering";
 
 import { resliceSeries } from "./imaging/imageReslice";
@@ -449,5 +450,6 @@ export {
   disableBrushTool,
   toggleContourMode,
   toggleVisibility,
-  getActiveLabelmapBuffer
+  getActiveLabelmapBuffer,
+  updateTemporalViewportData
 };
