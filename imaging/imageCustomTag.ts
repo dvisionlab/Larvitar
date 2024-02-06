@@ -8,7 +8,7 @@ import { MetaData, Series } from "./types";
  * @function customizeByteArray
  * @param {Series} series - series to customize
  * @param {MetaData} customTags - customized tags
- * @returns {Series} anonymized series
+ * @returns {Series} customized series
  */
 export const customizeByteArray = function (
   series: Series,
@@ -21,24 +21,33 @@ export const customizeByteArray = function (
       //sort custom tags from lowest offset to highest one
       let shiftTotal = 0;
       let shift = 0;
-      //all tags sorted by their offset from min to max
+      //all tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
       const sortedTags = Object.values(image.dataSet.elements)
         .sort((a, b) => a.dataOffset - b.dataOffset)
         .map(element => ({ [element.tag]: element }));
-      //custom tags sorted by their offset from min to max
+      //custom tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
       const sortedCustomTags = Object.entries(customTags)
-        .map(([tag, shift]) => {
-          shiftTotal += shift - image.dataSet!.elements[tag].length;
+        .map(([tag]) => {
+          console.log(customTags);
+
+          shiftTotal +=
+            // @ts-ignore always string
+            customTags[tag].length - image.dataSet!.elements[tag].length;
           return {
             tag,
             // @ts-ignore always string
             value: customTags[tag],
             offset: image.dataSet!.elements[tag].dataOffset,
-            index: sortedTags.findIndex(obj => obj.tag.tag === tag)
+            index: sortedTags.findIndex(obj => {
+              for (let prop in obj) {
+                if (obj[prop].tag === tag) {
+                  return true; // Found the object with the correct tag
+                }
+              }
+            })
           };
         })
         .sort((a, b) => a.offset - b.offset);
-
       for (let i = 0; i < sortedCustomTags.length; i++) {
         let tag = sortedCustomTags[i].tag;
 
@@ -46,6 +55,7 @@ export const customizeByteArray = function (
         let newByteArray: ByteArray = new Uint8Array(
           image.dataSet.byteArray.length + shiftTotal
         );
+
         const vr = element.vr;
         if (vr) {
           //shift byteArray elements given shifts for every customtag value changed
@@ -77,8 +87,7 @@ export const customizeByteArray = function (
             image.dataSet.byteArray = newByteArray as ByteArray;
           }
           // @ts-ignore always string
-          image.metadata[tag] = newText;
-          element.dataOffset += shift;
+          image.metadata[tag] = sortedCustomTags[i].value;
           element.length = sortedCustomTags[i].value.length;
           //change dataset infos about offset accordingly
           let start = sortedCustomTags[i].index + 1;

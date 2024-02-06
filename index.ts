@@ -73,7 +73,7 @@ import {
 } from "./imaging/imageIo";
 
 import { anonymize } from "./imaging/imageAnonymization";
-
+import { customizeByteArray } from "./imaging/imageCustomTag";
 import {
   buildLayer,
   updateLayer,
@@ -302,6 +302,8 @@ export {
   exportImageToBase64,
   // imageAnonymization
   anonymize,
+  //customizeByteArray
+  customizeByteArray,
   // imageLayers
   buildLayer,
   updateLayer,

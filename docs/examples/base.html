@@ -156,8 +156,12 @@
                 );
               }
             });
+            const imageId = serie.imageIds[0];
+            let image = serie.instances[imageId];
             larvitar.addDefaultTools();
             larvitar.setToolActive("Wwwc");
+            console.log(serie);
+            console.log("BEFORE", image.dataSet);
           })
           .catch(err => console.error(err));
       }
