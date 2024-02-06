@@ -22,7 +22,7 @@ type Store = {
     [key: string]: any;
 };
 type SetPayload = ["errorLog" | "leftActiveTool" | "rightActiveTool", string] | [
-    ("isColor" | "isMultiframe" | "isPDF" | "waveform" | "isTimeserie" | "isDSAEnabled" | "ready"),
+    ("isColor" | "isMultiframe" | "isPDF" | "waveform" | "dsa" | "isTimeserie" | "isDSAEnabled" | "ready"),
     string,
     boolean
 ] | [

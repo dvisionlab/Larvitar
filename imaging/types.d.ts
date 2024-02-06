@@ -42,6 +42,7 @@ export type StoreViewport = {
   isDSAEnabled: boolean;
   isPDF: boolean;
   waveform: boolean;
+  dsa: boolean;
   imageIndex?: number;
   imageId?: string;
   numberOfSlices?: number;
