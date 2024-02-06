@@ -2,7 +2,7 @@
 
 import { ByteArray } from "dicom-parser";
 import { MetaData, Series } from "./types";
-
+//import { Buffer } from "node:buffer";
 /**
  * called when metadata are modified with custom values
  * @function customizeByteArray
@@ -48,47 +48,57 @@ export const customizeByteArray = function (
           };
         })
         .sort((a, b) => a.offset - b.offset);
-      for (let i = 0; i < sortedCustomTags.length; i++) {
-        let tag = sortedCustomTags[i].tag;
 
-        let element = image.dataSet.elements[tag];
-        let newByteArray: ByteArray = new Uint8Array(
-          image.dataSet.byteArray.length + shiftTotal
-        );
+      console.log(shiftTotal);
+
+      let newByteArray: ByteArray = new Uint8Array(
+        image.dataSet.byteArray.length + shiftTotal
+      );
+      /*let newByteArray: ByteArray = Buffer.alloc(
+        image.dataSet.byteArray.length + shiftTotal
+      );*/
+      for (let i = 0; i < sortedCustomTags.length; i++) {
+        let element = image.dataSet.elements[sortedCustomTags[i].tag];
 
         const vr = element.vr;
+
         if (vr) {
           //shift byteArray elements given shifts for every customtag value changed
           if (sortedCustomTags[i].value !== undefined) {
+            const startCustomTag = element.dataOffset + shift;
+            element.dataOffset = startCustomTag;
             if (sortedCustomTags[i].value.length != element.length) {
               shift = shift + sortedCustomTags[i].value.length - element.length;
             }
 
-            const startCustomTag = element.dataOffset + shift;
             const endCustomTag =
               i === sortedCustomTags.length - 1
                 ? newByteArray.length
                 : sortedCustomTags[i + 1].offset + shift;
 
+            if (i === 0) {
+              for (let j: number = 0; j < startCustomTag; j++) {
+                newByteArray[j] = image.dataSet.byteArray[j];
+              }
+            }
             for (let j: number = startCustomTag; j < endCustomTag; j++) {
-              if (
-                j <
-                element.dataOffset + shift + sortedCustomTags[i].value.length
-              ) {
+              if (j < startCustomTag + sortedCustomTags[i].value.length) {
+                console.log(j - startCustomTag);
                 const char =
-                  sortedCustomTags[i].value.length > j
-                    ? sortedCustomTags[i].value.charCodeAt(j)
+                  sortedCustomTags[i].value.length > j - startCustomTag
+                    ? sortedCustomTags[i].value.charCodeAt(j - startCustomTag)
                     : 32;
                 newByteArray[j] = char;
               } else {
                 newByteArray[j] = image.dataSet.byteArray[j - shift];
               }
             }
-            image.dataSet.byteArray = newByteArray as ByteArray;
           }
+
           // @ts-ignore always string
-          image.metadata[tag] = sortedCustomTags[i].value;
+          image.metadata[sortedCustomTags[i].tag] = sortedCustomTags[i].value;
           element.length = sortedCustomTags[i].value.length;
+
           //change dataset infos about offset accordingly
           let start = sortedCustomTags[i].index + 1;
           let end =
@@ -101,6 +111,7 @@ export const customizeByteArray = function (
           }
         }
       }
+      image.dataSet.byteArray = newByteArray as ByteArray;
       //update image metadata if changed
       image.metadata.seriesUID = image.metadata["x0020000e"];
       image.metadata.instanceUID = image.metadata["x00080018"];

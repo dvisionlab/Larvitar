@@ -162,10 +162,18 @@
             let image = serie.instances[imageId];
 
             larvitar.customizeByteArray(serie, {
-              x00100010: "CiccioPasticcio"
+              x00100010: "cicciopasticcio"
             });
-            console.log(serie);
             console.log("AFTER", image.dataSet);
+            console.log("series", serie);
+            console.log(image.dataSet.byteArray);
+            var blob = new Blob([image.dataSet.byteArray], {
+              type: "application/dicom"
+            });
+            var url = window.URL.createObjectURL(blob);
+            window.open(url);
+            window.URL.revokeObjectURL(url);
+            console.log(serie);
           })
           .catch(err => console.error(err));
       }
