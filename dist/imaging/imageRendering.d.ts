@@ -175,6 +175,14 @@ export declare const rotateImageLeft: (elementId: string | HTMLElement) => void;
  */
 export declare const rotateImageRight: (elementId: string | HTMLElement) => void;
 /**
+ * Update Larvitar manager viewport data
+ * @instance
+ * @function updateViewportDataInLarvitarManager
+ * @param {Series} seriesStack The Id of the series
+ * @param {String} elementId The Id of the html element
+ */
+export declare const updateTemporalViewportData: (seriesStack: Series, elementId: string) => void;
+/**
  * Get series metadata from default props and series' metadata
  * @instance
  * @function getSeriesData
