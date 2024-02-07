@@ -50,13 +50,18 @@ export const customizeByteArray = function (
         .sort((a, b) => a.offset - b.offset);
 
       console.log(shiftTotal);
-
-      let newByteArray: ByteArray = new Uint8Array(
-        image.dataSet.byteArray.length + shiftTotal
-      );
-      /*let newByteArray: ByteArray = Buffer.alloc(
-        image.dataSet.byteArray.length + shiftTotal
-      );*/
+      let newByteArray: ByteArray;
+      if (typeof Buffer !== "undefined") {
+        // Running in Node.js environment
+        newByteArray = Buffer.alloc(
+          image.dataSet.byteArray.length + shiftTotal
+        );
+      } else {
+        // Running in browser environment
+        newByteArray = new Uint8Array(
+          image.dataSet.byteArray.length + shiftTotal
+        );
+      }
       for (let i = 0; i < sortedCustomTags.length; i++) {
         let element = image.dataSet.elements[sortedCustomTags[i].tag];
 
@@ -84,6 +89,8 @@ export const customizeByteArray = function (
             for (let j: number = startCustomTag; j < endCustomTag; j++) {
               if (j < startCustomTag + sortedCustomTags[i].value.length) {
                 console.log(j - startCustomTag);
+                let str = image.dataSet.string(sortedCustomTags[i].tag);
+                console.log(str);
                 const char =
                   sortedCustomTags[i].value.length > j - startCustomTag
                     ? sortedCustomTags[i].value.charCodeAt(j - startCustomTag)
@@ -140,3 +147,4 @@ export const customizeByteArray = function (
 //EX. IF ELEMENT WITH OFFSET 10 HAS NEW LENGTH OF 3 INSTEAD OF 5 SHIFT ALL ELEMENTS FROM 10 TO TO 20 BACK OF 2
 //IF ELEMENT WITH OFFSET 20 HAS NOW LENGTH OF 10 INSTEAD OF 5 NOW SHIFT ELEMENTS AFTER THIS OF INDEX -2+5=+3 AND SO ON
 //UPDATE EACH ELEMENTS LENGTH AND OFFSET SUBSEQUENTLY
+//TODO CHECK PADDING BYTES AND HOW TO GENERATE THEM
