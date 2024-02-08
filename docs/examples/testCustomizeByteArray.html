@@ -135,7 +135,7 @@
         larvitar.resetLarvitarManager();
         larvitar
           .readFiles(demoFiles)
-          .then(seriesStack => {
+          .then(async seriesStack => {
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
@@ -160,19 +160,21 @@
             const imageId = serie.imageIds[0];
             let image = serie.instances[imageId];
 
-            larvitar.customizeByteArray(serie, {
+            /*await larvitar.customizeByteArray(serie, {
               x00100010: "pippoepaperinovannoinvacanzainsiemefeliciecontenti"
-            });
-            console.log("AFTER", image.dataSet);
-            console.log("series", serie);
-            console.log(image.dataSet.byteArray);
-            var blob = new Blob([image.dataSet.byteArray], {
-              type: "application/dicom"
-            });
-            var url = window.URL.createObjectURL(blob);
-            window.open(url);
-            window.URL.revokeObjectURL(url);
-            console.log(serie);
+            });*/
+            setTimeout(() => {
+              console.log("AFTER", image.dataSet);
+              console.log("series", serie);
+              console.log(image.dataSet.byteArray);
+              var blob = new Blob([image.dataSet.byteArray], {
+                type: "application/dicom"
+              });
+              var url = window.URL.createObjectURL(blob);
+              window.open(url);
+              window.URL.revokeObjectURL(url);
+              console.log(serie);
+            }, 2000);
           })
           .catch(err => console.error(err));
       }

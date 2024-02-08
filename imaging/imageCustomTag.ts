@@ -21,6 +21,7 @@ export const customizeByteArray = function (
       //sort custom tags from lowest offset to highest one
       let shiftTotal = 0;
       let shift = 0;
+      let odd: boolean = false;
       //all tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
       const sortedTags = Object.values(image.dataSet.elements)
         .sort((a, b) => a.dataOffset - b.dataOffset)
@@ -36,6 +37,7 @@ export const customizeByteArray = function (
           ) {
             // @ts-ignore always string
             customTags[tag] = customTags[tag] + " ";
+            odd = true;
           }
           shiftTotal +=
             // @ts-ignore always string
@@ -95,6 +97,16 @@ export const customizeByteArray = function (
             }
             for (let j: number = startCustomTag; j < endCustomTag; j++) {
               if (j < startCustomTag + sortedCustomTags[i].value.length) {
+                if (
+                  image.dataSet!.elements[sortedCustomTags[i].tag].vr ===
+                    "PN" &&
+                  j == startCustomTag
+                ) {
+                  newByteArray[j - 2] =
+                    sortedCustomTags[i].value.length - element.length < 0
+                      ? 20
+                      : 50; //50=2 and 20=" "
+                }
                 console.log(j - startCustomTag);
                 let str = image.dataSet.string(sortedCustomTags[i].tag);
                 console.log(str);

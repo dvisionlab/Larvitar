@@ -105,21 +105,19 @@
     <script>
       let demoFiles = [];
       let counter = 0;
-
-      const getDemoFileNames = function () {
-        let demoFileList = [];
-        for (let i = 1; i < 2; i++) {
-          let filename = "modified_testlungo.dcm";
-          demoFileList.push(filename);
-        }
-        return demoFileList;
-      };
-
-      // init all
+      let dataset1;
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 2; i++) {
+          let filename = "modified_testlungo2.dcm";
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
 
       async function createFile(fileName, cb) {
         let response = await fetch(fileName);
@@ -137,15 +135,12 @@
         larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
-            // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               console.log("Image has been rendered");
             });
-            // optionally cache the series
             larvitar.populateLarvitarManager(seriesId, serie);
-            console.log(larvitar.getLarvitarManager());
             larvitar.cacheImages(serie, function (resp) {
               if (resp.loading == 100) {
                 let cache = larvitar.cornerstone.imageCache;
@@ -160,10 +155,18 @@
             let image = serie.instances[imageId];
 
             console.log(image.dataSet.byteArray);
+            var blob = new Blob([image.dataSet.byteArray], {
+              type: "application/dicom"
+            });
+            var url = window.URL.createObjectURL(blob);
+            window.open(url);
+            window.URL.revokeObjectURL(url);
             larvitar.addDefaultTools();
             larvitar.setToolActive("Wwwc");
             console.log(serie);
             console.log("BEFORE", image.dataSet);
+            dataset1 = image.dataSet.byteArray;
+            console.log("dataset1", dataset1);
           })
           .catch(err => console.error(err));
       }
@@ -173,8 +176,110 @@
         createFile(demoFile, renderSerie);
       });
 
+      // Now for the second set of files
+
+      let demoFiles2 = []; // New array for the second set of demo files
+      let counter2 = 0;
+      let dataset2;
+
+      const getDemoFileNames2 = function () {
+        let demoFileList2 = [];
+        for (let i = 1; i < 2; i++) {
+          let filename2 = "testlungo.dcm";
+          demoFileList2.push(filename2);
+        }
+        return demoFileList2;
+      };
+
+      async function createFile2(fileName, cb) {
+        // Renamed function
+        let response = await fetch(fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles2.push(file); // Use demoFiles2 array
+        counter2++;
+        if (counter2 == 1) {
+          cb();
+        }
+      }
+
+      function renderSerie2() {
+        larvitar.resetLarvitarManager();
+        larvitar
+          .readFiles(demoFiles2) // Use demoFiles2 array
+          .then(async seriesStack => {
+            let seriesId = _.keys(seriesStack)[0];
+            let serie = seriesStack[seriesId];
+            larvitar.renderImage(serie, "viewer").then(() => {
+              console.log("Image has been rendered");
+            });
+            larvitar.populateLarvitarManager(seriesId, serie);
+            larvitar.cacheImages(serie, function (resp) {
+              if (resp.loading == 100) {
+                let cache = larvitar.cornerstone.imageCache;
+                console.log(
+                  "Cache size: ",
+                  cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                  "Mb"
+                );
+              }
+            });
+            larvitar.addDefaultTools();
+            larvitar.setToolActive("Wwwc");
+            const imageId = serie.imageIds[0];
+            let image = serie.instances[imageId];
+
+            await larvitar.customizeByteArray(serie, {
+              x00100010: "pippoepaperinovannoi"
+            });
+            setTimeout(() => {
+              console.log("AFTER", image.dataSet);
+              console.log("series", serie);
+              console.log(image.dataSet.byteArray);
+              var blob = new Blob([image.dataSet.byteArray], {
+                type: "application/dicom"
+              });
+              var url = window.URL.createObjectURL(blob);
+              window.open(url);
+              window.URL.revokeObjectURL(url);
+              dataset2 = image.dataSet.byteArray;
+              console.log("dataset2", dataset2);
+              console.log(serie);
+            }, 2000);
+          })
+          .catch(err => console.error(err));
+      }
+
+      let demoFileList2 = getDemoFileNames2();
+      setTimeout(() => {
+        _.each(demoFileList2, function (demoFile) {
+          createFile2(demoFile, renderSerie2); // Use createFile2 for the second set of files
+        });
+      }, 2000);
+
       // Reactively update the UI
       // larvitar.store.watch(data => console.log(data));
+      setTimeout(() => {
+        if (dataset1.length !== dataset2.length) {
+          console.log("Arrays have different lengths");
+        } else {
+          let isEqual = true;
+          let indexBreak = null;
+          console.log("equal lengths");
+          for (let i = 0; i < dataset1.length; i++) {
+            if (dataset1[i] !== dataset2[i]) {
+              isEqual = false;
+              indexBreak = i;
+            }
+          }
+
+          if (isEqual) {
+            console.log("Arrays are identical");
+          } else {
+            console.log("Arrays are different at index", indexBreak);
+          }
+        }
+      }, 7000);
     </script>
   </body>
 </html>
