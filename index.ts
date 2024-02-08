@@ -69,7 +69,8 @@ import {
   buildData,
   buildDataAsync,
   importNRRDImage,
-  exportImageToBase64
+  exportImageToBase64,
+  exportImageToBase64OriginalSizes
 } from "./imaging/imageIo";
 
 import { anonymize } from "./imaging/imageAnonymization";
@@ -301,6 +302,7 @@ export {
   buildDataAsync,
   importNRRDImage,
   exportImageToBase64,
+  exportImageToBase64OriginalSizes,
   // imageAnonymization
   anonymize,
   // imageLayers
