@@ -5,7 +5,7 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import { forEach, find } from "lodash";
-
+import cv from "@techstark/opencv-js";
 // internal libraries
 import {
   getMeanValue,
@@ -17,7 +17,7 @@ import store from "./imageStore";
 import { parse } from "./parsers/nrrd";
 import { checkMemoryAllocation } from "./monitors/memory";
 import { Series, Header, Volume, TypedArray } from "./types";
-
+import { Image } from "./types";
 /*
  * This module provides the following functions to be exported:
  * buildHeader(series)
@@ -260,13 +260,83 @@ export const importNRRDImage = function (bufferArray: ArrayBuffer) {
  * @param elementId - Id of the div element containing the canvas
  * @returns {String | null} base64 image (png full quality) or null if canvas does not exist
  */
-export const exportImageToBase64 = function (elementId: string): string | null {
+export const exportImageToBase64 = function (
+  elementId: string,
+  imageType: string //"png" or "jpeg"
+): string | null {
   const element: HTMLElement | null = document.getElementById(elementId);
   if (element) {
     const canvas: HTMLCanvasElement | null = element.querySelector("canvas");
-    return canvas ? canvas.toDataURL("image/png", 1.0) : null;
+    return canvas ? canvas.toDataURL("image/" + imageType, 1.0) : null;
   } else {
     console.warn("Canvas not found, invalid elementId");
     return null;
   }
 };
+
+/**
+ * Export image rendered in a canvas to base64
+ * @function exportImageToBase64OriginalSizes
+ * @param imageId - Id of the original image element
+ * @param canvasId - Id for the canvas for imshow with opencv.js
+ * @returns {String | null} base64 image (png full quality) or null if canvas does not exist
+ */
+export const exportImageToBase64OriginalSizes = async function (
+  imageId: string,
+  imageCanvas: HTMLCanvasElement
+) {
+  const image: Image = find(cornerstone.imageCache.cachedImages, [
+    "imageId",
+    imageId
+  ]).image;
+  const dicomPixelData = image.getPixelData();
+
+  const pngPixelData = new Uint8Array(image.width * image.height * 4);
+
+  const min = getMin(dicomPixelData);
+  const max = getMax(dicomPixelData);
+  for (let i = 0; i < dicomPixelData.length; i++) {
+    // Assuming each integer represents a grayscale value
+    pngPixelData[i * 4] = mapToRange(dicomPixelData[i], min, max); // Red channel
+    pngPixelData[i * 4 + 1] = pngPixelData[i * 4]; // Green channel
+    pngPixelData[i * 4 + 2] = pngPixelData[i * 4]; // Blue channel
+    pngPixelData[i * 4 + 3] = 255; // Alpha channel (fully opaque)
+  }
+  console.log("finished for cycle");
+  let src = new cv.Mat(image.height, image.width, cv.CV_8UC4); // 3 channels: RGB
+  src.data.set(pngPixelData);
+
+  cv.imshow(imageCanvas, src);
+  if (imageCanvas) {
+    return imageCanvas.toDataURL("image/jpeg", 1.0);
+  }
+};
+/**
+ * maps image pixel value in base64
+ * @function mapToRange
+ * @param value - Id of the original image element
+ * @param inMin - Min greyscale value in the image
+ * @param inMax - Max greyscale value in the image
+ * @returns {String | null} base64 image (png full quality) or null if canvas does not exist
+ */
+export function mapToRange(value: number, inMin: number, inMax: number) {
+  return ((value - inMin) / (inMax - inMin)) * 255;
+}
+export function getMax(arr: number[]) {
+  let len = arr.length;
+  let max = -Infinity;
+
+  while (len--) {
+    max = arr[len] > max ? arr[len] : max;
+  }
+  return max;
+}
+export function getMin(arr: number[]) {
+  let len = arr.length;
+  let min = +Infinity;
+
+  while (len--) {
+    min = arr[len] < min ? arr[len] : min;
+  }
+  return min;
+}

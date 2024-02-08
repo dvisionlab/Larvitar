@@ -46,4 +46,23 @@ export declare const importNRRDImage: (bufferArray: ArrayBuffer) => Object;
  * @param elementId - Id of the div element containing the canvas
  * @returns {String | null} base64 image (png full quality) or null if canvas does not exist
  */
-export declare const exportImageToBase64: (elementId: string) => string | null;
+export declare const exportImageToBase64: (elementId: string, imageType: string) => string | null;
+/**
+ * Export image rendered in a canvas to base64
+ * @function exportImageToBase64OriginalSizes
+ * @param imageId - Id of the original image element
+ * @param canvasId - Id for the canvas for imshow with opencv.js
+ * @returns {String | null} base64 image (png full quality) or null if canvas does not exist
+ */
+export declare const exportImageToBase64OriginalSizes: (imageId: string, imageCanvas: HTMLCanvasElement) => Promise<string | undefined>;
+/**
+ * maps image pixel value in base64
+ * @function mapToRange
+ * @param value - Id of the original image element
+ * @param inMin - Min greyscale value in the image
+ * @param inMax - Max greyscale value in the image
+ * @returns {String | null} base64 image (png full quality) or null if canvas does not exist
+ */
+export declare function mapToRange(value: number, inMin: number, inMax: number): number;
+export declare function getMax(arr: number[]): number;
+export declare function getMin(arr: number[]): number;
