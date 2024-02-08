@@ -29,7 +29,14 @@ export const customizeByteArray = function (
       const sortedCustomTags = Object.entries(customTags)
         .map(([tag]) => {
           console.log(customTags);
-
+          if (
+            image.dataSet!.elements[tag].vr === "PN" &&
+            // @ts-ignore always string
+            customTags[tag].length % 2 != 0
+          ) {
+            // @ts-ignore always string
+            customTags[tag] = customTags[tag] + " ";
+          }
           shiftTotal +=
             // @ts-ignore always string
             customTags[tag].length - image.dataSet!.elements[tag].length;

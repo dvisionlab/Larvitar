@@ -108,13 +108,12 @@
 
       const getDemoFileNames = function () {
         let demoFileList = [];
-        for (let i = 1; i < 25; i++) {
-          let filename = "anon" + i;
+        for (let i = 1; i < 2; i++) {
+          let filename = "testlungo.dcm";
           demoFileList.push(filename);
         }
         return demoFileList;
       };
-
       // init all
       larvitar.initializeImageLoader();
       larvitar.initializeCSTools();
@@ -122,12 +121,12 @@
       larvitar.store.addViewport("viewer");
 
       async function createFile(fileName, cb) {
-        let response = await fetch("./demo/" + fileName);
+        let response = await fetch(fileName);
         let data = await response.blob();
         let file = new File([data], fileName);
         demoFiles.push(file);
         counter++;
-        if (counter == 24) {
+        if (counter == 1) {
           cb();
         }
       }
@@ -162,7 +161,7 @@
             let image = serie.instances[imageId];
 
             larvitar.customizeByteArray(serie, {
-              x00100010: "cicciopasticcio  "
+              x00100010: "pippoepaperinovannoinvacanzainsiemefeliciecontenti"
             });
             console.log("AFTER", image.dataSet);
             console.log("series", serie);
