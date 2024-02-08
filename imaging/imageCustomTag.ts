@@ -29,11 +29,11 @@ export const customizeByteArray = function (
       //custom tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
       const sortedCustomTags = Object.entries(customTags)
         .map(([tag]) => {
-          console.log(customTags);
           if (
-            image.dataSet!.elements[tag].vr === "PN" &&
+            //image.dataSet!.elements[tag].vr === "PN" &&
             // @ts-ignore always string
-            customTags[tag].length % 2 != 0
+            customTags[tag].length % 2 !=
+            0
           ) {
             // @ts-ignore always string
             customTags[tag] = customTags[tag] + " ";
@@ -58,7 +58,6 @@ export const customizeByteArray = function (
         })
         .sort((a, b) => a.offset - b.offset);
 
-      console.log(shiftTotal);
       let newByteArray: ByteArray;
       if (typeof Buffer !== "undefined") {
         // Running in Node.js environment
@@ -98,18 +97,24 @@ export const customizeByteArray = function (
             for (let j: number = startCustomTag; j < endCustomTag; j++) {
               if (j < startCustomTag + sortedCustomTags[i].value.length) {
                 if (
-                  image.dataSet!.elements[sortedCustomTags[i].tag].vr ===
-                    "PN" &&
+                  //image.dataSet!.elements[sortedCustomTags[i].tag].vr ===
+                  //"PN" &&
                   j == startCustomTag
                 ) {
-                  newByteArray[j - 2] =
-                    sortedCustomTags[i].value.length - element.length < 0
-                      ? 20
-                      : 50; //50=2 and 20=" "
+                  if (
+                    Math.abs(
+                      sortedCustomTags[i].value.length - element.length
+                    ) >= 15
+                  ) {
+                    newByteArray[j - 2] = sortedCustomTags[i].value.length;
+                  } else {
+                    newByteArray[j - 2] =
+                      sortedCustomTags[i].value.length - element.length < 0
+                        ? 20
+                        : 50;
+                  }
                 }
-                console.log(j - startCustomTag);
                 let str = image.dataSet.string(sortedCustomTags[i].tag);
-                console.log(str);
                 const char =
                   sortedCustomTags[i].value.length > j - startCustomTag
                     ? sortedCustomTags[i].value.charCodeAt(j - startCustomTag)
