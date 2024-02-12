@@ -1,25 +1,36 @@
+/** @module imaging/imageCustomTags
+ *  @desc This file provides customization functionalities on DICOM images' Byte Array
+ */
 import { MetaData, Series } from "./types";
 import { DataSet } from "dicom-parser";
+import { Element } from "dicom-parser";
 /**
- * provides sorted original tags, modifies bytearray tags fpor certain VRs
- * (padding if odd value) and sorts new customtags
+ * provides sorted original tags and sorted new customtags
  * @function sortAndBuildByteArray
  * @param {DataSet} dataSet - dataset original image
  * @param {MetaData} customTags - customized tags
  * @returns {Series} customized series
  */
-export declare const sortAndBuildByteArray: (dataSet: DataSet, customTags: MetaData) => {
+export declare const sortTags: (dataSet: DataSet, customTags: MetaData) => {
     sortedTags: {
-        [x: string]: import("dicom-parser").Element;
+        [x: string]: Element;
     }[];
     sortedCustomTags: {
         tag: string;
-        value: any;
+        value: string;
         offset: number;
         index: number;
     }[];
     shiftTotal: number;
 };
+/**
+ * Pre-processes the Byte Array (padding bytes for certain VR are
+ * required if correspopnding value is odd)
+ * @function preProcessByteArray
+ * @param {DataSet} dataSet - customized tags
+ * @returns {Series} customized series
+ */
+export declare const preProcessByteArray: (dataSet: DataSet) => void;
 /**
  * called when metadata are modified with custom values
  * @function customizeByteArray

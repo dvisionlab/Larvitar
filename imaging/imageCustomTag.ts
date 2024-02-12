@@ -1,72 +1,51 @@
+/** @module imaging/imageCustomTags
+ *  @desc This file provides customization functionalities on DICOM images' Byte Array
+ */
+
+//PROCEDURE
+// Check padding bytes in certain VRs and add byte = 32 ASCII (=" ") if tag value is odd.
+// Ex if name is "TEST1" it is transformed in "TEST1 " so that its length is even (5->6)
+// Find the minimum offset in custom tags = start shifting point
+// Evaluate the shifts in each section of the byte array:
+// Ex.I change elements corresponding to offset=10 and 20
+// If element with offset 10 has new length of 3 instead of 5, elements from 10 to 20 have shift=3-5=-2
+// If element with offset 20 has now length of 10 instead of 5, elements from 20 and the next have shift= -2+5=+3 and so on
+// Update each element's length and offset subsequently in DataSet and MetaData objects
+
 // internal libraries
 
 import { ByteArray } from "dicom-parser";
 import { MetaData, Series } from "./types";
 import { DataSet } from "dicom-parser";
+import { Element } from "dicom-parser";
 //import { Buffer } from "node:buffer";
 
 /**
- * provides sorted original tags, modifies bytearray tags fpor certain VRs
- * (padding if odd value) and sorts new customtags
+ * provides sorted original tags and sorted new customtags
  * @function sortAndBuildByteArray
  * @param {DataSet} dataSet - dataset original image
  * @param {MetaData} customTags - customized tags
  * @returns {Series} customized series
  */
-export const sortAndBuildByteArray = function (
+export const sortTags = function (
   dataSet: DataSet,
   customTags: MetaData
-) {
+): {
+  sortedTags: {
+    [x: string]: Element;
+  }[];
+  sortedCustomTags: {
+    tag: string;
+    value: string;
+    offset: number;
+    index: number;
+  }[];
+  shiftTotal: number;
+} {
   //all tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
   const sortedTags = Object.values(dataSet.elements)
     .sort((a, b) => a.dataOffset - b.dataOffset)
     .map(element => ({ [element.tag]: element }));
-  for (const key in dataSet.elements) {
-    if (Object.hasOwnProperty.call(dataSet.elements, key)) {
-      const element = dataSet.elements[key];
-      // Do something with the element
-      if (element.dataOffset + element.length != dataSet.byteArray.length) {
-        dataSet.byteArray[element.dataOffset + element.length - 1] =
-          dataSet.byteArray[element.dataOffset + element.length - 1] === 0 &&
-          (element.vr === "DS" ||
-            element.vr === "CS" ||
-            element.vr === "IS" ||
-            element.vr === "SH" ||
-            element.vr === "LO" ||
-            element.vr === "ST" ||
-            element.vr === "PN")
-            ? 32
-            : dataSet.byteArray[element.dataOffset + element.length - 1];
-        if (element.vr === "SQ") {
-          if (element.items && element.items.length) {
-            for (let i = 0; i < element.items.length; i++) {
-              for (const key in element.items[i].dataSet!.elements) {
-                let subElement = element.items[i].dataSet!.elements[key];
-
-                dataSet.byteArray[
-                  subElement.dataOffset + subElement.length - 1
-                ] =
-                  dataSet.byteArray[
-                    subElement.dataOffset + subElement.length - 1
-                  ] === 0 &&
-                  (subElement.vr === "DS" ||
-                    subElement.vr === "CS" ||
-                    subElement.vr === "IS" ||
-                    subElement.vr === "SH" ||
-                    subElement.vr === "LO" ||
-                    subElement.vr === "ST" ||
-                    subElement.vr === "PN")
-                    ? 32
-                    : dataSet.byteArray[
-                        subElement.dataOffset + subElement.length - 1
-                      ];
-              }
-            }
-          }
-        }
-      }
-    }
-  }
 
   let shiftTotal = 0;
   //custom tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
@@ -117,6 +96,62 @@ export const sortAndBuildByteArray = function (
     shiftTotal
   };
 };
+
+/**
+ * Pre-processes the Byte Array (padding bytes for certain VR are
+ * required if correspopnding value is odd)
+ * @function preProcessByteArray
+ * @param {DataSet} dataSet - customized tags
+ * @returns {Series} customized series
+ */
+export const preProcessByteArray = function (dataSet: DataSet) {
+  for (const key in dataSet.elements) {
+    if (Object.hasOwnProperty.call(dataSet.elements, key)) {
+      const element = dataSet.elements[key];
+      // Do something with the element
+      if (element.dataOffset + element.length != dataSet.byteArray.length) {
+        dataSet.byteArray[element.dataOffset + element.length - 1] =
+          dataSet.byteArray[element.dataOffset + element.length - 1] === 0 &&
+          (element.vr === "DS" ||
+            element.vr === "CS" ||
+            element.vr === "IS" ||
+            element.vr === "SH" ||
+            element.vr === "LO" ||
+            element.vr === "ST" ||
+            element.vr === "PN")
+            ? 32
+            : dataSet.byteArray[element.dataOffset + element.length - 1];
+        if (element.vr === "SQ") {
+          if (element.items && element.items.length) {
+            for (let i = 0; i < element.items.length; i++) {
+              for (const key in element.items[i].dataSet!.elements) {
+                let subElement = element.items[i].dataSet!.elements[key];
+
+                dataSet.byteArray[
+                  subElement.dataOffset + subElement.length - 1
+                ] =
+                  dataSet.byteArray[
+                    subElement.dataOffset + subElement.length - 1
+                  ] === 0 &&
+                  (subElement.vr === "DS" ||
+                    subElement.vr === "CS" ||
+                    subElement.vr === "IS" ||
+                    subElement.vr === "SH" ||
+                    subElement.vr === "LO" ||
+                    subElement.vr === "ST" ||
+                    subElement.vr === "PN")
+                    ? 32
+                    : dataSet.byteArray[
+                        subElement.dataOffset + subElement.length - 1
+                      ];
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
 /**
  * called when metadata are modified with custom values
  * @function customizeByteArray
@@ -135,25 +170,23 @@ export const customizeByteArray = function (
       //sort custom tags from lowest offset to highest one
 
       let shift = 0;
-      const { sortedTags, sortedCustomTags, shiftTotal } =
-        sortAndBuildByteArray(image.dataSet, customTags);
 
-      let newByteArray: ByteArray;
-      if (typeof Buffer !== "undefined") {
-        // Running in Node.js environment
-        newByteArray = Buffer.alloc(
-          image.dataSet.byteArray.length + shiftTotal
-        );
-      } else {
-        // Running in browser environment
-        newByteArray = new Uint8Array(
-          image.dataSet.byteArray.length + shiftTotal
-        );
-      }
+      const { sortedTags, sortedCustomTags, shiftTotal } = sortTags(
+        image.dataSet,
+        customTags
+      );
+      preProcessByteArray(image.dataSet);
+
+      // Running in Node.js environment or running in browser environment
+      let newByteArray: ByteArray =
+        typeof Buffer !== "undefined"
+          ? Buffer.alloc(image.dataSet.byteArray.length + shiftTotal)
+          : new Uint8Array(image.dataSet.byteArray.length + shiftTotal);
+
       for (let i = 0; i < sortedCustomTags.length; i++) {
         let element = image.dataSet.elements[sortedCustomTags[i].tag];
 
-        const vr = element.vr;
+        const vr: string = element.vr!;
 
         if (vr) {
           //shift byteArray elements given shifts for every customtag value changed
@@ -163,7 +196,6 @@ export const customizeByteArray = function (
             if (sortedCustomTags[i].value.length != element.length) {
               shift = shift + sortedCustomTags[i].value.length - element.length;
             }
-
             const endCustomTag =
               i === sortedCustomTags.length - 1
                 ? newByteArray.length
@@ -176,14 +208,7 @@ export const customizeByteArray = function (
             }
             for (let j: number = startCustomTag; j < endCustomTag; j++) {
               if (j < startCustomTag + sortedCustomTags[i].value.length) {
-                if (
-                  //image.dataSet!.elements[sortedCustomTags[i].tag].vr ===
-                  //"PN" &&
-                  j == startCustomTag
-                ) {
-                  console.log(
-                    Math.abs(sortedCustomTags[i].value.length - element.length)
-                  );
+                if (j == startCustomTag) {
                   if (
                     Math.abs(
                       sortedCustomTags[i].value.length - element.length
@@ -192,8 +217,6 @@ export const customizeByteArray = function (
                   ) {
                     newByteArray[j - 2] = sortedCustomTags[i].value.length;
                   } else {
-                    console.log("NEW LENGTH", sortedCustomTags[i].value.length);
-                    console.log("ORIGINAL LENGTH", element.length);
                     if (sortedCustomTags[i].value.length - element.length < 0) {
                       newByteArray[j - 2] = 20;
                     } else if (
@@ -255,11 +278,3 @@ export const customizeByteArray = function (
 
   return series;
 };
-
-//FIND THE MINIMUM OFFSET IN CUSTOMTAGS SO THAT WE KNOW WHERE TO START SHIFTING
-//EVALUATE THE SHIFTS IN EACH SECTION OF THE BYTE ARRAY:
-//WE HAVE CHANGED ELEMENTS WITH OFFSET 10 AND 20
-//EX. IF ELEMENT WITH OFFSET 10 HAS NEW LENGTH OF 3 INSTEAD OF 5 SHIFT ALL ELEMENTS FROM 10 TO TO 20 BACK OF 2
-//IF ELEMENT WITH OFFSET 20 HAS NOW LENGTH OF 10 INSTEAD OF 5 NOW SHIFT ELEMENTS AFTER THIS OF INDEX -2+5=+3 AND SO ON
-//UPDATE EACH ELEMENTS LENGTH AND OFFSET SUBSEQUENTLY
-//TODO CHECK PADDING BYTES AND HOW TO GENERATE THEM
