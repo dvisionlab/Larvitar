@@ -2,7 +2,121 @@
 
 import { ByteArray } from "dicom-parser";
 import { MetaData, Series } from "./types";
+import { DataSet } from "dicom-parser";
 //import { Buffer } from "node:buffer";
+
+/**
+ * provides sorted original tags, modifies bytearray tags fpor certain VRs
+ * (padding if odd value) and sorts new customtags
+ * @function sortAndBuildByteArray
+ * @param {DataSet} dataSet - dataset original image
+ * @param {MetaData} customTags - customized tags
+ * @returns {Series} customized series
+ */
+export const sortAndBuildByteArray = function (
+  dataSet: DataSet,
+  customTags: MetaData
+) {
+  //all tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
+  const sortedTags = Object.values(dataSet.elements)
+    .sort((a, b) => a.dataOffset - b.dataOffset)
+    .map(element => ({ [element.tag]: element }));
+  for (const key in dataSet.elements) {
+    if (Object.hasOwnProperty.call(dataSet.elements, key)) {
+      const element = dataSet.elements[key];
+      // Do something with the element
+      if (element.dataOffset + element.length != dataSet.byteArray.length) {
+        dataSet.byteArray[element.dataOffset + element.length - 1] =
+          dataSet.byteArray[element.dataOffset + element.length - 1] === 0 &&
+          (element.vr === "DS" ||
+            element.vr === "CS" ||
+            element.vr === "IS" ||
+            element.vr === "SH" ||
+            element.vr === "LO" ||
+            element.vr === "ST" ||
+            element.vr === "PN")
+            ? 32
+            : dataSet.byteArray[element.dataOffset + element.length - 1];
+        if (element.vr === "SQ") {
+          if (element.items && element.items.length) {
+            for (let i = 0; i < element.items.length; i++) {
+              for (const key in element.items[i].dataSet!.elements) {
+                let subElement = element.items[i].dataSet!.elements[key];
+
+                dataSet.byteArray[
+                  subElement.dataOffset + subElement.length - 1
+                ] =
+                  dataSet.byteArray[
+                    subElement.dataOffset + subElement.length - 1
+                  ] === 0 &&
+                  (subElement.vr === "DS" ||
+                    subElement.vr === "CS" ||
+                    subElement.vr === "IS" ||
+                    subElement.vr === "SH" ||
+                    subElement.vr === "LO" ||
+                    subElement.vr === "ST" ||
+                    subElement.vr === "PN")
+                    ? 32
+                    : dataSet.byteArray[
+                        subElement.dataOffset + subElement.length - 1
+                      ];
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  let shiftTotal = 0;
+  //custom tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
+  const sortedCustomTags = Object.entries(customTags)
+    .map(([tag]) => {
+      if (
+        //image.dataSet!.elements[tag].vr === "PN" &&
+        // @ts-ignore always string
+        customTags[tag] === undefined ||
+        // @ts-ignore always string
+        customTags[tag] === null ||
+        // @ts-ignore always string
+        customTags[tag] === ""
+      ) {
+        // @ts-ignore always string
+        customTags[tag] = " ";
+      }
+      if (
+        //image.dataSet!.elements[tag].vr === "PN" &&
+        // @ts-ignore always string
+        customTags[tag].length % 2 !=
+        0
+      ) {
+        // @ts-ignore always string
+        customTags[tag] = customTags[tag] + " ";
+      }
+      shiftTotal +=
+        // @ts-ignore always string
+        customTags[tag].length - dataSet!.elements[tag].length;
+      return {
+        tag,
+        // @ts-ignore always string
+        value: customTags[tag],
+        offset: dataSet!.elements[tag].dataOffset,
+        index: sortedTags.findIndex(obj => {
+          for (let prop in obj) {
+            if (obj[prop].tag === tag) {
+              return true; // Found the object with the correct tag
+            }
+          }
+        })
+      };
+    })
+    .sort((a, b) => a.offset - b.offset);
+  return {
+    sortedTags,
+    sortedCustomTags,
+    shiftTotal
+  };
+};
 /**
  * called when metadata are modified with custom values
  * @function customizeByteArray
@@ -19,44 +133,10 @@ export const customizeByteArray = function (
     let image = series.instances[imageId];
     if (image.dataSet) {
       //sort custom tags from lowest offset to highest one
-      let shiftTotal = 0;
+
       let shift = 0;
-      let odd: boolean = false;
-      //all tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
-      const sortedTags = Object.values(image.dataSet.elements)
-        .sort((a, b) => a.dataOffset - b.dataOffset)
-        .map(element => ({ [element.tag]: element }));
-      //custom tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
-      const sortedCustomTags = Object.entries(customTags)
-        .map(([tag]) => {
-          if (
-            //image.dataSet!.elements[tag].vr === "PN" &&
-            // @ts-ignore always string
-            customTags[tag].length % 2 !=
-            0
-          ) {
-            // @ts-ignore always string
-            customTags[tag] = customTags[tag] + " ";
-            odd = true;
-          }
-          shiftTotal +=
-            // @ts-ignore always string
-            customTags[tag].length - image.dataSet!.elements[tag].length;
-          return {
-            tag,
-            // @ts-ignore always string
-            value: customTags[tag],
-            offset: image.dataSet!.elements[tag].dataOffset,
-            index: sortedTags.findIndex(obj => {
-              for (let prop in obj) {
-                if (obj[prop].tag === tag) {
-                  return true; // Found the object with the correct tag
-                }
-              }
-            })
-          };
-        })
-        .sort((a, b) => a.offset - b.offset);
+      const { sortedTags, sortedCustomTags, shiftTotal } =
+        sortAndBuildByteArray(image.dataSet, customTags);
 
       let newByteArray: ByteArray;
       if (typeof Buffer !== "undefined") {
@@ -101,20 +181,31 @@ export const customizeByteArray = function (
                   //"PN" &&
                   j == startCustomTag
                 ) {
+                  console.log(
+                    Math.abs(sortedCustomTags[i].value.length - element.length)
+                  );
                   if (
                     Math.abs(
                       sortedCustomTags[i].value.length - element.length
-                    ) >= 15
+                    ) >= Math.round(element.length / 2) ||
+                    vr != "PN"
                   ) {
                     newByteArray[j - 2] = sortedCustomTags[i].value.length;
                   } else {
-                    newByteArray[j - 2] =
-                      sortedCustomTags[i].value.length - element.length < 0
-                        ? 20
-                        : 50;
+                    console.log("NEW LENGTH", sortedCustomTags[i].value.length);
+                    console.log("ORIGINAL LENGTH", element.length);
+                    if (sortedCustomTags[i].value.length - element.length < 0) {
+                      newByteArray[j - 2] = 20;
+                    } else if (
+                      sortedCustomTags[i].value.length - element.length >
+                      0
+                    ) {
+                      newByteArray[j - 2] = 50;
+                    } else {
+                      newByteArray[j - 2] = newByteArray[j - 2];
+                    }
                   }
                 }
-                let str = image.dataSet.string(sortedCustomTags[i].tag);
                 const char =
                   sortedCustomTags[i].value.length > j - startCustomTag
                     ? sortedCustomTags[i].value.charCodeAt(j - startCustomTag)

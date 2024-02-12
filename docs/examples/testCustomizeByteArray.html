@@ -185,7 +185,7 @@
       const getDemoFileNames2 = function () {
         let demoFileList2 = [];
         for (let i = 1; i < 2; i++) {
-          let filename2 = "testlungo.dcm";
+          let filename2 = "testlungo2.dcm";
           demoFileList2.push(filename2);
         }
         return demoFileList2;
@@ -230,8 +230,8 @@
             let image = serie.instances[imageId];
 
             await larvitar.customizeByteArray(serie, {
-              x00100010:
-                "pippobsckhabevfnjasnnjsmcnkadbcsjdvbdjvblsdjvbldjvbldvjbldvddlbvldjvba"
+              x00100010: "knixp",
+              x00081030: "knixpgblgjbsxglob"
             });
             setTimeout(() => {
               console.log("AFTER", image.dataSet);
@@ -278,6 +278,12 @@
             console.log("Arrays are identical");
           } else {
             console.log("Arrays are different at index", indexBreak);
+            console.log(
+              "pydicom " +
+                dataset1[indexBreak] +
+                " vs Larvitar " +
+                dataset2[indexBreak]
+            );
           }
         }
       }, 7000);
