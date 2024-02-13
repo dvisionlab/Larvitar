@@ -185,7 +185,7 @@
       const getDemoFileNames2 = function () {
         let demoFileList2 = [];
         for (let i = 1; i < 2; i++) {
-          let filename2 = "original.dcm"; //insert original dicom
+          let filename2 = "anon1"; //insert original dicom
           demoFileList2.push(filename2);
         }
         return demoFileList2;
@@ -230,8 +230,8 @@
             let image = serie.instances[imageId];
             //it is sensitive to the order of change
             await larvitar.customizeByteArray(serie, {
-              x00100010: "knixpodop",
-              x00081030: "knixpgblgjbsxglob"
+              x00100010: "knixpodopbefljbflwsdvbldvjbwvlvblvjb",
+              x00081030: "k"
             });
             setTimeout(() => {
               console.log("AFTER", image.dataSet);
@@ -276,6 +276,7 @@
           if (isEqual) {
             console.log("Arrays are identical");
           } else {
+            console.log("Arrays are different at index", indexBreaks);
             console.log(
               "pydicom " +
                 dataset1[indexBreaks[0]] +

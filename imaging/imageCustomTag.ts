@@ -115,8 +115,7 @@ export const preProcessByteArray = function (image: Instance) {
           element.dataOffset + element.length !=
           image.dataSet.byteArray.length
         ) {
-          console.log(element.dataOffset + element.length - 1);
-          image.dataSet.byteArray[element.dataOffset + element.length - 1] =
+          if (
             image.dataSet.byteArray[element.dataOffset + element.length - 1] ===
               0 &&
             (element.vr === "DS" ||
@@ -125,20 +124,33 @@ export const preProcessByteArray = function (image: Instance) {
               element.vr === "SH" ||
               element.vr === "LO" ||
               element.vr === "ST" ||
-              element.vr === "PN") &&
-            // @ts-ignore always string
-            typeof image.metadata[key] === "string" &&
-            // @ts-ignore always string
-            image.metadata[key].length % 2 != 0
-              ? 32
-              : image.dataSet.byteArray[
-                  element.dataOffset + element.length - 1
-                ];
-          if (element.vr === "SQ") {
+              element.vr === "PN")
+          ) {
+            if (
+              // @ts-ignore always string
+              (typeof image.metadata[key] === "string" &&
+                // @ts-ignore always string
+                image.metadata[key].length % 2 != 0) ||
+              // @ts-ignore always string
+              (typeof image.metadata[key] === "number" &&
+                // @ts-ignore always string
+                Math.abs(image.metadata[key]).toString().length % 2 != 0) ||
+              // @ts-ignore always string
+              (image.metadata[key][0] && //TODO: check if at least one of the numbers is odd and set 32 at the end of the tag total value
+                // @ts-ignore always string
+                typeof image.metadata[key][0] === "number" &&
+                // @ts-ignore always string
+                Math.abs(image.metadata[key][0]).toString().length % 2 != 0)
+            ) {
+              image.dataSet.byteArray[
+                element.dataOffset + element.length - 1
+              ] = 32;
+            }
+          } else if (element.vr === "SQ") {
             if (element.items && element.items.length) {
               for (let i = 0; i < element.items.length; i++) {
                 for (const key in element.items[i].dataSet!.elements) {
-                  let subElement = element.items[i].dataSet!.elements[key];
+                  let subElement = element.items[i].dataSet!.elements[key]; //nested tags, check how they work
                   //dont do a priori but check if metadata is odd or even before
                   image.dataSet.byteArray[
                     subElement.dataOffset + subElement.length - 1
