@@ -1,7 +1,7 @@
 /** @module imaging/imageCustomTags
  *  @desc This file provides customization functionalities on DICOM images' Byte Array
  */
-import { MetaData, Series } from "./types";
+import { Instance, MetaData, Series } from "./types";
 import { DataSet } from "dicom-parser";
 import { Element } from "dicom-parser";
 /**
@@ -30,7 +30,7 @@ export declare const sortTags: (dataSet: DataSet, customTags: MetaData) => {
  * @param {DataSet} dataSet - customized tags
  * @returns {Series} customized series
  */
-export declare const preProcessByteArray: (dataSet: DataSet) => void;
+export declare const preProcessByteArray: (image: Instance) => void;
 /**
  * called when metadata are modified with custom values
  * @function customizeByteArray

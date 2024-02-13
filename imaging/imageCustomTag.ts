@@ -15,9 +15,10 @@
 // internal libraries
 
 import { ByteArray } from "dicom-parser";
-import { MetaData, Series } from "./types";
+import { Instance, MetaData, Series } from "./types";
 import { DataSet } from "dicom-parser";
 import { Element } from "dicom-parser";
+import { Image } from "cornerstone-core";
 //import { Buffer } from "node:buffer";
 
 /**
@@ -104,46 +105,63 @@ export const sortTags = function (
  * @param {DataSet} dataSet - customized tags
  * @returns {Series} customized series
  */
-export const preProcessByteArray = function (dataSet: DataSet) {
-  for (const key in dataSet.elements) {
-    if (Object.hasOwnProperty.call(dataSet.elements, key)) {
-      const element = dataSet.elements[key];
-      // Do something with the element
-      if (element.dataOffset + element.length != dataSet.byteArray.length) {
-        dataSet.byteArray[element.dataOffset + element.length - 1] =
-          dataSet.byteArray[element.dataOffset + element.length - 1] === 0 &&
-          (element.vr === "DS" ||
-            element.vr === "CS" ||
-            element.vr === "IS" ||
-            element.vr === "SH" ||
-            element.vr === "LO" ||
-            element.vr === "ST" ||
-            element.vr === "PN")
-            ? 32
-            : dataSet.byteArray[element.dataOffset + element.length - 1];
-        if (element.vr === "SQ") {
-          if (element.items && element.items.length) {
-            for (let i = 0; i < element.items.length; i++) {
-              for (const key in element.items[i].dataSet!.elements) {
-                let subElement = element.items[i].dataSet!.elements[key];
-
-                dataSet.byteArray[
-                  subElement.dataOffset + subElement.length - 1
-                ] =
-                  dataSet.byteArray[
+export const preProcessByteArray = function (image: Instance) {
+  if (image.dataSet) {
+    for (const key in image.dataSet.elements) {
+      if (Object.hasOwnProperty.call(image.dataSet.elements, key)) {
+        const element = image.dataSet.elements[key];
+        // Do something with the element
+        if (
+          element.dataOffset + element.length !=
+          image.dataSet.byteArray.length
+        ) {
+          console.log(element.dataOffset + element.length - 1);
+          image.dataSet.byteArray[element.dataOffset + element.length - 1] =
+            image.dataSet.byteArray[element.dataOffset + element.length - 1] ===
+              0 &&
+            (element.vr === "DS" ||
+              element.vr === "CS" ||
+              element.vr === "IS" ||
+              element.vr === "SH" ||
+              element.vr === "LO" ||
+              element.vr === "ST" ||
+              element.vr === "PN") &&
+            // @ts-ignore always string
+            typeof image.metadata[key] === "string" &&
+            // @ts-ignore always string
+            image.metadata[key].length % 2 != 0
+              ? 32
+              : image.dataSet.byteArray[
+                  element.dataOffset + element.length - 1
+                ];
+          if (element.vr === "SQ") {
+            if (element.items && element.items.length) {
+              for (let i = 0; i < element.items.length; i++) {
+                for (const key in element.items[i].dataSet!.elements) {
+                  let subElement = element.items[i].dataSet!.elements[key];
+                  //dont do a priori but check if metadata is odd or even before
+                  image.dataSet.byteArray[
                     subElement.dataOffset + subElement.length - 1
-                  ] === 0 &&
-                  (subElement.vr === "DS" ||
-                    subElement.vr === "CS" ||
-                    subElement.vr === "IS" ||
-                    subElement.vr === "SH" ||
-                    subElement.vr === "LO" ||
-                    subElement.vr === "ST" ||
-                    subElement.vr === "PN")
-                    ? 32
-                    : dataSet.byteArray[
-                        subElement.dataOffset + subElement.length - 1
-                      ];
+                  ] =
+                    image.dataSet.byteArray[
+                      subElement.dataOffset + subElement.length - 1
+                    ] === 0 &&
+                    (subElement.vr === "DS" ||
+                      subElement.vr === "CS" ||
+                      subElement.vr === "IS" ||
+                      subElement.vr === "SH" ||
+                      subElement.vr === "LO" ||
+                      subElement.vr === "ST" ||
+                      subElement.vr === "PN") &&
+                    // @ts-ignore always string
+                    typeof image.metadata[key] === "string" &&
+                    // @ts-ignore always string
+                    image.metadata[key].length % 2 != 0
+                      ? 32
+                      : image.dataSet.byteArray[
+                          subElement.dataOffset + subElement.length - 1
+                        ];
+                }
               }
             }
           }
@@ -175,7 +193,8 @@ export const customizeByteArray = function (
         image.dataSet,
         customTags
       );
-      preProcessByteArray(image.dataSet);
+      console.log(image);
+      preProcessByteArray(image);
 
       // Running in Node.js environment or running in browser environment
       let newByteArray: ByteArray =
@@ -209,24 +228,10 @@ export const customizeByteArray = function (
             for (let j: number = startCustomTag; j < endCustomTag; j++) {
               if (j < startCustomTag + sortedCustomTags[i].value.length) {
                 if (j == startCustomTag) {
-                  if (
-                    Math.abs(
-                      sortedCustomTags[i].value.length - element.length
-                    ) >= Math.round(element.length / 2) ||
-                    vr != "PN"
-                  ) {
+                  if (sortedCustomTags[i].value.length - element.length != 0) {
                     newByteArray[j - 2] = sortedCustomTags[i].value.length;
                   } else {
-                    if (sortedCustomTags[i].value.length - element.length < 0) {
-                      newByteArray[j - 2] = 20;
-                    } else if (
-                      sortedCustomTags[i].value.length - element.length >
-                      0
-                    ) {
-                      newByteArray[j - 2] = 50;
-                    } else {
-                      newByteArray[j - 2] = newByteArray[j - 2];
-                    }
+                    newByteArray[j - 2] = newByteArray[j - 2];
                   }
                 }
                 const char =
