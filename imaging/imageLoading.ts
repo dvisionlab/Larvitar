@@ -36,7 +36,7 @@ const globalConfig = {
     Math.min(navigator.hardwareConcurrency - 1, MAX_CONCURRENCY),
     1
   ),
-  startWebWorkersOnDemand: false,
+  startWebWorkersOnDemand: true,
   taskConfiguration: {
     decodeTask: {
       loadCodecsOnStartup: true,
