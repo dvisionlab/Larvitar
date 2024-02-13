@@ -15,10 +15,9 @@
 // internal libraries
 
 import { ByteArray } from "dicom-parser";
-import { Instance, MetaData, Series } from "./types";
+import { Instance, MetaData, Series, tags, customTags } from "./types";
 import { DataSet } from "dicom-parser";
 import { Element } from "dicom-parser";
-import { Image } from "cornerstone-core";
 //import { Buffer } from "node:buffer";
 
 /**
@@ -32,54 +31,29 @@ export const sortTags = function (
   dataSet: DataSet,
   customTags: MetaData
 ): {
-  sortedTags: {
-    [x: string]: Element;
-  }[];
-  sortedCustomTags: {
-    tag: string;
-    value: string;
-    offset: number;
-    index: number;
-  }[];
+  sortedTags: tags;
+  sortedCustomTags: customTags;
   shiftTotal: number;
 } {
   //all tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
-  const sortedTags = Object.values(dataSet.elements)
+  const sortedTags: tags = Object.values(dataSet.elements)
     .sort((a, b) => a.dataOffset - b.dataOffset)
     .map(element => ({ [element.tag]: element }));
 
   let shiftTotal = 0;
   //custom tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
-  const sortedCustomTags = Object.entries(customTags)
+  const sortedCustomTags: customTags = Object.entries(customTags)
     .map(([tag]) => {
-      if (
-        //image.dataSet!.elements[tag].vr === "PN" &&
-        // @ts-ignore always string
-        customTags[tag] === undefined ||
-        // @ts-ignore always string
-        customTags[tag] === null ||
-        // @ts-ignore always string
-        customTags[tag] === ""
-      ) {
-        // @ts-ignore always string
-        customTags[tag] = " ";
+      // @ts-ignore always string
+      let customTag = customTags[tag];
+      if (customTag === undefined || customTag === null || customTag === "") {
+        customTag = " ";
       }
-      if (
-        //image.dataSet!.elements[tag].vr === "PN" &&
-        // @ts-ignore always string
-        customTags[tag].length % 2 !=
-        0
-      ) {
-        // @ts-ignore always string
-        customTags[tag] = customTags[tag] + " ";
-      }
-      shiftTotal +=
-        // @ts-ignore always string
-        customTags[tag].length - dataSet!.elements[tag].length;
+      customTag = customTag.length % 2 != 0 ? customTag + " " : customTag;
+      shiftTotal += customTag.length - dataSet!.elements[tag].length;
       return {
         tag,
-        // @ts-ignore always string
-        value: customTags[tag],
+        value: customTag,
         offset: dataSet!.elements[tag].dataOffset,
         index: sortedTags.findIndex(obj => {
           for (let prop in obj) {
@@ -97,19 +71,51 @@ export const sortTags = function (
     shiftTotal
   };
 };
-
+/**
+ * Pre-processes the tag
+ * @function preProcessByteArray
+ * @param {string | number | number[]} metadata
+ *  @param {Instance} image
+ *  @param {Element} element
+ * @returns {void}
+ */
+export const preProcessTag = function (
+  metadata: string | number | number[],
+  image: Instance,
+  element: Element
+) {
+  if (
+    (typeof metadata === "string" && metadata.length % 2 != 0) ||
+    (typeof metadata === "number" &&
+      Math.abs(metadata).toString().length % 2 != 0) ||
+    (Array.isArray(metadata) && // Check if image.metadata[tag] is an array
+      metadata.some(num => {
+        // Check if at least one of the numbers in the array has odd length
+        return (
+          typeof num === "number" && // Check if the element is a number
+          Math.abs(num).toString().length % 2 !== 0
+        ); // Check if the absolute value of the number has odd length
+      }))
+  ) {
+    image.dataSet!.byteArray[element.dataOffset + element.length - 1] = 32;
+  }
+};
 /**
  * Pre-processes the Byte Array (padding bytes for certain VR are
- * required if correspopnding value is odd)
+ * required if corresponding value is odd)
  * @function preProcessByteArray
  * @param {DataSet} dataSet - customized tags
  * @returns {Series} customized series
  */
 export const preProcessByteArray = function (image: Instance) {
+  const vrsToBeProcessed = ["DS", "CS", "IS", "SH", "LO", "ST", "PN"];
+
   if (image.dataSet) {
     for (const key in image.dataSet.elements) {
       if (Object.hasOwnProperty.call(image.dataSet.elements, key)) {
         const element = image.dataSet.elements[key];
+        // @ts-ignore always string
+        const metadata = image.metadata[key];
         // Do something with the element
         if (
           element.dataOffset + element.length !=
@@ -118,91 +124,65 @@ export const preProcessByteArray = function (image: Instance) {
           if (
             image.dataSet.byteArray[element.dataOffset + element.length - 1] ===
               0 &&
-            (element.vr === "DS" ||
-              element.vr === "CS" ||
-              element.vr === "IS" ||
-              element.vr === "SH" ||
-              element.vr === "LO" ||
-              element.vr === "ST" ||
-              element.vr === "PN")
+            vrsToBeProcessed.includes(element.vr!)
           ) {
-            if (
-              // @ts-ignore always string
-              (typeof image.metadata[key] === "string" &&
-                // @ts-ignore always string
-                image.metadata[key].length % 2 != 0) ||
-              // @ts-ignore always string
-              (typeof image.metadata[key] === "number" &&
-                // @ts-ignore always string
-                Math.abs(image.metadata[key]).toString().length % 2 != 0) || // @ts-ignore always string
-              (Array.isArray(image.metadata[key]) && // Check if image.metadata[tag] is an array
-                // @ts-ignore always string
-                image.metadata[key].some(num => {
-                  // Check if at least one of the numbers in the array has odd length
-                  return (
-                    typeof num === "number" && // Check if the element is a number
-                    Math.abs(num).toString().length % 2 !== 0
-                  ); // Check if the absolute value of the number has odd length
-                }))
-            ) {
-              image.dataSet.byteArray[
-                element.dataOffset + element.length - 1
-              ] = 32;
-            }
+            preProcessTag(metadata, image, element);
           } else if (element.vr === "SQ") {
             if (element.items && element.items.length) {
               for (let i = 0; i < element.items.length; i++) {
                 for (const subKey in element.items[i].dataSet!.elements) {
                   let subElement = element.items[i].dataSet!.elements[subKey]; //nested tags, check how they work
+                  const subMetadata =
+                    // @ts-ignore always string
+                    image.metadata[element.tag][i][subKey];
                   if (
                     image.dataSet.byteArray[
                       subElement.dataOffset + subElement.length - 1
                     ] === 0 &&
-                    (subElement.vr === "DS" ||
-                      subElement.vr === "CS" ||
-                      subElement.vr === "IS" ||
-                      subElement.vr === "SH" ||
-                      subElement.vr === "LO" ||
-                      subElement.vr === "ST" ||
-                      subElement.vr === "PN")
+                    vrsToBeProcessed.includes(subElement.vr!)
                   ) {
-                    //dont do a priori but check if metadata is odd or even before
-
-                    if (
-                      // @ts-ignore always string
-                      (typeof image.metadata[element.tag][i][subKey] ===
-                        "string" &&
-                        // @ts-ignore always string
-                        image.metadata[element.tag][i][subKey].length % 2 !=
-                          0) ||
-                      // @ts-ignore always string
-                      (typeof image.metadata[element.tag][i][subKey] ===
-                        "number" &&
-                        Math.abs(
-                          // @ts-ignore always string
-                          image.metadata[element.tag][i][subKey]
-                        ).toString().length %
-                          2 !=
-                          0) || // @ts-ignore always string
-                      (Array.isArray(image.metadata[element.tag][i][subKey]) && // Check if image.metadata[tag] is an array
-                        // @ts-ignore always string
-                        image.metadata[element.tag][i][subKey].some(num => {
-                          // Check if at least one of the numbers in the array has odd length
-                          return (
-                            typeof num === "number" && // Check if the element is a number
-                            Math.abs(num).toString().length % 2 !== 0
-                          ); // Check if the absolute value of the number has odd length
-                        }))
-                    ) {
-                      image.dataSet.byteArray[
-                        subElement.dataOffset + subElement.length - 1
-                      ] = 32;
-                    }
+                    preProcessTag(subMetadata, image, subElement);
                   }
                 }
               }
             }
           }
+        }
+      }
+    }
+  }
+};
+/**
+ * changes all tags offsets accordingly
+ * @function changeOffsets
+ * @param {Instance} image
+ * @param {number} start -  start tag index to be modified
+ * @param {number} end- end tag index to be modified
+ * @param {tags}  sortedTags
+ * @param {number}  shift - customized tags
+ * @returns {Series} customized series
+ */
+export const changeOffsets = function (
+  image: Instance,
+  start: number,
+  end: number,
+  sortedTags: tags,
+  shift: number
+) {
+  for (let k: number = start; k < end; k++) {
+    image.dataSet!.elements[Object.keys(sortedTags[k])[0]].dataOffset += shift;
+    if (image.dataSet!.elements[Object.keys(sortedTags[k])[0]].vr === "SQ") {
+      for (
+        let i = 0;
+        i <
+        image.dataSet!.elements[Object.keys(sortedTags[k])[0]].items!.length;
+        i++
+      ) {
+        for (const key in image.dataSet!.elements[Object.keys(sortedTags[k])[0]]
+          .items![i].dataSet!.elements) {
+          image.dataSet!.elements[Object.keys(sortedTags[k])[0]].items![
+            i
+          ].dataSet!.elements[key].dataOffset += shift;
         }
       }
     }
@@ -231,7 +211,6 @@ export const customizeByteArray = function (
         image.dataSet,
         customTags
       );
-      console.log(image);
       preProcessByteArray(image);
 
       // Running in Node.js environment or running in browser environment
@@ -282,7 +261,7 @@ export const customizeByteArray = function (
               }
             }
           }
-
+          //change image metadata and element's length values
           // @ts-ignore always string
           image.metadata[sortedCustomTags[i].tag] = sortedCustomTags[i].value;
           element.length = sortedCustomTags[i].value.length;
@@ -293,32 +272,7 @@ export const customizeByteArray = function (
             i === sortedCustomTags.length - 1
               ? sortedTags.length
               : sortedCustomTags[i + 1].index;
-          for (let k: number = start; k < end; k++) {
-            image.dataSet.elements[Object.keys(sortedTags[k])[0]].dataOffset +=
-              shift;
-            console.log(
-              image.dataSet.elements[Object.keys(sortedTags[k])[0]].vr
-            );
-            if (
-              image.dataSet.elements[Object.keys(sortedTags[k])[0]].vr === "SQ"
-            ) {
-              for (
-                let i = 0;
-                i <
-                image.dataSet.elements[Object.keys(sortedTags[k])[0]].items!
-                  .length;
-                i++
-              ) {
-                for (const key in image.dataSet.elements[
-                  Object.keys(sortedTags[k])[0]
-                ].items![i].dataSet!.elements) {
-                  image.dataSet.elements[Object.keys(sortedTags[k])[0]].items![
-                    i
-                  ].dataSet!.elements[key].dataOffset += shift;
-                }
-              }
-            }
-          }
+          changeOffsets(image, start, end, sortedTags, shift);
         }
       }
       image.dataSet.byteArray = newByteArray as ByteArray;
