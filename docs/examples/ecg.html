@@ -167,123 +167,137 @@
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
-      function renderSerie() {
-        larvitar.readFiles(demoFiles).then(seriesStack => {
-          let seriesId = _.keys(seriesStack)[0];
-          let serie = seriesStack[seriesId];
-          larvitar.populateLarvitarManager(seriesId, serie);
-          let manager = larvitar.getLarvitarManager();
-          let multiFrameSerie = manager[seriesId];
-          let frameId = 0;
-          // check if the series has waveform data
-          if (multiFrameSerie.waveform) {
-            larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
-          }
-          larvitar.renderImage(multiFrameSerie, "viewer", frameId).then(() => {
-            console.log("Image has been rendered");
-            larvitar.addDefaultTools();
+      async function renderSerie() {
+        const t0 = performance.now();
+        const seriesStack = await larvitar.readFiles(demoFiles);
+        // render the first series of the study
+        let seriesId = _.keys(seriesStack)[0];
+        let serie = seriesStack[seriesId];
+        larvitar.populateLarvitarManager(seriesId, serie);
+        let manager = larvitar.getLarvitarManager();
+        let multiFrameSerie = manager[seriesId];
 
-            // add event listener to the wheel to update the UI
-            document
-              .getElementById("viewer")
-              .addEventListener("wheel", function (event) {
-                frameId = larvitar.store.get([
-                  "viewports",
-                  "viewer",
-                  "sliceId"
-                ]);
+        let frameId = 0;
+        // check if the series has waveform data
+        if (multiFrameSerie.waveform) {
+          larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
+        }
+        await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        const t1 = performance.now();
+        console.log("Time to render First frame: " + (t1 - t0) + "ms");
+        larvitar.addDefaultTools();
+        larvitar.setToolActive("StackScroll");
+
+        await larvitar.loadAndCacheImageStack(multiFrameSerie);
+        console.log(
+          "Stack has been loaded and cached",
+          multiFrameSerie.bytes / 1048576
+        );
+
+        let animation = true;
+        let animationId = null;
+        let numberOfFrames = multiFrameSerie.numberOfFrames;
+        let frameTime = multiFrameSerie.frameTime;
+        let frameRate = multiFrameSerie.frameTime;
+        $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
+        $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
+
+        animationId = setInterval(function () {
+          let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
+          frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+          larvitar.updateImage(series, "viewer", frameId, false);
+          larvitar.updateStackToolState("viewer", frameId);
+          $("#image-time").html(
+            "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames
+          );
+          larvitar.updateECGFrame(trace_data, frameId, numberOfFrames, "ecg");
+        }, frameRate);
+
+        const t2 = performance.now();
+        console.log("Time to start cine loop: " + (t2 - t0) + "ms");
+
+        // add event listener to the wheel to update the UI
+        document
+          .getElementById("viewer")
+          .addEventListener("wheel", function (event) {
+            frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
+            $("#image-time").html(
+              "Current Frame: " +
+                parseInt(frameId + 1) +
+                " of " +
+                numberOfFrames
+            );
+          });
+
+        // generate trace data and render the ECG
+        let layout = larvitar.getDefaultECGLayout();
+        layout.margin.t = 20;
+
+        const trace_data = larvitar.renderECG(
+          manager[seriesId].ecgData,
+          "ecg",
+          "red",
+          numberOfFrames,
+          frameTime,
+          0,
+          layout
+        );
+        // save trace data in the manager for futrue use
+        manager[seriesId].trace_data = trace_data;
+        // sync the ECG frame with the image frame
+        larvitar.syncECGFrame(
+          trace_data,
+          seriesId,
+          "viewer",
+          numberOfFrames,
+          "ecg"
+        );
+
+        // add event listener to the wheel to update the UI
+        document
+          .getElementById("viewer")
+          .addEventListener("wheel", function (event) {
+            $("#image-time").html(
+              "Current Frame: " +
+                parseInt(
+                  larvitar.store.get(["viewports", "viewer", "sliceId"]) + 1
+                ) +
+                " of " +
+                numberOfFrames
+            );
+          });
+
+        document.onkeypress = function (e) {
+          e = e || window.event;
+          if (e.keyCode == 112) {
+            animation = !animation;
+            if (animation) {
+              frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
+              animationId = setInterval(function () {
+                let series =
+                  larvitar.getSeriesDataFromLarvitarManager(seriesId);
+                frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+                larvitar.updateImage(series, "viewer", frameId, false);
+                larvitar.updateStackToolState("viewer", frameId);
                 $("#image-time").html(
                   "Current Frame: " +
                     parseInt(frameId + 1) +
                     " of " +
                     numberOfFrames
                 );
-              });
-
-            let animation = false;
-            let animationId = null;
-            let numberOfFrames = multiFrameSerie.numberOfFrames;
-            let frameTime = multiFrameSerie.frameTime;
-            // generate trace data and render the ECG
-
-            let layout = larvitar.getDefaultECGLayout();
-            layout.margin.t = 20;
-
-            const trace_data = larvitar.renderECG(
-              manager[seriesId].ecgData,
-              "ecg",
-              "red",
-              numberOfFrames,
-              frameTime,
-              0,
-              layout
-            );
-            // save trace data in the manager for futrue use
-            manager[seriesId].trace_data = trace_data;
-            // sync the ECG frame with the image frame
-            larvitar.syncECGFrame(
-              trace_data,
-              seriesId,
-              "viewer",
-              numberOfFrames,
-              "ecg"
-            );
-
-            let frameRate = multiFrameSerie.frameTime;
-            $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
-            $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
-
-            // add event listener to the wheel to update the UI
-            document
-              .getElementById("viewer")
-              .addEventListener("wheel", function (event) {
-                $("#image-time").html(
-                  "Current Frame: " +
-                    parseInt(
-                      larvitar.store.get(["viewports", "viewer", "sliceId"]) + 1
-                    ) +
-                    " of " +
-                    numberOfFrames
+                larvitar.updateECGFrame(
+                  trace_data,
+                  frameId,
+                  numberOfFrames,
+                  "ecg"
                 );
-              });
-
-            document.onkeypress = function (e) {
-              e = e || window.event;
-              if (e.keyCode == 112) {
-                animation = !animation;
-                if (animation) {
-                  frameId = larvitar.store.get([
-                    "viewports",
-                    "viewer",
-                    "sliceId"
-                  ]);
-                  animationId = setInterval(function () {
-                    let series =
-                      larvitar.getSeriesDataFromLarvitarManager(seriesId);
-                    frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-                    larvitar.updateImage(series, "viewer", frameId, false);
-                    larvitar.updateStackToolState("viewer", frameId);
-                    $("#image-time").html(
-                      "Current Frame: " +
-                        parseInt(frameId + 1) +
-                        " of " +
-                        numberOfFrames
-                    );
-                    larvitar.updateECGFrame(
-                      trace_data,
-                      frameId,
-                      numberOfFrames,
-                      "ecg"
-                    );
-                  }, frameRate);
-                } else {
-                  clearInterval(animationId);
-                  $("#image-time").html();
-                }
-              }
-            };
-          });
-        });
+              }, frameRate);
+            } else {
+              clearInterval(animationId);
+              $("#image-time").html();
+            }
+          }
+        };
       }
 
       async function createFile(fileName, cb) {

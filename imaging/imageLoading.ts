@@ -30,14 +30,13 @@ import { getLarvitarManager } from "./loaders/commonLoader";
  * @property {String} webWorkerPath - path to default DICOM web worker
  * @property {} - see https://github.com/cornerstonejs/cornerstoneDICOMImageLoader/blob/master/docs/WebWorkers.md
  */
-
-const MAX_CONCURRENCY = 6;
+const MAX_CONCURRENCY = 32;
 const globalConfig = {
   maxWebWorkers: Math.max(
     Math.min(navigator.hardwareConcurrency - 1, MAX_CONCURRENCY),
     1
   ),
-  startWebWorkersOnDemand: true,
+  startWebWorkersOnDemand: false,
   taskConfiguration: {
     decodeTask: {
       loadCodecsOnStartup: true,

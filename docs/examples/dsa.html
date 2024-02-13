@@ -57,7 +57,7 @@
       </div>
     </div>
 
-    <script src="./larvitar.js"></script>
+    <script src="../../dist/larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
@@ -91,6 +91,7 @@
         larvitar.addDefaultTools();
         larvitar.setToolActive("Wwwc");
         await larvitar.loadAndCacheImageStack(multiFrameSerie);
+        await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
 
         let animation = false;
         let animationId = null;
@@ -135,7 +136,7 @@
               break;
             case 51: // 3
               // async function
-              larvitar.unloadAndRecacheImageStackDSA(multiFrameSerie);
+              larvitar.loadAndCacheDsaImageStack(multiFrameSerie, true);
               larvitar.updateImage(multiFrameSerie, "viewer", frameId);
               larvitar.redrawImage("viewer");
               break;

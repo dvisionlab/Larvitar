@@ -414,6 +414,13 @@ let createCustomImage = function (
         }
       }
 
+      // @ts-ignore: is needed to clear the cache
+      dataSet = null;
+      // @ts-ignore: is needed to clear the cache
+      pixelDataElement = null;
+      // @ts-ignore: is needed to clear the cache
+      pixelData = null;
+
       resolve(image as Image);
     }, reject);
   });
