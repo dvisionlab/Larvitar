@@ -99,7 +99,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     hideHandlesIfMoving: false,
     renderDashed: false,
     digits: 2,
-    offset: 15
+    offset: 0
   };
   constructor(props = {}) {
     const defaultProps = {
@@ -112,7 +112,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         hideHandlesIfMoving: false,
         renderDashed: false,
         digits: 2,
-        offset: 15
+        offset: 0
       }
     };
 
@@ -121,6 +121,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.datahandles;
     this.abovehandles;
     this.belowhandles;
+    this.fixedOffset = this.configuration.offset;
     this.plotlydata = [];
     this.measuring = false;
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -137,6 +138,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
   }
 
   handleMouseUp() {
+    this.fixedOffset = this.configuration.offset;
     this.measuring = false;
     const eventData = this.eventData;
 
@@ -304,6 +306,11 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         }
         start = data.handles.start;
         end = data.handles.end;
+        let offset =
+          this.measuring === true
+            ? Math.abs(data.handles.start.y - data.handles.end.y)
+            : this.fixedOffset;
+        this.configuration.offset = offset;
         data.handles.end.y = data.handles.start.y;
         drawLine(
           context,
@@ -312,12 +319,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           data.handles.end,
           lineOptions
         );
-        const offset =
-          DEFAULT_TOOLS["LengthPlot"].offset === this.configuration.offset ||
-          DEFAULT_TOOLS["LengthPlot"].offset === undefined
-            ? this.configuration.offset
-            : DEFAULT_TOOLS["LengthPlot"].offset; //offset customisable
-        //const offset = this.configuration.offset;
 
         const aboveHandles: Handles = {
           start: { x: start.x, y: start.y - offset },
