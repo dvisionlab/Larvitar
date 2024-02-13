@@ -152,32 +152,52 @@ export const preProcessByteArray = function (image: Instance) {
           } else if (element.vr === "SQ") {
             if (element.items && element.items.length) {
               for (let i = 0; i < element.items.length; i++) {
-                for (const key in element.items[i].dataSet!.elements) {
-                  let subElement = element.items[i].dataSet!.elements[key]; //nested tags, check how they work
-                  //dont do a priori but check if metadata is odd or even before
+                for (const subKey in element.items[i].dataSet!.elements) {
+                  let subElement = element.items[i].dataSet!.elements[subKey]; //nested tags, check how they work
                   if (
-                    // @ts-ignore always string
-                    (typeof image.metadata[key] === "string" &&
-                      // @ts-ignore always string
-                      image.metadata[key].length % 2 != 0) ||
-                    // @ts-ignore always string
-                    (typeof image.metadata[key] === "number" &&
-                      // @ts-ignore always string
-                      Math.abs(image.metadata[key]).toString().length % 2 !=
-                        0) || // @ts-ignore always string
-                    (Array.isArray(image.metadata[key]) && // Check if image.metadata[tag] is an array
-                      // @ts-ignore always string
-                      image.metadata[key].some(num => {
-                        // Check if at least one of the numbers in the array has odd length
-                        return (
-                          typeof num === "number" && // Check if the element is a number
-                          Math.abs(num).toString().length % 2 !== 0
-                        ); // Check if the absolute value of the number has odd length
-                      }))
-                  ) {
                     image.dataSet.byteArray[
                       subElement.dataOffset + subElement.length - 1
-                    ] = 32;
+                    ] === 0 &&
+                    (subElement.vr === "DS" ||
+                      subElement.vr === "CS" ||
+                      subElement.vr === "IS" ||
+                      subElement.vr === "SH" ||
+                      subElement.vr === "LO" ||
+                      subElement.vr === "ST" ||
+                      subElement.vr === "PN")
+                  ) {
+                    //dont do a priori but check if metadata is odd or even before
+
+                    if (
+                      // @ts-ignore always string
+                      (typeof image.metadata[element.tag][i][subKey] ===
+                        "string" &&
+                        // @ts-ignore always string
+                        image.metadata[element.tag][i][subKey].length % 2 !=
+                          0) ||
+                      // @ts-ignore always string
+                      (typeof image.metadata[element.tag][i][subKey] ===
+                        "number" &&
+                        Math.abs(
+                          // @ts-ignore always string
+                          image.metadata[element.tag][i][subKey]
+                        ).toString().length %
+                          2 !=
+                          0) || // @ts-ignore always string
+                      (Array.isArray(image.metadata[element.tag][i][subKey]) && // Check if image.metadata[tag] is an array
+                        // @ts-ignore always string
+                        image.metadata[element.tag][i][subKey].some(num => {
+                          // Check if at least one of the numbers in the array has odd length
+                          return (
+                            typeof num === "number" && // Check if the element is a number
+                            Math.abs(num).toString().length % 2 !== 0
+                          ); // Check if the absolute value of the number has odd length
+                        }))
+                    ) {
+                      image.dataSet.byteArray[
+                        subElement.dataOffset + subElement.length - 1
+                      ] = 32;
+                    }
                   }
                 }
               }
@@ -276,6 +296,28 @@ export const customizeByteArray = function (
           for (let k: number = start; k < end; k++) {
             image.dataSet.elements[Object.keys(sortedTags[k])[0]].dataOffset +=
               shift;
+            console.log(
+              image.dataSet.elements[Object.keys(sortedTags[k])[0]].vr
+            );
+            if (
+              image.dataSet.elements[Object.keys(sortedTags[k])[0]].vr === "SQ"
+            ) {
+              for (
+                let i = 0;
+                i <
+                image.dataSet.elements[Object.keys(sortedTags[k])[0]].items!
+                  .length;
+                i++
+              ) {
+                for (const key in image.dataSet.elements[
+                  Object.keys(sortedTags[k])[0]
+                ].items![i].dataSet!.elements) {
+                  image.dataSet.elements[Object.keys(sortedTags[k])[0]].items![
+                    i
+                  ].dataSet!.elements[key].dataOffset += shift;
+                }
+              }
+            }
           }
         }
       }
