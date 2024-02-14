@@ -175,13 +175,13 @@
         larvitar.addDefaultTools();
         larvitar.setToolActive("StackScroll");
 
-        await larvitar.loadAndCacheImageStack(multiFrameSerie);
-        console.log(
-          "Stack has been loaded and cached",
-          multiFrameSerie.bytes / 1048576
-        );
-
-        clearInterval(statId);
+        // optionally cache images
+        // await larvitar.loadAndCacheImageStack(multiFrameSerie);
+        // console.log(
+        //   "Stack has been loaded and cached",
+        //   multiFrameSerie.bytes / 1048576
+        // );
+        //clearInterval(statId);
 
         let animation = true;
         let animationId = null;
@@ -193,7 +193,7 @@
         animationId = setInterval(function () {
           let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
           frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-          larvitar.updateImage(series, "viewer", frameId, false);
+          larvitar.updateImage(series, "viewer", frameId, true);
 
           $("#image-time").html(
             "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames

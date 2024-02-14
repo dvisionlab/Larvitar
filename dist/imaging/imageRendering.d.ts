@@ -175,9 +175,9 @@ export declare const rotateImageLeft: (elementId: string | HTMLElement) => void;
  */
 export declare const rotateImageRight: (elementId: string | HTMLElement) => void;
 /**
- * Update Larvitar manager viewport data
+ * Update Larvitar manager temporal viewport data
  * @instance
- * @function updateViewportDataInLarvitarManager
+ * @function updateTemporalViewportData
  * @param {Series} seriesStack The Id of the series
  * @param {String} elementId The Id of the html element
  */
