@@ -188,7 +188,7 @@
         larvitar.addDefaultTools();
         larvitar.setToolActive("StackScroll");
 
-        await larvitar.loadAndCacheImageStack(multiFrameSerie);
+        //await larvitar.loadAndCacheImageStack(multiFrameSerie);
         console.log(
           "Stack has been loaded and cached",
           multiFrameSerie.bytes / 1048576
@@ -205,7 +205,7 @@
         animationId = setInterval(function () {
           let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
           frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-          larvitar.updateImage(series, "viewer", frameId, false);
+          larvitar.updateImage(series, "viewer", frameId, true);
           larvitar.updateStackToolState("viewer", frameId);
           $("#image-time").html(
             "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames

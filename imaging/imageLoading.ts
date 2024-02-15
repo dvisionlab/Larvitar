@@ -48,7 +48,7 @@ const globalConfig = {
 
 /*
  * This module provides the following functions to be exported:
- * initializeImageLoader(config)
+ * initializeImageLoader(maxConcurrency)
  * initializeWebImageLoader()
  * initializeFileImageLoader()
  * registerNRRDImageLoader()
@@ -62,11 +62,20 @@ const globalConfig = {
  * @function initializeImageLoader
  * @param {Object} config - Custom config @default globalConfig
  */
-export const initializeImageLoader = function (config?: typeof globalConfig) {
-  let imageLoaderConfig = config ? config : globalConfig;
+export const initializeImageLoader = function (maxConcurrency?: number) {
+  if (maxConcurrency) {
+    const maxWebWorkers = Math.max(
+      Math.min(navigator.hardwareConcurrency - 1, MAX_CONCURRENCY),
+      1
+    );
+    globalConfig.maxWebWorkers = maxWebWorkers;
+  }
   cornerstoneDICOMImageLoader.external.cornerstone = cornerstone;
   cornerstoneDICOMImageLoader.external.dicomParser = dicomParser;
-  cornerstoneDICOMImageLoader.webWorkerManager.initialize(imageLoaderConfig);
+  cornerstoneDICOMImageLoader.webWorkerManager.initialize(globalConfig);
+  console.log(
+    `CornestoneDICOMImageLoader initialized with ${globalConfig.maxWebWorkers} WebWorkers.`
+  );
 };
 
 /**
