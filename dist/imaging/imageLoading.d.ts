@@ -4,24 +4,13 @@
  */
 import { ImageObject } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
-declare const globalConfig: {
-    maxWebWorkers: number;
-    startWebWorkersOnDemand: boolean;
-    taskConfiguration: {
-        decodeTask: {
-            loadCodecsOnStartup: boolean;
-            initializeCodecsOnStartup: boolean;
-            strict: boolean;
-        };
-    };
-};
 /**
  * Configure DICOMImageLoader
  * @instance
  * @function initializeImageLoader
- * @param {Object} config - Custom config @default globalConfig
+ * @param {number} maxConcurrency - Optional maximum number of web workers
  */
-export declare const initializeImageLoader: (config?: typeof globalConfig) => void;
+export declare const initializeImageLoader: (maxConcurrency?: number) => void;
 /**
  * Configure cornerstoneWebImageLoader
  * @instance
@@ -68,4 +57,3 @@ export declare const registerDsaImageLoader: () => void;
  * @param {number} sliceIndex - Optional custom index to overwrite slice index as default one
  */
 export declare const updateLoadedStack: (seriesData: ImageObject, allSeriesStack: ReturnType<typeof getLarvitarManager>, customId?: string, sliceIndex?: number) => void;
-export {};

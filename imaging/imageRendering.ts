@@ -646,26 +646,29 @@ export const updateImage = async function (
       t0 = performance.now();
     }
 
-    const image = await cornerstone.loadAndCacheImage(imageId);
-    cornerstone.displayImage(element, image);
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
+      cornerstone.displayImage(element, image);
 
-    if (getPerformanceMonitor() === true) {
-      const t1 = performance.now();
-      if (t0 !== undefined) {
-        // check if t0 is defined before using it
-        console.log(
-          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
-        );
+      if (getPerformanceMonitor() === true) {
+        const t1 = performance.now();
+        if (t0 !== undefined) {
+          // check if t0 is defined before using it
+          console.log(
+            `Call to updateImage for viewport ${id} took ${
+              t1 - t0
+            } milliseconds.`
+          );
+        }
       }
-    }
 
-    setStore(["sliceId", id, imageIndex]);
-    const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
-    if (imageIndex == pendingSliceId) {
-      setStore(["pendingSliceId", id, undefined]);
-    }
-    setStore(["minPixelValue", id, image.minPixelValue]);
-    setStore(["maxPixelValue", id, image.maxPixelValue]);
+      setStore(["sliceId", id, imageIndex]);
+      const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
+      if (imageIndex == pendingSliceId) {
+        setStore(["pendingSliceId", id, undefined]);
+      }
+      setStore(["minPixelValue", id, image.minPixelValue]);
+      setStore(["maxPixelValue", id, image.maxPixelValue]);
+    });
   } else {
     let t0: number | undefined;
     if (getPerformanceMonitor() === true) {
@@ -1058,35 +1061,36 @@ export const rotateImageRight = function (elementId: string | HTMLElement) {
   viewport.rotation += 90;
   cornerstone.setViewport(element, viewport);
 };
+
 /**
- * Update Larvitar manager viewport data
+ * Update Larvitar manager temporal viewport data
  * @instance
- * @function updateViewportDataInLarvitarManager
+ * @function updateTemporalViewportData
  * @param {Series} seriesStack The Id of the series
  * @param {String} elementId The Id of the html element
  */
-export const updateTemporalViewportData = function(
+export const updateTemporalViewportData = function (
   seriesStack: Series,
   elementId: string
-) {
-    let series = { ...seriesStack };
+): void {
+  let series = { ...seriesStack };
 
-    const data = getTemporalSeriesData(series);
-    if (series.is4D) {
-      setStore([
-        "numberOfTemporalPositions",
-        elementId,
-        data.numberOfTemporalPositions as number
-      ]);
-      setStore(["minTimeId", elementId, 0]);
-      if (data.numberOfSlices && data.numberOfTemporalPositions) {
-        setStore(["maxTimeId", elementId, data.numberOfTemporalPositions - 1]);
-        let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
-        setStore(["maxSliceId", elementId, maxSliceId]);
-      }
-      setStore(["timestamps", elementId, data.timestamps || []]);
-      setStore(["timeIds", elementId, data.timeIds || []]);
-   } else {
+  const data = getTemporalSeriesData(series);
+  if (series.is4D) {
+    setStore([
+      "numberOfTemporalPositions",
+      elementId,
+      data.numberOfTemporalPositions as number
+    ]);
+    setStore(["minTimeId", elementId, 0]);
+    if (data.numberOfSlices && data.numberOfTemporalPositions) {
+      setStore(["maxTimeId", elementId, data.numberOfTemporalPositions - 1]);
+      let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
+      setStore(["maxSliceId", elementId, maxSliceId]);
+    }
+    setStore(["timestamps", elementId, data.timestamps || []]);
+    setStore(["timeIds", elementId, data.timeIds || []]);
+  } else {
     setStore(["minTimeId", elementId, 0]);
     setStore(["timeId", elementId, 0]);
     setStore(["maxTimeId", elementId, 0]);
@@ -1094,7 +1098,7 @@ export const updateTemporalViewportData = function(
     setStore(["timestamps", elementId, []]);
     setStore(["timeIds", elementId, []]);
   }
-}
+};
 
 /* Internal module functions */
 
@@ -1105,7 +1109,7 @@ export const updateTemporalViewportData = function(
  * @param {Object} series - The parsed data series
  * @return {Object} data - A data dictionary with temporal parsed tags' values
  */
-const getTemporalSeriesData = function( series: Series) {
+const getTemporalSeriesData = function (series: Series): StoreViewport {
   type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;
   };

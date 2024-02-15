@@ -38,12 +38,63 @@
         style="position: absolute; top: 40px; color: white"
       ></p>
 
+      <span style="position: absolute; top: 60px; color: white"
+        >Max Web Workers: </span
+      ><span
+        style="position: absolute; top: 80px; color: white"
+        id="maxWebWorkers"
+      ></span
+      ><br />
+      <span style="position: absolute; top: 100px; color: white"
+        >Num Web Workers: </span
+      ><span
+        style="position: absolute; top: 120px; color: white"
+        id="numWebWorkers"
+      ></span
+      ><br />
+      <span style="position: absolute; top: 140px; color: white"
+        >Num Queued Tasks: </span
+      ><span
+        style="position: absolute; top: 160px; color: white"
+        id="numQueuedTasks"
+      ></span
+      ><br />
+      <span
+        style="position: absolute; top: 180px; color: white"
+        style="color: white"
+        >Num Tasks Executing: </span
+      ><span
+        style="position: absolute; top: 200px; color: white"
+        id="numTasksExecuting"
+      ></span
+      ><br />
+      <span style="position: absolute; top: 220px; color: white"
+        >Total Tasks Executed: </span
+      ><span
+        style="position: absolute; top: 240px; color: white"
+        id="totalTasksExecuted"
+      ></span
+      ><br />
+      <span style="position: absolute; top: 260px; color: white"
+        >Total Task Execution Time: </span
+      ><span
+        style="position: absolute; top: 280px; color: white"
+        id="totalTaskExecutionTime"
+      ></span
+      ><br />
+      <span style="position: absolute; top: 300px; color: white"
+        >Total Task Delay Time: </span
+      ><span
+        style="position: absolute; top: 320px; color: white"
+        id="totalTaskDelayTime"
+      ></span
+      ><br />
+
       <div class="col-4 h-100">
         <pre class="h-100">
           <code class="javascript" style="background-color: #000000">
-            <p style="font-size:0.6vw;">
+            <p style="font-size:0.7vw;">
               let demoFiles = [];
-
               // init all
               larvitar.initializeImageLoader();
               larvitar.registerMultiFrameImageLoader();
@@ -51,62 +102,28 @@
               larvitar.store.initialize();
               larvitar.store.addViewport("viewer");
 
-              function renderSerie() {
-                larvitar
-                  .readFiles(demoFiles)
-                  .then(seriesStack => {
-                    // render the first series of the study
-                    let seriesId = _.keys(seriesStack)[0];
-                    let serie = seriesStack[seriesId];
-                    larvitar.populateLarvitarManager(seriesId, serie);
-                    let manager = larvitar.getLarvitarManager();
-                    let multiFrameSerie = manager[seriesId];
-                    let frameId = 0;
-                    larvitar
-                      .renderImage(multiFrameSerie, "viewer", frameId)
-                      .then(() => {
-                        console.log("Image has been rendered");
-                      });
-                    larvitar.addDefaultTools();
-                    larvitar.setToolActive("Wwwc");
+              async function renderSerie() {
+                const t0 = performance.now();
+                const seriesStack = await larvitar.readFiles(demoFiles);
+                // render the first series of the study
+                let seriesId = _.keys(seriesStack)[0];
+                let serie = seriesStack[seriesId];
+                larvitar.populateLarvitarManager(seriesId, serie);
+                let manager = larvitar.getLarvitarManager();
+                let multiFrameSerie = manager[seriesId];
 
-                    let animation = false;
-                    let animationId = null;
-                    let numberOfFrames = multiFrameSerie.numberOfFrames;
-                    let frameRate = multiFrameSerie.frameTime;
-                    $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
-                    $("#current-frame").html("Current Frame: 1 of " + numberOfFrames);
+                let frameId = 0;
+                await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+                const t1 = performance.now();
+                console.log("Time to render First frame: " + (t1 - t0) + "ms");
+                larvitar.addDefaultTools();
+                larvitar.setToolActive("StackScroll");
 
-                    document.onkeypress = function (e) {
-                      e = e || window.event;
-                      if (e.keyCode == 112) {
-                        animation = !animation;
-                        if (animation) {
-                          frameId = larvitar.store.get([
-                            "viewports",
-                            "viewer",
-                            "sliceId"
-                          ]);
-                          animationId = setInterval(function () {
-                            let series =
-                              larvitar.getSeriesDataFromLarvitarManager(seriesId);
-                            frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-                            larvitar.updateImage(series, "viewer", frameId, true);
-                            $("#current-frame").html(
-                              "Current Frame: " +
-                                parseInt(frameId + 1) +
-                                " of " +
-                                numberOfFrames
-                            );
-                          }, frameRate);
-                        } else {
-                          clearInterval(animationId);
-                          $("#current-frame").html();
-                        }
-                      }
-                    };
-                  })
-                  .catch(err => console.log(err));
+                await larvitar.loadAndCacheImageStack(multiFrameSerie);
+                console.log(
+                  "Stack has been loaded and cached",
+                  multiFrameSerie.bytes / 1048576
+                );
               }
 
               async function createFile(fileName, cb) {
@@ -141,89 +158,97 @@
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
-      function renderSerie() {
-        larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
-            let serie = seriesStack[seriesId];
-            larvitar.populateLarvitarManager(seriesId, serie);
-            let manager = larvitar.getLarvitarManager();
-            let multiFrameSerie = manager[seriesId];
+      async function renderSerie() {
+        const t0 = performance.now();
+        const seriesStack = await larvitar.readFiles(demoFiles);
+        // render the first series of the study
+        let seriesId = _.keys(seriesStack)[0];
+        let serie = seriesStack[seriesId];
+        larvitar.populateLarvitarManager(seriesId, serie);
+        let manager = larvitar.getLarvitarManager();
+        let multiFrameSerie = manager[seriesId];
 
-            let frameId = 0;
-            larvitar
-              .renderImage(multiFrameSerie, "viewer", frameId)
-              .then(() => {
-                console.log("Image has been rendered");
-              });
-            larvitar.addDefaultTools();
-            larvitar.setToolActive("StackScroll");
+        let frameId = 0;
+        await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        const t1 = performance.now();
+        console.log("Time to render First frame: " + (t1 - t0) + "ms");
+        larvitar.addDefaultTools();
+        larvitar.setToolActive("StackScroll");
 
-            let animation = false;
-            let animationId = null;
-            let numberOfFrames = multiFrameSerie.numberOfFrames;
-            let frameRate = multiFrameSerie.frameTime;
-            $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
-            $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
+        // optionally cache images
+        //await larvitar.loadAndCacheImageStack(multiFrameSerie);
+        // console.log(
+        //   "Stack has been loaded and cached",
+        //   multiFrameSerie.bytes / 1048576
+        // );
+        // clearInterval(statId);
 
-            // add event listener to the wheel to update the UI
-            document
-              .getElementById("viewer")
-              .addEventListener("wheel", function (event) {
-                frameId = larvitar.store.get([
-                  "viewports",
-                  "viewer",
-                  "sliceId"
-                ]);
+        let animation = true;
+        let animationId = null;
+        let numberOfFrames = multiFrameSerie.numberOfFrames;
+        let frameRate = multiFrameSerie.frameTime;
+        $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
+        $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
+
+        animationId = setInterval(function () {
+          let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
+          frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+          larvitar.updateImage(series, "viewer", frameId, true);
+
+          $("#image-time").html(
+            "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames
+          );
+        }, frameRate);
+
+        const t2 = performance.now();
+        console.log("Time to start cine loop: " + (t2 - t0) + "ms");
+
+        // add event listener to the wheel to update the UI
+        document
+          .getElementById("viewer")
+          .addEventListener("wheel", function (event) {
+            frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
+            $("#image-time").html(
+              "Current Frame: " +
+                parseInt(frameId + 1) +
+                " of " +
+                numberOfFrames
+            );
+          });
+
+        document.onkeypress = function (e) {
+          e = e || window.event;
+          if (e.keyCode == 109) {
+            let performanceMonitor = larvitar.getPerformanceMonitor();
+            if (performanceMonitor) {
+              larvitar.deactivatePerformanceMonitor();
+            } else {
+              larvitar.activatePerformanceMonitor();
+            }
+          }
+          if (e.keyCode == 112) {
+            animation = !animation;
+            if (animation) {
+              frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
+              animationId = setInterval(function () {
+                let series =
+                  larvitar.getSeriesDataFromLarvitarManager(seriesId);
+                frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+                larvitar.updateImage(series, "viewer", frameId, false);
+
                 $("#image-time").html(
                   "Current Frame: " +
                     parseInt(frameId + 1) +
                     " of " +
                     numberOfFrames
                 );
-              });
-
-            document.onkeypress = function (e) {
-              e = e || window.event;
-              if (e.keyCode == 109) {
-                let performanceMonitor = larvitar.getPerformanceMonitor();
-                if (performanceMonitor) {
-                  larvitar.deactivatePerformanceMonitor();
-                } else {
-                  larvitar.activatePerformanceMonitor();
-                }
-              }
-              if (e.keyCode == 112) {
-                animation = !animation;
-                if (animation) {
-                  frameId = larvitar.store.get([
-                    "viewports",
-                    "viewer",
-                    "sliceId"
-                  ]);
-                  animationId = setInterval(function () {
-                    let series =
-                      larvitar.getSeriesDataFromLarvitarManager(seriesId);
-                    frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-                    larvitar.updateImage(series, "viewer", frameId, false);
-
-                    $("#image-time").html(
-                      "Current Frame: " +
-                        parseInt(frameId + 1) +
-                        " of " +
-                        numberOfFrames
-                    );
-                  }, frameRate);
-                } else {
-                  clearInterval(animationId);
-                  $("#image-time").html();
-                }
-              }
-            };
-          })
-          .catch(err => console.log(err));
+              }, frameRate);
+            } else {
+              clearInterval(animationId);
+              $("#image-time").html();
+            }
+          }
+        };
       }
 
       async function createFile(fileName, cb) {
@@ -234,6 +259,29 @@
         cb();
       }
       createFile("xa_integris.dcm", renderSerie);
+
+      function updateStatistics() {
+        var stats =
+          larvitar.cornerstoneDICOMImageLoader.webWorkerManager.getStatistics();
+        document.getElementById("maxWebWorkers").textContent =
+          stats.maxWebWorkers;
+        document.getElementById("numWebWorkers").textContent =
+          stats.numWebWorkers;
+        document.getElementById("numQueuedTasks").textContent =
+          stats.numTasksQueued;
+        document.getElementById("numTasksExecuting").textContent =
+          stats.numTasksExecuting;
+        document.getElementById("totalTasksExecuted").textContent =
+          stats.numTasksCompleted;
+        document.getElementById("totalTaskExecutionTime").textContent =
+          stats.totalTaskTimeInMS;
+        document.getElementById("totalTaskDelayTime").textContent =
+          stats.totalTimeDelayedInMS;
+      }
+
+      let statId = setInterval(function () {
+        updateStatistics();
+      }, 100);
     </script>
   </body>
 </html>
