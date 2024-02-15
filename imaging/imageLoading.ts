@@ -60,7 +60,7 @@ const globalConfig = {
  * Configure DICOMImageLoader
  * @instance
  * @function initializeImageLoader
- * @param {Object} config - Custom config @default globalConfig
+ * @param {number} maxConcurrency - Optional maximum number of web workers
  */
 export const initializeImageLoader = function (maxConcurrency?: number) {
   if (maxConcurrency) {

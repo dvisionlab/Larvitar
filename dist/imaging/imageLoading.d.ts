@@ -8,7 +8,7 @@ import { getLarvitarManager } from "./loaders/commonLoader";
  * Configure DICOMImageLoader
  * @instance
  * @function initializeImageLoader
- * @param {Object} config - Custom config @default globalConfig
+ * @param {number} maxConcurrency - Optional maximum number of web workers
  */
 export declare const initializeImageLoader: (maxConcurrency?: number) => void;
 /**
