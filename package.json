@@ -6,11 +6,7 @@
     "medical",
     "cornerstone"
   ],
-<<<<<<< HEAD
-  "version": "2.2.0",
-=======
-  "version": "2.1.12",
->>>>>>> e81605c (added feature of dicom to jpeg conversion both using canvas.todataURI and opencv.js methods)
+  "version": "2.2.1",
   "description": "typescript library for parsing, loading, rendering and interacting with DICOM images",
   "repository": {
     "url": "https://github.com/dvisionlab/Larvitar.git",
