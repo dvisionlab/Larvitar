@@ -21,7 +21,7 @@ import { loadMultiFrameImage } from "./loaders/multiframeLoader";
 import { loadDsaImage } from "./loaders/dsaImageLoader";
 import { ImageObject, Instance, Series, StagedProtocol } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
-
+import webWorkerManager from "./webWorkerManager";
 /**
  * Global standard configuration
  * @inner
@@ -37,9 +37,12 @@ const globalConfig = {
     1
   ),
   startWebWorkersOnDemand: true,
+  webWorkerTaskPaths: [
+    `${window.location.protocol}//${window.location.host}/imaging/postProcessing/applyDSATask.ts`
+  ],
   taskConfiguration: {
     decodeTask: {
-      loadCodecsOnStartup: true,
+      loadCodecsOnStartup: false,
       initializeCodecsOnStartup: false,
       strict: true
     }

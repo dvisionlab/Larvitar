@@ -240,7 +240,7 @@ import {
   HSVToRGB
 } from "./imaging/imageColormaps";
 
-import { applyDSAShift } from "./imaging/postProcessing/applyDSA";
+import { applyDSAShift } from "./imaging/postProcessing/applyDSAShift";
 
 import { saveAnnotations, loadAnnotations } from "./imaging/tools/io";
 

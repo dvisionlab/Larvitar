@@ -5,7 +5,7 @@
 // external libraries
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import cornerstone, { ImageLoader } from "cornerstone-core";
-import { each, find, range } from "lodash";
+import { each, find, isUndefined, range } from "lodash";
 
 // internal libraries
 import {
@@ -15,8 +15,9 @@ import {
 } from "./commonLoader";
 import type { DSA, Image, LarvitarManager, Series } from "../types";
 import { getMaxPixelValue, getMinPixelValue } from "../imageUtils";
-import { applyDSA } from "../postProcessing/applyDSA";
-
+import webWorkerManager from "../webWorkerManager";
+import { registerTaskHandler } from "./WebWorker";
+import applyDSA from "../postProcessing/applyDSATask";
 // global module variables
 let customImageLoaderCounter: number = 0;
 let PIXEL_SHIFT: number[] | undefined = undefined;
@@ -27,7 +28,6 @@ let PIXEL_SHIFT: number[] | undefined = undefined;
  * setPixelShift(pixelShift)
  * populateDsaImageIds(seriesId)
  */
-
 /**
  * Custom DSA Image Loader Function
  * @export
@@ -46,12 +46,30 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
     let multiFrameSerie = manager[seriesId] as Series;
     const imageIds: string[] = multiFrameSerie.dsa!.imageIds;
     const index: number = imageIds.indexOf(imageId);
-    const pixelData = applyDSA(multiFrameSerie, index, PIXEL_SHIFT);
-    const srcImage: Image = find(cornerstone.imageCache.cachedImages, {
-      imageId: multiFrameSerie.imageIds[index]
-    }).image;
-    console.debug(`Load DSA Image with custom loader for imageId: ${imageId}`);
-    return createCustomImage(imageId, srcImage, pixelData);
+    registerTaskHandler(applyDSA);
+    const task = webWorkerManager.addTask(
+      "applyDSATask",
+      {
+        imageId: imageId,
+        index: index,
+        inputMaskSubPixelShift: PIXEL_SHIFT
+      },
+      1, //priority
+      undefined
+    );
+    setInterval(() => {
+      console.log("TASK:", task.promise);
+    }, 1000);
+    task.promise.then(function (result: { pixelData: number[] }) {
+      //const pixelData = applyDSA(multiFrameSerie, index, PIXEL_SHIFT);
+      const srcImage: Image = find(cornerstone.imageCache.cachedImages, {
+        imageId: multiFrameSerie.imageIds[index]
+      }).image;
+      console.debug(
+        `Load DSA Image with custom loader for imageId: ${imageId}`
+      );
+      return createCustomImage(imageId, srcImage, result.pixelData);
+    });
   } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
   }
