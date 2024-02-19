@@ -121,6 +121,8 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.datahandles;
     this.abovehandles;
     this.belowhandles;
+    this.borderRight;
+    this.borderLeft = 0;
     this.fixedOffset = this.configuration.offset;
     this.plotlydata = [];
     this.measuring = false;
@@ -262,7 +264,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
   renderToolData(evt: ToolMouseEvent) {
     const eventData = evt.detail;
     const { element } = eventData;
-
+    this.borderRight = eventData.image.width;
     const {
       handleRadius,
       drawHandlesOnHover,
@@ -306,6 +308,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         }
         start = data.handles.start;
         end = data.handles.end;
+        console.log("END", data.handles.end);
         let offset =
           this.measuring === true
             ? Math.abs(data.handles.start.y - data.handles.end.y)
@@ -470,11 +473,21 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     };
 
     const myPlotDiv = document.getElementById("myPlot");
-    Plotly.react(myPlotDiv as Plotly.Root, traces as Plotly.Data[], layout);
+    if (
+      this.datahandles!.end.x! < this.borderLeft ||
+      this.datahandles!.start.x! < this.borderLeft ||
+      this.datahandles!.start.x! > this.borderRight ||
+      this.datahandles!.end.x! > this.borderRight
+    ) {
+      this.clearPlotlyData(myPlotDiv!);
+      myPlotDiv!.style.display = "none";
+    } else {
+      myPlotDiv!.style.display = "block";
+      Plotly.react(myPlotDiv as Plotly.Root, traces as Plotly.Data[], layout);
+    }
   }
 
-  clearPlotlyData() {
-    const myPlotDiv = document.getElementById("myPlot");
+  clearPlotlyData(myPlotDiv: HTMLElement) {
     Plotly.purge(myPlotDiv as Plotly.Root);
     this.plotlydata = [];
   }

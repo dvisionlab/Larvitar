@@ -114,6 +114,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         pixelValues: number[];
         color: string;
     }[]): void;
-    clearPlotlyData(): void;
+    clearPlotlyData(myPlotDiv: HTMLElement): void;
 }
 export {};
