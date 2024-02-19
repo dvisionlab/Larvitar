@@ -646,26 +646,29 @@ export const updateImage = async function (
       t0 = performance.now();
     }
 
-    const image = await cornerstone.loadAndCacheImage(imageId);
-    cornerstone.displayImage(element, image);
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
+      cornerstone.displayImage(element, image);
 
-    if (getPerformanceMonitor() === true) {
-      const t1 = performance.now();
-      if (t0 !== undefined) {
-        // check if t0 is defined before using it
-        console.log(
-          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
-        );
+      if (getPerformanceMonitor() === true) {
+        const t1 = performance.now();
+        if (t0 !== undefined) {
+          // check if t0 is defined before using it
+          console.log(
+            `Call to updateImage for viewport ${id} took ${
+              t1 - t0
+            } milliseconds.`
+          );
+        }
       }
-    }
 
-    setStore(["sliceId", id, imageIndex]);
-    const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
-    if (imageIndex == pendingSliceId) {
-      setStore(["pendingSliceId", id, undefined]);
-    }
-    setStore(["minPixelValue", id, image.minPixelValue]);
-    setStore(["maxPixelValue", id, image.maxPixelValue]);
+      setStore(["sliceId", id, imageIndex]);
+      const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
+      if (imageIndex == pendingSliceId) {
+        setStore(["pendingSliceId", id, undefined]);
+      }
+      setStore(["minPixelValue", id, image.minPixelValue]);
+      setStore(["maxPixelValue", id, image.maxPixelValue]);
+    });
   } else {
     let t0: number | undefined;
     if (getPerformanceMonitor() === true) {
@@ -1059,7 +1062,84 @@ export const rotateImageRight = function (elementId: string | HTMLElement) {
   cornerstone.setViewport(element, viewport);
 };
 
+/**
+ * Update Larvitar manager temporal viewport data
+ * @instance
+ * @function updateTemporalViewportData
+ * @param {Series} seriesStack The Id of the series
+ * @param {String} elementId The Id of the html element
+ */
+export const updateTemporalViewportData = function (
+  seriesStack: Series,
+  elementId: string
+): void {
+  let series = { ...seriesStack };
+
+  const data = getTemporalSeriesData(series);
+  if (series.is4D) {
+    setStore([
+      "numberOfTemporalPositions",
+      elementId,
+      data.numberOfTemporalPositions as number
+    ]);
+    setStore(["minTimeId", elementId, 0]);
+    if (data.numberOfSlices && data.numberOfTemporalPositions) {
+      setStore(["maxTimeId", elementId, data.numberOfTemporalPositions - 1]);
+      let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
+      setStore(["maxSliceId", elementId, maxSliceId]);
+    }
+    setStore(["timestamps", elementId, data.timestamps || []]);
+    setStore(["timeIds", elementId, data.timeIds || []]);
+  } else {
+    setStore(["minTimeId", elementId, 0]);
+    setStore(["timeId", elementId, 0]);
+    setStore(["maxTimeId", elementId, 0]);
+    setStore(["timestamp", elementId, 0]);
+    setStore(["timestamps", elementId, []]);
+    setStore(["timeIds", elementId, []]);
+  }
+};
+
 /* Internal module functions */
+
+/**
+ * Get series metadata from default props and series' metadata
+ * @instance
+ * @function getTemporalSeriesData
+ * @param {Object} series - The parsed data series
+ * @return {Object} data - A data dictionary with temporal parsed tags' values
+ */
+const getTemporalSeriesData = function (series: Series): StoreViewport {
+  type RecursivePartial<T> = {
+    [P in keyof T]?: RecursivePartial<T[P]>;
+  };
+  type SeriesData = StoreViewport;
+  const data: RecursivePartial<SeriesData> = {};
+  if (series.is4D) {
+    data.isMultiframe = false;
+    data.isTimeserie = true;
+    // check with real indices
+    data.numberOfSlices = series.numberOfImages;
+    data.numberOfTemporalPositions = series.numberOfTemporalPositions;
+    data.imageIndex = 0;
+    data.timeIndex = 0;
+    data.imageId = series.imageIds[data.imageIndex];
+    data.timestamp = series.instances[data.imageId].metadata[
+      "x00080033"
+    ] as number;
+    data.timestamps = [];
+    data.timeIds = [];
+    each(series.imageIds, function (imageId: string) {
+      (data.timestamps as any[]).push(
+        series.instances[imageId].metadata.contentTime
+      );
+      (data.timeIds as any[]).push(
+        series.instances[imageId].metadata.temporalPositionIdentifier! - 1 // timeId from 0 to N
+      );
+    });
+  }
+  return data as SeriesData;
+};
 
 /**
  * Get series metadata from default props and series' metadata

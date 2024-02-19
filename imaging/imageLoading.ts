@@ -30,8 +30,7 @@ import { getLarvitarManager } from "./loaders/commonLoader";
  * @property {String} webWorkerPath - path to default DICOM web worker
  * @property {} - see https://github.com/cornerstonejs/cornerstoneDICOMImageLoader/blob/master/docs/WebWorkers.md
  */
-
-const MAX_CONCURRENCY = 6;
+const MAX_CONCURRENCY = 32;
 const globalConfig = {
   maxWebWorkers: Math.max(
     Math.min(navigator.hardwareConcurrency - 1, MAX_CONCURRENCY),
@@ -49,7 +48,7 @@ const globalConfig = {
 
 /*
  * This module provides the following functions to be exported:
- * initializeImageLoader(config)
+ * initializeImageLoader(maxConcurrency)
  * initializeWebImageLoader()
  * initializeFileImageLoader()
  * registerNRRDImageLoader()
@@ -61,13 +60,22 @@ const globalConfig = {
  * Configure DICOMImageLoader
  * @instance
  * @function initializeImageLoader
- * @param {Object} config - Custom config @default globalConfig
+ * @param {number} maxConcurrency - Optional maximum number of web workers
  */
-export const initializeImageLoader = function (config?: typeof globalConfig) {
-  let imageLoaderConfig = config ? config : globalConfig;
+export const initializeImageLoader = function (maxConcurrency?: number) {
+  if (maxConcurrency) {
+    const maxWebWorkers = Math.max(
+      Math.min(navigator.hardwareConcurrency - 1, MAX_CONCURRENCY),
+      1
+    );
+    globalConfig.maxWebWorkers = maxWebWorkers;
+  }
   cornerstoneDICOMImageLoader.external.cornerstone = cornerstone;
   cornerstoneDICOMImageLoader.external.dicomParser = dicomParser;
-  cornerstoneDICOMImageLoader.webWorkerManager.initialize(imageLoaderConfig);
+  cornerstoneDICOMImageLoader.webWorkerManager.initialize(globalConfig);
+  console.log(
+    `CornestoneDICOMImageLoader initialized with ${globalConfig.maxWebWorkers} WebWorkers.`
+  );
 };
 
 /**
