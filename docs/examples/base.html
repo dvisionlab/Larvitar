@@ -158,6 +158,25 @@
             });
             larvitar.addDefaultTools();
             larvitar.setToolActive("Wwwc");
+            //MODIFY CUSTOM TAGS AND DOWNLOAD NEW IMAGE
+            /* const imageId = serie.imageIds[0];
+            let image = serie.instances[imageId];
+            //it is sensitive to the order of change
+            await larvitar.customizeByteArray(serie, {
+              x00100010: "Ciccio Pasticcio",
+              x00081030: "CT broken knee SX",
+              x00081070: "Pippo e Paperino"
+            });
+            setTimeout(() => {
+              console.log("AFTER", image.dataSet);
+              console.log("series", serie);
+              var blob = new Blob([image.dataSet.byteArray], {
+                type: "application/dicom"
+              });
+              var url = window.URL.createObjectURL(blob);
+              window.open(url);
+              window.URL.revokeObjectURL(url);
+            }, 2000);*/
           })
           .catch(err => console.error(err));
       }

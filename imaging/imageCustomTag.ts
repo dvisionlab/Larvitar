@@ -3,23 +3,24 @@
  */
 
 //PROCEDURE
-// Check padding bytes in certain VRs and add byte = 32 ASCII (=" ") if tag value is odd.
-// Ex if name is "TEST1" it is transformed in "TEST1 " so that its length is even (5->6)
-// Find the minimum offset in custom tags = start shifting point
-// Evaluate the shifts in each section of the byte array:
-// Ex.I change elements corresponding to offset=10 and 20
-// If element with offset 10 has new length of 3 instead of 5, elements from 10 to 20 have shift=3-5=-2
-// If element with offset 20 has now length of 10 instead of 5, elements from 20 and the next have shift= -2+5=+3 and so on
-// Update each element's length and offset subsequently in DataSet and MetaData objects
 
-// internal libraries
+// 1) sortTags: Sort tag elements and custom tags basing on crescent offsets
+//    Find the minimum offset in custom tags which is the start shifting point + add padding to custom tags
+// 2) preProcessByteArray: check padding bytes in certain VRs and add byte = 32 ASCII (=" ") if tag value is odd.
+//    Ex if name is "TEST1" it is transformed in "TEST1 " so that its length is even (5->6)
+// 3) customizeByteArray: Evaluate the shifts in each section of the byte array:
+//    Ex.I change elements corresponding to offset=10 and 20
+//    If element with offset 10 has new length of 3 instead of 5, elements from 10 to 20 have shift=3-5=-2
+//    If element with offset 20 has now length of 10 instead of 5, elements from 20 and the next have shift= -2+5=+3 and so on
+// 4) changeOffsets: Update each element's length and offset subsequently in DataSet and MetaData objects
 
+// external libraries
 import { ByteArray } from "dicom-parser";
-import { Instance, MetaData, Series, tags, customTags } from "./types";
 import { DataSet } from "dicom-parser";
 import { Element } from "dicom-parser";
-//import { Buffer } from "node:buffer";
 
+// internal libraries
+import { Instance, MetaData, Series, tags, customTags } from "./types";
 /**
  * provides sorted original tags and sorted new customtags
  * @function sortAndBuildByteArray
@@ -27,7 +28,7 @@ import { Element } from "dicom-parser";
  * @param {MetaData} customTags - customized tags
  * @returns {Series} customized series
  */
-export const sortTags = function (
+function sortTags(
   dataSet: DataSet,
   customTags: MetaData
 ): {
@@ -70,7 +71,7 @@ export const sortTags = function (
     sortedCustomTags,
     shiftTotal
   };
-};
+}
 /**
  * Pre-processes the tag
  * @function preProcessByteArray
@@ -79,7 +80,7 @@ export const sortTags = function (
  *  @param {Element} element
  * @returns {void}
  */
-export const preProcessTag = function (
+function preProcessTag(
   metadata: string | number | number[],
   image: Instance,
   element: Element
@@ -99,7 +100,7 @@ export const preProcessTag = function (
   ) {
     image.dataSet!.byteArray[element.dataOffset + element.length - 1] = 32;
   }
-};
+}
 /**
  * Pre-processes the Byte Array (padding bytes for certain VR are
  * required if corresponding value is odd)
@@ -107,7 +108,7 @@ export const preProcessTag = function (
  * @param {DataSet} dataSet - customized tags
  * @returns {Series} customized series
  */
-export const preProcessByteArray = function (image: Instance) {
+function preProcessByteArray(image: Instance) {
   const vrsToBeProcessed = ["DS", "CS", "IS", "SH", "LO", "ST", "PN"];
 
   if (image.dataSet) {
@@ -151,7 +152,7 @@ export const preProcessByteArray = function (image: Instance) {
       }
     }
   }
-};
+}
 /**
  * changes all tags offsets accordingly
  * @function changeOffsets
@@ -162,7 +163,7 @@ export const preProcessByteArray = function (image: Instance) {
  * @param {number}  shift - customized tags
  * @returns {Series} customized series
  */
-export const changeOffsets = function (
+function changeOffsets(
   image: Instance,
   start: number,
   end: number,
@@ -187,7 +188,7 @@ export const changeOffsets = function (
       }
     }
   }
-};
+}
 /**
  * called when metadata are modified with custom values
  * @function customizeByteArray
