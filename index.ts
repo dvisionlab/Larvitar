@@ -69,7 +69,8 @@ import {
   buildData,
   buildDataAsync,
   importNRRDImage,
-  exportImageToBase64
+  exportImageToBase64,
+  exportImageToBase64OriginalSizes
 } from "./imaging/imageIo";
 
 import { anonymize } from "./imaging/imageAnonymization";
@@ -118,7 +119,8 @@ import {
   flipImageHorizontal,
   flipImageVertical,
   rotateImageLeft,
-  rotateImageRight
+  rotateImageRight,
+  updateTemporalViewportData
 } from "./imaging/imageRendering";
 
 import { resliceSeries } from "./imaging/imageReslice";
@@ -209,7 +211,7 @@ import {
   cacheImage,
   cacheImages,
   loadAndCacheImageStack,
-  unloadAndRecacheImageStackDSA
+  loadAndCacheDsaImageStack
 } from "./imaging/loaders/dicomLoader";
 
 import { loadReslicedImage } from "./imaging/loaders/resliceLoader";
@@ -300,6 +302,7 @@ export {
   buildDataAsync,
   importNRRDImage,
   exportImageToBase64,
+  exportImageToBase64OriginalSizes,
   // imageAnonymization
   anonymize,
   // imageLayers
@@ -376,7 +379,7 @@ export {
   cacheImage,
   cacheImages,
   loadAndCacheImageStack,
-  unloadAndRecacheImageStackDSA,
+  loadAndCacheDsaImageStack,
   // loaders/multiframeLoader
   loadMultiFrameImage,
   buildMultiFrameImage,
@@ -449,5 +452,6 @@ export {
   disableBrushTool,
   toggleContourMode,
   toggleVisibility,
-  getActiveLabelmapBuffer
+  getActiveLabelmapBuffer,
+  updateTemporalViewportData
 };

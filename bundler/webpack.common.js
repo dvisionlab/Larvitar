@@ -5,28 +5,28 @@ module.exports = {
       // HTML
       {
         test: /\.(html)$/,
-        use: ["html-loader"],
+        use: ["html-loader"]
       },
       // JS
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: ["babel-loader"],
+        use: ["babel-loader"]
       },
       // typescript support
       {
         test: /\.tsx?$/,
         use: "ts-loader",
-        exclude: /node_modules/,
-      },
-    ],
+        exclude: /node_modules/
+      }
+    ]
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js", ".d.ts"],
     fallback: {
       fs: false,
       path: false,
-      crypto: false,
-    },
-  },
+      crypto: false
+    }
+  }
 };

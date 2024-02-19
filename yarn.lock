@@ -406,6 +406,11 @@
     prop-types "^15.7.2"
     react-is "^16.6.3"
 
+"@techstark/opencv-js@^4.9.0-release.2":
+  version "4.9.0-release.2"
+  resolved "https://registry.yarnpkg.com/@techstark/opencv-js/-/opencv-js-4.9.0-release.2.tgz#65f9253c4162fd4d8872a5ab880abf83ce964a8b"
+  integrity sha512-e5yGVAD7vBZs6GJ2VSlNKhtYqeeo8cHL/SrYBO7i3YrA2Nf5BThpy8a1yEMptWwGThxb6DupG2UDdUkv/vwdDg==
+
 "@types/body-parser@*":
   version "1.19.5"
   resolved "https://registry.npmjs.org/@types/body-parser/-/body-parser-1.19.5.tgz"

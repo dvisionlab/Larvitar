@@ -20,14 +20,6 @@ export declare const cacheImage: (seriesData: Series, imageIndex: number) => Pro
  */
 export declare const cacheImages: (seriesData: Series, callback?: Function) => Promise<void>;
 /**
- * Unload DSA Image Stack and Recache Image Stack for DSA
- * @instance
- * @function unloadAndRecacheImageStackDSA
- * @param {Object} seriesData The series data
- * @return {Promise} Promise object represents the loading and caching of the image stack
- */
-export declare const unloadAndRecacheImageStackDSA: (seriesData: Series) => Promise<void>;
-/**
  * Load and cache image stack
  * @instance
  * @function loadAndCacheImageStack
@@ -35,6 +27,15 @@ export declare const unloadAndRecacheImageStackDSA: (seriesData: Series) => Prom
  * @return {Promise} Promise object represents the loading and caching of the image stack
  */
 export declare const loadAndCacheImageStack: (seriesData: Series) => Promise<void>;
+/**
+ * Load and cache image stack
+ * @instance
+ * @function loadAndCacheDsaImageStack
+ * @param {Object} seriesData The series data
+ * @param {boolean} forceRecache Optional parameter to force recache
+ * @return {Promise} Promise object represents the loading and caching of the image stack
+ */
+export declare const loadAndCacheDsaImageStack: (seriesData: Series, forceRecache?: boolean) => Promise<void>;
 /**
  * Get the dicom imageId from dicom loader
  * @instance

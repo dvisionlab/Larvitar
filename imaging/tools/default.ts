@@ -258,7 +258,7 @@ const DEFAULT_TOOLS: {
       hideHandlesIfMoving: false,
       renderDashed: false,
       digits: 2,
-      offset: 15
+      offset: 0
     },
 
     options: {

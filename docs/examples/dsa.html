@@ -91,6 +91,7 @@
         larvitar.addDefaultTools();
         larvitar.setToolActive("Wwwc");
         await larvitar.loadAndCacheImageStack(multiFrameSerie);
+        await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
 
         let animation = false;
         let animationId = null;
@@ -135,7 +136,7 @@
               break;
             case 51: // 3
               // async function
-              larvitar.unloadAndRecacheImageStackDSA(multiFrameSerie);
+              larvitar.loadAndCacheDsaImageStack(multiFrameSerie, true);
               larvitar.updateImage(multiFrameSerie, "viewer", frameId);
               larvitar.redrawImage("viewer");
               break;
