@@ -346,7 +346,33 @@ const parseFile = function (file: File) {
         } else {
           let pixelDataElement = dataSet.elements.x7fe00010;
           let SOPUID = metadata["x00080016"];
-          if (pixelDataElement) {
+          if (SOPUID == "1.2.840.10008.5.1.4.1.1.104.1") {
+            let pdfObject: Partial<ImageObject> = {
+              // data needed for rendering
+              file: file,
+              dataSet: dataSet
+            };
+            pdfObject.metadata = metadata;
+            pdfObject.metadata.larvitarSeriesInstanceUID = uniqueId;
+            pdfObject.metadata.seriesUID = seriesInstanceUID;
+            pdfObject.instanceUID =
+              metadata["x00080018"]?.toString() || randomId();
+            pdfObject.metadata.studyUID = metadata["x0020000d"];
+            pdfObject.metadata.accessionNumber = metadata["x00080050"];
+            pdfObject.metadata.studyDescription = metadata["x00081030"];
+            pdfObject.metadata.patientName = metadata["x00100010"] as string;
+            pdfObject.metadata.patientBirthdate = metadata["x00100030"];
+            pdfObject.metadata.seriesDate = metadata["x00080021"];
+            pdfObject.metadata.seriesModality = metadata["x00080060"]
+              ?.toString()
+              .toLowerCase();
+            pdfObject.metadata.mimeType = metadata["x00420012"];
+            pdfObject.metadata.is4D = false;
+            pdfObject.metadata.numberOfFrames = 0;
+            pdfObject.metadata.numberOfSlices = 0;
+            pdfObject.metadata.numberOfTemporalPositions = 0;
+            resolve(pdfObject as ImageObject);
+          } else {
             // done, pixelDataElement found
             let instanceUID = metadata["x00080018"] || randomId();
             let imageObject: Partial<ImageObject> = {
@@ -405,38 +431,12 @@ const parseFile = function (file: File) {
             imageObject.metadata.windowWidth = metadata["x00281051"];
             imageObject.metadata.minPixelValue = metadata["x00280106"];
             imageObject.metadata.maxPixelValue = metadata["x00280107"];
-            imageObject.metadata.length = pixelDataElement.length;
+            imageObject.metadata.length = pixelDataElement
+              ? pixelDataElement.length
+              : 0; //if is 0 means that it is a metadata-only object
             imageObject.metadata.repr = getPixelRepresentation(dataSet);
+            console.log(imageObject);
             resolve(imageObject as ImageObject);
-          } else if (SOPUID == "1.2.840.10008.5.1.4.1.1.104.1") {
-            let pdfObject: Partial<ImageObject> = {
-              // data needed for rendering
-              file: file,
-              dataSet: dataSet
-            };
-            pdfObject.metadata = metadata;
-            pdfObject.metadata.larvitarSeriesInstanceUID = uniqueId;
-            pdfObject.metadata.seriesUID = seriesInstanceUID;
-            pdfObject.instanceUID =
-              metadata["x00080018"]?.toString() || randomId();
-            pdfObject.metadata.studyUID = metadata["x0020000d"];
-            pdfObject.metadata.accessionNumber = metadata["x00080050"];
-            pdfObject.metadata.studyDescription = metadata["x00081030"];
-            pdfObject.metadata.patientName = metadata["x00100010"] as string;
-            pdfObject.metadata.patientBirthdate = metadata["x00100030"];
-            pdfObject.metadata.seriesDate = metadata["x00080021"];
-            pdfObject.metadata.seriesModality = metadata["x00080060"]
-              ?.toString()
-              .toLowerCase();
-            pdfObject.metadata.mimeType = metadata["x00420012"];
-            pdfObject.metadata.is4D = false;
-            pdfObject.metadata.numberOfFrames = 0;
-            pdfObject.metadata.numberOfSlices = 0;
-            pdfObject.metadata.numberOfTemporalPositions = 0;
-            resolve(pdfObject as ImageObject);
-          } else {
-            // done, no pixelData
-            reject("no pixelData");
           }
         }
       } catch (err) {

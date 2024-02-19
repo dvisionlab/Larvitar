@@ -103,7 +103,7 @@ export function loadAndCacheImage(
   const imageId: string | undefined = series.imageIds[imageIndex];
 
   const cachePromise = new Promise<true>((resolve, reject) => {
-    if (imageId) {
+    if (imageId && series.instances[imageId].metadata.length != 0) {
       cornerstone.loadAndCacheImage(imageId).then(function () {
         const t1 = performance.now();
         console.log(`Call to cacheImages took ${t1 - t0} milliseconds.`);
@@ -112,6 +112,8 @@ export function loadAndCacheImage(
         );
         resolve(true);
       });
+    } else if (series.instances[imageId].metadata.length === 0) {
+      reject(`File ${imageIndex}, has no Pixel Data available`);
     } else {
       reject(`Error: wrong image index ${imageIndex}, no imageId available`);
     }
@@ -164,11 +166,14 @@ export function loadAndCacheImages(
   }
 
   each(series.imageIds, function (imageId: string | undefined, index: number) {
-    if (imageId) {
+    if (imageId && series.instances[imageId].metadata.length != 0) {
       cornerstone.loadAndCacheImage(imageId).then(function () {
         updateProgress();
         callback(response);
       });
+    } else if (series.instances[imageId!].metadata.length === 0) {
+      updateProgress();
+      console.warn(`File ${index} has no Pixel Data`);
     } else {
       updateProgress();
       console.warn(
@@ -466,6 +471,7 @@ export const renderImage = function (
 
   let series = { ...seriesStack };
   let data = getSeriesData(series, defaultProps);
+
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) => {
@@ -475,99 +481,104 @@ export const renderImage = function (
   }
 
   const renderPromise = new Promise<true>((resolve, reject) => {
-    // load and display one image (imageId)
-    cornerstone.loadImage(data.imageId as string).then(function (image) {
-      if (!element) {
-        console.error("invalid html element: " + elementId);
-        reject("invalid html element: " + elementId);
-        return;
-      }
+    if (series.instances[data.imageId!].metadata.length != 0) {
+      // load and display one image (imageId)
+      cornerstone.loadImage(data.imageId as string).then(function (image) {
+        if (!element) {
+          console.error("invalid html element: " + elementId);
+          reject("invalid html element: " + elementId);
+          return;
+        }
 
-      cornerstone.displayImage(element, image);
+        cornerstone.displayImage(element, image);
 
-      if (series.layer) {
-        // assign the image to its layer and return its id
-        series.layer.id = cornerstone.addLayer(
-          element,
-          image,
-          series.layer.options
-        );
-      }
+        if (series.layer) {
+          // assign the image to its layer and return its id
+          series.layer.id = cornerstone.addLayer(
+            element,
+            image,
+            series.layer.options
+          );
+        }
 
-      const viewport = cornerstone.getViewport(element);
+        const viewport = cornerstone.getViewport(element);
 
-      if (!viewport) {
-        console.error("viewport not found");
-        reject("viewport not found for element: " + elementId);
-        return;
-      }
+        if (!viewport) {
+          console.error("viewport not found");
+          reject("viewport not found for element: " + elementId);
+          return;
+        }
 
-      // window width and window level
-      // are stored in specific dicom tags
-      // (x00281050 and x00281051)
-      // if not present check in image object
-      if (data.viewport?.voi?.windowWidth === undefined) {
-        data.viewport.voi.windowWidth = image.windowWidth;
-      }
-      if (data.viewport?.voi?.windowCenter === undefined) {
-        data.viewport.voi.windowCenter = image.windowCenter;
-      }
-      if (data.default?.voi?.windowWidth === undefined) {
-        data.default.voi.windowWidth = data.viewport.voi.windowWidth;
-      }
-      if (data.default?.voi?.windowCenter === undefined) {
-        data.default.voi.windowCenter = data.viewport.voi.windowCenter;
-      }
+        // window width and window level
+        // are stored in specific dicom tags
+        // (x00281050 and x00281051)
+        // if not present check in image object
+        if (data.viewport?.voi?.windowWidth === undefined) {
+          data.viewport.voi.windowWidth = image.windowWidth;
+        }
+        if (data.viewport?.voi?.windowCenter === undefined) {
+          data.viewport.voi.windowCenter = image.windowCenter;
+        }
+        if (data.default?.voi?.windowWidth === undefined) {
+          data.default.voi.windowWidth = data.viewport.voi.windowWidth;
+        }
+        if (data.default?.voi?.windowCenter === undefined) {
+          data.default.voi.windowCenter = data.viewport.voi.windowCenter;
+        }
 
-      cornerstone.fitToWindow(element);
+        cornerstone.fitToWindow(element);
 
-      if (defaultProps && defaultProps.scale !== undefined) {
-        viewport.scale = defaultProps["scale"];
-        cornerstone.setViewport(element, viewport);
-      }
+        if (defaultProps && defaultProps.scale !== undefined) {
+          viewport.scale = defaultProps["scale"];
+          cornerstone.setViewport(element, viewport);
+        }
 
-      if (
-        defaultProps &&
-        defaultProps.tr_x !== undefined &&
-        defaultProps.tr_y !== undefined
-      ) {
-        viewport.translation.x = defaultProps.tr_x;
-        viewport.translation.y = defaultProps.tr_y;
-        cornerstone.setViewport(element, viewport);
-      }
+        if (
+          defaultProps &&
+          defaultProps.tr_x !== undefined &&
+          defaultProps.tr_y !== undefined
+        ) {
+          viewport.translation.x = defaultProps.tr_x;
+          viewport.translation.y = defaultProps.tr_y;
+          cornerstone.setViewport(element, viewport);
+        }
 
-      // color maps
-      if (defaultProps && defaultProps.colormap && image.color == false) {
-        applyColorMap(defaultProps["colormap"]);
-      }
+        // color maps
+        if (defaultProps && defaultProps.colormap && image.color == false) {
+          applyColorMap(defaultProps["colormap"]);
+        }
 
-      const storedViewport = cornerstone.getViewport(element);
+        const storedViewport = cornerstone.getViewport(element);
 
-      if (!storedViewport) {
-        console.error("storedViewport not found");
-        reject("storedViewport not found for element: " + elementId);
-        return;
-      }
+        if (!storedViewport) {
+          console.error("storedViewport not found");
+          reject("storedViewport not found for element: " + elementId);
+          return;
+        }
 
-      storeViewportData(image, element.id, storedViewport as Viewport, data);
-      setStore(["ready", element.id, true]);
-      setStore(["seriesUID", element.id, data.seriesUID]);
-      const t1 = performance.now();
-      console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
+        storeViewportData(image, element.id, storedViewport as Viewport, data);
+        setStore(["ready", element.id, true]);
+        setStore(["seriesUID", element.id, data.seriesUID]);
+        const t1 = performance.now();
+        console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
-      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
-        data.imageId
-      ).url;
-      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
-      //@ts-ignore
-      image = null;
-      //@ts-ignore
-      series = null;
-      //@ts-ignore
-      data = null;
-      resolve(true);
-    });
-    // }
+        const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+          data.imageId
+        ).url;
+        cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+        //@ts-ignore
+        image = null;
+        //@ts-ignore
+        series = null;
+        //@ts-ignore
+        data = null;
+        resolve(true);
+      });
+    } else {
+      console.warn("No pixel Data");
+      reject;
+      return;
+    }
   });
 
   csToolsCreateStack(element, series.imageIds, (data.imageIndex as number) - 1);
@@ -620,33 +631,62 @@ export const updateImage = async function (
     isDSAEnabled === true
       ? series.dsa!.imageIds[imageIndex]
       : series.imageIds[imageIndex];
-
-  if (isDSAEnabled === true) {
-    // get the optional custom pixel shift
-    const pixelShift = store.get(["viewports", id, "pixelShift"]);
-    setPixelShift(pixelShift);
-  }
-
-  if (!imageId) {
-    setStore(["pendingSliceId", id, imageIndex]);
-    throw `Error: wrong image index ${imageIndex}, no imageId available`;
-  }
-
-  if (series.is4D) {
-    const timestamp = series.instances[imageId].metadata.contentTime;
-    const timeId =
-      series.instances[imageId].metadata.temporalPositionIdentifier! - 1; // timeId from 0 to N
-    setStore(["timeId", id as string, timeId]);
-    setStore(["timestamp", id as string, timestamp]);
-  }
-
-  if (cacheImage) {
-    let t0: number | undefined;
-    if (getPerformanceMonitor() === true) {
-      t0 = performance.now();
+  if (series.instances[imageId].metadata.length != 0) {
+    if (isDSAEnabled === true) {
+      // get the optional custom pixel shift
+      const pixelShift = store.get(["viewports", id, "pixelShift"]);
+      setPixelShift(pixelShift);
     }
 
-    cornerstone.loadAndCacheImage(imageId).then(function (image) {
+    if (!imageId) {
+      setStore(["pendingSliceId", id, imageIndex]);
+      throw `Error: wrong image index ${imageIndex}, no imageId available`;
+    }
+
+    if (series.is4D) {
+      const timestamp = series.instances[imageId].metadata.contentTime;
+      const timeId =
+        series.instances[imageId].metadata.temporalPositionIdentifier! - 1; // timeId from 0 to N
+      setStore(["timeId", id as string, timeId]);
+      setStore(["timestamp", id as string, timestamp]);
+    }
+
+    if (cacheImage) {
+      let t0: number | undefined;
+      if (getPerformanceMonitor() === true) {
+        t0 = performance.now();
+      }
+
+      cornerstone.loadAndCacheImage(imageId).then(function (image) {
+        cornerstone.displayImage(element, image);
+
+        if (getPerformanceMonitor() === true) {
+          const t1 = performance.now();
+          if (t0 !== undefined) {
+            // check if t0 is defined before using it
+            console.log(
+              `Call to updateImage for viewport ${id} took ${
+                t1 - t0
+              } milliseconds.`
+            );
+          }
+        }
+
+        setStore(["sliceId", id, imageIndex]);
+        const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
+        if (imageIndex == pendingSliceId) {
+          setStore(["pendingSliceId", id, undefined]);
+        }
+        setStore(["minPixelValue", id, image.minPixelValue]);
+        setStore(["maxPixelValue", id, image.maxPixelValue]);
+      });
+    } else {
+      let t0: number | undefined;
+      if (getPerformanceMonitor() === true) {
+        t0 = performance.now();
+      }
+
+      const image = await cornerstone.loadImage(imageId);
       cornerstone.displayImage(element, image);
 
       if (getPerformanceMonitor() === true) {
@@ -668,33 +708,7 @@ export const updateImage = async function (
       }
       setStore(["minPixelValue", id, image.minPixelValue]);
       setStore(["maxPixelValue", id, image.maxPixelValue]);
-    });
-  } else {
-    let t0: number | undefined;
-    if (getPerformanceMonitor() === true) {
-      t0 = performance.now();
     }
-
-    const image = await cornerstone.loadImage(imageId);
-    cornerstone.displayImage(element, image);
-
-    if (getPerformanceMonitor() === true) {
-      const t1 = performance.now();
-      if (t0 !== undefined) {
-        // check if t0 is defined before using it
-        console.log(
-          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
-        );
-      }
-    }
-
-    setStore(["sliceId", id, imageIndex]);
-    const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
-    if (imageIndex == pendingSliceId) {
-      setStore(["pendingSliceId", id, undefined]);
-    }
-    setStore(["minPixelValue", id, image.minPixelValue]);
-    setStore(["maxPixelValue", id, image.maxPixelValue]);
   }
 };
 
