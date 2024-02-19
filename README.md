@@ -8,9 +8,9 @@
 
 ## Dicom Image Toolkit for CornerstoneJS
 
-### Current version: 2.2.2
+### Current version: 2.3.0
 
-### Latest Published Release: 2.2.2
+### Latest Published Release: 2.3.0
 
 This library provides common DICOM functionalities to be used in web-applications: it's wrapper that simplifies the use of cornerstone-js environment.
 
@@ -75,6 +75,7 @@ Once you are done, upgrade the version (README and package.json) and build the l
 - `index` main file
 - `dataDictionary` json file for dicom tags
 - `imageAnonymization` provides anonymization functionalities
+- `imageCustomization` provides Byte Array customization functionalities
 - `imageColormaps` provides color maps functionalities
 - `imageContours` using to populate cornerstone tool for segmentation contours on 2D images
 - `imageIo` import a dicom image in .nrrd format and build contiguous array for exporting data as volume

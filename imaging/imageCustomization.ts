@@ -15,178 +15,16 @@
 // 4) changeOffsets: Update each element's length and offset subsequently in DataSet and MetaData objects
 
 // external libraries
-import { ByteArray } from "dicom-parser";
-import { DataSet } from "dicom-parser";
-import { Element } from "dicom-parser";
+import { ByteArray, DataSet, Element } from "dicom-parser";
 
 // internal libraries
-import { Instance, MetaData, Series, tags, customTags } from "./types";
-/**
- * provides sorted original tags and sorted new customtags
- * @function sortAndBuildByteArray
- * @param {DataSet} dataSet - dataset original image
- * @param {MetaData} customTags - customized tags
- * @returns {Series} customized series
- */
-function sortTags(
-  dataSet: DataSet,
-  customTags: MetaData
-): {
-  sortedTags: tags;
-  sortedCustomTags: customTags;
-  shiftTotal: number;
-} {
-  //all tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
-  const sortedTags: tags = Object.values(dataSet.elements)
-    .sort((a, b) => a.dataOffset - b.dataOffset)
-    .map(element => ({ [element.tag]: element }));
+import { MetaData, Series, tags, customTags, sortedTags } from "./types";
 
-  let shiftTotal = 0;
-  //custom tags sorted by their offset from min to max (may be unuseful if they are already sorted) TODO check with Simone
-  const sortedCustomTags: customTags = Object.entries(customTags)
-    .map(([tag]) => {
-      // @ts-ignore always string
-      let customTag = customTags[tag];
-      if (customTag === undefined || customTag === null || customTag === "") {
-        customTag = " ";
-      }
-      customTag = customTag.length % 2 != 0 ? customTag + " " : customTag;
-      shiftTotal += customTag.length - dataSet!.elements[tag].length;
-      return {
-        tag,
-        value: customTag,
-        offset: dataSet!.elements[tag].dataOffset,
-        index: sortedTags.findIndex(obj => {
-          for (let prop in obj) {
-            if (obj[prop].tag === tag) {
-              return true; // Found the object with the correct tag
-            }
-          }
-        })
-      };
-    })
-    .sort((a, b) => a.offset - b.offset);
-  return {
-    sortedTags,
-    sortedCustomTags,
-    shiftTotal
-  };
-}
-/**
- * Pre-processes the tag
- * @function preProcessByteArray
- * @param {string | number | number[]} metadata
- *  @param {DataSet} dataSet
- *  @param {Element} element
- * @returns {void}
+/*
+ * This module provides the following functions to be exported:customizeByteArray
+ * (series: Series, customTags: MetaData ): Series
  */
-function preProcessTag(
-  metadata: string | number | number[],
-  dataSet: DataSet,
-  element: Element
-) {
-  if (
-    (typeof metadata === "string" && metadata.length % 2 != 0) ||
-    (typeof metadata === "number" &&
-      Math.abs(metadata).toString().length % 2 != 0) ||
-    (Array.isArray(metadata) && // Check if image.metadata[tag] is an array
-      metadata.some(num => {
-        // Check if at least one of the numbers in the array has odd length
-        return (
-          typeof num === "number" && // Check if the element is a number
-          Math.abs(num).toString().length % 2 !== 0
-        ); // Check if the absolute value of the number has odd length
-      }))
-  ) {
-    dataSet!.byteArray[element.dataOffset + element.length - 1] = 32;
-  }
-}
-/**
- * Pre-processes the Byte Array (padding bytes for certain VR are
- * required if corresponding value is odd)
- * @function preProcessByteArray
- * @param {DataSet} dataSet - customized tags
- * @param {MetaData} metadata - customized tags
- * @returns {Series} customized series
- */
-function preProcessByteArray(dataSet: DataSet, metadata: MetaData) {
-  const vrsToBeProcessed = ["DS", "CS", "IS", "SH", "LO", "ST", "PN"];
 
-  if (dataSet) {
-    for (const key in dataSet.elements) {
-      if (Object.hasOwnProperty.call(dataSet.elements, key)) {
-        const element = dataSet.elements[key];
-
-        // Do something with the element
-        if (element.dataOffset + element.length != dataSet.byteArray.length) {
-          if (
-            dataSet.byteArray[element.dataOffset + element.length - 1] === 0 &&
-            vrsToBeProcessed.includes(element.vr!)
-          ) {
-            // @ts-ignore always string
-            preProcessTag(metadata[key], dataSet, element);
-          } else if (element.vr === "SQ") {
-            if (element.items && element.items.length) {
-              for (let i = 0; i < element.items.length; i++) {
-                for (const subKey in element.items[i].dataSet!.elements) {
-                  let subElement = element.items[i].dataSet!.elements[subKey]; //nested tags, check how they work
-                  if (
-                    dataSet.byteArray[
-                      subElement.dataOffset + subElement.length - 1
-                    ] === 0 &&
-                    vrsToBeProcessed.includes(subElement.vr!)
-                  ) {
-                    preProcessTag(
-                      // @ts-ignore always string
-                      metadata[element.tag][i][subKey], //subMetaData
-                      dataSet,
-                      subElement
-                    );
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-/**
- * changes all tags offsets accordingly
- * @function changeOffsets
- * @param {Instance} image
- * @param {number} start -  start tag index to be modified
- * @param {number} end- end tag index to be modified
- * @param {tags}  sortedTags
- * @param {number}  shift - customized tags
- * @returns {Series} customized series
- */
-function changeOffsets(
-  dataSet: DataSet,
-  start: number,
-  end: number,
-  sortedTags: tags,
-  shift: number
-) {
-  for (let k: number = start; k < end; k++) {
-    dataSet!.elements[Object.keys(sortedTags[k])[0]].dataOffset += shift;
-    if (dataSet!.elements[Object.keys(sortedTags[k])[0]].vr === "SQ") {
-      for (
-        let i = 0;
-        i < dataSet!.elements[Object.keys(sortedTags[k])[0]].items!.length;
-        i++
-      ) {
-        for (const key in dataSet!.elements[Object.keys(sortedTags[k])[0]]
-          .items![i].dataSet!.elements) {
-          dataSet!.elements[Object.keys(sortedTags[k])[0]].items![
-            i
-          ].dataSet!.elements[key].dataOffset += shift;
-        }
-      }
-    }
-  }
-}
 /**
  * called when metadata are modified with custom values
  * @function customizeByteArray
@@ -308,3 +146,168 @@ export const customizeByteArray = function (
 
   return series;
 };
+
+// Internal functions
+
+/**
+ * provides sorted original tags and sorted new customtags
+ * @function sortTags
+ * @param {DataSet} dataSet - dataset original image
+ * @param {MetaData} customTags - customized tags
+ * @returns {sortedTags} -sorted tags
+ */
+function sortTags(dataSet: DataSet, customTags: MetaData): sortedTags {
+  const sortedTags: tags = Object.values(dataSet.elements)
+    .sort((a, b) => a.dataOffset - b.dataOffset)
+    .map(element => ({ [element.tag]: element }));
+
+  let shiftTotal = 0;
+  const sortedCustomTags: customTags = Object.entries(customTags)
+    .map(([tag]) => {
+      // @ts-ignore always string
+      let customTag = customTags[tag];
+      if (customTag === undefined || customTag === null || customTag === "") {
+        customTag = " ";
+      }
+      customTag = customTag.length % 2 != 0 ? customTag + " " : customTag;
+      shiftTotal += customTag.length - dataSet!.elements[tag].length;
+      return {
+        tag,
+        value: customTag,
+        offset: dataSet!.elements[tag].dataOffset,
+        index: sortedTags.findIndex(obj => {
+          for (let prop in obj) {
+            if (obj[prop].tag === tag) {
+              return true; // Found the object with the correct tag
+            }
+          }
+        })
+      };
+    })
+    .sort((a, b) => a.offset - b.offset);
+  return {
+    sortedTags,
+    sortedCustomTags,
+    shiftTotal
+  };
+}
+
+/**
+ * Pre-processes the tag
+ * @function preProcessTag
+ * @param {string | number | number[]} metadata
+ *  @param {DataSet} dataSet
+ *  @param {Element} element
+ * @returns {void}
+ */
+function preProcessTag(
+  metadata: string | number | number[],
+  dataSet: DataSet,
+  element: Element
+) {
+  if (
+    (typeof metadata === "string" && metadata.length % 2 != 0) ||
+    (typeof metadata === "number" &&
+      Math.abs(metadata).toString().length % 2 != 0) ||
+    (Array.isArray(metadata) && // Check if image.metadata[tag] is an array
+      metadata.some(num => {
+        // Check if at least one of the numbers in the array has odd length
+        return (
+          typeof num === "number" && // Check if the element is a number
+          Math.abs(num).toString().length % 2 !== 0
+        ); // Check if the absolute value of the number has odd length
+      }))
+  ) {
+    dataSet!.byteArray[element.dataOffset + element.length - 1] = 32;
+  }
+}
+
+/**
+ * Pre-processes the Byte Array (padding bytes for certain VR are
+ * required if corresponding value is odd)
+ * @function preProcessByteArray
+ * @param {DataSet} dataSet - customized tags
+ * @param {MetaData} metadata - customized tags
+ * @returns {void}
+ */
+function preProcessByteArray(dataSet: DataSet, metadata: MetaData) {
+  const vrsToBeProcessed = ["DS", "CS", "IS", "SH", "LO", "ST", "PN"];
+
+  if (dataSet) {
+    for (const key in dataSet.elements) {
+      if (Object.hasOwnProperty.call(dataSet.elements, key)) {
+        const element = dataSet.elements[key];
+
+        // Do something with the element
+        if (element.dataOffset + element.length != dataSet.byteArray.length) {
+          if (
+            dataSet.byteArray[element.dataOffset + element.length - 1] === 0 &&
+            vrsToBeProcessed.includes(element.vr!)
+          ) {
+            // @ts-ignore always string
+            preProcessTag(metadata[key], dataSet, element);
+          } else if (element.vr === "SQ") {
+            if (element.items && element.items.length) {
+              for (let i = 0; i < element.items.length; i++) {
+                for (const subKey in element.items[i].dataSet!.elements) {
+                  let subElement = element.items[i].dataSet!.elements[subKey]; //nested tags, check how they work
+                  if (
+                    dataSet.byteArray[
+                      subElement.dataOffset + subElement.length - 1
+                    ] === 0 &&
+                    vrsToBeProcessed.includes(subElement.vr!)
+                  ) {
+                    preProcessTag(
+                      // @ts-ignore always string
+                      metadata[element.tag][i][subKey], //subMetaData
+                      dataSet,
+                      subElement
+                    );
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } else {
+    console.warn("DataSet is undefined");
+  }
+}
+
+/**
+ * changes all tags offsets accordingly
+ * @function changeOffsets
+ * @param {DataSet} dataSet - image dataset
+ * @param {number} start -  start tag index to be modified
+ * @param {number} end- end tag index to be modified
+ * @param {tags}  sortedTags
+ * @param {number}  shift - customized tags
+ * @returns {void}
+ */
+function changeOffsets(
+  dataSet: DataSet,
+  start: number,
+  end: number,
+  sortedTags: tags,
+  shift: number
+) {
+  for (let k: number = start; k < end; k++) {
+    dataSet!.elements[Object.keys(sortedTags[k])[0]].dataOffset += shift;
+    if (dataSet!.elements[Object.keys(sortedTags[k])[0]].vr === "SQ") {
+      for (
+        let i = 0;
+        i < dataSet!.elements[Object.keys(sortedTags[k])[0]].items!.length;
+        i++
+      ) {
+        for (const key in dataSet!.elements[Object.keys(sortedTags[k])[0]]
+          .items![i].dataSet!.elements) {
+          dataSet!.elements[Object.keys(sortedTags[k])[0]].items![
+            i
+          ].dataSet!.elements[key].dataOffset += shift;
+        }
+      }
+    }
+  }
+}

@@ -15,7 +15,7 @@ import { getImagePresets, setImagePreset, setImageCustomPreset } from "./imaging
 import { getNormalOrientation, getMinPixelValue, getMaxPixelValue, getPixelRepresentation, getTypedArrayFromDataType, getSortedStack, randomId, getMeanValue, getReslicedMetadata, getReslicedPixeldata, getDistanceBetweenSlices, getImageMetadata } from "./imaging/imageUtils";
 import { buildHeader, getCachedPixelData, buildData, buildDataAsync, importNRRDImage, exportImageToBase64, exportImageToBase64OriginalSizes } from "./imaging/imageIo";
 import { anonymize } from "./imaging/imageAnonymization";
-import { customizeByteArray } from "./imaging/imageCustomTag";
+import { customizeByteArray } from "./imaging/imageCustomization";
 import { buildLayer, updateLayer, getActiveLayer, setActiveLayer } from "./imaging/imageLayers";
 import { initializeImageLoader, initializeWebImageLoader, initializeFileImageLoader, registerNRRDImageLoader, registerResliceLoader, registerMultiFrameImageLoader, registerDsaImageLoader, updateLoadedStack } from "./imaging/imageLoading";
 import { readFile, readFiles, parseDataSet, clearImageParsing } from "./imaging/imageParsing";

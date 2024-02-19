@@ -15,13 +15,22 @@ import { Element } from "dicom-parser";
   | undefined; // null or undefined is only for nrrd*/
 
 export type tags = { [x: string]: Element }[];
+
 export type customTags = {
   tag: string;
   value: string;
   offset: number;
   index: number;
 }[];
+
+export type sortedTags = {
+  sortedTags: tags;
+  sortedCustomTags: customTags;
+  shiftTotal: number;
+};
+
 export type pdfType = { getPage: function; numPages: number };
+
 export type StoreViewport = {
   loading: number;
   ready: boolean;
