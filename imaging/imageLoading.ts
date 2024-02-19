@@ -75,7 +75,7 @@ export const initializeImageLoader = function (maxConcurrency?: number) {
   }
   cornerstoneDICOMImageLoader.external.cornerstone = cornerstone;
   cornerstoneDICOMImageLoader.external.dicomParser = dicomParser;
-  cornerstoneDICOMImageLoader.webWorkerManager.initialize(globalConfig);
+  webWorkerManager.initialize(globalConfig);
   console.log(
     `CornestoneDICOMImageLoader initialized with ${globalConfig.maxWebWorkers} WebWorkers.`
   );
