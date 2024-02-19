@@ -76,13 +76,13 @@ function sortTags(
  * Pre-processes the tag
  * @function preProcessByteArray
  * @param {string | number | number[]} metadata
- *  @param {Instance} image
+ *  @param {DataSet} dataSet
  *  @param {Element} element
  * @returns {void}
  */
 function preProcessTag(
   metadata: string | number | number[],
-  image: Instance,
+  dataSet: DataSet,
   element: Element
 ) {
   if (
@@ -98,7 +98,7 @@ function preProcessTag(
         ); // Check if the absolute value of the number has odd length
       }))
   ) {
-    image.dataSet!.byteArray[element.dataOffset + element.length - 1] = 32;
+    dataSet!.byteArray[element.dataOffset + element.length - 1] = 32;
   }
 }
 /**
@@ -106,43 +106,42 @@ function preProcessTag(
  * required if corresponding value is odd)
  * @function preProcessByteArray
  * @param {DataSet} dataSet - customized tags
+ * @param {MetaData} metadata - customized tags
  * @returns {Series} customized series
  */
-function preProcessByteArray(image: Instance) {
+function preProcessByteArray(dataSet: DataSet, metadata: MetaData) {
   const vrsToBeProcessed = ["DS", "CS", "IS", "SH", "LO", "ST", "PN"];
 
-  if (image.dataSet) {
-    for (const key in image.dataSet.elements) {
-      if (Object.hasOwnProperty.call(image.dataSet.elements, key)) {
-        const element = image.dataSet.elements[key];
-        // @ts-ignore always string
-        const metadata = image.metadata[key];
+  if (dataSet) {
+    for (const key in dataSet.elements) {
+      if (Object.hasOwnProperty.call(dataSet.elements, key)) {
+        const element = dataSet.elements[key];
+
         // Do something with the element
-        if (
-          element.dataOffset + element.length !=
-          image.dataSet.byteArray.length
-        ) {
+        if (element.dataOffset + element.length != dataSet.byteArray.length) {
           if (
-            image.dataSet.byteArray[element.dataOffset + element.length - 1] ===
-              0 &&
+            dataSet.byteArray[element.dataOffset + element.length - 1] === 0 &&
             vrsToBeProcessed.includes(element.vr!)
           ) {
-            preProcessTag(metadata, image, element);
+            // @ts-ignore always string
+            preProcessTag(metadata[key], dataSet, element);
           } else if (element.vr === "SQ") {
             if (element.items && element.items.length) {
               for (let i = 0; i < element.items.length; i++) {
                 for (const subKey in element.items[i].dataSet!.elements) {
                   let subElement = element.items[i].dataSet!.elements[subKey]; //nested tags, check how they work
-                  const subMetadata =
-                    // @ts-ignore always string
-                    image.metadata[element.tag][i][subKey];
                   if (
-                    image.dataSet.byteArray[
+                    dataSet.byteArray[
                       subElement.dataOffset + subElement.length - 1
                     ] === 0 &&
                     vrsToBeProcessed.includes(subElement.vr!)
                   ) {
-                    preProcessTag(subMetadata, image, subElement);
+                    preProcessTag(
+                      // @ts-ignore always string
+                      metadata[element.tag][i][subKey], //subMetaData
+                      dataSet,
+                      subElement
+                    );
                   }
                 }
               }
@@ -164,24 +163,23 @@ function preProcessByteArray(image: Instance) {
  * @returns {Series} customized series
  */
 function changeOffsets(
-  image: Instance,
+  dataSet: DataSet,
   start: number,
   end: number,
   sortedTags: tags,
   shift: number
 ) {
   for (let k: number = start; k < end; k++) {
-    image.dataSet!.elements[Object.keys(sortedTags[k])[0]].dataOffset += shift;
-    if (image.dataSet!.elements[Object.keys(sortedTags[k])[0]].vr === "SQ") {
+    dataSet!.elements[Object.keys(sortedTags[k])[0]].dataOffset += shift;
+    if (dataSet!.elements[Object.keys(sortedTags[k])[0]].vr === "SQ") {
       for (
         let i = 0;
-        i <
-        image.dataSet!.elements[Object.keys(sortedTags[k])[0]].items!.length;
+        i < dataSet!.elements[Object.keys(sortedTags[k])[0]].items!.length;
         i++
       ) {
-        for (const key in image.dataSet!.elements[Object.keys(sortedTags[k])[0]]
+        for (const key in dataSet!.elements[Object.keys(sortedTags[k])[0]]
           .items![i].dataSet!.elements) {
-          image.dataSet!.elements[Object.keys(sortedTags[k])[0]].items![
+          dataSet!.elements[Object.keys(sortedTags[k])[0]].items![
             i
           ].dataSet!.elements[key].dataOffset += shift;
         }
@@ -200,28 +198,39 @@ export const customizeByteArray = function (
   series: Series,
   customTags: MetaData //only string values
 ): Series {
-  for (const id in series.imageIds) {
+  let imageIds =
+    series.isMultiframe === true ? ["multiframeId"] : series.imageIds;
+  for (const id in imageIds) {
     const imageId = series.imageIds[id];
-    let image = series.instances[imageId];
-    if (image.dataSet) {
+    let dataSet =
+      series.isMultiframe === true
+        ? series.dataSet
+        : series.instances[imageId].dataSet;
+    console.log(dataSet);
+    let metadata =
+      series.isMultiframe === true
+        ? series.metadata
+        : series.instances[imageId].metadata;
+    console.log(metadata);
+    if (dataSet && metadata) {
       //sort custom tags from lowest offset to highest one
 
       let shift = 0;
 
       const { sortedTags, sortedCustomTags, shiftTotal } = sortTags(
-        image.dataSet,
+        dataSet,
         customTags
       );
-      preProcessByteArray(image);
+      preProcessByteArray(dataSet, metadata);
 
       // Running in Node.js environment or running in browser environment
       let newByteArray: ByteArray =
         typeof Buffer !== "undefined"
-          ? Buffer.alloc(image.dataSet.byteArray.length + shiftTotal)
-          : new Uint8Array(image.dataSet.byteArray.length + shiftTotal);
+          ? Buffer.alloc(dataSet.byteArray.length + shiftTotal)
+          : new Uint8Array(dataSet.byteArray.length + shiftTotal);
 
       for (let i = 0; i < sortedCustomTags.length; i++) {
-        let element = image.dataSet.elements[sortedCustomTags[i].tag];
+        let element = dataSet.elements[sortedCustomTags[i].tag];
 
         const vr: string = element.vr!;
 
@@ -240,7 +249,7 @@ export const customizeByteArray = function (
 
             if (i === 0) {
               for (let j: number = 0; j < startCustomTag; j++) {
-                newByteArray[j] = image.dataSet.byteArray[j];
+                newByteArray[j] = dataSet.byteArray[j];
               }
             }
             for (let j: number = startCustomTag; j < endCustomTag; j++) {
@@ -258,13 +267,13 @@ export const customizeByteArray = function (
                     : 32;
                 newByteArray[j] = char;
               } else {
-                newByteArray[j] = image.dataSet.byteArray[j - shift];
+                newByteArray[j] = dataSet.byteArray[j - shift];
               }
             }
           }
           //change image metadata and element's length values
           // @ts-ignore always string
-          image.metadata[sortedCustomTags[i].tag] = sortedCustomTags[i].value;
+          metadata[sortedCustomTags[i].tag] = sortedCustomTags[i].value;
           element.length = sortedCustomTags[i].value.length;
 
           //change dataset infos about offset accordingly
@@ -273,28 +282,29 @@ export const customizeByteArray = function (
             i === sortedCustomTags.length - 1
               ? sortedTags.length
               : sortedCustomTags[i + 1].index;
-          changeOffsets(image, start, end, sortedTags, shift);
+          changeOffsets(dataSet, start, end, sortedTags, shift);
         }
       }
-      image.dataSet.byteArray = newByteArray as ByteArray;
+      dataSet.byteArray = newByteArray as ByteArray;
       //update image metadata if changed
-      image.metadata.seriesUID = image.metadata["x0020000e"];
-      image.metadata.instanceUID = image.metadata["x00080018"];
-      image.metadata.studyUID = image.metadata["x0020000d"];
-      image.metadata.accessionNumber = image.metadata["x00080050"];
-      image.metadata.studyDescription = image.metadata["x00081030"];
-      image.metadata.patientName = image.metadata["x00100010"] as string;
-      image.metadata.patientBirthdate = image.metadata["x00100030"];
-      image.metadata.seriesDescription = image.metadata["x0008103e"] as string;
+      metadata.seriesUID = metadata["x0020000e"];
+      metadata.instanceUID = metadata["x00080018"];
+      metadata.studyUID = metadata["x0020000d"];
+      metadata.accessionNumber = metadata["x00080050"];
+      metadata.studyDescription = metadata["x00081030"];
+      metadata.patientName = metadata["x00100010"] as string;
+      metadata.patientBirthdate = metadata["x00100030"];
+      metadata.seriesDescription = metadata["x0008103e"] as string;
     } else {
       console.warn(`No dataset found for image ${imageId}`);
     }
   }
 
   // update parsed metadata
-  series.seriesDescription = series.instances[series.imageIds[0]].metadata[
-    "x0008103e"
-  ] as string;
+  series.seriesDescription =
+    series.isMultiframe === true
+      ? (series.metadata!["x0008103e"] as string)
+      : (series.instances[series.imageIds[0]].metadata["x0008103e"] as string);
 
   return series;
 };
