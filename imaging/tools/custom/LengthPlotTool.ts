@@ -119,6 +119,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     super(props, defaultProps);
     this.eventData;
     this.datahandles;
+    this.click = 0;
     this.abovehandles;
     this.belowhandles;
     this.borderRight;
@@ -141,7 +142,12 @@ export default class LengthPlotTool extends BaseAnnotationTool {
 
   handleMouseUp() {
     this.fixedOffset = this.configuration.offset;
-    this.measuring = false;
+    this.click = +1;
+    this.measuring =
+      this.datahandles?.end.x === this.datahandles?.start.x && this.click === 1
+        ? true
+        : false;
+
     const eventData = this.eventData;
 
     const handleData = (handles: Handles) => {
@@ -164,8 +170,9 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     const belowResults = handleData(this.belowhandles!);
     belowResults.color = "blue";
     const data = [handleData(this.datahandles!), aboveResults, belowResults];
-
-    this.createPlot(...data);
+    if (this.measuring === false) {
+      this.createPlot(...data);
+    }
   }
 
   createNewMeasurement(eventData: EventData) {
@@ -308,9 +315,8 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         }
         start = data.handles.start;
         end = data.handles.end;
-        console.log("END", data.handles.end);
         let offset =
-          this.measuring === true
+          this.measuring === true && data.handles.end.moving === true
             ? Math.abs(data.handles.start.y - data.handles.end.y)
             : this.fixedOffset;
         this.configuration.offset = offset;
@@ -473,6 +479,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     };
 
     const myPlotDiv = document.getElementById("myPlot");
+
     if (
       this.datahandles!.end.x! < this.borderLeft ||
       this.datahandles!.start.x! < this.borderLeft ||
