@@ -1,14 +1,14 @@
-/*
+/** @module imaging/tools/custom/watershedSegmentationTool
+ *  @desc  This file provides functionalities for
+ *         a watershed segmentation tool of selected features with
+ *         certain thresholds using a custom cornestone tool
  */
-//watershed segmentation is useful to segment features with distinguishable greyscale values that are
-//difficult to distinguish, in order to extract quantitative information
-//(see example here https://www.geeksforgeeks.org/image-segmentation-with-watershed-algorithm-opencv-python/)
 
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
 import cornerstone, { Image } from "cornerstone-core";
 import { each, extend } from "lodash";
-import cv, { bool } from "@techstark/opencv-js";
+import cv from "@techstark/opencv-js";
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(
@@ -34,62 +34,16 @@ import {
   calculateThresholds,
   shiftAndZeroOut
 } from "./WSUtils";
-import { ToolOptions } from "../types";
+import {
+  WSConfig,
+  WSToolConfig,
+  WSMouseEvent,
+  WSEventData,
+  CachedImage,
+  LabelMapType
+} from "../types";
 import { Series } from "../../types";
-interface WSConfig {
-  multiImage: boolean;
-  startIndex: number | null;
-  endIndex: number | null;
-  masksNumber: number;
-  onload?: boolean;
-}
-interface WSToolConfig {
-  name: string;
-  viewports: string | string[];
-  configuration: WSConfig;
-  options: ToolOptions;
-  class: string;
-  sync?: string;
-  cleanable?: boolean;
-  defaultActive?: boolean;
-  shortcut?: string;
-  type?: "utils" | "annotation" | "segmentation" | "overlay";
-  description?: string;
-  currentMode?: string;
-}
-interface WSMouseEvent {
-  detail: WSEventData;
-}
 
-interface WSEventData {
-  currentPoints: {
-    image: { x: number; y: number };
-  };
-  element: Element | HTMLElement;
-  buttons: number;
-  shiftKey: boolean;
-  event: {
-    altKey: boolean;
-    shiftKey: boolean;
-  };
-  image: Image;
-}
-interface CachedImage {
-  image: {
-    imageId: string;
-    getPixelData: () => number[];
-  };
-}
-
-interface LabelMapType {
-  pixelData?: number[];
-  labelmaps2D?: labelmaps2DType[];
-}
-
-interface labelmaps2DType {
-  pixelData: number[];
-  segmentsOnLabelmap: number[];
-}
 /**
  * @public
  * @class WSTool

@@ -59,7 +59,60 @@ export type ToolMouseKeys = {
     [key: string]: string;
   };
 };
+interface WSConfig {
+  multiImage: boolean;
+  startIndex: number | null;
+  endIndex: number | null;
+  masksNumber: number;
+  onload?: boolean;
+}
+interface WSToolConfig {
+  name: string;
+  viewports: string | string[];
+  configuration: WSConfig;
+  options: ToolOptions;
+  class: string;
+  sync?: string;
+  cleanable?: boolean;
+  defaultActive?: boolean;
+  shortcut?: string;
+  type?: "utils" | "annotation" | "segmentation" | "overlay";
+  description?: string;
+  currentMode?: string;
+}
+interface WSMouseEvent {
+  detail: WSEventData;
+}
 
+interface WSEventData {
+  currentPoints: {
+    image: { x: number; y: number };
+  };
+  element: Element | HTMLElement;
+  buttons: number;
+  shiftKey: boolean;
+  event: {
+    altKey: boolean;
+    shiftKey: boolean;
+  };
+  image: Image;
+}
+interface CachedImage {
+  image: {
+    imageId: string;
+    getPixelData: () => number[];
+  };
+}
+
+interface LabelMapType {
+  pixelData?: number[];
+  labelmaps2D?: labelmaps2DType[];
+}
+
+interface labelmaps2DType {
+  pixelData: number[];
+  segmentsOnLabelmap: number[];
+}
 type HandlePosition = {
   active?: boolean;
   allowedOutsideImage?: boolean;
@@ -229,7 +282,7 @@ export type SegmentationConfig = {
 export const enum MaskVisualizations {
   FILL,
   CONTOUR,
-  HIDDEN,
+  HIDDEN
 }
 
 export type MaskProperties = {

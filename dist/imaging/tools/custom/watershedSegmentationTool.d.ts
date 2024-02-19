@@ -1,47 +1,13 @@
-import cornerstone, { Image } from "cornerstone-core";
+/** @module imaging/tools/custom/watershedSegmentationTool
+ *  @desc  This file provides functionalities for
+ *         a watershed segmentation tool of selected features with
+ *         certain thresholds using a custom cornestone tool
+ */
+import { Image } from "cornerstone-core";
 import cv from "@techstark/opencv-js";
 declare const BaseBrushTool: any;
+import { WSConfig, WSMouseEvent, WSEventData, CachedImage, LabelMapType } from "../types";
 import { Series } from "../../types";
-interface WSConfig {
-    multiImage: boolean;
-    startIndex: number | null;
-    endIndex: number | null;
-    masksNumber: number;
-    onload?: boolean;
-}
-interface WSMouseEvent {
-    detail: WSEventData;
-}
-interface WSEventData {
-    currentPoints: {
-        image: {
-            x: number;
-            y: number;
-        };
-    };
-    element: Element | HTMLElement;
-    buttons: number;
-    shiftKey: boolean;
-    event: {
-        altKey: boolean;
-        shiftKey: boolean;
-    };
-    image: Image;
-}
-interface CachedImage {
-    image: {
-        imageId: string;
-        getPixelData: () => number[];
-    };
-}
-interface LabelMapType {
-    pixelData?: number[];
-    labelmaps2D?: labelmaps2DType[];
-}
-interface labelmaps2DType {
-    pixelData: number[];
-    segmentsOnLabelmap: number[];
-}
 /**
  * @public
  * @class WSTool
@@ -231,7 +197,7 @@ export default class WSToggleTool extends BaseBrushTool {
      * @returns {void}
      */
     _paintInit(evt: WSMouseEvent, eventData: WSEventData): {
-        image: cornerstone.Image;
+        image: Image;
         shouldEraseManually: boolean;
         shouldActivateLabelPicker: boolean | undefined;
         shouldApplyWatershed: boolean;

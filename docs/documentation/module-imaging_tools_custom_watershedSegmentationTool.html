@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>DragProbeTool - Larvitar</title>
+    <title>imaging/tools/custom/watershedSegmentationTool - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -44,7 +44,7 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 <div id="main">
     
-    <h1 class="page-title">DragProbeTool</h1>
+    <h1 class="page-title">imaging/tools/custom/watershedSegmentationTool</h1>
     
 
     
@@ -56,14 +56,8 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 <header>
     
-        <h2>
         
-            DragProbeTool
-        
-        </h2>
-        
-            <div class="class-description usertext"><p>Tool which provides a probe of the image data at the<br>
-input position on drag.</p></div>
+            
         
     
 </header>
@@ -73,25 +67,29 @@ input position on drag.</p></div>
         <div class="container-overview">
         
             
+                <div class="description usertext"><p>This file provides functionalities for<br>
+a watershed segmentation tool of selected features with<br>
+certain thresholds using a custom cornestone tool</p></div>
+            
 
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="DragProbeTool"><span class="type-signature"></span>new DragProbeTool<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
+            
+                
 
 
 
 
 <dl class="details">
     
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>This file provides functionalities for<br>
+a watershed segmentation tool of selected features with<br>
+certain thresholds using a custom cornestone tool</p></li></ul></dd>
+    
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line30953">line 30953</a>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line164816">line 164816</a>
     </li></ul></dd>
     
 
@@ -155,20 +153,10 @@ input position on drag.</p></div>
 
 
 
+            
         
         </div>
     
-
-    
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="Tools.Base.html#.BaseTool">Tools.Base.BaseTool</a></li>
-    </ul>
-
 
     
 
@@ -183,7 +171,1111 @@ input position on drag.</p></div>
     
 
     
+        <h3 class="subsection-title">Members</h3>
 
+        
+            
+<h4 class="name" id="~_WatershedSegmentation"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_ WatershedSegmentation<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Applies Watershed segmentation algorithm on pixel data using opencv.js<br>
+and evaluates the mask to apply to the original dicom image</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line165254">line 165254</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Applies Watershed segmentation algorithm on pixel data using opencv.js<br>
+and evaluates the mask to apply to the original dicom image</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_applyWatershedSegmentationMultiImage"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_applyWatershedSegmentationMultiImage<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>applies WS on multiple images from startindex to endindex</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line165205">line 165205</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>applies WS on multiple images from startindex to endindex</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_drawBrushPixels"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_drawBrushPixels<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Draws the WS mask on the original imae</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line165440">line 165440</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Draws the WS mask on the original imae</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_handleMouseMove"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_handleMouseMove<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Allows to get the canvas element when going over it with mouse<br>
+TODO check with multiple canvas and layouts</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line164909">line 164909</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Allows to get the canvas element when going over it with mouse<br>
+TODO check with multiple canvas and layouts</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_handleToggle"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_handleToggle<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>allow to toggle between single image or multiimage configuration</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line164962">line 164962</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>allow to toggle between single image or multiimage configuration</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_labelPicker"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_labelPicker<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Allows to pick a selected label parts when using alt+click for the first time</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line165497">line 165497</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Allows to pick a selected label parts when using alt+click for the first time</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_labelToErase"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_labelToErase<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Allows to erase selected label parts (evaluating the label that appears the most in the selected area) when using cntrl+click</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line165459">line 165459</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Allows to erase selected label parts (evaluating the label that appears the most in the selected area) when using cntrl+click</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_manualEraser"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_manualEraser<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Allows to erase selected label parts when using shift+click (allows to drag)</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line165483">line 165483</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Allows to erase selected label parts when using shift+click (allows to drag)</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_manualPainter"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_manualPainter<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Allows to associate the previously picked label on the selected label area when using alt+click for the second time</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line165515">line 165515</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Allows to associate the previously picked label on the selected label area when using alt+click for the second time</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_paint"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_paint<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Paints the data to the labelmap.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line165002">line 165002</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Paints the data to the labelmap.</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_processMultiImage"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_processMultiImage<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>applies the selected processtype on the current image</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line165044">line 165044</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>applies the selected processtype on the current image</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_processMultiImage"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_processMultiImage<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>applies the selected processtype on images</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line165112">line 165112</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>applies the selected processtype on images</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_resetData"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_resetData<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>initializes parameters that are useful in _paint() function</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line165538">line 165538</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>initializes parameters that are useful in _paint() function</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~_resetData"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_resetData<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>resets data when imaegId or seriesUID changes</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line165580">line 165580</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>resets data when imaegId or seriesUID changes</p>
+</div>
+
+
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="~_changeRadius"><span class="type-signature type-signature-protected, inner">(protected, inner) </span>_changeRadius<span class="signature">(evt)</span><span class="type-signature"> &rarr; {void}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Changes the radius of the brush</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line164930">line 164930</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>evt</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">scrollEvent</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The data object associated with the event.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
     
 
     
