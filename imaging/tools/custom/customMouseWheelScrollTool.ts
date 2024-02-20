@@ -14,7 +14,7 @@ const getToolState = cornerstoneTools.getToolState;
 import store, { set as setStore } from "../../imageStore";
 import { DEFAULT_TOOLS } from "../default";
 import { StoreViewport } from "../../types";
-import scrollToIndex from "./utils/customMouseWheelUtils";
+import scrollToIndex from "./utils/customMouseWheelScrollToolUtils/customMouseWheelUtils";
 import { getLarvitarImageTracker } from "../../loaders/commonLoader";
 import { getLarvitarManager } from "../../loaders/commonLoader";
 import { LarvitarManager, Series } from "../../types";

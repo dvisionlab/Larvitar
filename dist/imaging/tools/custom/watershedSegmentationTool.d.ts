@@ -4,9 +4,8 @@
  *         certain thresholds using a custom cornestone tool
  */
 import { Image } from "cornerstone-core";
-import cv from "@techstark/opencv-js";
 declare const BaseBrushTool: any;
-import { WSConfig, WSMouseEvent, WSEventData, CachedImage, LabelMapType } from "../types";
+import { WSConfig, WSMouseEvent, WSEventData, CachedImage, LabelMapType, pixelData3D } from "../types";
 import { Series } from "../../types";
 /**
  * @public
@@ -16,28 +15,19 @@ import { Series } from "../../types";
  * @extends Tools.Base.BaseBrushTool
  */
 export default class WSToggleTool extends BaseBrushTool {
-    lowerThreshold: number | null;
-    upperThreshold: number | null;
-    maskArray: number[][] | null;
-    maskArrayCurrentImage: number[] | null;
-    src: cv.Mat | null;
-    dicomPixelData: number[] | null;
-    minThreshold: number | null;
-    pixelData: number[][] | null;
-    seriesUID: string | null;
-    maxThreshold: number | null;
-    segmentIndex: number;
-    indexImage: number;
-    imageId: string | null;
-    seriesId: string | null;
-    labelToErase: number | null;
-    click: number;
-    labelToChange: number | null;
-    element: HTMLElement | null;
-    _lastImageCoords: {
-        x: number;
-        y: number;
-    } | null;
+    private maskArray;
+    private maskArrayCurrentImage;
+    private dicomPixelData;
+    private minThreshold;
+    private pixelData;
+    private seriesUID;
+    private maxThreshold;
+    private indexImage;
+    private imageId;
+    private labelToErase;
+    private click;
+    private labelToChange;
+    private element;
     configuration: WSConfig;
     constructor(props?: {});
     /**
@@ -54,7 +44,7 @@ export default class WSToggleTool extends BaseBrushTool {
      *@method
      * @name _changeRadius
      * @protected
-     * @param  {scrollEvent} evt The data object associated with the event.
+     * @param  {WheelEvent} evt The data object associated with the event.
      * @returns {void}
      */
     _changeRadius(evt: WheelEvent): void;
@@ -63,7 +53,8 @@ export default class WSToggleTool extends BaseBrushTool {
      * @override
      * @abstract
      * @event
-     * @param {Object} evt - The event.
+     * @param {WSMouseEvent} evt - The event.
+     * @returns {void}
      */
     mouseDragCallback(evt: WSMouseEvent): void;
     /**
@@ -71,9 +62,9 @@ export default class WSToggleTool extends BaseBrushTool {
      *@name _handleToggle
      * @protected
      * @param  {Boolean} isMultiImage if WS has to be applied to single image is false, else is true
-     * @param  {number} startIndex startindex if isMultiImage is true
-     * @param  {number} endIndex  endindex if isMultiImage is true
-     * @param  {number} masksNumber number of masks to be searched with WS
+     * @param  {number | undefined | null} startIndex startindex if isMultiImage is true
+     * @param  {number | undefined | null} endIndex  endindex if isMultiImage is true
+     * @param  {number | undefined | null} masksNumber number of masks to be searched with WS
      * @returns {void}
      */
     _handleToggle(isMultiImage: boolean, startIndex: number | undefined | null, endIndex: number | undefined | null, masksNumber: number | undefined | null): void;
@@ -81,19 +72,19 @@ export default class WSToggleTool extends BaseBrushTool {
      * Paints the data to the labelmap.
      *@name _paint
      * @protected
-     * @param  {ClickEvent} evt The data object associated with the event.
+     * @param  {WSMouseEvent} evt The data object associated with the event.
      * @returns {void}
      */
     _paint(evt: WSMouseEvent): Promise<void>;
     /**
      * applies the selected processtype on the current image
-     *@name _processMultiImage
+     *@name _processSingleImage
      * @protected
      * @param  {string} processType //process type "WS"/"LabelEraser"/"ManualEraser"/"LabelPicker"
-     * @param  {Object} labelmap2D
-     * @param  {ClickEvent} evt //click event
+     * @param  {LabelMapType} labelmap2D
+     * @param  {WSMouseEvent} evt //click event
      * @param  {Image} image //current image
-     * @param  {Number[][]} circleArray //circle array of selected area
+     * @param  {number[][]} circleArray //circle array of selected area
      *  @returns {void}
      */
     _processSingleImage(processType: string, labelmap2D: LabelMapType, evt: WSMouseEvent, image: Image, circleArray: number[][]): void;
@@ -102,34 +93,42 @@ export default class WSToggleTool extends BaseBrushTool {
      *@name _processMultiImage
      * @protected
      * @param  {string} processType //process type "WS"/"LabelEraser"/"ManualEraser"/"LabelPicker"
-     * @param  {Object} labelmap2D
-     * @param  {Object} labelmap3D
-     * @param  {ClickEvent} evt //click event
+     * @param  {LabelMapType} labelmap2D
+     * @param  {LabelMapType} labelmap3D
+     * @param  {WSMouseEvent} evt //click event
      * @param  {Image} image //current image
-     * @param  {Number[][]} circleArray //circle array of selected area
+     * @param  {number[][]} circleArray //circle array of selected area
      *  @returns {void}
      */
     _processMultiImage(processType: string, labelmap2D: LabelMapType, labelmap3D: LabelMapType, evt: WSMouseEvent, image: Image, circleArray: number[][]): void;
     /**
      * applies WS on multiple images from startindex to endindex
-     *@name _applyWatershedSegmentationMultiImage
+     * @name _applyWatershedSegmentationMultiImage
      * @protected
-     * @param  {Image[]} cachedImages
-     * @param  {string}ImageId
-     * @param  {number}startIndex
-     * @param  {number}endIndex
-     * @param  {number[]}dicomPixelData //current image
-     *  @returns {void}
+     * @param  {CachedImage[]} cachedImages
+     * @param  {number} startIndex
+     * @param  {number} endIndex
+     * @param  {number[]} dicomPixelData //current image
+     * @param  {number} minThreshold
+     * @param  {number} maxThreshold
+     * @param  {number} lowerThreshold
+     * @param  {number} upperThreshold
+     * @returns {Promise<void>}
      *
      */
     _applyWatershedSegmentationMultiImage(cachedImages: CachedImage[], startIndex: number, endIndex: number, dicomPixelData: number[], minThreshold: number, maxThreshold: number, lowerThreshold: number, upperThreshold: number): Promise<void>;
     /**
      * Applies Watershed segmentation algorithm on pixel data using opencv.js
      * and evaluates the mask to apply to the original dicom image
-     *@name _ WatershedSegmentation
+     *@name _applyWatershedSegmentation
      * @protected
-     * @param  {Mat} src The png matrix associated with the original pixel array
-     * @param  {Array} dicomPixelData The pixelDataArray obtained with dicomimage.getPixeldata()
+     * @param  {number} width The image width
+     * @param  {number} height The image height
+     * @param  {number[]} dicomPixelData The pixelDataArray obtained with dicomimage.getPixeldata()
+     * @param  {number} minThreshold The image min pixel greyscale value
+     * @param  {number} maxThreshold The image max pixel greyscale value
+     * @param  {number} lowerThreshold Lower threshold for WS
+     * @param  {number} upperThreshold Upper threshold for WS
      * @returns {void}
      */
     _applyWatershedSegmentation(width: number, height: number, dicomPixelData: number[], minThreshold: number, maxThreshold: number, lowerThreshold: number, upperThreshold: number): Promise<number[]>;
@@ -137,63 +136,57 @@ export default class WSToggleTool extends BaseBrushTool {
      * Draws the WS mask on the original imae
      *@name _drawBrushPixels
      * @protected
-     * @param  {Array} masks //The mask array retrieved from WS algorithm
-     * @param  {Array} pixelData //the original dicom image array
-     * @param  {Array} segmentIndex //the index of the mask, in order to identify different features and change color (from 1 to n)
-     *
-     * @returns {void}
+     * @param  {number[][]} masks //The mask array retrieved from WS algorithm
+     * @returns {pixelData3D}
      */
-    _drawBrushPixels(masks: number[][]): {
-        pixelData: number[];
-        segmentsOnLabelmap: number[];
-    }[];
+    _drawBrushPixels(masks: number[][]): pixelData3D;
     /**
      * Allows to erase selected label parts (evaluating the label that appears the most in the selected area) when using cntrl+click
      *@name _labelToErase
      * @protected
-     * @param  {Array} circleArray //The selected circle coordinates Array
-     * @param  {Array} maskArray //the mask array of the last WS segmentation
+     * @param  {number[][]} circleArray //The selected circle coordinates Array
+     * @param  {number[]} maskArray //the mask array of the last WS segmentation
      * @param  {Image} image //the dicom image
-     *
+     * @param  {number[]} slicei //the i-th slice where the label is erased
      * @returns {void}
      */
     _labelToErase(circleArray: number[][], selectedSlice: number[], image: Image, slicei: number[]): void;
     /**
      * Allows to erase selected label parts when using shift+click (allows to drag)
-     *@name _manualEraser
+     * @name _manualEraser
      * @protected
-     * @param  {Array} circleArray //The selected circle coordinates Array
+     * @param  {number[][]} circleArray //The selected circle coordinates Array
      * @param  {Image} image //the dicom image
-     *
+     * @param  {number[]} slicei //the i-th slice where the manual eraser is applied
      * @returns {void}
      */
-    _manualEraser(circleArray: number[][], image: Image, array: number[]): void;
+    _manualEraser(circleArray: number[][], image: Image, slicei: number[]): void;
     /**
      * Allows to pick a selected label parts when using alt+click for the first time
      *@name _labelPicker
      * @protected
-     * @param  {Array} circleArray //The selected circle coordinates Array
+     * @param  {number[][]} circleArray //The selected circle coordinates Array
      * @param  {Image} image //the dicom image
-     *
+     * @param  {number[]} currentArray //the current image array
      * @returns {void}
      */
     _labelPicker(circleArray: number[][], image: Image, currentArray: number[]): void;
     /**
      * Allows to associate the previously picked label on the selected label area when using alt+click for the second time
-     *@name _manualPainter
+     * @name _manualPainter
      * @protected
-     * @param  {Array} circleArray //The selected circle coordinates Array
+     * @param  {number[][]} circleArray //The selected circle coordinates Array
      * @param  {Image} image //the dicom image
-     *
+     * @param  {number[]} array //the current image array where to apply manual painter
      * @returns {void}
      */
     _manualPainter(circleArray: number[][], image: Image, array: number[]): void;
     /**
      * initializes parameters that are useful in _paint() function
-     *@name _resetData
+     *@name  _paintInit
      * @protected
-     * @param  {ClickEvent} evt
-     * @param  {Object} eventData
+     * @param  {WSMouseEvent} evt
+     * @param  {WSEventData} eventData
      * @returns {void}
      */
     _paintInit(evt: WSMouseEvent, eventData: WSEventData): {
@@ -208,6 +201,7 @@ export default class WSToggleTool extends BaseBrushTool {
      *@name _resetData
      * @protected
      * @param  {string} seriesUID
+     * @param  {Series} stackData
      * @returns {void}
      */
     _resetData(seriesUID: string, stackData: Series): void;

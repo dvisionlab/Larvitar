@@ -59,14 +59,14 @@ export type ToolMouseKeys = {
     [key: string]: string;
   };
 };
-interface WSConfig {
+export type WSConfig = {
   multiImage: boolean;
   startIndex: number | null;
   endIndex: number | null;
   masksNumber: number;
   onload?: boolean;
-}
-interface WSToolConfig {
+};
+export type WSToolConfig = {
   name: string;
   viewports: string | string[];
   configuration: WSConfig;
@@ -79,10 +79,11 @@ interface WSToolConfig {
   type?: "utils" | "annotation" | "segmentation" | "overlay";
   description?: string;
   currentMode?: string;
-}
-interface WSMouseEvent {
+};
+
+export type WSMouseEvent = {
   detail: WSEventData;
-}
+};
 
 interface WSEventData {
   currentPoints: {
@@ -97,22 +98,27 @@ interface WSEventData {
   };
   image: Image;
 }
-interface CachedImage {
+export type pixelData3D = {
+  pixelData: number[];
+  segmentsOnLabelmap: number[];
+}[];
+
+export type CachedImage = {
   image: {
     imageId: string;
     getPixelData: () => number[];
   };
-}
+};
 
-interface LabelMapType {
+export type LabelMapType = {
   pixelData?: number[];
   labelmaps2D?: labelmaps2DType[];
-}
+};
 
-interface labelmaps2DType {
+export type labelmaps2DType = {
   pixelData: number[];
   segmentsOnLabelmap: number[];
-}
+};
 type HandlePosition = {
   active?: boolean;
   allowedOutsideImage?: boolean;
