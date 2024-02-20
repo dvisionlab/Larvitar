@@ -187,6 +187,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.renderToolData(evt);
   }
   createNewMeasurement(eventData: EventData) {
+    this.configuration.offset = 0;
     this.eventData = eventData;
     clearToolData(eventData.element, this.name);
     if (this.datahandles) {
