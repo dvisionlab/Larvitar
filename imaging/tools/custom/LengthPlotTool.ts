@@ -329,9 +329,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       let start: HandlePosition;
       let end: HandlePosition;
 
-      console.log("rendering tool data", toolData.data);
-      console.countReset("draw");
-
       for (let i = 0; i < toolData.data.length; i++) {
         const data = toolData.data[i];
 
@@ -340,13 +337,18 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         }
 
         draw(this.context, (context: CanvasRenderingContext2D) => {
-          console.count("draw");
-
           setShadow(context, this.configuration);
 
           const color = toolColors.getColorIfActive(data);
 
-          const lineOptions: { color: string; lineDash?: boolean } = { color };
+          const lineOptions: {
+            color: string;
+            lineDash?: boolean;
+            lineWidth: number;
+          } = {
+            color,
+            lineWidth: 3
+          };
 
           if (renderDashed) {
             lineOptions.lineDash = lineDash;
@@ -385,8 +387,8 @@ export default class LengthPlotTool extends BaseAnnotationTool {
             end: { x: end.x, y: end.y + offset }
           };
 
-          const abovelineOptions = { color: "red" };
-          const belowlineOptions = { color: "blue" };
+          const abovelineOptions = { color: "red", lineWidth: 3 };
+          const belowlineOptions = { color: "blue", lineWidth: 3 };
 
           drawLine(
             context,
@@ -405,9 +407,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
 
           const handleOptions = {
             color,
-            handleRadius,
+            handleRadius: 6,
             drawHandlesIfActive: drawHandlesOnHover,
-            hideHandlesIfMoving
+            hideHandlesIfMoving,
+            fill: color
           };
 
           if (this.configuration.drawHandles) {
@@ -415,6 +418,20 @@ export default class LengthPlotTool extends BaseAnnotationTool {
             this.datahandles = data.handles;
             this.abovehandles = aboveHandles;
             this.belowhandles = belowHandles;
+            drawHandles(context, this.evt.detail, aboveHandles, {
+              color: "red",
+              handleRadius: 3,
+              drawHandlesIfActive: drawHandlesOnHover,
+              hideHandlesIfMoving,
+              fill: "red"
+            });
+            drawHandles(context, this.evt.detail, belowHandles, {
+              color: "blue",
+              handleRadius: 3,
+              drawHandlesIfActive: drawHandlesOnHover,
+              hideHandlesIfMoving,
+              fill: "blue"
+            });
           }
         });
       }

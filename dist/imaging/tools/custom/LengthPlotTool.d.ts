@@ -107,7 +107,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         y: number;
     }): boolean;
     updateCachedStats(image: cornerstone.Image, element: HTMLElement, data: data): void;
-    renderToolData(evt: ToolMouseEvent | WheelEvent): Promise<void>;
+    renderToolData(evt: ToolMouseEvent | WheelEvent): void;
     getPointsAlongLine(startHandle: HandlePosition, endHandle: HandlePosition, colPixelSpacing: number): number[];
     getPixelValuesAlongLine(startHandle: HandlePosition, points: number[], colPixelSpacing: number, eventData: EventData): number[];
     createPlot(...dataSets: {
