@@ -8,7 +8,6 @@
 import cornerstoneTools from "cornerstone-tools";
 import cornerstone, { Image } from "cornerstone-core";
 import { each, extend } from "lodash";
-declare var cv: any;
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(
@@ -37,6 +36,9 @@ import {
   pixelData3D
 } from "../types";
 import { Series } from "../../types";
+
+//global variable
+declare var cv: any; //opencv-js
 
 /*
  * This tool provides the following class to be exported: WSToggleTool
@@ -88,7 +90,7 @@ export default class WSToggleTool extends BaseBrushTool {
       console.log("OpenCV has been successfully imported.");
       // You can use OpenCV functions here
     } else {
-      console.warn(
+      console.error(
         'OpenCV has not been imported. Tool will not work. Please import src="https://docs.opencv.org/4.5.4/opencv.js" in your HTML'
       );
     }
