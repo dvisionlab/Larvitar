@@ -17,11 +17,13 @@ const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
 );
-import { cloneDeep } from "lodash";
+
 //internal imports
 import { HandlePosition } from "../types";
 
 //interfaces/types
+
+type dataSets = { points: number[]; pixelValues: number[]; color: string }[];
 type PixelSpacing = {
   rowPixelSpacing: number;
   colPixelSpacing: number;
@@ -37,6 +39,7 @@ interface data {
 interface Handles {
   start: HandlePosition;
   end: HandlePosition;
+  offset: number;
   textBox?: {
     active: boolean;
     hasMoved: boolean;
@@ -50,9 +53,13 @@ interface ToolMouseEvent {
   detail: EventData;
   currentTarget: any;
 }
+interface Coords {
+  x: number;
+  y: number;
+}
 interface EventData {
   currentPoints: {
-    image: { x: number; y: number };
+    image: Coords;
   };
   element: HTMLElement;
   buttons: number;
@@ -74,7 +81,20 @@ interface PlotlyData {
     color: string;
   };
 }
-// import cornerstoneTools from "cornerstone-tools";
+
+/*
+ * This module provides the following Tools to be exported:
+ * LengthPlotTool
+ */
+
+/**
+ * @public
+ * @class LengthPlotTool
+ * @memberof cornerstoneTools
+ * @classdesc Tool for tracing 3 lines with a configurable offset
+ * and draw the plot of greyscale values along the lines
+ * @extends cornerstoneTools.Base.BaseTool
+ */
 export default class LengthPlotTool extends BaseAnnotationTool {
   name: string = "LengthPlot";
   eventData?: EventData;
@@ -127,7 +147,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.context;
     this.wheelactive = false;
     this.currentTarget = null;
-    this.fixedOffset = this.configuration.offset;
+    this.fixedOffset = 0;
     this.plotlydata = [];
     this.measuring = false;
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -135,17 +155,20 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
 
-  getRandomColor() {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
+  //internal class functions
 
+  /**
+   * handles Mouse Up listener (to create the final plot)
+   * @method
+   * @name handleMouseUp
+   * @returns {void}
+   */
   handleMouseUp() {
-    this.fixedOffset = this.configuration.offset;
+    const toolData: { data: data[] } = getToolState(
+      this.currentTarget,
+      this.name
+    );
+    this.fixedOffset = toolData.data[toolData.data.length - 1].handles.offset;
     this.click = +1;
     this.measuring =
       this.datahandles?.end.x === this.datahandles?.start.x && this.click === 1
@@ -179,18 +202,48 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     }
   }
 
+  /**
+   * allows to change the offset between the three lines
+   * @method
+   * @name changeOffset
+   * @param {WheelEvent} evt
+   * @returns {void}
+   */
   changeOffset(evt: WheelEvent) {
-    const { deltaY } = evt;
+    const toolData: { data: data[] } = getToolState(
+      this.currentTarget,
+      this.name
+    );
+    if (toolData) {
+      const index = toolData.data.findIndex(obj => obj.active === true);
+      const indexTracing = toolData.data.findIndex(
+        obj => obj.handles.end.moving === true
+      );
 
-    this.configuration.offset += deltaY > 0 ? 1 : -1;
-    evt.preventDefault(); //modify custom mouse scroll to not interefere with ctrl+wheel
-    this.renderToolData(evt);
+      if (
+        toolData.data.length != 0 &&
+        (index != undefined || indexTracing != undefined) &&
+        toolData.data[index] != undefined
+      ) {
+        const { deltaY } = evt;
 
-    cornerstone.updateImage(this.eventData!.element);
+        toolData.data[index].handles.offset += deltaY > 0 ? 1 : -1;
+        evt.preventDefault(); //modify custom mouse scroll to not interefere with ctrl+wheel
+        this.renderToolData(evt);
+
+        cornerstone.updateImage(this.eventData!.element);
+      }
+    }
   }
 
+  /**
+   * Creates new measurement on click
+   * @method
+   * @name createNewMeasurement
+   * @param {EventData} eventData
+   * @returns {void}
+   */
   createNewMeasurement(eventData: EventData) {
-    this.configuration.offset = 0;
     this.eventData = eventData;
     clearToolData(eventData.element, this.name);
     if (this.datahandles) {
@@ -223,6 +276,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       active: true,
       color: color,
       invalidated: true,
+
       handles: {
         start: {
           x,
@@ -243,16 +297,22 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           drawnIndependently: true,
           allowedOutsideImage: true,
           hasBoundingBox: true
-        }
+        },
+        offset: 0
       }
     };
   }
 
-  pointNearTool(
-    element: HTMLElement,
-    data: data,
-    coords: { x: number; y: number }
-  ) {
+  /**
+   * Identifies when the cursor is near the tool data
+   * @method
+   * @name pointNearTool
+   * @param {HTMLElement} element
+   * @param {data} data
+   * @param {Coords} coords
+   * @returns {boolean}
+   */
+  pointNearTool(element: HTMLElement, data: data, coords: Coords) {
     const hasStartAndEndHandles =
       data && data.handles && data.handles.start && data.handles.end;
     const validParameters = hasStartAndEndHandles;
@@ -274,6 +334,15 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     );
   }
 
+  /**
+   * Updates stats of line length
+   * @method
+   * @name updateCachedStats
+   * @param {cornerstone.Image} image
+   * @param {HTMLElement} element
+   * @param {data} data
+   * @returns {boolean}
+   */
   updateCachedStats(
     image: cornerstone.Image,
     element: HTMLElement,
@@ -293,6 +362,13 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     data.invalidated = false;
   }
 
+  /**
+   * Renders the data (new line/modified line)
+   * @method
+   * @name updateCachedStats
+   * @param {ToolMouseEvent | WheelEvent} evt
+   * @returns {void}
+   */
   renderToolData(evt: ToolMouseEvent | WheelEvent) {
     if (evt.detail) {
       this.evt = evt;
@@ -356,17 +432,18 @@ export default class LengthPlotTool extends BaseAnnotationTool {
 
           start = data.handles.start;
           end = data.handles.end;
-
-          let offset =
+          if (
+            this.measuring === false &&
+            this.wheelactive === true &&
+            data.active === true
+          ) {
+            this.fixedOffset = data.handles.offset;
+          }
+          data.handles.offset =
             (this.measuring === true && data.handles.end.moving === true) ||
             this.wheelactive === true
-              ? this.configuration.offset
+              ? data.handles.offset
               : this.fixedOffset;
-
-          this.configuration.offset = offset;
-          if (this.measuring === false && this.wheelactive === true) {
-            this.fixedOffset = offset;
-          }
 
           //data.handles.end.y = data.handles.start.y;
           drawLine(
@@ -378,13 +455,15 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           );
 
           const aboveHandles: Handles = {
-            start: { x: start.x, y: start.y - offset },
-            end: { x: end.x, y: end.y - offset }
+            start: { x: start.x, y: start.y - data.handles.offset },
+            end: { x: end.x, y: end.y - data.handles.offset },
+            offset: data.handles.offset
           };
 
           const belowHandles: Handles = {
-            start: { x: start.x, y: start.y + offset },
-            end: { x: end.x, y: end.y + offset }
+            start: { x: start.x, y: start.y + data.handles.offset },
+            end: { x: end.x, y: end.y + data.handles.offset },
+            offset: data.handles.offset
           };
 
           const abovelineOptions = { color: "red", lineWidth: 3 };
@@ -438,6 +517,15 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     }
   }
 
+  /**
+   * Retrieves the points along the line
+   * @method
+   * @name getPointsAlongLine
+   * @param {HandlePosition} startHandle
+   * @param {HandlePosition} endHandle
+   * @param {number} colPixelSpacing
+   * @returns {number[]}
+   */
   getPointsAlongLine(
     startHandle: HandlePosition,
     endHandle: HandlePosition,
@@ -468,6 +556,16 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     return points;
   }
 
+  /**
+   * Retrieves the pixel greyscale values along the line
+   * @method
+   * @name getPixelValuesAlongLine
+   * @param {HandlePosition} startHandle
+   * @param {number[]} points
+   * @param {number} colPixelSpacing
+   * @param {EventData} eventData
+   * @returns {void}
+   */
   getPixelValuesAlongLine(
     startHandle: HandlePosition,
     points: number[],
@@ -499,9 +597,14 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     return pixelValues;
   }
 
-  createPlot(
-    ...dataSets: { points: number[]; pixelValues: number[]; color: string }[]
-  ) {
+  /**
+   * Creates the plot: coords-greyscale value
+   * @method
+   * @name createPlot
+   * @param {dataSets} dataSets
+   * @returns {void}
+   */
+  createPlot(...dataSets: dataSets) {
     const traces = dataSets.map(({ points, pixelValues, color }) => ({
       x: points,
       y: pixelValues,
@@ -551,6 +654,14 @@ export default class LengthPlotTool extends BaseAnnotationTool {
   }
 }
 
+/**
+ * Clears the tool's data
+ * @method
+ * @name clearToolData
+ * @param {HTMLElement } element
+ * @param {string } toolName
+ * @returns {void}
+ */
 function clearToolData(element: HTMLElement, toolName: string) {
   const toolData: { data: data[] } = getToolState(element, toolName);
 
