@@ -75,6 +75,8 @@ import {
 
 import { anonymize } from "./imaging/imageAnonymization";
 
+import { customizeByteArray } from "./imaging/imageCustomization";
+
 import {
   buildLayer,
   updateLayer,
@@ -305,6 +307,8 @@ export {
   exportImageToBase64OriginalSizes,
   // imageAnonymization
   anonymize,
+  //imageCustomization
+  customizeByteArray,
   // imageLayers
   buildLayer,
   updateLayer,

@@ -2,7 +2,7 @@ import { vec2 } from "cornerstone-core";
 import { DataSet } from "dicom-parser";
 import { MetaDataTypes } from "./MetaDataTypes";
 import { MetaDataReadable } from "./MetaDataReadable";
-
+import { Element } from "dicom-parser";
 // TODO-ts: differentiate each single metadata @szanchi
 /*export type MetadataValue =
   | string
@@ -13,7 +13,24 @@ import { MetaDataReadable } from "./MetaDataReadable";
   | null
   | Array
   | undefined; // null or undefined is only for nrrd*/
+
+export type tags = { [x: string]: Element }[];
+
+export type customTags = {
+  tag: string;
+  value: string;
+  offset: number;
+  index: number;
+}[];
+
+export type sortedTags = {
+  sortedTags: tags;
+  sortedCustomTags: customTags;
+  shiftTotal: number;
+};
+
 export type pdfType = { getPage: function; numPages: number };
+
 export type StoreViewport = {
   loading: number;
   ready: boolean;
