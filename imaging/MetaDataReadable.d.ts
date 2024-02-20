@@ -36,7 +36,7 @@ export type MetaDataReadable = {
   windowWidth?: number | number[];
   minPixelValue?: number;
   maxPixelValue?: number;
-  length?: number;
+  pixelDataLength?: number;
   repr?: string | null;
   mimeType?: string;
 };

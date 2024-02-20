@@ -373,7 +373,6 @@ const parseFile = function (file: File) {
             pdfObject.metadata.numberOfTemporalPositions = 0;
             resolve(pdfObject as ImageObject);
           } else {
-            // done, pixelDataElement found
             let instanceUID = metadata["x00080018"] || randomId();
             let imageObject: Partial<ImageObject> = {
               // data needed for rendering
@@ -431,9 +430,11 @@ const parseFile = function (file: File) {
             imageObject.metadata.windowWidth = metadata["x00281051"];
             imageObject.metadata.minPixelValue = metadata["x00280106"];
             imageObject.metadata.maxPixelValue = metadata["x00280107"];
-            imageObject.metadata.length = pixelDataElement
+            // check if pixelDataElement is found, if not sets pixelData.length=0
+            //means that it is a metadata-only object
+            imageObject.metadata.pixelDataLength = pixelDataElement //pixelDataLength
               ? pixelDataElement.length
-              : 0; //if is 0 means that it is a metadata-only object
+              : 0;
             imageObject.metadata.repr = getPixelRepresentation(dataSet);
             console.log(imageObject);
             resolve(imageObject as ImageObject);

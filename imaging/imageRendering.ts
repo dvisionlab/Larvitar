@@ -103,7 +103,8 @@ export function loadAndCacheImage(
   const imageId: string | undefined = series.imageIds[imageIndex];
 
   const cachePromise = new Promise<true>((resolve, reject) => {
-    if (imageId && series.instances[imageId].metadata.length != 0) {
+    //check if it is a metadata-only object
+    if (imageId && series.instances[imageId].metadata.pixelDataLength != 0) {
       cornerstone.loadAndCacheImage(imageId).then(function () {
         const t1 = performance.now();
         console.log(`Call to cacheImages took ${t1 - t0} milliseconds.`);
@@ -112,7 +113,7 @@ export function loadAndCacheImage(
         );
         resolve(true);
       });
-    } else if (series.instances[imageId].metadata.length === 0) {
+    } else if (series.instances[imageId].metadata.pixelDataLength === 0) {
       reject(`File ${imageIndex}, has no Pixel Data available`);
     } else {
       reject(`Error: wrong image index ${imageIndex}, no imageId available`);
@@ -166,12 +167,13 @@ export function loadAndCacheImages(
   }
 
   each(series.imageIds, function (imageId: string | undefined, index: number) {
-    if (imageId && series.instances[imageId].metadata.length != 0) {
+    //check if it is a metadata-only object
+    if (imageId && series.instances[imageId].metadata.pixelDataLength != 0) {
       cornerstone.loadAndCacheImage(imageId).then(function () {
         updateProgress();
         callback(response);
       });
-    } else if (series.instances[imageId!].metadata.length === 0) {
+    } else if (series.instances[imageId!].metadata.pixelDataLength === 0) {
       updateProgress();
       console.warn(`File ${index} has no Pixel Data`);
     } else {
@@ -481,7 +483,8 @@ export const renderImage = function (
   }
 
   const renderPromise = new Promise<true>((resolve, reject) => {
-    if (series.instances[data.imageId!].metadata.length != 0) {
+    //check if it is a metadata-only object
+    if (series.instances[data.imageId!].metadata.pixelDataLength != 0) {
       // load and display one image (imageId)
       cornerstone.loadImage(data.imageId as string).then(function (image) {
         if (!element) {
@@ -631,7 +634,8 @@ export const updateImage = async function (
     isDSAEnabled === true
       ? series.dsa!.imageIds[imageIndex]
       : series.imageIds[imageIndex];
-  if (series.instances[imageId].metadata.length != 0) {
+  //check if it is a metadata-only object
+  if (series.instances[imageId].metadata.pixelDataLength != 0) {
     if (isDSAEnabled === true) {
       // get the optional custom pixel shift
       const pixelShift = store.get(["viewports", id, "pixelShift"]);
