@@ -75,6 +75,7 @@ Once you are done, upgrade the version (README and package.json) and build the l
 - `index` main file
 - `dataDictionary` json file for dicom tags
 - `imageAnonymization` provides anonymization functionalities
+- `imageCustomization` provides Byte Array customization functionalities
 - `imageColormaps` provides color maps functionalities
 - `imageContours` using to populate cornerstone tool for segmentation contours on 2D images
 - `imageIo` import a dicom image in .nrrd format and build contiguous array for exporting data as volume
