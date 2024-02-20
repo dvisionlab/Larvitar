@@ -44,12 +44,10 @@ export const customizeByteArray = function (
       series.isMultiframe === true
         ? series.dataSet
         : series.instances[imageId].dataSet;
-    console.log(dataSet);
     let metadata =
       series.isMultiframe === true
         ? series.metadata
         : series.instances[imageId].metadata;
-    console.log(metadata);
     if (dataSet && metadata) {
       //sort custom tags from lowest offset to highest one
 
