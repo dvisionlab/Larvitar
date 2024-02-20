@@ -8,7 +8,7 @@
 import cornerstoneTools from "cornerstone-tools";
 import cornerstone, { Image } from "cornerstone-core";
 import { each, extend } from "lodash";
-import cv from "@techstark/opencv-js";
+declare var cv: any;
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(
@@ -84,7 +84,14 @@ export default class WSToggleTool extends BaseBrushTool {
     };
 
     super(props, defaultProps);
-
+    if (typeof cv !== "undefined" && cv !== null) {
+      console.log("OpenCV has been successfully imported.");
+      // You can use OpenCV functions here
+    } else {
+      console.warn(
+        'OpenCV has not been imported. Tool will not work. Please import src="https://docs.opencv.org/4.5.4/opencv.js" in your HTML'
+      );
+    }
     this._handleMouseMove = this._handleMouseMove.bind(this);
     document.addEventListener("mousemove", this._handleMouseMove);
     setSegmentationConfig({

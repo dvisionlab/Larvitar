@@ -1,4 +1,3 @@
-import cv from "@techstark/opencv-js";
 import { Image } from "cornerstone-core";
 /**
  * Allows to map a value to range 0,255 (8bit, png)
@@ -37,25 +36,6 @@ export declare function calculateThresholds(image: Image, dicomPixelData: number
  * @returns {void}
  */
 export declare function shiftAndZeroOut(array: number[], minAppearance: number): number[];
-/**
- * pre processes the image before WS
- * @name preProcess
- * @protected
- * @param  {cv.Mat} gray The processed image cv.Mat in greyscale values
- * @param  {cv.Mat} src The image cv.Mat
- * @returns {void}
- */
-export declare function preProcess(gray: cv.Mat, src: cv.Mat): any[];
-/**
- * Post processes the markers after WS //TODO check errors in drawContours
- * @name postProcess
- * @protected
- * @param  {cv.Mat} markers //The mask array retrieved from WS algorithm
- * @param  {cv.Mat} gray
- * @param  {number[]} markersArray
- * @returns {cv.Mat}
- */
-export declare function postProcess(markers: cv.Mat, gray: cv.Mat, markersArray: number[]): number[];
 /**
  * Allows to calculate stats such as mean and stddev of the selected circle area
  * @name calculateStats
