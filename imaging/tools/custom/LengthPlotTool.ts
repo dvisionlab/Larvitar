@@ -125,6 +125,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.borderLeft = 0;
     this.evt;
     this.context;
+    this.wheelactive = false;
     this.currentTarget = null;
     this.fixedOffset = this.configuration.offset;
     this.plotlydata = [];
@@ -179,7 +180,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
   }
 
   changeOffset(evt: WheelEvent) {
-    this.wheelactive = true;
     const { deltaY } = evt;
 
     this.configuration.offset += deltaY > 0 ? 1 : -1;
@@ -189,6 +189,14 @@ export default class LengthPlotTool extends BaseAnnotationTool {
   createNewMeasurement(eventData: EventData) {
     this.eventData = eventData;
     clearToolData(eventData.element, this.name);
+    if (this.datahandles) {
+      eventData.element.removeEventListener("mouseup", () =>
+        this.handleMouseUp()
+      );
+      eventData.element.removeEventListener("wheel", evt =>
+        this.changeOffset(evt)
+      );
+    }
     eventData.element.addEventListener("mouseup", () => this.handleMouseUp());
     eventData.element.addEventListener("wheel", evt => this.changeOffset(evt));
 
@@ -285,6 +293,9 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     if (evt.detail) {
       this.evt = evt;
       this.currentTarget = evt.currentTarget;
+      this.wheelactive = false;
+    } else {
+      this.wheelactive = true;
     }
     if (this.evt) {
       const element = this.evt.detail.element;
@@ -333,11 +344,13 @@ export default class LengthPlotTool extends BaseAnnotationTool {
 
           end = data.handles.end;
           let offset =
-            this.measuring === true && data.handles.end.moving === true
+            (this.measuring === true && data.handles.end.moving === true) ||
+            this.wheelactive === true
               ? this.configuration.offset
               : this.fixedOffset;
-          if (this.measuring === false || data.handles.end.moving === false) {
-            this.configuration.offset = offset;
+          this.configuration.offset = offset;
+          if (this.measuring === false && this.wheelactive === true) {
+            this.fixedOffset = offset;
           }
 
           //data.handles.end.y = data.handles.start.y;
