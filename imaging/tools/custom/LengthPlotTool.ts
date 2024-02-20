@@ -17,10 +17,9 @@ const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
 );
-
+import { cloneDeep } from "lodash";
 //internal imports
 import { HandlePosition } from "../types";
-import { DEFAULT_TOOLS } from "../default";
 
 //interfaces/types
 type PixelSpacing = {
@@ -124,10 +123,14 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.belowhandles;
     this.borderRight;
     this.borderLeft = 0;
+    this.evt;
+    this.context;
+    this.currentTarget = null;
     this.fixedOffset = this.configuration.offset;
     this.plotlydata = [];
     this.measuring = false;
     this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.changeOffset = this.changeOffset.bind(this);
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
 
@@ -175,10 +178,20 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     }
   }
 
+  changeOffset(evt: WheelEvent) {
+    this.wheelactive = true;
+    const { deltaY } = evt;
+
+    this.configuration.offset += deltaY > 0 ? 1 : -1;
+    evt.preventDefault(); //modify custom mouse scroll to not interefere with ctrl+wheel
+    this.renderToolData(evt);
+  }
   createNewMeasurement(eventData: EventData) {
     this.eventData = eventData;
     clearToolData(eventData.element, this.name);
     eventData.element.addEventListener("mouseup", () => this.handleMouseUp());
+    eventData.element.addEventListener("wheel", evt => this.changeOffset(evt));
+
     this.measuring = true;
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
@@ -268,122 +281,142 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     data.invalidated = false;
   }
 
-  renderToolData(evt: ToolMouseEvent) {
-    const eventData = evt.detail;
-    const { element } = eventData;
-    this.borderRight = eventData.image.width;
-    const {
-      handleRadius,
-      drawHandlesOnHover,
-      hideHandlesIfMoving,
-      renderDashed
-    } = this.configuration;
-    const toolData: { data: data[] } = getToolState(
-      evt.currentTarget,
-      this.name
-    );
-
-    if (!toolData) {
-      return;
+  async renderToolData(evt: ToolMouseEvent | WheelEvent) {
+    if (evt.detail) {
+      this.evt = evt;
+      this.currentTarget = evt.currentTarget;
     }
+    if (this.evt) {
+      const element = this.evt.detail.element;
+      this.borderRight = this.evt.detail.image.width;
 
-    const context: CanvasRenderingContext2D = getNewContext(
-      eventData.canvasContext.canvas
-    );
+      const {
+        handleRadius,
+        drawHandlesOnHover,
+        hideHandlesIfMoving,
+        renderDashed
+      } = this.configuration;
+      const toolData: { data: data[] } = getToolState(
+        this.currentTarget,
+        this.name
+      );
 
-    const lineDash: boolean = getModule("globalConfiguration").configuration
-      .lineDash;
-    let start: HandlePosition;
-    let end: HandlePosition;
-
-    for (let i = 0; i < toolData.data.length; i++) {
-      const data = toolData.data[i];
-
-      if (data.visible === false) {
-        continue;
+      if (!toolData) {
+        return;
       }
+      console.log(this.evt.detail.canvasContext.canvas);
+      this.context = getNewContext(this.evt.detail.canvasContext.canvas);
 
-      draw(context, (context: CanvasRenderingContext2D) => {
-        setShadow(context, this.configuration);
+      const lineDash: boolean = getModule("globalConfiguration").configuration
+        .lineDash;
+      let start: HandlePosition;
+      let end: HandlePosition;
 
-        const color = toolColors.getColorIfActive(data);
+      for (let i = 0; i < toolData.data.length; i++) {
+        const data = toolData.data[i];
 
-        const lineOptions: { color: string; lineDash?: boolean } = { color };
-
-        if (renderDashed) {
-          lineOptions.lineDash = lineDash;
+        if (data.visible === false) {
+          continue;
         }
-        start = data.handles.start;
-        end = data.handles.end;
-        let offset =
-          this.measuring === true && data.handles.end.moving === true
-            ? Math.abs(data.handles.start.y - data.handles.end.y)
-            : this.fixedOffset;
-        this.configuration.offset = offset;
-        data.handles.end.y = data.handles.start.y;
-        drawLine(
-          context,
-          element,
-          data.handles.start,
-          data.handles.end,
-          lineOptions
-        );
 
-        const aboveHandles: Handles = {
-          start: { x: start.x, y: start.y - offset },
-          end: { x: end.x, y: end.y - offset }
-        };
+        draw(this.context, (context: CanvasRenderingContext2D) => {
+          setShadow(context, this.configuration);
 
-        const belowHandles: Handles = {
-          start: { x: start.x, y: start.y + offset },
-          end: { x: end.x, y: end.y + offset }
-        };
+          const color = toolColors.getColorIfActive(data);
 
-        const abovelineOptions = { color: "red" };
-        const belowlineOptions = { color: "blue" };
-        drawLine(
-          context,
-          element,
-          aboveHandles.start,
-          aboveHandles.end,
-          abovelineOptions
-        );
-        drawLine(
-          context,
-          element,
-          belowHandles.start,
-          belowHandles.end,
-          belowlineOptions
-        );
+          const lineOptions: { color: string; lineDash?: boolean } = { color };
 
-        const handleOptions = {
-          color,
-          handleRadius,
-          drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving
-        };
-        const abovehandleOptions = {
-          color: abovelineOptions.color,
-          handleRadius,
-          drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving
-        };
-        const belowhandleOptions = {
-          color: belowlineOptions.color,
-          handleRadius,
-          drawHandlesIfActive: drawHandlesOnHover,
-          hideHandlesIfMoving
-        };
+          if (renderDashed) {
+            lineOptions.lineDash = lineDash;
+          }
+          start = data.handles.start;
 
-        if (this.configuration.drawHandles) {
-          drawHandles(context, eventData, data.handles, handleOptions);
-          this.datahandles = data.handles;
-          this.abovehandles = aboveHandles;
-          this.belowhandles = belowHandles;
-          drawHandles(context, eventData, aboveHandles, abovehandleOptions);
-          drawHandles(context, eventData, belowHandles, belowhandleOptions);
-        }
-      });
+          end = data.handles.end;
+          let offset =
+            this.measuring === true && data.handles.end.moving === true
+              ? this.configuration.offset
+              : this.fixedOffset;
+          if (this.measuring === false || data.handles.end.moving === false) {
+            this.configuration.offset = offset;
+          }
+
+          //data.handles.end.y = data.handles.start.y;
+          drawLine(
+            context,
+            element,
+            data.handles.start,
+            data.handles.end,
+            lineOptions
+          );
+
+          const aboveHandles: Handles = {
+            start: { x: start.x, y: start.y - offset },
+            end: { x: end.x, y: end.y - offset }
+          };
+
+          const belowHandles: Handles = {
+            start: { x: start.x, y: start.y + offset },
+            end: { x: end.x, y: end.y + offset }
+          };
+
+          const abovelineOptions = { color: "red" };
+          const belowlineOptions = { color: "blue" };
+          console.log(context);
+          console.log(element);
+          drawLine(
+            context,
+            element,
+            aboveHandles.start,
+            aboveHandles.end,
+            abovelineOptions
+          );
+          drawLine(
+            context,
+            element,
+            belowHandles.start,
+            belowHandles.end,
+            belowlineOptions
+          );
+
+          const handleOptions = {
+            color,
+            handleRadius,
+            drawHandlesIfActive: drawHandlesOnHover,
+            hideHandlesIfMoving
+          };
+          const abovehandleOptions = {
+            color: abovelineOptions.color,
+            handleRadius,
+            drawHandlesIfActive: drawHandlesOnHover,
+            hideHandlesIfMoving
+          };
+          const belowhandleOptions = {
+            color: belowlineOptions.color,
+            handleRadius,
+            drawHandlesIfActive: drawHandlesOnHover,
+            hideHandlesIfMoving
+          };
+
+          if (this.configuration.drawHandles) {
+            drawHandles(context, this.evt.detail, data.handles, handleOptions);
+            this.datahandles = data.handles;
+            this.abovehandles = aboveHandles;
+            this.belowhandles = belowHandles;
+            drawHandles(
+              context,
+              this.evt.detail,
+              aboveHandles,
+              abovehandleOptions
+            );
+            drawHandles(
+              context,
+              this.evt.detail,
+              belowHandles,
+              belowhandleOptions
+            );
+          }
+        });
+      }
     }
   }
 

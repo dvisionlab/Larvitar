@@ -73,6 +73,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     constructor(props?: {});
     getRandomColor(): string;
     handleMouseUp(): void;
+    changeOffset(evt: WheelEvent): void;
     createNewMeasurement(eventData: EventData): {
         visible: boolean;
         active: boolean;
@@ -106,7 +107,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         y: number;
     }): boolean;
     updateCachedStats(image: cornerstone.Image, element: HTMLElement, data: data): void;
-    renderToolData(evt: ToolMouseEvent): void;
+    renderToolData(evt: ToolMouseEvent | WheelEvent): Promise<void>;
     getPointsAlongLine(startHandle: HandlePosition, endHandle: HandlePosition, colPixelSpacing: number): number[];
     getPixelValuesAlongLine(startHandle: HandlePosition, points: number[], colPixelSpacing: number, eventData: EventData): number[];
     createPlot(...dataSets: {
