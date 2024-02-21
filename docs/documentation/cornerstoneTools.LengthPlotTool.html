@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>_ - Larvitar</title>
+    <title>LengthPlotTool - Larvitar</title>
     
     <meta name="description" content="Dicom Image Toolkit for CornestoneJS" />
     
@@ -44,7 +44,7 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 <div id="main">
     
-    <h1 class="page-title">_</h1>
+    <h1 class="page-title">LengthPlotTool</h1>
     
 
     
@@ -57,12 +57,13 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 <header>
     
         <h2>
-            <span class="ancestors"><a href="module-imaging_tools_custom_contourTool.html">imaging/tools/custom/contourTool</a><a href="module-imaging_tools_custom_editMaskTool.html">~imaging/tools/custom/editMaskTool</a><a href="module-imaging_tools_custom_diameterTool.html">~imaging/tools/custom/diameterTool</a><a href="module-imaging_imageTools.html">~imaging/imageTools</a><a href="module-imaging_strategies_eraseFreehand.html">~imaging/strategies/eraseFreehand</a><a href="module-imaging_strategies_fillFreehand.html">~imaging/strategies/fillFreehand</a><a href="module-imaging_tools_polygonSegmentationMixin.html">~imaging/tools/polygonSegmentationMixin</a><a href="module-imaging_tools_custom_polygonScissorsTool.html">~imaging/tools/custom/polygonScissorsTool</a><a href="module-imaging_tools_custom_thresholdBrushTool.html">~imaging/tools/custom/thresholdBrushTool</a><a href="Enable%250DThis%2520module%2520is%2520responsible%2520for%2520enabling%2520an%2520element%2520to%2520display%2520images%2520with%2520cornerstonemodule_.html">~EnableThis module is responsible for enabling an element to display images with cornerstone</a><a href="module-EnabledElements.html">~EnabledElements</a><a href="module-Objects.html">~Objects</a><a href="module-ImageCache.html">~ImageCache</a><a href="module-ImageLoader.html">~ImageLoader</a><a href="module-PixelCoordinateSystem.html">~PixelCoordinateSystem</a><a href="module-ViewportSettings.html">~ViewportSettings</a><a href="module-Internal.html">~Internal</a><a href="module-Polyfills.html">~Polyfills</a><a href="module-EnabledElementLayers.html">~EnabledElementLayers</a><a href="module-Metadata.html">~Metadata</a><a href="module-rendering.html">~rendering</a><a href="module-WebGLRendering.html">~WebGLRendering</a><a href="module-WebGLTextureCache.html">~WebGLTextureCache</a>~</span>
         
-        
-            _
+            LengthPlotTool
         
         </h2>
+        
+            <div class="class-description usertext"><p>Tool for tracing 3 lines with a configurable offset<br>
+and draw the plot of greyscale values along the lines</p></div>
         
     
 </header>
@@ -74,8 +75,10 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
             
 
     
+    <h2>Constructor</h2>
+    
 
-    <h4 class="name" id="_"><span class="type-signature"></span>new _<span class="signature">(value)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="LengthPlotTool"><span class="type-signature"></span>new LengthPlotTool<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
@@ -84,92 +87,11 @@ Create's a scoped debuging logger</a></li><li data-type='method' style='display:
 
 <dl class="details">
     
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Creates a <code>lodash</code> object which wraps <code>value</code> to enable implicit method<br>
-chain sequences. Methods that operate on and return arrays, collections,<br>
-and functions can be chained together. Methods that retrieve a single value<br>
-or may return a primitive value will automatically end the chain sequence<br>
-and return the unwrapped value. Otherwise, the value must be unwrapped<br>
-with <code>_#value</code>.</p>
-<p>Explicit chain sequences, which must be unwrapped with <code>_#value</code>, may be<br>
-enabled using <code>_.chain</code>.</p>
-<p>The execution of chained methods is lazy, that is, it's deferred until<br>
-<code>_#value</code> is implicitly or explicitly called.</p>
-<p>Lazy evaluation allows several methods to support shortcut fusion.<br>
-Shortcut fusion is an optimization to merge iteratee calls; this avoids<br>
-the creation of intermediate arrays and can greatly reduce the number of<br>
-iteratee executions. Sections of a chain sequence qualify for shortcut<br>
-fusion if the section is applied to an array and iteratees accept only<br>
-one argument. The heuristic for whether a section qualifies for shortcut<br>
-fusion is subject to change.</p>
-<p>Chaining is supported in custom builds as long as the <code>_#value</code> method is<br>
-directly or indirectly included in the build.</p>
-<p>In addition to lodash methods, wrappers have <code>Array</code> and <code>String</code> methods.</p>
-<p>The wrapper <code>Array</code> methods are:<br>
-<code>concat</code>, <code>join</code>, <code>pop</code>, <code>push</code>, <code>shift</code>, <code>sort</code>, <code>splice</code>, and <code>unshift</code></p>
-<p>The wrapper <code>String</code> methods are:<br>
-<code>replace</code> and <code>split</code></p>
-<p>The wrapper methods that support shortcut fusion are:<br>
-<code>at</code>, <code>compact</code>, <code>drop</code>, <code>dropRight</code>, <code>dropWhile</code>, <code>filter</code>, <code>find</code>,<br>
-<code>findLast</code>, <code>head</code>, <code>initial</code>, <code>last</code>, <code>map</code>, <code>reject</code>, <code>reverse</code>, <code>slice</code>,<br>
-<code>tail</code>, <code>take</code>, <code>takeRight</code>, <code>takeRightWhile</code>, <code>takeWhile</code>, and <code>toArray</code></p>
-<p>The chainable wrapper methods are:<br>
-<code>after</code>, <code>ary</code>, <code>assign</code>, <code>assignIn</code>, <code>assignInWith</code>, <code>assignWith</code>, <code>at</code>,<br>
-<code>before</code>, <code>bind</code>, <code>bindAll</code>, <code>bindKey</code>, <code>castArray</code>, <code>chain</code>, <code>chunk</code>,<br>
-<code>commit</code>, <code>compact</code>, <code>concat</code>, <code>conforms</code>, <code>constant</code>, <code>countBy</code>, <code>create</code>,<br>
-<code>curry</code>, <code>debounce</code>, <code>defaults</code>, <code>defaultsDeep</code>, <code>defer</code>, <code>delay</code>,<br>
-<code>difference</code>, <code>differenceBy</code>, <code>differenceWith</code>, <code>drop</code>, <code>dropRight</code>,<br>
-<code>dropRightWhile</code>, <code>dropWhile</code>, <code>extend</code>, <code>extendWith</code>, <code>fill</code>, <code>filter</code>,<br>
-<code>flatMap</code>, <code>flatMapDeep</code>, <code>flatMapDepth</code>, <code>flatten</code>, <code>flattenDeep</code>,<br>
-<code>flattenDepth</code>, <code>flip</code>, <code>flow</code>, <code>flowRight</code>, <code>fromPairs</code>, <code>functions</code>,<br>
-<code>functionsIn</code>, <code>groupBy</code>, <code>initial</code>, <code>intersection</code>, <code>intersectionBy</code>,<br>
-<code>intersectionWith</code>, <code>invert</code>, <code>invertBy</code>, <code>invokeMap</code>, <code>iteratee</code>, <code>keyBy</code>,<br>
-<code>keys</code>, <code>keysIn</code>, <code>map</code>, <code>mapKeys</code>, <code>mapValues</code>, <code>matches</code>, <code>matchesProperty</code>,<br>
-<code>memoize</code>, <code>merge</code>, <code>mergeWith</code>, <code>method</code>, <code>methodOf</code>, <code>mixin</code>, <code>negate</code>,<br>
-<code>nthArg</code>, <code>omit</code>, <code>omitBy</code>, <code>once</code>, <code>orderBy</code>, <code>over</code>, <code>overArgs</code>,<br>
-<code>overEvery</code>, <code>overSome</code>, <code>partial</code>, <code>partialRight</code>, <code>partition</code>, <code>pick</code>,<br>
-<code>pickBy</code>, <code>plant</code>, <code>property</code>, <code>propertyOf</code>, <code>pull</code>, <code>pullAll</code>, <code>pullAllBy</code>,<br>
-<code>pullAllWith</code>, <code>pullAt</code>, <code>push</code>, <code>range</code>, <code>rangeRight</code>, <code>rearg</code>, <code>reject</code>,<br>
-<code>remove</code>, <code>rest</code>, <code>reverse</code>, <code>sampleSize</code>, <code>set</code>, <code>setWith</code>, <code>shuffle</code>,<br>
-<code>slice</code>, <code>sort</code>, <code>sortBy</code>, <code>splice</code>, <code>spread</code>, <code>tail</code>, <code>take</code>, <code>takeRight</code>,<br>
-<code>takeRightWhile</code>, <code>takeWhile</code>, <code>tap</code>, <code>throttle</code>, <code>thru</code>, <code>toArray</code>,<br>
-<code>toPairs</code>, <code>toPairsIn</code>, <code>toPath</code>, <code>toPlainObject</code>, <code>transform</code>, <code>unary</code>,<br>
-<code>union</code>, <code>unionBy</code>, <code>unionWith</code>, <code>uniq</code>, <code>uniqBy</code>, <code>uniqWith</code>, <code>unset</code>,<br>
-<code>unshift</code>, <code>unzip</code>, <code>unzipWith</code>, <code>update</code>, <code>updateWith</code>, <code>values</code>,<br>
-<code>valuesIn</code>, <code>without</code>, <code>wrap</code>, <code>xor</code>, <code>xorBy</code>, <code>xorWith</code>, <code>zip</code>,<br>
-<code>zipObject</code>, <code>zipObjectDeep</code>, and <code>zipWith</code></p>
-<p>The wrapper methods that are <strong>not</strong> chainable by default are:<br>
-<code>add</code>, <code>attempt</code>, <code>camelCase</code>, <code>capitalize</code>, <code>ceil</code>, <code>clamp</code>, <code>clone</code>,<br>
-<code>cloneDeep</code>, <code>cloneDeepWith</code>, <code>cloneWith</code>, <code>conformsTo</code>, <code>deburr</code>,<br>
-<code>defaultTo</code>, <code>divide</code>, <code>each</code>, <code>eachRight</code>, <code>endsWith</code>, <code>eq</code>, <code>escape</code>,<br>
-<code>escapeRegExp</code>, <code>every</code>, <code>find</code>, <code>findIndex</code>, <code>findKey</code>, <code>findLast</code>,<br>
-<code>findLastIndex</code>, <code>findLastKey</code>, <code>first</code>, <code>floor</code>, <code>forEach</code>, <code>forEachRight</code>,<br>
-<code>forIn</code>, <code>forInRight</code>, <code>forOwn</code>, <code>forOwnRight</code>, <code>get</code>, <code>gt</code>, <code>gte</code>, <code>has</code>,<br>
-<code>hasIn</code>, <code>head</code>, <code>identity</code>, <code>includes</code>, <code>indexOf</code>, <code>inRange</code>, <code>invoke</code>,<br>
-<code>isArguments</code>, <code>isArray</code>, <code>isArrayBuffer</code>, <code>isArrayLike</code>, <code>isArrayLikeObject</code>,<br>
-<code>isBoolean</code>, <code>isBuffer</code>, <code>isDate</code>, <code>isElement</code>, <code>isEmpty</code>, <code>isEqual</code>,<br>
-<code>isEqualWith</code>, <code>isError</code>, <code>isFinite</code>, <code>isFunction</code>, <code>isInteger</code>, <code>isLength</code>,<br>
-<code>isMap</code>, <code>isMatch</code>, <code>isMatchWith</code>, <code>isNaN</code>, <code>isNative</code>, <code>isNil</code>, <code>isNull</code>,<br>
-<code>isNumber</code>, <code>isObject</code>, <code>isObjectLike</code>, <code>isPlainObject</code>, <code>isRegExp</code>,<br>
-<code>isSafeInteger</code>, <code>isSet</code>, <code>isString</code>, <code>isUndefined</code>, <code>isTypedArray</code>,<br>
-<code>isWeakMap</code>, <code>isWeakSet</code>, <code>join</code>, <code>kebabCase</code>, <code>last</code>, <code>lastIndexOf</code>,<br>
-<code>lowerCase</code>, <code>lowerFirst</code>, <code>lt</code>, <code>lte</code>, <code>max</code>, <code>maxBy</code>, <code>mean</code>, <code>meanBy</code>,<br>
-<code>min</code>, <code>minBy</code>, <code>multiply</code>, <code>noConflict</code>, <code>noop</code>, <code>now</code>, <code>nth</code>, <code>pad</code>,<br>
-<code>padEnd</code>, <code>padStart</code>, <code>parseInt</code>, <code>pop</code>, <code>random</code>, <code>reduce</code>, <code>reduceRight</code>,<br>
-<code>repeat</code>, <code>result</code>, <code>round</code>, <code>runInContext</code>, <code>sample</code>, <code>shift</code>, <code>size</code>,<br>
-<code>snakeCase</code>, <code>some</code>, <code>sortedIndex</code>, <code>sortedIndexBy</code>, <code>sortedLastIndex</code>,<br>
-<code>sortedLastIndexBy</code>, <code>startCase</code>, <code>startsWith</code>, <code>stubArray</code>, <code>stubFalse</code>,<br>
-<code>stubObject</code>, <code>stubString</code>, <code>stubTrue</code>, <code>subtract</code>, <code>sum</code>, <code>sumBy</code>,<br>
-<code>template</code>, <code>times</code>, <code>toFinite</code>, <code>toInteger</code>, <code>toJSON</code>, <code>toLength</code>,<br>
-<code>toLower</code>, <code>toNumber</code>, <code>toSafeInteger</code>, <code>toString</code>, <code>toUpper</code>, <code>trim</code>,<br>
-<code>trimEnd</code>, <code>trimStart</code>, <code>truncate</code>, <code>unescape</code>, <code>uniqueId</code>, <code>upperCase</code>,<br>
-<code>upperFirst</code>, <code>value</code>, and <code>words</code></p></li></ul></dd>
-    
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line57085">line 57085</a>
+        <a href="larvitar.js.html">larvitar.js</a>, <a href="larvitar.js.html#line163653">line 163653</a>
     </li></ul></dd>
     
 
@@ -214,78 +136,6 @@ directly or indirectly included in the build.</p>
 
 
 
-    <h5 class="h5-examples">Example</h5>
-    
-    <pre class="prettyprint"><code>function square(n) {
-  return n * n;
-}
-
-var wrapped = _([1, 2, 3]);
-
-// Returns an unwrapped value.
-wrapped.reduce(_.add);
-// => 6
-
-// Returns a wrapped value.
-var squares = wrapped.map(square);
-
-_.isArray(squares);
-// => false
-
-_.isArray(squares.value());
-// => true</code></pre>
-
-
-
-
-    <h5 class="h5-parameters">Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>value</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The value to wrap in a <code>lodash</code> instance.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -302,35 +152,23 @@ _.isArray(squares.value());
 
 
 
-<h5 class="h5-returns">Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Returns the new <code>lodash</code> wrapper instance.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Object</span>
-
-
-
-    </dd>
-</dl>
-
-    
 
 
 
         
         </div>
     
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li>cornerstoneTools.Base.BaseTool</li>
+    </ul>
+
 
     
 
