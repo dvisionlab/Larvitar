@@ -430,13 +430,12 @@ const parseFile = function (file: File) {
             imageObject.metadata.windowWidth = metadata["x00281051"];
             imageObject.metadata.minPixelValue = metadata["x00280106"];
             imageObject.metadata.maxPixelValue = metadata["x00280107"];
-            // check if pixelDataElement is found, if not sets pixelData.length=0
-            //means that it is a metadata-only object
-            imageObject.metadata.pixelDataLength = pixelDataElement //pixelDataLength
+            // check if pixelDataElement is found, if not sets pixelDataLength=0
+            // means that it is a metadata-only object
+            imageObject.metadata.pixelDataLength = pixelDataElement
               ? pixelDataElement.length
               : 0;
             imageObject.metadata.repr = getPixelRepresentation(dataSet);
-            console.log(imageObject);
             resolve(imageObject as ImageObject);
           }
         }
