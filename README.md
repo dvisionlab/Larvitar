@@ -126,4 +126,4 @@ Once you are done, upgrade the version (README and package.json) and build the l
 - Alessandro Re, D/Vision Lab
 - Laura Borghesi, D/Vision Lab
 
-![dvisionlab logo](https://www.dvisionlab.com/assets/images/logo-light.png)
+![dvisionlab logo](https://ci3.googleusercontent.com/mail-sig/AIorK4ymJ911PL0gFGO72THKSKP99DSYjkGlCGH1fnlMQZMy_GDN7VixAUcPd0HCCaeh1EzCKB6FvNE)
