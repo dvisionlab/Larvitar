@@ -185,7 +185,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.configuration.offset += deltaY > 0 ? 1 : -1;
     evt.preventDefault(); //modify custom mouse scroll to not interefere with ctrl+wheel
     this.renderToolData(evt);
+
+    cornerstone.updateImage(this.eventData!.element);
   }
+
   createNewMeasurement(eventData: EventData) {
     this.configuration.offset = 0;
     this.eventData = eventData;
@@ -290,7 +293,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     data.invalidated = false;
   }
 
-  async renderToolData(evt: ToolMouseEvent | WheelEvent) {
+  renderToolData(evt: ToolMouseEvent | WheelEvent) {
     if (evt.detail) {
       this.evt = evt;
       this.currentTarget = evt.currentTarget;
@@ -298,6 +301,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     } else {
       this.wheelactive = true;
     }
+
     if (this.evt) {
       const element = this.evt.detail.element;
       this.borderRight = this.evt.detail.image.width;
@@ -308,6 +312,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         hideHandlesIfMoving,
         renderDashed
       } = this.configuration;
+
       const toolData: { data: data[] } = getToolState(
         this.currentTarget,
         this.name
@@ -316,13 +321,16 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       if (!toolData) {
         return;
       }
-      console.log(this.evt.detail.canvasContext.canvas);
+
       this.context = getNewContext(this.evt.detail.canvasContext.canvas);
 
       const lineDash: boolean = getModule("globalConfiguration").configuration
         .lineDash;
       let start: HandlePosition;
       let end: HandlePosition;
+
+      console.log("rendering tool data", toolData.data);
+      console.countReset("draw");
 
       for (let i = 0; i < toolData.data.length; i++) {
         const data = toolData.data[i];
@@ -332,6 +340,8 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         }
 
         draw(this.context, (context: CanvasRenderingContext2D) => {
+          console.count("draw");
+
           setShadow(context, this.configuration);
 
           const color = toolColors.getColorIfActive(data);
@@ -341,14 +351,16 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           if (renderDashed) {
             lineOptions.lineDash = lineDash;
           }
-          start = data.handles.start;
 
+          start = data.handles.start;
           end = data.handles.end;
+
           let offset =
             (this.measuring === true && data.handles.end.moving === true) ||
             this.wheelactive === true
               ? this.configuration.offset
               : this.fixedOffset;
+
           this.configuration.offset = offset;
           if (this.measuring === false && this.wheelactive === true) {
             this.fixedOffset = offset;
@@ -375,8 +387,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
 
           const abovelineOptions = { color: "red" };
           const belowlineOptions = { color: "blue" };
-          console.log(context);
-          console.log(element);
+
           drawLine(
             context,
             element,
@@ -398,36 +409,12 @@ export default class LengthPlotTool extends BaseAnnotationTool {
             drawHandlesIfActive: drawHandlesOnHover,
             hideHandlesIfMoving
           };
-          const abovehandleOptions = {
-            color: abovelineOptions.color,
-            handleRadius,
-            drawHandlesIfActive: drawHandlesOnHover,
-            hideHandlesIfMoving
-          };
-          const belowhandleOptions = {
-            color: belowlineOptions.color,
-            handleRadius,
-            drawHandlesIfActive: drawHandlesOnHover,
-            hideHandlesIfMoving
-          };
 
           if (this.configuration.drawHandles) {
             drawHandles(context, this.evt.detail, data.handles, handleOptions);
             this.datahandles = data.handles;
             this.abovehandles = aboveHandles;
             this.belowhandles = belowHandles;
-            drawHandles(
-              context,
-              this.evt.detail,
-              aboveHandles,
-              abovehandleOptions
-            );
-            drawHandles(
-              context,
-              this.evt.detail,
-              belowHandles,
-              belowhandleOptions
-            );
           }
         });
       }
