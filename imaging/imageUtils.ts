@@ -100,7 +100,7 @@ export const getNormalOrientation = function (
  * @param {Array} pixelData - Pixel data array
  */
 export const getMinPixelValue = function (pixelData: number[]): number {
-  let min = 0;
+  let min = +Infinity;
   for (let i = 0; i < pixelData.length; i++) {
     if (!min || min > pixelData[i]) {
       min = pixelData[i];
@@ -116,7 +116,7 @@ export const getMinPixelValue = function (pixelData: number[]): number {
  * @param {Array} pixelData - Pixel data array
  */
 export const getMaxPixelValue = function (pixelData: number[]): number {
-  let max = 0;
+  let max = -Infinity;
   for (let i = 0; i < pixelData.length; i++) {
     if (!max || max < pixelData[i]) {
       max = pixelData[i];

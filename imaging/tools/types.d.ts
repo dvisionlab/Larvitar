@@ -59,7 +59,66 @@ export type ToolMouseKeys = {
     [key: string]: string;
   };
 };
+export type WSConfig = {
+  multiImage: boolean;
+  startIndex: number | null;
+  endIndex: number | null;
+  masksNumber: number;
+  onload?: boolean;
+};
+export type WSToolConfig = {
+  name: string;
+  viewports: string | string[];
+  configuration: WSConfig;
+  options: ToolOptions;
+  class: string;
+  sync?: string;
+  cleanable?: boolean;
+  defaultActive?: boolean;
+  shortcut?: string;
+  type?: "utils" | "annotation" | "segmentation" | "overlay";
+  description?: string;
+  currentMode?: string;
+};
 
+export type WSMouseEvent = {
+  detail: WSEventData;
+};
+
+interface WSEventData {
+  currentPoints: {
+    image: { x: number; y: number };
+  };
+  element: Element | HTMLElement;
+  buttons: number;
+  shiftKey: boolean;
+  event: {
+    altKey: boolean;
+    shiftKey: boolean;
+  };
+  image: Image;
+}
+export type pixelData3D = {
+  pixelData: number[];
+  segmentsOnLabelmap: number[];
+}[];
+
+export type CachedImage = {
+  image: {
+    imageId: string;
+    getPixelData: () => number[];
+  };
+};
+
+export type LabelMapType = {
+  pixelData?: number[];
+  labelmaps2D?: labelmaps2DType[];
+};
+
+export type labelmaps2DType = {
+  pixelData: number[];
+  segmentsOnLabelmap: number[];
+};
 type HandlePosition = {
   active?: boolean;
   allowedOutsideImage?: boolean;

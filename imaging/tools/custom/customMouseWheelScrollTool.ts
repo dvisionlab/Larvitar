@@ -14,7 +14,7 @@ const getToolState = cornerstoneTools.getToolState;
 import store, { set as setStore } from "../../imageStore";
 import { DEFAULT_TOOLS } from "../default";
 import { StoreViewport } from "../../types";
-import scrollToIndex from "./utils/customMouseWheelUtils";
+import scrollToIndex from "./utils/customMouseWheelScrollToolUtils/customMouseWheelUtils";
 import { getLarvitarImageTracker } from "../../loaders/commonLoader";
 import { getLarvitarManager } from "../../loaders/commonLoader";
 import { LarvitarManager, Series } from "../../types";
@@ -30,6 +30,11 @@ type ToolEventDetail = {
   element: HTMLElement;
   image: Image;
   direction: number;
+  detail: {
+    shiftKey: boolean;
+    altKey: boolean;
+    ctrlKey: boolean;
+  };
 };
 
 /*
@@ -156,107 +161,116 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
   }
 
   mouseWheelCallback(evt?: CustomEvent<ToolEventDetail>) {
-    const { direction: invert, element } = evt!.detail;
+    if (
+      evt!.detail.detail.ctrlKey != true &&
+      evt!.detail.detail.altKey != true &&
+      evt!.detail.detail.shiftKey != true
+    ) {
+      const { direction: invert, element } = evt!.detail;
 
-    this.handleToggle(
-      DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode as string
-    );
-    // configure scroll direction
-    const direction =
-      invert *
-      (this.configuration.currentMode === "stack"
-        ? this.configuration.framesNumber
-        : 1);
+      this.handleToggle(
+        DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode as string
+      );
+      // configure scroll direction
+      const direction =
+        invert *
+        (this.configuration.currentMode === "stack"
+          ? this.configuration.framesNumber
+          : 1);
 
-    const toolData = getToolState(element, "stack");
-    if (!toolData || !toolData.data || !toolData.data.length) {
-      return;
-    }
-    const stackData = toolData.data[0];
-    const isDSAEnabled: boolean = store.get([
-      "viewports",
-      element.id,
-      "isDSAEnabled"
-    ]);
-    let imageIds: string[];
-    if (isDSAEnabled) {
-      const originalImageIdSample: string = toolData.data[0].imageIds[0];
-      const parsedImageId: { scheme: string; url: string } =
-        cornerstoneDICOMImageLoader.wadouri.parseImageId(originalImageIdSample);
-
-      const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
-      const imageTracker = getLarvitarImageTracker();
-      const seriesId: string = imageTracker[rootImageId];
-      const manager = getLarvitarManager() as LarvitarManager;
-
-      const multiFrameSerie = manager![seriesId] as Series;
-
-      imageIds = multiFrameSerie.dsa!.imageIds;
-    } else {
-      imageIds = stackData.imageIds;
-    }
-    if (this.configuration.currentMode === "stack") {
-      // Handle 'stack' mode
-
-      // Calculate validIndex for 'stack' mode (no looping) between 0 and (N-1)*framesnumber where N=numberofslices=numberofimageids/numberofframes
-      let lastIndex =
-        this.nextIndex != null
-          ? this.nextIndex
-          : store.get(["viewports", element.id, "sliceId"]);
-      let nextIndex = lastIndex + direction;
-
-      if (lastIndex === -1) {
-        nextIndex = 0 + direction;
-        lastIndex = 0;
+      const toolData = getToolState(element, "stack");
+      if (!toolData || !toolData.data || !toolData.data.length) {
+        return;
       }
-      this.slicesnumber = Math.ceil(imageIds.length / this.framesNumber) - 1;
-      // Ensure nextIndex is between 0 and upperBound
-      const validIndex =
-        nextIndex >= 0 && nextIndex < imageIds.length && this.slicesnumber > 0
-          ? nextIndex
-          : lastIndex;
-      this.nextIndex = validIndex;
-      // Scroll to the calculated index
-      scrollToIndex(element, validIndex);
-    } else {
-      // Handle 'slice' mode
-      let lastIndex =
-        this.isMultiframe === true || this.is4D === true
-          ? this.nextIndex != null
+      const stackData = toolData.data[0];
+      const isDSAEnabled: boolean = store.get([
+        "viewports",
+        element.id,
+        "isDSAEnabled"
+      ]);
+      let imageIds: string[];
+      if (isDSAEnabled) {
+        const originalImageIdSample: string = toolData.data[0].imageIds[0];
+        const parsedImageId: { scheme: string; url: string } =
+          cornerstoneDICOMImageLoader.wadouri.parseImageId(
+            originalImageIdSample
+          );
+
+        const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
+        const imageTracker = getLarvitarImageTracker();
+        const seriesId: string = imageTracker[rootImageId];
+        const manager = getLarvitarManager() as LarvitarManager;
+
+        const multiFrameSerie = manager![seriesId] as Series;
+
+        imageIds = multiFrameSerie.dsa!.imageIds;
+      } else {
+        imageIds = stackData.imageIds;
+      }
+      if (this.configuration.currentMode === "stack") {
+        // Handle 'stack' mode
+
+        // Calculate validIndex for 'stack' mode (no looping) between 0 and (N-1)*framesnumber where N=numberofslices=numberofimageids/numberofframes
+        let lastIndex =
+          this.nextIndex != null
             ? this.nextIndex
-            : store.get(["viewports", element.id, "sliceId"])
-          : stackData.currentImageIdIndex;
+            : store.get(["viewports", element.id, "sliceId"]);
+        let nextIndex = lastIndex + direction;
 
-      this.slicesnumber = Math.ceil(imageIds.length / this.framesNumber) - 1;
+        if (lastIndex === -1) {
+          nextIndex = 0 + direction;
+          lastIndex = 0;
+        }
+        this.slicesnumber = Math.ceil(imageIds.length / this.framesNumber) - 1;
+        // Ensure nextIndex is between 0 and upperBound
+        const validIndex =
+          nextIndex >= 0 && nextIndex < imageIds.length && this.slicesnumber > 0
+            ? nextIndex
+            : lastIndex;
+        this.nextIndex = validIndex;
+        // Scroll to the calculated index
+        scrollToIndex(element, validIndex);
+      } else {
+        // Handle 'slice' mode
+        let lastIndex =
+          this.isMultiframe === true || this.is4D === true
+            ? this.nextIndex != null
+              ? this.nextIndex
+              : store.get(["viewports", element.id, "sliceId"])
+            : stackData.currentImageIdIndex;
 
-      const startFrame =
-        this.configuration.fixedSlice * this.configuration.framesNumber;
+        this.slicesnumber = Math.ceil(imageIds.length / this.framesNumber) - 1;
 
-      const endFrame =
-        (this.configuration.fixedSlice + 1) * this.configuration.framesNumber -
-        1;
+        const startFrame =
+          this.configuration.fixedSlice * this.configuration.framesNumber;
 
-      // Calculate the potential new index without considering looping
-      let nextIndex = lastIndex + direction;
+        const endFrame =
+          (this.configuration.fixedSlice + 1) *
+            this.configuration.framesNumber -
+          1;
 
-      // Check if the new index is within the valid range for the current slice
-      if (
-        nextIndex < startFrame ||
-        nextIndex > endFrame ||
-        nextIndex >= imageIds.length
-      ) {
-        nextIndex = startFrame;
-      }
-      this.nextIndex = nextIndex;
-      // Scroll to the calculated index
-      scrollToIndex(element, nextIndex);
+        // Calculate the potential new index without considering looping
+        let nextIndex = lastIndex + direction;
 
-      if (this.is4D) {
-        const viewport = store.get(["viewports", element.id]);
-        const timeId = viewport.timeIds[nextIndex];
-        const timestamp = viewport.timestamps[nextIndex];
-        setStore(["timeId", element.id, timeId]);
-        setStore(["timestamp", element.id, timestamp]);
+        // Check if the new index is within the valid range for the current slice
+        if (
+          nextIndex < startFrame ||
+          nextIndex > endFrame ||
+          nextIndex >= imageIds.length
+        ) {
+          nextIndex = startFrame;
+        }
+        this.nextIndex = nextIndex;
+        // Scroll to the calculated index
+        scrollToIndex(element, nextIndex);
+
+        if (this.is4D) {
+          const viewport = store.get(["viewports", element.id]);
+          const timeId = viewport.timeIds[nextIndex];
+          const timestamp = viewport.timestamps[nextIndex];
+          setStore(["timeId", element.id, timeId]);
+          setStore(["timestamp", element.id, timestamp]);
+        }
       }
     }
   }

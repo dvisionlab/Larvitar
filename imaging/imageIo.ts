@@ -5,7 +5,6 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import { forEach, find } from "lodash";
-import cv from "@techstark/opencv-js";
 
 // internal libraries
 import {
@@ -21,6 +20,10 @@ import { parse } from "./parsers/nrrd";
 import { checkMemoryAllocation } from "./monitors/memory";
 import { Series, Header, Volume, TypedArray } from "./types";
 import { Image } from "./types";
+
+//global variable
+declare var cv: any; //opencv-js
+
 /*
  * This module provides the following functions to be exported:
  * buildHeader(series)
@@ -284,6 +287,14 @@ export const exportImageToBase64 = function (
  * @returns {String | null} base64 image (png full quality) or null if canvas does not exist
  */
 export const exportImageToBase64OriginalSizes = function (imageId: string) {
+  if (typeof cv !== "undefined" && cv !== null) {
+    console.log("OpenCV has been successfully imported.");
+    // You can use OpenCV functions here
+  } else {
+    console.error(
+      'OpenCV has not been imported. Tool will not work. Please import src="https://docs.opencv.org/4.5.4/opencv.js" in your HTML'
+    );
+  }
   let t0 = performance.now();
   let canvas = document.createElement("canvas");
   let image: Image = find(cornerstone.imageCache.cachedImages, [

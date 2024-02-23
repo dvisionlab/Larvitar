@@ -3,10 +3,10 @@ import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 
 // internal libraries
-import { getLarvitarManager } from "../../../loaders/commonLoader";
-import { LarvitarManager, Series } from "../../../types";
-import store from "../../../imageStore";
-import { getLarvitarImageTracker } from "../../../loaders/commonLoader";
+import { getLarvitarManager } from "../../../../loaders/commonLoader";
+import { LarvitarManager, Series } from "../../../../types";
+import store from "../../../../imageStore";
+import { getLarvitarImageTracker } from "../../../../loaders/commonLoader";
 import loadHandlerManager from "./loadHandlerManager";
 //const loadHandlerManager = cornerstoneTools.importInternal(
 //  "stateManagement/loadHandlerManager"
