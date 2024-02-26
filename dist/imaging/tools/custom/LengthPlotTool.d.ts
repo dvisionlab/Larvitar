@@ -18,6 +18,7 @@ interface Handles {
     start: HandlePosition;
     end: HandlePosition;
     offset: number;
+    fixedoffset: number;
     textBox?: {
         active: boolean;
         hasMoved: boolean;
@@ -135,6 +136,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
                 hasBoundingBox: boolean;
             };
             offset: number;
+            fixedoffset: number;
         };
     } | undefined;
     /**

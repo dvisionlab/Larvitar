@@ -40,6 +40,7 @@ interface Handles {
   start: HandlePosition;
   end: HandlePosition;
   offset: number;
+  fixedoffset: number;
   textBox?: {
     active: boolean;
     hasMoved: boolean;
@@ -168,7 +169,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       this.currentTarget,
       this.name
     );
-    this.fixedOffset = toolData.data[toolData.data.length - 1].handles.offset;
+    if (this.measuring === true) {
+      toolData.data[toolData.data.length - 1].handles.fixedoffset =
+        toolData.data[toolData.data.length - 1].handles.offset;
+    }
     this.click = +1;
     this.measuring =
       this.datahandles?.end.x === this.datahandles?.start.x && this.click === 1
@@ -219,16 +223,20 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       const indexTracing = toolData.data.findIndex(
         obj => obj.handles.end.moving === true
       );
-
       if (
-        toolData.data.length != 0 &&
-        (index != undefined || indexTracing != undefined) &&
-        toolData.data[index] != undefined
+        (toolData.data.length != 0 &&
+          index != undefined &&
+          index != -1 &&
+          toolData.data[index] != undefined &&
+          evt.buttons === 1) ||
+        (indexTracing != undefined &&
+          indexTracing != -1 &&
+          toolData.data[index] != undefined)
       ) {
         const { deltaY } = evt;
 
         toolData.data[index].handles.offset += deltaY > 0 ? 1 : -1;
-        evt.preventDefault(); //modify custom mouse scroll to not interefere with ctrl+wheel
+        evt.preventDefault();
         this.renderToolData(evt);
 
         cornerstone.updateImage(this.eventData!.element);
@@ -298,7 +306,8 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           allowedOutsideImage: true,
           hasBoundingBox: true
         },
-        offset: 0
+        offset: 0,
+        fixedoffset: 0
       }
     };
   }
@@ -393,7 +402,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         this.currentTarget,
         this.name
       );
-
       if (!toolData) {
         return;
       }
@@ -437,14 +445,13 @@ export default class LengthPlotTool extends BaseAnnotationTool {
             this.wheelactive === true &&
             data.active === true
           ) {
-            this.fixedOffset = data.handles.offset;
+            data.handles.fixedoffset = data.handles.offset;
           }
           data.handles.offset =
             (this.measuring === true && data.handles.end.moving === true) ||
             this.wheelactive === true
               ? data.handles.offset
-              : this.fixedOffset;
-
+              : data.handles.fixedoffset;
           //data.handles.end.y = data.handles.start.y;
           drawLine(
             context,
@@ -457,13 +464,15 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           const aboveHandles: Handles = {
             start: { x: start.x, y: start.y - data.handles.offset },
             end: { x: end.x, y: end.y - data.handles.offset },
-            offset: data.handles.offset
+            offset: data.handles.offset,
+            fixedoffset: data.handles.fixedoffset
           };
 
           const belowHandles: Handles = {
             start: { x: start.x, y: start.y + data.handles.offset },
             end: { x: end.x, y: end.y + data.handles.offset },
-            offset: data.handles.offset
+            offset: data.handles.offset,
+            fixedoffset: data.handles.fixedoffset
           };
 
           const abovelineOptions = { color: "red", lineWidth: 3 };
@@ -633,7 +642,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     };
 
     const myPlotDiv = document.getElementById("myPlot");
-
     if (
       this.datahandles!.end.x! < this.borderLeft ||
       this.datahandles!.start.x! < this.borderLeft ||
