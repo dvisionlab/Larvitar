@@ -797,8 +797,9 @@ export const resetViewports = function (
  * Update viewport data in store
  * @instance
  * @function updateViewportData
- * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {Object} viewportData - The new viewport data
+ * @param {string} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Viewport} viewportData - The new viewport data
+ * @param {string} activeTool - The active tool on the viewport
  */
 export const updateViewportData = function (
   elementId: string,
@@ -812,7 +813,6 @@ export const updateViewportData = function (
   }
   const toolsNames = Object.keys(DEFAULT_TOOLS);
   const isValidTool = toolsNames.includes(activeTool);
-  console.log("activeTool", activeTool);
   if (isValidTool === true) {
     switch (activeTool) {
       case "WwwcRegion":
