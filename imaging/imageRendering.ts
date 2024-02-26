@@ -812,9 +812,11 @@ export const updateViewportData = function (
   }
   const toolsNames = Object.keys(DEFAULT_TOOLS);
   const isValidTool = toolsNames.includes(activeTool);
+  console.log("activeTool", activeTool);
   if (isValidTool === true) {
     switch (activeTool) {
       case "WwwcRegion":
+      case "Wwwc":
         if (viewportData.voi) {
           setStore([
             "contrast",
@@ -856,6 +858,7 @@ export const updateViewportData = function (
         }
         break;
       default:
+        console.warn("unhandled tool: " + activeTool);
         break;
     }
   } else {
