@@ -797,8 +797,9 @@ export const resetViewports = function (
  * Update viewport data in store
  * @instance
  * @function updateViewportData
- * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {Object} viewportData - The new viewport data
+ * @param {string} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Viewport} viewportData - The new viewport data
+ * @param {string} activeTool - The active tool on the viewport
  */
 export const updateViewportData = function (
   elementId: string,
@@ -815,6 +816,7 @@ export const updateViewportData = function (
   if (isValidTool === true) {
     switch (activeTool) {
       case "WwwcRegion":
+      case "Wwwc":
         if (viewportData.voi) {
           setStore([
             "contrast",
@@ -856,6 +858,7 @@ export const updateViewportData = function (
         }
         break;
       default:
+        console.warn("unhandled tool: " + activeTool);
         break;
     }
   } else {
