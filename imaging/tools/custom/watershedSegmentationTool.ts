@@ -91,7 +91,7 @@ export default class WSToggleTool extends BaseBrushTool {
       // You can use OpenCV functions here
     } else {
       console.error(
-        'OpenCV has not been imported. Tool will not work. Please import src="https://docs.opencv.org/4.5.4/opencv.js" in your HTML'
+        'OpenCV has not been imported. Watershed Segmentation Tool will not work. Please import src="https://docs.opencv.org/4.5.4/opencv.js" in your HTML'
       );
     }
     this._handleMouseMove = this._handleMouseMove.bind(this);
