@@ -125,8 +125,9 @@ export declare const resetViewports: (elementIds: string[], keys?: Array<"contra
  * Update viewport data in store
  * @instance
  * @function updateViewportData
- * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {Object} viewportData - The new viewport data
+ * @param {string} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {Viewport} viewportData - The new viewport data
+ * @param {string} activeTool - The active tool on the viewport
  */
 export declare const updateViewportData: (elementId: string, viewportData: Viewport, activeTool: string) => void;
 /**
