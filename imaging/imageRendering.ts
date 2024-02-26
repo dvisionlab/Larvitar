@@ -817,6 +817,7 @@ export const updateViewportData = function (
     switch (activeTool) {
       case "WwwcRegion":
       case "Wwwc":
+      case "Wwwl":
         if (viewportData.voi) {
           setStore([
             "contrast",
@@ -858,7 +859,7 @@ export const updateViewportData = function (
         }
         break;
       default:
-        console.warn("unhandled tool: " + activeTool);
+        // console.warn("unhandled tool: " + activeTool);
         break;
     }
   } else {
