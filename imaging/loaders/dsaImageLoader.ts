@@ -46,7 +46,8 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
     let multiFrameSerie = manager[seriesId] as Series;
     const imageIds: string[] = multiFrameSerie.dsa!.imageIds;
     const index: number = imageIds.indexOf(imageId);
-    //registerTaskHandler(applyDSA);
+
+    registerTaskHandler(applyDSA);
     const task = webWorkerManager.addTask(
       "applyDSATask",
       {

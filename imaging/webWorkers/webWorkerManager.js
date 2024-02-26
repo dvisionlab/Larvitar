@@ -1,7 +1,7 @@
 // Not sure why but webpack isn't splitting this out unless we explicitly use worker-loader!
 // eslint-disable-next-line
 // import cornerstoneWADOImageLoaderWebWorker from 'worker-loader!../webWorker/index.worker.js';
-import cornerstoneWADOImageLoaderWebWorker from "./index.worker";
+const cornerstoneWADOImageLoaderWebWorker = require("./index.worker").default;
 // This is for the Webpack 5 approch but it's currently broken
 // so we will continue relying on worker-loader for now
 // https://github.com/webpack/webpack/issues/13899
@@ -10,7 +10,7 @@ import cornerstoneWADOImageLoaderWebWorker from "./index.worker";
   import.meta.url
 );*/
 
-console.log(cornerstoneWADOImageLoaderWebWorker);
+console.log("IMPORT:", cornerstoneWADOImageLoaderWebWorker);
 
 // the taskId to assign to the next task added via addTask()
 let nextTaskId = 0;
@@ -208,7 +208,7 @@ function initialize(configObject) {
 
   // prevent being initialized more than once
   if (config) {
-    // throw new Error('WebWorkerManager already initialized');
+    throw new Error("WebWorkerManager already initialized");
   }
 
   config = configObject;
