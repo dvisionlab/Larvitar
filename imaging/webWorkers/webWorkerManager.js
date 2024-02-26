@@ -1,7 +1,16 @@
 // Not sure why but webpack isn't splitting this out unless we explicitly use worker-loader!
 // eslint-disable-next-line
 // import cornerstoneWADOImageLoaderWebWorker from 'worker-loader!../webWorker/index.worker.js';
-import cornerstoneWADOImageLoaderWebWorker from "./index.worker.js";
+import cornerstoneWADOImageLoaderWebWorker from "./index.worker";
+// This is for the Webpack 5 approch but it's currently broken
+// so we will continue relying on worker-loader for now
+// https://github.com/webpack/webpack/issues/13899
+/* const cornerstoneWADOImageLoaderWebWorkerPath = new URL(
+  '../webWorker/index.js',
+  import.meta.url
+);*/
+
+console.log(cornerstoneWADOImageLoaderWebWorker);
 
 // the taskId to assign to the next task added via addTask()
 let nextTaskId = 0;
@@ -11,6 +20,18 @@ const tasks = [];
 
 // array of web workers to dispatch decode tasks to
 const webWorkers = [];
+
+const defaultConfig = {
+  maxWebWorkers: navigator.hardwareConcurrency || 1,
+  startWebWorkersOnDemand: true,
+  webWorkerTaskPaths: [],
+  taskConfiguration: {
+    decodeTask: {
+      initializeCodecsOnStartup: false,
+      strict: false
+    }
+  }
+};
 
 let config;
 
@@ -149,6 +170,20 @@ function spawnWebWorker() {
 
   // spawn the webworker
   const worker = new cornerstoneWADOImageLoaderWebWorker();
+
+  console.log("WORKER WADOIMAGELOADER", worker);
+  // This is for the Webpack 5 approach but it's currently broken
+  /* const worker = new Worker(cornerstoneWADOImageLoaderWebWorkerPath, {
+    name: `cornerstoneWADOImageLoaderWebWorkerPath-${webWorkers.length + 1}`,
+    type: 'module',
+  });*/
+
+  // const worker = new Worker(
+  //   './cornerstoneWADOImageLoaderWebWorker.bundle.min.js',
+  //   {
+  //     name: `cornerstoneWADOImageLoaderWebWorkerPath-${webWorkers.length + 1}`,
+  //   }
+  // );
   console.log("WEBWORKERS BEFORE:", webWorkers);
   webWorkers.push({
     worker,
@@ -169,7 +204,7 @@ function spawnWebWorker() {
  */
 function initialize(configObject) {
   console.log(configObject);
-  configObject = configObject;
+  configObject = configObject || defaultConfig;
 
   // prevent being initialized more than once
   if (config) {

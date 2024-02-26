@@ -12,7 +12,8 @@ let config;
  * @param data
  */
 function initialize(data) {
-  console.log("web worker initialize ", data.workerIndex);
+  console.log("SELF", self);
+  // console.log('web worker initialize ', data.workerIndex);
   // prevent initialization from happening more than once
   if (initialized) {
     return;
@@ -52,7 +53,6 @@ function initialize(data) {
  * @param taskHandler
  */
 export function registerTaskHandler(taskHandler) {
-  console.log(taskHandler);
   if (taskHandlers[taskHandler.taskType]) {
     console.log(
       'attempt to register duplicate task handler "',
@@ -63,6 +63,7 @@ export function registerTaskHandler(taskHandler) {
     return false;
   }
   taskHandlers[taskHandler.taskType] = taskHandler;
+  console.log("TASK HANDLER", taskHandler);
   if (initialized) {
     taskHandler.initialize(config.taskConfiguration);
   }
@@ -82,7 +83,6 @@ function loadWebWorkerTask(data) {
  * @param msg
  */
 self.onmessage = async function (msg) {
-  console.log("ECCOCI QUI!");
   if (!msg.data.taskType) {
     console.log(msg.data);
 
@@ -93,7 +93,6 @@ self.onmessage = async function (msg) {
 
   // handle initialize message
   if (msg.data.taskType === "initialize") {
-    console.log("initialize msg");
     initialize(msg.data);
 
     return;

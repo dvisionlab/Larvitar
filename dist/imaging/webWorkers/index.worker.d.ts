@@ -1,5 +1,5 @@
 export default cornerstoneWADOImageLoaderWebWorker;
-import { registerTaskHandler } from "./loaders/WebWorker.js";
+import { registerTaskHandler } from "./WebWorker.js";
 import { default as version } from "./version.js";
 declare namespace cornerstoneWADOImageLoaderWebWorker {
     export { registerTaskHandler };

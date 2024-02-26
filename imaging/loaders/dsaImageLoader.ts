@@ -15,8 +15,8 @@ import {
 } from "./commonLoader";
 import type { DSA, Image, LarvitarManager, Series } from "../types";
 import { getMaxPixelValue, getMinPixelValue } from "../imageUtils";
-import webWorkerManager from "../webWorkerManager";
-import { registerTaskHandler } from "./WebWorker";
+import webWorkerManager from "../webWorkers/webWorkerManager";
+import { registerTaskHandler } from "../webWorkers/WebWorker";
 import applyDSA from "../postProcessing/applyDSATask";
 // global module variables
 let customImageLoaderCounter: number = 0;
@@ -46,7 +46,7 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
     let multiFrameSerie = manager[seriesId] as Series;
     const imageIds: string[] = multiFrameSerie.dsa!.imageIds;
     const index: number = imageIds.indexOf(imageId);
-    registerTaskHandler(applyDSA);
+    //registerTaskHandler(applyDSA);
     const task = webWorkerManager.addTask(
       "applyDSATask",
       {

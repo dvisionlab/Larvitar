@@ -21,7 +21,7 @@ import { loadMultiFrameImage } from "./loaders/multiframeLoader";
 import { loadDsaImage } from "./loaders/dsaImageLoader";
 import { ImageObject, Instance, Series, StagedProtocol } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
-import webWorkerManager from "./webWorkerManager";
+import webWorkerManager from "./webWorkers/webWorkerManager";
 /**
  * Global standard configuration
  * @inner
@@ -42,9 +42,7 @@ const globalConfig = {
   ],
   taskConfiguration: {
     decodeTask: {
-      loadCodecsOnStartup: false,
-      initializeCodecsOnStartup: false,
-      strict: true
+      initializeCodecsOnStartup: false
     }
   }
 };

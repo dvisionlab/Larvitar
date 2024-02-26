@@ -406,7 +406,7 @@ function revTidMask(
 }
 
 // register webworker to receive messages
-//@ts-ignore
+
 export default {
   taskType: "applyDSATask",
   handler,
