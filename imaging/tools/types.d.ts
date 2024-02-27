@@ -129,6 +129,7 @@ type HandlePosition = {
   moving?: boolean;
   x: number;
   y: number;
+  lines?: HandlePosition[];
 };
 
 type HandleTextBox = {
@@ -211,7 +212,7 @@ type FreehandRoiStateData = BaseToolStateData & {
   area: number;
   canComplete: boolean;
   handles: {
-    points: number[];
+    points: HandlePosition[];
     textBox: HandleTextBox;
     invalidHandlePlacement: boolean;
   };
