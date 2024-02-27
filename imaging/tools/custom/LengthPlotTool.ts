@@ -20,6 +20,7 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 
 //internal imports
 import { HandlePosition } from "../types";
+import { cornerSubPix } from "@techstark/opencv-js";
 
 //interfaces/types
 
@@ -149,6 +150,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.wheelactive = false;
     this.currentTarget = null;
     this.fixedOffset = 0;
+    this.theta = 0;
     this.plotlydata = [];
     this.measuring = false;
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -196,10 +198,13 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       let color = "green";
       return { points, pixelValues, color };
     };
+    const result = handleData(this.datahandles!);
     const aboveResults = handleData(this.abovehandles!);
     aboveResults.color = "red";
+    aboveResults.points = result.points;
     const belowResults = handleData(this.belowhandles!);
     belowResults.color = "blue";
+    belowResults.points = result.points;
     const data = [handleData(this.datahandles!), aboveResults, belowResults];
     if (this.measuring === false) {
       this.createPlot(...data);
@@ -460,23 +465,38 @@ export default class LengthPlotTool extends BaseAnnotationTool {
             data.handles.end,
             lineOptions
           );
+          let abovelineOptions = { color: "red", lineWidth: 3 };
+          let belowlineOptions = { color: "blue", lineWidth: 3 };
 
+          this.theta = Math.atan(
+            (data.handles.end.y - data.handles.start.y) /
+              (data.handles.end.x - data.handles.start.x)
+          );
           const aboveHandles: Handles = {
-            start: { x: start.x, y: start.y - data.handles.offset },
-            end: { x: end.x, y: end.y - data.handles.offset },
+            start: {
+              x: start.x + data.handles.offset * Math.sin(this.theta),
+              y: start.y - data.handles.offset * Math.cos(this.theta)
+            },
+            end: {
+              x: end.x + data.handles.offset * Math.sin(this.theta),
+              y: end.y - data.handles.offset * Math.cos(this.theta)
+            },
             offset: data.handles.offset,
             fixedoffset: data.handles.fixedoffset
           };
 
           const belowHandles: Handles = {
-            start: { x: start.x, y: start.y + data.handles.offset },
-            end: { x: end.x, y: end.y + data.handles.offset },
+            start: {
+              x: start.x - data.handles.offset * Math.sin(this.theta),
+              y: start.y + data.handles.offset * Math.cos(this.theta)
+            },
+            end: {
+              x: end.x - data.handles.offset * Math.sin(this.theta),
+              y: end.y + data.handles.offset * Math.cos(this.theta)
+            },
             offset: data.handles.offset,
             fixedoffset: data.handles.fixedoffset
           };
-
-          const abovelineOptions = { color: "red", lineWidth: 3 };
-          const belowlineOptions = { color: "blue", lineWidth: 3 };
 
           drawLine(
             context,
@@ -546,11 +566,16 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       end: HandlePosition,
       step: number
     ) => {
-      const startX = Math.floor(start.x) + 1;
-      const numPoints = Math.floor(end.x) - startX;
+      const startPoint =
+        Math.floor(Math.sqrt(Math.pow(start.x, 2) + Math.pow(start.y, 2))) + 1;
+
+      const numPoints = Math.floor(
+        Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2)) +
+          1
+      );
       points = new Array(numPoints + 1);
       for (let i = 0; i <= numPoints; i++) {
-        points[i] = (startX + i) * step;
+        points[i] = (startPoint + i) * step;
       }
     };
 
