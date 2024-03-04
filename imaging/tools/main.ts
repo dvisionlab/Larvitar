@@ -20,6 +20,8 @@ import {
 } from "./default";
 import { set as setStore } from "../imageStore";
 import type { ToolConfig, ToolSettings, ToolStyle } from "./types";
+//global variable
+declare var cv: any; //opencv-js
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
@@ -244,6 +246,16 @@ const setToolActive = function (
   viewports?: string[],
   doNotSetInStore?: boolean
 ) {
+  if (toolName === "WSToggle") {
+    if (typeof cv !== "undefined" && cv !== null) {
+      console.log("OpenCV has been successfully imported.");
+      // You can use OpenCV functions here
+    } else {
+      console.error(
+        'OpenCV has not been imported. Watershed Segmentation Tool will not work. Please import src="https://docs.opencv.org/4.5.4/opencv.js" in your HTML'
+      );
+    }
+  }
   let defaultOpt = { ...DEFAULT_TOOLS[toolName]?.options }; // deep copy obj because otherwise cornerstone tools will modify it
 
   extend(defaultOpt, options);
