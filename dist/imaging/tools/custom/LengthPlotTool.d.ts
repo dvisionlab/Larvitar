@@ -19,6 +19,7 @@ interface Handles {
     end: HandlePosition;
     offset: number;
     fixedoffset: number;
+    color: string;
     textBox?: {
         active: boolean;
         hasMoved: boolean;
@@ -71,9 +72,9 @@ interface PlotlyData {
 export default class LengthPlotTool extends BaseAnnotationTool {
     name: string;
     eventData?: EventData;
-    datahandles?: Handles;
-    abovehandles?: Handles;
-    belowhandles?: Handles;
+    datahandles?: Handles | null;
+    abovehandles?: Handles | null;
+    belowhandles?: Handles | null;
     plotlydata: Array<PlotlyData>;
     measuring: boolean;
     throttledUpdateCachedStats: any;

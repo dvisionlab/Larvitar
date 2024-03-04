@@ -20,7 +20,6 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 
 //internal imports
 import { HandlePosition } from "../types";
-import { cornerSubPix } from "@techstark/opencv-js";
 
 //interfaces/types
 
@@ -42,6 +41,7 @@ interface Handles {
   end: HandlePosition;
   offset: number;
   fixedoffset: number;
+  color: string;
   textBox?: {
     active: boolean;
     hasMoved: boolean;
@@ -100,9 +100,9 @@ interface PlotlyData {
 export default class LengthPlotTool extends BaseAnnotationTool {
   name: string = "LengthPlot";
   eventData?: EventData;
-  datahandles?: Handles;
-  abovehandles?: Handles;
-  belowhandles?: Handles;
+  datahandles?: Handles | null;
+  abovehandles?: Handles | null;
+  belowhandles?: Handles | null;
   plotlydata: Array<PlotlyData> = [];
   measuring = false;
   throttledUpdateCachedStats: any;
@@ -139,10 +139,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
 
     super(props, defaultProps);
     this.eventData;
-    this.datahandles;
+    this.datahandles = null;
     this.click = 0;
-    this.abovehandles;
-    this.belowhandles;
+    this.abovehandles = null;
+    this.belowhandles = null;
     this.borderRight;
     this.borderLeft = 0;
     this.evt;
@@ -150,7 +150,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.wheelactive = false;
     this.currentTarget = null;
     this.fixedOffset = 0;
-    this.theta = 0;
+    this.theta = null;
     this.plotlydata = [];
     this.measuring = false;
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -200,10 +200,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     };
     const result = handleData(this.datahandles!);
     const aboveResults = handleData(this.abovehandles!);
-    aboveResults.color = "red";
+    aboveResults.color = this.abovehandles!.color;
     aboveResults.points = result.points;
     const belowResults = handleData(this.belowhandles!);
-    belowResults.color = "blue";
+    belowResults.color = this.belowhandles!.color;
     belowResults.points = result.points;
     const data = [handleData(this.datahandles!), aboveResults, belowResults];
     if (this.measuring === false) {
@@ -266,6 +266,12 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       eventData.element.removeEventListener("wheel", evt =>
         this.changeOffset(evt)
       );
+    }
+    if (this.datahandles != null) {
+      this.datahandles = null;
+      this.abovehandles = null;
+      this.belowhandles = null;
+      this.theta = null;
     }
     eventData.element.addEventListener("mouseup", () => this.handleMouseUp());
     eventData.element.addEventListener("wheel", evt => this.changeOffset(evt));
@@ -465,53 +471,84 @@ export default class LengthPlotTool extends BaseAnnotationTool {
             data.handles.end,
             lineOptions
           );
+          let theta = Math.atan2(
+            data.handles.end.y - data.handles.start.y,
+            data.handles.end.x - data.handles.start.x
+          );
           let abovelineOptions = { color: "red", lineWidth: 3 };
           let belowlineOptions = { color: "blue", lineWidth: 3 };
+          if (data.handles.end.x - data.handles.start.x != 0) {
+            this.theta = this.theta === null ? theta : this.theta;
+            if (
+              radiansToDegrees(this.theta) > 90 &&
+              radiansToDegrees(this.theta) < 275
+            ) {
+              abovelineOptions.color = "blue";
+              belowlineOptions.color = "red";
+            }
+          }
 
-          this.theta = Math.atan(
-            (data.handles.end.y - data.handles.start.y) /
-              (data.handles.end.x - data.handles.start.x)
-          );
           const aboveHandles: Handles = {
             start: {
-              x: start.x + data.handles.offset * Math.sin(this.theta),
-              y: start.y - data.handles.offset * Math.cos(this.theta)
+              x: start.x + data.handles.offset * Math.sin(theta),
+              y: start.y - data.handles.offset * Math.cos(theta)
             },
             end: {
-              x: end.x + data.handles.offset * Math.sin(this.theta),
-              y: end.y - data.handles.offset * Math.cos(this.theta)
+              x: end.x + data.handles.offset * Math.sin(theta),
+              y: end.y - data.handles.offset * Math.cos(theta)
             },
-            offset: data.handles.offset,
-            fixedoffset: data.handles.fixedoffset
-          };
 
+            offset: data.handles.offset,
+            fixedoffset: data.handles.fixedoffset,
+            color: abovelineOptions.color
+          };
           const belowHandles: Handles = {
             start: {
-              x: start.x - data.handles.offset * Math.sin(this.theta),
-              y: start.y + data.handles.offset * Math.cos(this.theta)
+              x: start.x - data.handles.offset * Math.sin(theta),
+              y: start.y + data.handles.offset * Math.cos(theta)
             },
             end: {
-              x: end.x - data.handles.offset * Math.sin(this.theta),
-              y: end.y + data.handles.offset * Math.cos(this.theta)
+              x: end.x - data.handles.offset * Math.sin(theta),
+              y: end.y + data.handles.offset * Math.cos(theta)
             },
             offset: data.handles.offset,
-            fixedoffset: data.handles.fixedoffset
+            fixedoffset: data.handles.fixedoffset,
+            color: belowlineOptions.color
           };
-
-          drawLine(
-            context,
-            element,
-            aboveHandles.start,
-            aboveHandles.end,
-            abovelineOptions
-          );
-          drawLine(
-            context,
-            element,
-            belowHandles.start,
-            belowHandles.end,
-            belowlineOptions
-          );
+          if (
+            radiansToDegrees(this.theta) > 90 &&
+            radiansToDegrees(this.theta) < 275
+          ) {
+            drawLine(
+              context,
+              element,
+              belowHandles.start,
+              belowHandles.end,
+              belowlineOptions
+            );
+            drawLine(
+              context,
+              element,
+              aboveHandles.start,
+              aboveHandles.end,
+              abovelineOptions
+            );
+          } else {
+            drawLine(
+              context,
+              element,
+              aboveHandles.start,
+              aboveHandles.end,
+              abovelineOptions
+            );
+            drawLine(
+              context,
+              element,
+              belowHandles.start,
+              belowHandles.end,
+              belowlineOptions
+            );
+          }
 
           const handleOptions = {
             color,
@@ -526,20 +563,40 @@ export default class LengthPlotTool extends BaseAnnotationTool {
             this.datahandles = data.handles;
             this.abovehandles = aboveHandles;
             this.belowhandles = belowHandles;
-            drawHandles(context, this.evt.detail, aboveHandles, {
-              color: "red",
-              handleRadius: 3,
-              drawHandlesIfActive: drawHandlesOnHover,
-              hideHandlesIfMoving,
-              fill: "red"
-            });
-            drawHandles(context, this.evt.detail, belowHandles, {
-              color: "blue",
-              handleRadius: 3,
-              drawHandlesIfActive: drawHandlesOnHover,
-              hideHandlesIfMoving,
-              fill: "blue"
-            });
+            if (
+              radiansToDegrees(this.theta) > 90 &&
+              radiansToDegrees(this.theta) < 275
+            ) {
+              drawHandles(context, this.evt.detail, belowHandles, {
+                color: belowlineOptions.color,
+                handleRadius: 3,
+                drawHandlesIfActive: drawHandlesOnHover,
+                hideHandlesIfMoving,
+                fill: belowlineOptions.color
+              });
+              drawHandles(context, this.evt.detail, aboveHandles, {
+                color: abovelineOptions.color,
+                handleRadius: 3,
+                drawHandlesIfActive: drawHandlesOnHover,
+                hideHandlesIfMoving,
+                fill: abovelineOptions.color
+              });
+            } else {
+              drawHandles(context, this.evt.detail, aboveHandles, {
+                color: abovelineOptions.color,
+                handleRadius: 3,
+                drawHandlesIfActive: drawHandlesOnHover,
+                hideHandlesIfMoving,
+                fill: abovelineOptions.color
+              });
+              drawHandles(context, this.evt.detail, belowHandles, {
+                color: belowlineOptions.color,
+                handleRadius: 3,
+                drawHandlesIfActive: drawHandlesOnHover,
+                hideHandlesIfMoving,
+                fill: belowlineOptions.color
+              });
+            }
           }
         });
       }
@@ -703,6 +760,15 @@ function clearToolData(element: HTMLElement, toolName: string) {
       data.visible = false;
     });
   }
+}
+
+// Function to convert radians to degrees
+function radiansToDegrees(radians: number) {
+  let angle = radians * (180 / Math.PI);
+  if (angle < 0) {
+    angle += 360; // Add 360 to negative angles to bring them into the 0-360 range
+  }
+  return angle;
 }
 
 //to set custom offset do this: DEFAULT_TOOLS["LengthPlot"].offset=parseInt(document.getElementById("offset").value,10)
