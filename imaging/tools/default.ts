@@ -27,6 +27,7 @@
 
 import { filter, isArray } from "lodash";
 import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
+import WwwcInvertRegionTool from './custom/wwwcInvertRegionTool';
 import PolylineScissorsTool from "./custom/polylineScissorsTool";
 import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
 import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
@@ -110,6 +111,21 @@ const DEFAULT_TOOLS: {
     description: "Change image contrast based on selected region",
     shortcut: "ctrl-m",
     type: "utils"
+  },
+  WwwcInvertRegionTool: {
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: false,
+    defaultActive: false,
+    // sync: "wwwcSynchronizer",
+    type: "utils",
+    name: "WwwcInvertRegionTool",
+    class: "WwwcInvertRegionTool",
+    description: "The dual of wwwcRegionTool",
   },
   StackScroll: {
     name: "StackScroll",
@@ -532,8 +548,7 @@ const dvTools: {
 } = {
   ThresholdsBrushTool: ThresholdsBrushTool,
   PolylineScissorsTool: PolylineScissorsTool,
-  // Slice4DScrollMouseWheelTool: Slice4DScrollMouseWheelTool,
-  WSToggleTool: WSToggleTool,
+  WwwcInvertRegionTool: WwwcInvertRegionTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
   BorderMagnifyTool: BorderMagnifyTool,

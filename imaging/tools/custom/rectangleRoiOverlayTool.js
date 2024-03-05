@@ -169,7 +169,6 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
 
       data.cachedStats = stats;
     }
-
     data.invalidated = false;
   }
 
@@ -228,7 +227,8 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
           rectOptions.lineDash = lineDash;
         }
 
-        // Draw
+        // Draw the rectangle
+        // drawFillRect
         drawRect(
           context,
           element,
