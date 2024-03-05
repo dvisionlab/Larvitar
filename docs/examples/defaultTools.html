@@ -226,6 +226,11 @@
       let tool_counter = 0;
       document.onkeypress = function (e) {
         e = e || window.event;
+        console.log(e.keyCode);
+        if (e.keyCode == 122) {
+          console.log('activate wwwc region');
+          larvitar.setToolActive('WwwcInvertRegionTool', { mouseButtonMask: 1 });
+        }
         if (e.keyCode == 116 || e.keyCode == 84) {
           let tools = _.map(larvitar.DEFAULT_TOOLS, "name");
           console.log(tools);
