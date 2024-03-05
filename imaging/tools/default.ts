@@ -553,6 +553,7 @@ const dvTools: {
   ThresholdsBrushTool: ThresholdsBrushTool,
   PolylineScissorsTool: PolylineScissorsTool,
   WwwcInvertRegionTool: WwwcInvertRegionTool,
+  WSToggleTool: WSToggleTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
   BorderMagnifyTool: BorderMagnifyTool,

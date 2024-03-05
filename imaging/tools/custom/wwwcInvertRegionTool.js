@@ -240,7 +240,6 @@ export default class WwwcInvertRegionTool extends BaseAnnotationTool {
 
         // Draw the rectangle
         // drawFillRect 
-        // const boundingBox = _getRectangleImageCoordinates( data.handles.start, data.handles.end);
         // must be converted in canvas coords
         const startCanvas = external.cornerstone.pixelToCanvas(
           element,
@@ -259,21 +258,6 @@ export default class WwwcInvertRegionTool extends BaseAnnotationTool {
         };
     
         fillBox(context, rect, 'white');
-        /*
-        drawRect(
-          context,
-          element,
-          data.handles.start,
-          data.handles.end,
-          rectOptions,
-          "pixel",
-          data.handles.initialRotation
-        );
-
-        if (this.configuration.drawHandles) {
-          drawHandles(context, eventData, data.handles, handleOptions);
-        }
-        */
         if (data.computeMeasurements) {
           // Update textbox stats
           if (data.invalidated === true) {

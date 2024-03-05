@@ -226,9 +226,6 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
         if (renderDashed) {
           rectOptions.lineDash = lineDash;
         }
-
-        // Draw the rectangle
-        // drawFillRect
         drawRect(
           context,
           element,
