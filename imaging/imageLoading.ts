@@ -38,7 +38,7 @@ const globalConfig = {
   ),
   startWebWorkersOnDemand: true,
   webWorkerTaskPaths: [
-    `${window.location.protocol}//${window.location.host}/imaging/postProcessing/applyDSATask.ts`
+    `${window.location.protocol}//${window.location.host}/imaging/postProcessing/applyDSATask.js`
   ],
   taskConfiguration: {
     decodeTask: {

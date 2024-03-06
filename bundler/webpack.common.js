@@ -1,23 +1,27 @@
 module.exports = {
-  devtool: "source-map", // or inline-source-map ?
+  devtool: "source-map",
   module: {
     rules: [
-      // HTML
       {
         test: /\.(html)$/,
         use: ["html-loader"]
       },
-      // JS
       {
         test: /\.js$/,
         exclude: /node_modules/,
         use: ["babel-loader"]
       },
-      // typescript support
       {
         test: /\.tsx?$/,
         use: "ts-loader",
         exclude: /node_modules/
+      },
+      {
+        test: /\.worker\.js$/,
+        use: {
+          loader: "worker-loader",
+          options: { filename: "[name].[hash].js" }
+        }
       }
     ]
   },

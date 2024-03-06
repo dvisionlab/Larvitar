@@ -191,11 +191,13 @@ function spawnWebWorker() {
   });
   console.log("WEBWORKERS AFTER PUSH:", webWorkers);
   worker.addEventListener("message", handleMessageFromWorker);
+
   worker.postMessage({
     taskType: "initialize",
     workerIndex: webWorkers.length - 1,
     config
   });
+  console.log("WORKER", worker.postMessage);
 }
 
 /**
@@ -205,7 +207,7 @@ function spawnWebWorker() {
 function initialize(configObject) {
   console.log(configObject);
   configObject = configObject || defaultConfig;
-
+  console.log("INITIALIZE", configObject);
   // prevent being initialized more than once
   if (config) {
     throw new Error("WebWorkerManager already initialized");
@@ -277,7 +279,7 @@ function addTask(taskType, data, priority = 0, transferList) {
   if (!config) {
     initialize();
   }
-
+  console.log("ADD TASK:", taskType);
   let deferred = {};
   const promise = new Promise((resolve, reject) => {
     deferred = {

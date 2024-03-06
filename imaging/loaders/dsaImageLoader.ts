@@ -21,7 +21,7 @@ import applyDSA from "../postProcessing/applyDSATask";
 // global module variables
 let customImageLoaderCounter: number = 0;
 let PIXEL_SHIFT: number[] | undefined = undefined;
-
+registerTaskHandler(applyDSA);
 /*
  * This module provides the following functions to be exported:
  * loadDsaImage(imageId)
@@ -46,8 +46,6 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
     let multiFrameSerie = manager[seriesId] as Series;
     const imageIds: string[] = multiFrameSerie.dsa!.imageIds;
     const index: number = imageIds.indexOf(imageId);
-
-    registerTaskHandler(applyDSA);
     const task = webWorkerManager.addTask(
       "applyDSATask",
       {
@@ -58,9 +56,8 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
       1, //priority
       undefined
     );
-    setInterval(() => {
-      console.log("TASK:", task.promise);
-    }, 1000);
+
+    console.log(task);
     task.promise.then(function (result: { pixelData: number[] }) {
       //const pixelData = applyDSA(multiFrameSerie, index, PIXEL_SHIFT);
       const srcImage: Image = find(cornerstone.imageCache.cachedImages, {

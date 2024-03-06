@@ -1,14 +1,9 @@
-/** @module imaging/postProcessing/applyDSA
- *  @desc This file provides digital subtraction algorithm for XA images
- */
-type data = {
-    data: {
-        imageId: string;
-        index: number;
-        inputMaskSubPixelShift: number[];
-    };
-};
-declare function initialize(config: any): void;
+declare namespace _default {
+    export let taskType: string;
+    export { handler };
+    export { initialize };
+}
+export default _default;
 /**
  * Apply DSA to a multiframe serie
  * @function handler
@@ -17,20 +12,5 @@ declare function initialize(config: any): void;
  * @param {number[]} inputMaskSubPixelShift - pixel shift applied to the mask
  * @returns {number[]} - pixel data of the frame after DSA
  */
-declare function handler(data: data, doneCallback: Function): never[] | {
-    result: {
-        pixelData: number[];
-    };
-    transferList: ArrayBufferLike[];
-} | {
-    result: {
-        pixelData: ArrayBufferLike;
-    };
-    transferList: ArrayBufferLike[];
-};
-declare const _default: {
-    taskType: string;
-    handler: typeof handler;
-    initialize: typeof initialize;
-};
-export default _default;
+declare function handler(data: any, doneCallback: any): number[];
+declare function initialize(config: any): void;
