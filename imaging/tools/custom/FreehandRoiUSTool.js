@@ -539,7 +539,13 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
 
         const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
 
-        if (!rowPixelSpacing || !colPixelSpacing || this.modality === "US") {
+        if (
+          rowPixelSpacing === undefined ||
+          rowPixelSpacing === 0 ||
+          colPixelSpacing === undefined ||
+          colPixelSpacing === 0 ||
+          modality === "US"
+        ) {
           suffix = ` pixels${String.fromCharCode(178)}`;
         }
 
