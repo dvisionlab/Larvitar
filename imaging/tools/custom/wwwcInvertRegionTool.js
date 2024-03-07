@@ -15,6 +15,7 @@ const getNewContext = cornerstoneTools.importInternal("drawing/getNewContext");
 const draw = cornerstoneTools.importInternal("drawing/draw");
 const drawHandles = cornerstoneTools.importInternal("drawing/drawHandles");
 const drawRect = cornerstoneTools.importInternal("drawing/drawRect");
+const fillBox = cornerstoneTools.importInternal("drawing/fillBox");
 const drawLinkedTextBox = cornerstoneTools.importInternal(
   "drawing/drawLinkedTextBox"
 );
@@ -240,7 +241,10 @@ export default class WwwcInvertRegionTool extends BaseAnnotationTool {
         }
 
         // Draw the rectangle
-        // drawFillRect
+        // drawFillRect 
+        const boundingBox = _getRectangleImageCoordinates( data.handles.start, data.handles.end);
+        fillBox(context, boundingBox, 'white');
+        /*
         drawRect(
           context,
           element,
@@ -254,7 +258,7 @@ export default class WwwcInvertRegionTool extends BaseAnnotationTool {
         if (this.configuration.drawHandles) {
           drawHandles(context, eventData, data.handles, handleOptions);
         }
-
+        */
         if (data.computeMeasurements) {
           // Update textbox stats
           if (data.invalidated === true) {
