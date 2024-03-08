@@ -180,8 +180,6 @@ export default class WwwcInvertRegionTool extends BaseAnnotationTool {
 
       data.cachedStats = stats;
     }
-    // data is an array of rectangles
-    console.log(data);
     data.invalidated = false;
   }
 
@@ -242,8 +240,25 @@ export default class WwwcInvertRegionTool extends BaseAnnotationTool {
 
         // Draw the rectangle
         // drawFillRect 
-        const boundingBox = _getRectangleImageCoordinates( data.handles.start, data.handles.end);
-        fillBox(context, boundingBox, 'white');
+        // const boundingBox = _getRectangleImageCoordinates( data.handles.start, data.handles.end);
+        // must be converted in canvas coords
+        const startCanvas = external.cornerstone.pixelToCanvas(
+          element,
+          data.handles.start
+        );
+        const endCanvas = external.cornerstone.pixelToCanvas(
+          element,
+          data.handles.end
+        );
+    
+        const rect = {
+          left: Math.min(startCanvas.x, endCanvas.x),
+          top: Math.min(startCanvas.y, endCanvas.y),
+          width: Math.abs(startCanvas.x - endCanvas.x),
+          height: Math.abs(startCanvas.y - endCanvas.y)
+        };
+    
+        fillBox(context, rect, 'white');
         /*
         drawRect(
           context,
@@ -320,7 +335,6 @@ export default class WwwcInvertRegionTool extends BaseAnnotationTool {
    * @returns {void}
    */
   _applyStrategy(evt) {
-    console.log('mouse up');
     const toolData = getToolState(evt.currentTarget, this.name);
     const rectangles = toolData ? toolData.data : [] ;
     if (Array.isArray(rectangles)) { 
@@ -619,7 +633,6 @@ const _applyWWWCRegion = function(evt, handles, config) {
     }
     */
     const { start: startPoint, end: endPoint } = handle;
-    console.log(image);
     // Get the rectangular region defined by the handles
     let left = Math.min(startPoint.x, endPoint.x);
     let top = Math.min(startPoint.y, endPoint.y);
@@ -667,7 +680,6 @@ const _applyWWWCRegion = function(evt, handles, config) {
 
   // Unset any existing VOI LUT
   viewport.voiLUT = undefined;
-
   external.cornerstone.setViewport(element, viewport);
   external.cornerstone.updateImage(element);
 };
