@@ -288,7 +288,16 @@ let createCustomImage = function (
       // before creating the custom image object (like the multiframe case).
       setPixelDataType(imageFrame);
 
-      let pixelSpacing = metadata.x00280030 ? metadata.x00280030 : 1.0;
+      let pixelSpacing = metadata.x00280030
+        ? metadata.x00280030
+        : metadata.x00080060 === "US" &&
+          metadata["x00186011"]![0].x0018602e != undefined &&
+          metadata["x00186011"]![0].x0018602c != undefined
+        ? ([
+            metadata["x00186011"]![0].x0018602e * 10, //so that from cm goes to mm
+            metadata["x00186011"]![0].x0018602c * 10
+          ] as [number, number])
+        : metadata.x00280030;
       let rescaleIntercept = metadata.x00281052;
       let rescaleSlope = metadata.x00281053;
       let windowCenter = metadata.x00281050;
@@ -309,9 +318,7 @@ let createCustomImage = function (
         color: cornerstoneDICOMImageLoader.isColorImage(
           imageFrame.photometricInterpretation
         ),
-        columnPixelSpacing: (pixelSpacing as number[])[1]
-          ? (pixelSpacing as number[])[1]
-          : (pixelSpacing as number), // check for specific spacing value
+        columnPixelSpacing: (pixelSpacing as number[])[1],
         columns: imageFrame.columns,
         data: dataSet ? dataSet : undefined,
         height: imageFrame.rows,
@@ -323,9 +330,7 @@ let createCustomImage = function (
         minPixelValue: imageFrame.smallestPixelValue,
         maxPixelValue: imageFrame.largestPixelValue,
         render: undefined, // set below
-        rowPixelSpacing: (pixelSpacing as number[])[0]
-          ? (pixelSpacing as number[])[0]
-          : (pixelSpacing as number), // check for specific spacing value
+        rowPixelSpacing: (pixelSpacing as number[])[0],
         rows: imageFrame.rows,
         sizeInBytes: getSizeInBytes(),
         slope: (rescaleSlope as number) ? (rescaleSlope as number) : 1,
