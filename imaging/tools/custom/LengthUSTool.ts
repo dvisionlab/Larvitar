@@ -272,12 +272,7 @@ export default class LengthTool extends BaseAnnotationTool {
           }
         }
 
-        const text = textBoxText(
-          data,
-          rowPixelSpacing,
-          colPixelSpacing,
-          this.modality
-        );
+        const text = textBoxText(data, rowPixelSpacing, colPixelSpacing);
 
         drawLinkedTextBox(
           context,
@@ -298,8 +293,7 @@ export default class LengthTool extends BaseAnnotationTool {
     function textBoxText(
       annotation: MeasurementData,
       rowPixelSpacing: number,
-      colPixelSpacing: number,
-      modality: string
+      colPixelSpacing: number
     ) {
       const measuredValue = _sanitizeMeasuredValue(annotation.length!);
 
@@ -313,8 +307,10 @@ export default class LengthTool extends BaseAnnotationTool {
       if (
         rowPixelSpacing === undefined ||
         rowPixelSpacing === 0 ||
+        rowPixelSpacing === 1 ||
         colPixelSpacing === undefined ||
-        colPixelSpacing === 0
+        colPixelSpacing === 0 ||
+        colPixelSpacing === 1
       ) {
         suffix = "pixels";
       }

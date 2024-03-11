@@ -634,8 +634,11 @@ export const updateImage = async function (
     isDSAEnabled === true
       ? series.dsa!.imageIds[imageIndex]
       : series.imageIds[imageIndex];
+
   //check if it is a metadata-only object
-  if (series.instances[imageId].metadata.pixelDataLength != 0) {
+  if (
+    series.instances[series.imageIds[imageIndex]].metadata.pixelDataLength != 0
+  ) {
     if (isDSAEnabled === true) {
       // get the optional custom pixel shift
       const pixelShift = store.get(["viewports", id, "pixelShift"]);

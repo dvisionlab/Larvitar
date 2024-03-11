@@ -112,12 +112,14 @@ export const loadAndCacheDsaImageStack = async function (
       reject();
       return;
     }
+
     if (seriesData.dsa.imageIds.length > 0) {
       const dsaPromises: Promise<cornerstone.Image>[] =
         seriesData.dsa.imageIds.map(imageId => {
           if (forceRecache) {
             cornerstone.imageCache.removeImageLoadObject(imageId);
           }
+
           return cornerstone.loadAndCacheImage(imageId);
         });
       Promise.all(dsaPromises).then(() => {
