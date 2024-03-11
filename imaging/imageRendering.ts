@@ -887,6 +887,7 @@ export const storeViewportData = function (
   setStore(["thickness", elementId, data.thickness]);
   setStore(["minPixelValue", elementId, image.minPixelValue]);
   setStore(["maxPixelValue", elementId, image.maxPixelValue]);
+  setStore(["modality", elementId, data.modality]);
   // slice id from 0 to n - 1
   setStore(["minSliceId", elementId, 0]);
   if (data.imageIndex) {
@@ -1181,6 +1182,7 @@ const getSeriesData = function (
   type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
   data.seriesUID = series.larvitarSeriesInstanceUID || series.seriesUID; //case of resliced series
+  data.modality = series.modality;
   if (series.isMultiframe) {
     data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;

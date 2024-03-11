@@ -35,6 +35,10 @@ import BorderMagnifyTool from "./custom/BorderMagnifyTool";
 import CustomMouseWheelScrollTool from "./custom/customMouseWheelScrollTool";
 import WSToggleTool from "./custom/watershedSegmentationTool";
 import LengthPlotTool from "./custom/LengthPlotTool";
+import LengthTool from "./custom/LengthUSTool";
+import RectangleRoiTool from "./custom/RectangleRoiUSTool";
+import EllipticalRoiTool from "./custom/EllipticalRoiUSTool";
+import FreehandRoiTool from "./custom/FreehandRoiUSTool";
 import ManualLengthPlotTool from "./custom/ManualLengthPlotTool";
 import type {
   ToolConfig,
@@ -554,6 +558,10 @@ const dvTools: {
   BorderMagnifyTool: BorderMagnifyTool,
   CustomMouseWheelScrollTool: CustomMouseWheelScrollTool,
   LengthPlotTool: LengthPlotTool,
+  LengthTool: LengthTool,
+  RectangleRoiTool: RectangleRoiTool,
+  EllipticalRoiTool: EllipticalRoiTool,
+  FreehandRoiTool: FreehandRoiTool,
   ManualLengthPlotTool: ManualLengthPlotTool
 };
 
