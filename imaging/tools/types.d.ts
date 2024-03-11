@@ -303,3 +303,122 @@ export type BrushProperties = {
   radius: number; // px
   thresholds: [number, number]; // [min, max] in px
 };
+export type dataSets = {
+  points: number[];
+  pixelValues: number[];
+  color: string;
+}[];
+
+export type PixelSpacing = {
+  rowPixelSpacing: number;
+  colPixelSpacing: number;
+};
+export interface MeasurementData {
+  polyBoundingBox?: Rectangle;
+  meanStdDev?: number;
+  meanStdDevSUV?: { mean: number; stdDev: number };
+  area?: number;
+  unit?: string;
+  visible: boolean;
+  active: boolean;
+  color?: string;
+  invalidated: boolean;
+  handles: Handles;
+  length?: number;
+  cachedStats?: Stats;
+}
+
+export type Stats = {
+  area: number;
+  perimeter?: number;
+  count: number;
+  mean: number;
+  variance: number;
+  stdDev: number;
+  min: number;
+  max: number;
+  meanStdDev?: {
+    mean: number;
+    stdDev: number;
+  };
+  meanStdDevSUV?: {
+    mean: number;
+    stdDev: number;
+  };
+  unit?: string;
+};
+
+export type MeasurementConfig = {
+  handleRadius?: number;
+  drawHandlesOnHover?: boolean;
+  hideHandlesIfMoving?: boolean;
+  renderDashed?: boolean;
+  color?: string;
+  drawHandlesIfActive?: boolean;
+  lineDash?: boolean;
+  fill?: boolean;
+};
+
+export type PixelSpacing = {
+  colPixelSpacing: number;
+  rowPixelSpacing: number;
+};
+
+export type Rectangle = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+export interface Handles {
+  start?: HandlePosition;
+  end?: HandlePosition;
+  offset?: number;
+  textBox?: HandleTextBox;
+  initialRotation?: number;
+  points?: HandlePosition[];
+}
+
+export interface MeasurementMouseEvent {
+  detail: EventData;
+  currentTarget: any;
+}
+
+export interface Coords {
+  x: number;
+  y: number;
+}
+
+export interface EventData {
+  currentPoints: {
+    image: Coords;
+  };
+  element: HTMLElement;
+  buttons: number;
+  shiftKey: boolean;
+  viewport: Viewport;
+  event: {
+    altKey: boolean;
+    shiftKey: boolean;
+    ctrlKey: boolean;
+  };
+  image: cornerstone.Image;
+  canvasContext: {
+    canvas: any;
+  };
+}
+
+export type PreventEvent = {
+  stopImmediatePropagation: Function;
+  stopPropagation: Function;
+  preventDefault: Function;
+};
+
+export interface PlotlyData {
+  x: number[];
+  y: number[];
+  type: string;
+  line: {
+    color: string;
+  };
+}
