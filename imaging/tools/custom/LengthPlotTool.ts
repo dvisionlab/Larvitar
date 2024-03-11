@@ -19,70 +19,17 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 );
 
 //internal imports
-import { HandlePosition } from "../types";
-
-//interfaces/types
-
-type dataSets = { points: number[]; pixelValues: number[]; color: string }[];
-type PixelSpacing = {
-  rowPixelSpacing: number;
-  colPixelSpacing: number;
-};
-interface data {
-  visible: boolean;
-  active: boolean;
-  color: string;
-  invalidated: boolean;
-  handles: Handles;
-  length: number;
-}
-interface Handles {
-  start: HandlePosition;
-  end: HandlePosition;
-  offset: number;
-  fixedoffset: number;
-  color: string;
-  textBox?: {
-    active: boolean;
-    hasMoved: boolean;
-    movesIndependently: boolean;
-    drawnIndependently: boolean;
-    allowedOutsideImage: boolean;
-    hasBoundingBox: boolean;
-  };
-}
-interface ToolMouseEvent {
-  detail: EventData;
-  currentTarget: any;
-}
-interface Coords {
-  x: number;
-  y: number;
-}
-interface EventData {
-  currentPoints: {
-    image: Coords;
-  };
-  element: HTMLElement;
-  buttons: number;
-  shiftKey: boolean;
-  event: {
-    altKey: boolean;
-    shiftKey: boolean;
-  };
-  image: cornerstone.Image;
-  canvasContext: {
-    canvas: any;
-  };
-}
-interface PlotlyData {
-  x: number[];
-  y: number[];
-  type: string;
-  line: {
-    color: string;
-  };
-}
+import {
+  HandlePosition,
+  dataSets,
+  PixelSpacing,
+  MeasurementData,
+  Handles,
+  MeasurementMouseEvent,
+  Coords,
+  EventData,
+  PlotlyData
+} from "../types";
 
 /*
  * This module provides the following Tools to be exported:
@@ -100,9 +47,9 @@ interface PlotlyData {
 export default class LengthPlotTool extends BaseAnnotationTool {
   name: string = "LengthPlot";
   eventData?: EventData;
-  datahandles?: Handles | null;
-  abovehandles?: Handles | null;
-  belowhandles?: Handles | null;
+  datahandles?: Handles;
+  abovehandles?: Handles;
+  belowhandles?: Handles;
   plotlydata: Array<PlotlyData> = [];
   measuring = false;
   throttledUpdateCachedStats: any;
@@ -139,10 +86,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
 
     super(props, defaultProps);
     this.eventData;
-    this.datahandles = null;
+    this.datahandles;
     this.click = 0;
-    this.abovehandles = null;
-    this.belowhandles = null;
+    this.abovehandles;
+    this.belowhandles;
     this.borderRight;
     this.borderLeft = 0;
     this.evt;
@@ -150,7 +97,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.wheelactive = false;
     this.currentTarget = null;
     this.fixedOffset = 0;
-    this.theta = null;
     this.plotlydata = [];
     this.measuring = false;
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -167,17 +113,15 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    * @returns {void}
    */
   handleMouseUp() {
-    const toolData: { data: data[] } = getToolState(
+    const toolData: { data: MeasurementData[] } = getToolState(
       this.currentTarget,
       this.name
     );
-    if (this.measuring === true) {
-      toolData.data[toolData.data.length - 1].handles.fixedoffset =
-        toolData.data[toolData.data.length - 1].handles.offset;
-    }
+    this.fixedOffset = toolData.data[toolData.data.length - 1].handles.offset;
     this.click = +1;
     this.measuring =
-      this.datahandles?.end.x === this.datahandles?.start.x && this.click === 1
+      this.datahandles?.end!.x === this.datahandles?.start!.x &&
+      this.click === 1
         ? true
         : false;
 
@@ -185,12 +129,12 @@ export default class LengthPlotTool extends BaseAnnotationTool {
 
     const handleData = (handles: Handles) => {
       const points = this.getPointsAlongLine(
-        handles.start,
-        handles.end,
+        handles.start!,
+        handles.end!,
         getPixelSpacing(eventData!.image).colPixelSpacing
       );
       const pixelValues = this.getPixelValuesAlongLine(
-        handles.start,
+        handles.start!,
         points,
         getPixelSpacing(eventData!.image).colPixelSpacing,
         eventData!
@@ -198,13 +142,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       let color = "green";
       return { points, pixelValues, color };
     };
-    const result = handleData(this.datahandles!);
     const aboveResults = handleData(this.abovehandles!);
-    aboveResults.color = this.abovehandles!.color;
-    aboveResults.points = result.points;
+    aboveResults.color = "red";
     const belowResults = handleData(this.belowhandles!);
-    belowResults.color = this.belowhandles!.color;
-    belowResults.points = result.points;
+    belowResults.color = "blue";
     const data = [handleData(this.datahandles!), aboveResults, belowResults];
     if (this.measuring === false) {
       this.createPlot(...data);
@@ -219,29 +160,25 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    * @returns {void}
    */
   changeOffset(evt: WheelEvent) {
-    const toolData: { data: data[] } = getToolState(
+    const toolData: { data: MeasurementData[] } = getToolState(
       this.currentTarget,
       this.name
     );
     if (toolData) {
       const index = toolData.data.findIndex(obj => obj.active === true);
       const indexTracing = toolData.data.findIndex(
-        obj => obj.handles.end.moving === true
+        obj => obj.handles.end!.moving === true
       );
+
       if (
-        (toolData.data.length != 0 &&
-          index != undefined &&
-          index != -1 &&
-          toolData.data[index] != undefined &&
-          evt.buttons === 1) ||
-        (indexTracing != undefined &&
-          indexTracing != -1 &&
-          toolData.data[index] != undefined)
+        toolData.data.length != 0 &&
+        (index != undefined || indexTracing != undefined) &&
+        toolData.data[index] != undefined
       ) {
         const { deltaY } = evt;
 
-        toolData.data[index].handles.offset += deltaY > 0 ? 1 : -1;
-        evt.preventDefault();
+        toolData.data[index].handles.offset! += deltaY > 0 ? 1 : -1;
+        evt.preventDefault(); //modify custom mouse scroll to not interefere with ctrl+wheel
         this.renderToolData(evt);
 
         cornerstone.updateImage(this.eventData!.element);
@@ -266,12 +203,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       eventData.element.removeEventListener("wheel", evt =>
         this.changeOffset(evt)
       );
-    }
-    if (this.datahandles != null) {
-      this.datahandles = null;
-      this.abovehandles = null;
-      this.belowhandles = null;
-      this.theta = null;
     }
     eventData.element.addEventListener("mouseup", () => this.handleMouseUp());
     eventData.element.addEventListener("wheel", evt => this.changeOffset(evt));
@@ -317,8 +248,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           allowedOutsideImage: true,
           hasBoundingBox: true
         },
-        offset: 0,
-        fixedoffset: 0
+        offset: 0
       }
     };
   }
@@ -328,11 +258,11 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    * @method
    * @name pointNearTool
    * @param {HTMLElement} element
-   * @param {data} data
+   * @param {MeasurementData} data
    * @param {Coords} coords
    * @returns {boolean}
    */
-  pointNearTool(element: HTMLElement, data: data, coords: Coords) {
+  pointNearTool(element: HTMLElement, data: MeasurementData, coords: Coords) {
     const hasStartAndEndHandles =
       data && data.handles && data.handles.start && data.handles.end;
     const validParameters = hasStartAndEndHandles;
@@ -360,21 +290,21 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    * @name updateCachedStats
    * @param {cornerstone.Image} image
    * @param {HTMLElement} element
-   * @param {data} data
+   * @param {MeasurementData} data
    * @returns {boolean}
    */
   updateCachedStats(
     image: cornerstone.Image,
     element: HTMLElement,
-    data: data
+    data: MeasurementData
   ) {
     const { rowPixelSpacing, colPixelSpacing }: PixelSpacing =
       getPixelSpacing(image);
 
     const dx =
-      (data.handles.end.x - data.handles.start.x) * (colPixelSpacing || 1);
+      (data.handles.end!.x - data.handles.start!.x) * (colPixelSpacing || 1);
     const dy =
-      (data.handles.end.y - data.handles.start.y) * (rowPixelSpacing || 1);
+      (data.handles.end!.y - data.handles.start!.y) * (rowPixelSpacing || 1);
 
     const length = Math.sqrt(dx * dx + dy * dy);
 
@@ -386,10 +316,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    * Renders the data (new line/modified line)
    * @method
    * @name updateCachedStats
-   * @param {ToolMouseEvent | WheelEvent} evt
+   * @param {MeasurementMouseEvent | WheelEvent} evt
    * @returns {void}
    */
-  renderToolData(evt: ToolMouseEvent | WheelEvent) {
+  renderToolData(evt: MeasurementMouseEvent | WheelEvent) {
     if (evt.detail) {
       this.evt = evt;
       this.currentTarget = evt.currentTarget;
@@ -409,10 +339,11 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         renderDashed
       } = this.configuration;
 
-      const toolData: { data: data[] } = getToolState(
+      const toolData: { data: MeasurementData[] } = getToolState(
         this.currentTarget,
         this.name
       );
+
       if (!toolData) {
         return;
       }
@@ -449,20 +380,21 @@ export default class LengthPlotTool extends BaseAnnotationTool {
             lineOptions.lineDash = lineDash;
           }
 
-          start = data.handles.start;
-          end = data.handles.end;
+          start = data.handles.start!;
+          end = data.handles.end!;
           if (
             this.measuring === false &&
             this.wheelactive === true &&
             data.active === true
           ) {
-            data.handles.fixedoffset = data.handles.offset;
+            this.fixedOffset = data.handles.offset;
           }
           data.handles.offset =
-            (this.measuring === true && data.handles.end.moving === true) ||
+            (this.measuring === true && data.handles.end!.moving === true) ||
             this.wheelactive === true
               ? data.handles.offset
-              : data.handles.fixedoffset;
+              : this.fixedOffset;
+
           //data.handles.end.y = data.handles.start.y;
           drawLine(
             context,
@@ -471,84 +403,36 @@ export default class LengthPlotTool extends BaseAnnotationTool {
             data.handles.end,
             lineOptions
           );
-          let theta = Math.atan2(
-            data.handles.end.y - data.handles.start.y,
-            data.handles.end.x - data.handles.start.x
-          );
-          let abovelineOptions = { color: "red", lineWidth: 3 };
-          let belowlineOptions = { color: "blue", lineWidth: 3 };
-          if (data.handles.end.x - data.handles.start.x != 0) {
-            this.theta = this.theta === null ? theta : this.theta;
-            if (
-              radiansToDegrees(this.theta) > 90 &&
-              radiansToDegrees(this.theta) < 275
-            ) {
-              abovelineOptions.color = "blue";
-              belowlineOptions.color = "red";
-            }
-          }
 
           const aboveHandles: Handles = {
-            start: {
-              x: start.x + data.handles.offset * Math.sin(theta),
-              y: start.y - data.handles.offset * Math.cos(theta)
-            },
-            end: {
-              x: end.x + data.handles.offset * Math.sin(theta),
-              y: end.y - data.handles.offset * Math.cos(theta)
-            },
+            start: { x: start.x, y: start.y - data.handles.offset! },
+            end: { x: end.x, y: end.y - data.handles.offset! },
+            offset: data.handles.offset
+          };
 
-            offset: data.handles.offset,
-            fixedoffset: data.handles.fixedoffset,
-            color: abovelineOptions.color
-          };
           const belowHandles: Handles = {
-            start: {
-              x: start.x - data.handles.offset * Math.sin(theta),
-              y: start.y + data.handles.offset * Math.cos(theta)
-            },
-            end: {
-              x: end.x - data.handles.offset * Math.sin(theta),
-              y: end.y + data.handles.offset * Math.cos(theta)
-            },
-            offset: data.handles.offset,
-            fixedoffset: data.handles.fixedoffset,
-            color: belowlineOptions.color
+            start: { x: start.x, y: start.y + data.handles.offset! },
+            end: { x: end.x, y: end.y + data.handles.offset! },
+            offset: data.handles.offset
           };
-          if (
-            radiansToDegrees(this.theta) > 90 &&
-            radiansToDegrees(this.theta) < 275
-          ) {
-            drawLine(
-              context,
-              element,
-              belowHandles.start,
-              belowHandles.end,
-              belowlineOptions
-            );
-            drawLine(
-              context,
-              element,
-              aboveHandles.start,
-              aboveHandles.end,
-              abovelineOptions
-            );
-          } else {
-            drawLine(
-              context,
-              element,
-              aboveHandles.start,
-              aboveHandles.end,
-              abovelineOptions
-            );
-            drawLine(
-              context,
-              element,
-              belowHandles.start,
-              belowHandles.end,
-              belowlineOptions
-            );
-          }
+
+          const abovelineOptions = { color: "red", lineWidth: 3 };
+          const belowlineOptions = { color: "blue", lineWidth: 3 };
+
+          drawLine(
+            context,
+            element,
+            aboveHandles.start,
+            aboveHandles.end,
+            abovelineOptions
+          );
+          drawLine(
+            context,
+            element,
+            belowHandles.start,
+            belowHandles.end,
+            belowlineOptions
+          );
 
           const handleOptions = {
             color,
@@ -563,40 +447,20 @@ export default class LengthPlotTool extends BaseAnnotationTool {
             this.datahandles = data.handles;
             this.abovehandles = aboveHandles;
             this.belowhandles = belowHandles;
-            if (
-              radiansToDegrees(this.theta) > 90 &&
-              radiansToDegrees(this.theta) < 275
-            ) {
-              drawHandles(context, this.evt.detail, belowHandles, {
-                color: belowlineOptions.color,
-                handleRadius: 3,
-                drawHandlesIfActive: drawHandlesOnHover,
-                hideHandlesIfMoving,
-                fill: belowlineOptions.color
-              });
-              drawHandles(context, this.evt.detail, aboveHandles, {
-                color: abovelineOptions.color,
-                handleRadius: 3,
-                drawHandlesIfActive: drawHandlesOnHover,
-                hideHandlesIfMoving,
-                fill: abovelineOptions.color
-              });
-            } else {
-              drawHandles(context, this.evt.detail, aboveHandles, {
-                color: abovelineOptions.color,
-                handleRadius: 3,
-                drawHandlesIfActive: drawHandlesOnHover,
-                hideHandlesIfMoving,
-                fill: abovelineOptions.color
-              });
-              drawHandles(context, this.evt.detail, belowHandles, {
-                color: belowlineOptions.color,
-                handleRadius: 3,
-                drawHandlesIfActive: drawHandlesOnHover,
-                hideHandlesIfMoving,
-                fill: belowlineOptions.color
-              });
-            }
+            drawHandles(context, this.evt.detail, aboveHandles, {
+              color: "red",
+              handleRadius: 3,
+              drawHandlesIfActive: drawHandlesOnHover,
+              hideHandlesIfMoving,
+              fill: "red"
+            });
+            drawHandles(context, this.evt.detail, belowHandles, {
+              color: "blue",
+              handleRadius: 3,
+              drawHandlesIfActive: drawHandlesOnHover,
+              hideHandlesIfMoving,
+              fill: "blue"
+            });
           }
         });
       }
@@ -623,16 +487,11 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       end: HandlePosition,
       step: number
     ) => {
-      const startPoint =
-        Math.floor(Math.sqrt(Math.pow(start.x, 2) + Math.pow(start.y, 2))) + 1;
-
-      const numPoints = Math.floor(
-        Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2)) +
-          1
-      );
+      const startX = Math.floor(start.x) + 1;
+      const numPoints = Math.floor(end.x) - startX;
       points = new Array(numPoints + 1);
       for (let i = 0; i <= numPoints; i++) {
-        points[i] = (startPoint + i) * step;
+        points[i] = (startX + i) * step;
       }
     };
 
@@ -724,11 +583,12 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     };
 
     const myPlotDiv = document.getElementById("myPlot");
+
     if (
-      this.datahandles!.end.x! < this.borderLeft ||
-      this.datahandles!.start.x! < this.borderLeft ||
-      this.datahandles!.start.x! > this.borderRight ||
-      this.datahandles!.end.x! > this.borderRight
+      this.datahandles!.end!.x! < this.borderLeft ||
+      this.datahandles!.start!.x! < this.borderLeft ||
+      this.datahandles!.start!.x! > this.borderRight ||
+      this.datahandles!.end!.x! > this.borderRight
     ) {
       this.clearPlotlyData(myPlotDiv!);
       myPlotDiv!.style.display = "none";
@@ -753,22 +613,13 @@ export default class LengthPlotTool extends BaseAnnotationTool {
  * @returns {void}
  */
 function clearToolData(element: HTMLElement, toolName: string) {
-  const toolData: { data: data[] } = getToolState(element, toolName);
+  const toolData: { data: MeasurementData[] } = getToolState(element, toolName);
 
   if (toolData && toolData.data && toolData.data.length > 0) {
-    toolData.data.forEach((data: data) => {
+    toolData.data.forEach((data: MeasurementData) => {
       data.visible = false;
     });
   }
-}
-
-// Function to convert radians to degrees
-function radiansToDegrees(radians: number) {
-  let angle = radians * (180 / Math.PI);
-  if (angle < 0) {
-    angle += 360; // Add 360 to negative angles to bring them into the 0-360 range
-  }
-  return angle;
 }
 
 //to set custom offset do this: DEFAULT_TOOLS["LengthPlot"].offset=parseInt(document.getElementById("offset").value,10)

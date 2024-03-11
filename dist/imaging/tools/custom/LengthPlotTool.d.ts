@@ -1,66 +1,6 @@
 import cornerstone from "cornerstone-core";
 declare const BaseAnnotationTool: any;
-import { HandlePosition } from "../types";
-type dataSets = {
-    points: number[];
-    pixelValues: number[];
-    color: string;
-}[];
-interface data {
-    visible: boolean;
-    active: boolean;
-    color: string;
-    invalidated: boolean;
-    handles: Handles;
-    length: number;
-}
-interface Handles {
-    start: HandlePosition;
-    end: HandlePosition;
-    offset: number;
-    fixedoffset: number;
-    color: string;
-    textBox?: {
-        active: boolean;
-        hasMoved: boolean;
-        movesIndependently: boolean;
-        drawnIndependently: boolean;
-        allowedOutsideImage: boolean;
-        hasBoundingBox: boolean;
-    };
-}
-interface ToolMouseEvent {
-    detail: EventData;
-    currentTarget: any;
-}
-interface Coords {
-    x: number;
-    y: number;
-}
-interface EventData {
-    currentPoints: {
-        image: Coords;
-    };
-    element: HTMLElement;
-    buttons: number;
-    shiftKey: boolean;
-    event: {
-        altKey: boolean;
-        shiftKey: boolean;
-    };
-    image: cornerstone.Image;
-    canvasContext: {
-        canvas: any;
-    };
-}
-interface PlotlyData {
-    x: number[];
-    y: number[];
-    type: string;
-    line: {
-        color: string;
-    };
-}
+import { HandlePosition, dataSets, MeasurementData, Handles, MeasurementMouseEvent, Coords, EventData, PlotlyData } from "../types";
 /**
  * @public
  * @class LengthPlotTool
@@ -72,9 +12,9 @@ interface PlotlyData {
 export default class LengthPlotTool extends BaseAnnotationTool {
     name: string;
     eventData?: EventData;
-    datahandles?: Handles | null;
-    abovehandles?: Handles | null;
-    belowhandles?: Handles | null;
+    datahandles?: Handles;
+    abovehandles?: Handles;
+    belowhandles?: Handles;
     plotlydata: Array<PlotlyData>;
     measuring: boolean;
     throttledUpdateCachedStats: any;
@@ -137,7 +77,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
                 hasBoundingBox: boolean;
             };
             offset: number;
-            fixedoffset: number;
         };
     } | undefined;
     /**
@@ -145,29 +84,29 @@ export default class LengthPlotTool extends BaseAnnotationTool {
      * @method
      * @name pointNearTool
      * @param {HTMLElement} element
-     * @param {data} data
+     * @param {MeasurementData} data
      * @param {Coords} coords
      * @returns {boolean}
      */
-    pointNearTool(element: HTMLElement, data: data, coords: Coords): boolean;
+    pointNearTool(element: HTMLElement, data: MeasurementData, coords: Coords): boolean;
     /**
      * Updates stats of line length
      * @method
      * @name updateCachedStats
      * @param {cornerstone.Image} image
      * @param {HTMLElement} element
-     * @param {data} data
+     * @param {MeasurementData} data
      * @returns {boolean}
      */
-    updateCachedStats(image: cornerstone.Image, element: HTMLElement, data: data): void;
+    updateCachedStats(image: cornerstone.Image, element: HTMLElement, data: MeasurementData): void;
     /**
      * Renders the data (new line/modified line)
      * @method
      * @name updateCachedStats
-     * @param {ToolMouseEvent | WheelEvent} evt
+     * @param {MeasurementMouseEvent | WheelEvent} evt
      * @returns {void}
      */
-    renderToolData(evt: ToolMouseEvent | WheelEvent): void;
+    renderToolData(evt: MeasurementMouseEvent | WheelEvent): void;
     /**
      * Retrieves the points along the line
      * @method
