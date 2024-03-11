@@ -66,8 +66,6 @@ export const clearImageCache = function (seriesId?: string) {
       each(series[seriesId].imageIds, function (imageId: string) {
         if (cornerstone.imageCache.cachedImages.length > 0) {
           try {
-            console.log(cornerstone.imageCache);
-            console.log(imageId);
             cornerstone.imageCache.removeImageLoadObject(imageId);
           } catch (e) {
             console.warn("no cached image");
