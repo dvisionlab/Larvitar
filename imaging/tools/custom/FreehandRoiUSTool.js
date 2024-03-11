@@ -552,8 +552,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
           rowPixelSpacing === 0 ||
           rowPixelSpacing === 1 ||
           colPixelSpacing === undefined ||
-          colPixelSpacing === 0 ||
-          colPixelSpacing === 1
+          colPixelSpacing === 0
         ) {
           suffix = ` pixels${String.fromCharCode(178)}`;
         }
