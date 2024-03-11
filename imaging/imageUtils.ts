@@ -408,7 +408,16 @@ export const getReslicedMetadata = function (
     metadata.cols = metadata.x00280011;
     metadata.imageOrientation = metadata.x00200037;
     metadata.imagePosition = metadata.x00200032;
-    metadata.pixelSpacing = metadata.x00280030;
+    metadata.pixelSpacing = metadata.x00280030
+      ? metadata.x00280030
+      : metadata.x00080060 === "US" &&
+        metadata["x00186011"]![0].x0018602e != undefined &&
+        metadata["x00186011"]![0].x0018602c != undefined
+      ? ([
+          metadata["x00186011"]![0].x0018602e * 10, //so that from cm goes to mm
+          metadata["x00186011"]![0].x0018602c * 10
+        ] as [number, number])
+      : metadata.x00280030;
     metadata.instanceUID = metadata.x00080018;
     metadata.minPixelValue = metadata.x00280106;
     metadata.maxPixelValue = metadata.x00280107;
