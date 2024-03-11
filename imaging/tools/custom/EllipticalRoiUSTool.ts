@@ -232,8 +232,11 @@ export default class EllipticalRoiTool extends BaseAnnotationTool {
     const context: CanvasRenderingContext2D = getNewContext(
       eventData.canvasContext.canvas
     );
-    const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
-
+    let { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+    if (this.modality === "US") {
+      colPixelSpacing = image.columnPixelSpacing;
+      rowPixelSpacing = image.rowPixelSpacing;
+    }
     const hasPixelSpacing: boolean =
       rowPixelSpacing != undefined &&
       rowPixelSpacing != 0 &&
@@ -478,10 +481,9 @@ function _createTextBoxContent(
  */
 function _formatArea(modality: string, area: number, hasPixelSpacing: boolean) {
   // This uses Char code 178 for a superscript 2
-  const suffix =
-    !hasPixelSpacing || modality === "US"
-      ? ` px${String.fromCharCode(178)}`
-      : ` mm${String.fromCharCode(178)}`;
+  const suffix = !hasPixelSpacing
+    ? ` px${String.fromCharCode(178)}`
+    : ` mm${String.fromCharCode(178)}`;
 
   return `Area: ${numbersWithCommas(area.toFixed(2))}${suffix}`;
 }

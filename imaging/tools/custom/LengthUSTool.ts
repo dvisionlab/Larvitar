@@ -69,31 +69,6 @@ export default class LengthTool extends BaseAnnotationTool {
       this.modality = viewport.modality;
     }
 
-    /*
-    if(this.modality===undefined)
-    {let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
-      eventData.image.imageId
-    );
-    let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
-    let imageTracker = getLarvitarImageTracker();
-    console.log(getLarvitarImageTracker());
-    let seriesId = imageTracker[rootImageId];
-    let manager = getLarvitarManager() as LarvitarManager;
-    if (manager && seriesId) {
-      let series = manager[seriesId] as Series;
-      this.modality =
-        series.instances[eventData.image.imageId].metadata["x00080060"];
-    } else {
-      const seriesModule: { modality: string } =
-        external.cornerstone.metaData.get(
-          "generalSeriesModule",
-          eventData.image.imageId
-        ) || {};
-      if (seriesModule.modality) {
-        this.modality = seriesModule.modality;
-      }
-    }}*/
-
     if (!goodEventData) {
       console.error(
         `required eventData not supplied to tool ${this.name}'s createNewMeasurement`
@@ -170,7 +145,11 @@ export default class LengthTool extends BaseAnnotationTool {
     element: Element,
     data: MeasurementData
   ) {
-    const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+    let { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+    if (this.modality === "US") {
+      colPixelSpacing = image.columnPixelSpacing;
+      rowPixelSpacing = image.rowPixelSpacing;
+    }
 
     // Set rowPixelSpacing and columnPixelSpacing to 1 if they are undefined (or zero)
     const dx =
@@ -206,12 +185,15 @@ export default class LengthTool extends BaseAnnotationTool {
       eventData.canvasContext.canvas
     );
     const { image, element } = eventData;
-    const {
+    let {
       rowPixelSpacing,
       colPixelSpacing
     }: { rowPixelSpacing: number; colPixelSpacing: number } =
       getPixelSpacing(image);
-
+    if (this.modality === "US") {
+      colPixelSpacing = image.columnPixelSpacing;
+      rowPixelSpacing = image.rowPixelSpacing;
+    }
     const lineWidth: number = toolStyle.getToolWidth();
     const lineDash: boolean = getModule("globalConfiguration").configuration
       .lineDash;
@@ -332,8 +314,7 @@ export default class LengthTool extends BaseAnnotationTool {
         rowPixelSpacing === undefined ||
         rowPixelSpacing === 0 ||
         colPixelSpacing === undefined ||
-        colPixelSpacing === 0 ||
-        modality === "US"
+        colPixelSpacing === 0
       ) {
         suffix = "pixels";
       }

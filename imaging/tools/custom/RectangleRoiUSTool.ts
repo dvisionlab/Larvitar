@@ -205,8 +205,12 @@ export default class RectangleRoiTool extends BaseAnnotationTool {
     const context: CanvasRenderingContext2D = getNewContext(
       eventData.canvasContext.canvas
     );
-    const { rowPixelSpacing, colPixelSpacing }: PixelSpacing =
+    let { rowPixelSpacing, colPixelSpacing }: PixelSpacing =
       getPixelSpacing(image);
+    if (this.modality === "US") {
+      colPixelSpacing = image.columnPixelSpacing;
+      rowPixelSpacing = image.rowPixelSpacing;
+    }
 
     const hasPixelSpacing: boolean =
       rowPixelSpacing != undefined &&
@@ -499,10 +503,9 @@ function _findTextBoxAnchorPoints(
  */
 function _formatArea(modality: string, area: number, hasPixelSpacing: boolean) {
   // This uses Char code 178 for a superscript 2
-  const suffix =
-    !hasPixelSpacing || modality === "US"
-      ? ` px${String.fromCharCode(178)}`
-      : ` mm${String.fromCharCode(178)}`;
+  const suffix = !hasPixelSpacing
+    ? ` px${String.fromCharCode(178)}`
+    : ` mm${String.fromCharCode(178)}`;
 
   return `Area: ${numbersWithCommas(area.toFixed(2))}${suffix}`;
 }
