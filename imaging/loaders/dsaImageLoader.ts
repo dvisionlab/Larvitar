@@ -50,6 +50,7 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
     const srcImage: Image = find(cornerstone.imageCache.cachedImages, {
       imageId: multiFrameSerie.imageIds[index]
     }).image;
+
     console.debug(`Load DSA Image with custom loader for imageId: ${imageId}`);
     return createCustomImage(imageId, srcImage, pixelData);
   } else {
@@ -165,6 +166,7 @@ let createCustomImage = function (
       rowPixelSpacing: srcImage.rowPixelSpacing,
       sizeInBytes: srcImage.sizeInBytes
     };
+
     resolve(image as Image);
   });
 
