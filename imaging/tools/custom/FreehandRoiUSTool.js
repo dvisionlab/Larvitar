@@ -313,7 +313,11 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
 
     // Retrieve the pixel spacing values, and if they are not
     // Real non-zero values, set them to 1
-    const { colPixelSpacing, rowPixelSpacing } = getPixelSpacing(image);
+    let { colPixelSpacing, rowPixelSpacing } = getPixelSpacing(image);
+    if (this.modality === "US") {
+      colPixelSpacing = image.columnPixelSpacing;
+      rowPixelSpacing = image.rowPixelSpacing;
+    }
     const scaling = (colPixelSpacing || 1) * (rowPixelSpacing || 1);
 
     const area = freehandArea(data.handles.points, scaling);
@@ -537,14 +541,17 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
         // This uses Char code 178 for a superscript 2
         let suffix = ` mm${String.fromCharCode(178)}`;
 
-        const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+        let { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+        if (this.modality === "US") {
+          colPixelSpacing = image.columnPixelSpacing;
+          rowPixelSpacing = image.rowPixelSpacing;
+        }
 
         if (
           rowPixelSpacing === undefined ||
           rowPixelSpacing === 0 ||
           colPixelSpacing === undefined ||
-          colPixelSpacing === 0 ||
-          modality === "US"
+          colPixelSpacing === 0
         ) {
           suffix = ` pixels${String.fromCharCode(178)}`;
         }

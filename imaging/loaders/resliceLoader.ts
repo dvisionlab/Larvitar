@@ -65,7 +65,16 @@ let createCustomImage = function (
   // before creating the custom image object (like the multiframe case).
   imageFrame.pixelData = pixelData;
 
-  let pixelSpacing = metadata.x00280030;
+  let pixelSpacing = metadata.x00280030
+    ? metadata.x00280030
+    : metadata.x00080060 === "US" &&
+      metadata["x00186011"]![0].x0018602e != undefined &&
+      metadata["x00186011"]![0].x0018602c != undefined
+    ? ([
+        metadata["x00186011"]![0].x0018602e * 10, //so that from cm goes to mm
+        metadata["x00186011"]![0].x0018602c * 10
+      ] as [number, number])
+    : metadata.x00280030;
   let rescaleIntercept = metadata.x00281052;
   let rescaleSlope = metadata.x00281053;
   let windowCenter = metadata.x00281050;
