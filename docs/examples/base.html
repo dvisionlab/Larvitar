@@ -17,15 +17,124 @@
       hljs.highlightAll();
     </script>
     <title>Larvitar - Basic rendering example</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      label {
+        color: #28b47f;
+        font-weight: bold;
+        text-align: center;
+        border: 2px;
+      }
+      /* Button used to open the contact form - fixed at the bottom of the page */
+      .open-button {
+        background-color: #28b47f;
+        color: white;
+        padding: 16px 20px;
+        border: none;
+        cursor: pointer;
+        opacity: 0.8;
+        position: absolute;
+        top: 30px;
+      }
+
+      /* The popup form - hidden by default */
+      .form-popup {
+        display: none;
+        position: absolute;
+        top: 30px;
+        border: 3px solid #555;
+        z-index: 9;
+      }
+
+      /* Add styles to the form container */
+      .form-container {
+        max-width: 300px;
+        padding: 10px;
+        background-color: rgb(0, 0, 0);
+      }
+
+      /* Full-width input fields */
+      .form-container input[type="text"],
+      .form-container input[type="password"] {
+        width: 100%;
+        padding: 15px;
+        margin: 5px 0 22px 0;
+        border: none;
+        background: #f1f1f1;
+      }
+
+      /* When the inputs get focus, do something */
+      .form-container input[type="text"]:focus,
+      .form-container input[type="password"]:focus {
+        background-color: #ddd;
+        outline: none;
+      }
+
+      /* Set a style for the submit/login button */
+      .form-container .btn {
+        background-color: #04aa6d;
+        color: white;
+        padding: 16px 20px;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        margin-bottom: 10px;
+        opacity: 0.8;
+      }
+
+      /* Add a red background color to the cancel button */
+      .form-container .cancel {
+        background-color: red;
+      }
+
+      /* Add some hover effects to buttons */
+      .form-container .btn:hover,
+      .open-button:hover {
+        opacity: 1;
+      }
+    </style>
   </head>
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
-      <div
-        id="viewer"
-        class="col-8 h-100"
-        style="background-color: black"
-      ></div>
+      <div id="viewer" class="col-8 h-100" style="background-color: black">
+        <p style="position: absolute; color: white">
+          <b>Open form:</b> Allows to modify DICOM tags and download the
+          modified image/images
+        </p>
+        <button class="open-button" onclick="openForm()">Open Form</button>
+
+        <div class="form-popup" id="myForm">
+          <form id="myFormSub" class="form-container">
+            <h1 style="text-align: center; color: #28b47f; font-weight: bold">
+              Metadata
+            </h1>
+            <div id="metadata" style="overflow-y: scroll; height: 300px"></div>
+            <div>
+              <input type="checkbox" id="downloadCheck" />
+              <label> Download modified image/images</label><br />
+              <label style="display: none" id="downloadLabel"
+                >Download image N:</label
+              >
+              <input
+                type="number"
+                id="downloadInput"
+                style="display: none"
+                placeholder="Download all images"
+              />
+            </div>
+            <button id="submit" class="btn">submit</button>
+            <button type="button" class="btn cancel" onclick="closeForm()">
+              Close
+            </button>
+          </form>
+        </div>
+      </div>
 
       <div class="col-4 h-100">
         <pre class="h-100">
@@ -105,7 +214,100 @@
     <script>
       let demoFiles = [];
       let counter = 0;
+      let newMetaData = {};
+      let series;
 
+      var form = document.getElementById("myFormSub");
+      function handleForm(event) {
+        event.preventDefault();
+      }
+      form.addEventListener("submit", handleForm);
+      function openForm() {
+        document.getElementById("myForm").style.display = "block";
+      }
+
+      function closeForm() {
+        document.getElementById("myForm").style.display = "none";
+      }
+      const inputBtn = document.getElementById("submit");
+      inputBtn.addEventListener("click", func);
+
+      function func() {
+        if (series) {
+          const keys = Object.keys(
+            series.instances[series.imageIds[0]].metadata
+          ).filter(item => item.startsWith("x"));
+
+          for (key in keys) {
+            if (
+              document.getElementById(keys[key]) != undefined &&
+              document.getElementById(keys[key]) != null &&
+              typeof series.instances[series.imageIds[0]].metadata[
+                keys[key]
+              ] === "string" &&
+              document.getElementById(keys[key]).value &&
+              document.getElementById(keys[key]).value !==
+                document.getElementById(keys[key]).placeholder
+            ) {
+              let value = document.getElementById(keys[key]).value;
+              newMetaData[keys[key]] = value;
+            }
+          }
+          if (Object.keys(newMetaData) != 0) {
+            larvitar.customizeByteArray(series, newMetaData);
+          }
+          console.log(series);
+
+          if (document.getElementById("downloadCheck").checked) {
+            if (document.getElementById("downloadInput").value) {
+              var blob = new Blob(
+                [
+                  series.instances[
+                    series.imageIds[
+                      parseInt(
+                        document.getElementById("downloadInput").value,
+                        10
+                      )
+                    ]
+                  ].dataSet.byteArray
+                ],
+                {
+                  type: "application/dicom"
+                }
+              );
+              var url = window.URL.createObjectURL(blob);
+              window.open(url);
+              window.URL.revokeObjectURL(url);
+            } else {
+              for (let i = 0; i < series.imageIds.length; i++) {
+                var blob = new Blob(
+                  [series.instances[series.imageIds[i]].dataSet.byteArray], //[series.instances[series.imageIds[i]].dataSet.byteArray]
+                  {
+                    type: "application/dicom"
+                  }
+                );
+                var url = window.URL.createObjectURL(blob);
+                window.open(url);
+                window.URL.revokeObjectURL(url);
+              }
+            }
+          }
+        }
+      }
+      document.getElementById("downloadCheck").addEventListener("click", () => {
+        if (document.getElementById("downloadCheck").checked) {
+          document.getElementById("downloadLabel").style.display = "block";
+          document.getElementById("downloadInput").style.display = "block";
+          document.getElementById("downloadInput").style.width = "250px";
+          document.getElementById("downloadInput").min = 0;
+          document.getElementById("downloadInput").max =
+            series.imageIds.length - 1;
+        } else {
+          document.getElementById("downloadLabel").style.display = "none";
+          document.getElementById("downloadInput").style.display = "none";
+        }
+      });
+      let keys = [];
       const getDemoFileNames = function () {
         let demoFileList = [];
         for (let i = 1; i < 25; i++) {
@@ -145,7 +347,6 @@
             });
             // optionally cache the series
             larvitar.populateLarvitarManager(seriesId, serie);
-            console.log(larvitar.getLarvitarManager());
             larvitar.cacheImages(serie, function (resp) {
               if (resp.loading == 100) {
                 let cache = larvitar.cornerstone.imageCache;
@@ -156,6 +357,28 @@
                 );
               }
             });
+
+            series = serie;
+            const keys = Object.keys(
+              serie.instances[serie.imageIds[0]].metadata
+            ).filter(item => item.startsWith("x"));
+            for (key in keys) {
+              if (
+                typeof serie.instances[serie.imageIds[0]].metadata[
+                  keys[key]
+                ] === "string"
+              ) {
+                console.log("newElem");
+                let newElement = document.createElement("label");
+                newElement.innerHTML = keys[key];
+                let newChild = document.createElement("input");
+                newChild.id = keys[key];
+                newChild.placeholder =
+                  serie.instances[serie.imageIds[0]].metadata[keys[key]];
+                document.getElementById("metadata").appendChild(newElement);
+                newElement.appendChild(newChild);
+              }
+            }
             larvitar.addDefaultTools();
             larvitar.setToolActive("Wwwc");
           })
