@@ -215,7 +215,9 @@ export default class RectangleRoiTool extends BaseAnnotationTool {
     const hasPixelSpacing: boolean =
       rowPixelSpacing != undefined &&
       rowPixelSpacing != 0 &&
-      colPixelSpacing != 0 &&
+      rowPixelSpacing != 1;
+    colPixelSpacing != 0 &&
+      colPixelSpacing != 1 &&
       colPixelSpacing != undefined;
 
     draw(context, (context: CanvasRenderingContext2D) => {
