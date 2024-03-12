@@ -12,7 +12,7 @@ export default class WwwcInvertRegionTool {
     _editMouseUpCallback: (evt: any) => void;
     throttledUpdateCachedStats: any;
     createNewMeasurement(eventData: any): {
-        computeMeasurements: any;
+        computeMeasurements: boolean;
         visible: boolean;
         active: boolean;
         color: undefined;

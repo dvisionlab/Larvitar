@@ -707,14 +707,4 @@ const _calculateMinMaxMean = function(pixelLuminance, globalMin, globalMax) {
   };
 };
 
-/**
- * Helper to determine if an object has no keys and is the correct type (is empty)
- *
- * @private
- * @function _isEmptyObject
- * @param {Object} obj The object to check
- * @returns {Boolean} true if the object is empty
- */
-const _isEmptyObject = obj =>
-  Object.keys(obj).length === 0 && obj.constructor === Object;
 
