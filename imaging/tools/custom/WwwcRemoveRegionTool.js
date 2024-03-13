@@ -67,7 +67,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     };
 
     super(props, defaultProps);
-
+    this.dataHandles = [];
     this._drawingMouseUpCallback = this._applyStrategy.bind(this);
     this._editMouseUpCallback = this._applyStrategy.bind(this);
 
@@ -85,6 +85,11 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
       );
 
       return;
+    }
+    if (this.dataHandles) {
+      console.log('removing tool');
+      element.removeEventListener(EVENTS.MOUSE_UP, this._drawingMouseUpCallback);
+      element.removeEventListener(EVENTS.TOUCH_END, this._drawingMouseUpCallback);
     }
     element.addEventListener(EVENTS.MOUSE_UP, this._drawingMouseUpCallback);
     element.addEventListener(EVENTS.TOUCH_END, this._drawingMouseUpCallback);
@@ -323,6 +328,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     const rectangles = toolData ? toolData.data : [] ;
     if (Array.isArray(rectangles)) { 
       const allHandles = rectangles.map(item => item.handles);
+      this.dataHandles = allHandles;
       _applyWWWCRegion(evt, allHandles, this.configuration);
     }
   }

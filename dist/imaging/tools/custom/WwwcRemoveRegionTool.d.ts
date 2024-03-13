@@ -8,6 +8,7 @@
  */
 export default class WwwcRemoveRegionTool {
     constructor(props?: {});
+    dataHandles: any[];
     _drawingMouseUpCallback: (evt: any) => void;
     _editMouseUpCallback: (evt: any) => void;
     throttledUpdateCachedStats: any;
