@@ -87,7 +87,6 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
       return;
     }
     if (this.dataHandles) {
-      console.log('removing tool');
       element.removeEventListener(EVENTS.MOUSE_UP, this._drawingMouseUpCallback);
       element.removeEventListener(EVENTS.TOUCH_END, this._drawingMouseUpCallback);
     }
