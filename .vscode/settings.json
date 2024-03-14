@@ -1,4 +1,5 @@
 {
-"prettier.arrowParens": "avoid",
-"prettier.trailingComma": "none"
+  "prettier.arrowParens": "avoid",
+  "prettier.trailingComma": "none",
+  "liveServer.settings.port": 5501
 }
