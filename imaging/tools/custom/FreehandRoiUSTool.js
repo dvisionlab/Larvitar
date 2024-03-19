@@ -321,7 +321,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
       colPixelSpacing = image.columnPixelSpacing;
       rowPixelSpacing = image.rowPixelSpacing;
     }
-    if (rowPixelSpacing || colPixelSpacing === undefined) {
+    if (rowPixelSpacing === undefined || colPixelSpacing === undefined) {
       let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
         image.imageId
       );
@@ -566,7 +566,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
           colPixelSpacing = image.columnPixelSpacing;
           rowPixelSpacing = image.rowPixelSpacing;
         }
-        if (rowPixelSpacing || colPixelSpacing === undefined) {
+        if (rowPixelSpacing === undefined || colPixelSpacing === undefined) {
           let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
             eventData.image.imageId
           );

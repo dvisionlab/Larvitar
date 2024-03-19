@@ -153,7 +153,22 @@ export default class LengthTool extends BaseAnnotationTool {
       colPixelSpacing = image.columnPixelSpacing;
       rowPixelSpacing = image.rowPixelSpacing;
     }
-
+    if (rowPixelSpacing === undefined || colPixelSpacing === undefined) {
+      let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+        image.imageId
+      );
+      let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
+      let imageTracker = getLarvitarImageTracker();
+      let seriesId = imageTracker[rootImageId];
+      let manager = getLarvitarManager() as LarvitarManager;
+      if (manager && seriesId) {
+        let series = manager[seriesId] as Series;
+        rowPixelSpacing =
+          series.instances[image.imageId].metadata.pixelSpacing![0];
+        colPixelSpacing =
+          series.instances[image.imageId].metadata.pixelSpacing![1];
+      }
+    }
     // Set rowPixelSpacing and columnPixelSpacing to 1 if they are undefined (or zero)
     const dx =
       (data.handles.end!.x - data.handles.start!.x) * (colPixelSpacing || 1);
@@ -198,7 +213,7 @@ export default class LengthTool extends BaseAnnotationTool {
       rowPixelSpacing = image.rowPixelSpacing;
     }
 
-    if (rowPixelSpacing || colPixelSpacing === undefined) {
+    if (rowPixelSpacing === undefined || colPixelSpacing === undefined) {
       let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
         eventData.image.imageId
       );
