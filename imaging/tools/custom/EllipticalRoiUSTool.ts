@@ -1,5 +1,6 @@
 //external imports
 import cornerstoneTools from "cornerstone-tools";
+import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 const external = cornerstoneTools.external;
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
@@ -49,9 +50,10 @@ import {
   Rectangle,
   Stats
 } from "../types";
-import { StoreViewport } from "../../types";
+import { LarvitarManager, Series, StoreViewport } from "../../types";
 import store from "../../imageStore";
-
+import { getLarvitarImageTracker } from "../../loaders/commonLoader";
+import { getLarvitarManager } from "../../loaders/commonLoader";
 /**
  * @public
  * @class EllipticalRoiTool
@@ -199,6 +201,25 @@ export default class EllipticalRoiTool extends BaseAnnotationTool {
     data: MeasurementData
   ) {
     const pixelSpacing: PixelSpacing = getPixelSpacing(image);
+    if (
+      pixelSpacing.rowPixelSpacing ||
+      pixelSpacing.colPixelSpacing === undefined
+    ) {
+      let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+        image.imageId
+      );
+      let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
+      let imageTracker = getLarvitarImageTracker();
+      let seriesId = imageTracker[rootImageId];
+      let manager = getLarvitarManager() as LarvitarManager;
+      if (manager && seriesId) {
+        let series = manager[seriesId] as Series;
+        pixelSpacing.rowPixelSpacing =
+          series.instances[image.imageId].metadata.pixelSpacing![0];
+        pixelSpacing.colPixelSpacing =
+          series.instances[image.imageId].metadata.pixelSpacing![1];
+      }
+    }
 
     const stats: Stats = _calculateStats(
       image,
@@ -236,6 +257,22 @@ export default class EllipticalRoiTool extends BaseAnnotationTool {
     if (this.modality === "US") {
       colPixelSpacing = image.columnPixelSpacing;
       rowPixelSpacing = image.rowPixelSpacing;
+    }
+    if (rowPixelSpacing || colPixelSpacing === undefined) {
+      let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+        eventData.image.imageId
+      );
+      let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
+      let imageTracker = getLarvitarImageTracker();
+      let seriesId = imageTracker[rootImageId];
+      let manager = getLarvitarManager() as LarvitarManager;
+      if (manager && seriesId) {
+        let series = manager[seriesId] as Series;
+        rowPixelSpacing =
+          series.instances[eventData.image.imageId].metadata.pixelSpacing![0];
+        colPixelSpacing =
+          series.instances[eventData.image.imageId].metadata.pixelSpacing![1];
+      }
     }
     const hasPixelSpacing: boolean =
       rowPixelSpacing != undefined &&
