@@ -175,8 +175,9 @@ export default class RectangleRoiTool extends BaseAnnotationTool {
   ) {
     const pixelSpacing: { colPixelSpacing: number; rowPixelSpacing: number } =
       getPixelSpacing(image);
+
     if (
-      pixelSpacing.rowPixelSpacing ||
+      pixelSpacing.rowPixelSpacing === undefined ||
       pixelSpacing.colPixelSpacing === undefined
     ) {
       let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
@@ -227,12 +228,14 @@ export default class RectangleRoiTool extends BaseAnnotationTool {
     const context: CanvasRenderingContext2D = getNewContext(
       eventData.canvasContext.canvas
     );
-    let { rowPixelSpacing, colPixelSpacing }: PixelSpacing = getPixelSpacing;
+    let { rowPixelSpacing, colPixelSpacing }: PixelSpacing =
+      getPixelSpacing(image);
     if (this.modality === "US") {
       colPixelSpacing = image.columnPixelSpacing;
       rowPixelSpacing = image.rowPixelSpacing;
     }
-    if (rowPixelSpacing || colPixelSpacing === undefined) {
+
+    if (rowPixelSpacing === undefined || colPixelSpacing === undefined) {
       let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
         eventData.image.imageId
       );
