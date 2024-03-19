@@ -1,5 +1,6 @@
 //external imports
 import csTools from "cornerstone-tools";
+import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 // cornerstone tools imports
 const external = csTools.external;
 const EVENTS = csTools.EVENTS;
@@ -27,6 +28,7 @@ const throttle = csTools.importInternal("util/throttle");
 const freehandUtils = csTools.importInternal("util/freehandUtils");
 const getModule = csTools.getModule;
 const state = getModule("segmentation").state;
+
 const {
   insertOrDelete,
   freehandArea,
@@ -37,7 +39,8 @@ const {
 
 //internal imports
 import store from "../../imageStore";
-
+import { getLarvitarImageTracker } from "../../loaders/commonLoader";
+import { getLarvitarManager } from "../../loaders/commonLoader";
 /**
  * @public
  * @class FreehandRoiTool
@@ -318,6 +321,23 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
       colPixelSpacing = image.columnPixelSpacing;
       rowPixelSpacing = image.rowPixelSpacing;
     }
+    if (rowPixelSpacing || colPixelSpacing === undefined) {
+      let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+        image.imageId
+      );
+      let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
+      let imageTracker = getLarvitarImageTracker();
+      let seriesId = imageTracker[rootImageId];
+      let manager = getLarvitarManager();
+      if (manager && seriesId) {
+        let series = manager[seriesId];
+        rowPixelSpacing =
+          series.instances[image.imageId].metadata.pixelSpacing[0];
+        colPixelSpacing =
+          series.instances[image.imageId].metadata.pixelSpacing[1];
+      }
+    }
+
     const scaling = (colPixelSpacing || 1) * (rowPixelSpacing || 1);
 
     const area = freehandArea(data.handles.points, scaling);
@@ -545,6 +565,24 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
         if (this.modality === "US") {
           colPixelSpacing = image.columnPixelSpacing;
           rowPixelSpacing = image.rowPixelSpacing;
+        }
+        if (rowPixelSpacing || colPixelSpacing === undefined) {
+          let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+            eventData.image.imageId
+          );
+          let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
+          let imageTracker = getLarvitarImageTracker();
+          let seriesId = imageTracker[rootImageId];
+          let manager = getLarvitarManager();
+          if (manager && seriesId) {
+            let series = manager[seriesId];
+            rowPixelSpacing =
+              series.instances[eventData.image.imageId].metadata
+                .pixelSpacing[0];
+            colPixelSpacing =
+              series.instances[eventData.image.imageId].metadata
+                .pixelSpacing[1];
+          }
         }
 
         if (
@@ -1501,7 +1539,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     this._drawingInteractionType = interactionType;
 
     state.isMultiPartToolActive = true;
-    hideToolCursor(this.element);
+    // hideToolCursor(this.element);
 
     // Polygonal Mode
     element.addEventListener(EVENTS.MOUSE_DOWN, this._drawingMouseDownCallback);
@@ -1548,7 +1586,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     state.isMultiPartToolActive = false;
     this._activeDrawingToolReference = null;
     this._drawingInteractionType = null;
-    setToolCursor(this.element, this.svgCursor);
+    //setToolCursor(this.element, this.svgCursor);
 
     element.removeEventListener(
       EVENTS.MOUSE_DOWN,

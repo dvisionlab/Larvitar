@@ -20,7 +20,10 @@ import { loadReslicedImage } from "./loaders/resliceLoader";
 import { loadMultiFrameImage } from "./loaders/multiframeLoader";
 import { loadDsaImage } from "./loaders/dsaImageLoader";
 import { ImageObject, Instance, Series, StagedProtocol } from "./types";
-import { getLarvitarManager } from "./loaders/commonLoader";
+import {
+  getLarvitarImageTracker,
+  getLarvitarManager
+} from "./loaders/commonLoader";
 
 /**
  * Global standard configuration
@@ -154,6 +157,7 @@ export const updateLoadedStack = function (
   customId?: string,
   sliceIndex?: number
 ) {
+  let imageTracker = getLarvitarImageTracker();
   let lid = seriesData.metadata.larvitarSeriesInstanceUID;
   let sid = seriesData.metadata.seriesUID;
   let ssid = seriesData.metadata.studyUID;
@@ -250,7 +254,7 @@ export const updateLoadedStack = function (
     let imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(
       seriesData.file
     ) as string;
-
+    imageTracker[imageId] = lid as string;
     if (sliceIndex !== undefined) {
       allSeriesStack[id].imageIds[sliceIndex] = imageId;
     } else {
