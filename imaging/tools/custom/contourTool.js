@@ -38,7 +38,7 @@ const getLogger = csTools.importInternal("util/getLogger");
 const throttle = csTools.importInternal("util/throttle");
 const logger = getLogger("tools:annotation:FreehandRoiTool");
 const freehandUtils = csTools.importInternal("util/freehandUtils");
-console.log(freehandRoiCursor);
+
 // TODO check how to import these
 // const toolCursor = csTools.importInternal("store/setToolCursor");
 // const hideToolCursor = toolCursor.hideToolCursor;
