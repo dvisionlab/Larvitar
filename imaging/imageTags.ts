@@ -396,8 +396,10 @@ export function parseTag<T>(
             vr: vr
           });
         } catch (error) {
-          console.warn("Invalid Character Set: " + characterSet);
-          valueOut = "Invalid Character Set: " + characterSet;
+          console.warn(
+            `Invalid Character Set for tag '${tagData}':'${characterSet}' `
+          );
+          valueOut = "ERROR_INVALID_CHAR_SET";
         }
         arr = null;
       }

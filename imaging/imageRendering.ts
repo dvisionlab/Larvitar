@@ -175,7 +175,7 @@ export function loadAndCacheImages(
       });
     } else if (series.instances[imageId!].metadata.pixelDataLength === 0) {
       updateProgress();
-      console.warn(`File ${index} has no Pixel Data`);
+      throw new Error(`File ${index} has no Pixel Data`);
     } else {
       updateProgress();
       console.warn(
@@ -578,9 +578,8 @@ export const renderImage = function (
         resolve(true);
       });
     } else {
-      console.warn("No pixel Data");
       reject;
-      return;
+      throw new Error("No pixel data for id: " + data.imageId);
     }
   });
 
@@ -1272,8 +1271,8 @@ const getSeriesData = function (
       }
     };
     if (data.rows == null || data.cols == null) {
-      console.warn("invalid image metadata (rows or cols is null)");
       setStore(["errorLog", "Invalid Image Metadata"]);
+      throw new Error("invalid image metadata (rows or cols is null)");
     } else {
       setStore(["errorLog", ""]);
     }
