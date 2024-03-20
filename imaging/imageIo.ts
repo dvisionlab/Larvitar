@@ -215,9 +215,7 @@ export const buildDataAsync = function (
     let data = new typedArray(len);
     let offsetData = 0;
 
-    series.imageIds = getSortedStack(series as Series, ["imagePosition"], true);
-
-    let imageIds = series.imageIds.slice();
+    let imageIds = getSortedStack(series as Series, ["imagePosition"], true);
     store.addSeriesId(series.seriesUID, series.imageIds);
 
     function runFillPixelData(data: TypedArray) {
