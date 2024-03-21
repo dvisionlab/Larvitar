@@ -634,8 +634,11 @@ export const updateImage = async function (
     isDSAEnabled === true
       ? series.dsa!.imageIds[imageIndex]
       : series.imageIds[imageIndex];
+
   //check if it is a metadata-only object
-  if (series.instances[imageId].metadata.pixelDataLength != 0) {
+  if (
+    series.instances[series.imageIds[imageIndex]].metadata.pixelDataLength != 0
+  ) {
     if (isDSAEnabled === true) {
       // get the optional custom pixel shift
       const pixelShift = store.get(["viewports", id, "pixelShift"]);
@@ -887,6 +890,7 @@ export const storeViewportData = function (
   setStore(["thickness", elementId, data.thickness]);
   setStore(["minPixelValue", elementId, image.minPixelValue]);
   setStore(["maxPixelValue", elementId, image.maxPixelValue]);
+  setStore(["modality", elementId, data.modality]);
   // slice id from 0 to n - 1
   setStore(["minSliceId", elementId, 0]);
   if (data.imageIndex) {
@@ -1181,6 +1185,7 @@ const getSeriesData = function (
   type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
   data.seriesUID = series.larvitarSeriesInstanceUID || series.seriesUID; //case of resliced series
+  data.modality = series.modality;
   if (series.isMultiframe) {
     data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;

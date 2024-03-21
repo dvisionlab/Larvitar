@@ -27,6 +27,7 @@
 
 import { filter, isArray } from "lodash";
 import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
+import WwwcRemoveRegionTool from "./custom/WwwcRemoveRegionTool";
 import PolylineScissorsTool from "./custom/polylineScissorsTool";
 import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
 import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
@@ -34,6 +35,10 @@ import BorderMagnifyTool from "./custom/BorderMagnifyTool";
 import CustomMouseWheelScrollTool from "./custom/customMouseWheelScrollTool";
 import WSToggleTool from "./custom/watershedSegmentationTool";
 import LengthPlotTool from "./custom/LengthPlotTool";
+import LengthTool from "./custom/LengthUSTool";
+import RectangleRoiTool from "./custom/RectangleRoiUSTool";
+import EllipticalRoiTool from "./custom/EllipticalRoiUSTool";
+import FreehandRoiTool from "./custom/FreehandRoiUSTool";
 import ManualLengthPlotTool from "./custom/ManualLengthPlotTool";
 import type {
   ToolConfig,
@@ -110,6 +115,21 @@ const DEFAULT_TOOLS: {
     description: "Change image contrast based on selected region",
     shortcut: "ctrl-m",
     type: "utils"
+  },
+  WwwcRemoveRegionTool: {
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: false,
+    defaultActive: false,
+    // sync: "wwwcSynchronizer",
+    type: "utils",
+    name: "WwwcRemoveRegionTool",
+    class: "WwwcRemoveRegionTool",
+    description: "The dual of wwwcRegionTool",
   },
   StackScroll: {
     name: "StackScroll",
@@ -532,13 +552,17 @@ const dvTools: {
 } = {
   ThresholdsBrushTool: ThresholdsBrushTool,
   PolylineScissorsTool: PolylineScissorsTool,
-  // Slice4DScrollMouseWheelTool: Slice4DScrollMouseWheelTool,
+  WwwcRemoveRegionTool: WwwcRemoveRegionTool,
   WSToggleTool: WSToggleTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
   BorderMagnifyTool: BorderMagnifyTool,
   CustomMouseWheelScrollTool: CustomMouseWheelScrollTool,
   LengthPlotTool: LengthPlotTool,
+  LengthTool: LengthTool,
+  RectangleRoiTool: RectangleRoiTool,
+  EllipticalRoiTool: EllipticalRoiTool,
+  FreehandRoiTool: FreehandRoiTool,
   ManualLengthPlotTool: ManualLengthPlotTool
 };
 

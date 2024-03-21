@@ -56,6 +56,7 @@ export type StoreViewport = {
   isColor: boolean;
   isMultiframe: boolean;
   isTimeserie: boolean;
+  modality: string;
   isDSAEnabled: boolean;
   isPDF: boolean;
   waveform: boolean;

@@ -58,7 +58,7 @@ type SetPayload =
       number
     ]
   | ["timestamp", string, number | undefined]
-  | ["seriesUID", string, string | undefined]
+  | ["seriesUID" | "modality", string, string | undefined]
   | ["pendingSliceId", string, number | undefined]
   | ["timestamps" | "timeIds" | "pixelShift", string, number[]]
   | [
@@ -124,6 +124,7 @@ const DEFAULT_VIEWPORT: StoreViewport = {
   maxPixelValue: 0,
   isColor: false,
   isMultiframe: false,
+  modality: "",
   isTimeserie: false,
   isDSAEnabled: false,
   isPDF: false,
@@ -207,7 +208,13 @@ const setValue = (store: Store, data: SetPayload) => {
       viewport[field] = (v as [string])[0];
       triggerViewportListener(k);
       break;
-
+    case "modality":
+      if (!viewport) {
+        return;
+      }
+      viewport[field] = (v as [string])[0];
+      triggerViewportListener(k);
+      break;
     case "isColor":
     case "isMultiframe":
     case "isPDF":

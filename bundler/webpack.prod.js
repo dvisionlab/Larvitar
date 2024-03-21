@@ -1,6 +1,7 @@
 const path = require("path");
 const { merge } = require("webpack-merge");
 const commonConfiguration = require("./webpack.common.js");
+const LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = merge(commonConfiguration, {
@@ -12,8 +13,8 @@ module.exports = merge(commonConfiguration, {
     libraryTarget: "umd"
   },
   mode: "production",
-  plugins: [new CleanWebpackPlugin()],
+  plugins: [new CleanWebpackPlugin(), new LodashModuleReplacementPlugin()],
   optimization: {
-    minimize: false
+    minimize: true
   }
 });
