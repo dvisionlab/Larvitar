@@ -5,6 +5,7 @@
 
 // external libraries
 import { Image } from "cornerstone-core";
+import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
@@ -18,6 +19,7 @@ import scrollToIndex from "./utils/customMouseWheelScrollToolUtils/customMouseWh
 import { getLarvitarImageTracker } from "../../loaders/commonLoader";
 import { getLarvitarManager } from "../../loaders/commonLoader";
 import { LarvitarManager, Series } from "../../types";
+import { getActiveLayer, setActiveLayer } from "../../imageLayers";
 
 // global variables
 type StackData = {
@@ -230,6 +232,15 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
         this.nextIndex = validIndex;
         // Scroll to the calculated index
         scrollToIndex(element, validIndex);
+        if (getActiveLayer(element.id)) {
+          let activeLayer = getActiveLayer(element.id);
+          let layers = cornerstone.getLayers(element);
+          let newActiveLayer =
+            //@ts-ignore
+            activeLayer.layerId == layers[0].layerId ? layers[1] : layers[0];
+          //@ts-ignore
+          setActiveLayer(element.id, newActiveLayer.layerId);
+        }
       } else {
         // Handle 'slice' mode
         let lastIndex =
