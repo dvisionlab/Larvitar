@@ -310,8 +310,8 @@
       let keys = [];
       const getDemoFileNames = function () {
         let demoFileList = [];
-        for (let i = 1; i < 25; i++) {
-          let filename = "anon" + i;
+        for (let i = 1; i < 2; i++) {
+          let filename = "838.dcm";
           demoFileList.push(filename);
         }
         return demoFileList;
@@ -329,7 +329,7 @@
         let file = new File([data], fileName);
         demoFiles.push(file);
         counter++;
-        if (counter == 24) {
+        if (counter == 1) {
           cb();
         }
       }
@@ -380,7 +380,11 @@
               }
             }
             larvitar.addDefaultTools();
-            larvitar.setToolActive("Wwwc");
+            if (serie.instances[serie.imageIds[0]].metadata.x60003000) {
+              larvitar.setToolActive("Overlay");
+            } else {
+              larvitar.setToolActive("Wwwc");
+            }
           })
           .catch(err => console.error(err));
       }

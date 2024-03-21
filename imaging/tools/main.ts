@@ -213,7 +213,10 @@ export const addDefaultTools = function (elementId: string) {
 
       synchronizer.enabled = true;
     }
-
+    //TODO-Laura-Simone set if here
+    /* if (serie.instances[serie.imageIds[0]].metadata.x60003000) {
+              setToolActive("Overlay");
+            }*/
     if (tool.defaultActive) {
       setToolActive(tool.name, tool.options, [], true);
     }

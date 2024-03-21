@@ -40,6 +40,7 @@ import RectangleRoiTool from "./custom/RectangleRoiUSTool";
 import EllipticalRoiTool from "./custom/EllipticalRoiUSTool";
 import FreehandRoiTool from "./custom/FreehandRoiUSTool";
 import ManualLengthPlotTool from "./custom/ManualLengthPlotTool";
+import OverlayTool from "./custom/OverlayTool";
 import type {
   ToolConfig,
   ToolMouseKeys,
@@ -129,7 +130,7 @@ const DEFAULT_TOOLS: {
     type: "utils",
     name: "WwwcRemoveRegionTool",
     class: "WwwcRemoveRegionTool",
-    description: "The dual of wwwcRegionTool",
+    description: "The dual of wwwcRegionTool"
   },
   StackScroll: {
     name: "StackScroll",
@@ -287,6 +288,14 @@ const DEFAULT_TOOLS: {
     },
     cleanable: true,
     class: "LengthPlotTool"
+  },
+  Overlay: {
+    name: "Overlay",
+    viewports: "all",
+    configuration: {},
+    options: {},
+    cleanable: true,
+    class: "OverlayTool"
   },
   ManualLengthPlot: {
     name: "ManualLengthPlot",
@@ -563,7 +572,8 @@ const dvTools: {
   RectangleRoiTool: RectangleRoiTool,
   EllipticalRoiTool: EllipticalRoiTool,
   FreehandRoiTool: FreehandRoiTool,
-  ManualLengthPlotTool: ManualLengthPlotTool
+  ManualLengthPlotTool: ManualLengthPlotTool,
+  OverlayTool: OverlayTool
 };
 
 /**
