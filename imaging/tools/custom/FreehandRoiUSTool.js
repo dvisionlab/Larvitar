@@ -28,6 +28,16 @@ const throttle = csTools.importInternal("util/throttle");
 const freehandUtils = csTools.importInternal("util/freehandUtils");
 const getModule = csTools.getModule;
 const state = getModule("segmentation").state;
+const globalConfiguration = {
+  configuration: {
+    mouseEnabled: true,
+    touchEnabled: true,
+    globalToolSyncEnabled: false,
+    showSVGCursors: false,
+    autoResizeViewports: true,
+    lineDash: [4, 4]
+  }
+};
 
 const {
   insertOrDelete,
@@ -321,7 +331,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
       colPixelSpacing = image.columnPixelSpacing;
       rowPixelSpacing = image.rowPixelSpacing;
     }
-    if (rowPixelSpacing || colPixelSpacing === undefined) {
+    if (rowPixelSpacing === undefined || colPixelSpacing === undefined) {
       let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
         image.imageId
       );
@@ -566,7 +576,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
           colPixelSpacing = image.columnPixelSpacing;
           rowPixelSpacing = image.rowPixelSpacing;
         }
-        if (rowPixelSpacing || colPixelSpacing === undefined) {
+        if (rowPixelSpacing === undefined || colPixelSpacing === undefined) {
           let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
             eventData.image.imageId
           );
@@ -1539,7 +1549,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     this._drawingInteractionType = interactionType;
 
     state.isMultiPartToolActive = true;
-    // hideToolCursor(this.element);
+    hideToolCursor(this.element);
 
     // Polygonal Mode
     element.addEventListener(EVENTS.MOUSE_DOWN, this._drawingMouseDownCallback);
@@ -1586,7 +1596,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     state.isMultiPartToolActive = false;
     this._activeDrawingToolReference = null;
     this._drawingInteractionType = null;
-    //setToolCursor(this.element, this.svgCursor);
+    setToolCursor(this.element, this.svgCursor);
 
     element.removeEventListener(
       EVENTS.MOUSE_DOWN,
@@ -1898,4 +1908,46 @@ function preventPropagation(evt) {
   evt.stopImmediatePropagation();
   evt.stopPropagation();
   evt.preventDefault();
+}
+
+/**
+ * Creates an SVG Cursor for the target element
+ *
+ * @param {HTMLElement} element - The DOM Element to draw on
+ * @param {MouseCursor} svgCursor - The cursor.
+ * @returns {void}
+ */
+function setToolCursor(element, svgCursor) {
+  if (!globalConfiguration.configuration.showSVGCursors) {
+    return;
+  }
+  // TODO: (state vs options) Exit if cursor wasn't updated
+  // TODO: Exit if invalid options to create cursor
+
+  // Note: Max size of an SVG cursor is 128x128, default is 32x32.
+  const cursorBlob = svgCursor.getIconWithPointerSVG();
+  const mousePoint = svgCursor.mousePoint;
+
+  const svgCursorUrl = window.URL.createObjectURL(cursorBlob);
+
+  element.style.cursor = `url('${svgCursorUrl}') ${mousePoint}, auto`;
+
+  state.svgCursorUrl = svgCursorUrl;
+}
+
+function hideToolCursor(element) {
+  if (!globalConfiguration.configuration.showSVGCursors) {
+    return;
+  }
+
+  _clearStateAndSetCursor(element, "none");
+}
+
+function _clearStateAndSetCursor(element, cursorSeting) {
+  if (state.svgCursorUrl) {
+    window.URL.revokeObjectURL(state.svgCursorUrl);
+  }
+
+  state.svgCursorUrl = null;
+  element.style.cursor = cursorSeting;
 }

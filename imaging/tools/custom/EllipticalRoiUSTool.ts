@@ -202,7 +202,7 @@ export default class EllipticalRoiTool extends BaseAnnotationTool {
   ) {
     const pixelSpacing: PixelSpacing = getPixelSpacing(image);
     if (
-      pixelSpacing.rowPixelSpacing ||
+      pixelSpacing.rowPixelSpacing === undefined ||
       pixelSpacing.colPixelSpacing === undefined
     ) {
       let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
@@ -258,7 +258,7 @@ export default class EllipticalRoiTool extends BaseAnnotationTool {
       colPixelSpacing = image.columnPixelSpacing;
       rowPixelSpacing = image.rowPixelSpacing;
     }
-    if (rowPixelSpacing || colPixelSpacing === undefined) {
+    if (rowPixelSpacing === undefined || colPixelSpacing === undefined) {
       let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
         eventData.image.imageId
       );
