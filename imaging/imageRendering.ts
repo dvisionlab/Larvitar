@@ -394,9 +394,9 @@ export const disableViewport = function (elementId: string | HTMLElement) {
     console.error("invalid html element: " + elementId);
     return;
   }
-  const id: string = isElement(elementId) ? element.id : (elementId as string);
-  toggleMouseToolsListeners(id, true);
+  toggleMouseToolsListeners(element, true);
   cornerstone.disable(element);
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
   setStore(["ready", id, false]);
 };
 
