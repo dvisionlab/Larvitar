@@ -1,5 +1,6 @@
 //external imports
 import csTools from "cornerstone-tools";
+import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 // cornerstone tools imports
 const external = csTools.external;
 const EVENTS = csTools.EVENTS;
@@ -27,6 +28,17 @@ const throttle = csTools.importInternal("util/throttle");
 const freehandUtils = csTools.importInternal("util/freehandUtils");
 const getModule = csTools.getModule;
 const state = getModule("segmentation").state;
+const globalConfiguration = {
+  configuration: {
+    mouseEnabled: true,
+    touchEnabled: true,
+    globalToolSyncEnabled: false,
+    showSVGCursors: false,
+    autoResizeViewports: true,
+    lineDash: [4, 4]
+  }
+};
+
 const {
   insertOrDelete,
   freehandArea,
@@ -37,7 +49,8 @@ const {
 
 //internal imports
 import store from "../../imageStore";
-
+import { getLarvitarImageTracker } from "../../loaders/commonLoader";
+import { getLarvitarManager } from "../../loaders/commonLoader";
 /**
  * @public
  * @class FreehandRoiTool
@@ -318,6 +331,23 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
       colPixelSpacing = image.columnPixelSpacing;
       rowPixelSpacing = image.rowPixelSpacing;
     }
+    if (rowPixelSpacing === undefined || colPixelSpacing === undefined) {
+      let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+        image.imageId
+      );
+      let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
+      let imageTracker = getLarvitarImageTracker();
+      let seriesId = imageTracker[rootImageId];
+      let manager = getLarvitarManager();
+      if (manager && seriesId) {
+        let series = manager[seriesId];
+        rowPixelSpacing =
+          series.instances[image.imageId].metadata.pixelSpacing[0];
+        colPixelSpacing =
+          series.instances[image.imageId].metadata.pixelSpacing[1];
+      }
+    }
+
     const scaling = (colPixelSpacing || 1) * (rowPixelSpacing || 1);
 
     const area = freehandArea(data.handles.points, scaling);
@@ -545,6 +575,24 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
         if (this.modality === "US") {
           colPixelSpacing = image.columnPixelSpacing;
           rowPixelSpacing = image.rowPixelSpacing;
+        }
+        if (rowPixelSpacing === undefined || colPixelSpacing === undefined) {
+          let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+            eventData.image.imageId
+          );
+          let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
+          let imageTracker = getLarvitarImageTracker();
+          let seriesId = imageTracker[rootImageId];
+          let manager = getLarvitarManager();
+          if (manager && seriesId) {
+            let series = manager[seriesId];
+            rowPixelSpacing =
+              series.instances[eventData.image.imageId].metadata
+                .pixelSpacing[0];
+            colPixelSpacing =
+              series.instances[eventData.image.imageId].metadata
+                .pixelSpacing[1];
+          }
         }
 
         if (
@@ -1860,4 +1908,46 @@ function preventPropagation(evt) {
   evt.stopImmediatePropagation();
   evt.stopPropagation();
   evt.preventDefault();
+}
+
+/**
+ * Creates an SVG Cursor for the target element
+ *
+ * @param {HTMLElement} element - The DOM Element to draw on
+ * @param {MouseCursor} svgCursor - The cursor.
+ * @returns {void}
+ */
+function setToolCursor(element, svgCursor) {
+  if (!globalConfiguration.configuration.showSVGCursors) {
+    return;
+  }
+  // TODO: (state vs options) Exit if cursor wasn't updated
+  // TODO: Exit if invalid options to create cursor
+
+  // Note: Max size of an SVG cursor is 128x128, default is 32x32.
+  const cursorBlob = svgCursor.getIconWithPointerSVG();
+  const mousePoint = svgCursor.mousePoint;
+
+  const svgCursorUrl = window.URL.createObjectURL(cursorBlob);
+
+  element.style.cursor = `url('${svgCursorUrl}') ${mousePoint}, auto`;
+
+  state.svgCursorUrl = svgCursorUrl;
+}
+
+function hideToolCursor(element) {
+  if (!globalConfiguration.configuration.showSVGCursors) {
+    return;
+  }
+
+  _clearStateAndSetCursor(element, "none");
+}
+
+function _clearStateAndSetCursor(element, cursorSeting) {
+  if (state.svgCursorUrl) {
+    window.URL.revokeObjectURL(state.svgCursorUrl);
+  }
+
+  state.svgCursorUrl = null;
+  element.style.cursor = cursorSeting;
 }
