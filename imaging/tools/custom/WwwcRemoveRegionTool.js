@@ -189,7 +189,6 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
 
   renderToolData(evt) {
     const toolData = getToolState(evt.currentTarget, this.name);
-
     if (!toolData) {
       return;
     }
@@ -224,7 +223,6 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
         if (data.visible === false) {
           continue;
         }
-
         // Configure
         const color = toolColors.getColorIfActive(data);
         const handleOptions = {
@@ -253,15 +251,25 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
           element,
           data.handles.end
         );
-    
+
         const rect = {
           left: Math.min(startCanvas.x, endCanvas.x),
           top: Math.min(startCanvas.y, endCanvas.y),
           width: Math.abs(startCanvas.x - endCanvas.x),
           height: Math.abs(startCanvas.y - endCanvas.y)
         };
-    
-        fillBox(context, rect, 'white');
+        fillBox(context, rect, 'black');
+        drawRect(
+          context,
+          element,
+          data.handles.start,
+          data.handles.end,
+          rectOptions,
+          "pixel",
+          data.handles.initialRotation
+        );
+       
+
         if (data.computeMeasurements) {
           // Update textbox stats
           if (data.invalidated === true) {
@@ -314,6 +322,17 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
       }
     });
   }
+
+  _withinHandleBoxes(startCanvas, endCanvas) {
+    let within = false;
+    this.dataHandles.forEach(handle => {
+      if (startCanvas.x > handle.handles.start.x && startCanvas.y < handle.handles.start.y && endCanvas.x < handle.handles.end.x && endCanvas.y > handle.handles.end.y) {
+        within = true;
+        return within;
+      }
+    });
+    return within;
+  }
    /**
    * Event handler for MOUSE_UP/TOUCH_END during handle drag event loop.
    *
@@ -323,12 +342,21 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
    * @returns {void}
    */
   _applyStrategy(evt) {
+    const tools = larvitar.cornerstoneTools.store.state.tools;
     const toolData = getToolState(evt.currentTarget, this.name);
-    const rectangles = toolData ? toolData.data : [] ;
-    if (Array.isArray(rectangles)) { 
-      const allHandles = rectangles.map(item => item.handles);
-      this.dataHandles = allHandles;
-      _applyWWWCRegion(evt, allHandles, this.configuration);
+    if (!toolData) {
+      return;
+    } 
+    const toolState = tools.find(item => item.name ===  this.name);
+    if (toolState.mode !== "active" ) {
+      return;
+    }
+    const rectangles = toolData ? toolData.data : [] ;z
+    if (Array.isArray(rectangles)) {
+        const allHandles = rectangles.map(item => item.handles);
+        this.dataHandles = allHandles;
+        const eventData = evt.detail;
+        _applyWWWCRegion(eventData, allHandles, this.configuration);
     }
   }
 }
@@ -605,16 +633,17 @@ function _createTextBoxContent(
  *
  * @private
  * @method _applyWWWCRegion
- * @param {(CornerstoneTools.event#MOUSE_UP|CornerstoneTools.event#TOUCH_END)} evt Interaction event emitted by an enabledElement
+ * @param {Object} eventData an obect with the element and the image coming from the event
  * @param {Array} handles array of the objects of image handles
  * @param {Object} config The tool's configuration object
  * @returns {void}
  */
-const _applyWWWCRegion = function(evt, handles, config) {
-  const eventData = evt.detail;
+const _applyWWWCRegion = function(eventData, handles, config) {
   const { image, element } = eventData;
   const fullImageLuminance = getLuminance(element, 0, 0, image.width, image.height);
   let extentsLuminance = fullImageLuminance; 
+  console.log('modify wwwc region');
+  console.log(handles);
   handles.forEach(handle => {
     /*
     if (_isEmptyObject(handle.start) || _isEmptyObject(handles.end)) {

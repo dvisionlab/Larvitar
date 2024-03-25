@@ -9,6 +9,7 @@
 export default class WwwcRemoveRegionTool {
     constructor(props?: {});
     dataHandles: any[];
+    firstDraw: boolean;
     _drawingMouseUpCallback: (evt: any) => void;
     _editMouseUpCallback: (evt: any) => void;
     throttledUpdateCachedStats: any;
@@ -45,6 +46,7 @@ export default class WwwcRemoveRegionTool {
     pointNearTool(element: any, data: any, coords: any, interactionType: any): boolean;
     updateCachedStats(image: any, element: any, data: any): void;
     renderToolData(evt: any): void;
+    _withinHandleBoxes(startCanvas: any, endCanvas: any): boolean;
     /**
     * Event handler for MOUSE_UP/TOUCH_END during handle drag event loop.
     *
