@@ -344,7 +344,6 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
   _applyStrategy(evt) {
     const tools = cornerstoneTools.store.state.tools;
     const toolData = getToolState(evt.currentTarget, this.name);
-    console.log(toolData);
     if (!toolData) {
       return;
     } 
@@ -643,8 +642,6 @@ const _applyWWWCRegion = function(eventData, handles, config) {
   const { image, element } = eventData;
   const fullImageLuminance = getLuminance(element, 0, 0, image.width, image.height);
   let extentsLuminance = fullImageLuminance; 
-  console.log('modify wwwc region');
-  console.log(handles);
   handles.forEach(handle => {
     /*
     if (_isEmptyObject(handle.start) || _isEmptyObject(handles.end)) {
