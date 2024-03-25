@@ -256,7 +256,6 @@
           if (Object.keys(newMetaData) != 0) {
             larvitar.customizeByteArray(series, newMetaData);
           }
-          console.log(series);
 
           if (document.getElementById("downloadCheck").checked) {
             if (document.getElementById("downloadInput").value) {
@@ -310,8 +309,8 @@
       let keys = [];
       const getDemoFileNames = function () {
         let demoFileList = [];
-        for (let i = 1; i < 2; i++) {
-          let filename = "838.dcm";
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
           demoFileList.push(filename);
         }
         return demoFileList;
@@ -329,7 +328,7 @@
         let file = new File([data], fileName);
         demoFiles.push(file);
         counter++;
-        if (counter == 1) {
+        if (counter == 24) {
           cb();
         }
       }
@@ -340,6 +339,7 @@
           .readFiles(demoFiles)
           .then(seriesStack => {
             // render the first series of the study
+
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
@@ -368,7 +368,6 @@
                   keys[key]
                 ] === "string"
               ) {
-                console.log("newElem");
                 let newElement = document.createElement("label");
                 newElement.innerHTML = keys[key];
                 let newChild = document.createElement("input");
@@ -380,11 +379,6 @@
               }
             }
             larvitar.addDefaultTools();
-            if (serie.instances[serie.imageIds[0]].metadata.x60003000) {
-              larvitar.setToolActive("Overlay");
-            } else {
-              larvitar.setToolActive("Wwwc");
-            }
           })
           .catch(err => console.error(err));
       }

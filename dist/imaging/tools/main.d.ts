@@ -38,7 +38,7 @@ declare const addTool: (toolName: string, customConfig: Partial<ToolConfig>, tar
  * Add all default tools, as listed in tools/default.js
  * @function addDefaultTools
  */
-export declare const addDefaultTools: (elementId: string) => void;
+export declare const addDefaultTools: (elementId: string) => Promise<void>;
 /**
  * Set Tool "active" on all elements (ie, rendered and manipulable) & refresh cornerstone elements
  * @function setToolActive

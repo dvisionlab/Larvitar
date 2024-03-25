@@ -289,14 +289,7 @@ const DEFAULT_TOOLS: {
     cleanable: true,
     class: "LengthPlotTool"
   },
-  Overlay: {
-    name: "Overlay",
-    viewports: "all",
-    configuration: {},
-    options: {},
-    cleanable: true,
-    class: "OverlayTool"
-  },
+
   ManualLengthPlot: {
     name: "ManualLengthPlot",
     viewports: "all",
@@ -550,6 +543,15 @@ const DEFAULT_TOOLS: {
     description: "Watershed Segmentation Algorithm based on selected area",
     shortcut: "ctrl-t",
     type: "segmentation"
+  },
+  Overlay: {
+    name: "Overlay",
+    viewports: "all",
+    configuration: {},
+    options: {},
+    cleanable: true,
+    defaultActive: true,
+    class: "OverlayTool"
   }
 };
 
