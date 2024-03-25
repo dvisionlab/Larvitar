@@ -370,7 +370,6 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
    */
   renderToolData(evt) {
     const eventData = evt.detail;
-
     // If we have no toolState for this element, return immediately as there is nothing to do
     const toolState = getToolState(evt.currentTarget, this.name);
 
@@ -443,13 +442,12 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
         // Draw handles
 
         options = {
-          color,
-          fill: fillColor
+          color
+          //fill: fillColor
         };
-
         if (config.alwaysShowHandles || (data.active && data.polyBoundingBox)) {
           // Render all handles
-          options.handleRadius = config.activeHandleRadius;
+          options.handleRadius = 6;
 
           if (this.configuration.drawHandles) {
             drawHandles(context, eventData, data.handles.points, options);
@@ -458,7 +456,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
 
         if (data.canComplete) {
           // Draw large handle at the origin if can complete drawing
-          options.handleRadius = config.completeHandleRadius;
+          options.handleRadius = 6;
           const handle = data.handles.points[0];
 
           if (this.configuration.drawHandles) {
@@ -468,7 +466,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
 
         if (data.active && !data.polyBoundingBox) {
           // Draw handle at origin and at mouse if actively drawing
-          options.handleRadius = config.activeHandleRadius;
+          options.handleRadius = 6;
 
           if (this.configuration.drawHandles) {
             drawHandles(
