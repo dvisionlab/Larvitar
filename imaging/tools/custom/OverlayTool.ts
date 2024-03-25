@@ -1,7 +1,6 @@
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
 import { Viewport } from "../../types";
-import { bool } from "@techstark/opencv-js";
 import { EventData } from "../types";
 const external = cornerstoneTools.external;
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
