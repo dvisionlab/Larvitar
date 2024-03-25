@@ -342,8 +342,9 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
    * @returns {void}
    */
   _applyStrategy(evt) {
-    const tools = larvitar.cornerstoneTools.store.state.tools;
+    const tools = cornerstoneTools.store.state.tools;
     const toolData = getToolState(evt.currentTarget, this.name);
+    console.log(toolData);
     if (!toolData) {
       return;
     } 
@@ -351,7 +352,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     if (toolState.mode !== "active" ) {
       return;
     }
-    const rectangles = toolData ? toolData.data : [] ;z
+    const rectangles = toolData ? toolData.data : [] ;
     if (Array.isArray(rectangles)) {
         const allHandles = rectangles.map(item => item.handles);
         this.dataHandles = allHandles;
