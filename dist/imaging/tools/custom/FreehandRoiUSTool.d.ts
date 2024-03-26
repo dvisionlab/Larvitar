@@ -120,6 +120,8 @@ export default class FreehandRoiTool {
      * @returns {Boolean}
      */
     pointNearTool(element: any, data: any, coords: any): boolean;
+    pointNearLine(element: any, data: any, coords: any): boolean;
+    _isPointNearLine(element: any, coords: any, data: any): boolean;
     /**
      * @param {*} element
      * @param {*} data
@@ -156,6 +158,7 @@ export default class FreehandRoiTool {
      * @returns {undefined}
      */
     renderToolData(evt: any): undefined;
+    data: any;
     addNewMeasurement(evt: any): void;
     preMouseDownCallback(evt: any): boolean;
     handleSelectedCallback(evt: any, toolData: any, handle: any, interactionType?: string): void;
@@ -167,6 +170,15 @@ export default class FreehandRoiTool {
      * @returns {null}
      */
     public completeDrawing(element: Object): null;
+    attention: string | undefined;
+    /**
+     * Event handler for MOUSE_DRAG during handle drag event loop.
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _editMouseDragAllCallback(evt: Object): undefined;
     /**
      * Returns the previous handle to the current one.
      * @param {Number} currentHandle - the current handle index
@@ -174,6 +186,8 @@ export default class FreehandRoiTool {
      * @returns {Number} - The index of the previos handle
      */
     _getPrevHandleIndex(currentHandle: number, points: any[]): number;
+    modifying: any;
+    element: any;
     /**
      * Places a handle of the freehand tool if the new location is valid.
      * If the new location is invalid the handle snaps back to its previous position.
