@@ -447,7 +447,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
         };
         if (config.alwaysShowHandles || (data.active && data.polyBoundingBox)) {
           // Render all handles
-          options.handleRadius = 6;
+          options.handleRadius = config.activeHandleRadius;
 
           if (this.configuration.drawHandles) {
             drawHandles(context, eventData, data.handles.points, options);
@@ -456,7 +456,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
 
         if (data.canComplete) {
           // Draw large handle at the origin if can complete drawing
-          options.handleRadius = 6;
+          options.handleRadius = config.completeHandleRadius;
           const handle = data.handles.points[0];
 
           if (this.configuration.drawHandles) {
@@ -466,7 +466,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
 
         if (data.active && !data.polyBoundingBox) {
           // Draw handle at origin and at mouse if actively drawing
-          options.handleRadius = 6;
+          options.handleRadius = config.activeHandleRadius;
 
           if (this.configuration.drawHandles) {
             drawHandles(
@@ -1891,7 +1891,7 @@ function defaultFreehandConfiguration() {
       }
     },
     spacing: 1,
-    activeHandleRadius: 3,
+    activeHandleRadius: 6,
     completeHandleRadius: 6,
     completeHandleRadiusTouch: 28,
     alwaysShowHandles: false,
