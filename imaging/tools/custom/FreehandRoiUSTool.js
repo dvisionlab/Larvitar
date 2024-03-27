@@ -180,6 +180,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
       isPointNearTool === undefined &&
       this.finished === true
     ) {
+      this.dataAll = data;
       this._activateModifyAll(element);
     } else {
       this._deactivateModifyAll(element);
@@ -1056,7 +1057,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     const eventData = evt.detail;
     const { element } = eventData;
     this.modifyingAll = true;
-    const data = this.data;
+    const data = this.dataAll;
     const points = data.handles.points;
 
     // Set the mouseLocation handle

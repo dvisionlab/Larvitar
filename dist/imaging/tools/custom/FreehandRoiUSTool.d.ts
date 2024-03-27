@@ -144,6 +144,7 @@ export default class FreehandRoiTool {
      */
     pointNearTool(element: any, data: any, coords: any): boolean;
     uuid: any;
+    dataAll: any;
     /**
      *
      *
