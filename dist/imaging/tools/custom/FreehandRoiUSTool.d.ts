@@ -88,6 +88,14 @@ export default class FreehandRoiTool {
      */
     _editMouseDragAllCallback(evt: Object): undefined;
     /**
+     * Event handler for TOUCH_DRAG during lines drag event loop (Roi translation).
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _editTouchDragAllCallback(evt: Object): undefined;
+    /**
      * Event handler for TOUCH_START during drawing event loop.
      *
      * @event
