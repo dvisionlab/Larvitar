@@ -13,6 +13,8 @@ export default class FreehandRoiTool {
     _dragging: boolean;
     _modifying: boolean;
     modality: any;
+    index: any;
+    pointNear: number | boolean | Object | null;
     /**
      * Event handler for MOUSE_DOWN during drawing event loop.
      *
@@ -70,6 +72,22 @@ export default class FreehandRoiTool {
      */
     _editMouseDragCallback(evt: Object): undefined;
     /**
+     * Event handler for MOUSE_UP during lines drag event loop.
+     *
+     * @private
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    private _editMouseUpAllCallback;
+    /**
+     * Event handler for MOUSE_DRAG during lines drag event loop (Roi translation).
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _editMouseDragAllCallback(evt: Object): undefined;
+    /**
      * Event handler for TOUCH_START during drawing event loop.
      *
      * @event
@@ -115,6 +133,7 @@ export default class FreehandRoiTool {
     newMeasur: boolean | undefined;
     finished: boolean | undefined;
     modifying: any;
+    modifyingAll: any;
     /**
      *
      *
@@ -125,8 +144,15 @@ export default class FreehandRoiTool {
      */
     pointNearTool(element: any, data: any, coords: any): boolean;
     uuid: any;
+    /**
+     *
+     *
+     * @param {*} element element
+     * @param {*} data data
+     * @param {*} coords coords
+     * @returns {Boolean}
+     */
     _pointNearLine(element: any, data: any, coords: any): boolean;
-    _isPointNearLine(element: any, coords: any, data: any): boolean;
     /**
      * @param {*} element
      * @param {*} data
@@ -177,23 +203,12 @@ export default class FreehandRoiTool {
     public completeDrawing(element: Object): null;
     dragged: boolean | undefined;
     /**
-     * Event handler for MOUSE_DRAG during handle drag event loop.
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    _editMouseDragAllCallback(evt: Object): undefined;
-    /**
      * Returns the previous handle to the current one.
      * @param {Number} currentHandle - the current handle index
      * @param {Array} points - the handles Array of the freehand data
      * @returns {Number} - The index of the previos handle
      */
     _getPrevHandleIndex(currentHandle: number, points: any[]): number;
-    element: any;
-    _editMouseUpAllCallback(evt: any): void;
-    modifyingAll: any;
     /**
      * Places a handle of the freehand tool if the new location is valid.
      * If the new location is invalid the handle snaps back to its previous position.
@@ -380,7 +395,16 @@ export default class FreehandRoiTool {
      * @returns {undefined}
      */
     private _activateModify;
-    _activateModifyAll(element: any): void;
+    element: Object | undefined;
+    /**
+     * Adds modify loop event listeners for Roi translation.
+     *
+     * @private
+     * @param {Object} element - The viewport element to add event listeners to.
+     * @modifies {element}
+     * @returns {undefined}
+     */
+    private _activateModifyAll;
     /**
      * Removes modify loop event listeners.
      *
@@ -390,7 +414,15 @@ export default class FreehandRoiTool {
      * @returns {undefined}
      */
     private _deactivateModify;
-    _deactivateModifyAll(element: any): void;
+    /**
+     * Removes modify loop event listeners for Roi translation.
+     *
+     * @private
+     * @param {Object} element - The viewport element to add event listeners to.
+     * @modifies {element}
+     * @returns {undefined}
+     */
+    private _deactivateModifyAll;
     passiveCallback(element: any): void;
     enabledCallback(element: any): void;
     disabledCallback(element: any): void;

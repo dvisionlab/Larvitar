@@ -256,7 +256,6 @@
           if (Object.keys(newMetaData) != 0) {
             larvitar.customizeByteArray(series, newMetaData);
           }
-          console.log(series);
 
           if (document.getElementById("downloadCheck").checked) {
             if (document.getElementById("downloadInput").value) {
@@ -342,7 +341,6 @@
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
-            console.log(serie);
             larvitar.renderImage(serie, "viewer").then(() => {
               console.log("Image has been rendered");
             });
@@ -369,7 +367,6 @@
                   keys[key]
                 ] === "string"
               ) {
-                console.log("newElem");
                 let newElement = document.createElement("label");
                 newElement.innerHTML = keys[key];
                 let newChild = document.createElement("input");
@@ -381,7 +378,7 @@
               }
             }
             larvitar.addDefaultTools();
-            larvitar.setToolActive("FreehandRoi");
+            larvitar.setToolActive("Wwwc");
           })
           .catch(err => console.error(err));
       }
