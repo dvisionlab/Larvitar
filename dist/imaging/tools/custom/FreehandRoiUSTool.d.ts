@@ -111,6 +111,7 @@ export default class FreehandRoiTool {
             points: never[];
         };
     } | undefined;
+    finished: boolean | undefined;
     /**
      *
      *
@@ -120,7 +121,7 @@ export default class FreehandRoiTool {
      * @returns {Boolean}
      */
     pointNearTool(element: any, data: any, coords: any): boolean;
-    pointNearLine(element: any, data: any, coords: any): boolean;
+    _pointNearLine(element: any, data: any, coords: any): boolean;
     _isPointNearLine(element: any, coords: any, data: any): boolean;
     /**
      * @param {*} element
@@ -170,6 +171,9 @@ export default class FreehandRoiTool {
      * @returns {null}
      */
     public completeDrawing(element: Object): null;
+    currentTool: any;
+    dragged: boolean | undefined;
+    modifying: any;
     attention: string | undefined;
     /**
      * Event handler for MOUSE_DRAG during handle drag event loop.
@@ -186,8 +190,9 @@ export default class FreehandRoiTool {
      * @returns {Number} - The index of the previos handle
      */
     _getPrevHandleIndex(currentHandle: number, points: any[]): number;
-    modifying: any;
     element: any;
+    _editMouseUpAllCallback(evt: any): void;
+    modifyingAll: any;
     /**
      * Places a handle of the freehand tool if the new location is valid.
      * If the new location is invalid the handle snaps back to its previous position.
@@ -374,6 +379,7 @@ export default class FreehandRoiTool {
      * @returns {undefined}
      */
     private _activateModify;
+    _activateModifyAll(element: any): void;
     /**
      * Removes modify loop event listeners.
      *
@@ -383,6 +389,7 @@ export default class FreehandRoiTool {
      * @returns {undefined}
      */
     private _deactivateModify;
+    _deactivateModifyAll(element: any): void;
     passiveCallback(element: any): void;
     enabledCallback(element: any): void;
     disabledCallback(element: any): void;

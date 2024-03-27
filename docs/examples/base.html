@@ -342,6 +342,7 @@
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
+            console.log(serie);
             larvitar.renderImage(serie, "viewer").then(() => {
               console.log("Image has been rendered");
             });
