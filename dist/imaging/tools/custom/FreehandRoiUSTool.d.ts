@@ -107,11 +107,14 @@ export default class FreehandRoiTool {
         active: boolean;
         invalidated: boolean;
         color: undefined;
+        canComplete: boolean;
         handles: {
             points: never[];
         };
     } | undefined;
+    newMeasur: boolean | undefined;
     finished: boolean | undefined;
+    modifying: any;
     /**
      *
      *
@@ -121,6 +124,7 @@ export default class FreehandRoiTool {
      * @returns {Boolean}
      */
     pointNearTool(element: any, data: any, coords: any): boolean;
+    uuid: any;
     _pointNearLine(element: any, data: any, coords: any): boolean;
     _isPointNearLine(element: any, coords: any, data: any): boolean;
     /**
@@ -171,10 +175,7 @@ export default class FreehandRoiTool {
      * @returns {null}
      */
     public completeDrawing(element: Object): null;
-    currentTool: any;
     dragged: boolean | undefined;
-    modifying: any;
-    attention: string | undefined;
     /**
      * Event handler for MOUSE_DRAG during handle drag event loop.
      *
