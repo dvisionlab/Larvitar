@@ -4,12 +4,12 @@
  */
 
 // external libraries
-import cornerstone from "cornerstone-core";
+import cornerstone, { EnabledElement } from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import cornerstoneMath from "cornerstone-math";
 import Hammer from "hammerjs";
 import { each, extend } from "lodash";
-
+const external = cornerstoneTools.external;
 // internal libraries
 import { saveAnnotations, loadAnnotations, exportAnnotations } from "./io";
 import {
@@ -167,13 +167,29 @@ const addTool = function (
   }
 };
 
+async function waitForImageId(element: EnabledElement) {
+  return new Promise((resolve, reject) => {
+    const startTime = Date.now(); // Record the start time
+    const check = () => {
+      if (element.image && element.image.imageId) {
+        resolve(element.image.imageId);
+      } else if (Date.now() - startTime >= 2000) {
+        // Check if 2000 ms timeout is reached
+        reject(new Error("Timeout: Image ID not available within 2000 ms"));
+      } else {
+        setTimeout(check, 50); // Check again in 100 milliseconds
+      }
+    };
+    check();
+  });
+}
+
 /**
  * Add all default tools, as listed in tools/default.js
  * @function addDefaultTools
  */
-export const addDefaultTools = function (elementId: string) {
-  let elements = cornerstone.getEnabledElements();
-
+export const addDefaultTools = async function (elementId: string) {
+  let elements = await cornerstone.getEnabledElements();
   if (elements.length == 0) {
     let element = document.getElementById(elementId);
     if (!element) {
@@ -213,8 +229,19 @@ export const addDefaultTools = function (elementId: string) {
 
       synchronizer.enabled = true;
     }
-
-    if (tool.defaultActive) {
+    if (tool.name === "Overlay") {
+      elements.forEach(async element => {
+        const imageId = await waitForImageId(element);
+        if (
+          external.cornerstone.metaData.get("overlayPlaneModule", imageId) &&
+          external.cornerstone.metaData.get("overlayPlaneModule", imageId)
+            .overlays.length != 0
+        ) {
+          setToolActive("Overlay");
+          setToolDisabled("Wwwc"); //it wouldn't work anyway
+        }
+      });
+    } else if (tool.name != "Overlay" && tool.defaultActive) {
       setToolActive(tool.name, tool.options, [], true);
     }
   });
