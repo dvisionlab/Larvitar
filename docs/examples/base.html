@@ -256,7 +256,6 @@
           if (Object.keys(newMetaData) != 0) {
             larvitar.customizeByteArray(series, newMetaData);
           }
-          console.log(series);
 
           if (document.getElementById("downloadCheck").checked) {
             if (document.getElementById("downloadInput").value) {
@@ -340,6 +339,7 @@
           .readFiles(demoFiles)
           .then(seriesStack => {
             // render the first series of the study
+
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
@@ -368,7 +368,6 @@
                   keys[key]
                 ] === "string"
               ) {
-                console.log("newElem");
                 let newElement = document.createElement("label");
                 newElement.innerHTML = keys[key];
                 let newChild = document.createElement("input");
@@ -380,10 +379,13 @@
               }
             }
             larvitar.addDefaultTools();
+<<<<<<< HEAD
             larvitar.setToolActive("WwwcRemoveRegion");
             setTimeout(() => {
               larvitar.setToolDisabled("WwwcRemoveRegion");
             }, 3000);
+=======
+>>>>>>> bbfc2f7e5a170632d61d0a4f4914b1428ef32b7d
           })
           .catch(err => console.error(err));
       }
