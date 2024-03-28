@@ -423,50 +423,34 @@
 
       async function renderSerie() {
         larvitar.resetLarvitarManager();
-        larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            console.log(seriesStack);
-            // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
-            let serie = seriesStack[seriesId];
-            larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
-            });
-            // optionally cache the series
-            larvitar.populateLarvitarManager(seriesId, serie);
+        const seriesStack = await larvitar.readFiles(demoFiles);
+        console.log(seriesStack);
+        // render the first series of the study
+        let seriesId = _.keys(seriesStack)[0];
+        let serie = seriesStack[seriesId];
+        await larvitar.renderImage(serie, "viewer");
+        console.log("Image has been rendered");
+        larvitar.addDefaultTools();
+        loadMasks();
 
-            larvitar
-              .cacheImages(serie, function (resp) {
-                if (resp.loading == 100) {
-                  let cache = larvitar.cornerstone.imageCache;
-                  console.log(
-                    "Cache size: ",
-                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                    "Mb"
-                  );
-                }
-              })
-              .then(() => {
-                setTimeout(function () {
-                  console.log("Cache has been loaded. Calling loadMasks.");
-                  larvitar.addDefaultTools();
-                  larvitar.setToolActive("Brush");
-                  loadMasks();
-                }, 3000);
-              });
-            let mouseConfig = {
-              mouse_button_right: {
-                ctrl: "Pan",
-                default: "Zoom"
-              },
-              debug: true
-            };
+        // optionally cache the series
+        larvitar.populateLarvitarManager(seriesId, serie);
 
-            // NOTE: this also activate the tools marked as default for each mouse button
-            larvitar.addMouseKeyHandlers(mouseConfig);
-          })
-          .catch(err => console.error(err));
+        await larvitar.loadAndCacheImageStack(serie);
+        setTimeout(function () {
+          larvitar.setToolActive("Brush");
+        }, 1000);
+
+        let mouseConfig = {
+          mouse_button_right: {
+            ctrl: "Pan",
+            default: "Zoom"
+          },
+          debug: true
+        };
+
+        // NOTE: this also activate the tools marked as default for each mouse button
+        larvitar.addMouseKeyHandlers(mouseConfig);
       }
 
       async function loadMasks() {

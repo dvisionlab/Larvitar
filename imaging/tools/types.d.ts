@@ -1,3 +1,5 @@
+import { EnabledElement } from "cornerstone-core";
+
 type ToolOptions = {
   mouseButtonMask?: number | number[];
   supportedInteractionTypes?: string[];
@@ -403,9 +405,8 @@ export interface EventData {
     ctrlKey: boolean;
   };
   image: cornerstone.Image;
-  canvasContext: {
-    canvas: any;
-  };
+  enabledElement?: EnabledElement;
+  canvasContext: CanvasRenderingContext2D;
 }
 
 export type PreventEvent = {
