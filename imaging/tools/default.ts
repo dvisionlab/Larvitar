@@ -117,7 +117,7 @@ const DEFAULT_TOOLS: {
     shortcut: "ctrl-m",
     type: "utils"
   },
-  WwwcRemoveRegionTool: {
+  WwwcRemoveRegion: {
     viewports: "all",
     configuration: {},
     options: {
@@ -128,7 +128,7 @@ const DEFAULT_TOOLS: {
     defaultActive: false,
     // sync: "wwwcSynchronizer",
     type: "utils",
-    name: "WwwcRemoveRegionTool",
+    name: "WwwcRemoveRegion",
     class: "WwwcRemoveRegionTool",
     description: "The dual of wwwcRegionTool"
   },
