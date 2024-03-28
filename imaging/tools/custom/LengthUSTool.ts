@@ -60,7 +60,7 @@ export default class LengthTool extends BaseAnnotationTool {
 
     super(props, defaultProps);
     this.modality = null;
-
+    this.options.deleteIfHandleOutsideImage = false;
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
 
