@@ -1,5 +1,5 @@
 import cornerstoneTools from "cornerstone-tools";
-
+import { getMaxPixelValue, getMinPixelValue } from "../../imageUtils";
 const external = cornerstoneTools.external;
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
@@ -9,7 +9,6 @@ const EVENTS = cornerstoneTools.EVENTS;
 const getToolState = cornerstoneTools.getToolState;
 const toolStyle = cornerstoneTools.toolStyle;
 const toolColors = cornerstoneTools.toolColors;
-
 // Drawing
 const getNewContext = cornerstoneTools.importInternal("drawing/getNewContext");
 const draw = cornerstoneTools.importInternal("drawing/draw");
@@ -34,10 +33,8 @@ const { rectangleRoiCursor } = cornerstoneTools.importInternal("tools/cursors");
 const getLogger = cornerstoneTools.importInternal("util/getLogger");
 const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
 const getModule = cornerstoneTools.getModule;
-const BaseTool = cornerstoneTools.importInternal('base/BaseTool');
-const clip = cornerstoneTools.importInternal('util/clip')
-const getLuminance =  cornerstoneTools.importInternal('util/getLuminance');
-const wwwcRegionCursor = cornerstoneTools.importInternal('cursors/wwwcRegionCursor');
+const clip = cornerstoneTools.importInternal("util/clip");
+const getLuminance = cornerstoneTools.importInternal("util/getLuminance");
 const logger = getLogger("tools:annotation:RectangleRoiTool");
 
 /**
@@ -59,7 +56,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
         drawHandlesOnHover: false,
         hideHandlesIfMoving: false,
         renderDashed: false,
-        minWindowWidth: 10,
+        minWindowWidth: 10
         // showMinMax: false,
         // showHounsfieldUnits: true,
       },
@@ -68,6 +65,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
 
     super(props, defaultProps);
     this.dataHandles = [];
+    this.element = null;
     this._drawingMouseUpCallback = this._applyStrategy.bind(this);
     this._editMouseUpCallback = this._applyStrategy.bind(this);
 
@@ -76,6 +74,14 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
 
   createNewMeasurement(eventData) {
     const { element } = eventData;
+
+    if (this.element === null) {
+      this.originalWW = viewport.voi.windowWidth;
+      this.originalWC = viewport.voi.windowCenter;
+    } else if (this.element !== element) {
+      this.element = null;
+    }
+
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
@@ -87,8 +93,14 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
       return;
     }
     if (this.dataHandles) {
-      element.removeEventListener(EVENTS.MOUSE_UP, this._drawingMouseUpCallback);
-      element.removeEventListener(EVENTS.TOUCH_END, this._drawingMouseUpCallback);
+      element.removeEventListener(
+        EVENTS.MOUSE_UP,
+        this._drawingMouseUpCallback
+      );
+      element.removeEventListener(
+        EVENTS.TOUCH_END,
+        this._drawingMouseUpCallback
+      );
     }
     element.addEventListener(EVENTS.MOUSE_UP, this._drawingMouseUpCallback);
     element.addEventListener(EVENTS.TOUCH_END, this._drawingMouseUpCallback);
@@ -135,7 +147,12 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
       );
     }
 
-    if (!validParameters || data.visible === false) {
+    if (
+      !validParameters ||
+      data.visible === false ||
+      this.mode === "passive" ||
+      this.mode === "disabled"
+    ) {
       return false;
     }
 
@@ -189,6 +206,12 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
 
   renderToolData(evt) {
     const toolData = getToolState(evt.currentTarget, this.name);
+    const index = cornerstoneTools.store.state.tools.findIndex(
+      item => item.name === "WwwcRemoveRegion"
+    );
+
+    const mode = cornerstoneTools.store.state.tools[index].mode;
+    this.mode = mode;
     if (!toolData) {
       return;
     }
@@ -196,13 +219,13 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     const eventData = evt.detail;
     const { image, element } = eventData;
     const lineWidth = toolStyle.getToolWidth();
-    const lineDash = getModule("globalConfiguration").configuration.lineDash;
     const {
       handleRadius,
       drawHandlesOnHover,
       hideHandlesIfMoving,
       renderDashed
     } = this.configuration;
+    const lineDash = getModule("globalConfiguration").configuration.lineDash;
     const context = getNewContext(eventData.canvasContext.canvas);
     const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
 
@@ -214,7 +237,13 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     // Pixel Spacing
     const modality = seriesModule.modality;
     const hasPixelSpacing = rowPixelSpacing && colPixelSpacing;
-
+    if (toolData.data.length === 0) {
+      eventData.viewport.voi.windowWidth = this.originalWW;
+      eventData.viewport.voi.windowCenter = this.originalWC;
+      eventData.viewport.voiLUT = undefined;
+      external.cornerstone.setViewport(element, eventData.viewport);
+      external.cornerstone.updateImage(element);
+    }
     draw(context, context => {
       // If we have tool data for this element - iterate over each set and draw it
       for (let i = 0; i < toolData.data.length; i++) {
@@ -223,25 +252,27 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
         if (data.visible === false) {
           continue;
         }
+
         // Configure
         const color = toolColors.getColorIfActive(data);
+        if (mode === "passive" || mode === "disabled") {
+          data.active = false;
+        }
+        setShadow(context, this.configuration);
         const handleOptions = {
-          color,
-          handleRadius,
+          color: data.active ? color : "black",
+          handleRadius: data.active ? 6 : 1,
           drawHandlesIfActive: drawHandlesOnHover,
           hideHandlesIfMoving
         };
-
-        setShadow(context, this.configuration);
-
-        const rectOptions = { color };
+        const rectOptions = { color: data.active ? color : "black" };
 
         if (renderDashed) {
           rectOptions.lineDash = lineDash;
         }
 
         // Draw the rectangle
-        // drawFillRect 
+        // drawFillRect
         // must be converted in canvas coords
         const startCanvas = external.cornerstone.pixelToCanvas(
           element,
@@ -258,7 +289,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
           width: Math.abs(startCanvas.x - endCanvas.x),
           height: Math.abs(startCanvas.y - endCanvas.y)
         };
-        fillBox(context, rect, 'black');
+        fillBox(context, rect, "black");
         drawRect(
           context,
           element,
@@ -268,8 +299,9 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
           "pixel",
           data.handles.initialRotation
         );
-       
-
+        if (this.configuration.drawHandles) {
+          drawHandles(context, eventData, data.handles, handleOptions);
+        }
         if (data.computeMeasurements) {
           // Update textbox stats
           if (data.invalidated === true) {
@@ -326,14 +358,19 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
   _withinHandleBoxes(startCanvas, endCanvas) {
     let within = false;
     this.dataHandles.forEach(handle => {
-      if (startCanvas.x > handle.handles.start.x && startCanvas.y < handle.handles.start.y && endCanvas.x < handle.handles.end.x && endCanvas.y > handle.handles.end.y) {
+      if (
+        startCanvas.x > handle.handles.start.x &&
+        startCanvas.y < handle.handles.start.y &&
+        endCanvas.x < handle.handles.end.x &&
+        endCanvas.y > handle.handles.end.y
+      ) {
         within = true;
         return within;
       }
     });
     return within;
   }
-   /**
+  /**
    * Event handler for MOUSE_UP/TOUCH_END during handle drag event loop.
    *
    * @private
@@ -342,21 +379,17 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
    * @returns {void}
    */
   _applyStrategy(evt) {
-    const tools = cornerstoneTools.store.state.tools;
     const toolData = getToolState(evt.currentTarget, this.name);
     if (!toolData) {
       return;
-    } 
-    const toolState = tools.find(item => item.name ===  this.name);
-    if (toolState.mode !== "active" ) {
-      return;
     }
-    const rectangles = toolData ? toolData.data : [] ;
+
+    const rectangles = toolData ? toolData.data : [];
     if (Array.isArray(rectangles)) {
-        const allHandles = rectangles.map(item => item.handles);
-        this.dataHandles = allHandles;
-        const eventData = evt.detail;
-        _applyWWWCRegion(eventData, allHandles, this.configuration);
+      const allHandles = rectangles.map(item => item.handles);
+      this.dataHandles = allHandles;
+      const eventData = evt.detail;
+      _applyWWWCRegion(eventData, allHandles, this.configuration);
     }
   }
 }
@@ -638,10 +671,16 @@ function _createTextBoxContent(
  * @param {Object} config The tool's configuration object
  * @returns {void}
  */
-const _applyWWWCRegion = function(eventData, handles, config) {
+const _applyWWWCRegion = function (eventData, handles, config) {
   const { image, element } = eventData;
-  const fullImageLuminance = getLuminance(element, 0, 0, image.width, image.height);
-  let extentsLuminance = fullImageLuminance; 
+  const fullImageLuminance = getLuminance(
+    element,
+    0,
+    0,
+    image.width,
+    image.height
+  );
+  let extentsLuminance = fullImageLuminance;
   handles.forEach(handle => {
     /*
     if (_isEmptyObject(handle.start) || _isEmptyObject(handles.end)) {
@@ -658,7 +697,7 @@ const _applyWWWCRegion = function(eventData, handles, config) {
     left = clip(left, 0, image.width);
     top = clip(top, 0, image.height);
     width = Math.floor(Math.min(width, Math.abs(image.width - left)));
-    height = Math.floor(Math.min(height, Math.abs(image.height - top))); 
+    height = Math.floor(Math.min(height, Math.abs(image.height - top)));
     // Get the pixel data in the rectangular region
     // get luminance of the whole image
     const x = Math.round(left);
@@ -667,20 +706,17 @@ const _applyWWWCRegion = function(eventData, handles, config) {
     for (row = 0; row < height; row++) {
       for (column = 0; column < width; column++) {
         spIndex = (row + y) * image.columns + (column + x);
-        extentsLuminance[spIndex] = null; 
+        extentsLuminance[spIndex] = null;
       }
     }
-   
   });
   // remove the luminance of the selected area
   let normalizedImageLuminance = [...extentsLuminance];
-  normalizedImageLuminance = normalizedImageLuminance.filter(item => item !== null);
-  // calculate maxminmean in the area
-  const minMaxMean = _calculateMinMaxMean(
-    normalizedImageLuminance,
-    image.minPixelValue,
-    image.maxPixelValue
+  normalizedImageLuminance = normalizedImageLuminance.filter(
+    item => item !== null
   );
+  // calculate maxminmean in the area
+
   // Adjust the viewport window width and center based on the calculated values
   const viewport = eventData.viewport;
 
@@ -688,29 +724,81 @@ const _applyWWWCRegion = function(eventData, handles, config) {
     config.minWindowWidth = 10;
   }
 
+  const { windowWidth, windowCenter } = calculateWindowParameters(
+    normalizedImageLuminance
+  );
+
+  /*
+    const minMaxMean = _calculateMinMaxMean(
+    normalizedImageLuminance,
+    image.minPixelValue,
+    image.maxPixelValue
+  );
   viewport.voi.windowWidth = Math.max(
     Math.abs(minMaxMean.max - minMaxMean.min),
     config.minWindowWidth
   );
-  viewport.voi.windowCenter = minMaxMean.mean;
+  viewport.voi.windowCenter = minMaxMean.mean;*/
 
   // Unset any existing VOI LUT
+  viewport.voi.windowWidth = windowWidth;
+  viewport.voi.windowCenter = windowCenter;
   viewport.voiLUT = undefined;
   external.cornerstone.setViewport(element, viewport);
   external.cornerstone.updateImage(element);
 };
 
+const calculateWindowParameters = function (pixelValues) {
+  // Sort pixel values in ascending order
+  const sortedValues = pixelValues.slice().sort((a, b) => a - b);
+
+  // Calculate the median
+  const median = sortedValues[Math.floor(sortedValues.length / 2)];
+
+  // Calculate the median absolute deviation (MAD)
+  const mad = calculateMAD(sortedValues, median);
+
+  // Set a threshold for outliers (e.g., 3 times the MAD)
+  const outlierThreshold = 22 * mad;
+
+  // Filter out outliers based on the threshold
+  const filteredValues = sortedValues.filter(
+    value => Math.abs(value - median) <= outlierThreshold
+  );
+  // Calculate window width and window center based on filtered values
+  const windowWidth =
+    getMaxPixelValue(filteredValues) - getMinPixelValue(filteredValues);
+  const windowCenter =
+    (getMaxPixelValue(filteredValues) + getMinPixelValue(filteredValues)) / 2;
+  return { windowWidth, windowCenter };
+};
+
+const calculateMAD = function (values, median) {
+  const deviations = values.map(value => Math.abs(value - median));
+  const medianDeviation = calculateMedian(deviations);
+  return medianDeviation;
+};
+
+const calculateMedian = function (values) {
+  const sortedValues = values.slice().sort((a, b) => a - b);
+  const middleIndex = Math.floor(sortedValues.length / 2);
+  if (sortedValues.length % 2 === 0) {
+    return (sortedValues[middleIndex - 1] + sortedValues[middleIndex]) / 2;
+  } else {
+    return sortedValues[middleIndex];
+  }
+};
 /**
  * Calculates the minimum, maximum, and mean value in the given pixel array
  *
  * @private
  * @method _calculateMinMaxMean
  * @param {number[]} pixelLuminance array of pixel luminance values
- * @param {number} globalMin starting "min" valie
+ * @param {number} globalMin starting "min" value
  * @param {bumber} globalMax starting "max" value
  * @returns {Object} {min: number, max: number, mean: number }
  */
-const _calculateMinMaxMean = function(pixelLuminance, globalMin, globalMax) {
+const _calculateMinMaxMean = function (pixelLuminance, globalMin, globalMax) {
   const numPixels = pixelLuminance.length;
   let min = globalMax;
   let max = globalMin;
@@ -720,7 +808,7 @@ const _calculateMinMaxMean = function(pixelLuminance, globalMin, globalMax) {
     return {
       min,
       max,
-      mean: (globalMin + globalMax) / 2,
+      mean: (globalMin + globalMax) / 2
     };
   }
 
@@ -735,8 +823,6 @@ const _calculateMinMaxMean = function(pixelLuminance, globalMin, globalMax) {
   return {
     min,
     max,
-    mean: sum / numPixels,
+    mean: sum / numPixels
   };
 };
-
-
