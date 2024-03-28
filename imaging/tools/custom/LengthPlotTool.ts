@@ -20,6 +20,7 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 
 //internal imports
 import { HandlePosition } from "../types";
+import { cornerSubPix } from "@techstark/opencv-js";
 
 //interfaces/types
 
@@ -75,6 +76,10 @@ interface EventData {
     canvas: any;
   };
 }
+
+//plots represent horizontal lines seen from left to right always
+//to maintain this view, vertical lines are seen from south to north with angles between [-90;90]
+//and from north to south with angles between [90;270]
 interface PlotlyData {
   x: number[];
   y: number[];
@@ -177,36 +182,55 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     }
     this.click = +1;
     this.measuring =
-      this.datahandles?.end.x === this.datahandles?.start.x && this.click === 1
+      this.datahandles?.end.x === this.datahandles?.start.x &&
+      this.datahandles?.end.y === this.datahandles?.start.y &&
+      this.click === 1
         ? true
         : false;
 
     const eventData = this.eventData;
-
-    const handleData = (handles: Handles) => {
-      const points = this.getPointsAlongLine(
-        handles.start,
-        handles.end,
-        getPixelSpacing(eventData!.image).colPixelSpacing
-      );
-      const pixelValues = this.getPixelValuesAlongLine(
-        handles.start,
-        points,
-        getPixelSpacing(eventData!.image).colPixelSpacing,
-        eventData!
-      );
-      let color = "green";
-      return { points, pixelValues, color };
-    };
-    const result = handleData(this.datahandles!);
-    const aboveResults = handleData(this.abovehandles!);
-    aboveResults.color = this.abovehandles!.color;
-    aboveResults.points = result.points;
-    const belowResults = handleData(this.belowhandles!);
-    belowResults.color = this.belowhandles!.color;
-    belowResults.points = result.points;
-    const data = [handleData(this.datahandles!), aboveResults, belowResults];
     if (this.measuring === false) {
+      this.theta = Math.atan2(
+        this.datahandles!.end.y - this.datahandles!.start.y,
+        this.datahandles!.end.x - this.datahandles!.start.x
+      );
+
+      const handleData = (handles: Handles) => {
+        const pointsCoords = this.getPointsAlongLine(
+          handles.start,
+          handles.end,
+          getPixelSpacing(eventData!.image).colPixelSpacing
+        );
+        const points: number[] = []; // Array to store distances
+
+        // Calculate distance for each point
+        pointsCoords.forEach(point => {
+          const distance = Math.sqrt(
+            (point.x - handles.start.x) * (point.x - handles.start.x) +
+              (this.image.height - (point.y - this.image.height)) *
+                (this.image.height - (point.y - this.image.height))
+          );
+          points.push(distance);
+        });
+
+        const pixelValues = this.getPixelValuesAlongLine(
+          handles.start,
+          pointsCoords,
+          getPixelSpacing(eventData!.image).colPixelSpacing,
+          eventData!
+        );
+        let color = "green";
+        return { points, pixelValues, color };
+      };
+      const result = handleData(this.datahandles!);
+      const aboveResults = handleData(this.abovehandles!);
+      aboveResults.color = this.abovehandles!.color;
+      aboveResults.points = result.points;
+      const belowResults = handleData(this.belowhandles!);
+      belowResults.color = this.belowhandles!.color;
+      belowResults.points = result.points;
+      const data = [result, aboveResults, belowResults];
+
       this.createPlot(...data);
     }
   }
@@ -279,6 +303,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.measuring = true;
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
+    this.image = eventData.image;
 
     if (!goodEventData) {
       console.error(
@@ -617,31 +642,20 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     endHandle: HandlePosition,
     colPixelSpacing: number
   ) {
-    let points: number[] = [];
-    const addPoints = (
-      start: HandlePosition,
-      end: HandlePosition,
-      step: number
-    ) => {
-      const startPoint =
-        Math.floor(Math.sqrt(Math.pow(start.x, 2) + Math.pow(start.y, 2))) + 1;
+    let points: { x: number; y: number }[] = [];
 
-      const numPoints = Math.floor(
-        Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2)) +
-          1
-      );
-      points = new Array(numPoints + 1);
-      for (let i = 0; i <= numPoints; i++) {
-        points[i] = (startPoint + i) * step;
-      }
-    };
+    const dx = endHandle.x - startHandle.x;
+    const dy = endHandle.y - startHandle.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const stepX = (dx / distance) * colPixelSpacing;
+    const stepY = (dy / distance) * colPixelSpacing;
 
-    if (endHandle.x > startHandle.x) {
-      addPoints(startHandle, endHandle, colPixelSpacing);
-    }
+    const numPoints = Math.floor(distance / colPixelSpacing);
 
-    if (endHandle.x < startHandle.x) {
-      addPoints(endHandle, startHandle, colPixelSpacing);
+    for (let i = 0; i <= numPoints; i++) {
+      const x = startHandle.x + i * stepX;
+      const y = startHandle.y + i * stepY;
+      points.push({ x, y });
     }
 
     return points;
@@ -659,30 +673,33 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    */
   getPixelValuesAlongLine(
     startHandle: HandlePosition,
-    points: number[],
+    points: { x: number; y: number }[],
     colPixelSpacing: number,
     eventData: EventData
   ) {
     const pixelValues: number[] = new Array(points.length);
-    const yPoint = Math.floor(startHandle.y);
 
-    const addPixelValues = (xPoints: number[], startIndex: number) => {
+    const addPixelValues = (
+      xPoints: number[],
+      yPoints: number[],
+      startIndex: number
+    ) => {
       const pixelValuesBatch = cornerstone.getStoredPixels(
         eventData.element,
         xPoints[0],
-        yPoint,
+        yPoints[0],
         xPoints.length,
         1
       );
-
       for (let i = 0; i < pixelValuesBatch.length; i++) {
         pixelValues[startIndex + i] = pixelValuesBatch[i];
       }
     };
 
     for (let i = 0; i < points.length; i++) {
-      const xPoint = Math.floor(points[i] / colPixelSpacing);
-      addPixelValues([xPoint], i);
+      const xPoint = points[i].x;
+      const yPoint = points[i].y;
+      addPixelValues([xPoint], [yPoint], i);
     }
 
     return pixelValues;
@@ -713,7 +730,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     const layout = {
       xaxis: {
         range: [Math.min(...allXValues), Math.max(...allXValues)],
-        title: "position (mm)"
+        title: "position(mm)"
       },
       yaxis: {
         range: [Math.min(...allYValues), Math.max(...allYValues)],
@@ -759,6 +776,8 @@ function clearToolData(element: HTMLElement, toolName: string) {
     toolData.data.forEach((data: data) => {
       data.visible = false;
     });
+    // Remove all data items from tool state
+    toolData.data = [];
   }
 }
 

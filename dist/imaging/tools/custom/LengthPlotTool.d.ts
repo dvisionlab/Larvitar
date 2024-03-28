@@ -177,7 +177,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
      * @param {number} colPixelSpacing
      * @returns {number[]}
      */
-    getPointsAlongLine(startHandle: HandlePosition, endHandle: HandlePosition, colPixelSpacing: number): number[];
+    getPointsAlongLine(startHandle: HandlePosition, endHandle: HandlePosition, colPixelSpacing: number): {
+        x: number;
+        y: number;
+    }[];
     /**
      * Retrieves the pixel greyscale values along the line
      * @method
@@ -188,7 +191,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
      * @param {EventData} eventData
      * @returns {void}
      */
-    getPixelValuesAlongLine(startHandle: HandlePosition, points: number[], colPixelSpacing: number, eventData: EventData): number[];
+    getPixelValuesAlongLine(startHandle: HandlePosition, points: {
+        x: number;
+        y: number;
+    }[], colPixelSpacing: number, eventData: EventData): number[];
     /**
      * Creates the plot: coords-greyscale value
      * @method
