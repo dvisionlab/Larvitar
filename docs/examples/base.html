@@ -339,6 +339,7 @@
           .readFiles(demoFiles)
           .then(seriesStack => {
             // render the first series of the study
+
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
@@ -378,7 +379,6 @@
               }
             }
             larvitar.addDefaultTools();
-            larvitar.setToolActive("Wwwc");
           })
           .catch(err => console.error(err));
       }

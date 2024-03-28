@@ -196,6 +196,7 @@ export interface Viewport extends cornerstone.Viewport {
       y: number;
     };
   };
+  overlayColor?: boolean | string;
 }
 
 export type Contours = {
