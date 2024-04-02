@@ -14,6 +14,7 @@ const triggerEvent = csTools.importInternal("util/triggerEvent");
 const pointInsideBoundingBox = csTools.importInternal(
   "util/pointInsideBoundingBox"
 );
+const lineSegDistance = csTools.importInternal("util/lineSegDistance");
 const getPixelSpacing = csTools.importInternal("util/getPixelSpacing");
 const calculateSUV = csTools.importInternal("util/calculateSUV");
 const numbersWithCommas = csTools.importInternal("util/numbersWithCommas");
@@ -23,7 +24,8 @@ const drawJoinedLines = csTools.importInternal("drawing/drawJoinedLines");
 const drawHandles = csTools.importInternal("drawing/drawHandles");
 const drawLinkedTextBox = csTools.importInternal("drawing/drawLinkedTextBox");
 const clipToBox = csTools.importInternal("util/clip");
-const freehandRoiCursor = csTools.importInternal("cursors/freehandRoiCursor");
+const cursors = csTools.importInternal("tools/cursors");
+const freehandRoiCursor = cursors.freehandRoiCursor;
 const throttle = csTools.importInternal("util/throttle");
 const freehandUtils = csTools.importInternal("util/freehandUtils");
 const getModule = csTools.getModule;
@@ -76,6 +78,8 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     this._dragging = false;
     this._modifying = false;
     this.modality = null;
+    this.index = null;
+    this.pointNear = null;
     // Create bound callback functions for private event loops
     this._drawingMouseDownCallback = this._drawingMouseDownCallback.bind(this);
     this._drawingMouseMoveCallback = this._drawingMouseMoveCallback.bind(this);
@@ -85,7 +89,9 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
       this._drawingMouseDoubleClickCallback.bind(this);
     this._editMouseUpCallback = this._editMouseUpCallback.bind(this);
     this._editMouseDragCallback = this._editMouseDragCallback.bind(this);
-
+    this._editMouseUpAllCallback = this._editMouseUpAllCallback.bind(this);
+    this._editMouseDragAllCallback = this._editMouseDragAllCallback.bind(this);
+    this._editTouchDragAllCallback = this._editTouchDragAllCallback.bind(this);
     this._drawingTouchStartCallback =
       this._drawingTouchStartCallback.bind(this);
     this._drawingTouchDragCallback = this._drawingTouchDragCallback.bind(this);
@@ -97,12 +103,12 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
   }
 
   createNewMeasurement(eventData) {
+    this.newMeasur = true;
+    this.finished = false;
+    this.modifying = false;
+    this.modifyingAll = false;
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
-    const viewport = store.get(["viewports", this.element.id]);
-    if (viewport.modality) {
-      this.modality = viewport.modality;
-    }
 
     if (!goodEventData) {
       logger.error(
@@ -117,6 +123,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
       active: true,
       invalidated: true,
       color: undefined,
+      canComplete: false,
       handles: {
         points: []
       }
@@ -157,8 +164,58 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
 
     const isPointNearTool = this._pointNearHandle(element, data, coords);
 
-    if (isPointNearTool !== undefined) {
+    if (
+      (isPointNearTool != undefined && this.finished === true) ||
+      this.modifying === true
+    ) {
+      this.uuid = data.uuid;
+      this._activateModify(element);
+    } else {
+      this._deactivateModify(element);
+    }
+
+    const isPointNearLine = this._pointNearLine(element, data, coords);
+    if (
+      isPointNearLine &&
+      isPointNearTool === undefined &&
+      this.finished === true
+    ) {
+      this.dataAll = data;
+      this._activateModifyAll(element);
+    } else {
+      this._deactivateModifyAll(element);
+    }
+
+    if (isPointNearTool !== undefined || isPointNearLine === true) {
       return true;
+    }
+
+    return false;
+  }
+
+  /**
+   *
+   *
+   * @param {*} element element
+   * @param {*} data data
+   * @param {*} coords coords
+   * @returns {Boolean}
+   */
+  _pointNearLine(element, data, coords) {
+    const handles = data.handles.points;
+    const numHandles = handles.length;
+
+    for (let i = 0; i < numHandles; i++) {
+      const startPoint = handles[i];
+      let endPoint;
+      if (i === numHandles - 1) {
+        endPoint = handles[0]; // Wrap around to the start for the last point
+      } else {
+        endPoint = handles[i + 1];
+      }
+      if (lineSegDistance(element, startPoint, endPoint, coords) < 25) {
+        return true;
+      }
     }
 
     return false;
@@ -246,7 +303,11 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
   updateCachedStats(image, element, data) {
     // Define variables for the area and mean/standard deviation
     let meanStdDev, meanStdDevSUV;
-    const modality = this.modality;
+    const seriesModule = external.cornerstone.metaData.get(
+      "generalSeriesModule",
+      image.imageId
+    );
+    const modality = seriesModule ? seriesModule.modality : null;
 
     const points = data.handles.points;
     // If the data has been invalidated, and the tool is not currently active,
@@ -327,7 +388,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     // Retrieve the pixel spacing values, and if they are not
     // Real non-zero values, set them to 1
     let { colPixelSpacing, rowPixelSpacing } = getPixelSpacing(image);
-    if (this.modality === "US") {
+    if (modality === "US") {
       colPixelSpacing = image.columnPixelSpacing;
       rowPixelSpacing = image.rowPixelSpacing;
     }
@@ -369,16 +430,19 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
    */
   renderToolData(evt) {
     const eventData = evt.detail;
-
     // If we have no toolState for this element, return immediately as there is nothing to do
     const toolState = getToolState(evt.currentTarget, this.name);
-
     if (!toolState) {
       return;
     }
 
     const { image, element } = eventData;
     const config = this.configuration;
+    const seriesModule = external.cornerstone.metaData.get(
+      "generalSeriesModule",
+      image.imageId
+    );
+    const modality = seriesModule ? seriesModule.modality : null;
 
     // We have tool data for this element - iterate over each one and draw it
     const context = getNewContext(eventData.canvasContext.canvas);
@@ -388,7 +452,6 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
 
     for (let i = 0; i < toolState.data.length; i++) {
       const data = toolState.data[i];
-
       if (data.visible === false) {
         continue;
       }
@@ -420,7 +483,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
 
           drawJoinedLines(context, element, points[0], points, options);
 
-          if (data.polyBoundingBox) {
+          if (data.polyBoundingBox && data.canComplete === true) {
             drawJoinedLines(
               context,
               element,
@@ -428,6 +491,9 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
               [points[0]],
               options
             );
+            points[points.length - 1].lines = [
+              { x: points[0].x, y: points[0].y }
+            ];
           } else {
             drawJoinedLines(
               context,
@@ -442,10 +508,9 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
         // Draw handles
 
         options = {
-          color,
-          fill: fillColor
+          color
+          //fill: fillColor
         };
-
         if (config.alwaysShowHandles || (data.active && data.polyBoundingBox)) {
           // Render all handles
           options.handleRadius = config.activeHandleRadius;
@@ -508,19 +573,22 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
           }
 
           const text = textBoxText.call(this, data);
-
-          drawLinkedTextBox(
-            context,
-            element,
-            data.handles.textBox,
-            text,
-            data.handles.points,
-            textBoxAnchorPoints,
-            color,
-            lineWidth,
-            0,
-            true
-          );
+          if (data.canComplete === true) {
+            drawLinkedTextBox(
+              context,
+              element,
+              data.handles.textBox,
+              text,
+              data.handles.points,
+              textBoxAnchorPoints,
+              color,
+              lineWidth,
+              20,
+              true
+            );
+            this.data = data;
+            this.finished = true;
+          }
         }
       });
     }
@@ -535,7 +603,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
         // If the modality is CT, add HU to denote Hounsfield Units
         let moSuffix = "";
 
-        if (this.modality === "CT") {
+        if (modality === "CT") {
           moSuffix = "HU";
         }
         data.unit = moSuffix;
@@ -572,7 +640,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
         let suffix = ` mm${String.fromCharCode(178)}`;
 
         let { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
-        if (this.modality === "US") {
+        if (modality === "US") {
           colPixelSpacing = image.columnPixelSpacing;
           rowPixelSpacing = image.rowPixelSpacing;
         }
@@ -680,8 +748,6 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     }
 
     this._modifying = true;
-
-    this._activateModify(element);
 
     // Interupt eventDispatchers
     preventPropagation(evt);
@@ -816,11 +882,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
    */
   _drawingMouseDownCallback(evt) {
     const eventData = evt.detail;
-    const { buttons, currentPoints, element } = eventData;
-
-    if (!this.options.mouseButtonMask.includes(buttons)) {
-      return;
-    }
+    const { currentPoints, element } = eventData;
 
     const coords = currentPoints.canvas;
 
@@ -941,40 +1003,43 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
    */
   _editMouseDragCallback(evt) {
     const eventData = evt.detail;
-    const { element, buttons } = eventData;
+    const { element, currentPoints } = eventData;
 
-    if (!this.options.mouseButtonMask.includes(buttons)) {
-      return;
-    }
+    this.dragged = true;
+    this.modifying = true;
 
     const toolState = getToolState(element, this.name);
-
     const config = this.configuration;
+    if (this.index === null) {
+      this.index = toolState.data.findIndex(obj => obj.uuid === this.uuid);
+    }
+    config.currentTool = this.index;
+
     const data = toolState.data[config.currentTool];
-    const currentHandle = config.currentHandle;
+    if (this.pointNear === null) {
+      this.pointNear = this._pointNearHandle(
+        element,
+        data,
+        currentPoints.canvas
+      );
+    }
+
+    let currentHandle = this.pointNear;
     const points = data.handles.points;
-    let handleIndex = -1;
+    let handleIndex = 0;
 
     // Set the mouseLocation handle
-    this._getMouseLocation(eventData);
 
-    data.handles.invalidHandlePlacement = freehandIntersect.modify(
-      points,
-      currentHandle
-    );
-    data.active = true;
-    data.highlight = true;
-    points[currentHandle].x = config.mouseLocation.handles.start.x;
-    points[currentHandle].y = config.mouseLocation.handles.start.y;
-
-    handleIndex = this._getPrevHandleIndex(currentHandle, points);
-
+    // Update the position of the selected handle to follow the mouse/cursor
     if (currentHandle >= 0) {
-      const lastLineIndex = points[handleIndex].lines.length - 1;
-      const lastLine = points[handleIndex].lines[lastLineIndex];
+      points[currentHandle].x += eventData.deltaPoints.image.x;
+      points[currentHandle].y += eventData.deltaPoints.image.y;
 
-      lastLine.x = config.mouseLocation.handles.start.x;
-      lastLine.y = config.mouseLocation.handles.start.y;
+      // Update the lines associated with the selected handle
+      handleIndex = this._getPrevHandleIndex(currentHandle, points);
+      const lastLine = points[handleIndex].lines[0];
+      lastLine.x += eventData.deltaPoints.image.x;
+      lastLine.y += eventData.deltaPoints.image.y;
     }
 
     // Update the image
@@ -989,37 +1054,126 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
    * @returns {void}
    */
   _editTouchDragCallback(evt) {
+    {
+      const eventData = evt.detail;
+      const { element, currentPoints } = eventData;
+
+      this.dragged = true;
+      this.modifying = true;
+
+      const toolState = getToolState(element, this.name);
+      const config = this.configuration;
+      if (this.index === null) {
+        this.index = toolState.data.findIndex(obj => obj.uuid === this.uuid);
+      }
+      config.currentTool = this.index;
+
+      const data = toolState.data[config.currentTool];
+      if (this.pointNear === null) {
+        this.pointNear = this._pointNearHandle(
+          element,
+          data,
+          currentPoints.canvas
+        );
+      }
+
+      let currentHandle = this.pointNear;
+      const points = data.handles.points;
+      let handleIndex = 0;
+
+      // Set the mouseLocation handle
+
+      // Update the position of the selected handle to follow the mouse/cursor
+      if (currentHandle >= 0) {
+        points[currentHandle].x += eventData.deltaPoints.image.x;
+        points[currentHandle].y += eventData.deltaPoints.image.y;
+
+        // Update the lines associated with the selected handle
+        handleIndex = this._getPrevHandleIndex(currentHandle, points);
+        const lastLine = points[handleIndex].lines[0];
+        lastLine.x += eventData.deltaPoints.image.x;
+        lastLine.y += eventData.deltaPoints.image.y;
+      }
+
+      // Update the image
+      external.cornerstone.updateImage(element);
+    }
+  }
+
+  /**
+   * Event handler for MOUSE_DRAG during lines drag event loop (Roi translation).
+   *
+   * @event
+   * @param {Object} evt - The event.
+   * @returns {undefined}
+   */
+  _editMouseDragAllCallback(evt) {
     const eventData = evt.detail;
     const { element } = eventData;
-
-    const toolState = getToolState(element, this.name);
-
-    const config = this.configuration;
-    const data = toolState.data[config.currentTool];
-    const currentHandle = config.currentHandle;
+    this.modifyingAll = true;
+    const data = this.dataAll;
     const points = data.handles.points;
-    let handleIndex = -1;
 
     // Set the mouseLocation handle
     this._getMouseLocation(eventData);
 
-    data.handles.invalidHandlePlacement = freehandIntersect.modify(
-      points,
-      currentHandle
-    );
-    data.active = true;
-    data.highlight = true;
-    points[currentHandle].x = config.mouseLocation.handles.start.x;
-    points[currentHandle].y = config.mouseLocation.handles.start.y;
+    // Calculate movement of the mouse pointer
+    const deltaX = eventData.deltaPoints.image.x;
+    const deltaY = eventData.deltaPoints.image.y;
 
-    handleIndex = this._getPrevHandleIndex(currentHandle, points);
+    // Move all points by the same amount
+    for (let i = 0; i < points.length; i++) {
+      points[i].x += deltaX;
+      points[i].y += deltaY;
+    }
 
-    if (currentHandle >= 0) {
-      const lastLineIndex = points[handleIndex].lines.length - 1;
-      const lastLine = points[handleIndex].lines[lastLineIndex];
+    // Update lines if necessary
+    for (let i = 0; i < points.length; i++) {
+      const handle = points[i];
+      for (let j = 0; j < handle.lines.length; j++) {
+        handle.lines[0].x += deltaX;
+        handle.lines[0].y += deltaY;
+      }
+    }
 
-      lastLine.x = config.mouseLocation.handles.start.x;
-      lastLine.y = config.mouseLocation.handles.start.y;
+    // Update the image
+    external.cornerstone.updateImage(element);
+  }
+
+  /**
+   * Event handler for TOUCH_DRAG during lines drag event loop (Roi translation).
+   *
+   * @event
+   * @param {Object} evt - The event.
+   * @returns {undefined}
+   */
+  _editTouchDragAllCallback(evt) {
+    const eventData = evt.detail;
+    const { element } = eventData;
+    this.modifyingAll = true;
+    const data = this.dataAll;
+    const points = data.handles.points;
+
+    // Set the mouseLocation handle
+    this._getMouseLocation(eventData);
+
+    // Calculate movement of the touch pointer
+    const deltaX = eventData.deltaPoints.image.x;
+    const deltaY = eventData.deltaPoints.image.y;
+
+    // Move all points by the same amount
+    for (let i = 0; i < points.length; i++) {
+      points[i].x += deltaX;
+      points[i].y += deltaY;
+    }
+
+    // Update lines if necessary
+    for (let i = 0; i < points.length; i++) {
+      const handle = points[i];
+      for (let j = 0; j < handle.lines.length; j++) {
+        handle.lines[0].x += deltaX;
+        handle.lines[0].y += deltaY;
+      }
     }
 
     // Update the image
@@ -1048,16 +1202,33 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
    * @returns {undefined}
    */
   _editMouseUpCallback(evt) {
+    this.modifying = this.modifying === false ? true : false;
+
     const eventData = evt.detail;
-    const { element } = eventData;
-    const toolState = getToolState(element, this.name);
 
-    this._deactivateModify(element);
+    const toolState = getToolState(this.element, this.name);
+    if (this.modifying === false && this.dragged === true) {
+      this._deactivateModify(this.element);
+      this._dropHandle(eventData, toolState);
+      this._endDrawing(this.element);
+    }
+    external.cornerstone.updateImage(this.element);
+  }
 
-    this._dropHandle(eventData, toolState);
-    this._endDrawing(element);
+  /**
+   * Event handler for MOUSE_UP during lines drag event loop.
+   *
+   * @private
+   * @param {Object} evt - The event.
+   * @returns {undefined}
+   */
+  _editMouseUpAllCallback(evt) {
+    this.modifyingAll = this.modifyingAll === false ? true : false;
 
-    external.cornerstone.updateImage(element);
+    if (this.modifying === false && this.dragged === true) {
+      this._deactivateModifyAll(this.element);
+    }
+    external.cornerstone.updateImage(this.element);
   }
 
   /**
@@ -1073,7 +1244,11 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
   _dropHandle(eventData, toolState) {
     const config = this.configuration;
     const currentTool = config.currentTool;
-    const handles = toolState.data[currentTool].handles;
+    const handles =
+      toolState.data !== undefined && currentTool !== -1
+        ? toolState.data[currentTool].handles
+        : this.data.handles;
+
     const points = handles.points;
 
     // Don't allow the line being modified to intersect other lines
@@ -1109,8 +1284,10 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
    */
   _startDrawing(evt) {
     const eventData = evt.detail;
+
     const measurementData = this.createNewMeasurement(eventData);
     const { element } = eventData;
+
     const config = this.configuration;
     let interactionType;
 
@@ -1204,7 +1381,10 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
   _endDrawing(element, handleNearby) {
     const toolState = getToolState(element, this.name);
     const config = this.configuration;
-    const data = toolState.data[config.currentTool];
+    const data =
+      toolState.data[config.currentTool] != undefined
+        ? toolState.data[config.currentTool]
+        : this.data;
 
     data.active = false;
     data.highlight = false;
@@ -1225,7 +1405,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     // Reset the current handle
     config.currentHandle = 0;
     config.currentTool = -1;
-    data.canComplete = false;
+    data.canComplete = true;
 
     if (this._drawing) {
       this._deactivateDraw(element);
@@ -1260,8 +1440,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
         element,
         data.handles.points[i]
       );
-
-      if (external.cornerstoneMath.point.distance(handleCanvas, coords) < 6) {
+      if (external.cornerstoneMath.point.distance(handleCanvas, coords) < 24) {
         return i;
       }
     }
@@ -1643,14 +1822,43 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
    * @returns {undefined}
    */
   _activateModify(element) {
+    //this._deactivateModify(element);
+    this._deactivateModifyAll(element);
     state.isToolLocked = true;
+    this.index = null;
+    this.modifying = false;
+    this.pointNear = null;
+    this.element = element;
 
-    element.addEventListener(EVENTS.MOUSE_UP, this._editMouseUpCallback);
+    element.addEventListener("mouseup", this._editMouseUpCallback);
     element.addEventListener(EVENTS.MOUSE_DRAG, this._editMouseDragCallback);
     element.addEventListener(EVENTS.MOUSE_CLICK, this._editMouseUpCallback);
 
     element.addEventListener(EVENTS.TOUCH_END, this._editMouseUpCallback);
     element.addEventListener(EVENTS.TOUCH_DRAG, this._editTouchDragCallback);
+
+    external.cornerstone.updateImage(element);
+  }
+
+  /**
+   * Adds modify loop event listeners for Roi translation.
+   *
+   * @private
+   * @param {Object} element - The viewport element to add event listeners to.
+   * @modifies {element}
+   * @returns {undefined}
+   */
+  _activateModifyAll(element) {
+    this._deactivateModifyAll(element);
+    this._deactivateModify(element);
+    this.modifyingAll = false;
+    this.element = element;
+    element.addEventListener("mouseup", this._editMouseUpAllCallback);
+    element.addEventListener(EVENTS.MOUSE_DRAG, this._editMouseDragAllCallback);
+    element.addEventListener(EVENTS.MOUSE_CLICK, this._editMouseUpAllCallback);
+
+    element.addEventListener(EVENTS.TOUCH_END, this._editMouseUpAllCallback);
+    element.addEventListener(EVENTS.TOUCH_DRAG, this._editTouchDragAllCallback);
 
     external.cornerstone.updateImage(element);
   }
@@ -1664,16 +1872,39 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
    * @returns {undefined}
    */
   _deactivateModify(element) {
-    state.isToolLocked = false;
-
-    element.removeEventListener(EVENTS.MOUSE_UP, this._editMouseUpCallback);
+    element.removeEventListener("mouseup", this._editMouseUpCallback);
     element.removeEventListener(EVENTS.MOUSE_DRAG, this._editMouseDragCallback);
     element.removeEventListener(EVENTS.MOUSE_CLICK, this._editMouseUpCallback);
-
     element.removeEventListener(EVENTS.TOUCH_END, this._editMouseUpCallback);
     element.removeEventListener(EVENTS.TOUCH_DRAG, this._editTouchDragCallback);
 
-    external.cornerstone.updateImage(element);
+    state.isToolLocked = false;
+  }
+
+  /**
+   * Removes modify loop event listeners for Roi translation.
+   *
+   * @private
+   * @param {Object} element - The viewport element to add event listeners to.
+   * @modifies {element}
+   * @returns {undefined}
+   */
+  _deactivateModifyAll(element) {
+    element.removeEventListener(EVENTS.MOUSE_UP, this._editMouseUpAllCallback);
+    element.removeEventListener(
+      EVENTS.MOUSE_DRAG,
+      this._editMouseDragAllCallback
+    );
+    element.removeEventListener(
+      EVENTS.MOUSE_CLICK,
+      this._editMouseUpAllCallback
+    );
+
+    element.removeEventListener(EVENTS.TOUCH_END, this._editMouseUpAllCallback);
+    element.removeEventListener(
+      EVENTS.TOUCH_DRAG,
+      this._editTouchDragAllCallback
+    );
   }
 
   passiveCallback(element) {
@@ -1892,7 +2123,7 @@ function defaultFreehandConfiguration() {
       }
     },
     spacing: 1,
-    activeHandleRadius: 3,
+    activeHandleRadius: 6,
     completeHandleRadius: 6,
     completeHandleRadiusTouch: 28,
     alwaysShowHandles: false,
