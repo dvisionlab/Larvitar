@@ -20,7 +20,6 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 
 //internal imports
 import { HandlePosition } from "../types";
-import { cornerSubPix } from "@techstark/opencv-js";
 
 //interfaces/types
 
