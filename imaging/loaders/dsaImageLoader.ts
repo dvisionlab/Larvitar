@@ -15,7 +15,6 @@ import {
 } from "./commonLoader";
 import type { DSA, Image, LarvitarManager, Series } from "../types";
 import { getMaxPixelValue, getMinPixelValue } from "../imageUtils";
-import { applyDSA } from "../postProcessing/applyDSA";
 
 // global module variables
 let customImageLoaderCounter: number = 0;
@@ -46,13 +45,30 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
     let multiFrameSerie = manager[seriesId] as Series;
     const imageIds: string[] = multiFrameSerie.dsa!.imageIds;
     const index: number = imageIds.indexOf(imageId);
-    const pixelData = applyDSA(multiFrameSerie, index, PIXEL_SHIFT);
-    const srcImage: Image = find(cornerstone.imageCache.cachedImages, {
-      imageId: multiFrameSerie.imageIds[index]
-    }).image;
+    const task = cornerstoneDICOMImageLoader.webWorkerManager.addTask(
+      "applyDSATask",
+      {
+        imageId: imageId,
+        index: index,
+        inputMaskSubPixelShift: PIXEL_SHIFT
+      },
+      -10
+    );
+    console.log(task);
+    //const pixelData = applyDSA(multiFrameSerie, index, PIXEL_SHIFT);
+    const promise = task.promise;
+    promise.then((result: { pixelData: Buffer }) => {
+      const pixelData = new Int16Array(result.pixelData);
+      const srcImage: Image = find(cornerstone.imageCache.cachedImages, {
+        imageId: multiFrameSerie.imageIds[index]
+      }).image;
 
-    console.debug(`Load DSA Image with custom loader for imageId: ${imageId}`);
-    return createCustomImage(imageId, srcImage, pixelData);
+      console.debug(
+        `Load DSA Image with custom loader for imageId: ${imageId}`
+      );
+      //@ts-ignore
+      return createCustomImage(imageId, srcImage, pixelData);
+    });
   } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
   }
