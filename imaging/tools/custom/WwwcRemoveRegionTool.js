@@ -383,7 +383,9 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     if (!toolData) {
       return;
     }
-
+    if (this.mode === 'passive' || this.mode === 'disabled') {
+      return;
+    }
     const rectangles = toolData ? toolData.data : [];
     if (Array.isArray(rectangles)) {
       const allHandles = rectangles.map(item => item.handles);
