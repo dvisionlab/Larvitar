@@ -18,6 +18,7 @@ import { getSortedStack, getSortedUIDs } from "./imageUtils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
 import { loadMultiFrameImage } from "./loaders/multiframeLoader";
+import { loadSingleFrameImage } from "./loaders/singleFrameLoader";
 import { loadDsaImage } from "./loaders/dsaImageLoader";
 import { ImageObject, Instance, Series, StagedProtocol } from "./types";
 import {
@@ -56,6 +57,9 @@ const globalConfig = {
  * initializeFileImageLoader()
  * registerNRRDImageLoader()
  * registerResliceLoader()
+ * registerMultiFrameImageLoader()
+ * registerSingleFrameImageLoader()
+ * registerDsaImageLoader()
  * updateLoadedStack(seriesData, allSeriesStack)
  */
 
@@ -131,6 +135,15 @@ export const registerResliceLoader = function () {
  */
 export const registerMultiFrameImageLoader = function () {
   cornerstone.registerImageLoader("multiFrameLoader", loadMultiFrameImage);
+};
+
+/**
+ * Register custom SingleFrame ImageLoader
+ * @instance
+ * @function registerSingleFrameImageLoader
+ */
+export const registerSingleFrameImageLoader = function () {
+  cornerstone.registerImageLoader("singleFrameLoader", loadSingleFrameImage);
 };
 
 /**

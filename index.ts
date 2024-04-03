@@ -91,6 +91,7 @@ import {
   registerNRRDImageLoader,
   registerResliceLoader,
   registerMultiFrameImageLoader,
+  registerSingleFrameImageLoader,
   registerDsaImageLoader,
   updateLoadedStack
 } from "./imaging/imageLoading";
@@ -225,6 +226,12 @@ import {
   clearMultiFrameCache
 } from "./imaging/loaders/multiframeLoader";
 
+import {
+  setSingleFrameCache,
+  clearSingleFrameCache,
+  loadSingleFrameImage
+} from "./imaging/loaders/singleFrameLoader";
+
 import { populateDsaImageIds } from "./imaging/loaders/dsaImageLoader";
 
 import {
@@ -321,6 +328,7 @@ export {
   registerNRRDImageLoader,
   registerResliceLoader,
   registerMultiFrameImageLoader,
+  registerSingleFrameImageLoader,
   registerDsaImageLoader,
   updateLoadedStack,
   // imageParsing
@@ -389,6 +397,10 @@ export {
   buildMultiFrameImage,
   getMultiFrameImageId,
   clearMultiFrameCache,
+  // loaders/singleFrameLoader
+  setSingleFrameCache,
+  clearSingleFrameCache,
+  loadSingleFrameImage,
   // loaders/dsaImageLoader
   populateDsaImageIds,
   // loaders/fileLoader
