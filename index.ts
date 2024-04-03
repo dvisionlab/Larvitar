@@ -114,6 +114,7 @@ import {
   registerNRRDImageLoader,
   registerResliceLoader,
   registerMultiFrameImageLoader,
+  registerSingleFrameImageLoader,
   registerDsaImageLoader,
   updateLoadedStack,
   reset
@@ -238,6 +239,12 @@ import {
   clearMultiFrameCache
 } from "./imaging/loaders/multiframeLoader";
 
+import {
+  setSingleFrameCache,
+  clearSingleFrameCache,
+  loadSingleFrameImage
+} from "./imaging/loaders/singleFrameLoader";
+
 import { populateDsaImageIds } from "./imaging/loaders/dsaImageLoader";
 
 import {
@@ -351,6 +358,7 @@ export {
   registerNRRDImageLoader,
   registerResliceLoader,
   registerMultiFrameImageLoader,
+  registerSingleFrameImageLoader,
   registerDsaImageLoader,
   updateLoadedStack,
   // General reset of cache, store and managers
@@ -429,6 +437,10 @@ export {
   buildMultiFrameImage,
   getMultiFrameImageId,
   clearMultiFrameCache,
+  // loaders/singleFrameLoader
+  setSingleFrameCache,
+  clearSingleFrameCache,
+  loadSingleFrameImage,
   // loaders/dsaImageLoader
   populateDsaImageIds,
   // loaders/fileLoader

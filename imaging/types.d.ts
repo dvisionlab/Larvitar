@@ -364,3 +364,8 @@ export type NrrdInstance = {
   bitsAllocated: number;
   pixelRepresentation: string;
 };
+
+export type SingleFrameCache = {
+  pixelData: number[];
+  metadata: MetaData;
+};
