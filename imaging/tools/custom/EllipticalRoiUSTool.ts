@@ -78,6 +78,7 @@ export default class EllipticalRoiTool extends BaseAnnotationTool {
     };
 
     super(props, defaultProps);
+    this.options.deleteIfHandleOutsideImage = false;
     this.modality = null;
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
