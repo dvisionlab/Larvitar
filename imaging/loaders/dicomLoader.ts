@@ -87,10 +87,7 @@ export const loadAndCacheImageStack = async function (
         cornerstone.metaData.get(
           "overlayPlaneModule",
           seriesData.imageIds[0]
-        ) !== undefined &&
-        //@ts-ignore
-        seriesData.instances[seriesData.imageIds[0]].metadata.x60003000
-          .length != 0
+        ) !== undefined
       ) {
         seriesData.overlays = cornerstone.metaData.get(
           "overlayPlaneModule",
