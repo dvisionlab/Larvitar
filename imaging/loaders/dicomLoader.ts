@@ -83,6 +83,20 @@ export const loadAndCacheImageStack = async function (
     });
 
     Promise.all(promises).then(() => {
+      if (
+        cornerstone.metaData.get(
+          "overlayPlaneModule",
+          seriesData.imageIds[0]
+        ) !== undefined &&
+        //@ts-ignore
+        seriesData.instances[seriesData.imageIds[0]].metadata.x60003000
+          .length != 0
+      ) {
+        seriesData.overlays = cornerstone.metaData.get(
+          "overlayPlaneModule",
+          seriesData.imageIds[0]
+        );
+      }
       const t1 = performance.now();
       console.log(
         `Call to loadAndCacheImageStack took ${t1 - t0} milliseconds.`

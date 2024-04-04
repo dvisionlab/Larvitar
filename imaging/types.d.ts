@@ -182,8 +182,25 @@ export type Series = {
   elements?: { [key: string]: any } | null;
   layer: Layer;
   orientation?: "axial" | "coronal" | "sagittal"; // this is needed for legacy reslice
+  overlays?: { overlays: Overlay[] };
 };
 
+export type Overlay = {
+  columns?: number;
+  description?: string;
+  label?: string | number;
+  pixelData: number[];
+  roiArea?: number;
+  roiMean?: number;
+  roiStandardDeviation?: number;
+  rows?: number;
+  type?: string;
+  x?: number;
+  y?: number;
+  visible: boolean;
+  type: string;
+  fillStyle: CanvasGradient;
+};
 export interface Layer extends cornerstone.EnabledElementLayer {
   id: string;
 }

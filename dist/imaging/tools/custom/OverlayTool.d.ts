@@ -1,16 +1,6 @@
-import { Viewport } from "../../types";
+import { Overlay, Viewport } from "../../types";
 import { EventData } from "../types";
 declare const BaseTool: any;
-type Overlay = {
-    pixelData: number[];
-    visible: boolean;
-    rows: number;
-    columns: number;
-    x: number;
-    y: number;
-    type: string;
-    fillStyle: CanvasGradient;
-};
 interface ToolMouseEvent {
     detail: EventData;
     currentTarget: any;
