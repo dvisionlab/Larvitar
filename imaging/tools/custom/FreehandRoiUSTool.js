@@ -432,6 +432,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     const eventData = evt.detail;
     // If we have no toolState for this element, return immediately as there is nothing to do
     const toolState = getToolState(evt.currentTarget, this.name);
+
     if (!toolState) {
       return;
     }
@@ -1113,7 +1114,20 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     this.modifyingAll = true;
     const data = this.dataAll;
     const points = data.handles.points;
-
+    if (points.some(obj => obj.x < 0 || obj.x > eventData.image.width)) {
+      points.forEach((obj, index) => {
+        obj.x = this.originalX[index];
+      });
+    } else {
+      this.originalX = points.map(obj => obj["x"]);
+    }
+    if (points.some(obj => obj.y < 0 || obj.y > eventData.image.height)) {
+      points.forEach((obj, index) => {
+        obj.y = this.originalY[index];
+      });
+    } else {
+      this.originalY = points.map(obj => obj["y"]);
+    }
     // Set the mouseLocation handle
     this._getMouseLocation(eventData);
 

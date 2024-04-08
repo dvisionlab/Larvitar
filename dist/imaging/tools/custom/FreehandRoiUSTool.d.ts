@@ -211,6 +211,8 @@ export default class FreehandRoiTool {
      */
     public completeDrawing(element: Object): null;
     dragged: boolean | undefined;
+    originalX: any;
+    originalY: any;
     /**
      * Returns the previous handle to the current one.
      * @param {Number} currentHandle - the current handle index
