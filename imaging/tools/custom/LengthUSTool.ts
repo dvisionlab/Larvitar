@@ -60,13 +60,17 @@ export default class LengthTool extends BaseAnnotationTool {
 
     super(props, defaultProps);
     this.modality = null;
-    this.options.deleteIfHandleOutsideImage = false;
+    //this.options.deleteIfHandleOutsideImage = false;
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
 
   createNewMeasurement(eventData: EventData) {
+    this.measurement = true;
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
+
+    this.element = eventData.element;
+
     const viewport: StoreViewport = store.get(["viewports", this.element.id]);
     if (viewport.modality) {
       this.modality = viewport.modality;
@@ -192,7 +196,21 @@ export default class LengthTool extends BaseAnnotationTool {
       renderDashed,
       digits
     } = this.configuration;
+
     const toolData = getToolState(evt.currentTarget, this.name);
+
+    let index = null;
+
+    if (toolData && toolData.data) {
+      if (
+        toolData.data.findIndex((obj: any) => obj.active === true) != -1 &&
+        toolData.data.findIndex(
+          (obj: any) => obj.handles.end.moving === true
+        ) === -1
+      ) {
+        index = toolData.data.findIndex((obj: any) => obj.active === true);
+      }
+    }
 
     if (!toolData) {
       return;
@@ -236,7 +254,32 @@ export default class LengthTool extends BaseAnnotationTool {
 
     for (let i = 0; i < toolData.data.length; i++) {
       const data: MeasurementData = toolData.data[i];
-
+      if (index != null && i === index) {
+        if (
+          data.handles.start!.x < 0 ||
+          data.handles.start!.x > eventData.image.width ||
+          data.handles.end!.x < 0 ||
+          data.handles.end!.x > eventData.image.width
+        ) {
+          data.handles.start!.x = this.startX;
+          data.handles.end!.x = this.endX;
+        } else {
+          this.startX = data.handles.start!.x;
+          this.endX = data.handles.end!.x;
+        }
+        if (
+          data.handles.start!.y < 0 ||
+          data.handles.start!.y > eventData.image.height ||
+          data.handles.end!.y < 0 ||
+          data.handles.end!.y > eventData.image.height
+        ) {
+          data.handles.start!.y = this.startY;
+          data.handles.end!.y = this.endY;
+        } else {
+          this.startY = data.handles.start!.y;
+          this.endY = data.handles.end!.y;
+        }
+      }
       if (data.visible === false) {
         continue;
       }
@@ -366,7 +409,6 @@ export default class LengthTool extends BaseAnnotationTool {
     }
   }
 }
-
 /**
  * Attempts to sanitize a value by casting as a number; if unable to cast,
  * we return `undefined`
