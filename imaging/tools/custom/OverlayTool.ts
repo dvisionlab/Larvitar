@@ -1,20 +1,13 @@
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
-import { Viewport } from "../../types";
+import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
+import { LarvitarManager, Overlay, Series, Viewport } from "../../types";
 import { EventData } from "../types";
 const external = cornerstoneTools.external;
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
+import { getLarvitarImageTracker } from "../../loaders/commonLoader";
+import { getLarvitarManager } from "../../loaders/commonLoader";
 
-type Overlay = {
-  pixelData: number[];
-  visible: boolean;
-  rows: number;
-  columns: number;
-  x: number;
-  y: number;
-  type: string;
-  fillStyle: CanvasGradient;
-};
 interface ToolMouseEvent {
   detail: EventData;
   currentTarget: any;
@@ -64,9 +57,22 @@ export default class OverlayTool extends BaseTool {
     if (!image) {
       return;
     }
-    const overlayPlaneMetadata: { overlays: Overlay[] } =
+    let overlayPlaneMetadata: { overlays: Overlay[] } =
       external.cornerstone.metaData.get("overlayPlaneModule", image.imageId);
+    if (overlayPlaneMetadata === undefined) {
+      const parsedImageId: { scheme: string; url: string } =
+        cornerstoneDICOMImageLoader.wadouri.parseImageId(image.imageId);
 
+      const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
+      const imageTracker = getLarvitarImageTracker();
+      const seriesId: string = imageTracker[rootImageId];
+      const manager = getLarvitarManager() as LarvitarManager;
+
+      const seriesData = manager![seriesId] as Series;
+      overlayPlaneMetadata = seriesData.instances[image.imageId].overlays as {
+        overlays: Overlay[];
+      };
+    }
     if (
       !overlayPlaneMetadata ||
       !overlayPlaneMetadata.overlays ||
@@ -127,8 +133,8 @@ export default class OverlayTool extends BaseTool {
 
       let i = 0;
 
-      for (let y = 0; y < overlay.rows; y++) {
-        for (let x = 0; x < overlay.columns; x++) {
+      for (let y = 0; y < overlay.rows!; y++) {
+        for (let x = 0; x < overlay.columns!; x++) {
           if (overlay.pixelData[i++] > 0) {
             layerContext.fillRect(x, y, 1, 1);
           }
@@ -139,11 +145,11 @@ export default class OverlayTool extends BaseTool {
 
       const overlayX: number =
         //@ts-ignore
-        !isNaN(overlay.x) && isFinite(overlay.x) ? overlay.x : 0;
+        !isNaN(overlay.x) && isFinite(overlay.x) ? overlay.x! : 0;
 
       const overlayY: number =
         //@ts-ignore
-        !isNaN(overlay.y) && isFinite(overlay.y) ? overlay.y : 0;
+        !isNaN(overlay.y) && isFinite(overlay.y) ? overlay.y! : 0;
       // Draw the overlay layer onto the canvas
 
       canvasContext.drawImage(layerCanvas, overlayX, overlayY);

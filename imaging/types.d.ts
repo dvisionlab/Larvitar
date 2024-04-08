@@ -119,6 +119,7 @@ export type Instance = {
   file?: File | null;
   instanceId?: string;
   frame?: number;
+  overlays?: { overlays: Overlay[] };
 };
 
 export type ReslicedInstance = {
@@ -184,6 +185,22 @@ export type Series = {
   orientation?: "axial" | "coronal" | "sagittal"; // this is needed for legacy reslice
 };
 
+export type Overlay = {
+  columns?: number;
+  description?: string;
+  label?: string | number;
+  pixelData: number[];
+  roiArea?: number;
+  roiMean?: number;
+  roiStandardDeviation?: number;
+  rows?: number;
+  type?: string;
+  x?: number;
+  y?: number;
+  visible: boolean;
+  type: string;
+  fillStyle: CanvasGradient;
+};
 export interface Layer extends cornerstone.EnabledElementLayer {
   id: string;
 }
