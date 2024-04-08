@@ -119,6 +119,7 @@ export type Instance = {
   file?: File | null;
   instanceId?: string;
   frame?: number;
+  overlays?: { overlays: Overlay[] };
 };
 
 export type ReslicedInstance = {
@@ -182,7 +183,6 @@ export type Series = {
   elements?: { [key: string]: any } | null;
   layer: Layer;
   orientation?: "axial" | "coronal" | "sagittal"; // this is needed for legacy reslice
-  overlays?: { overlays: Overlay[] };
 };
 
 export type Overlay = {

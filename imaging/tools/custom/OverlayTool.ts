@@ -69,7 +69,9 @@ export default class OverlayTool extends BaseTool {
       const manager = getLarvitarManager() as LarvitarManager;
 
       const seriesData = manager![seriesId] as Series;
-      overlayPlaneMetadata = seriesData.overlays as { overlays: Overlay[] };
+      overlayPlaneMetadata = seriesData.instances[image.imageId].overlays as {
+        overlays: Overlay[];
+      };
     }
     if (
       !overlayPlaneMetadata ||
