@@ -199,7 +199,7 @@ export default class LengthTool extends BaseAnnotationTool {
 
     const toolData = getToolState(evt.currentTarget, this.name);
 
-    let index = null;
+    let index: number | null = null;
 
     if (toolData && toolData.data) {
       if (
@@ -263,10 +263,25 @@ export default class LengthTool extends BaseAnnotationTool {
         ) {
           data.handles.start!.x = this.startX;
           data.handles.end!.x = this.endX;
+          data.handles.textBox!.x = this.textBoxX;
         } else {
           this.startX = data.handles.start!.x;
           this.endX = data.handles.end!.x;
+          this.textBoxX = data.handles.textBox!.x;
         }
+
+        if (
+          data.handles.textBox!.x >
+            eventData.image.width -
+              data.handles.textBox!.boundingBox.width / 2 ||
+          data.handles.textBox!.x <
+            0 + data.handles.textBox!.boundingBox.width / 2
+        ) {
+          data.handles.textBox!.x = this.textBoxX;
+        } else {
+          this.textBoxX = data.handles.textBox!.x;
+        }
+
         if (
           data.handles.start!.y < 0 ||
           data.handles.start!.y > eventData.image.height ||
@@ -275,9 +290,21 @@ export default class LengthTool extends BaseAnnotationTool {
         ) {
           data.handles.start!.y = this.startY;
           data.handles.end!.y = this.endY;
+          data.handles.textBox!.y = this.textBoxY;
         } else {
           this.startY = data.handles.start!.y;
           this.endY = data.handles.end!.y;
+        }
+        if (
+          data.handles.textBox!.y >
+            eventData.image.height -
+              data.handles.textBox!.boundingBox.height / 2 ||
+          data.handles.textBox!.y <
+            0 + data.handles.textBox!.boundingBox.height / 2
+        ) {
+          data.handles.textBox!.y = this.textBoxY;
+        } else {
+          this.textBoxY = data.handles.textBox!.y;
         }
       }
       if (data.visible === false) {

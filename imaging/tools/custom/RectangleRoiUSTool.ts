@@ -74,7 +74,7 @@ export default class RectangleRoiTool extends BaseAnnotationTool {
     };
 
     super(props, defaultProps);
-    this.options.deleteIfHandleOutsideImage = false;
+    //this.options.deleteIfHandleOutsideImage = false;
     this.modality = null;
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
@@ -211,7 +211,17 @@ export default class RectangleRoiTool extends BaseAnnotationTool {
 
   renderToolData(evt: MeasurementMouseEvent) {
     const toolData = getToolState(evt.currentTarget, this.name);
-
+    let index: number | null = null;
+    if (toolData && toolData.data) {
+      if (
+        toolData.data.findIndex((obj: any) => obj.active === true) != -1 &&
+        toolData.data.findIndex(
+          (obj: any) => obj.handles.end.moving === true
+        ) === -1
+      ) {
+        index = toolData.data.findIndex((obj: any) => obj.active === true);
+      }
+    }
     if (!toolData) {
       return;
     }
@@ -264,7 +274,59 @@ export default class RectangleRoiTool extends BaseAnnotationTool {
       // If we have tool data for this element - iterate over each set and draw it
       for (let i = 0; i < toolData.data.length; i++) {
         const data: MeasurementData = toolData.data[i];
+        if (index != null && i === index) {
+          if (
+            data.handles.start!.x < 0 ||
+            data.handles.start!.x > eventData.image.width ||
+            data.handles.end!.x < 0 ||
+            data.handles.end!.x > eventData.image.width
+          ) {
+            data.handles.start!.x = this.startX;
+            data.handles.end!.x = this.endX;
+            data.handles.textBox!.x = this.textBoxX;
+          } else {
+            this.startX = data.handles.start!.x;
+            this.endX = data.handles.end!.x;
+            this.textBoxX = data.handles.textBox!.x;
+          }
 
+          if (
+            data.handles.textBox!.x >
+              eventData.image.width -
+                data.handles.textBox!.boundingBox.width / 2 ||
+            data.handles.textBox!.x <
+              0 + data.handles.textBox!.boundingBox.width / 2
+          ) {
+            data.handles.textBox!.x = this.textBoxX;
+          } else {
+            this.textBoxX = data.handles.textBox!.x;
+          }
+
+          if (
+            data.handles.start!.y < 0 ||
+            data.handles.start!.y > eventData.image.height ||
+            data.handles.end!.y < 0 ||
+            data.handles.end!.y > eventData.image.height
+          ) {
+            data.handles.start!.y = this.startY;
+            data.handles.end!.y = this.endY;
+            data.handles.textBox!.y = this.textBoxY;
+          } else {
+            this.startY = data.handles.start!.y;
+            this.endY = data.handles.end!.y;
+          }
+          if (
+            data.handles.textBox!.y >
+              eventData.image.height -
+                data.handles.textBox!.boundingBox.height / 2 ||
+            data.handles.textBox!.y <
+              0 + data.handles.textBox!.boundingBox.height / 2
+          ) {
+            data.handles.textBox!.y = this.textBoxY;
+          } else {
+            this.textBoxY = data.handles.textBox!.y;
+          }
+        }
         if (data.visible === false) {
           continue;
         }
@@ -313,14 +375,12 @@ export default class RectangleRoiTool extends BaseAnnotationTool {
             this.updateCachedStats(image, element, data);
           }
         }
-
         // Default to textbox on right side of ROI
-        if (!data.handles.textBox!.hasMoved) {
+        if (!data.handles.textBox!.hasMoved === true) {
           const defaultCoords = getROITextBoxCoords(
             eventData.viewport,
             data.handles
           );
-
           Object.assign(data.handles.textBox!, defaultCoords);
         }
 
