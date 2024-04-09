@@ -1,3 +1,6 @@
+declare const BaseAnnotationTool: any;
+import { Coords, EventData, HandlePosition, HandleTextBox, MeasurementData, MeasurementMouseEvent } from "../types";
+import { Image } from "cornerstone-core";
 /**
  * @public
  * @class FreehandRoiTool
@@ -6,129 +9,9 @@
  * measuring the statistics of the enclosed pixels.
  * @extends Tools.Base.BaseAnnotationTool
  */
-export default class FreehandRoiTool {
+export default class FreehandRoiTool extends BaseAnnotationTool {
     constructor(props?: {});
-    isMultiPartTool: boolean;
-    _drawing: boolean;
-    _dragging: boolean;
-    _modifying: boolean;
-    modality: any;
-    index: any;
-    pointNear: number | boolean | Object | null;
-    /**
-     * Event handler for MOUSE_DOWN during drawing event loop.
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    _drawingMouseDownCallback(evt: Object): undefined;
-    /**
-     * Event handler for MOUSE_MOVE during drawing event loop.
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    _drawingMouseMoveCallback(evt: Object): undefined;
-    /**
-     * Event handler for MOUSE_DRAG during drawing event loop.
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    _drawingMouseDragCallback(evt: Object): undefined;
-    /**
-     * Event handler for MOUSE_UP during drawing event loop.
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    _drawingMouseUpCallback(evt: Object): undefined;
-    /**
-     * Event handler for MOUSE_DOUBLE_CLICK during drawing event loop.
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    _drawingMouseDoubleClickCallback(evt: Object): undefined;
-    /**
-     * Event handler for MOUSE_UP during handle drag event loop.
-     *
-     * @private
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    private _editMouseUpCallback;
-    /**
-     * Event handler for MOUSE_DRAG during handle drag event loop.
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    _editMouseDragCallback(evt: Object): undefined;
-    /**
-     * Event handler for MOUSE_UP during lines drag event loop.
-     *
-     * @private
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    private _editMouseUpAllCallback;
-    /**
-     * Event handler for MOUSE_DRAG during lines drag event loop (Roi translation).
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    _editMouseDragAllCallback(evt: Object): undefined;
-    /**
-     * Event handler for TOUCH_DRAG during lines drag event loop (Roi translation).
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    _editTouchDragAllCallback(evt: Object): undefined;
-    /**
-     * Event handler for TOUCH_START during drawing event loop.
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    _drawingTouchStartCallback(evt: Object): undefined;
-    /**
-     * Event handler for TOUCH_DRAG during drawing event loop.
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    _drawingTouchDragCallback(evt: Object): undefined;
-    /**
-     * Event handler for DOUBLE_TAP during drawing event loop.
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {undefined}
-     */
-    _drawingDoubleTapClickCallback(evt: Object): undefined;
-    /**
-     * Event handler for TOUCH_DRAG during handle drag event loop.
-     *
-     * @event
-     * @param {Object} evt - The event.
-     * @returns {void}
-     */
-    _editTouchDragCallback(evt: Object): void;
-    throttledUpdateCachedStats: any;
-    createNewMeasurement(eventData: any): {
+    createNewMeasurement(eventData: EventData): {
         visible: boolean;
         active: boolean;
         invalidated: boolean;
@@ -136,12 +19,25 @@ export default class FreehandRoiTool {
         canComplete: boolean;
         handles: {
             points: never[];
+            textBox?: {
+                active: boolean;
+                hasMoved: boolean;
+                movesIndependently: boolean;
+                drawnIndependently: boolean;
+                allowedOutsideImage: boolean;
+                hasBoundingBox: boolean;
+            };
         };
     } | undefined;
-    newMeasur: boolean | undefined;
-    finished: boolean | undefined;
-    modifying: any;
-    modifyingAll: any;
+    /**
+     *
+     *
+     * @param {Element} element element
+     * @param {MeasurementData} data data
+     * @param {Coords} coords coords
+     * @returns {Boolean}
+     */
+    pointNearTool(element: Element, data: MeasurementData, coords: Coords): boolean;
     /**
      *
      *
@@ -150,18 +46,7 @@ export default class FreehandRoiTool {
      * @param {*} coords coords
      * @returns {Boolean}
      */
-    pointNearTool(element: any, data: any, coords: any): boolean;
-    uuid: any;
-    dataAll: any;
-    /**
-     *
-     *
-     * @param {*} element element
-     * @param {*} data data
-     * @param {*} coords coords
-     * @returns {Boolean}
-     */
-    _pointNearLine(element: any, data: any, coords: any): boolean;
+    _pointNearLine(element: Element, data: MeasurementData, coords: Coords): boolean;
     /**
      * @param {*} element
      * @param {*} data
@@ -170,7 +55,7 @@ export default class FreehandRoiTool {
      * closest rendered portion of the annotation. -1 if the distance cannot be
      * calculated.
      */
-    distanceFromPoint(element: any, data: any, coords: any): number;
+    distanceFromPoint(element: Element, data: MeasurementData, coords: Coords): number;
     /**
      * @param {*} element
      * @param {*} data
@@ -179,7 +64,7 @@ export default class FreehandRoiTool {
      * closest rendered portion of the annotation. -1 if the distance cannot be
      * calculated.
      */
-    distanceFromPointCanvas(element: any, data: any, coords: any): number;
+    distanceFromPointCanvas(element: Element, data: MeasurementData, coords: Coords): number;
     /**
      *
      *
@@ -190,36 +75,146 @@ export default class FreehandRoiTool {
      *
      * @returns {void}  void
      */
-    updateCachedStats(image: Object, element: Object, data: Object): void;
+    updateCachedStats(image: Image, element: Element, data: MeasurementData): void;
     /**
      *
      *
      * @param {*} evt
      * @returns {undefined}
      */
-    renderToolData(evt: any): undefined;
-    data: any;
-    addNewMeasurement(evt: any): void;
-    preMouseDownCallback(evt: any): boolean;
-    handleSelectedCallback(evt: any, toolData: any, handle: any, interactionType?: string): void;
-    _drawingDrag(evt: any): void;
+    renderToolData(evt: MeasurementMouseEvent): void;
+    addNewMeasurement(evt: MeasurementMouseEvent): void;
+    preMouseDownCallback(evt: MeasurementMouseEvent): boolean;
+    handleSelectedCallback(evt: MeasurementMouseEvent, toolData: {
+        data: MeasurementData;
+    }, handle: HandlePosition, interactionType?: string): void;
+    /**
+     * Event handler for MOUSE_MOVE during drawing event loop.
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _drawingMouseMoveCallback(evt: MeasurementMouseEvent): void;
+    /**
+     * Event handler for MOUSE_DRAG during drawing event loop.
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _drawingMouseDragCallback(evt: MeasurementMouseEvent): void;
+    /**
+     * Event handler for TOUCH_DRAG during drawing event loop.
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _drawingTouchDragCallback(evt: MeasurementMouseEvent): void;
+    _drawingDrag(evt: MeasurementMouseEvent): void;
+    /**
+     * Event handler for MOUSE_UP during drawing event loop.
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _drawingMouseUpCallback(evt: MeasurementMouseEvent): void;
+    /**
+     * Event handler for MOUSE_DOWN during drawing event loop.
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _drawingMouseDownCallback(evt: MeasurementMouseEvent): void;
+    /**
+     * Event handler for TOUCH_START during drawing event loop.
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _drawingTouchStartCallback(evt: MeasurementMouseEvent): void;
     /** Ends the active drawing loop and completes the polygon.
      *
      * @public
      * @param {Object} element - The element on which the roi is being drawn.
      * @returns {null}
      */
-    public completeDrawing(element: Object): null;
-    dragged: boolean | undefined;
-    originalX: any;
-    originalY: any;
+    completeDrawing(element: Element): void;
+    /**
+     * Event handler for MOUSE_DOUBLE_CLICK during drawing event loop.
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _drawingMouseDoubleClickCallback(evt: MeasurementMouseEvent): void;
+    /**
+     * Event handler for DOUBLE_TAP during drawing event loop.
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _drawingDoubleTapClickCallback(evt: MeasurementMouseEvent): void;
+    /**
+     * Event handler for MOUSE_DRAG during handle drag event loop.
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _editMouseDragCallback(evt: MeasurementMouseEvent): void;
+    /**
+     * Event handler for TOUCH_DRAG during handle drag event loop.
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {void}
+     */
+    _editTouchDragCallback(evt: MeasurementMouseEvent): void;
+    /**
+     * Event handler for MOUSE_DRAG during lines drag event loop (Roi translation).
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _editMouseDragAllCallback(evt: MeasurementMouseEvent): void;
+    /**
+     * Event handler for TOUCH_DRAG during lines drag event loop (Roi translation).
+     *
+     * @event
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _editTouchDragAllCallback(evt: MeasurementMouseEvent): void;
     /**
      * Returns the previous handle to the current one.
      * @param {Number} currentHandle - the current handle index
      * @param {Array} points - the handles Array of the freehand data
      * @returns {Number} - The index of the previos handle
      */
-    _getPrevHandleIndex(currentHandle: number, points: any[]): number;
+    _getPrevHandleIndex(currentHandle: number, points: HandlePosition[]): number;
+    /**
+     * Event handler for MOUSE_UP during handle drag event loop.
+     *
+     * @private
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _editMouseUpCallback(evt: MeasurementMouseEvent): void;
+    /**
+     * Event handler for MOUSE_UP during lines drag event loop.
+     *
+     * @private
+     * @param {Object} evt - The event.
+     * @returns {undefined}
+     */
+    _editMouseUpAllCallback(evt: MeasurementMouseEvent): void;
     /**
      * Places a handle of the freehand tool if the new location is valid.
      * If the new location is invalid the handle snaps back to its previous position.
@@ -230,7 +225,9 @@ export default class FreehandRoiTool {
      * @modifies {toolState}
      * @returns {undefined}
      */
-    private _dropHandle;
+    _dropHandle(eventData: EventData, toolState: {
+        data: MeasurementData[];
+    }): void;
     /**
      * Begining of drawing loop when tool is active and a click event happens far
      * from existing handles.
@@ -239,8 +236,7 @@ export default class FreehandRoiTool {
      * @param {Object} evt - The event.
      * @returns {undefined}
      */
-    private _startDrawing;
-    _activeDrawingToolReference: any;
+    _startDrawing(evt: MeasurementMouseEvent): void;
     /**
      * Adds a point on mouse click in polygon mode.
      *
@@ -248,7 +244,7 @@ export default class FreehandRoiTool {
      * @param {Object} eventData - data object associated with an event.
      * @returns {undefined}
      */
-    private _addPoint;
+    _addPoint(eventData: EventData): void;
     /**
      * If in pencilMode, check the mouse position is farther than the minimum
      * distance between points, then add a point.
@@ -258,7 +254,7 @@ export default class FreehandRoiTool {
      * @param {Object} points - Data object associated with the tool.
      * @returns {undefined}
      */
-    private _addPointPencilMode;
+    _addPointPencilMode(eventData: EventData, points: HandlePosition[]): void;
     /**
      * Ends the active drawing loop and completes the polygon.
      *
@@ -267,7 +263,7 @@ export default class FreehandRoiTool {
      * @param {Object} handleNearby - the handle nearest to the mouse cursor.
      * @returns {undefined}
      */
-    private _endDrawing;
+    _endDrawing(element: Element, handleNearby?: HandlePosition): void;
     /**
      * Returns a handle of a particular tool if it is close to the mouse cursor
      *
@@ -277,7 +273,7 @@ export default class FreehandRoiTool {
      * @param {*} coords
      * @returns {Number|Object|Boolean}
      */
-    private _pointNearHandle;
+    _pointNearHandle(element: Element, data: MeasurementData, coords: Coords): number | HandleTextBox | undefined;
     /**
      * Returns a handle if it is close to the mouse cursor (all tools)
      *
@@ -285,7 +281,10 @@ export default class FreehandRoiTool {
      * @param {Object} eventData - data object associated with an event.
      * @returns {Object}
      */
-    private _pointNearHandleAllTools;
+    _pointNearHandleAllTools(eventData: EventData): {
+        handleNearby: number | HandleTextBox;
+        toolIndex: number;
+    } | undefined;
     /**
      * Gets the current mouse location and stores it in the configuration object.
      *
@@ -293,7 +292,7 @@ export default class FreehandRoiTool {
      * @param {Object} eventData The data assoicated with the event.
      * @returns {undefined}
      */
-    private _getMouseLocation;
+    _getMouseLocation(eventData: EventData): void;
     /**
      * Returns true if the proposed location of a new handle is invalid.
      *
@@ -302,7 +301,7 @@ export default class FreehandRoiTool {
      * @param {Object} eventData The data assoicated with the event.
      * @returns {Boolean}
      */
-    private _checkInvalidHandleLocation;
+    _checkInvalidHandleLocation(data: MeasurementData, eventData: EventData): true | undefined;
     /**
      * Returns true if the proposed location of a new handle is invalid (in polygon mode).
      *
@@ -312,7 +311,7 @@ export default class FreehandRoiTool {
      * @param {Object} eventData The data assoicated with the event.
      * @returns {Boolean}
      */
-    private _checkHandlesPolygonMode;
+    _checkHandlesPolygonMode(data: MeasurementData, eventData: EventData): boolean;
     /**
      * Returns true if the proposed location of a new handle is invalid (in pencilMode).
      *
@@ -321,7 +320,7 @@ export default class FreehandRoiTool {
      * @param {Object} eventData The data associated with the event.
      * @returns {Boolean}
      */
-    private _checkHandlesPencilMode;
+    _checkHandlesPencilMode(data: MeasurementData, eventData: EventData): any;
     /**
      * Returns true if the mouse position is far enough from previous points (in pencilMode).
      *
@@ -330,7 +329,7 @@ export default class FreehandRoiTool {
      * @param {Object} eventData The data associated with the event.
      * @returns {Boolean}
      */
-    private _invalidHandlePencilMode;
+    _invalidHandlePencilMode(data: MeasurementData, eventData: EventData): boolean;
     /**
      * Returns true if two points are closer than this.configuration.spacing.
      *
@@ -341,7 +340,7 @@ export default class FreehandRoiTool {
      * @returns {boolean}            True if the distance is smaller than the
      *                              allowed canvas spacing.
      */
-    private _isDistanceSmallerThanCompleteSpacingCanvas;
+    _isDistanceSmallerThanCompleteSpacingCanvas(element: Element, p1: HandlePosition, p2: HandlePosition): boolean;
     /**
      * Returns true if two points are closer than this.configuration.spacing.
      *
@@ -352,7 +351,7 @@ export default class FreehandRoiTool {
      * @returns {boolean}            True if the distance is smaller than the
      *                              allowed canvas spacing.
      */
-    private _isDistanceSmallerThanSpacing;
+    _isDistanceSmallerThanSpacing(element: Element, p1: HandlePosition, p2: HandlePosition): boolean;
     /**
      * Returns true if two points are farther than this.configuration.spacing.
      *
@@ -363,7 +362,7 @@ export default class FreehandRoiTool {
      * @returns {boolean}            True if the distance is smaller than the
      *                              allowed canvas spacing.
      */
-    private _isDistanceLargerThanSpacing;
+    _isDistanceLargerThanSpacing(element: Element, p1: HandlePosition, p2: HandlePosition): boolean;
     /**
      * Compares the distance between two points to this.configuration.spacing.
      *
@@ -376,7 +375,7 @@ export default class FreehandRoiTool {
      * @returns {boolean}           True if the distance is smaller than the
      *                              allowed canvas spacing.
      */
-    private _compareDistanceToSpacing;
+    _compareDistanceToSpacing(element: Element, p1: HandlePosition, p2: HandlePosition, comparison?: string, spacing?: any): boolean;
     /**
      * Adds drawing loop event listeners.
      *
@@ -386,8 +385,7 @@ export default class FreehandRoiTool {
      * @modifies {element}
      * @returns {undefined}
      */
-    private _activateDraw;
-    _drawingInteractionType: string | null | undefined;
+    _activateDraw(element: Element, interactionType?: string): void;
     /**
      * Removes drawing loop event listeners.
      *
@@ -396,7 +394,7 @@ export default class FreehandRoiTool {
      * @modifies {element}
      * @returns {undefined}
      */
-    private _deactivateDraw;
+    _deactivateDraw(element: Element): void;
     /**
      * Adds modify loop event listeners.
      *
@@ -405,8 +403,7 @@ export default class FreehandRoiTool {
      * @modifies {element}
      * @returns {undefined}
      */
-    private _activateModify;
-    element: Object | undefined;
+    _activateModify(element: Element): void;
     /**
      * Adds modify loop event listeners for Roi translation.
      *
@@ -415,7 +412,7 @@ export default class FreehandRoiTool {
      * @modifies {element}
      * @returns {undefined}
      */
-    private _activateModifyAll;
+    _activateModifyAll(element: Element): void;
     /**
      * Removes modify loop event listeners.
      *
@@ -424,7 +421,7 @@ export default class FreehandRoiTool {
      * @modifies {element}
      * @returns {undefined}
      */
-    private _deactivateModify;
+    _deactivateModify(element: Element): void;
     /**
      * Removes modify loop event listeners for Roi translation.
      *
@@ -433,29 +430,29 @@ export default class FreehandRoiTool {
      * @modifies {element}
      * @returns {undefined}
      */
-    private _deactivateModifyAll;
-    passiveCallback(element: any): void;
-    enabledCallback(element: any): void;
-    disabledCallback(element: any): void;
-    _closeToolIfDrawing(element: any): void;
+    _deactivateModifyAll(element: Element): void;
+    passiveCallback(element: Element): void;
+    enabledCallback(element: Element): void;
+    disabledCallback(element: Element): void;
+    _closeToolIfDrawing(element: Element): void;
     /**
      * Fire MEASUREMENT_MODIFIED event on provided element
      * @param {any} element which freehand data has been modified
      * @param {any} measurementData the measurment data
      * @returns {void}
      */
-    fireModifiedEvent(element: any, measurementData: any): void;
-    fireCompletedEvent(element: any, measurementData: any): void;
-    set spacing(value: any);
+    fireModifiedEvent(element: Element, measurementData: MeasurementData): void;
+    fireCompletedEvent(element: Element, measurementData: MeasurementData): void;
     get spacing(): any;
-    set activeHandleRadius(value: any);
+    set spacing(value: any);
     get activeHandleRadius(): any;
-    set completeHandleRadius(value: any);
+    set activeHandleRadius(value: any);
     get completeHandleRadius(): any;
-    set alwaysShowHandles(value: any);
+    set completeHandleRadius(value: any);
     get alwaysShowHandles(): any;
-    set invalidColor(value: any);
+    set alwaysShowHandles(value: any);
     get invalidColor(): any;
+    set invalidColor(value: any);
     /**
      * Ends the active drawing loop and removes the polygon.
      *
@@ -463,7 +460,7 @@ export default class FreehandRoiTool {
      * @param {Object} element - The element on which the roi is being drawn.
      * @returns {null}
      */
-    public cancelDrawing(element: Object): null;
+    cancelDrawing(element: Element): void;
     /**
      * New image event handler.
      *
@@ -471,5 +468,6 @@ export default class FreehandRoiTool {
      * @param  {Object} evt The event.
      * @returns {null}
      */
-    public newImageCallback(evt: Object): null;
+    newImageCallback(evt: MeasurementMouseEvent): void;
 }
+export {};

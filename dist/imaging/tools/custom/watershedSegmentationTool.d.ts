@@ -3,7 +3,7 @@
  *         a watershed segmentation tool of selected features with
  *         certain thresholds using a custom cornestone tool
  */
-import { Image } from "cornerstone-core";
+import cornerstone, { Image } from "cornerstone-core";
 declare const BaseBrushTool: any;
 import { WSConfig, WSMouseEvent, WSEventData, CachedImage, LabelMapType, pixelData3D } from "../types";
 import { Series } from "../../types";
@@ -190,7 +190,7 @@ export default class WSToggleTool extends BaseBrushTool {
      * @returns {void}
      */
     _paintInit(evt: WSMouseEvent, eventData: WSEventData): {
-        image: Image;
+        image: cornerstone.Image;
         shouldEraseManually: boolean;
         shouldActivateLabelPicker: boolean | undefined;
         shouldApplyWatershed: boolean;

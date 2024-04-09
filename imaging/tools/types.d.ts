@@ -1,4 +1,4 @@
-import { EnabledElement } from "cornerstone-core";
+import { EnabledElement, Image } from "cornerstone-core";
 
 type ToolOptions = {
   mouseButtonMask?: number | number[];
@@ -122,6 +122,7 @@ export type labelmaps2DType = {
   segmentsOnLabelmap: number[];
 };
 type HandlePosition = {
+  hasBoundingBox?: boolean;
   active?: boolean;
   allowedOutsideImage?: boolean;
   drawnIndependently?: boolean;
@@ -316,6 +317,8 @@ export type PixelSpacing = {
   colPixelSpacing: number;
 };
 export interface MeasurementData {
+  canComplete?: boolean;
+  uuid?: string;
   polyBoundingBox?: Rectangle;
   meanStdDev?: number;
   meanStdDevSUV?: { mean: number; stdDev: number };
@@ -379,11 +382,16 @@ export interface Handles {
   textBox?: HandleTextBox;
   initialRotation?: number;
   points?: HandlePosition[];
+  invalidHandlePlacement?: boolean;
 }
 
 export interface MeasurementMouseEvent {
   detail: EventData;
   currentTarget: any;
+  type?: string;
+  stopImmediatePropagation?: Function;
+  stopPropagation?: Function;
+  preventDefault?: Function;
 }
 
 export interface Coords {
@@ -394,7 +402,9 @@ export interface Coords {
 export interface EventData {
   currentPoints: {
     image: Coords;
+    canvas?: Coords;
   };
+  deltaPoints: { image: { x: number; y: number } };
   element: HTMLElement;
   buttons: number;
   shiftKey: boolean;
