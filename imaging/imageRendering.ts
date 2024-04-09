@@ -563,7 +563,7 @@ export const renderImage = function (
         setStore(["ready", element.id, true]);
         setStore(["seriesUID", element.id, data.seriesUID]);
         const t1 = performance.now();
-        console.log(`Call to renderImage took ${t1 - t0} milliseconds.`);
+        console.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
         const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
           data.imageId

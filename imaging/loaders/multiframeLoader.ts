@@ -146,7 +146,7 @@ export const buildMultiFrameImage = function (
   }
 
   let t1 = performance.now();
-  console.log(`Call to buildMultiFrameImage took ${t1 - t0} milliseconds.`);
+  console.debug(`Call to buildMultiFrameImage took ${t1 - t0} milliseconds.`);
 };
 
 /**
