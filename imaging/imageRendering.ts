@@ -578,6 +578,7 @@ export const renderImage = function (
         resolve(true);
       });
     } else {
+      setStore(["ready", element.id, true]);
       reject;
       //throw new Error("No pixel data for id: " + data.imageId);
     }
