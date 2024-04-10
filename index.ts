@@ -124,7 +124,8 @@ import {
   readFile,
   readFiles,
   parseDataSet,
-  clearImageParsing
+  clearImageParsing,
+  convertQidoMetadata
 } from "./imaging/imageParsing";
 
 import {
@@ -139,6 +140,7 @@ import {
   renderImage,
   updateImage,
   redrawImage,
+  renderSingleFrame,
   resetViewports,
   updateViewportData,
   storeViewportData,
@@ -368,6 +370,7 @@ export {
   readFiles,
   parseDataSet,
   clearImageParsing,
+  convertQidoMetadata,
   // imageRendering
   clearImageCache,
   loadAndCacheImages,
@@ -380,6 +383,7 @@ export {
   renderImage,
   updateImage,
   redrawImage,
+  renderSingleFrame,
   resetViewports,
   updateViewportData,
   toggleMouseToolsListeners,

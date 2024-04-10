@@ -293,6 +293,7 @@ type Orientation = "axial" | "coronal" | "sagittal";
 type TypedArray =
   | Float64Array
   | Uint8Array
+  | Uint8ClampedArray
   | Int8Array
   | Uint16Array
   | Int16Array
@@ -366,6 +367,6 @@ export type NrrdInstance = {
 };
 
 export type SingleFrameCache = {
-  pixelData: number[];
+  pixelData: TypedArray;
   metadata: MetaData;
 };

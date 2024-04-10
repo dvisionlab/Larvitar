@@ -39,7 +39,9 @@ import { setPixelShift } from "./loaders/dsaImageLoader";
  * unloadViewport(elementId, seriesId)
  * resizeViewport(elementId)
  * renderImage(series, elementId, defaultProps)
+ * redrawImage(elementId)
  * updateImage(series, elementId, imageIndex)
+ * renderSingleFrame(imageId, elementId)
  * resetViewports([elementIds])
  * updateViewportData(elementId)
  * toggleMouseHandlers(elementId, disableFlag)
@@ -745,6 +747,52 @@ export const updateImage = async function (
     setStore(["minPixelValue", id, image.minPixelValue]);
     setStore(["maxPixelValue", id, image.maxPixelValue]);
   }
+};
+
+export const renderSingleFrame = async function (
+  imageId: string,
+  elementId: string | HTMLElement
+): Promise<true> {
+  const t0 = performance.now();
+  // get element and enable it
+  const element = isElement(elementId)
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
+  if (!element) {
+    console.error("invalid html element: " + elementId);
+    return new Promise((_, reject) =>
+      reject("invalid html element: " + elementId)
+    );
+  }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+  cornerstone.enable(element);
+
+  setStore(["ready", id, false]);
+
+  const renderPromise = new Promise<true>((resolve, reject) => {
+    cornerstone.loadImage(imageId).then(function (image) {
+      if (!element) {
+        console.error("invalid html element: " + elementId);
+        reject("invalid html element: " + elementId);
+        return;
+      }
+
+      cornerstone.displayImage(element, image);
+      cornerstone.fitToWindow(element);
+
+      setStore(["ready", element.id, true]);
+      //setStore(["seriesUID", element.id, data.seriesUID]);
+      const t1 = performance.now();
+      console.log(`Call to renderSingleFrame took ${t1 - t0} milliseconds.`);
+
+      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      //@ts-ignore
+      image = null;
+      resolve(true);
+    });
+  });
+  return renderPromise;
 };
 
 /**

@@ -25,6 +25,7 @@ var t0: number; // t0 variable for timing debugging purpose
  * readFile(file)
  * parseDataSet(dataSet, metadata, customFilter)
  * clearImageParsing(seriesStack)
+ * convertQidoMetadata(data)
  */
 
 /**
@@ -71,6 +72,37 @@ export const readFiles = function (entries: File[]) {
  */
 export const readFile = function (entry: File) {
   return parseFile(entry);
+};
+
+/**
+ * Convert QIDO metadata to a more readable format
+ * @instance
+ * @function convertQidoMetadata
+ * @param {Object} data - QIDO metadata object
+ * @returns {Object} - Return a metadata object
+ */
+export const convertQidoMetadata = function (data: any): MetaData {
+  const metadata: MetaData = Object.keys(data).reduce(
+    (accumulator: any, key) => {
+      let value = data[key].Value[0];
+      // check if value is an object with key "Alphabetic"
+      if (value && value.Alphabetic) {
+        value = value.Alphabetic;
+      }
+      // check if value is an array and fill with values
+      if (data[key].vr === "SQ") {
+        const arrValue = Object.keys(value).map(key => ({
+          [key]: value[key].Value[0]
+        }));
+        value = arrValue;
+      }
+      const newKey = `x${key.toLowerCase()}`;
+      accumulator[newKey] = value;
+      return accumulator;
+    },
+    {}
+  );
+  return metadata;
 };
 
 /* Internal module functions */
