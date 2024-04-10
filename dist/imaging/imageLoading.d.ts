@@ -42,6 +42,12 @@ export declare const registerResliceLoader: () => void;
  */
 export declare const registerMultiFrameImageLoader: () => void;
 /**
+ * Register custom SingleFrame ImageLoader
+ * @instance
+ * @function registerSingleFrameImageLoader
+ */
+export declare const registerSingleFrameImageLoader: () => void;
+/**
  * Register custom DSA ImageLoader
  * @instance
  * @function registerDsaImageLoader

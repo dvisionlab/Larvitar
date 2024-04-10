@@ -7,7 +7,7 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 
 // internal libraries
-import type { Image, MetaData, SingleFrameCache } from "../types";
+import type { Image, MetaData, SingleFrameCache, TypedArray } from "../types";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -28,11 +28,28 @@ let singleFrameCache: { [key: string]: SingleFrameCache } = {};
  * @param {MetaData} metadata - Metadata object
  */
 export const setSingleFrameCache = function (
-  pixelData: number[],
+  data: ArrayBuffer,
   metadata: MetaData
-) {
+): string {
+  const t0 = performance.now();
   const imageId = getSingleFrameImageId("singleFrameLoader");
+  let rgbArray = new Uint8ClampedArray(data);
+  let pixelData = new Uint8ClampedArray((rgbArray.length * 4) / 3);
+  for (let i = 0, j = 0; i < rgbArray.length; i += 3, j += 4) {
+    pixelData[j] = rgbArray[i]; // Red
+    pixelData[j + 1] = rgbArray[i + 1]; // Green
+    pixelData[j + 2] = rgbArray[i + 2]; // Blue
+    pixelData[j + 3] = 255; // Alpha
+  }
+  // @ts-ignore: is needed to clear the cache
+  rgbArray = null;
+
   singleFrameCache[imageId] = { pixelData, metadata };
+  const t1 = performance.now();
+  console.debug(
+    `setSingleFrameCache took ${t1 - t0} milliseconds for image ${imageId}`
+  );
+  return imageId;
 };
 
 /**
@@ -41,7 +58,7 @@ export const setSingleFrameCache = function (
  * @function clearSingleFrameCache
  * @param {String} imageId - Optional Image tag
  */
-export const clearSingleFrameCache = function (imageId?: string) {
+export const clearSingleFrameCache = function (imageId?: string): void {
   if (imageId) {
     // @ts-ignore: is needed to clear the cache
     singleFrameCache[imageId].pixelData = null;
@@ -87,7 +104,7 @@ export const loadSingleFrameImage: ImageLoader = function (
  * @param {String} customLoaderName The custom loader name
  * @return {String} the custom image id
  */
-const getSingleFrameImageId = function (customLoaderName: string) {
+const getSingleFrameImageId = function (customLoaderName: string): string {
   let imageId = customLoaderName + "://" + customImageLoaderCounter;
   customImageLoaderCounter++;
   return imageId;
@@ -104,9 +121,9 @@ const getSingleFrameImageId = function (customLoaderName: string) {
  */
 const createCustomImage = function (
   imageId: string,
-  pixelData: number[],
+  pixelData: TypedArray,
   metadata: MetaData
-) {
+): ImageLoadObject {
   let promise: Promise<Image> = new Promise((resolve, reject) => {
     let pixelSpacing = metadata.x00280030
       ? metadata.x00280030
@@ -137,7 +154,6 @@ const createCustomImage = function (
         metadata.x00280002!
       );
     }
-
     let image: Partial<Image> = {
       imageId: imageId, //const imageId = getMultiFrameImageId("singleFrameLoader") `dicomfile:${metadata.x00080018}:${frameIndex}`;
       color: cornerstoneDICOMImageLoader.isColorImage(metadata.x00280004),
@@ -145,9 +161,8 @@ const createCustomImage = function (
       columns: metadata.x00280011!,
       height: metadata.x00280010!,
       floatPixelData: undefined,
-      intercept: (rescaleIntercept as number)
-        ? (rescaleIntercept as number)
-        : 0,
+      getPixelData: () => Array.from(pixelData),
+      intercept: rescaleIntercept ? (rescaleIntercept as number) : 0,
       invert: metadata.x00280004 === "MONOCHROME1",
       minPixelValue: metadata.x00280106,
       maxPixelValue: metadata.x00280107,
@@ -155,19 +170,12 @@ const createCustomImage = function (
       rowPixelSpacing: (pixelSpacing as number[])[0],
       rows: metadata.x00280010,
       sizeInBytes: getSizeInBytes(),
-      slope: (rescaleSlope as number) ? (rescaleSlope as number) : 1,
+      slope: rescaleSlope ? (rescaleSlope as number) : 1,
       width: metadata.x00280011!,
       windowCenter: windowCenter as number,
       windowWidth: windowWidth as number,
       decodeTimeInMS: undefined, // TODO
       loadTimeInMS: undefined // TODO
-    };
-    // add function to return pixel data
-    image.getPixelData = function () {
-      if (pixelData === undefined) {
-        throw new Error("No pixel data for image " + imageId);
-      }
-      return Array.from(pixelData);
     };
 
     let isJPEGBaseline8BitColor = false;
@@ -243,11 +251,6 @@ const createCustomImage = function (
         image.windowCenter = (maxVoi + minVoi) / 2;
       }
     }
-
-    // @ts-ignore: is needed to clear the cache
-    pixelDataElement = null;
-    // @ts-ignore: is needed to clear the cache
-    pixelData = null;
 
     resolve(image as Image);
   });

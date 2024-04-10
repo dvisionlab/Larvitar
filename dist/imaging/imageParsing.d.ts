@@ -2,7 +2,7 @@
  *  @desc  This file provides functionalities for parsing DICOM image files
  */
 import { DataSet } from "dicom-parser";
-import { ImageObject } from "./types";
+import { ImageObject, MetaData } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
 import type { MetaDataTypes } from "./MetaDataTypes";
 /**
@@ -28,6 +28,14 @@ export declare const readFiles: (entries: File[]) => Promise<unknown>;
  * @returns {Promise} - Return a promise which will resolve to a image object or fail if an error occurs
  */
 export declare const readFile: (entry: File) => Promise<ImageObject>;
+/**
+ * Convert QIDO metadata to a more readable format
+ * @instance
+ * @function convertQidoMetadata
+ * @param {Object} data - QIDO metadata object
+ * @returns {Object} - Return a metadata object
+ */
+export declare const convertQidoMetadata: (data: any) => MetaData;
 type ExtendedMetaDataTypes = MetaDataTypes & {
     [key: string]: unknown;
 };

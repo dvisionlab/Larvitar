@@ -113,6 +113,7 @@ export declare const redrawImage: (elementId: string) => void;
  * @param {Boolean} cacheImage - A flag to handle image cache
  */
 export declare const updateImage: (series: Series, elementId: string | HTMLElement, imageIndex: number, cacheImage: boolean) => Promise<void>;
+export declare const renderSingleFrame: (imageId: string, elementId: string | HTMLElement) => Promise<true>;
 /**
  * Reset viewport values (scale, translation and wwwc)
  * @instance
