@@ -78,18 +78,39 @@ export const loadAndCacheImageStack = async function (
       store.addSeriesId(dsaSeriesUID, seriesData.dsa.imageIds);
     }
     // load and cache image stack
-    const promises: Promise<cornerstone.Image>[] = imageIds.map(imageId => {
-      return cornerstone.loadAndCacheImage(imageId);
-    });
+
+    const promises: Promise<cornerstone.Image | undefined>[] = imageIds.map(
+      imageId => {
+        if (
+          imageId &&
+          seriesData.instances[imageId].metadata.pixelDataLength != 0
+        ) {
+          return cornerstone.loadAndCacheImage(imageId);
+        } else {
+          return Promise.resolve(undefined); // Return a resolved Promise with undefined
+        }
+      }
+    );
 
     Promise.all(promises).then(() => {
       seriesData.imageIds.forEach(imageId => {
         if (
-          cornerstone.metaData.get("overlayPlaneModule", imageId) !== undefined
+          imageId &&
+          seriesData.instances[imageId].metadata.pixelDataLength != 0
         ) {
-          seriesData.instances[imageId].overlays = cornerstone.metaData.get(
-            "overlayPlaneModule",
-            imageId
+          console.log("promises ready");
+          if (
+            cornerstone.metaData.get("overlayPlaneModule", imageId) !==
+            undefined
+          ) {
+            seriesData.instances[imageId].overlays = cornerstone.metaData.get(
+              "overlayPlaneModule",
+              imageId
+            );
+          }
+        } else {
+          console.log(
+            imageId + " is a metadata-only image, so it cannot be cached"
           );
         }
       });
