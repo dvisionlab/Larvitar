@@ -208,7 +208,7 @@
       </div>
     </div>
 
-    <script src="./larvitar.js"></script>
+    <script src="../../dist/larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>
@@ -309,8 +309,8 @@
       let keys = [];
       const getDemoFileNames = function () {
         let demoFileList = [];
-        for (let i = 1; i < 25; i++) {
-          let filename = "anon" + i;
+        for (let i = 1; i < 2; i++) {
+          let filename = "sr.dcm";
           demoFileList.push(filename);
         }
         return demoFileList;
@@ -328,7 +328,7 @@
         let file = new File([data], fileName);
         demoFiles.push(file);
         counter++;
-        if (counter == 24) {
+        if (counter == 1) {
           cb();
         }
       }
@@ -343,20 +343,11 @@
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
+              //console.log("Image has been rendered");
             });
             // optionally cache the series
             larvitar.populateLarvitarManager(seriesId, serie);
-            larvitar.cacheImages(serie, function (resp) {
-              if (resp.loading == 100) {
-                let cache = larvitar.cornerstone.imageCache;
-                console.log(
-                  "Cache size: ",
-                  cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                  "Mb"
-                );
-              }
-            });
+            larvitar.loadAndCacheImageStack(serie);
 
             series = serie;
             const keys = Object.keys(
@@ -378,7 +369,7 @@
                 newElement.appendChild(newChild);
               }
             }
-            larvitar.addDefaultTools();
+            //larvitar.addDefaultTools();
           })
           .catch(err => console.error(err));
       }
