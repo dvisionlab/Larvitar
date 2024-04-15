@@ -509,7 +509,7 @@ export const renderImage = function (
       reject("error during renderImage: imageId has not been loaded yet.");
     });
   }
-
+  console.log(data.imageId);
   const renderPromise = new Promise<true>((resolve, reject) => {
     //check if it is a metadata-only object
     if (series.instances[data.imageId!].metadata.pixelDataLength != 0) {
