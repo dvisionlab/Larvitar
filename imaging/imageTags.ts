@@ -391,6 +391,7 @@ export function parseTag<T>(
         // try to convert bytes
         // if raises invalid character set
         // catch error
+        characterSet = fixCharacterSet(characterSet);
         try {
           valueOut = convertBytes(characterSet, arr, {
             vr: vr
@@ -517,6 +518,24 @@ export function parseTag<T>(
   }
 
   return valueOut as T;
+}
+
+/**
+ * Fixes the charset syntax
+ * @instance
+ * @function parseTag
+ * @param {string} input
+ * @return {string} - The fixed charset
+ */
+function fixCharacterSet(input: string) {
+  const isoIrRegex = /(ISO)(?:\s*_|_?\s*)IR(?:\s*_|_?\s*)(\d+)/gi;
+
+  const replacer = (match: string, p1: string, p2: string) => {
+    return `${p1.toUpperCase()}_IR ${p2}`;
+  };
+
+  const output = input.replace(isoIrRegex, replacer);
+  return output;
 }
 
 /**
