@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
+    <title>Larvitar - Singleframe rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-8 h-100"
+        style="background-color: black"
+      ></div>
+
+      <div class="col-4 h-100">
+        <pre class="h-100">
+          <code class="javascript" style="background-color: #000000">
+            <p style="font-size:0.7vw;">
+              
+            </p>
+          </code>
+        </pre>
+      </div>
+    </div>
+
+    <script src="../../dist/larvitar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      let demoFiles = [];
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.registerSingleFrameImageLoader();
+      larvitar.initializeFileImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+
+      const qidoMetadata = {
+        "00020001": {
+          vr: "OB",
+          desc: "FileMetaInformationVersion",
+          Value: ["0", "1"]
+        },
+        "00020002": {
+          vr: "UI",
+          desc: "MediaStorageSOPClassUID",
+          Value: ["1.2.840.10008.5.1.4.1.1.3.1"]
+        },
+        "00020003": {
+          vr: "UI",
+          desc: "MediaStorageSOPInstanceUID",
+          Value: [
+            "1.2.826.0.1.3680043.2.97.19529.21573.584472604.170329103138257"
+          ]
+        },
+        "00020010": {
+          vr: "UI",
+          desc: "TransferSyntaxUID",
+          Value: ["1.2.840.10008.1.2.4.50"]
+        },
+        "00020012": {
+          vr: "UI",
+          desc: "ImplementationClassUID",
+          Value: ["1.2.826.0.1.3680043.2.97.255.255.3.0.6.0.5.1.8.0"]
+        },
+        "00020013": {
+          vr: "SH",
+          desc: "ImplementationVersionName",
+          Value: ["SRV-PACS-MYLAB4"]
+        },
+        "00020016": {
+          vr: "AE",
+          desc: "SourceApplicationEntityTitle",
+          Value: ["SRV-PACS-MYLAB4"]
+        },
+        "00080005": {
+          vr: "CS",
+          Value: ["ISO_IR 100"]
+        },
+        "00080008": {
+          vr: "CS",
+          Value: ["DERIVED\\PRIMARY\\\\0011"]
+        },
+        "00080016": {
+          vr: "UI",
+          Value: ["1.2.840.10008.5.1.4.1.1.3.1"]
+        },
+        "00080018": {
+          vr: "UI",
+          Value: [
+            "1.2.826.0.1.3680043.2.97.19529.21573.584472604.170329103138257"
+          ]
+        },
+        "00080020": {
+          vr: "DA",
+          desc: "StudyDate",
+          Value: ["20230809"]
+        },
+        "00080021": {
+          vr: "DA",
+          desc: "SeriesDate",
+          Value: ["20160419"]
+        },
+        "00080023": {
+          vr: "DA",
+          desc: "ContentDate",
+          Value: ["20160419"]
+        },
+        "0008002a": {
+          vr: "DT",
+          desc: "AcquisitionDatetime",
+          Value: ["20160419140659.000000+0000"]
+        },
+        "00080030": {
+          vr: "TM",
+          desc: "StudyTime",
+          Value: ["134525.000000"]
+        },
+        "00080031": {
+          vr: "TM",
+          desc: "SeriesTime",
+          Value: ["134525.000000"]
+        },
+        "00080033": {
+          vr: "TM",
+          desc: "ContentTime",
+          Value: ["140659.000000"]
+        },
+        "00080050": {
+          vr: "SH",
+          desc: "AccessionNumber",
+          Value: ["PW-US-10"]
+        },
+        "00080060": {
+          vr: "CS",
+          desc: "Modality",
+          Value: ["US"]
+        },
+        "00080070": {
+          vr: "LO",
+          desc: "Manufacturer",
+          Value: ["GE Vingmed Ultrasound"]
+        },
+        "00080080": {
+          vr: "LO",
+          desc: "InstitutionName",
+          Value: ["unknown"]
+        },
+        "00080081": {
+          vr: "ST",
+          desc: "InstitutionAddress",
+          Value: ["Date of Import:09-08-23 04:26:46"]
+        },
+        "00080090": {
+          vr: "PN",
+          desc: "ReferringPhysicianName",
+          Value: [
+            {
+              Alphabetic: "unknown"
+            }
+          ]
+        },
+        "00081010": {
+          vr: "SH",
+          desc: "StationName",
+          Value: ["unknown"]
+        },
+        "00081030": {
+          vr: "LO",
+          desc: "StudyDescription",
+          Value: ["ECHO-STRESS"]
+        },
+        "00081048": {
+          vr: "PN",
+          desc: "PhysicianOfRecord",
+          Value: [
+            {
+              Alphabetic: "unknown"
+            }
+          ]
+        },
+        "00081050": {
+          vr: "PN",
+          desc: "PerformingPhysicianName",
+          Value: [
+            {
+              Alphabetic: "unknown"
+            }
+          ]
+        },
+        "00081060": {
+          vr: "PN",
+          desc: "NameOfPhysicianReadingStudy",
+          Value: [
+            {
+              Alphabetic: "unknown"
+            }
+          ]
+        },
+        "00081070": {
+          vr: "PN",
+          desc: "OperatorsName",
+          Value: [
+            {
+              Alphabetic: "unknown"
+            }
+          ]
+        },
+        "00081090": {
+          vr: "LO",
+          desc: "ManufacturerModelName",
+          Value: ["Vivid E9"]
+        },
+        "00082112": {
+          vr: "SQ",
+          desc: "SourceImageSequence",
+          Value: [
+            {
+              "00081150": {
+                vr: "UI",
+                desc: "ReferencedSOPClassUID",
+                Value: ["1.2.840.10008.5.1.4.1.1.6.1"]
+              },
+              "00081155": {
+                vr: "UI",
+                desc: "ReferencedSOPInstanceUID",
+                Value: ["1.2.840.113619.2.239.9665.1461055301.0.644"]
+              }
+            }
+          ]
+        },
+        "00082120": {
+          vr: "SH",
+          desc: "StageName",
+          Value: ["Ruhe"]
+        },
+        "00082122": {
+          vr: "IS",
+          desc: "StageNumber",
+          Value: ["1"]
+        },
+        "00082124": {
+          vr: "IS",
+          desc: "NumberOfStages",
+          Value: ["7"]
+        },
+        "00082127": {
+          vr: "SH",
+          desc: "ViewName",
+          Value: ["SAX-PM"]
+        },
+        "00082128": {
+          vr: "IS",
+          desc: "ViewNumber",
+          Value: ["4"]
+        },
+        "0008212a": {
+          vr: "IS",
+          desc: "NumberOfViewsInStage",
+          Value: ["4"]
+        },
+        "00082142": {
+          vr: "IS",
+          desc: "StartTrim",
+          Value: ["1"]
+        },
+        "00082143": {
+          vr: "IS",
+          desc: "StopTrim",
+          Value: ["71"]
+        },
+        "00082144": {
+          vr: "IS",
+          desc: "RecommendedDisplayFrameRate",
+          Value: ["25"]
+        },
+        "00100010": {
+          vr: "PN",
+          desc: "PatientName",
+          Value: [
+            {
+              Alphabetic: "PACSWEB^US-10-STRESS"
+            }
+          ]
+        },
+        "00100020": {
+          vr: "LO",
+          desc: "PatientID",
+          Value: ["PW-US-10"]
+        },
+        "00100021": {
+          vr: "LO",
+          desc: "IssuerOfPatientID",
+          Value: []
+        },
+        "00100030": {
+          vr: "DA",
+          desc: "PatientBirthDate",
+          Value: ["19380101"]
+        },
+        "00100040": {
+          vr: "CS",
+          desc: "PatientSex",
+          Value: ["M"]
+        },
+        "00180040": {
+          vr: "IS",
+          desc: "CineRate",
+          Value: ["25"]
+        },
+        "00180072": {
+          vr: "DS",
+          desc: "EffectiveDuration",
+          Value: ["2.8"]
+        },
+        "00181020": {
+          vr: "LO",
+          desc: "SoftwareVersion",
+          Value: ["Vivid E9:113.1.3"]
+        },
+        "00181030": {
+          vr: "LO",
+          desc: "ProtocolName",
+          Value: ["Stressecho"]
+        },
+        "00181063": {
+          vr: "DS",
+          desc: "FrameTime",
+          Value: ["40.40588"]
+        },
+        "00181066": {
+          vr: "DS",
+          desc: "FrameDelay",
+          Value: ["0"]
+        },
+        "00181088": {
+          vr: "IS",
+          desc: "HeartRate",
+          Value: ["61"]
+        },
+        "00181242": {
+          vr: "IS",
+          desc: "ActualFrameDuration",
+          Value: ["32"]
+        },
+        "00181244": {
+          vr: "US",
+          desc: "PreferredPlaybackSequencing",
+          Value: [0]
+        },
+        "00186011": {
+          vr: "SQ",
+          desc: "SequenceOfUltrasoundRegions",
+          Value: [
+            {
+              "00186012": {
+                vr: "US",
+                desc: "RegionSpatialFormat",
+                Value: [1]
+              },
+              "00186014": {
+                vr: "US",
+                desc: "RegionDataType",
+                Value: [2]
+              },
+              "00186016": {
+                vr: "UL",
+                desc: "RegionFlags",
+                Value: [0]
+              },
+              "00186018": {
+                vr: "UL",
+                desc: "RegionLocationMinX0",
+                Value: [105]
+              },
+              "0018601a": {
+                vr: "UL",
+                desc: "RegionLocationMinY0",
+                Value: [50]
+              },
+              "0018601c": {
+                vr: "UL",
+                desc: "RegionLocationMaxX1",
+                Value: [910]
+              },
+              "0018601e": {
+                vr: "UL",
+                desc: "RegionLocationMaxY1",
+                Value: [749]
+              },
+              "00186020": {
+                vr: "SL",
+                desc: "ReferencePixelX0",
+                Value: [403]
+              },
+              "00186022": {
+                vr: "SL",
+                desc: "ReferencePixelY0",
+                Value: [1]
+              },
+              "00186024": {
+                vr: "US",
+                desc: "PhysicalUnitsXDirection",
+                Value: [3]
+              },
+              "00186026": {
+                vr: "US",
+                desc: "PhysicalUnitsYDirection",
+                Value: [3]
+              },
+              "0018602c": {
+                vr: "FD",
+                desc: "PhysicalDeltaX",
+                Value: [0.025734958132551295]
+              },
+              "0018602e": {
+                vr: "FD",
+                desc: "PhysicalDeltaY",
+                Value: [0.025734958132551288]
+              },
+              "00186030": {
+                vr: "UL",
+                desc: "TransducerFrequency",
+                Value: [1670]
+              },
+              "00186032": {
+                vr: "UL",
+                desc: "PulseRepetitionFrequency",
+                Value: [3500]
+              }
+            }
+          ]
+        },
+        "00186060": {
+          vr: "FL",
+          desc: "RWaveTimeVector",
+          Value: [62.041203, 1051.7083, 2048.3301]
+        },
+        "0020000d": {
+          vr: "UI",
+          desc: "StudyInstanceUID",
+          Value: ["1.2.826.0.1.3680043.2.97.1.1.3711790758.1703291035445600"]
+        },
+        "0020000e": {
+          vr: "UI",
+          desc: "SeriesInstanceUID",
+          Value: [
+            "1.2.826.0.1.3680043.2.97.19529.21573.1055897903.1703291031217420"
+          ]
+        },
+        "00200010": {
+          vr: "SH",
+          desc: "StudyID",
+          Value: ["EXUS63324"]
+        },
+        "00200011": {
+          vr: "IS",
+          desc: "SeriesNumber",
+          Value: ["0001"]
+        },
+        "00200013": {
+          vr: "IS",
+          Value: [6]
+        },
+        "00200020": {
+          vr: "CS",
+          desc: "PatientOrientation",
+          Value: []
+        },
+        "00204000": {
+          vr: "LT",
+          desc: "ImageComments",
+          Value: [
+            "GEMSQualifier:RowNumber=0:RowId=Ruhe:ColNumber=3:ColId=SAX-PM"
+          ]
+        },
+        "00280002": {
+          vr: "US",
+          desc: "SamplesPerPixel",
+          Value: [3]
+        },
+        "00280004": {
+          vr: "CS",
+          desc: "PhotometricInterpretation",
+          Value: ["YBR_FULL_422"]
+        },
+        "00280006": {
+          vr: "US",
+          desc: "PlanarConfiguration",
+          Value: [0]
+        },
+        "00280008": {
+          vr: "IS",
+          Value: [71]
+        },
+        "00280009": {
+          vr: "AT",
+          desc: "FrameIncrementPointer",
+          Value: ["24", "4195"]
+        },
+        "00280010": {
+          vr: "US",
+          Value: [758]
+        },
+        "00280011": {
+          vr: "US",
+          Value: [1016]
+        },
+        "00280014": {
+          vr: "US",
+          desc: "UltrasoundColorDataPresent",
+          Value: [1]
+        },
+        "00280100": {
+          vr: "US",
+          Value: [8]
+        },
+        "00280101": {
+          vr: "US",
+          desc: "BitsStored",
+          Value: [8]
+        },
+        "00280102": {
+          vr: "US",
+          desc: "HighBit",
+          Value: [7]
+        },
+        "00280103": {
+          vr: "US",
+          desc: "PixelRepresentation",
+          Value: [0]
+        },
+        "00280301": {
+          vr: "CS",
+          desc: "BurnedInAnnotation",
+          Value: ["YES"]
+        },
+        "00282110": {
+          vr: "CS",
+          desc: "LossyImageCompression",
+          Value: ["01"]
+        },
+        "00282112": {
+          vr: "DS",
+          desc: "LossyImageCompressionRatio",
+          Value: ["15.8"]
+        },
+        "00400242": {
+          vr: "SH",
+          desc: "PerformedStationName",
+          Value: ["unknown"]
+        },
+        "00540220": {
+          vr: "SQ",
+          desc: "ViewCodeSequence",
+          Value: [
+            {
+              "00080100": {
+                vr: "SH",
+                desc: "CodeValue",
+                Value: ["G-039B"]
+              },
+              "00080102": {
+                vr: "SH",
+                desc: "CodingSchemeDesignator",
+                Value: ["SRT"]
+              },
+              "00080104": {
+                vr: "LO",
+                desc: "CodeMeaning",
+                Value: ["Parasternal short axis at the Papillary Muscle level"]
+              }
+            }
+          ]
+        },
+        "00080056": {
+          vr: "CS",
+          Value: ["ONLINE"]
+        },
+        "00081190": {
+          vr: "UR",
+          Value: [
+            "http://192.168.72.141:44301/wado/studies/1.2.826.0.1.3680043.2.97.1.1.3711790758.1703291035445600/series/1.2.826.0.1.3680043.2.97.19529.21573.1055897903.1703291031217420/instances/1.2.826.0.1.3680043.2.97.19529.21573.584472604.170329103138257"
+          ]
+        },
+        "00080201": {
+          vr: "SH",
+          Value: ["02:00:00"]
+        }
+      };
+
+      function getImageFrameURI(metadataURI, metadata) {
+        // Use the BulkDataURI if present int the metadata
+        if (metadata["7FE00010"] && metadata["7FE00010"].BulkDataURI) {
+          return metadata["7FE00010"].BulkDataURI;
+        }
+
+        // fall back to using frame #1
+        return metadataURI + "/frames/1";
+      }
+
+      async function renderSerie(resp) {
+        const t0 = performance.now();
+
+        const metadata = larvitar.convertQidoMetadata(qidoMetadata);
+        const transferSyntax = metadata["x00020010"];
+        console.log(`transferSyntax is ${transferSyntax}`);
+
+        const imageId = larvitar.setSingleFrameCache(resp, metadata);
+        larvitar.renderSingleFrame(imageId, "viewer");
+
+        // let imageId =
+        //   larvitar.cornerstoneDICOMImageLoader.wadouri.fileManager.add(
+        //     fileFrame
+        //   );
+        // console.log(imageId);
+        // await larvitar.cornerstone.loadImage(imageId, "viewer");
+
+        //larvitar.addDefaultTools();
+        //larvitar.setToolActive("Wwwc");
+      }
+
+      async function createFile(cb) {
+        let t0 = performance.now();
+        const url =
+          "http://192.168.72.141:44301/wado/studies/1.2.826.0.1.3680043.2.97.1.1.3711790758.1703291035445600/series/1.2.826.0.1.3680043.2.97.19529.21573.1055897903.1703291031217420/instances/1.2.826.0.1.3680043.2.97.19529.21573.811363059.170329103232882/frames/1";
+        let response = await fetch(url, {
+          method: "GET",
+          headers: {
+            Accept: "application/octet-stream"
+          }
+        });
+        let data = await response.arrayBuffer();
+        //let data = await response.blob();
+        //let fileFrame = new File([data], "test");
+        let t1 = performance.now();
+        console.log("Call to wado took " + (t1 - t0) + " milliseconds.");
+        cb(data);
+      }
+      createFile(renderSerie);
+    </script>
+  </body>
+</html>

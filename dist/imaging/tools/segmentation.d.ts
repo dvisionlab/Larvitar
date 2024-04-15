@@ -96,7 +96,7 @@ export declare function clearSegmentationState(): void;
  * Anyway, the activated tool name is returned
  * @param {Object} options - An object containing configuration values (eg radius, thresholds, etc...)
  */
-export declare function enableBrushTool(viewports: string[], options: BrushProperties): "Brush" | "ThresholdsBrush";
+export declare function enableBrushTool(viewports: string[], options: BrushProperties): "ThresholdsBrush" | "Brush";
 /**
  * Disable brushing
  * This function disables both brush tools, if found active on `viewports`

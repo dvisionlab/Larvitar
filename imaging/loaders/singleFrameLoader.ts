@@ -33,16 +33,16 @@ export const setSingleFrameCache = function (
 ): string {
   const t0 = performance.now();
   const imageId = getSingleFrameImageId("singleFrameLoader");
-  let rgbArray = new Uint8ClampedArray(data);
-  let pixelData = new Uint8ClampedArray((rgbArray.length * 4) / 3);
-  for (let i = 0, j = 0; i < rgbArray.length; i += 3, j += 4) {
-    pixelData[j] = rgbArray[i]; // Red
-    pixelData[j + 1] = rgbArray[i + 1]; // Green
-    pixelData[j + 2] = rgbArray[i + 2]; // Blue
-    pixelData[j + 3] = 255; // Alpha
-  }
-  // @ts-ignore: is needed to clear the cache
-  rgbArray = null;
+  let pixelData = new Uint8Array(data);
+  // let pixelData = new Uint8ClampedArray((rgbArray.length * 4) / 3);
+  // for (let i = 0, j = 0; i < rgbArray.length; i += 3, j += 4) {
+  //   pixelData[j] = rgbArray[i]; // Red
+  //   pixelData[j + 1] = rgbArray[i + 1]; // Green
+  //   pixelData[j + 2] = rgbArray[i + 2]; // Blue
+  //   pixelData[j + 3] = 255; // Alpha
+  // }
+  // // @ts-ignore: is needed to clear the cache
+  // rgbArray = null;
 
   singleFrameCache[imageId] = { pixelData, metadata };
   const t1 = performance.now();
