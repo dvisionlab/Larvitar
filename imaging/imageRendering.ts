@@ -304,7 +304,12 @@ export const renderFileImage = function (
     );
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-  cornerstone.enable(element);
+
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    cornerstone.enable(element);
+  }
 
   let renderPromise = new Promise<true>((resolve, _) => {
     // check if imageId is already stored in fileManager
@@ -365,7 +370,11 @@ export const renderWebImage = function (
       reject("invalid html element: " + elementId);
       return;
     }
-    cornerstone.enable(element);
+    try {
+      cornerstone.getEnabledElement(element);
+    } catch (e) {
+      cornerstone.enable(element);
+    }
     cornerstone.loadImage(url).then(function (image) {
       if (!element) {
         console.error("invalid html element: " + elementId);
@@ -467,7 +476,12 @@ export const renderImage = function (
     );
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-  cornerstone.enable(element);
+
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    cornerstone.enable(element);
+  }
 
   setStore(["ready", id, false]);
 

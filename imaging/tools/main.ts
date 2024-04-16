@@ -73,7 +73,9 @@ const csToolsCreateStack = function (
       currentImageIdIndex: 0,
       imageIds: "imageLoader://0"
     };
-    if (cornerstone.getEnabledElements().length == 0) {
+    try {
+      cornerstone.getEnabledElement(element);
+    } catch (e) {
       cornerstone.enable(element);
     }
   }
@@ -197,7 +199,11 @@ export const addDefaultTools = async function (elementId: string) {
         `Element with id ${elementId} not found. Cannot add default tools.`
       );
     }
-    cornerstone.enable(element);
+    try {
+      cornerstone.getEnabledElement(element);
+    } catch (e) {
+      cornerstone.enable(element);
+    }
   }
 
   // for each default tool

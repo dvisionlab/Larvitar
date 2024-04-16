@@ -183,7 +183,6 @@
               larvitar
                 .readFiles(demoFiles)
                 .then(seriesStack => {
-                  console.log(seriesStack);
                   // render the first series of the study
                   let seriesId = _.keys(seriesStack)[0];
                   let serie = seriesStack[seriesId];
@@ -227,7 +226,6 @@
             }
       
             async function loadMasks() {
-              console.log("loadMasks() called");
               let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
               let properties = {
                 // color: "#00ff00",
@@ -424,7 +422,6 @@
       async function renderSerie() {
         larvitar.resetLarvitarManager();
         const seriesStack = await larvitar.readFiles(demoFiles);
-        console.log(seriesStack);
         // render the first series of the study
         let seriesId = _.keys(seriesStack)[0];
         let serie = seriesStack[seriesId];
@@ -454,7 +451,6 @@
       }
 
       async function loadMasks() {
-        console.log("loadMasks() called");
         let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
         let properties = {
           // color: "#00ff00",
