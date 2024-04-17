@@ -305,6 +305,8 @@ export const renderFileImage = function (
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
 
+  // check if there is an enabledElement with this id
+  // otherwise, we will get an error and we will enable it
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
@@ -370,6 +372,8 @@ export const renderWebImage = function (
       reject("invalid html element: " + elementId);
       return;
     }
+    // check if there is an enabledElement with this id
+    // otherwise, we will get an error and we will enable it
     try {
       cornerstone.getEnabledElement(element);
     } catch (e) {
@@ -477,6 +481,8 @@ export const renderImage = function (
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
 
+  // check if there is an enabledElement with this id
+  // otherwise, we will get an error and we will enable it
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
