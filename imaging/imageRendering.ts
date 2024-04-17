@@ -304,9 +304,16 @@ export const renderFileImage = function (
     );
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-  cornerstone.enable(element);
 
-  let renderPromise = new Promise<true>(resolve => {
+  // check if there is an enabledElement with this id
+  // otherwise, we will get an error and we will enable it
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    cornerstone.enable(element);
+  }
+
+  let renderPromise = new Promise<true>((resolve, _) => {
     // check if imageId is already stored in fileManager
     const imageId = getFileImageId(file as File);
     if (imageId) {
@@ -365,7 +372,13 @@ export const renderWebImage = function (
       reject("invalid html element: " + elementId);
       return;
     }
-    cornerstone.enable(element);
+    // check if there is an enabledElement with this id
+    // otherwise, we will get an error and we will enable it
+    try {
+      cornerstone.getEnabledElement(element);
+    } catch (e) {
+      cornerstone.enable(element);
+    }
     cornerstone.loadImage(url).then(function (image) {
       if (!element) {
         console.error("invalid html element: " + elementId);
@@ -467,7 +480,14 @@ export const renderImage = function (
     );
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-  cornerstone.enable(element);
+
+  // check if there is an enabledElement with this id
+  // otherwise, we will get an error and we will enable it
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    cornerstone.enable(element);
+  }
 
   setStore(["ready", id, false]);
 

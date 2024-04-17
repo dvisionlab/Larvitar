@@ -9,6 +9,7 @@ console.groupCollapsed(
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { parseDicom } from "dicom-parser";
+import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 const segModule = cornerstoneTools.getModule("segmentation");
@@ -259,6 +260,7 @@ export {
   cornerstone,
   cornerstoneTools,
   parseDicom,
+  cornerstoneFileImageLoader,
   segModule,
   cornerstoneDICOMImageLoader,
   // memory module

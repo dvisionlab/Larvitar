@@ -98,7 +98,6 @@ export const loadAndCacheImageStack = async function (
           imageId &&
           seriesData.instances[imageId].metadata.pixelDataLength != 0
         ) {
-          console.log("promises ready");
           if (
             cornerstone.metaData.get("overlayPlaneModule", imageId) !==
             undefined
@@ -109,7 +108,7 @@ export const loadAndCacheImageStack = async function (
             );
           }
         } else {
-          console.log(
+          console.warn(
             imageId + " is a metadata-only image, so it cannot be cached"
           );
         }
