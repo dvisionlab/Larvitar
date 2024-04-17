@@ -337,9 +337,9 @@ export const renderFileImage = function (
         const t1 = performance.now();
         console.log(`Call to renderFileImage took ${t1 - t0} milliseconds.`);
         //@ts-ignore
-        //image = null;
+        image = null;
         //@ts-ignore
-        //file = null;
+        file = null;
         resolve(true);
       });
     } else {
