@@ -839,6 +839,7 @@ export const updateViewportData = function (
   if (isValidTool === true) {
     switch (activeTool) {
       case "WwwcRegion":
+      case "WwwcRemoveRegion":
       case "Wwwc":
       case "Wwwl":
         if (viewportData.voi) {
