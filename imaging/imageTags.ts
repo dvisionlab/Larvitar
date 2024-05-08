@@ -261,7 +261,7 @@ function getDICOMTag(code: string) {
   let newCode = code.charAt(0) + code.slice(1).toUpperCase();
 
   if (!Object.keys(TAG_DICT).includes(newCode)) {
-    console.warn(`Invalid tag key: ${newCode}`);
+    console.debug(`Invalid tag key: ${newCode}`);
     return null;
   }
   // force type to keyof typeof TAG_DICT after having checked that it is a valid key
