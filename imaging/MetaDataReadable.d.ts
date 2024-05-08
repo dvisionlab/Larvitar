@@ -32,6 +32,7 @@ export type MetaDataReadable = {
   numberOfTemporalPositions?: number;
   contentTime?: number;
   is4D?: boolean;
+  biplane?: BiPlane;
   windowCenter?: number | number[];
   windowWidth?: number | number[];
   minPixelValue?: number;
