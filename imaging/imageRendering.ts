@@ -107,8 +107,8 @@ export function loadAndCacheImage(
     if (imageId && series.instances[imageId].metadata.pixelDataLength != 0) {
       cornerstone.loadAndCacheImage(imageId).then(function () {
         const t1 = performance.now();
-        console.log(`Call to cacheImages took ${t1 - t0} milliseconds.`);
-        console.log(
+        console.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
+        console.debug(
           `Cached image with index ${imageIndex} for ${series.seriesUID}`
         );
         resolve(true);
@@ -160,8 +160,8 @@ export function loadAndCacheImages(
     setStore(["progress", series.seriesUID, cachingPercentage]);
     if (cachingCounter == series.imageIds.length) {
       const t1 = performance.now();
-      console.log(`Call to cacheImages took ${t1 - t0} milliseconds.`);
-      console.log(`Cached images for ${series.seriesUID}`);
+      console.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
+      console.debug(`Cached images for ${series.seriesUID}`);
       response.series = series;
     }
   }
