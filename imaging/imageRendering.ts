@@ -19,6 +19,7 @@ import { isElement } from "./imageUtils";
 import {
   Image,
   Instance,
+  MetaData,
   Series,
   StoreViewport,
   StoreViewportOptions,
@@ -598,6 +599,14 @@ export const renderImage = function (
         resolve(true);
       });
     } else {
+      const metadata = series.instances[data.imageId!].metadata;
+      if (metadata != undefined) {
+        drawMetadata(metadata, element);
+        // Redraw metadata when the window is resized
+        window.addEventListener("resize", () => {
+          drawMetadata(metadata, element);
+        });
+      }
       setStore(["ready", element.id, true]);
       resolve(true);
       //throw new Error("No pixel data for id: " + data.imageId);
@@ -609,6 +618,78 @@ export const renderImage = function (
 
   return renderPromise;
 };
+
+function drawMetadata(metadata: MetaData, element: Element) {
+  // Create a container div for metadata
+
+  let existingMetadataContainer = element.querySelector(".metadata-container");
+  if (existingMetadataContainer) {
+    existingMetadataContainer.remove();
+  }
+  let metadataContainer = document.createElement("div");
+  metadataContainer.classList.add("metadata-container");
+  metadataContainer.style.backgroundColor = "black"; // Set background color to black
+  metadataContainer.style.color = "white"; // Set text color to white
+  // Check if canvas element is found
+  let canvas = element.querySelector(
+    "canvas.cornerstone-canvas"
+  ) as HTMLCanvasElement;
+
+  if (canvas) {
+    canvas.remove();
+    let metadataOfInterest = {
+      "Patient Name": metadata.x00100010 ?? null,
+      "Patient Sex": metadata.x00100040 ?? null,
+      "Patient Id": metadata.x00100020 ?? null,
+      "Referring Physician": metadata.x00080090 ?? null,
+      "Study Description": metadata.x00081030 ?? null,
+      "Series Description": metadata.x0008103e ?? null,
+      "Protocol Description": metadata.x00181030 ?? null,
+      Manufacturer: metadata.x00080070 ?? null,
+      "Completion Flag": metadata.x0040a491 ?? null,
+      "Verification Flag": metadata.x0040a493 ?? null,
+      "Content Date": metadata.x00080023 ?? null,
+      "Content Time": metadata.x00080033 ?? null,
+      "Clinical Anamnesis":
+        (metadata.x0040a730 &&
+          metadata.x0040a730.length > 0 &&
+          metadata.x0040a730[0].x0040a160) ??
+        null,
+      Impression:
+        (metadata.x0040a730 &&
+          metadata.x0040a730.length > 1 &&
+          metadata.x0040a730[1].x0040a160) ??
+        null,
+      Note:
+        (metadata.x0040a730 &&
+          metadata.x0040a730.length > 2 &&
+          metadata.x0040a730[2].x0040a160) ??
+        null //nested
+    };
+
+    // Loop through metadata and create paragraphs for each item
+    for (let [key, value] of Object.entries(metadataOfInterest)) {
+      if (value != null) {
+        if (key === "Clinical Anamnesis") {
+          let title = document.createElement("h");
+          title.innerHTML = `${metadataOfInterest["Series Description"]!}`; // Bold title
+          title.style.fontWeight = "bold"; // Set font weight to bold
+          title.style.fontSize = "30px"; // Set font size to 24px
+
+          metadataContainer.appendChild(title);
+        }
+        let paragraph = document.createElement("p");
+        paragraph.innerHTML = `<strong>${key}:</strong> ${value}`; // Bold title
+        metadataContainer.appendChild(paragraph);
+      }
+    }
+
+    // Append the metadata container to the provided element
+    element.appendChild(metadataContainer);
+  } else {
+    console.log("Canvas element with class 'cornerstone-canvas' not found.");
+  }
+}
 
 /**
  * Redraw the cornerstone image
