@@ -141,7 +141,7 @@ export type BiPlane = {
   tag: string;
   referencedSOPInstanceUID: string;
   positionerPrimaryAngle: string; // LAO >= 0, RAO < 0
-  positionerSecondaryAngle: number; // CRA >= 0, CAU < 0
+  positionerSecondaryAngle: string; // CRA >= 0, CAU < 0
 };
 
 export type DSA = {
