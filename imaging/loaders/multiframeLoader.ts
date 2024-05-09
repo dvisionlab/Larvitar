@@ -22,6 +22,7 @@ import type {
   Series
 } from "../types";
 import { populateDsaImageIds } from "./dsaImageLoader";
+import store from "./../imageStore";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -140,10 +141,11 @@ export const buildMultiFrameImage = function (
   });
 
   // check for DSA
-
   if (serie.metadata!["x00286100"] !== undefined) {
     populateDsaImageIds(larvitarSeriesInstanceUID);
   }
+
+  store.addSeriesId(larvitarSeriesInstanceUID, serie.imageIds);
 
   let t1 = performance.now();
   console.debug(`Call to buildMultiFrameImage took ${t1 - t0} milliseconds.`);
