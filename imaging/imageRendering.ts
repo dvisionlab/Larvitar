@@ -106,6 +106,7 @@ export function loadAndCacheImage(
     //check if it is a metadata-only object
     if (imageId && series.instances[imageId].metadata.pixelDataLength != 0) {
       cornerstone.loadAndCacheImage(imageId).then(function () {
+        setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
         const t1 = performance.now();
         console.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
         console.debug(
@@ -170,6 +171,7 @@ export function loadAndCacheImages(
     //check if it is a metadata-only object
     if (imageId && series.instances[imageId].metadata.pixelDataLength != 0) {
       cornerstone.loadAndCacheImage(imageId).then(function () {
+        setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
         updateProgress();
         callback(response);
       });
@@ -698,7 +700,7 @@ export const updateImage = async function (
             );
           }
         }
-
+        setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
         setStore(["sliceId", id, imageIndex]);
         const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
         if (imageIndex == pendingSliceId) {

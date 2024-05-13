@@ -460,6 +460,7 @@ const parseFile = function (file: File) {
               const positionerSecondaryAngle = metadata["x00181511"]
                 ? metadata["x00181511"]
                 : 0;
+              imageObject.metadata.biplane = {};
               imageObject.metadata.biplane.tag = tag;
               imageObject.metadata.biplane.referencedSOPInstanceUID =
                 referencedSOPInstanceUID;

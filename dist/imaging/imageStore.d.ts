@@ -7,6 +7,9 @@ type StoreSeries = {
     imageIds: string[];
     progress: number;
     elementId: string;
+    cached: {
+        [imageId: string]: boolean;
+    };
 };
 type Store = {
     colormapId: string;
@@ -29,7 +32,7 @@ type SetPayload = ["errorLog" | "leftActiveTool" | "rightActiveTool", string] | 
     ("progress" | "loading" | "minPixelValue" | "maxPixelValue" | "minSliceId" | "maxSliceId" | "minTimeId" | "maxTimeId" | "rotation" | "scale" | "sliceId" | "timeId" | "thickness" | "numberOfFrames" | "numberOfTemporalPositions"),
     string,
     number
-] | ["timestamp", string, number | undefined] | ["seriesUID" | "modality", string, string | undefined] | ["pendingSliceId", string, number | undefined] | ["timestamps" | "timeIds" | "pixelShift", string, number[]] | [
+] | ["cached", string, string, boolean] | ["timestamp", string, number | undefined] | ["seriesUID" | "modality", string, string | undefined] | ["pendingSliceId", string, number | undefined] | ["timestamps" | "timeIds" | "pixelShift", string, number[]] | [
     "contrast" | "dimensions" | "spacing" | "translation",
     string,
     number,
