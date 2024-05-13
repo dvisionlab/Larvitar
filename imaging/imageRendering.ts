@@ -698,7 +698,7 @@ export const updateImage = async function (
             );
           }
         }
-
+        setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
         setStore(["sliceId", id, imageIndex]);
         const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
         if (imageIndex == pendingSliceId) {
