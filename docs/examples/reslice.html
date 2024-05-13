@@ -152,11 +152,11 @@
             });
             larvitar.cacheImages(serie, function (resp) {
               if (resp.loading == 100) {
-                larvitar.resliceSeries(serie, "coronal").then(data => {
+                larvitar.resliceSeries(serie, "coronal").then(async data => {
                   larvitar.renderImage(data, "viewer-reslice").then(() => {
                     console.log("Image resliced has been rendered");
                   });
-                  larvitar.addDefaultTools();
+                  await larvitar.addDefaultTools();
                   larvitar.setToolActive("Wwwc");
                 });
               }

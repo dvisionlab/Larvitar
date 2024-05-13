@@ -236,14 +236,10 @@
                   larvitar.cornerstoneDICOMImageLoader.wadouri.parseImageId(
                     imageId
                   );
-                console.log(parsedImageId);
                 let rootImageId =
                   parsedImageId.scheme + ":" + parsedImageId.url;
-                console.log(rootImageId);
                 let imageTracker = larvitar.getLarvitarImageTracker();
-                console.log(imageTracker);
                 seriesId = imageTracker[rootImageId];
-                console.log(seriesId);
                 larvitar.addDefaultTools();
               });
             });

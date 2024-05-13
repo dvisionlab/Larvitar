@@ -76,11 +76,11 @@
       createFile("example.nrrd", function (nrrd_file) {
         let reader = new FileReader();
         reader.readAsArrayBuffer(nrrd_file);
-        reader.onload = function () {
+        reader.onload = async function () {
           let volume = larvitar.importNRRDImage(reader.result);
           let serie = larvitar.buildNrrdImage(volume, "1234", {});
           larvitar.renderImage(serie, "viewer");
-          larvitar.addDefaultTools();
+          await larvitar.addDefaultTools();
           larvitar.setToolActive("Wwwc");
         };
       });

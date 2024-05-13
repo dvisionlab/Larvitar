@@ -88,7 +88,7 @@
         await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
         console.log("Image has been rendered");
 
-        larvitar.addDefaultTools();
+        await larvitar.addDefaultTools();
         larvitar.setToolActive("Wwwc");
         await larvitar.loadAndCacheImageStack(multiFrameSerie);
         await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);

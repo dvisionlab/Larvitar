@@ -171,9 +171,9 @@
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
-            larvitar.renderImage(serie, "viewer").then(() => {
+            larvitar.renderImage(serie, "viewer").then(async () => {
               console.log("Image has been rendered");
-              larvitar.addDefaultTools();
+              await larvitar.addDefaultTools();
               larvitar.setToolActive("Wwwc");
             });
           })

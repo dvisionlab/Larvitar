@@ -289,9 +289,9 @@
           let frameId = 0;
           larvitar
             .renderImage(multiFrameSerie, "viewer", frameId)
-            .then(() => {
+            .then(async () => {
               frames_number = manager[seriesId].numberOfTemporalPositions;
-              larvitar.addDefaultTools();
+              await larvitar.addDefaultTools();
               larvitar.setToolActive("CustomMouseWheelScroll");
               // add information on UI regarding timeId, timestamp and sliceId
               changeStamps();
