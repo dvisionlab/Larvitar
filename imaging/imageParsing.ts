@@ -351,6 +351,11 @@ const parseFile = function (file: File) {
         let numberOfFrames = metadata["x00280008"];
         let isMultiframe = (numberOfFrames as number) > 1 ? true : false;
         let waveform = metadata["x50003000"] ? true : false;
+        // check dicom tag image type x00080008 if contains the word BIPLANE A or BIPLANE B
+        // if true, then it is a biplane image
+        let biplane = metadata["x00080008"]
+          ? metadata["x00080008"].includes("BIPLANE")
+          : false;
 
         if (dataSet.warnings.length > 0) {
           // warnings
@@ -438,6 +443,30 @@ const parseFile = function (file: File) {
               imageObject.metadata.numberOfTemporalPositions =
                 metadata["x00200105"];
               imageObject.metadata.contentTime = metadata["x00080033"];
+            }
+            if (biplane) {
+              // check if dicom tag image type x00080008 contains the word
+              // BIPLANE A or BIPLANE B
+              // if true, the tag is set to BIPLANE A or BIPLANE B
+              let tag =
+                metadata["x00080008"] &&
+                metadata["x00080008"].includes("BIPLANE A")
+                  ? "BIPLANE A"
+                  : "BIPLANE B";
+              const referencedSOPInstanceUID = metadata["x00081155"];
+              const positionerPrimaryAngle = metadata["x00181510"]
+                ? metadata["x00181510"]
+                : 0;
+              const positionerSecondaryAngle = metadata["x00181511"]
+                ? metadata["x00181511"]
+                : 0;
+              imageObject.metadata.biplane.tag = tag;
+              imageObject.metadata.biplane.referencedSOPInstanceUID =
+                referencedSOPInstanceUID;
+              imageObject.metadata.biplane.positionerPrimaryAngle =
+                (positionerPrimaryAngle as number) >= 0 ? "LAO" : "RAO";
+              imageObject.metadata.biplane.positionerSecondaryAngle =
+                (positionerSecondaryAngle as number) >= 0 ? "CRA" : "CAU";
             }
             imageObject.metadata.is4D = is4D;
             imageObject.metadata.waveform = waveform;
