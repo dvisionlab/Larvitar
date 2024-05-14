@@ -7,7 +7,12 @@
 import { get as _get, cloneDeep as _cloneDeep } from "lodash";
 import type { StoreViewport } from "./types.d";
 
-type StoreSeries = { imageIds: string[]; progress: number; elementId: string };
+type StoreSeries = {
+  imageIds: string[];
+  progress: number;
+  elementId: string;
+  cached: { [imageId: string]: boolean };
+};
 
 type Store = {
   colormapId: string;
@@ -57,6 +62,7 @@ type SetPayload =
       string,
       number
     ]
+  | ["cached", string, string, boolean]
   | ["timestamp", string, number | undefined]
   | ["seriesUID" | "modality", string, string | undefined]
   | ["pendingSliceId", string, number | undefined]
@@ -198,6 +204,15 @@ const setValue = (store: Store, data: SetPayload) => {
         return;
       }
       store.series[k][field] = (v as [number])[0];
+      triggerSeriesListener(k);
+      break;
+
+    case "cached":
+      if (!store.series[k]) {
+        return;
+      }
+      v = v as [string, boolean];
+      store.series[k][field][v[0]] = v[1];
       triggerSeriesListener(k);
       break;
 
@@ -415,6 +430,11 @@ export default {
       STORE!.series[seriesId] = {} as StoreSeries;
     }
     STORE!.series[seriesId].imageIds = imageIds;
+    // for each imageId create a cached[imageId] = false
+    STORE!.series[seriesId].cached = {};
+    imageIds.forEach(imageId => {
+      STORE!.series[seriesId].cached[imageId] = false;
+    });
     triggerSeriesListener(seriesId);
   },
   removeSeriesId: (seriesId: string) => {
