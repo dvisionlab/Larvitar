@@ -94,7 +94,7 @@ const parseDateTag = function (tagValue: string) {
   const year = tagValue.substring(0, 4);
   const month = tagValue.substring(4, 6);
   const day = tagValue.substring(6, 8);
-  const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)));
   if (isValidDate(date) === true) {
     return date.toISOString();
   } else {
@@ -160,7 +160,7 @@ const parseTimeTag = function (tagValue: string) {
  */
 const parsePatientNameTag = function (tagValue: string) {
   if (!tagValue) return "";
-  return tagValue.replace(/\^/gi, " ");
+  return tagValue;
 };
 
 /**
