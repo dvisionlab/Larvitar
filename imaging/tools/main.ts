@@ -192,8 +192,8 @@ async function waitForImageId(element: EnabledElement) {
  * Add all default tools, as listed in tools/default.js
  * @function addDefaultTools
  */
-export const addDefaultTools = async function (elementId: string) {
-  let elements = await cornerstone.getEnabledElements();
+export const addDefaultTools = function (elementId: string) {
+  let elements = cornerstone.getEnabledElements();
   if (elements.length == 0) {
     let element = document.getElementById(elementId);
     if (!element) {
@@ -239,19 +239,7 @@ export const addDefaultTools = async function (elementId: string) {
 
       synchronizer.enabled = true;
     }
-    if (tool.name === "Overlay") {
-      elements.forEach(async element => {
-        const imageId = await waitForImageId(element);
-        if (
-          external.cornerstone.metaData.get("overlayPlaneModule", imageId) &&
-          external.cornerstone.metaData.get("overlayPlaneModule", imageId)
-            .overlays.length != 0
-        ) {
-          setToolActive("Overlay");
-          setToolDisabled("Wwwc"); //it wouldn't work anyway
-        }
-      });
-    } else if (tool.name != "Overlay" && tool.defaultActive) {
+    if (tool.defaultActive) {
       setToolActive(tool.name, tool.options, [], true);
     }
   });
