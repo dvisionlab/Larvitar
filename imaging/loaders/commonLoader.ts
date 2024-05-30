@@ -64,6 +64,7 @@ export const updateLarvitarManager = function (
       loadedStack[seriesId as string] as Series
     );
   } else {
+    console.log("updateLoadedStack", sliceIndex);
     updateLoadedStack(data, larvitarManager, customId, sliceIndex);
   }
   return larvitarManager;

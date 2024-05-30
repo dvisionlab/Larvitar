@@ -182,7 +182,7 @@ export const updateLoadedStack = function (
     seriesData.metadata["x00280004"]
   ) as boolean;
   let id = customId || lid?.toString();
-
+  console.log("ID", id);
   if (!id) {
     throw new Error("Unique UID is not defined");
   }
@@ -242,8 +242,12 @@ export const updateLoadedStack = function (
     is4D ? [defaultMethod, "contentTime"] : [defaultMethod];
 
   // if the parsed file is a new series instance, keep it
-
+  console.log(
+    "NEW INSTANCE?",
+    isNewInstance(allSeriesStack[id].instances, iid!)
+  );
   if (isMultiframe) {
+    console.log("isMultiframe");
     allSeriesStack[id].bytes += seriesData.file.size;
     allSeriesStack[id].dataSet = seriesData.dataSet;
     allSeriesStack[id].metadata = seriesData.metadata;
@@ -254,6 +258,7 @@ export const updateLoadedStack = function (
     let imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(
       seriesData.file
     ) as string;
+    console.log("isNotMultiframe", imageId);
     imageTracker[imageId] = lid as string;
     if (sliceIndex !== undefined) {
       allSeriesStack[id].imageIds[sliceIndex] = imageId;
