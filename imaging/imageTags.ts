@@ -96,7 +96,7 @@ const parseDateTag = function (tagValue: string) {
   const day = tagValue.substring(6, 8);
   const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)));
   if (isValidDate(date) === true) {
-    return date.toISOString();
+    return date.toISOString().split('T')[0];
   } else {
     return tagValue;
   }
@@ -118,7 +118,7 @@ const parseDateTimeTag = function (tagValue: string) {
   const min = tagValue.substring(10, 12);
   const sec = tagValue.substring(12, 14);
   // const msec = tagValue.substring(15, 21);
-  const date = new Date(
+  const date = new Date(Date.UTC(
     parseInt(year),
     parseInt(month) - 1,
     parseInt(day),
@@ -126,9 +126,9 @@ const parseDateTimeTag = function (tagValue: string) {
     parseInt(min),
     parseInt(sec),
     parseInt(sec)
-  );
+  ));
   if (isValidDate(date) === true) {
-    return date.toISOString();
+    return date.toISOString().replace('T', ' ').replace('Z', '');
   } else {
     return tagValue;
   }
