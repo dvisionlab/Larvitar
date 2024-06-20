@@ -19,5 +19,23 @@ module.exports = merge(commonConfiguration, {
   },
   optimization: {
     minimize: false
+  },
+  devServer: {
+    static: [
+      {
+        directory: path.join(__dirname, "../docs"),
+        publicPath: "/"
+      },
+      {
+        directory: path.join(__dirname, "../dist"),
+        publicPath: "/dist"
+      }
+    ],
+    compress: true,
+    port: 9000,
+    hot: true,
+    devMiddleware: {
+      writeToDisk: true
+    }
   }
 });

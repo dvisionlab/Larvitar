@@ -1343,7 +1343,7 @@ License: MIT
 
 /*! cornerstone-web-image-loader - 2.1.1 - 2018-12-05 | (c) 2016 Chris Hafey | https://github.com/cornerstonejs/cornerstoneWebImageLoader */
 
-/*! dicom-character-set - 1.0.4 - 2021-09-23 | (c) 2018 Radialogica, LLC | https://github.com/radialogica/dicom-character-set */
+/*! dicom-character-set - 1.0.5 - 2024-01-10 | (c) 2018 Radialogica, LLC | https://github.com/radialogica/dicom-character-set */
 
 /*! dicom-parser - 1.8.12 - 2023-02-20 | (c) 2017 Chris Hafey | https://github.com/cornerstonejs/dicomParser */
 
