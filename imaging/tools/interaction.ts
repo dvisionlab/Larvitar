@@ -241,7 +241,9 @@ export const toggleMouseToolsListeners = function (
       evt.detail.buttons == 1
         ? store.get("leftActiveTool")
         : store.get("rightActiveTool");
-    updateViewportData(evt.srcElement.id, evt.detail.viewport, activeTool);
+    if (activeTool !== "WwwcRemoveRegion") {
+      updateViewportData(evt.srcElement.id, evt.detail.viewport, activeTool);
+    }
   }, 250);
 
   // mouse wheel handler

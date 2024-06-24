@@ -91,6 +91,7 @@ export const setImagePreset = function (
 
     viewport.voi.windowWidth = image_preset!.ww;
     viewport.voi.windowCenter = image_preset!.wl;
+    console.log('image preset');
     cornerstone.setViewport(element, viewport);
     // sync ww and wc values in store
     setStore([
@@ -144,6 +145,7 @@ export const setImageCustomPreset = function (
 
     viewport.voi.windowWidth = customValues.ww;
     viewport.voi.windowCenter = customValues.wl;
+    console.log('setImageCustomPresete');
     cornerstone.setViewport(element, viewport);
     // sync ww and wc values in store
     setStore([

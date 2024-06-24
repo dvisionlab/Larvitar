@@ -335,6 +335,7 @@ export const renderFileImage = function (
           viewport.displayedArea.brhc.x = image.width;
           viewport.displayedArea.brhc.y = image.height;
         }
+        console.log('renderFile');
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
 
@@ -538,6 +539,7 @@ export const renderImage = function (
         // are stored in specific dicom tags
         // (x00281050 and x00281051)
         // if not present check in image object
+        console.log("renderImage")
         if (data.viewport?.voi?.windowWidth === undefined) {
           data.viewport.voi.windowWidth = image.windowWidth;
         }
@@ -808,7 +810,6 @@ export const resetViewports = function (
       viewport.scale = defaultViewport.scale;
       setStore(["scale", elementId, viewport.scale]);
     }
-
     cornerstone.setViewport(element, viewport);
 
     if (!keys || keys.find(v => v === "scaleAndTranslation")) {
@@ -831,6 +832,15 @@ export const updateViewportData = function (
   viewportData: Viewport,
   activeTool: string
 ) {
+  console.log('here');
+  console.log(viewportData);
+  if (viewportData.voi){
+    const ww = viewportData.voi.windowWidth; 
+    if (!ww) {
+      console.log('it aint gooody');
+    }
+  }
+  console.log(activeTool)
   let element = document.getElementById(elementId as string);
   if (!element) {
     console.error("invalid html element: " + elementId);
@@ -844,12 +854,19 @@ export const updateViewportData = function (
       case "WwwcRemoveRegion":
       case "Wwwc":
       case "Wwwl":
-        if (viewportData.voi) {
+        if (viewportData.voi && viewportData.voi.windowWidth && viewportData.voi.windowWidth) {
           setStore([
             "contrast",
             elementId,
             viewportData.voi.windowWidth,
             viewportData.voi.windowCenter
+          ]);
+        } else {
+          setStore([
+            "contrast",
+            elementId,
+            0,
+            0
           ]);
         }
         break;
@@ -908,6 +925,8 @@ export const storeViewportData = function (
   viewport: Viewport,
   data: ReturnType<typeof getSeriesData>
 ) {
+  console.log('here');
+  console.log(data);
   setStore(["dimensions", elementId, data.rows, data.cols]);
   setStore(["spacing", elementId, data.spacing_x, data.spacing_y]);
   setStore(["thickness", elementId, data.thickness]);

@@ -9,6 +9,8 @@
 export default class WwwcRemoveRegionTool {
     constructor(props?: {});
     dataHandles: any[];
+    optimalWW: number | null;
+    optimalWC: number | null;
     element: any;
     _drawingMouseUpCallback: (evt: any) => void;
     _editMouseUpCallback: (evt: any) => void;
@@ -59,4 +61,16 @@ export default class WwwcRemoveRegionTool {
      * @returns {void}
      */
     private _applyStrategy;
+    /**
+   * Calculates the minimum and maximum value in the given pixel array
+   * and updates the viewport of the element in the event.
+   *
+   * @private
+   * @method _applyWWWCRegion
+   * @param {Object} eventData an obect with the element and the image coming from the event
+   * @param {Array} handles array of the objects of image handles
+   * @param {Object} config The tool's configuration object
+   * @returns {void}
+   */
+    private _applyWWWCRegion;
 }

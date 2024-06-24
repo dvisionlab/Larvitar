@@ -1,5 +1,7 @@
 import cornerstoneTools from "cornerstone-tools";
 import { getMaxPixelValue, getMinPixelValue } from "../../imageUtils";
+import { updateViewportData } from "../../imageRendering";
+import { convertToFalseColorImage } from "cornerstone-core";
 const external = cornerstoneTools.external;
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
@@ -65,10 +67,12 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
 
     super(props, defaultProps);
     this.dataHandles = [];
+    this.optimalWW = null;
+    this.optimalWC = null;
     this.element = null;
     this._drawingMouseUpCallback = this._applyStrategy.bind(this);
     this._editMouseUpCallback = this._applyStrategy.bind(this);
-
+    console.log('wwwcconstructor')
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 10);
   }
 
@@ -241,6 +245,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
       eventData.viewport.voi.windowWidth = this.originalWW;
       eventData.viewport.voi.windowCenter = this.originalWC;
       eventData.viewport.voiLUT = undefined;
+      console.log('renderToolData')
       external.cornerstone.setViewport(element, eventData.viewport);
       external.cornerstone.updateImage(element);
     }
@@ -379,7 +384,9 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
    * @returns {void}
    */
   _applyStrategy(evt) {
+    console.log('apply strat of wwwremove');
     const toolData = getToolState(evt.currentTarget, this.name);
+    console.log(toolData);
     if (!toolData) {
       return;
     }
@@ -387,13 +394,134 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
       return;
     }
     const rectangles = toolData ? toolData.data : [];
-    if (Array.isArray(rectangles)) {
+    console.log('toolData ');
+    console.log(toolData.data);
+    if (Array.isArray(rectangles) && rectangles.length > 0) {
+      console.log('rectangles');
+      console.log(rectangles);
       const allHandles = rectangles.map(item => item.handles);
       this.dataHandles = allHandles;
       const eventData = evt.detail;
-      _applyWWWCRegion(eventData, allHandles, this.configuration);
+      this._applyWWWCRegion(eventData, allHandles, this.configuration);
     }
   }
+    /**
+   * Calculates the minimum and maximum value in the given pixel array
+   * and updates the viewport of the element in the event.
+   *
+   * @private
+   * @method _applyWWWCRegion
+   * @param {Object} eventData an obect with the element and the image coming from the event
+   * @param {Array} handles array of the objects of image handles
+   * @param {Object} config The tool's configuration object
+   * @returns {void}
+   */
+  _applyWWWCRegion(eventData, handles, config) {
+    console.log('apply region')
+    const { image, element } = eventData;
+    const fullImageLuminance = getLuminance(
+      element,
+      0,
+      0,
+      image.width,
+      image.height
+    );
+    let extentsLuminance = fullImageLuminance;
+    let outOfBound = false;
+    handles.forEach(handle => {
+      /*
+      if (_isEmptyObject(handle.start) || _isEmptyObject(handles.end)) {
+        return;
+      }
+      */
+      const { start: startPoint, end: endPoint } = handle;
+      
+      // Get the rectangular region defined by the handles
+      let left = Math.min(startPoint.x, endPoint.x);
+      let top = Math.min(startPoint.y, endPoint.y);
+      let width = Math.abs(startPoint.x - endPoint.x);
+      let height = Math.abs(startPoint.y - endPoint.y);
+      // Check if the boundaries are inside the image 
+      if (startPoint.x < 0 || startPoint.x > image.width || endPoint.x > image.width ){
+        outOfBound = true;
+        return;
+      };
+      if (startPoint.y < 0 || startPoint.y > image.height || endPoint.y > image.height ) {
+        outOfBound = true;
+        return;
+      }
+      console.log(startPoint);
+      console.log(endPoint);
+    
+      // Check if the rectangle is too big
+      // Bound the rectangle so we don't get undefined pixels
+      left = clip(left, 0, image.width);
+      top = clip(top, 0, image.height);
+      width = Math.floor(Math.min(width, Math.abs(image.width - left)));
+      height = Math.floor(Math.min(height, Math.abs(image.height - top)));
+      // Get the pixel data in the rectangular region
+      // get luminance of the whole image
+      const x = Math.round(left);
+      const y = Math.round(top);
+      let row, column, spIndex;
+      for (row = 0; row < height; row++) {
+        for (column = 0; column < width; column++) {
+          spIndex = (row + y) * image.columns + (column + x);
+          extentsLuminance[spIndex] = null;
+        }
+      }
+    });
+    //initialize with max and median of the whole image
+    if (!this.optimalWC && !this.optimalWW && outOfBound) {
+      const { windowWidth, windowCenter } = calculateWindowParameters(
+        fullImageLuminance
+      );
+      this.optimalWC = windowCenter;
+      this.optimalWW = windowWidth;
+    }
+    if (!outOfBound){ 
+      // remove the luminance of the selected area
+      let normalizedImageLuminance = [...extentsLuminance];
+      normalizedImageLuminance = normalizedImageLuminance.filter(
+        item => item !== null
+      );
+      // calculate maxminmean in the area 
+      if (config.minWindowWidth === undefined) {
+        config.minWindowWidth = 10;
+      }
+
+      const { windowWidth, windowCenter } = calculateWindowParameters(
+        normalizedImageLuminance
+      );
+      this.optimalWW = windowWidth;
+      this.optimalWC = windowCenter;
+    }
+    // Adjust the viewport window width and center based on the calculated values
+    const viewport = eventData.viewport;
+    /*
+      const minMaxMean = _calculateMinMaxMean(
+      normalizedImageLuminance,
+      image.minPixelValue,
+      image.maxPixelValue
+    );
+    viewport.voi.windowWidth = Math.max(
+      Math.abs(minMaxMean.max - minMaxMean.min),
+      config.minWindowWidth
+    );
+    viewport.voi.windowCenter = minMaxMean.mean;*/
+
+    // Unset any existing VOI LUT
+    console.log('setting ww/wl');
+    console.log(element);
+    if (this.optimalWC && this.optimalWW) {
+      viewport.voi.windowWidth = this.optimalWW;
+      viewport.voi.windowCenter = this.optimalWC;
+      viewport.voiLUT = undefined;
+      external.cornerstone.setViewport(element, viewport);
+      external.cornerstone.updateImage(element); 
+      updateViewportData(element.id,viewport, "WwwcRemoveRegion");
+    }
+  };
 }
 
 /**
@@ -662,93 +790,7 @@ function _createTextBoxContent(
   return textLines;
 }
 
-/**
- * Calculates the minimum and maximum value in the given pixel array
- * and updates the viewport of the element in the event.
- *
- * @private
- * @method _applyWWWCRegion
- * @param {Object} eventData an obect with the element and the image coming from the event
- * @param {Array} handles array of the objects of image handles
- * @param {Object} config The tool's configuration object
- * @returns {void}
- */
-const _applyWWWCRegion = function (eventData, handles, config) {
-  const { image, element } = eventData;
-  const fullImageLuminance = getLuminance(
-    element,
-    0,
-    0,
-    image.width,
-    image.height
-  );
-  let extentsLuminance = fullImageLuminance;
-  handles.forEach(handle => {
-    /*
-    if (_isEmptyObject(handle.start) || _isEmptyObject(handles.end)) {
-      return;
-    }
-    */
-    const { start: startPoint, end: endPoint } = handle;
-    // Get the rectangular region defined by the handles
-    let left = Math.min(startPoint.x, endPoint.x);
-    let top = Math.min(startPoint.y, endPoint.y);
-    let width = Math.abs(startPoint.x - endPoint.x);
-    let height = Math.abs(startPoint.y - endPoint.y);
-    // Bound the rectangle so we don't get undefined pixels
-    left = clip(left, 0, image.width);
-    top = clip(top, 0, image.height);
-    width = Math.floor(Math.min(width, Math.abs(image.width - left)));
-    height = Math.floor(Math.min(height, Math.abs(image.height - top)));
-    // Get the pixel data in the rectangular region
-    // get luminance of the whole image
-    const x = Math.round(left);
-    const y = Math.round(top);
-    let row, column, spIndex;
-    for (row = 0; row < height; row++) {
-      for (column = 0; column < width; column++) {
-        spIndex = (row + y) * image.columns + (column + x);
-        extentsLuminance[spIndex] = null;
-      }
-    }
-  });
-  // remove the luminance of the selected area
-  let normalizedImageLuminance = [...extentsLuminance];
-  normalizedImageLuminance = normalizedImageLuminance.filter(
-    item => item !== null
-  );
-  // calculate maxminmean in the area
 
-  // Adjust the viewport window width and center based on the calculated values
-  const viewport = eventData.viewport;
-
-  if (config.minWindowWidth === undefined) {
-    config.minWindowWidth = 10;
-  }
-
-  const { windowWidth, windowCenter } = calculateWindowParameters(
-    normalizedImageLuminance
-  );
-
-  /*
-    const minMaxMean = _calculateMinMaxMean(
-    normalizedImageLuminance,
-    image.minPixelValue,
-    image.maxPixelValue
-  );
-  viewport.voi.windowWidth = Math.max(
-    Math.abs(minMaxMean.max - minMaxMean.min),
-    config.minWindowWidth
-  );
-  viewport.voi.windowCenter = minMaxMean.mean;*/
-
-  // Unset any existing VOI LUT
-  viewport.voi.windowWidth = windowWidth;
-  viewport.voi.windowCenter = windowCenter;
-  viewport.voiLUT = undefined;
-  external.cornerstone.setViewport(element, viewport);
-  external.cornerstone.updateImage(element);
-};
 
 const calculateWindowParameters = function (pixelValues) {
   // Sort pixel values in ascending order

@@ -303,13 +303,19 @@ const setValue = (store: Store, data: SetPayload) => {
       break;
 
     case "contrast":
+      console.log('setting contrast');
       if (!viewport) {
         return;
       }
       v = v as [number, number];
-      viewport.viewport.voi.windowWidth = v[0];
-      viewport.viewport.voi.windowCenter = v[1];
-      triggerViewportListener(k);
+      if ( viewport.viewport && viewport.viewport.voi) {
+        console.log(viewport.viewport.voi.windowWidth);
+        console.log(viewport.viewport.voi.windowCenter);
+        viewport.viewport.voi.windowWidth = v[0];
+        viewport.viewport.voi.windowCenter = v[1];
+        triggerViewportListener(k);
+      }
+            
       break;
 
     case "dimensions":
