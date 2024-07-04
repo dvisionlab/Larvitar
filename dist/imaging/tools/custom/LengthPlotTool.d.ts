@@ -204,5 +204,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
      */
     createPlot(canvasId: string, ...dataSets: dataSets): void;
     clearPlotlyData(plotDiv: HTMLElement): void;
+    setupResizeObserver(plotDiv: HTMLElement): void;
+    removeResizeObserver(plotDiv: HTMLElement): void;
 }
 export {};
