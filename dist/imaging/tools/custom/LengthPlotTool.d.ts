@@ -202,7 +202,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
      * @param {dataSets} dataSets
      * @returns {void}
      */
-    createPlot(...dataSets: dataSets): void;
-    clearPlotlyData(myPlotDiv: HTMLElement): void;
+    createPlot(canvasId: string, ...dataSets: dataSets): void;
+    clearPlotlyData(plotDiv: HTMLElement): void;
 }
 export {};

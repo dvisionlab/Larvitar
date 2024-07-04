@@ -230,7 +230,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       belowResults.points = result.points;
       const data = [result, aboveResults, belowResults];
 
-      this.createPlot(...data);
+      this.createPlot(eventData!.element.id, ...data);
     }
   }
 
@@ -711,7 +711,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    * @param {dataSets} dataSets
    * @returns {void}
    */
-  createPlot(...dataSets: dataSets) {
+  createPlot(canvasId: string, ...dataSets: dataSets) {
     const traces = dataSets.map(({ points, pixelValues, color }) => ({
       x: points,
       y: pixelValues,
@@ -739,23 +739,23 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       responsive: true
     };
 
-    const myPlotDiv = document.getElementById("myPlot");
+    const plotDiv = document.getElementById(`plot-${canvasId}`);
     if (
       this.datahandles!.end.x! < this.borderLeft ||
       this.datahandles!.start.x! < this.borderLeft ||
       this.datahandles!.start.x! > this.borderRight ||
       this.datahandles!.end.x! > this.borderRight
     ) {
-      this.clearPlotlyData(myPlotDiv!);
-      myPlotDiv!.style.display = "none";
+      this.clearPlotlyData(plotDiv!);
+      plotDiv!.style.display = "none";
     } else {
-      myPlotDiv!.style.display = "block";
-      Plotly.react(myPlotDiv as Plotly.Root, traces as Plotly.Data[], layout);
+      plotDiv!.style.display = "block";
+      Plotly.react(plotDiv as Plotly.Root, traces as Plotly.Data[], layout);
     }
   }
 
-  clearPlotlyData(myPlotDiv: HTMLElement) {
-    Plotly.purge(myPlotDiv as Plotly.Root);
+  clearPlotlyData(plotDiv: HTMLElement) {
+    Plotly.purge(plotDiv as Plotly.Root);
     this.plotlydata = [];
   }
 }
