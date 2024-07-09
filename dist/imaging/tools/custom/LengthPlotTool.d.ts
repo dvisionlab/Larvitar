@@ -91,10 +91,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     /**
      * handles Mouse Up listener (to create the final plot)
      * @method
-     * @name handleMouseUp
+     * @name setupPlot
      * @returns {void}
      */
-    handleMouseUp(): void;
+    setupPlot(): void;
     /**
      * allows to change the offset between the three lines
      * @method
