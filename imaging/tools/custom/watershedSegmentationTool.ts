@@ -653,6 +653,9 @@ export default class WSToggleTool extends BaseBrushTool {
         // Combine the binary masks using bitwise_and
         cv.bitwise_and(lowerBinary, upperBinary, gray);
 
+        // const element = document.getElementById("outputContainer");
+        // Display the result using cv.imshow
+        //cv.imshow(element, gray);
         // get background
         let M = cv.Mat.ones(3, 3, cv.CV_8U);
         cv.erode(gray, gray, M);
@@ -662,7 +665,8 @@ export default class WSToggleTool extends BaseBrushTool {
         cv.distanceTransform(opening, distTrans, cv.DIST_L2, 5);
         cv.normalize(distTrans, distTrans, 1, 0, cv.NORM_INF);
         // get foreground
-        cv.threshold(distTrans, Fg, 0, 255, cv.THRESH_BINARY);
+        cv.threshold(distTrans, Fg, 0.4 * 1, 255, cv.THRESH_BINARY);
+        //cv.imshow(element, Fg);
         Fg.convertTo(Fg, cv.CV_8U, 1, 0);
         cv.subtract(Bg, Fg, unknown);
         // get connected components markers
@@ -680,6 +684,7 @@ export default class WSToggleTool extends BaseBrushTool {
 
         cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
         cv.watershed(src, markers);
+
         //postProcess(markers: cv.Mat,gray: cv.Mat,markersArray: number[]) //OPTIONAL
 
         shiftAndZeroOut(markersArray, 100);
