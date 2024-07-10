@@ -622,6 +622,11 @@ export default class LengthPlotTool extends BaseAnnotationTool {
               });
             }
           }
+
+          if (!this.eventData) {
+            this.eventData = evt.detail as EventData
+            this.image =  this.eventData.image;
+          }
           this.setupPlot()
         });
       }
