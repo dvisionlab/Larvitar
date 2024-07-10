@@ -70,7 +70,8 @@ export default class WSToggleTool extends BaseBrushTool {
     multiImage: false,
     startIndex: null,
     endIndex: null,
-    masksNumber: 10
+    masksNumber: 10,
+    thresholdFactor: 0
   };
   constructor(props = {}) {
     const defaultProps = {
@@ -80,7 +81,8 @@ export default class WSToggleTool extends BaseBrushTool {
         multiImage: false,
         startIndex: null,
         endIndex: null,
-        masksNumber: 10
+        masksNumber: 10,
+        thresholdFactor: 0
       },
       mixins: ["renderBrushMixin"]
     };
@@ -653,7 +655,7 @@ export default class WSToggleTool extends BaseBrushTool {
         // Combine the binary masks using bitwise_and
         cv.bitwise_and(lowerBinary, upperBinary, gray);
 
-        // const element = document.getElementById("outputContainer");
+        //const element = document.getElementById("outputContainer");
         // Display the result using cv.imshow
         //cv.imshow(element, gray);
         // get background
@@ -664,8 +666,14 @@ export default class WSToggleTool extends BaseBrushTool {
         // distance transform
         cv.distanceTransform(opening, distTrans, cv.DIST_L2, 5);
         cv.normalize(distTrans, distTrans, 1, 0, cv.NORM_INF);
-        // get foreground
-        cv.threshold(distTrans, Fg, 0.4 * 1, 255, cv.THRESH_BINARY);
+        // get foreground-> configurable factor (0 for lungs, 0.4 for mediastinum)
+        cv.threshold(
+          distTrans,
+          Fg,
+          this.configuration.thresholdFactor * 1,
+          255,
+          cv.THRESH_BINARY
+        );
         //cv.imshow(element, Fg);
         Fg.convertTo(Fg, cv.CV_8U, 1, 0);
         cv.subtract(Bg, Fg, unknown);

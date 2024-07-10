@@ -357,7 +357,7 @@
       const getDemoFileNames = function () {
         let demoFileList = [];
         for (let i = 101; i < 125; i++) {
-          let filename = "CT000" + i + ".dcm";
+          let filename = "I" + i;
           demoFileList.push(filename);
         }
         return demoFileList;
@@ -373,7 +373,7 @@
       larvitar.initSegmentationModule();
       const cornerstone = larvitar.cornerstone;
       async function createFile(fileName, cb) {
-        let response = await fetch("./demo/TUMOR/" + fileName);
+        let response = await fetch("./demo/covid/" + fileName);
         let data = await response.blob();
         let file = new File([data], fileName);
         demoFiles.push(file);
