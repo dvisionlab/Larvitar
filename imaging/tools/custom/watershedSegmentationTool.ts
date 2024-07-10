@@ -319,7 +319,12 @@ export default class WSToggleTool extends BaseBrushTool {
           lowerThreshold,
           upperThreshold
         ).then(result => {
-          this.maskArrayCurrentImage = result;
+          this._labelPicker(circleArray, image, result);
+          let filteredMarkersArray = result.map(value =>
+            value === this.pickedLabel ? value : 0
+          );
+
+          this.maskArrayCurrentImage = filteredMarkersArray;
           labelmap2D.pixelData = this.maskArrayCurrentImage as number[];
           external.cornerstone.updateImage(evt.detail.element);
           (DEFAULT_TOOLS["WSToggle"] as WSToolConfig).configuration.onload =
