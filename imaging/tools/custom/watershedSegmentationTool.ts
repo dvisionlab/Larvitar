@@ -70,7 +70,8 @@ export default class WSToggleTool extends BaseBrushTool {
     multiImage: false,
     startIndex: null,
     endIndex: null,
-    masksNumber: 10
+    masksNumber: 10,
+    thresholdFactor: 0
   };
   constructor(props = {}) {
     const defaultProps = {
@@ -80,7 +81,8 @@ export default class WSToggleTool extends BaseBrushTool {
         multiImage: false,
         startIndex: null,
         endIndex: null,
-        masksNumber: 10
+        masksNumber: 10,
+        thresholdFactor: 0
       },
       mixins: ["renderBrushMixin"]
     };
@@ -319,7 +321,12 @@ export default class WSToggleTool extends BaseBrushTool {
           lowerThreshold,
           upperThreshold
         ).then(result => {
-          this.maskArrayCurrentImage = result;
+          this._labelPicker(circleArray, image, result);
+          let filteredMarkersArray = result.map(value =>
+            value === this.pickedLabel ? value : 0
+          );
+
+          this.maskArrayCurrentImage = filteredMarkersArray;
           labelmap2D.pixelData = this.maskArrayCurrentImage as number[];
           external.cornerstone.updateImage(evt.detail.element);
           (DEFAULT_TOOLS["WSToggle"] as WSToolConfig).configuration.onload =
@@ -648,6 +655,9 @@ export default class WSToggleTool extends BaseBrushTool {
         // Combine the binary masks using bitwise_and
         cv.bitwise_and(lowerBinary, upperBinary, gray);
 
+        //const element = document.getElementById("outputContainer");
+        // Display the result using cv.imshow
+        //cv.imshow(element, gray);
         // get background
         let M = cv.Mat.ones(3, 3, cv.CV_8U);
         cv.erode(gray, gray, M);
@@ -656,8 +666,15 @@ export default class WSToggleTool extends BaseBrushTool {
         // distance transform
         cv.distanceTransform(opening, distTrans, cv.DIST_L2, 5);
         cv.normalize(distTrans, distTrans, 1, 0, cv.NORM_INF);
-        // get foreground
-        cv.threshold(distTrans, Fg, 0, 255, cv.THRESH_BINARY);
+        // get foreground-> configurable factor (0 for lungs, 0.4 for mediastinum)
+        cv.threshold(
+          distTrans,
+          Fg,
+          this.configuration.thresholdFactor * 1,
+          255,
+          cv.THRESH_BINARY
+        );
+        //cv.imshow(element, Fg);
         Fg.convertTo(Fg, cv.CV_8U, 1, 0);
         cv.subtract(Bg, Fg, unknown);
         // get connected components markers
@@ -675,6 +692,7 @@ export default class WSToggleTool extends BaseBrushTool {
 
         cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
         cv.watershed(src, markers);
+
         //postProcess(markers: cv.Mat,gray: cv.Mat,markersArray: number[]) //OPTIONAL
 
         shiftAndZeroOut(markersArray, 100);

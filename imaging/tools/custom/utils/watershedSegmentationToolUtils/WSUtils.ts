@@ -56,7 +56,7 @@ export function calculateThresholds(
   const meanNorm = mapToRange(mean, minThreshold, maxThreshold);
   const stdDevNorm = mapToRange(stddev, minThreshold, maxThreshold);
 
-  let xFactor = 1.7;
+  let xFactor = 1;
   xFactor = xFactor;
   let lowerThreshold = meanNorm - xFactor * stdDevNorm;
   let upperThreshold = meanNorm + xFactor * stdDevNorm;
