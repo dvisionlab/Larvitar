@@ -34,6 +34,7 @@ import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
 import BorderMagnifyTool from "./custom/BorderMagnifyTool";
 import CustomMouseWheelScrollTool from "./custom/customMouseWheelScrollTool";
 import WSToggleTool from "./custom/watershedSegmentationTool";
+import LivewireBrushTool from "./custom/livewireBrushTool";
 import LengthPlotTool from "./custom/LengthPlotTool";
 import LengthTool from "./custom/LengthUSTool";
 import RectangleRoiTool from "./custom/RectangleRoiUSTool";
@@ -527,6 +528,17 @@ const DEFAULT_TOOLS: {
     shortcut: "ctrl-s",
     type: "segmentation"
   },
+  LivewireBrush: {
+    name: "LivewireBrush",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "LivewireBrushTool",
+    description: "Brush only values inside livewire",
+    shortcut: "ctrl-t", //define the shortcut
+    type: "segmentation"
+  },
   WSToggle: {
     name: "WSToggle",
     viewports: "all",
@@ -565,6 +577,7 @@ const dvTools: {
   PolylineScissorsTool: PolylineScissorsTool,
   WwwcRemoveRegionTool: WwwcRemoveRegionTool,
   WSToggleTool: WSToggleTool,
+  LivewireBrushTool: LivewireBrushTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
   BorderMagnifyTool: BorderMagnifyTool,
