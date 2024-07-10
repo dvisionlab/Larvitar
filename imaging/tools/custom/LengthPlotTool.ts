@@ -751,13 +751,35 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     } else {
       plotDiv!.style.display = "block";
       Plotly.react(plotDiv as Plotly.Root, traces as Plotly.Data[], layout);
+
+      this.setupResizeObserver(plotDiv!)
     }
   }
 
   clearPlotlyData(plotDiv: HTMLElement) {
     Plotly.purge(plotDiv as Plotly.Root);
     this.plotlydata = [];
+    this.removeResizeObserver(plotDiv!)
   }
+
+  setupResizeObserver(plotDiv: HTMLElement) {
+    const resizeObserver = new ResizeObserver(() => {
+      if (plotDiv?.style.display == "block")
+        Plotly.Plots.resize(plotDiv as Plotly.Root);
+    });
+    resizeObserver.observe(plotDiv!);
+
+    (plotDiv as any).__resizeObserver = resizeObserver;
+  }
+
+  removeResizeObserver(plotDiv: HTMLElement) {
+    const observer = (plotDiv as any).__resizeObserver;
+    if (observer) {
+      observer.disconnect();
+      delete (plotDiv as any).__resizeObserver;
+    }
+  }
+
 }
 
 /**
