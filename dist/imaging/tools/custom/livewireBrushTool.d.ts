@@ -3,7 +3,6 @@
  *         a brush tool with livewire using a
  *         custom cornerstoneTools
  */
-import { Image } from "cornerstone-core";
 import { MeasurementMouseEvent } from "../types";
 declare const BaseBrushTool: any;
 export default class LivewireBrushTool extends BaseBrushTool {
@@ -13,8 +12,10 @@ export default class LivewireBrushTool extends BaseBrushTool {
     private throttleTime;
     private throttledRenderBrush;
     constructor(props?: {});
-    calculateGradient(image: Image, pixelData: number[]): any[];
-    dijkstra(image: Image, startX: number, startY: number, endX: number, endY: number): number[][];
+    dijkstra(image: Float32Array, width: number, height: number, voiRange: {
+        lower: number;
+        upper: number;
+    }, brushRadius: number, startPoint: [number, number]): [number, number][];
     renderToolData(evt: MeasurementMouseEvent): void;
     renderBrush(evt: MeasurementMouseEvent): void;
     _paint(evt: MeasurementMouseEvent): void;

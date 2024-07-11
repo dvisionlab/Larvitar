@@ -8,6 +8,7 @@
 import { Image } from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { MeasurementMouseEvent } from "../types";
+import { LivewireScissors } from "./utils/livewireUtils/livewireScissors";
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(
@@ -117,22 +118,6 @@ export default class LivewireBrushTool extends BaseBrushTool {
     this.path = null; // State to store the current Livewire path
   }
 
-  // Calculate the gradient magnitude of the image
-  calculateGradient(image: Image, pixelData: number[]) {
-    const { rows, columns } = image;
-    const gradient = new Array(rows * columns);
-
-    for (let y = 1; y < rows - 1; y++) {
-      for (let x = 1; x < columns - 1; x++) {
-        const gx =
-          pixelData[y * columns + (x + 1)] - pixelData[y * columns + (x - 1)];
-        const gy =
-          pixelData[(y + 1) * columns + x] - pixelData[(y - 1) * columns + x];
-        gradient[y * columns + x] = Math.sqrt(gx * gx + gy * gy);
-      }
-    }
-    return gradient;
-  }
   /*livewireIsogradient(image: Image, startX: number, startY: number) {
     const { rows, columns } = image;
 
@@ -174,72 +159,51 @@ export default class LivewireBrushTool extends BaseBrushTool {
   }*/
 
   dijkstra(
-    image: Image,
-    startX: number,
-    startY: number,
-    endX: number,
-    endY: number
-  ) {
-    const { rows, columns } = image;
-    if (!this.gradient) {
-      this.gradient = this.calculateGradient(image, this.pixelData!);
-    }
-    const costs = new Float32Array(rows * columns).fill(Infinity);
-    const prev = new Int32Array(rows * columns).fill(-1);
-    const visited = new Uint8Array(rows * columns);
+    image: Float32Array,
+    width: number,
+    height: number,
+    voiRange: { lower: number; upper: number },
+    brushRadius: number,
+    startPoint: [number, number]
+  ): [number, number][] {
+    // Step 1: Create a LivewireScissors instance from raw pixel data
+    const scissors = LivewireScissors.createInstanceFromRawPixelData(
+      image,
+      width,
+      height,
+      voiRange
+    );
 
-    const queue = new MinHeap();
-    const startIdx = startY * columns + startX;
-    const endIdx = endY * columns + endX;
-    costs[startIdx] = 0;
-    queue.insert({ index: startIdx, cost: 0 });
+    // Step 2: Start the Livewire search from the specified startPoint
+    scissors.startSearch(startPoint);
 
-    while (!queue.isEmpty()) {
-      const current = queue.extractMin();
-      const currentIdx = current.index;
-      const currentX = currentIdx % columns;
-      const currentY = Math.floor(currentIdx / columns);
+    // Step 3: Define the brush delta based on brush radius
+    const delta = Math.ceil(brushRadius / 2);
 
-      if (currentIdx === endIdx) {
+    // Step 4: Perform Livewire path finding
+    let currentPoint = startPoint;
+    const path: [number, number][] = [currentPoint];
+
+    while (true) {
+      // Find the minimum cost nearby point
+      const nextPoint = scissors.findMinNearby(currentPoint, delta);
+
+      // If the next point is the same as the current point, break the loop
+      if (
+        nextPoint[0] === currentPoint[0] &&
+        nextPoint[1] === currentPoint[1]
+      ) {
         break;
       }
 
-      visited[currentIdx] = 1;
+      // Add the next point to the path
+      path.push(nextPoint);
 
-      const neighbors = [
-        [currentX - 1, currentY],
-        [currentX + 1, currentY],
-        [currentX, currentY - 1],
-        [currentX, currentY + 1]
-      ];
-
-      for (const [nx, ny] of neighbors) {
-        if (nx < 0 || nx >= columns || ny < 0 || ny >= rows) {
-          continue;
-        }
-
-        const neighborIdx = ny * columns + nx;
-        if (visited[neighborIdx]) {
-          continue;
-        }
-
-        const newCost = costs[currentIdx] + this.gradient[neighborIdx];
-        if (newCost < costs[neighborIdx]) {
-          costs[neighborIdx] = newCost;
-          prev[neighborIdx] = currentIdx;
-          queue.insert({ index: neighborIdx, cost: newCost });
-        }
-      }
+      // Update the current point
+      currentPoint = nextPoint;
     }
 
-    const path = [];
-    let idx = endIdx;
-    while (idx !== -1) {
-      path.push([idx % columns, Math.floor(idx / columns)]);
-      idx = prev[idx];
-    }
-
-    return path.reverse();
+    return path;
   }
 
   renderToolData(evt: MeasurementMouseEvent) {
@@ -286,11 +250,12 @@ export default class LivewireBrushTool extends BaseBrushTool {
     }
 
     const path = this.dijkstra(
-      eventData.image,
-      mousePosition.x,
-      mousePosition.y,
-      x,
-      y
+      eventData.image.getImageData() as any,
+      eventData.image.width,
+      eventData.image.height,
+      eventData.viewport.voiLUT,
+      configuration.radius,
+      mousePosition
     );
     console.log(path);
     this.path = path;
@@ -354,9 +319,7 @@ export default class LivewireBrushTool extends BaseBrushTool {
       return;
     }
 
-    const path =
-      this.path ??
-      this.dijkstra(eventData.image, lastPoints[0].x, lastPoints[0].y, x, y);
+    const path = this.path;
 
     this.path = path; // Store the current path for rendering
 
