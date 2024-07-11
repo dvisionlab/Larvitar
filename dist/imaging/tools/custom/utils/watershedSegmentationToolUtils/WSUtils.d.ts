@@ -10,6 +10,7 @@ import { Image } from "cornerstone-core";
  * @returns {void}
  */
 export declare function mapToRange(value: number, inMin: number, inMax: number): number;
+export declare function applyWindowingAndRescale(image: Image): Uint8Array;
 /**
  * calculates thresholds for watershed
  * @name calculateThresholds
@@ -21,7 +22,7 @@ export declare function mapToRange(value: number, inMin: number, inMax: number):
  * @param  {number} maxThreshold //max pixel greyscale value in image
  * @returns {void}
  */
-export declare function calculateThresholds(image: Image, dicomPixelData: number[], circleArray: number[][], minThreshold: number, maxThreshold: number): {
+export declare function calculateThresholds(image: Image, dicomPixelData: number[], circleArray: number[][], minThreshold: number, maxThreshold: number, xFactor: number): {
     minThreshold: number;
     maxThreshold: number;
     lowerThreshold: number;

@@ -68,6 +68,7 @@ export type WSConfig = {
   masksNumber: number;
   onload?: boolean;
   thresholdFactor: number;
+  xFactor: number;
 };
 export type WSToolConfig = {
   name: string;

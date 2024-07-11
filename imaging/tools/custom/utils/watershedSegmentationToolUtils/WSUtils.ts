@@ -28,6 +28,57 @@ export function mapToRange(value: number, inMin: number, inMax: number) {
   return ((value - inMin) / (inMax - inMin)) * 255;
 }
 
+export function applyWindowingAndRescale(image: Image) {
+  const width = image.width;
+  const height = image.height;
+  const ww = image.windowWidth;
+  const wc = image.windowCenter;
+  const slope = image.slope;
+  const intercept = image.intercept;
+  const minPixelValue = image.minPixelValue;
+  // Only 3 channels, since we use WebGL's RGB texture format
+
+  const storedPixelData = image.getPixelData();
+  const numStoredPixels = width * height * 4; // Assuming input has 4 channels (RGBA)
+  const dataStart = new Uint8Array(numStoredPixels);
+  const data = new Uint8Array(numStoredPixels);
+
+  if (minPixelValue < 0) {
+    for (let i = 0; i < storedPixelData.length; i++) {
+      dataStart[i * 4] = storedPixelData[i] - minPixelValue; // Red
+      dataStart[i * 4 + 1] = dataStart[i * 4]; // Green
+      dataStart[i * 4 + 2] = dataStart[i * 4]; // Blue
+      dataStart[i * 4 + 3] = 255; // Blue
+    }
+  } else {
+    for (let i = 0; i < storedPixelData.length; i++) {
+      dataStart[i * 4] = storedPixelData[i]; // Red
+      dataStart[i * 4 + 1] = dataStart[i * 4]; // Green
+      dataStart[i * 4 + 2] = dataStart[i * 4]; // Blue
+      dataStart[i * 4 + 3] = 255; // Blue
+    }
+  }
+
+  for (let i = 0; i < dataStart.length; i++) {
+    // Get original pixel values and rescale
+    if ((i + 1) % 4 === 0) {
+      data[i] = 1;
+    } else {
+      let r = dataStart[i] * 256 * slope + intercept / 256;
+
+      // Apply window settings
+      const center0 = wc - 0.5 - minPixelValue;
+      const width0 = Math.max(ww, 1.0);
+
+      r = (r - center0) / width0 + 0.5;
+
+      // Store in output data
+      data[i] = r;
+    }
+  }
+  return data;
+}
+
 /**
  * calculates thresholds for watershed
  * @name calculateThresholds
@@ -39,12 +90,14 @@ export function mapToRange(value: number, inMin: number, inMax: number) {
  * @param  {number} maxThreshold //max pixel greyscale value in image
  * @returns {void}
  */
+//TODO-Giulio: controlla se mediana o moda sono meglio
 export function calculateThresholds(
   image: Image,
   dicomPixelData: number[],
   circleArray: number[][],
   minThreshold: number,
-  maxThreshold: number
+  maxThreshold: number,
+  xFactor: number
 ) {
   const { mean, stddev } = calculateStats(image, dicomPixelData, circleArray);
 
@@ -56,8 +109,6 @@ export function calculateThresholds(
   const meanNorm = mapToRange(mean, minThreshold, maxThreshold);
   const stdDevNorm = mapToRange(stddev, minThreshold, maxThreshold);
 
-  let xFactor = 1;
-  xFactor = xFactor;
   let lowerThreshold = meanNorm - xFactor * stdDevNorm;
   let upperThreshold = meanNorm + xFactor * stdDevNorm;
   return { minThreshold, maxThreshold, lowerThreshold, upperThreshold };

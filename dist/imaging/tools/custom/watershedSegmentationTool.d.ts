@@ -116,7 +116,7 @@ export default class WSToggleTool extends BaseBrushTool {
      * @returns {Promise<void>}
      *
      */
-    _applyWatershedSegmentationMultiImage(cachedImages: CachedImage[], startIndex: number, endIndex: number, dicomPixelData: number[], minThreshold: number, maxThreshold: number, lowerThreshold: number, upperThreshold: number): Promise<void>;
+    _applyWatershedSegmentationMultiImage(cachedImages: CachedImage[], startIndex: number, endIndex: number, dicomPixelData: number[], minThreshold: number, maxThreshold: number, lowerThreshold: number, upperThreshold: number, circleArray: number[][], image: Image): Promise<void>;
     /**
      * Applies Watershed segmentation algorithm on pixel data using opencv.js
      * and evaluates the mask to apply to the original dicom image
@@ -171,6 +171,16 @@ export default class WSToggleTool extends BaseBrushTool {
      * @returns {void}
      */
     _labelPicker(circleArray: number[][], image: Image, currentArray: number[]): void;
+    /**
+     * Allows to pick a selected label parts when using alt+click for the first time
+     *@name _labelPicker
+     * @protected
+     * @param  {number[][]} circleArray //The selected circle coordinates Array
+     * @param  {Image} image //the dicom image
+     * @param  {number[]} currentArray //the current image array
+     * @returns {void}
+     */
+    _labelKeeper(circleArray: number[][], image: Image, currentArray: number[]): void;
     /**
      * Allows to associate the previously picked label on the selected label area when using alt+click for the second time
      * @name _manualPainter

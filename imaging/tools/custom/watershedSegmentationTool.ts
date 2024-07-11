@@ -23,7 +23,7 @@ import store from "../../imageStore";
 import {
   mapToRange,
   calculateThresholds,
-  shiftAndZeroOut
+  applyWindowingAndRescale
 } from "./utils/watershedSegmentationToolUtils/WSUtils";
 import { getMaxPixelValue } from "../../imageUtils";
 import {
@@ -36,7 +36,9 @@ import {
   pixelData3D
 } from "../types";
 import { Series } from "../../types";
-
+const freehandRoiCursor = cornerstoneTools.importInternal(
+  "cursors/freehandRoiCursor"
+);
 //global variable
 declare var cv: any; //opencv-js
 
@@ -71,19 +73,23 @@ export default class WSToggleTool extends BaseBrushTool {
     startIndex: null,
     endIndex: null,
     masksNumber: 10,
-    thresholdFactor: 0
+    thresholdFactor: 0,
+    xFactor: 1
   };
   constructor(props = {}) {
     const defaultProps = {
       name: "WSToggle",
       supportedInteractionTypes: ["Mouse", "Touch"],
+      //TODO-Giulio: fine-tuning parametri
       configuration: {
         multiImage: false,
         startIndex: null,
         endIndex: null,
         masksNumber: 10,
-        thresholdFactor: 0
+        thresholdFactor: 0,
+        xFactor: 1
       },
+      svgCursor: freehandRoiCursor,
       mixins: ["renderBrushMixin"]
     };
 
@@ -307,11 +313,13 @@ export default class WSToggleTool extends BaseBrushTool {
             this.dicomPixelData,
             circleArray,
             this.minThreshold!,
-            this.maxThreshold!
+            this.maxThreshold!,
+            this.configuration.xFactor
           );
 
         this.maskArrayCurrentImage = new Array(this.width * this.height);
-
+        this.circleArray = circleArray;
+        this.image = image;
         this._applyWatershedSegmentation(
           this.width,
           this.height,
@@ -321,7 +329,8 @@ export default class WSToggleTool extends BaseBrushTool {
           lowerThreshold,
           upperThreshold
         ).then(result => {
-          this._labelPicker(circleArray, image, result);
+          //keep only the label of the selected point
+          this._labelKeeper(circleArray, image, result);
           let filteredMarkersArray = result.map(value =>
             value === this.pickedLabel ? value : 0
           );
@@ -415,7 +424,8 @@ export default class WSToggleTool extends BaseBrushTool {
             this.dicomPixelData,
             circleArray,
             this.minThreshold!,
-            this.maxThreshold!
+            this.maxThreshold!,
+            this.configuration.xFactor
           );
         this.maskArray = new Array(this.slicesNumber);
         this.pixelData = new Array(this.slicesNumber);
@@ -427,8 +437,12 @@ export default class WSToggleTool extends BaseBrushTool {
           minThreshold,
           maxThreshold,
           lowerThreshold,
-          upperThreshold
+          upperThreshold,
+          circleArray,
+          image
         ).then(() => {
+          //keep only the label of the selected point
+
           let pixelMask3D = this._drawBrushPixels(this.maskArray!);
           labelmap3D.labelmaps2D = pixelMask3D;
           external.cornerstone.updateImage(evt.detail.element);
@@ -534,7 +548,9 @@ export default class WSToggleTool extends BaseBrushTool {
     minThreshold: number,
     maxThreshold: number,
     lowerThreshold: number,
-    upperThreshold: number
+    upperThreshold: number,
+    circleArray: number[][],
+    image: Image
   ) {
     const promises: Promise<number[]>[] = [];
     const selectedItems = cachedImages.slice(startIndex, endIndex);
@@ -563,6 +579,11 @@ export default class WSToggleTool extends BaseBrushTool {
           lowerThreshold,
           upperThreshold
         );
+        //check if necessary/useful
+        // this._labelKeeper(circleArray, image, result);
+        /*let filteredMarkersArray = result.map(value =>
+          value === this.pickedLabel ? value : 0
+        );*/
 
         this.maskArray![trueindex] = result;
 
@@ -607,42 +628,72 @@ export default class WSToggleTool extends BaseBrushTool {
   ): Promise<number[]> {
     return new Promise((resolve, reject) => {
       try {
-        // Assuming 8-bit unsigned integer pixel values
-        // Create a new array for PNG pixel data with 4 channels: RGB
-        const pngPixelData = new Uint8Array(width * height * 4);
+        // Array to store the indices
+        const indexArray = [];
 
-        for (let i = 0; i < dicomPixelData.length; i++) {
-          // Assuming each integer represents a grayscale value
-          pngPixelData[i * 4] = mapToRange(
-            dicomPixelData[i],
-            minThreshold,
-            maxThreshold
-          ); // Red channel
-          pngPixelData[i * 4 + 1] = pngPixelData[i * 4]; // Green channel
-          pngPixelData[i * 4 + 2] = pngPixelData[i * 4]; // Blue channel
-          pngPixelData[i * 4 + 3] = 255; // Alpha channel (fully opaque)
+        // Loop through each coordinate and convert to index
+        for (const [x, y] of this.circleArray) {
+          // Ensure the coordinates are within the image bounds
+          if (x >= 0 && x < width && y >= 0 && y < height) {
+            const index = y * width + x;
+            indexArray.push(index);
+          }
         }
 
+        // Create a Set from indexArray for faster lookups
+        const indexSet = new Set(indexArray);
+
+        // Assuming 8-bit unsigned integer pixel values
+        // Create a new array for PNG pixel data with 4 channels: RGB
+
+        //TODO - Giulio: check why it doesnt work
+        /*const pngPixelDataWWWL = applyWindowingAndRescale(
+          this.image
+        );*/
+
+        const pngPixelData = new Uint8Array(width * height * 4);
+        for (let i = 0; i < dicomPixelData.length; i++) {
+          if (indexSet.has(i)) {
+            // Assuming each integer represents a grayscale value
+            pngPixelData[i * 4] = mapToRange(
+              dicomPixelData[i],
+              minThreshold,
+              maxThreshold
+            ); // Red channel
+            pngPixelData[i * 4 + 1] = pngPixelData[i * 4]; // Green channel
+            pngPixelData[i * 4 + 2] = pngPixelData[i * 4]; // Blue channel
+            pngPixelData[i * 4 + 3] = 255; // Alpha channel (fully opaque)}
+          } else {
+            pngPixelData[i * 4] = 0;
+            pngPixelData[i * 4 + 1] = pngPixelData[i * 4]; // Green channel
+            pngPixelData[i * 4 + 2] = pngPixelData[i * 4]; // Blue channel
+            pngPixelData[i * 4 + 3] = 0; //
+          }
+        }
         // Create an OpenCV Mat object from the PNG pixel data
-        let src = new cv.Mat(height, width, cv.CV_8UC4); // 3 channels: RGB
+        let src = new cv.Mat(height, width, cv.CV_8UC4); // 4 channels: RGBA
         src.data.set(pngPixelData);
 
         let gray = new cv.Mat();
         cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+        //TODO - Giulio: uncomment this to debug masks
+        //const element = document.getElementById("outputContainer");
+        //cv.imshow(element, gray);
+        // Generate a mask for the circular region
+        let mask = new cv.Mat.zeros(height, width, cv.CV_8U);
+        for (let [x, y] of this.circleArray) {
+          if (x >= 0 && x < width && y >= 0 && y < height) {
+            mask.ucharPtr(y, x)[0] = 255; // Set the pixel inside the circle to white (255)
+          }
+        }
 
-        //let contourArray=preProcess(gray,src)//OPTIONAL
+        // Apply the mask to the grayscale image
+        cv.bitwise_and(gray, mask, gray);
 
-        let opening = new cv.Mat();
-        let Bg = new cv.Mat();
-        let Fg = new cv.Mat();
-        let distTrans = new cv.Mat();
-        let unknown = new cv.Mat();
-        let markers = new cv.Mat();
-        //gray and threshold image
+        // Perform preprocessing steps as needed (e.g., Gaussian blur, thresholding)
         cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
         let lowerBinary = new cv.Mat();
         let upperBinary = new cv.Mat();
-
         cv.threshold(gray, lowerBinary, lowerThreshold, 255, cv.THRESH_BINARY);
         cv.threshold(
           gray,
@@ -651,13 +702,21 @@ export default class WSToggleTool extends BaseBrushTool {
           255,
           cv.THRESH_BINARY_INV
         );
-
-        // Combine the binary masks using bitwise_and
         cv.bitwise_and(lowerBinary, upperBinary, gray);
-
-        //const element = document.getElementById("outputContainer");
+        // const element = document.getElementById("outputContainer");
         // Display the result using cv.imshow
-        //cv.imshow(element, gray);
+        // cv.imshow(element, gray);
+        //let contourArray=preProcess(gray,src)//OPTIONAL
+
+        let opening = new cv.Mat();
+        let Bg = new cv.Mat();
+        let Fg = new cv.Mat();
+        let distTrans = new cv.Mat();
+        let unknown = new cv.Mat();
+        let markers = new cv.Mat();
+        cv.connectedComponents(gray, markers);
+        // Display the result using cv.imshow
+
         // get background
         let M = cv.Mat.ones(3, 3, cv.CV_8U);
         cv.erode(gray, gray, M);
@@ -677,6 +736,7 @@ export default class WSToggleTool extends BaseBrushTool {
         //cv.imshow(element, Fg);
         Fg.convertTo(Fg, cv.CV_8U, 1, 0);
         cv.subtract(Bg, Fg, unknown);
+        //cv.imshow(element, Fg);
         // get connected components markers
         cv.connectedComponents(Fg, markers);
 
@@ -684,9 +744,17 @@ export default class WSToggleTool extends BaseBrushTool {
         for (let i = 0; i < markers.rows; i++) {
           for (let j = 0; j < markers.cols; j++) {
             const markerValue = markers.ucharPtr(i, j)[0] + 1;
-            markers.intPtr(i, j)[0] =
-              unknown.ucharPtr(i, j)[0] === 255 ? 0 : markerValue;
-            markersArray[markers.cols * i + j - 1] = markers.intPtr(i, j)[0];
+
+            if (
+              unknown.ucharPtr(i, j)[0] === 0 &&
+              mask.ucharPtr(i, j)[0] === 255
+            ) {
+              markers.intPtr(i, j)[0] = markerValue;
+              markersArray[i * markers.cols + j] = markerValue;
+            } else {
+              markers.intPtr(i, j)[0] = 0;
+              markersArray[i * markers.cols + j] = 0;
+            }
           }
         }
 
@@ -695,9 +763,9 @@ export default class WSToggleTool extends BaseBrushTool {
 
         //postProcess(markers: cv.Mat,gray: cv.Mat,markersArray: number[]) //OPTIONAL
 
-        shiftAndZeroOut(markersArray, 100);
+        //shiftAndZeroOut(markersArray, 1000);
 
-        let label = 1;
+        let label = 0;
         const rows = markers.rows;
         const cols = markers.cols;
         const lastRowIndex = rows - 1;
@@ -707,14 +775,13 @@ export default class WSToggleTool extends BaseBrushTool {
           for (let j = 0; j < cols; j++) {
             const markersArrayIndex = i * cols + j;
             const markerValue = markers.intPtr(i, j)[0];
-
-            if (markerValue === -1) {
+            if (markerValue === -1 && mask.ucharPtr(i, j)[0] === 255) {
               // Border pixel
               markersArray[markersArrayIndex] =
                 i === 0 || j === 0 || i === lastRowIndex || j === lastColIndex
                   ? 0
                   : label;
-            } else if (markerValue >= 1) {
+            } else if (markerValue >= 1 && mask.ucharPtr(i, j)[0] === 255) {
               // Inside pixel (non-zero marker values)
               label =
                 markerValue > configuration.masksNumber!
@@ -730,7 +797,8 @@ export default class WSToggleTool extends BaseBrushTool {
         {
           console.log("contour")
           markersArray[markersArrayIndex] = 1;
-        }*/ //IF PREPROCESS IS USED
+        }*/
+          //IF PREPROCESS IS USED
         }
         //iteration to set mask markers
         function processIteration(i: number, configuration: WSConfig) {
@@ -762,59 +830,6 @@ export default class WSToggleTool extends BaseBrushTool {
         reject(error);
       }
     });
-    //ALTERNATIVE INSTEAD OF PROCESSITERATION: SIMPLE NESTED FOR CYCLE
-    //pros: +VELOCE, SPECIALMENTE NELLA WS SU SINGOLA SLICE
-    //cons: BLOCKS THE UI (NOTARE CHE LA UI E' COMUNQUE BLOCCATA NEL CASO MULTISLICE ANCHE USANDO PROCESSITERATION,
-    //ANDREBBE SPEZZATO IN CHUNKS ANCHE IL CICLO FOR SULLE IMMAGINI NEL CASO MULTISLICE, MA SI ROMPE)
-    //TODO: check se conviene tenere la versione vecchia
-    //for (let i = 0; i < rows; i++) {
-    //for (let j = 0; j < cols; j++) {
-    //const markersArrayIndex = i * markers.cols + j;
-    //const markerValue = markers.intPtr(i, j)[0];
-
-    //if (markerValue === -1) {
-    // Border pixel
-    //markersArray[markersArrayIndex] =
-    //  i === 0 || j === 0 || i === lastRowIndex || j === lastColIndex
-    //   ? 0
-    //   : label;
-    //} else if (markerValue >= 1) {
-    // // Inside pixel (non-zero marker values)
-    //label =
-    // markerValue > this.configuration.masksNumber
-    //   ? this.configuration.masksNumber
-    //  : markerValue;
-    // markersArray[markersArrayIndex] = label;
-    // } else {
-    //// Background pixel (marker value == 0)
-    // markersArray[markersArrayIndex] = 0;
-    // }
-    /*if(contourArray[markersArrayIndex]===1)
-        {
-          console.log("contour")
-          markersArray[markersArrayIndex] = 1;
-        }*/
-    //}
-    //}
-
-    //this._processAsync(10, markers, markersArray, label);
-
-    // delete unused Mat elements
-    //src.delete();
-    //gray.delete();
-    //opening.delete();
-    //Bg.delete();
-    //Fg.delete();
-    //distTrans.delete();
-    //unknown.delete();
-    //markers.delete();
-    //M.delete();
-    //// mask array to mask a DICOM image
-    //resolve(markersArray);
-    //} catch (error) {
-    //reject(error);
-    //}
-    //});
   }
 
   /**
@@ -901,7 +916,25 @@ export default class WSToggleTool extends BaseBrushTool {
     let max = getMaxPixelValue(counts);
     this.pickedLabel = counts.findIndex(count => count === max);
   }
+  /**
+   * Allows to pick a selected label parts when using alt+click for the first time
+   *@name _labelPicker
+   * @protected
+   * @param  {number[][]} circleArray //The selected circle coordinates Array
+   * @param  {Image} image //the dicom image
+   * @param  {number[]} currentArray //the current image array
+   * @returns {void}
+   */
+  _labelKeeper(circleArray: number[][], image: Image, currentArray: number[]) {
+    // Calculate the average coordinates
 
+    const halfCirclePoint = circleArray[Math.round(circleArray.length / 2) - 1];
+
+    const centerX = halfCirclePoint[0];
+    const centerY = halfCirclePoint[1];
+
+    this.pickedLabel = currentArray[centerY * image.rows + centerX];
+  }
   /**
    * Allows to associate the previously picked label on the selected label area when using alt+click for the second time
    * @name _manualPainter
