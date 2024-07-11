@@ -7,7 +7,20 @@
  */
 export default class ThresholdsBrushTool {
     constructor(props?: {});
+    thresholds: any;
+    xFactor: any;
     touchDragCallback: (evt: Object) => void;
+    /**
+      * Event handler for MOUSE_UP during the drawing event loop.
+      *
+      * @protected
+      * @event
+      * @param {Object} evt - The event.
+      * @returns {void}
+      */
+    protected _drawingMouseUpCallback(evt: Object): void;
+    _drawing: boolean | undefined;
+    _mouseUpRender: boolean | undefined;
     /**
      * Paints the data to the labelmap.
      *
@@ -16,4 +29,10 @@ export default class ThresholdsBrushTool {
      * @returns {void}
      */
     protected _paint(evt: Object): void;
+    _calculateThresholdsWithoutMap(image: any, dicomPixelData: any, circleArray: any, minThreshold: any, maxThreshold: any): {
+        minThreshold: any;
+        maxThreshold: any;
+        lowerThreshold: number;
+        upperThreshold: number;
+    };
 }
