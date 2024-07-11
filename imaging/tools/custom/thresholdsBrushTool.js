@@ -115,6 +115,8 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
         y, 
         this.thresholds ? true : false
       );
+      console.log('pointerArray: ')
+      console.log(pointerArray)
     }
 
     // Draw / Erase the active color.
