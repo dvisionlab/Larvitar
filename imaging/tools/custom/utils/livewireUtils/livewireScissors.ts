@@ -116,8 +116,8 @@ export class LivewireScissors {
       Math.max(0, y - delta),
       Math.min(y + delta + 1, this.height)
     ];
-    let minValue = costs[this._getPointIndex(y, x)] * 0.8;
 
+    let minValue = costs[this._getPointIndex(y, x)] * 0.8;
     let minPoint = testPoint;
     for (let xTest = xRange[0]; xTest < xRange[1]; xTest++) {
       for (let yTest = yRange[0]; yTest < yRange[1]; yTest++) {
@@ -231,6 +231,7 @@ export class LivewireScissors {
    */
   private _getPointIndex = (row: number, col: number) => {
     const { width } = this;
+
     return row * width + col;
   };
 

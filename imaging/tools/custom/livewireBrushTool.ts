@@ -120,46 +120,6 @@ export default class LivewireBrushTool extends BaseBrushTool {
     this.path = null; // State to store the current Livewire path
   }
 
-  /*livewireIsogradient(image: Image, startX: number, startY: number) {
-    const { rows, columns } = image;
-
-    // Initialize gradient and pixel data if not already initialized
-    if (!this.pixelData) this.pixelData = image.getPixelData();
-    const gradient = this.calculateGradient(image, this.pixelData);
-    console.log(gradient);
-    // Initialize starting point
-    let currentX = startX;
-    let currentY = startY;
-
-    // Trace along the isogradient lines
-    const pixelArray = [];
-
-    while (
-      currentX >= 0 &&
-      currentX < columns &&
-      currentY >= 0 &&
-      currentY < rows
-    ) {
-      // Determine gradient direction at current pixel
-      const gradientIndex =
-        Math.floor(currentY) * columns + Math.floor(currentX);
-      const gx = gradient[gradientIndex];
-
-      // Since gradient is already computed as the magnitude, we need to find gy using the gradient direction
-      // Compute gy (assuming gradient is normalized to 1)
-      const gy = Math.sqrt(1 - gx * gx); // Use the Pythagorean theorem
-
-      // Move to the next pixel in the gradient direction
-      currentX += gx;
-      currentY += gy;
-
-      // Add current pixel to the pixel array
-      pixelArray.push([currentX, currentY]);
-    }
-    console.log(pixelArray);
-    return pixelArray;
-  }*/
-
   dijkstra(
     image: Image,
     width: number,
@@ -172,17 +132,18 @@ export default class LivewireBrushTool extends BaseBrushTool {
   ): { path: [number, number][]; scissors: LivewireScissors } {
     const pixelData = image.getPixelData();
     // Step 1: Create or reuse LivewireScissors instance from raw pixel data
-    const livewireScissors =
-      scissors ||
-      LivewireScissors.createInstanceFromRawPixelData(
-        pixelData,
-        width,
-        height,
-        voiRange
-      );
+    const livewireScissors = LivewireScissors.createInstanceFromRawPixelData(
+      pixelData,
+      width,
+      height,
+      voiRange
+    );
 
     // Step 2: Start the Livewire search from the specified startPoint (mouse cursor)
-    livewireScissors.startSearch([startPoint.x, startPoint.y]);
+    livewireScissors.startSearch([
+      Math.floor(startPoint.x),
+      Math.floor(startPoint.y)
+    ]);
 
     // Step 3: Define the brush delta based on brush radius
     const delta = Math.ceil(brushRadius / 2);
@@ -190,40 +151,22 @@ export default class LivewireBrushTool extends BaseBrushTool {
     // Step 4: Create or reuse LivewirePath instance
     const livewirePath = new LivewirePath();
     // Step 5: Perform Livewire path finding
-    //TODO - Giulio: fai un ciclo for su tutte le coordinate del cerchio e non solo sul cursore del mouse
-    /*const circleArray = getCircle(
-      brushRadius,
-      image.rows,
-      image.columns,
-      startPoint.x,
-      startPoint.y
-    );*/
-
+    //TODO - Giulio:
     let currentPoint = [startPoint.x, startPoint.y] as [number, number];
-    livewirePath.addPoint(currentPoint);
-    while (true) {
-      // Find the minimum cost nearby point
-      const nextPoint = livewireScissors.findMinNearby(
-        currentPoint as [number, number],
-        delta
-      );
-      // If the next point is the same as the current point, break the loop
-      if (
-        nextPoint[0] === currentPoint[0] &&
-        nextPoint[1] === currentPoint[1]
-      ) {
-        break;
-      }
-      const pathPoints = livewireScissors.findPathToPoint(nextPoint);
-      // Add the next point to the LivewirePath
-      //use addPoints instead of addpoint to add an array of point-> speeds up the algorithm
-      livewirePath.addPoints(pathPoints);
 
-      // Update the current point
-      currentPoint = nextPoint;
-    }
+    livewirePath.addPoint(currentPoint);
+
+    // Find the minimum cost nearby point
+    const nextPoint = livewireScissors.findMinNearby(
+      currentPoint as [number, number],
+      delta
+    );
+    const pathPoints = livewireScissors.findPathToPoint(nextPoint);
+    // Add the next point to the LivewirePath
+    //use addPoints instead of addpoint to add an array of point-> speeds up the algorithm
+    livewirePath.addPoints(pathPoints);
+
     this.path = livewirePath.getPoints();
-    //console.log(this.path);
     return {
       path: this.path,
       scissors: livewireScissors

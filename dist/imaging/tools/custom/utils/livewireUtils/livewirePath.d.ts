@@ -24,6 +24,7 @@ export declare class LivewirePath {
      * @returns The Point2D at the given index.
      */
     getPoint(index: number): [number, number];
+    getPoints(): [number, number][];
     /**
      * Get the last point of the list.
      *
@@ -50,7 +51,6 @@ export declare class LivewirePath {
      */
     addControlPoint(point: [number, number]): void;
     getControlPoints(): [number, number][];
-    getPoints(): [number, number][];
     getNumControlPoints(): number;
     removeLastControlPoint(): void;
     getLastControlPoint(): [number, number] | undefined;
