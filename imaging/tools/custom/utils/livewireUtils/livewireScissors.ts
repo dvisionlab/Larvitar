@@ -585,7 +585,7 @@ export class LivewireScissors {
    * @returns A LivewireScissors instance
    */
   public static createInstanceFromRawPixelData(
-    pixelData: Float32Array,
+    pixelData: number[],
     width: number,
     height: number,
     voiRange: { lower: number; upper: number }
