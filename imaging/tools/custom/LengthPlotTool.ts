@@ -769,11 +769,13 @@ export default class LengthPlotTool extends BaseAnnotationTool {
   }
 
   setupResizeObserver(plotDiv: HTMLElement) {
+    if (!plotDiv) return;
+
     const resizeObserver = new ResizeObserver(() => {
-      if (plotDiv?.style.display == "block")
+      if (document.body.contains(plotDiv) && plotDiv?.style.display == "block")
         Plotly.Plots.resize(plotDiv as Plotly.Root);
     });
-    resizeObserver.observe(plotDiv!);
+    resizeObserver.observe(plotDiv);
 
     (plotDiv as any).__resizeObserver = resizeObserver;
   }
