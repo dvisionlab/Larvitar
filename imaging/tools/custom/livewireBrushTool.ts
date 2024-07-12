@@ -6,9 +6,10 @@
 
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
-import { MeasurementMouseEvent } from "../types";
+import { Coords, MeasurementMouseEvent } from "../types";
 import { LivewireScissors } from "./utils/livewireUtils/livewireScissors";
 import { LivewirePath } from "./utils/livewireUtils/livewirePath";
+import { Image } from "cornerstone-core";
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(
@@ -17,6 +18,7 @@ const segmentationUtils = cornerstoneTools.importInternal(
 const drawBrushPixels = segmentationUtils.drawBrushPixels;
 const getModule = cornerstoneTools.getModule;
 const throttle = cornerstoneTools.importInternal("util/throttle");
+const getCircle = segmentationUtils.getCircle;
 // Priority Queue implementation for Dijkstra's algorithm
 class MinHeap {
   private heap: any;
@@ -159,42 +161,52 @@ export default class LivewireBrushTool extends BaseBrushTool {
   }*/
 
   dijkstra(
-    image: number[],
+    image: Image,
     width: number,
     height: number,
     voiRange: { lower: number; upper: number },
     brushRadius: number,
-    startPoint: [number, number],
+    startPoint: Coords,
     scissors: LivewireScissors | null = null,
     path: LivewirePath | null = null
   ): { path: [number, number][]; scissors: LivewireScissors } {
+    const pixelData = image.getPixelData();
     // Step 1: Create or reuse LivewireScissors instance from raw pixel data
     const livewireScissors =
       scissors ||
       LivewireScissors.createInstanceFromRawPixelData(
-        image,
+        pixelData,
         width,
         height,
         voiRange
       );
 
-    // Step 2: Start the Livewire search from the specified startPoint
-    livewireScissors.startSearch(startPoint);
+    // Step 2: Start the Livewire search from the specified startPoint (mouse cursor)
+    livewireScissors.startSearch([startPoint.x, startPoint.y]);
 
     // Step 3: Define the brush delta based on brush radius
     const delta = Math.ceil(brushRadius / 2);
 
     // Step 4: Create or reuse LivewirePath instance
-    const livewirePath = this.path || new LivewirePath();
-
+    const livewirePath = new LivewirePath();
     // Step 5: Perform Livewire path finding
-    let currentPoint = startPoint;
-    livewirePath.addPoint(currentPoint);
+    //TODO - Giulio: fai un ciclo for su tutte le coordinate del cerchio e non solo sul cursore del mouse
+    /*const circleArray = getCircle(
+      brushRadius,
+      image.rows,
+      image.columns,
+      startPoint.x,
+      startPoint.y
+    );*/
 
+    let currentPoint = [startPoint.x, startPoint.y] as [number, number];
+    livewirePath.addPoint(currentPoint);
     while (true) {
       // Find the minimum cost nearby point
-      const nextPoint = livewireScissors.findMinNearby(currentPoint, delta);
-
+      const nextPoint = livewireScissors.findMinNearby(
+        currentPoint as [number, number],
+        delta
+      );
       // If the next point is the same as the current point, break the loop
       if (
         nextPoint[0] === currentPoint[0] &&
@@ -202,15 +214,20 @@ export default class LivewireBrushTool extends BaseBrushTool {
       ) {
         break;
       }
-
+      const pathPoints = livewireScissors.findPathToPoint(nextPoint);
       // Add the next point to the LivewirePath
-      livewirePath.addPoint(nextPoint);
+      //use addPoints instead of addpoint to add an array of point-> speeds up the algorithm
+      livewirePath.addPoints(pathPoints);
 
       // Update the current point
       currentPoint = nextPoint;
     }
-
-    return { path: livewirePath.getPath(), scissors: livewireScissors };
+    this.path = livewirePath.pointArray;
+    //console.log(this.path);
+    return {
+      path: this.path,
+      scissors: livewireScissors
+    };
   }
 
   renderToolData(evt: MeasurementMouseEvent) {
@@ -233,12 +250,15 @@ export default class LivewireBrushTool extends BaseBrushTool {
     if (!mousePosition) {
       return;
     }
-
+    const lower =
+      eventData.image.windowCenter - 0.5 * eventData.image.windowWidth;
+    const upper =
+      eventData.image.windowCenter + 0.5 * eventData.image.windowWidth;
     const pathData = this.dijkstra(
-      eventData.image.getPixelData(),
+      eventData.image,
       eventData.image.width,
       eventData.image.height,
-      eventData.viewport.voiLUT,
+      { lower, upper },
       configuration.radius,
       mousePosition,
       this.scissors,
@@ -291,6 +311,7 @@ export default class LivewireBrushTool extends BaseBrushTool {
     }
   }
 
+  //TODO
   _paint(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
     const { rows, columns } = eventData.image;

@@ -89,7 +89,9 @@ export class LivewirePath {
   public getControlPoints() {
     return this._controlPointIndexes.map(i => this.pointArray[i]);
   }
-
+  public getPoints() {
+    return this.pointArray;
+  }
   public getNumControlPoints(): number {
     return this._controlPointIndexes.length;
   }

@@ -50,6 +50,7 @@ export declare class LivewirePath {
      */
     addControlPoint(point: [number, number]): void;
     getControlPoints(): [number, number][];
+    getPoints(): [number, number][];
     getNumControlPoints(): number;
     removeLastControlPoint(): void;
     getLastControlPoint(): [number, number] | undefined;

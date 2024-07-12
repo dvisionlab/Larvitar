@@ -161,7 +161,7 @@ export declare class LivewireScissors {
      * @param voiRange - VOI Range
      * @returns A LivewireScissors instance
      */
-    static createInstanceFromRawPixelData(pixelData: Float32Array, width: number, height: number, voiRange: {
+    static createInstanceFromRawPixelData(pixelData: number[], width: number, height: number, voiRange: {
         lower: number;
         upper: number;
     }): LivewireScissors;
