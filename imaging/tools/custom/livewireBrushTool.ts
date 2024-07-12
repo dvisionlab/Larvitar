@@ -222,7 +222,7 @@ export default class LivewireBrushTool extends BaseBrushTool {
       // Update the current point
       currentPoint = nextPoint;
     }
-    this.path = livewirePath.pointArray;
+    this.path = livewirePath.getPoints();
     //console.log(this.path);
     return {
       path: this.path,

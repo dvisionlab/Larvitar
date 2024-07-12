@@ -37,7 +37,9 @@ export class LivewirePath {
   public getPoint(index: number): [number, number] {
     return this.pointArray[index];
   }
-
+  public getPoints() {
+    return this.pointArray;
+  }
   /**
    * Get the last point of the list.
    *
@@ -89,9 +91,7 @@ export class LivewirePath {
   public getControlPoints() {
     return this._controlPointIndexes.map(i => this.pointArray[i]);
   }
-  public getPoints() {
-    return this.pointArray;
-  }
+
   public getNumControlPoints(): number {
     return this._controlPointIndexes.length;
   }
