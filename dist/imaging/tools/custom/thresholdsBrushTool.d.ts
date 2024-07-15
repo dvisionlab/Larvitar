@@ -29,6 +29,8 @@ export default class ThresholdsBrushTool {
      * @returns {void}
      */
     protected _paint(evt: Object): void;
+    increaseSensitivity(): void;
+    decreaseSensitivity(): void;
     _calculateThresholdsWithoutMap(image: any, dicomPixelData: any, circleArray: any, minThreshold: any, maxThreshold: any): {
         minThreshold: any;
         maxThreshold: any;
