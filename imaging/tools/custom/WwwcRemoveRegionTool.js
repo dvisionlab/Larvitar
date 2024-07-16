@@ -347,6 +347,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
         }
       }
     });
+    this._applyStrategy(evt)
   }
 
   _withinHandleBoxes(startCanvas, endCanvas) {
