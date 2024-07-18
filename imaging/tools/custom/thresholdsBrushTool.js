@@ -87,7 +87,6 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
     }
 
     const radius = configuration.radius;
-    // const thresholds = configuration.thresholds;
     const { labelmap2D, labelmap3D, shouldErase } = this.paintEventData;
 
     let pointerArray = [];
@@ -96,7 +95,7 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
     if (shouldErase) {
       pointerArray = getCircle(radius, rows, columns, x, y);
     } else {
-      // trovare threshold ottimale
+      // optimal threshold
       if (!this.thresholds && !this.setThresholds) {
         const pixelData = eventData.image.getPixelData();
         pointerArray = getCircle(radius, rows, columns, x, y);
@@ -194,7 +193,6 @@ function getCircleWithThreshold(
     let value = pixelData[y0 * rows + x0];
     let moValue = value * image.slope + image.intercept;
     //threshold convert to image space
-    
     if (isInsideThresholds(moValue, tMapped)) {
       circleArray = [[x0, y0]];
     }
