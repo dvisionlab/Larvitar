@@ -62,6 +62,7 @@ declare const _default: {
     setTimeId: (elementId: string, timeIndex: number) => void;
     setDSAEnabled: (elementId: string, enabled: boolean) => void;
     setDSAPixelShift: (elementId: string, pixelShift: number[]) => void;
+    resetActiveTools(): void;
     get: (props: string | string[] | undefined) => any;
     addStoreListener: (listener: (data: Store) => {}) => (data: Store) => {};
     removeStoreListener: () => undefined;
