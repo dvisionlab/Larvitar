@@ -4,7 +4,7 @@
  */
 
 // external libraries
-import { get as _get, cloneDeep as _cloneDeep } from "lodash";
+import { get as _get, cloneDeep as _cloneDeep, conforms } from "lodash";
 import type { StoreViewport } from "./types.d";
 
 type StoreSeries = {
@@ -26,7 +26,7 @@ type Store = {
 };
 
 type SetPayload =
-  | ["errorLog" | "leftActiveTool" | "rightActiveTool", string | undefined]
+  | ["errorLog" | "leftActiveTool" | "rightActiveTool", string]
   | [
     (
       | "isColor"
@@ -194,10 +194,6 @@ const setValue = (store: Store, data: SetPayload) => {
   let field = data[0];
   const k = data[1];
   let [_1, _2, ...v] = data;
-
-  if (!k) {
-    return;
-  }
 
   const viewport = store.viewports[k];
 
@@ -469,8 +465,8 @@ export default {
     set(["pixelShift", elementId, pixelShift]);
   },
   resetActiveTools() {
-    set(["leftActiveTool", undefined]);
-    set(["rightActiveTool", undefined]);
+    STORE!.leftActiveTool = undefined;
+    STORE!.rightActiveTool = undefined;
   },
   // get
   get: (props: string | string[] | undefined) => {
