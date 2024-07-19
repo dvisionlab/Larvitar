@@ -94,15 +94,22 @@ export default class LengthPlotTool extends BaseAnnotationTool {
      * @name setupPlot
      * @returns {void}
      */
+    handleClick(): void;
+    /**
+     * handles Mouse Up listener (to create the final plot)
+     * @method
+     * @name setupPlot
+     * @returns {void}
+     */
     setupPlot(): void;
     /**
      * allows to change the offset between the three lines
      * @method
      * @name changeOffset
-     * @param {WheelEvent} evt
+     * @param {MouseEvent} evt
      * @returns {void}
      */
-    changeOffset(evt: WheelEvent): void;
+    changeOffset(evt: MouseEvent): void;
     /**
      * Creates new measurement on click
      * @method
@@ -164,10 +171,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
      * Renders the data (new line/modified line)
      * @method
      * @name updateCachedStats
-     * @param {ToolMouseEvent | WheelEvent} evt
+     * @param {ToolMouseEvent | MouseEvent} evt
      * @returns {void}
      */
-    renderToolData(evt: ToolMouseEvent | WheelEvent): void;
+    renderToolData(evt: ToolMouseEvent | MouseEvent): void;
     /**
      * Retrieves the points along the line
      * @method
