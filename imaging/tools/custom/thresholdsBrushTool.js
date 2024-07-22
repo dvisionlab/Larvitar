@@ -6,6 +6,10 @@
 
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
+import {
+  calculateStats, calculateThresholds
+} from "./utils/watershedSegmentationToolUtils/WSUtils";
+import { getMaxPixelValue, getMinPixelValue } from "../../imageUtils";
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(
@@ -30,11 +34,40 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
       configuration: {},
       mixins: ["renderBrushMixin"]
     };
-
     super(props, defaultProps);
-
+    // add parameter of threshold min/max in configuration for static
+    if (defaultProps.configuration.staticThreshold && defaultProps.configuration.thresholds) {
+      this.thresholds = defaultProps.configuration.thresholds;
+    }
+    // define parameter for statistical fine tuning
+    // TODO: edit parameter for fine tuning
+    const X_FACTOR = 1.2;
+    this.xFactor = X_FACTOR;
+    if (defaultProps.configuration.xFactor) {
+      this.xFactor = defaultProps.configuration.xFactor;
+    }
     this.touchDragCallback = this._paint.bind(this);
   }
+
+ /**
+   * Event handler for MOUSE_UP during the drawing event loop.
+   *
+   * @protected
+   * @event
+   * @param {Object} evt - The event.
+   * @returns {void}
+   */
+ _drawingMouseUpCallback(evt) {
+  const eventData = evt.detail;
+  const element = eventData.element;
+
+  this._endPainting(evt);
+
+  this._drawing = false;
+  this._mouseUpRender = true;
+  this._stopListeningForMouseUp(element);
+  this.thresholds = null;
+}
 
   /**
    * Paints the data to the labelmap.
@@ -54,7 +87,6 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
     }
 
     const radius = configuration.radius;
-    const thresholds = configuration.thresholds;
     const { labelmap2D, labelmap3D, shouldErase } = this.paintEventData;
 
     let pointerArray = [];
@@ -63,12 +95,22 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
     if (shouldErase) {
       pointerArray = getCircle(radius, rows, columns, x, y);
     } else {
+      // optimal threshold
+      if (!this.thresholds && !this.setThresholds) {
+        const pixelData = eventData.image.getPixelData();
+        pointerArray = getCircle(radius, rows, columns, x, y);
+        this.thresholds = this._calculateThresholdsWithoutMap( eventData.image,pixelData, pointerArray, null, null);
+      }
+      const lowerThreshold = this.thresholds ? this.thresholds.lowerThreshold : this.setThresholds.lowerThreshold;
+      const upperThreshold = this.thresholds ? this.thresholds.upperThreshold : this.setThresholds.upperThreshold;
+      const thresholdArray = [lowerThreshold, upperThreshold]
       pointerArray = getCircleWithThreshold(
         eventData.image,
         radius,
-        thresholds,
+        thresholdArray,
         x,
-        y
+        y, 
+        this.thresholds ? true : false
       );
     }
 
@@ -83,6 +125,31 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
 
     external.cornerstone.updateImage(evt.detail.element);
   }
+  // TODO add an event to handle this
+  increaseSensitivity() {
+     this.xFactor = this.xFactor + 0.2;
+  }
+  decreaseSensitivity() {
+    this.xFactor = this.xFactor - 0.2;
+  }
+  _calculateThresholdsWithoutMap(
+    image,
+    dicomPixelData,
+    circleArray,
+    minThreshold,
+    maxThreshold
+  ) {
+    const { mean, stddev } = calculateStats(image, dicomPixelData, circleArray);
+  
+    minThreshold =
+      minThreshold === null ? getMinPixelValue(dicomPixelData) : minThreshold;
+    maxThreshold =
+      maxThreshold === null ? getMaxPixelValue(dicomPixelData) : maxThreshold;
+  
+    let lowerThreshold = mean - this.xFactor * stddev ;
+    let upperThreshold = mean + this.xFactor * stddev ;
+    return { minThreshold, maxThreshold, lowerThreshold, upperThreshold };
+  }
 }
 
 /**
@@ -96,6 +163,7 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
  * @param  {Array} thresholds     The thresholds array [min, max].
  * @param  {number} [xCoord = 0]  The x-location of the center of the circle.
  * @param  {number} [yCoord = 0]  The y-location of the center of the circle.
+ * @param {boolean} applyMapping  Flag to set application of mapping of image slope / intercept or not
  * @returns {Array.number[]}      Array of pixels contained within the circle.
  */
 function getCircleWithThreshold(
@@ -103,7 +171,8 @@ function getCircleWithThreshold(
   radius,
   thresholds,
   xCoord = 0,
-  yCoord = 0
+  yCoord = 0,
+  applyMapping
 ) {
   const pixelData = image.getPixelData();
   const { rows, columns } = image;
@@ -113,17 +182,18 @@ function getCircleWithThreshold(
 
   // if no thresholds, set all pixels range
   if (!thresholds) {
-    thresholds = [image.minPixelValue, image.maxPixelValue];
+    thresholds = [image.minPixelValue * image.slope + image.intercept, image.maxPixelValue * image.slope + image.intercept];
   }
 
   function isInsideThresholds(v, t) {
     return v >= t[0] && v <= t[1];
   }
-
+  const tMapped = applyMapping ? [thresholds[0]* image.slope + image.intercept, thresholds[1]* image.slope + image.intercept] : [thresholds[0], thresholds[1]];
   if (radius === 1) {
     let value = pixelData[y0 * rows + x0];
     let moValue = value * image.slope + image.intercept;
-    if (isInsideThresholds(moValue, thresholds)) {
+    //threshold convert to image space
+    if (isInsideThresholds(moValue, tMapped)) {
       circleArray = [[x0, y0]];
     }
     return circleArray;
@@ -147,13 +217,11 @@ function getCircleWithThreshold(
 
       let value = pixelData[yCoord * rows + xCoord];
       let moValue = value * image.slope + image.intercept;
-
-      if (
-        x * x + y * y < radius * radius &&
-        isInsideThresholds(moValue, thresholds)
-      ) {
-        circleArray[index++] = [x0 + x, y0 + y];
-      }
+      if (x * x + y * y < radius * radius) {
+        if (isInsideThresholds(moValue, tMapped)) {
+            circleArray[index++] = [x0 + x, y0 + y];
+         }
+      } 
     }
   }
 

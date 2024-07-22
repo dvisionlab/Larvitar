@@ -91,10 +91,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     /**
      * handles Mouse Up listener (to create the final plot)
      * @method
-     * @name handleMouseUp
+     * @name setupPlot
      * @returns {void}
      */
-    handleMouseUp(): void;
+    setupPlot(): void;
     /**
      * allows to change the offset between the three lines
      * @method
@@ -204,5 +204,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
      */
     createPlot(canvasId: string, ...dataSets: dataSets): void;
     clearPlotlyData(plotDiv: HTMLElement): void;
+    setupResizeObserver(plotDiv: HTMLElement): void;
+    removeResizeObserver(plotDiv: HTMLElement): void;
 }
 export {};

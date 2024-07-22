@@ -237,13 +237,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     // Pixel Spacing
     const modality = seriesModule.modality;
     const hasPixelSpacing = rowPixelSpacing && colPixelSpacing;
-    if (toolData.data.length === 0) {
-      eventData.viewport.voi.windowWidth = this.originalWW;
-      eventData.viewport.voi.windowCenter = this.originalWC;
-      eventData.viewport.voiLUT = undefined;
-      external.cornerstone.setViewport(element, eventData.viewport);
-      external.cornerstone.updateImage(element);
-    }
+
     draw(context, context => {
       // If we have tool data for this element - iterate over each set and draw it
       for (let i = 0; i < toolData.data.length; i++) {
@@ -353,6 +347,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
         }
       }
     });
+    this._applyStrategy(evt)
   }
 
   _withinHandleBoxes(startCanvas, endCanvas) {

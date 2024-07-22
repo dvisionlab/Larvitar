@@ -157,7 +157,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.theta = null;
     this.plotlydata = [];
     this.measuring = false;
-    this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.setupPlot = this.setupPlot.bind(this);
     this.changeOffset = this.changeOffset.bind(this);
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
@@ -167,10 +167,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
   /**
    * handles Mouse Up listener (to create the final plot)
    * @method
-   * @name handleMouseUp
+   * @name setupPlot
    * @returns {void}
    */
-  handleMouseUp() {
+  setupPlot() {
     const toolData: { data: data[] } = getToolState(
       this.currentTarget,
       this.name
@@ -283,9 +283,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.eventData = eventData;
     clearToolData(eventData.element, this.name);
     if (this.datahandles) {
-      eventData.element.removeEventListener("mouseup", () =>
-        this.handleMouseUp()
-      );
       eventData.element.removeEventListener("wheel", evt =>
         this.changeOffset(evt)
       );
@@ -296,7 +293,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       this.belowhandles = null;
       this.theta = null;
     }
-    eventData.element.addEventListener("mouseup", () => this.handleMouseUp());
     eventData.element.addEventListener("wheel", evt => this.changeOffset(evt));
 
     this.measuring = true;
@@ -438,6 +434,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         this.name
       );
       if (!toolData) {
+        if (this.eventData){
+          const plotDiv = document.getElementById(`plot-${this.eventData.element.id}`);
+          this.clearPlotlyData(plotDiv!)
+        }
         return;
       }
 
@@ -622,6 +622,12 @@ export default class LengthPlotTool extends BaseAnnotationTool {
               });
             }
           }
+
+          if (!this.eventData) {
+            this.eventData = evt.detail as EventData
+            this.image =  this.eventData.image;
+          }
+          this.setupPlot()
         });
       }
     }
@@ -751,13 +757,37 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     } else {
       plotDiv!.style.display = "block";
       Plotly.react(plotDiv as Plotly.Root, traces as Plotly.Data[], layout);
+
+      this.setupResizeObserver(plotDiv!)
     }
   }
 
   clearPlotlyData(plotDiv: HTMLElement) {
     Plotly.purge(plotDiv as Plotly.Root);
     this.plotlydata = [];
+    this.removeResizeObserver(plotDiv!)
   }
+
+  setupResizeObserver(plotDiv: HTMLElement) {
+    if (!plotDiv) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (document.body.contains(plotDiv) && plotDiv?.style.display == "block")
+        Plotly.Plots.resize(plotDiv as Plotly.Root);
+    });
+    resizeObserver.observe(plotDiv);
+
+    (plotDiv as any).__resizeObserver = resizeObserver;
+  }
+
+  removeResizeObserver(plotDiv: HTMLElement) {
+    const observer = (plotDiv as any).__resizeObserver;
+    if (observer) {
+      observer.disconnect();
+      delete (plotDiv as any).__resizeObserver;
+    }
+  }
+
 }
 
 /**
