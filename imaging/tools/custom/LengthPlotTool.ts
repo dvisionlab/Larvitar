@@ -151,7 +151,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.borderLeft = 0;
     this.evt;
     this.context;
-    this.wheelactive = false;
     this.currentTarget = null;
     this.fixedOffset = 0;
     this.theta = null;
@@ -160,6 +159,21 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.setupPlot = this.setupPlot.bind(this);
     this.changeOffset = this.changeOffset.bind(this);
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
+    this.lastY = 0;
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  /**
+   * handles Mouse Up listener (to create the final plot)
+   * @method
+   * @name setupPlot
+   * @returns {void}
+   */
+  handleClick() {
+    this.click += 1;
+    if (this.click === 3){
+      this.click = 0
+    }
   }
 
   //internal class functions
@@ -179,7 +193,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       toolData.data[toolData.data.length - 1].handles.fixedoffset =
         toolData.data[toolData.data.length - 1].handles.offset;
     }
-    this.click = +1;
+
     this.measuring =
       this.datahandles?.end.x === this.datahandles?.start.x &&
       this.datahandles?.end.y === this.datahandles?.start.y &&
@@ -238,32 +252,35 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    * allows to change the offset between the three lines
    * @method
    * @name changeOffset
-   * @param {WheelEvent} evt
+   * @param {MouseEvent} evt
    * @returns {void}
    */
-  changeOffset(evt: WheelEvent) {
+  changeOffset(evt: MouseEvent) {
     const toolData: { data: data[] } = getToolState(
       this.currentTarget,
       this.name
     );
-    if (toolData) {
+    if (toolData && this.click === 2) {
       const index = toolData.data.findIndex(obj => obj.active === true);
-      const indexTracing = toolData.data.findIndex(
-        obj => obj.handles.end.moving === true
-      );
+
       if (
         (toolData.data.length != 0 &&
           index != undefined &&
           index != -1 &&
           toolData.data[index] != undefined &&
           evt.buttons === 1) ||
-        (indexTracing != undefined &&
-          indexTracing != -1 &&
-          toolData.data[index] != undefined)
+        (toolData.data[index] != undefined)
       ) {
-        const { deltaY } = evt;
+        const { clientY } = evt;
 
-        toolData.data[index].handles.offset += deltaY > 0 ? 1 : -1;
+        if (clientY < this.lastY) {
+            toolData.data[index].handles.offset +=  -1;
+        } else if (clientY > this.lastY) {
+          toolData.data[index].handles.offset += 1;
+        }
+
+        this.lastY = clientY;
+
         evt.preventDefault();
         this.renderToolData(evt);
 
@@ -280,12 +297,15 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    * @returns {void}
    */
   createNewMeasurement(eventData: EventData) {
+    if (this.click !== 0) return;
+
     this.eventData = eventData;
     clearToolData(eventData.element, this.name);
     if (this.datahandles) {
-      eventData.element.removeEventListener("wheel", evt =>
+      eventData.element.removeEventListener("mousemove", evt =>
         this.changeOffset(evt)
       );
+      eventData.element.removeEventListener("click", this.handleClick);
     }
     if (this.datahandles != null) {
       this.datahandles = null;
@@ -293,7 +313,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       this.belowhandles = null;
       this.theta = null;
     }
-    eventData.element.addEventListener("wheel", evt => this.changeOffset(evt));
+    eventData.element.addEventListener("click", this.handleClick);
+    eventData.element.addEventListener("mousemove", evt =>
+      this.changeOffset(evt)
+    );
 
     this.measuring = true;
     const goodEventData =
@@ -406,16 +429,13 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    * Renders the data (new line/modified line)
    * @method
    * @name updateCachedStats
-   * @param {ToolMouseEvent | WheelEvent} evt
+   * @param {ToolMouseEvent | MouseEvent} evt
    * @returns {void}
    */
-  renderToolData(evt: ToolMouseEvent | WheelEvent) {
+  renderToolData(evt: ToolMouseEvent | MouseEvent) {
     if (evt.detail) {
       this.evt = evt;
       this.currentTarget = evt.currentTarget;
-      this.wheelactive = false;
-    } else {
-      this.wheelactive = true;
     }
 
     if (this.evt) {
@@ -477,14 +497,12 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           end = data.handles.end;
           if (
             this.measuring === false &&
-            this.wheelactive === true &&
             data.active === true
           ) {
             data.handles.fixedoffset = data.handles.offset;
           }
           data.handles.offset =
-            (this.measuring === true && data.handles.end.moving === true) ||
-            this.wheelactive === true
+            (this.measuring === true && data.handles.end.moving === true)
               ? data.handles.offset
               : data.handles.fixedoffset;
           //data.handles.end.y = data.handles.start.y;
