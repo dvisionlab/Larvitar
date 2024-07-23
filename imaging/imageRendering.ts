@@ -28,7 +28,11 @@ import { DEFAULT_TOOLS } from "./tools/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
 import { setPixelShift } from "./loaders/dsaImageLoader";
-
+const webglOptions = {
+  renderer: "webgl",
+  desynchronized: true,
+  preserveDrawingBuffer: true
+};
 /*
  * This module provides the following functions to be exported:
  * clearImageCache(seriesId)
@@ -312,13 +316,7 @@ export const renderFileImage = function (
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
-    const options = {
-      renderer: "webgl",
-      desynchronized: true,
-      preserveDrawingBuffer: true
-    };
-
-    cornerstone.enable(element, options as any);
+    cornerstone.enable(element, webglOptions as any);
   }
 
   let renderPromise = new Promise<true>((resolve, _) => {
@@ -385,13 +383,7 @@ export const renderWebImage = function (
     try {
       cornerstone.getEnabledElement(element);
     } catch (e) {
-      const options = {
-        renderer: "webgl",
-        desynchronized: true,
-        preserveDrawingBuffer: true
-      };
-
-      cornerstone.enable(element, options as any);
+      cornerstone.enable(element, webglOptions as any);
     }
     cornerstone.loadImage(url).then(function (image) {
       if (!element) {
@@ -500,13 +492,7 @@ export const renderImage = function (
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
-    const options = {
-      renderer: "webgl",
-      desynchronized: true,
-      preserveDrawingBuffer: true
-    };
-
-    cornerstone.enable(element, options as any);
+    cornerstone.enable(element, webglOptions as any);
   }
 
   setStore(["ready", id, false]);

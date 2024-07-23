@@ -22,6 +22,11 @@ import { set as setStore } from "../imageStore";
 import type { ToolConfig, ToolSettings, ToolStyle } from "./types";
 //global variable
 declare var cv: any; //opencv-js
+const webglOptions = {
+  renderer: "webgl",
+  desynchronized: true,
+  preserveDrawingBuffer: true
+};
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
@@ -78,13 +83,7 @@ const csToolsCreateStack = function (
     try {
       cornerstone.getEnabledElement(element);
     } catch (e) {
-      const options = {
-        renderer: "webgl",
-        desynchronized: true,
-        preserveDrawingBuffer: true
-      };
-
-      cornerstone.enable(element, options as any);
+      cornerstone.enable(element, webglOptions as any);
     }
   }
   cornerstoneTools.addStackStateManager(element, ["stack"]);
@@ -212,13 +211,7 @@ export const addDefaultTools = function (elementId: string) {
     try {
       cornerstone.getEnabledElement(element);
     } catch (e) {
-      const options = {
-        renderer: "webgl",
-        desynchronized: true,
-        preserveDrawingBuffer: true
-      };
-
-      cornerstone.enable(element, options as any);
+      cornerstone.enable(element, webglOptions as any);
     }
   }
 
