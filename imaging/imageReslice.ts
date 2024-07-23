@@ -77,7 +77,7 @@ export function resliceSeries(
       //@ts-ignore deprecated
       manager[seriesData.seriesUID][orientation] = reslicedSeriesId;
       let t1 = performance.now();
-      console.log(`Call to resliceSeries took ${t1 - t0} milliseconds.`);
+      console.debug(`Call to resliceSeries took ${t1 - t0} milliseconds.`);
       resolve(reslicedSeries);
     }
     // reslice the data

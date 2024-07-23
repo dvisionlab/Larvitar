@@ -249,7 +249,7 @@ export const buildNrrdImage = function (
   manager[seriesId] = image as NrrdSeries;
 
   let t1 = performance.now();
-  console.log(`Call to buildNrrdImage took ${t1 - t0} milliseconds.`);
+  console.debug(`Call to buildNrrdImage took ${t1 - t0} milliseconds.`);
   return image;
 };
 

@@ -78,7 +78,13 @@ const csToolsCreateStack = function (
     try {
       cornerstone.getEnabledElement(element);
     } catch (e) {
-      cornerstone.enable(element);
+      const options = {
+        renderer: "webgl",
+        desynchronized: true,
+        preserveDrawingBuffer: true
+      };
+
+      cornerstone.enable(element, options as any);
     }
   }
   cornerstoneTools.addStackStateManager(element, ["stack"]);
@@ -206,7 +212,13 @@ export const addDefaultTools = function (elementId: string) {
     try {
       cornerstone.getEnabledElement(element);
     } catch (e) {
-      cornerstone.enable(element);
+      const options = {
+        renderer: "webgl",
+        desynchronized: true,
+        preserveDrawingBuffer: true
+      };
+
+      cornerstone.enable(element, options as any);
     }
   }
 

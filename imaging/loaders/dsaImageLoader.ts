@@ -103,7 +103,7 @@ export const populateDsaImageIds = function (
   }
 
   let t1 = performance.now();
-  console.log(`Call to populateDsaImageIds took ${t1 - t0} milliseconds.`);
+  console.debug(`Call to populateDsaImageIds took ${t1 - t0} milliseconds.`);
 };
 
 /**
