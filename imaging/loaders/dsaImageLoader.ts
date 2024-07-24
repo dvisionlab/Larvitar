@@ -52,7 +52,13 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
     }).image;
 
     console.debug(`Load DSA Image with custom loader for imageId: ${imageId}`);
-    return createCustomImage(imageId, srcImage, pixelData);
+    return createCustomImage(
+      imageId,
+      srcImage,
+      pixelData,
+      multiFrameSerie.instances[multiFrameSerie.imageIds[0]].metadata
+        .x00280100 ?? 8
+    );
   } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
   }
@@ -141,7 +147,8 @@ const getDsaImageId = function (customLoaderName: string) {
 let createCustomImage = function (
   imageId: string,
   srcImage: Image,
-  pixelData: number[]
+  pixelData: number[],
+  bitsAllocated?: number
 ) {
   let promise: Promise<Image> = new Promise((resolve, _) => {
     const minPixelValue = getMinPixelValue(pixelData);
@@ -156,7 +163,8 @@ let createCustomImage = function (
       intercept: srcImage.intercept,
       windowCenter: windowCenter,
       windowWidth: windowWidth,
-      getPixelData: () => pixelData,
+      //@ts-ignore
+      getPixelData: () => createTypedArray(bitsAllocated, pixelData),
       rows: srcImage.rows,
       columns: srcImage.columns,
       height: srcImage.height,
@@ -174,3 +182,16 @@ let createCustomImage = function (
     promise
   };
 };
+
+function createTypedArray(bitsAllocated: number, array: number[]) {
+  switch (bitsAllocated) {
+    case 8:
+      return new Int8Array(array);
+    case 16:
+      return new Int16Array(array);
+    case 32:
+      return new Int32Array(array);
+    default:
+      return array;
+  }
+}
