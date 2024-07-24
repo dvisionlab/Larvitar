@@ -28,7 +28,7 @@ import { DEFAULT_TOOLS } from "./tools/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
 import { setPixelShift } from "./loaders/dsaImageLoader";
-const webglOptions = {
+const rendererOptions = {
   renderer: "webgl",
   desynchronized: true,
   preserveDrawingBuffer: true
@@ -316,7 +316,7 @@ export const renderFileImage = function (
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
-    cornerstone.enable(element, webglOptions as any);
+    cornerstone.enable(element, rendererOptions as any);
   }
 
   let renderPromise = new Promise<true>((resolve, _) => {
@@ -383,7 +383,7 @@ export const renderWebImage = function (
     try {
       cornerstone.getEnabledElement(element);
     } catch (e) {
-      cornerstone.enable(element, webglOptions as any);
+      cornerstone.enable(element, rendererOptions as any);
     }
     cornerstone.loadImage(url).then(function (image) {
       if (!element) {
@@ -492,7 +492,7 @@ export const renderImage = function (
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
-    cornerstone.enable(element, webglOptions as any);
+    cornerstone.enable(element, rendererOptions as any);
   }
 
   setStore(["ready", id, false]);
