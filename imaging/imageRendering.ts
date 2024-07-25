@@ -29,9 +29,7 @@ import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
 import { setPixelShift } from "./loaders/dsaImageLoader";
 const rendererOptions = {
-  renderer: "webgl",
-  desynchronized: true,
-  preserveDrawingBuffer: true
+  renderer: "webgl"
 };
 /*
  * This module provides the following functions to be exported:

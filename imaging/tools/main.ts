@@ -23,9 +23,7 @@ import type { ToolConfig, ToolSettings, ToolStyle } from "./types";
 //global variable
 declare var cv: any; //opencv-js
 const rendererOptions = {
-  renderer: "webgl",
-  desynchronized: true,
-  preserveDrawingBuffer: true
+  renderer: "webgl"
 };
 
 /**
