@@ -4,7 +4,7 @@
 import { DataSet } from "dicom-parser";
 import { ImageObject } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
-import type { MetaDataTypes } from "./MetaDataTypes";
+import type { ExtendedMetaDataTypes } from "./MetaDataTypes";
 /**
  * Reset series stack object and its internal data
  * @instance
@@ -28,9 +28,6 @@ export declare const readFiles: (entries: File[]) => Promise<unknown>;
  * @returns {Promise} - Return a promise which will resolve to a image object or fail if an error occurs
  */
 export declare const readFile: (entry: File) => Promise<ImageObject>;
-type ExtendedMetaDataTypes = MetaDataTypes & {
-    [key: string]: unknown;
-};
 /**
  * Parse metadata from dicom parser dataSet object
  * @instance
@@ -43,4 +40,3 @@ export declare const parseDataSet: (dataSet: DataSet, metadata: ExtendedMetaData
     tags: string[];
     frameId: number;
 }) => void;
-export {};

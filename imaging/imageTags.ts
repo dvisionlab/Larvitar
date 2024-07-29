@@ -6,7 +6,7 @@ import TAG_DICT from "./dataDictionary.json";
 //now tag are in format "x00000000"
 import { convertBytes } from "dicom-character-set";
 import { DataSet, Element } from "dicom-parser";
-import type { MetaDataTypes } from "./MetaDataTypes"; //custom type created as tag-type. { "x0000000":string, ...}
+import type { MetaDataTypes, ExtendedMetaDataTypes } from "./MetaDataTypes"; //custom type created as tag-type. { "x0000000":string, ...}
 /*
  * This module provides the following functions to be exported:
  * parseTag(dataSet, propertyName, element)
@@ -94,9 +94,11 @@ const parseDateTag = function (tagValue: string) {
   const year = tagValue.substring(0, 4);
   const month = tagValue.substring(4, 6);
   const day = tagValue.substring(6, 8);
-  const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)));
+  const date = new Date(
+    Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day))
+  );
   if (isValidDate(date) === true) {
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   } else {
     return tagValue;
   }
@@ -118,17 +120,19 @@ const parseDateTimeTag = function (tagValue: string) {
   const min = tagValue.substring(10, 12);
   const sec = tagValue.substring(12, 14);
   // const msec = tagValue.substring(15, 21);
-  const date = new Date(Date.UTC(
-    parseInt(year),
-    parseInt(month) - 1,
-    parseInt(day),
-    parseInt(hour),
-    parseInt(min),
-    parseInt(sec),
-    parseInt(sec)
-  ));
+  const date = new Date(
+    Date.UTC(
+      parseInt(year),
+      parseInt(month) - 1,
+      parseInt(day),
+      parseInt(hour),
+      parseInt(min),
+      parseInt(sec),
+      parseInt(sec)
+    )
+  );
   if (isValidDate(date) === true) {
-    return date.toISOString().replace('T', ' ').replace('Z', '');
+    return date.toISOString().replace("T", " ").replace("Z", "");
   } else {
     return tagValue;
   }
@@ -500,24 +504,34 @@ export function parseTag<T>(
       valueOut = "";
     }
   }
-  //seems it is not used TODO-ts sm
-  /*else if (vr === "SQ") {
-    // parse the nested tags and returns metadata in array of metadata. 
-    var subTags = map(element, function (obj) {
-      return map(obj, function (v : Element, k : string) {
-        let TAG= k as keyof MetaDataTypes;
-        return parseTag<MetaDataTypes[typeof TAG]>(dataSet, k, v);
-      });
+  //ex. PS Referenced Image Sequence Attribute
+  else if (vr === "SQ" && tagData.items) {
+    let nestedArray: MetaDataTypes[] = [];
+    tagData.items.forEach(function (item) {
+      getNestedObject(item, nestedArray);
     });
 
-    valueOut = subTags;
-  }*/
-  else {
+    valueOut = nestedArray;
+  } else {
     // If it is some other length and we have no string
     valueOut = "no display code for VR " + vr;
   }
-
   return valueOut as T;
+}
+
+export function getNestedObject(item: Element, nestedArray: MetaDataTypes[]) {
+  let nestedObject: ExtendedMetaDataTypes = {};
+  for (let nestedPropertyName in item.dataSet!.elements) {
+    let TAG_tagValue = nestedPropertyName as keyof MetaDataTypes;
+    let tagValue = parseTag<MetaDataTypes[typeof TAG_tagValue]>(
+      item.dataSet!,
+      nestedPropertyName,
+      item.dataSet!.elements[nestedPropertyName]
+    );
+    let TAG_nested = nestedPropertyName as keyof ExtendedMetaDataTypes;
+    nestedObject[TAG_nested] = tagValue;
+  }
+  nestedArray.push(nestedObject);
 }
 
 /**

@@ -1,4 +1,5 @@
 import { DataSet, Element } from "dicom-parser";
+import type { MetaDataTypes } from "./MetaDataTypes";
 /**
  * Parse a DICOM Tag according to its type
  * @instance
@@ -10,6 +11,7 @@ import { DataSet, Element } from "dicom-parser";
  */
 export declare function parseTag<T>(dataSet: DataSet, propertyName: string, //x0000000 string
 element: Element): Element | T | undefined;
+export declare function getNestedObject(item: Element, nestedArray: MetaDataTypes[]): void;
 /**
  * Extract tag value according to its value rapresentation, see
  * {@link http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_6.2.html}

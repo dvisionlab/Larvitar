@@ -13,7 +13,8 @@ import type {
   ImageTracker,
   LarvitarManager,
   MetaData,
-  Series
+  Series,
+  InstanceGSPSDict
 } from "../types";
 
 // internal libraries
@@ -21,6 +22,7 @@ import { buildMultiFrameImage, clearMultiFrameCache } from "./multiframeLoader";
 
 // global variables
 var larvitarManager: LarvitarManager = null;
+var instanceGSPSDict: InstanceGSPSDict = null;
 var imageTracker: ImageTracker = null;
 
 /*
@@ -52,7 +54,9 @@ export const updateLarvitarManager = function (
   if (larvitarManager === null) {
     larvitarManager = {};
   }
-
+  if (instanceGSPSDict === null) {
+    larvitarManager = {};
+  }
   let data = { ...imageObject };
 
   if (data.metadata?.isMultiframe) {
@@ -81,16 +85,52 @@ export const populateLarvitarManager = function (
   larvitarSeriesInstanceUID: string,
   seriesData: Series
 ) {
+  const metadata = seriesData.instances[seriesData.imageIds[0]].metadata;
   if (larvitarManager === null) {
     larvitarManager = {};
   }
   let data = { ...seriesData };
   if (data.isMultiframe) {
     buildMultiFrameImage(larvitarSeriesInstanceUID, data);
+  } else if (metadata.seriesModality === "pr") {
+    const prSeriesInstanceUID = larvitarSeriesInstanceUID + "-pr";
+    larvitarManager[prSeriesInstanceUID] = data;
+    populateInstanceGSPSDict(seriesData);
   } else {
     larvitarManager[larvitarSeriesInstanceUID] = data;
   }
   return larvitarManager;
+};
+
+/**
+ * This function can be called in order to populate the instance GSPS dictionary
+ * @instance
+ * @function populateInstanceGSPSDict
+ * @param {String} prSeriesInstanceUID The Id of the pr manager stack
+ * @param {Object} seriesData The series data
+ * @returns {void}
+ */
+export const populateInstanceGSPSDict = function (seriesData: Series) {
+  Object.keys(seriesData.instances).forEach(imageId => {
+    const metadata = seriesData.instances[imageId].metadata;
+    const referenceInstanceSeqAttribute = metadata.x00081115?.[0]?.x00081140;
+    if (referenceInstanceSeqAttribute) {
+      referenceInstanceSeqAttribute.forEach(elem => {
+        const instanceUID = elem?.x00081155;
+        if (instanceUID) {
+          if (instanceGSPSDict == null) {
+            instanceGSPSDict = {};
+          }
+
+          if (!instanceGSPSDict[instanceUID]) {
+            instanceGSPSDict[instanceUID] = [metadata.x00080018!];
+          } else {
+            instanceGSPSDict[instanceUID]!.push(metadata.x00080018!);
+          }
+        }
+      });
+    }
+  });
 };
 
 /**
@@ -104,6 +144,19 @@ export const getLarvitarManager = function () {
     larvitarManager = {};
   }
   return larvitarManager;
+};
+
+/**
+ * Return the dictionary that maps a sopInstanceUID with an array containing its PS
+ * @instance
+ * @function getInstanceGSPSDict
+ * @returns {Object} the GSPS dictionary
+ */
+export const getInstanceGSPSDict = function () {
+  if (instanceGSPSDict == null) {
+    instanceGSPSDict = {};
+  }
+  return instanceGSPSDict;
 };
 
 /**
@@ -148,6 +201,19 @@ export const resetLarvitarManager = function () {
   });
   larvitarManager = null;
   imageTracker = null;
+};
+
+/**
+ * Reset the Instance GSPS dictionary
+ * @instance
+ * @function resetInstanceGSPSDict
+ */
+export const resetInstanceGSPSDict = function () {
+  each(instanceGSPSDict, function (array) {
+    array = null;
+  });
+
+  instanceGSPSDict = null;
 };
 
 /**

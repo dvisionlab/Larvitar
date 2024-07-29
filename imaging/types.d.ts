@@ -261,6 +261,10 @@ export type LarvitarManager = {
   [key: string]: NrrdSeries | Series;
 } | null;
 
+export type InstanceGSPSDict = {
+  [key: string]: string[] | null;
+} | null;
+
 export type ImageFrame = {
   pixelData?: Uint8ClampedArray | Uint16Array | Int16Array | Uint8Array;
   bitsAllocated: number;
