@@ -34,7 +34,7 @@ export declare const populateLarvitarManager: (larvitarSeriesInstanceUID: string
  * @param {Object} seriesData The series data
  * @returns {void}
  */
-export declare const populateInstanceGSPSDict: (seriesData: Series) => void;
+export declare const populateInstanceGSPSDict: (larvitarSeriesInstanceUID: string, seriesData: Series) => void;
 /**
  * Return the common data loader manager
  * @instance
@@ -51,7 +51,10 @@ export declare const getLarvitarManager: () => {
  * @returns {Object} the GSPS dictionary
  */
 export declare const getInstanceGSPSDict: () => {
-    [key: string]: string[] | null;
+    [key: string]: {
+        seriesId: string;
+        imageId: string;
+    }[] | null;
 };
 /**
  * Return the common image tracker

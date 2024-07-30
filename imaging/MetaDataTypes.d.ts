@@ -954,9 +954,9 @@ export type MetaDataTypes = {
   x00181604?: number;
   x00181606?: number;
   x00181608?: number;
-  x00181610?: number;
+  x00181610?: [number, number];
   x00181612?: number;
-  x00181620?: number;
+  x00181620?: number[];
   x00181622?: number;
   x00181623?: number;
   x00181624?: number;
@@ -1876,10 +1876,10 @@ export type MetaDataTypes = {
   x00282112?: number;
   x00282114?: string;
   x00283000?: MetaDataTypes[];
-  x00283002?: number;
+  x00283002?: [number, number, number];
   x00283003?: string;
   x00283004?: string;
-  x00283006?: string;
+  x00283006?: number[];
   x00283010?: MetaDataTypes[];
   x00283110?: MetaDataTypes[];
   x00284000?: string;

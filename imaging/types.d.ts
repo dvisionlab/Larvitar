@@ -206,7 +206,7 @@ export type Overlay = {
   y?: number;
   visible: boolean;
   type: string;
-  fillStyle: CanvasGradient;
+  fillStyle: string;
 };
 export interface Layer extends cornerstone.EnabledElementLayer {
   id: string;
@@ -262,7 +262,7 @@ export type LarvitarManager = {
 } | null;
 
 export type InstanceGSPSDict = {
-  [key: string]: string[] | null;
+  [key: string]: { seriesId: string; imageId: string }[] | null;
 } | null;
 
 export type ImageFrame = {

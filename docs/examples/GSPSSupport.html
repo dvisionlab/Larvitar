@@ -208,7 +208,7 @@
       </div>
     </div>
 
-    <script src="../../dist/larvitar.js"></script>
+    <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>
@@ -222,6 +222,7 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+      larvitar.resetLarvitarManager();
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/GSPS/" + fileName);
@@ -232,7 +233,6 @@
         } else if (fileName.includes(".pres") || fileName.includes(".pre")) {
           larvitar.resetInstanceGSPSDict();
           larvitar.readFiles([file]).then(seriesStack => {
-            console.log("HELLO");
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.populateLarvitarManager(seriesId, serie);
@@ -247,8 +247,6 @@
       }
 
       function renderSerie() {
-        larvitar.resetLarvitarManager();
-        console.log(demoFiles);
         larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
@@ -275,7 +273,7 @@
               }
             });
             larvitar.addDefaultTools();
-
+            larvitar.setToolActive("Gsps");
             larvitar.getLarvitarManager();
             larvitar.getInstanceGSPSDict();
           })

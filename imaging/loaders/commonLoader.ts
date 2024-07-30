@@ -95,7 +95,7 @@ export const populateLarvitarManager = function (
   } else if (metadata.seriesModality === "pr") {
     const prSeriesInstanceUID = larvitarSeriesInstanceUID + "-pr";
     larvitarManager[prSeriesInstanceUID] = data;
-    populateInstanceGSPSDict(seriesData);
+    populateInstanceGSPSDict(prSeriesInstanceUID, seriesData);
   } else {
     larvitarManager[larvitarSeriesInstanceUID] = data;
   }
@@ -110,7 +110,10 @@ export const populateLarvitarManager = function (
  * @param {Object} seriesData The series data
  * @returns {void}
  */
-export const populateInstanceGSPSDict = function (seriesData: Series) {
+export const populateInstanceGSPSDict = function (
+  larvitarSeriesInstanceUID: string,
+  seriesData: Series
+) {
   Object.keys(seriesData.instances).forEach(imageId => {
     const metadata = seriesData.instances[imageId].metadata;
     const referenceInstanceSeqAttribute = metadata.x00081115?.[0]?.x00081140;
@@ -123,9 +126,17 @@ export const populateInstanceGSPSDict = function (seriesData: Series) {
           }
 
           if (!instanceGSPSDict[instanceUID]) {
-            instanceGSPSDict[instanceUID] = [metadata.x00080018!];
+            instanceGSPSDict[instanceUID] = [
+              {
+                seriesId: larvitarSeriesInstanceUID,
+                imageId: imageId
+              }
+            ];
           } else {
-            instanceGSPSDict[instanceUID]!.push(metadata.x00080018!);
+            instanceGSPSDict[instanceUID]!.push({
+              seriesId: larvitarSeriesInstanceUID,
+              imageId: imageId
+            });
           }
         }
       });

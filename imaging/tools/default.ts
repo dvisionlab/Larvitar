@@ -41,6 +41,7 @@ import EllipticalRoiTool from "./custom/EllipticalRoiUSTool";
 import FreehandRoiTool from "./custom/FreehandRoiUSTool";
 import ManualLengthPlotTool from "./custom/ManualLengthPlotTool";
 import OverlayTool from "./custom/OverlayTool";
+import GspsTool from "../gspsTool";
 import type {
   ToolConfig,
   ToolMouseKeys,
@@ -544,6 +545,22 @@ const DEFAULT_TOOLS: {
     shortcut: "ctrl-t",
     type: "segmentation"
   },
+  Gsps: {
+    name: "Gsps",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: false,
+    defaultActive: true,
+    class: "GspsTool",
+    // sync: "wwwcSynchronizer",
+    description: "Applies PS params to the image",
+    shortcut: "ctrl-m",
+    type: "utils"
+  },
   Overlay: {
     name: "Overlay",
     viewports: "all",
@@ -575,6 +592,7 @@ const dvTools: {
   EllipticalRoiTool: EllipticalRoiTool,
   FreehandRoiTool: FreehandRoiTool,
   ManualLengthPlotTool: ManualLengthPlotTool,
+  GspsTool: GspsTool,
   OverlayTool: OverlayTool
 };
 
