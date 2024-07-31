@@ -554,7 +554,7 @@ const DEFAULT_TOOLS: {
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: false,
-    defaultActive: true,
+    defaultActive: false,
     class: "GspsTool",
     // sync: "wwwcSynchronizer",
     description: "Applies PS params to the image",

@@ -329,7 +329,8 @@ export function parseTag<T>(
     // are not allowed. The integer, n, represented shall be in the range:
     // -231 <= n <= (231 - 1).
     if (vr === "IS") {
-      valueOut = parseInt(valueIn);
+      let value = valueIn.split("\\").map(Number);
+      valueOut = value.length > 1 ? value : valueIn;
     }
     // A string of characters representing either a fixed point number
     // or a floating point number. A fixed point number shall contain only
@@ -442,7 +443,19 @@ export function parseTag<T>(
   } else if (vr === "UL") {
     valueOut = dataSet.uint32(propertyName);
   } else if (vr === "SL") {
-    valueOut = dataSet.int32(propertyName);
+    if (propertyName === "x00700052" || propertyName === "x00700053") {
+      // RWaveTimeVector
+      let coordinateArray: number[] = [];
+      for (let index = 0; index < 2; index++) {
+        let value = dataSet.int32(propertyName, index);
+        if (value) {
+          coordinateArray.push(value);
+        }
+      }
+      valueOut = coordinateArray;
+    } else {
+      valueOut = dataSet.int32(propertyName);
+    }
   } else if (vr == "FD") {
     valueOut = dataSet.double(propertyName);
   } else if (vr == "FL") {

@@ -1,4 +1,5 @@
 import { Image, Viewport } from "cornerstone-core";
+import { ViewportComplete } from "./tools/types";
 import { LarvitarManager, MetaData, Overlay, Series } from "./types";
 import { MetaDataTypes } from "./MetaDataTypes";
 declare const BaseTool: any;
@@ -13,7 +14,10 @@ declare const BaseTool: any;
 export default class GspsTool extends BaseTool {
     name: string;
     configuration: any;
-    pixelData?: number[];
+    originalPixelData: number[] | null;
+    maskedPixelData: number[] | null;
+    gspsImageId: string | null;
+    instanceUID: string | null;
     constructor(props?: any);
     retrieveLarvitarManager(imageId: string): {
         manager: LarvitarManager;
@@ -22,16 +26,17 @@ export default class GspsTool extends BaseTool {
     handleElement(element: HTMLElement): Promise<any>;
     disabledCallback(element: HTMLElement): Promise<void>;
     activeCallback(element: HTMLElement): Promise<void>;
-    applySoftcopyLUT(metadata: MetaData, element: HTMLElement): void;
-    applyModalityLUT(metadata: MetaData, element: HTMLElement, image: Image): void;
-    applySoftcopyPresentationLUT(metadata: MetaData, element: HTMLElement): void;
+    applySoftcopyLUT(metadata: MetaData, viewport: Viewport): void;
+    applyModalityLUT(metadata: MetaData, image: Image, viewport: Viewport): void;
+    applySoftcopyPresentationLUT(metadata: MetaData, viewport: Viewport): void;
     setLUT(voiLut: MetaDataTypes, viewport: Viewport): void;
-    applyZoomPan(metadata: MetaData, viewport: Viewport, image: Image): void;
-    applySpatialTransformation(metadata: MetaData, viewport: Viewport, image: Image): void;
+    applyZoomPan(metadata: MetaData, viewport: ViewportComplete): void;
+    applySpatialTransformation(metadata: MetaData, element: HTMLElement, viewport: ViewportComplete): void;
     applyMask(serie: Series, element: HTMLElement): void;
-    applyDisplayShutter(metadata: MetaData, element: HTMLElement, image: Image, pixelData: number[]): void;
+    applyDisplayShutter(metadata: MetaData, element: HTMLElement, image: Image, originalpixelData: number[]): Promise<void>;
     setPixelData(pixelData: number[]): () => number[];
     applyOverlay(metadata: MetaData, image: Image): void;
     renderOverlay(overlay: Overlay, imageWidth: number, imageHeight: number, canvasContext: CanvasRenderingContext2D): void;
+    convertCIELabToRGB(lab: [number, number, number]): number[];
 }
 export {};

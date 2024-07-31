@@ -1,4 +1,4 @@
-import { EnabledElement } from "cornerstone-core";
+import { EnabledElement, Viewport } from "cornerstone-core";
 
 type ToolOptions = {
   mouseButtonMask?: number | number[];
@@ -391,6 +391,22 @@ export interface Coords {
   y: number;
 }
 
+export const enum DisplayAreaVisualizations {
+  "SCALE TO FIT",
+  "TRUE SIZE",
+  "MAGNIFY"
+}
+export interface ViewportComplete extends Viewport {
+  initialRotation: number;
+  displayedArea: Area;
+}
+interface Area {
+  tlhc?: Coords;
+  brhc?: Coords;
+  rowPixelSpacing?: number;
+  columnPixelSpacing?: number;
+  presentationSizeMode?: DisplayAreaVisualizations;
+}
 export interface EventData {
   currentPoints: {
     image: Coords;

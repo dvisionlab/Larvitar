@@ -10,14 +10,21 @@ import cornerstone, {
 } from "cornerstone-core";
 import csTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
-import { Coords } from "./tools/types";
+import {
+  Coords,
+  DisplayAreaVisualizations,
+  ViewportComplete
+} from "./tools/types";
 import { LarvitarManager, MetaData, Overlay, Series } from "./types";
 import { MetaDataTypes } from "./MetaDataTypes";
 import store from "./imageStore";
-import { resetViewports, updateImage } from "./imageRendering";
-import { Metadata } from "pdfjs-dist/types/src/display/metadata";
+import {
+  flipImageHorizontal,
+  redrawImage,
+  resetViewports,
+  updateImage
+} from "./imageRendering";
 
-const external = csTools.external;
 const BaseTool = csTools.importInternal("base/BaseTool");
 const { wwwcCursor } = csTools.importInternal("tools/cursors");
 
@@ -32,7 +39,10 @@ const { wwwcCursor } = csTools.importInternal("tools/cursors");
 export default class GspsTool extends BaseTool {
   public name: string;
   public configuration: any = {};
-  public pixelData?: number[];
+  public originalPixelData: number[] | null = null;
+  public maskedPixelData: number[] | null = null;
+  public gspsImageId: string | null = null;
+  public instanceUID: string | null = null;
   constructor(props: any = {}) {
     const defaultProps = {
       name: "Gsps",
@@ -58,6 +68,7 @@ export default class GspsTool extends BaseTool {
     const manager = getLarvitarManager() as LarvitarManager;
     return { manager, seriesId };
   }
+  //TODO-Laura understand how to manage getEnabledElement(element) async (property image is undefined at first)
   async handleElement(element: HTMLElement): Promise<any> {
     try {
       const activeElement = getEnabledElement(element);
@@ -67,15 +78,15 @@ export default class GspsTool extends BaseTool {
         const checkImageAvailability = setInterval(() => {
           if (activeElement.image !== undefined) {
             clearInterval(checkImageAvailability);
-            console.log("Image is now available", activeElement.image);
+            console.debug("Image is now available", activeElement.image);
             resolve(activeElement); // Resolve the promise with the activeElement
           } else {
-            console.log("Image not yet available, continuing to poll...");
+            console.debug("Image not yet available, continuing to poll...");
           }
         }, 100); // Poll every 100ms
 
         // Optional: reject the promise if needed, e.g., after a timeout
-        const timeout = setTimeout(() => {
+        setTimeout(() => {
           clearInterval(checkImageAvailability);
           reject(new Error("Image did not become available in time"));
         }, 10000); // 10 seconds timeout
@@ -87,12 +98,13 @@ export default class GspsTool extends BaseTool {
   }
 
   async disabledCallback(element: HTMLElement) {
-    resetViewports([element.id]);
     const activeElement = await this.handleElement(element);
     const image = activeElement.image;
-    if (this.pixelData) {
-      image.getPixelData = this.setPixelData(this.pixelData!);
+    if (this.originalPixelData) {
+      image.getPixelData = this.setPixelData(this.originalPixelData!);
     }
+    redrawImage(element.id);
+    resetViewports([element.id]);
   }
 
   async activeCallback(element: HTMLElement) {
@@ -112,22 +124,46 @@ export default class GspsTool extends BaseTool {
           const gspsSeries = manager[gspsSeriesId.seriesId];
           const gspsMetadata =
             gspsSeries.instances[gspsSeriesId.imageId].metadata;
+          const viewport = cornerstone.getViewport(element);
+          if (viewport) {
+            this.applySoftcopyLUT(gspsMetadata, viewport);
+            this.applyModalityLUT(gspsMetadata, image, viewport);
+            this.applySoftcopyPresentationLUT(gspsMetadata, viewport);
+            this.applySpatialTransformation(
+              gspsMetadata,
+              element,
+              viewport as ViewportComplete
+            );
+            this.applyZoomPan(gspsMetadata, viewport as ViewportComplete);
+            this.applyMask(serie as Series, element);
+            const isSameInstanceAnsPS =
+              instanceUID === this.instanceUID &&
+              gspsSeriesId.imageId === this.gspsImageId;
+            if (!isSameInstanceAnsPS) {
+              this.originalPixelData = image.getPixelData();
+              this.instanceUID = instanceUID;
+              this.gspsImageId = gspsSeriesId.imageId;
+              this.maskedPixelData = null;
+              this.applyDisplayShutter(
+                gspsMetadata,
+                element,
+                image,
+                this.originalPixelData!
+              );
+            } else if (isSameInstanceAnsPS && this.maskedPixelData) {
+              image.getPixelData = this.setPixelData(this.maskedPixelData);
+              redrawImage(element.id);
+            }
+            this.applyOverlay(gspsMetadata, image);
 
-          this.applySoftcopyLUT(gspsMetadata, element);
-          this.applyModalityLUT(gspsMetadata, element, image);
-          this.applySoftcopyPresentationLUT(gspsMetadata, element);
-          //this.applyZoomPan(metadata: MetaData, viewport: Viewport, image: Image) {}
-          //this.applySpatialTransformation(metadata: MetaData,viewport: Viewport,image: Image) {}
-          //this.pixelData = image.getPixelData();
-          //this.applyMask(serie as Series, element);
-          //this.applyDisplayShutter(gspsMetadata, element, image,this.pixelData);
-          //this.applyOverlay(gspsMetadata, image);
+            cornerstone.setViewport(element, viewport);
+          }
         }
       }
     }
   }
 
-  applySoftcopyLUT(metadata: MetaData, element: HTMLElement) {
+  applySoftcopyLUT(metadata: MetaData, viewport: Viewport) {
     const voiLutMetadata = metadata.x00283110; // VOI LUT Sequence
 
     if (voiLutMetadata) {
@@ -135,67 +171,52 @@ export default class GspsTool extends BaseTool {
       const windowWidthMetadata = voiLutMetadata[0].x00281051 as number;
       const softcopyLUTSequence = voiLutMetadata[0].x00283010;
 
-      const viewport = cornerstone.getViewport(element);
-      if (viewport) {
-        if (softcopyLUTSequence && softcopyLUTSequence.length > 0) {
-          // Apply VOI LUT Sequence if present
-          const voiLut = softcopyLUTSequence[0]; // Assuming we're using the first VOI LUT in the sequence
-          this.setLUT(voiLut, viewport);
-        } else if (
-          windowCenterMetadata !== null &&
-          windowCenterMetadata !== undefined &&
-          windowWidthMetadata !== null &&
-          windowWidthMetadata !== undefined
-        ) {
-          viewport.voi.windowWidth = windowWidthMetadata;
-          viewport.voi.windowCenter = windowCenterMetadata;
-        }
-
-        cornerstone.setViewport(element, viewport);
+      if (softcopyLUTSequence && softcopyLUTSequence.length > 0) {
+        // Apply VOI LUT Sequence if present
+        const voiLut = softcopyLUTSequence[0]; // Assuming we're using the first VOI LUT in the sequence
+        this.setLUT(voiLut, viewport);
+      } else if (
+        windowCenterMetadata !== null &&
+        windowCenterMetadata !== undefined &&
+        windowWidthMetadata !== null &&
+        windowWidthMetadata !== undefined
+      ) {
+        viewport.voi!.windowWidth = windowWidthMetadata;
+        viewport.voi!.windowCenter = windowCenterMetadata;
       }
     }
   }
 
-  applyModalityLUT(metadata: MetaData, element: HTMLElement, image: Image) {
+  applyModalityLUT(metadata: MetaData, image: Image, viewport: Viewport) {
     const modalityLUTSequence = metadata.x00283000;
     const intercept = metadata.x00281052; // Rescale Intercept
     const slope = metadata.x00281053; // Rescale Slope
-    const viewport = cornerstone.getViewport(element);
 
-    if (viewport) {
-      if (modalityLUTSequence) {
-        const voiLut = modalityLUTSequence[0];
-        this.setLUT(voiLut, viewport);
-      } else if (
-        slope !== null &&
-        slope !== undefined &&
-        intercept !== null &&
-        intercept !== undefined
-      ) {
-        image.intercept = intercept as number;
-        image.slope = slope as number;
-      }
+    if (modalityLUTSequence) {
+      const voiLut = modalityLUTSequence[0];
+      this.setLUT(voiLut, viewport);
+    } else if (
+      slope !== null &&
+      slope !== undefined &&
+      intercept !== null &&
+      intercept !== undefined
+    ) {
+      image.intercept = intercept as number;
+      image.slope = slope as number;
     }
-    cornerstone.setViewport(element, viewport);
   }
 
-  applySoftcopyPresentationLUT(metadata: MetaData, element: HTMLElement) {
+  applySoftcopyPresentationLUT(metadata: MetaData, viewport: Viewport) {
     const presentationLUTSequence = metadata.x20500010; // Presentation LUT Sequence
     const presentationLUTShape = metadata.x20500020; // Presentation LUT Shape
 
-    const viewport = cornerstone.getViewport(element);
-
-    if (viewport) {
-      if (presentationLUTSequence && presentationLUTSequence.length > 0) {
-        // Apply Presentation LUT Sequence if present
-        const voiLut = presentationLUTSequence[0]; // Assuming we're using the first LUT in the sequence
-        this.setLUT(voiLut, viewport);
-      } else if (presentationLUTShape === "INVERSE") {
-        // Apply Presentation LUT Shape if no LUT Sequence is present
-        viewport.invert = !viewport.invert;
-      }
-
-      cornerstone.setViewport(element, viewport);
+    if (presentationLUTSequence && presentationLUTSequence.length > 0) {
+      // Apply Presentation LUT Sequence if present
+      const voiLut = presentationLUTSequence[0]; // Assuming we're using the first LUT in the sequence
+      this.setLUT(voiLut, viewport);
+    } else if (presentationLUTShape === "INVERSE") {
+      // Apply Presentation LUT Shape if no LUT Sequence is present
+      viewport.invert = !viewport.invert;
     }
   }
 
@@ -214,12 +235,93 @@ export default class GspsTool extends BaseTool {
     }
   }
 
-  applyZoomPan(metadata: MetaData, viewport: Viewport, image: Image) {}
+  applyZoomPan(metadata: MetaData, viewport: ViewportComplete) {
+    if (!viewport.displayedArea) viewport.displayedArea = {};
+    // Extract the first item from the Displayed Area Selection Sequence
+    if (metadata.x0070005a && metadata.x0070005a.length) {
+      const displayedArea = metadata.x0070005a[0];
+      // Determine if Pixel Origin Interpretation is defined and its value
+      let pixelOriginInterpretation = "FRAME"; // Default interpretation
+      if (displayedArea.x00480301) {
+        pixelOriginInterpretation = displayedArea.x00480301;
+      }
+
+      // Get Total Pixel Matrix Origin if Pixel Origin Interpretation is VOLUME
+      //TODO-Laura understand how to use matrix pixel origin sequence
+      let totalPixelMatrixOrigin = { x: 0, y: 0 }; // Default origin
+      if (
+        pixelOriginInterpretation === "VOLUME" &&
+        metadata.x00480008 &&
+        metadata.x00480008.length
+      ) {
+        const matrixOrigin = metadata.x00480008[0];
+
+        totalPixelMatrixOrigin = {
+          x: 0,
+          y: 0
+        };
+      }
+
+      // Set the top left hand corner (TLHC) coordinates
+      const tlhc = displayedArea.x00700052; // (0070,0052) - Displayed Area Top Left Hand Corner
+      if (tlhc) {
+        let tlhcX = tlhc[0];
+        let tlhcY = tlhc[1];
+        if (pixelOriginInterpretation === "VOLUME") {
+          tlhcX += totalPixelMatrixOrigin.x;
+          tlhcY += totalPixelMatrixOrigin.y;
+        }
+        viewport.displayedArea.tlhc = { x: tlhcX, y: tlhcY };
+      }
+
+      // Set the bottom right hand corner (BRHC) coordinates
+      const brhc = displayedArea.x00700053; // (0070,0053) - Displayed Area Bottom Right Hand Corner
+      if (brhc) {
+        let brhcX = brhc[0];
+        let brhcY = brhc[1];
+        if (pixelOriginInterpretation === "VOLUME") {
+          brhcX += totalPixelMatrixOrigin.x;
+          brhcY += totalPixelMatrixOrigin.y;
+        }
+        viewport.displayedArea.brhc = { x: brhcX, y: brhcY };
+      }
+
+      // Set the row and column pixel spacing
+      if (displayedArea.x00700101) {
+        //  Presentation Pixel Spacing
+        const spacing = displayedArea.x00700101;
+        viewport.displayedArea.rowPixelSpacing = spacing[0];
+        viewport.displayedArea.columnPixelSpacing = spacing[1];
+      } else if (displayedArea.x00700102) {
+        //  Presentation Pixel Aspect Ratio
+        const aspectRatio = displayedArea.x00700102;
+        viewport.displayedArea.rowPixelSpacing = aspectRatio[0];
+        viewport.displayedArea.columnPixelSpacing = aspectRatio[1];
+      }
+
+      // Set the presentation size mode
+      viewport.displayedArea.presentationSizeMode =
+        displayedArea.x00700100 as unknown as DisplayAreaVisualizations; // (0070,0100) - Presentation Size Mode
+      // Handle magnification ratio if applicable
+      if (displayedArea.x00700100 === "MAGNIFY" && displayedArea.x00700100) {
+        //  Presentation Pixel Magnification Ratio
+        viewport.scale = displayedArea.x00700103;
+      }
+    }
+  }
   applySpatialTransformation(
     metadata: MetaData,
-    viewport: Viewport,
-    image: Image
-  ) {}
+    element: HTMLElement,
+    viewport: ViewportComplete
+  ) {
+    const angle = metadata.x00700042;
+    const initialRotation = viewport.initialRotation
+      ? viewport.initialRotation
+      : viewport.rotation!;
+    if (angle) viewport.rotation = initialRotation + angle;
+    const horizontalFlip = metadata.x00700041;
+    if (horizontalFlip === "Y") flipImageHorizontal(element.id);
+  }
 
   applyMask(serie: Series, element: HTMLElement) {
     if (serie.isMultiframe) {
@@ -229,33 +331,22 @@ export default class GspsTool extends BaseTool {
     }
   }
 
-  applyDisplayShutter(
+  async applyDisplayShutter(
     metadata: MetaData,
     element: HTMLElement,
     image: Image,
-    pixelData: number[]
+    originalpixelData: number[]
   ) {
     const presentationValue = metadata.x00181622 ?? 0; // Shutter Presentation Value
     const shutterPresentationColorValue = metadata.x00181624; // Shutter Presentation Value
     const shutterShape = metadata.x00181600;
-
-    if (!presentationValue) {
+    if (!shutterShape) {
       return;
     }
-
     const { rows, columns } = image;
-
-    // Convert CIELab to RGB (assuming RGB display)
-    const convertCIELabToRGB = (lab: any) => {
-      const [L, a, b] = lab;
-      console.log(lab);
-      // Conversion code here
-      // This is a placeholder. In practice, use a library or implement the conversion.
-      return [0, 0, 0]; // Placeholder: should return [R, G, B]
-    };
-
+    let pixelData = originalpixelData.slice();
     const color = shutterPresentationColorValue
-      ? convertCIELabToRGB(shutterPresentationColorValue)
+      ? this.convertCIELabToRGB(shutterPresentationColorValue)
       : [0, 0, 0];
 
     const applyRectangularShutter = (
@@ -302,8 +393,8 @@ export default class GspsTool extends BaseTool {
     };
 
     // Helper function to apply polygonal shutter
-    const applyPolygonalShutter = (vertices: number[]) => {
-      const points = [];
+    const applyPolygonalShutter = async (vertices: number[]) => {
+      const points: Coords[] = [];
       for (let i = 0; i < vertices.length; i += 2) {
         points.push({ x: vertices[i + 1], y: vertices[i] });
       }
@@ -323,18 +414,22 @@ export default class GspsTool extends BaseTool {
         return inside;
       };
 
+      const processPixel = async (r: number, c: number) => {
+        if (!isInsidePolygon(c, r, points)) {
+          if (image.color) {
+            const index = (r * columns + c) * 3;
+            pixelData[index] = color[0]; // Red channel
+            pixelData[index + 1] = color[1]; // Green channel
+            pixelData[index + 2] = color[2]; // Blue channel
+          } else {
+            pixelData[r * columns + c] = presentationValue;
+          }
+        }
+      };
+
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < columns; c++) {
-          if (!isInsidePolygon(c, r, points)) {
-            if (image.color) {
-              const index = (r * columns + c) * 3;
-              pixelData[index] = color[0]; // Red channel
-              pixelData[index + 1] = color[1]; // Green channel
-              pixelData[index + 2] = color[2]; // Blue channel
-            } else {
-              pixelData[r * columns + c] = presentationValue;
-            }
-          }
+          await processPixel(r, c);
         }
       }
     };
@@ -364,10 +459,10 @@ export default class GspsTool extends BaseTool {
         break;
       case "POLYGONAL":
         const polygonVertices = metadata.x00181620; // Vertices of the Polygonal Shutter
-        if (polygonVertices !== undefined && polygonVertices.length >= 6) {
-          applyPolygonalShutter(polygonVertices);
-        }
 
+        if (polygonVertices !== undefined && polygonVertices.length >= 6) {
+          await applyPolygonalShutter(polygonVertices);
+        }
         break;
       default:
         console.warn("Unsupported shutter shape:", shutterShape);
@@ -375,7 +470,8 @@ export default class GspsTool extends BaseTool {
     }
 
     image.getPixelData = this.setPixelData(pixelData);
-    cornerstone.updateImage(element);
+    this.maskedPixelData = pixelData;
+    redrawImage(element.id);
   }
   setPixelData(pixelData: number[]) {
     return () => {
@@ -391,6 +487,7 @@ export default class GspsTool extends BaseTool {
     const presentationValue = metadata.x00181622 ?? 0; // Shutter Presentation Value
     const shutterPresentationColorValue = metadata.x00181624; // Shutter Presentation Color Value
     const shutterShape = metadata.x00181600; // Shutter Shape (should be BITMAP)
+    //TODO-Laura understand what to do when shutterOverlayGroup is undefined
     const shutterOverlayGroup = metadata.x00181623; // Shutter Overlay Group
     const rows =
       metadata[("x" + shutterOverlayGroup + "0010") as keyof MetaData];
@@ -424,17 +521,8 @@ export default class GspsTool extends BaseTool {
       return;
     }
 
-    // Assuming you have a function to convert the shutter presentation value to a color
-    const convertCIELabToRGB = (lab: any) => {
-      const [L, a, b] = lab;
-      console.log(lab);
-      // Conversion code here
-      // This is a placeholder. In practice, use a library or implement the conversion.
-      return [0, 0, 0]; // Placeholder: should return [R, G, B]
-    };
-
     const color = shutterPresentationColorValue
-      ? convertCIELabToRGB(shutterPresentationColorValue)
+      ? this.convertCIELabToRGB(shutterPresentationColorValue)
       : [0, 0, 0];
 
     // Create a Cornerstone overlay
@@ -451,7 +539,7 @@ export default class GspsTool extends BaseTool {
       roiArea: roiArea,
       roiMean: roiMean,
       roiStandardDeviation: roiStandardDeviation,
-      fillStyle: `rgba(${presentationValue}, ${presentationValue}, ${presentationValue}, 0.5)`, // Example fill style, adjust as needed
+      fillStyle: `rgba(${presentationValue}, ${presentationValue}, ${presentationValue}, 1)`, // Example fill style, adjust as needed
       visible: true, // Example visibility flag, adjust as needed
       x: origin ? origin[1] - 1 : 0, // Adjust x based on origin
       y: origin ? origin[0] - 1 : 0 // Adjust y based on origin
@@ -465,6 +553,7 @@ export default class GspsTool extends BaseTool {
       layerCanvas.getContext("2d")!;
     this.renderOverlay(overlay, image.width, image.height, layerContext);
   }
+
   renderOverlay(
     overlay: Overlay,
     imageWidth: number,
@@ -507,5 +596,50 @@ export default class GspsTool extends BaseTool {
 
     // Draw the overlay layer onto the canvas
     canvasContext.drawImage(layerCanvas, overlayX!, overlayY!);
+  }
+
+  convertCIELabToRGB(lab: [number, number, number]) {
+    const l = lab[0];
+    const a = lab[1];
+    const b = lab[2];
+    let varY = (l + 16) / 116;
+    let varX = a / 500 + varY;
+    let varZ = varY - b / 200;
+
+    if (Math.pow(varY, 3) > 0.008856) varY = Math.pow(varY, 3);
+    else varY = (varY - 16 / 116) / 7.787;
+
+    if (Math.pow(varX, 3) > 0.008856) varX = Math.pow(varX, 3);
+    else varX = (varX - 16 / 116) / 7.787;
+
+    if (Math.pow(varZ, 3) > 0.008856) varZ = Math.pow(varZ, 3);
+    else varZ = (varZ - 16 / 116) / 7.787;
+
+    let X = 95.047 * varX; // ref_X =  95.047     Observer= 2°, Illuminant= D65
+    let Y = 100.0 * varY; // ref_Y = 100.000
+    let Z = 108.883 * varZ; // ref_Z = 108.883
+
+    varX = X / 100; // X from 0 to  95.047      (Observer = 2°, Illuminant = D65)
+    varY = Y / 100; // Y from 0 to 100.000
+    varZ = Z / 100; // Z from 0 to 108.883
+
+    let varR = varX * 3.2406 + varY * -1.5372 + varZ * -0.4986;
+    let varG = varX * -0.9689 + varY * 1.8758 + varZ * 0.0415;
+    let varB = varX * 0.0557 + varY * -0.204 + varZ * 1.057;
+
+    if (varR > 0.0031308) varR = 1.055 * Math.pow(varR, 1 / 2.4) - 0.055;
+    else varR = 12.92 * varR;
+
+    if (varG > 0.0031308) varG = 1.055 * Math.pow(varG, 1 / 2.4) - 0.055;
+    else varG = 12.92 * varG;
+
+    if (varB > 0.0031308) varB = 1.055 * Math.pow(varB, 1 / 2.4) - 0.055;
+    else varB = 12.92 * varB;
+
+    let R = varR * 255;
+    let G = varG * 255;
+    let B = varB * 255;
+
+    return [R, G, B];
   }
 }
