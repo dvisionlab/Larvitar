@@ -476,6 +476,15 @@ export function parseTag<T>(
         index++;
       }
       valueOut = rWaveTimeVector;
+    } else if (propertyName === "x00700022" && dataSet.uint16("x00700021")) {
+      let pointsCoords = [];
+      for (let index = 0; index < 2 * dataSet.uint16("x00700021")!; index++) {
+        let value = dataSet.float(propertyName, index);
+        if (value) {
+          pointsCoords.push(value);
+        }
+      }
+      valueOut = pointsCoords;
     } else {
       valueOut = dataSet.float(propertyName);
     }

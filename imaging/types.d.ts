@@ -193,6 +193,8 @@ export type Series = {
 };
 
 export type Overlay = {
+  isAnnotation: boolean;
+  isOverlay: boolean;
   columns?: number;
   description?: string;
   label?: string | number;
@@ -207,6 +209,11 @@ export type Overlay = {
   visible: boolean;
   type: string;
   fillStyle: string;
+  overlayRenderingOrder?: number;
+  canBeRendered?: boolean;
+  bitsAllocated?: number;
+  bitPosition?: number;
+  subtype?: string;
 };
 export interface Layer extends cornerstone.EnabledElementLayer {
   id: string;
@@ -375,4 +382,67 @@ export type NrrdInstance = {
   patientName: string;
   bitsAllocated: number;
   pixelRepresentation: string;
+};
+
+export type AnnotationDetails = {
+  description?: string;
+  annotationID?: string;
+  textObjects: TextDetails[];
+  graphicsObjects: GraphicDetails[];
+  compoundObjects: CompoundDetails[];
+  annotationRenderingOrder?: number;
+  presentationGSValue?: number;
+  annotationCIELabColor?: [number, number, number];
+  annotationDescription?: string;
+};
+export type TextDetails = {
+  unformattedTextValue?: string; // Unformatted Text Value
+  textFormat?: string;
+  boundingBoxUnits?: string; // Bounding Box Annotation Units
+  anchorPointUnits?: string; // Anchor Point Annotation Units
+  boundingBox?: {
+    tlhc?: number;
+    brhc?: number;
+  };
+  anchorPointVisibility?: string; // Anchor Point Visibility
+  anchorPoint?: number;
+  compoundGraphicInstanceUID?: number;
+  graphicGroupID?: number;
+  trackingID?: string;
+  trackingUID?: string;
+};
+export type GraphicDetails = {
+  graphicAnnotationUnits?: string;
+  graphicDimensions?: number;
+  graphicPointsNumber?: number;
+  graphicData?: number[];
+  graphicType?: string;
+  graphicFilled?: string;
+  compoundGraphicInstanceUID?: number;
+  graphicGroupID?: number;
+  trackingID?: string;
+  trackingUID?: string;
+};
+export type CompoundDetails = {
+  compoundGraphicUnits?: string;
+  graphicDimensions?: number;
+  graphicPointsNumber?: number;
+  graphicData?: number[];
+  compoundGraphicType?: string;
+  graphicFilled?: string;
+  compoundGraphicInstanceUID?: number;
+  graphicGroupID?: number;
+  rotationAngle?: number;
+  rotationPoint?: number;
+  gapLength?: number;
+  diameterOfVisibility?: number;
+  majorTicks?: MajorTicks[];
+  tickFormat?: string;
+  tickLabelFormat?: string;
+  showTick?: string;
+};
+
+export type MajorTicks = {
+  tickPosition?: number;
+  tickLabel?: string;
 };

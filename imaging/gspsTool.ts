@@ -6,6 +6,7 @@ import {
 import cornerstone, {
   getEnabledElement,
   Image,
+  vec2,
   Viewport
 } from "cornerstone-core";
 import csTools from "cornerstone-tools";
@@ -15,7 +16,17 @@ import {
   DisplayAreaVisualizations,
   ViewportComplete
 } from "./tools/types";
-import { LarvitarManager, MetaData, Overlay, Series } from "./types";
+import {
+  AnnotationDetails,
+  CompoundDetails,
+  GraphicDetails,
+  LarvitarManager,
+  MajorTicks,
+  MetaData,
+  Overlay,
+  Series,
+  TextDetails
+} from "./types";
 import { MetaDataTypes } from "./MetaDataTypes";
 import store from "./imageStore";
 import {
@@ -24,7 +35,14 @@ import {
   resetViewports,
   updateImage
 } from "./imageRendering";
-
+const drawJoinedLines = csTools.importInternal("drawing/drawJoinedLines");
+const toolColors = csTools.toolColors;
+const setShadow = csTools.importInternal("drawing/setShadow");
+const drawEllipse = csTools.importInternal("drawing/drawEllipse");
+const getNewContext = csTools.importInternal("drawing/getNewContext");
+const draw = csTools.importInternal("drawing/draw");
+const drawHandles = csTools.importInternal("drawing/drawHandles");
+const getModule = csTools.getModule;
 const BaseTool = csTools.importInternal("base/BaseTool");
 const { wwwcCursor } = csTools.importInternal("tools/cursors");
 
@@ -43,6 +61,7 @@ export default class GspsTool extends BaseTool {
   public maskedPixelData: number[] | null = null;
   public gspsImageId: string | null = null;
   public instanceUID: string | null = null;
+  public toolAnnotations: any = [];
   constructor(props: any = {}) {
     const defaultProps = {
       name: "Gsps",
@@ -136,9 +155,11 @@ export default class GspsTool extends BaseTool {
             );
             this.applyZoomPan(gspsMetadata, viewport as ViewportComplete);
             this.applyMask(serie as Series, element);
+
             const isSameInstanceAnsPS =
               instanceUID === this.instanceUID &&
               gspsSeriesId.imageId === this.gspsImageId;
+
             if (!isSameInstanceAnsPS) {
               this.originalPixelData = image.getPixelData();
               this.instanceUID = instanceUID;
@@ -154,7 +175,23 @@ export default class GspsTool extends BaseTool {
               image.getPixelData = this.setPixelData(this.maskedPixelData);
               redrawImage(element.id);
             }
-            this.applyOverlay(gspsMetadata, image);
+
+            const graphicLayers = gspsMetadata.x00700060; // Assuming this is the parsed Graphic Layer Sequence
+            //understand how to integrate graphic Groups
+            const graphicGroups = gspsMetadata.x00700234;
+            //TODO-Laura can there be more than 1 overlay?
+            this.retrieveOverlayToolData(
+              gspsMetadata,
+              image,
+              graphicLayers,
+              graphicGroups
+            );
+            this.retrieveAnnotationsToolData(
+              gspsMetadata,
+              image,
+              graphicLayers,
+              graphicGroups
+            );
 
             cornerstone.setViewport(element, viewport);
           }
@@ -483,12 +520,24 @@ export default class GspsTool extends BaseTool {
     };
   }
 
-  applyOverlay(metadata: MetaData, image: Image) {
+  retrieveOverlayToolData(
+    metadata: MetaData,
+    image: Image,
+    graphicLayers?: MetaDataTypes[],
+    graphicGroups?: MetaDataTypes[]
+  ) {
     const presentationValue = metadata.x00181622 ?? 0; // Shutter Presentation Value
     const shutterPresentationColorValue = metadata.x00181624; // Shutter Presentation Color Value
     const shutterShape = metadata.x00181600; // Shutter Shape (should be BITMAP)
-    //TODO-Laura understand what to do when shutterOverlayGroup is undefined
     const shutterOverlayGroup = metadata.x00181623; // Shutter Overlay Group
+
+    // Guard clause for undefined shutterOverlayGroup
+    if (!shutterOverlayGroup) {
+      console.warn("Shutter overlay group is undefined.");
+      return;
+    }
+
+    // Retrieve overlay metadata based on shutterOverlayGroup
     const rows =
       metadata[("x" + shutterOverlayGroup + "0010") as keyof MetaData];
     const cols =
@@ -515,87 +564,529 @@ export default class GspsTool extends BaseTool {
       metadata[("x" + shutterOverlayGroup + "1302") as keyof MetaData];
     const roiStandardDeviation =
       metadata[("x" + shutterOverlayGroup + "1303") as keyof MetaData];
+    const overlayActivationLayer =
+      metadata[("x" + shutterOverlayGroup + "1001") as keyof MetaData]; //equal to layerOrder
 
-    if (shutterShape !== "BITMAP") {
+    /*if (shutterShape !== "BITMAP") {
       console.error("Unsupported shutter shape: ", shutterShape);
       return;
-    }
+    }*/
+    let overlayRenderingOrder = overlayActivationLayer;
+    let presentationGSValue = presentationValue;
+    let overlayCIELabColor = shutterPresentationColorValue;
+    let overlayDescription = description;
 
-    const color = shutterPresentationColorValue
-      ? this.convertCIELabToRGB(shutterPresentationColorValue)
+    //TODO-Laura understand how to identify the current overlay in the Graphic Layer Order and if it is necessary
+    //or already retrieved parameters are sufficient
+
+    /*
+      // Parse Graphic Layer Sequence
+      if (graphicLayers && Array.isArray(graphicLayers)) {
+      let targetLayer: MetaDataTypes | null = null;
+    
+      let id = "test";
+
+      for (const layer of graphicLayers) {
+        if (layer.x00700002 === id) {
+          targetLayer = layer;
+          break;
+        }
+      }
+
+      if (!targetLayer) {
+        console.warn(
+          "No graphic layer found for the specified shutter overlay group."
+        );
+        return;
+      }
+      overlayRenderingOrder = overlayActivationLayer ?? targetLayer.x00700062;
+      presentationGSValue = presentationValue ?? targetLayer.x00700066;
+      overlayCIELabColor =
+        shutterPresentationColorValue ?? targetLayer.x00700401;
+      overlayDescription = description ?? targetLayer.x00700068;
+    }*/
+
+    const color = overlayCIELabColor
+      ? this.convertCIELabToRGB(overlayCIELabColor)
       : [0, 0, 0];
 
-    // Create a Cornerstone overlay
     const overlay: Overlay = {
+      isAnnotation: false,
+      isOverlay: true,
+      overlayRenderingOrder: overlayRenderingOrder,
+      canBeRendered: overlayActivationLayer ? true : false,
       rows: rows,
       columns: cols,
       type: type,
-      //bitsAllocated: bitsAllocated,
-      //bitPosition: bitPosition,
       pixelData: overlayData, // Assuming overlayData contains the pixel data
-      description: description,
-      //subtype: subtype,
+      description: overlayDescription,
       label: label,
       roiArea: roiArea,
       roiMean: roiMean,
       roiStandardDeviation: roiStandardDeviation,
-      fillStyle: `rgba(${presentationValue}, ${presentationValue}, ${presentationValue}, 1)`, // Example fill style, adjust as needed
+      fillStyle: presentationGSValue
+        ? `rgba(${presentationGSValue}, ${presentationGSValue}, ${presentationGSValue}, 1)`
+        : `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`, // Example fill style, adjust as needed
       visible: true, // Example visibility flag, adjust as needed
       x: origin ? origin[1] - 1 : 0, // Adjust x based on origin
-      y: origin ? origin[0] - 1 : 0 // Adjust y based on origin
+      y: origin ? origin[0] - 1 : 0, // Adjust y based on origin,
+      bitsAllocated,
+      bitPosition,
+      subtype
     };
-    const layerCanvas = document.createElement("canvas");
-
-    layerCanvas.width = image.width;
-    layerCanvas.height = image.height;
-
-    const layerContext: CanvasRenderingContext2D =
-      layerCanvas.getContext("2d")!;
-    this.renderOverlay(overlay, image.width, image.height, layerContext);
+    if (overlay) this.setToolAnnotationsAndOverlays(overlay);
   }
 
-  renderOverlay(
-    overlay: Overlay,
-    imageWidth: number,
-    imageHeight: number,
-    canvasContext: CanvasRenderingContext2D
+  retrieveAnnotationsToolData(
+    metadata: MetaData,
+    image: Image,
+    graphicLayers?: MetaDataTypes[],
+    graphicGroups?: MetaDataTypes[]
   ) {
-    if (overlay.visible === false) {
-      return;
+    const annotations: AnnotationDetails[] = [];
+    // Extract Graphic Annotation Sequence
+    const graphicAnnotationSequence = metadata.x00700001; // Graphic Annotation Sequence
+    if (graphicAnnotationSequence) {
+      graphicAnnotationSequence.forEach(annotation => {
+        const annotationID = annotation.x00700002; // Graphic Layer
+
+        const targetLayer: MetaDataTypes = this.findGraphicLayer(
+          annotationID,
+          graphicLayers
+        );
+
+        const annotationDetails = {
+          description: targetLayer?.x00700068,
+          annotationID,
+          textObjects: [] as TextDetails[],
+          graphicsObjects: [] as GraphicDetails[],
+          compoundObjects: [] as CompoundDetails[],
+          annotationRenderingOrder: targetLayer.x00700062,
+          presentationGSValue: targetLayer.x00700066,
+          annotationCIELabColor: targetLayer.x00700401,
+          annotationDescription: targetLayer.x00700068
+        };
+
+        // Extract Text Objects
+        const textObjectSequence = annotation.x00700008; // Text Object Sequence
+        if (textObjectSequence) {
+          textObjectSequence.forEach(textObject => {
+            const textDetails = this.retrieveTextObjectDetails(textObject);
+            annotationDetails.textObjects.push(textDetails);
+          });
+        }
+
+        // Extract Graphics Objects
+        const graphicObjectSequence = annotation.x00700009; // Graphic Object Sequence
+        if (graphicObjectSequence) {
+          graphicObjectSequence.forEach(graphicObject => {
+            const graphicDetails =
+              this.retrieveGraphicObjectDetails(graphicObject);
+
+            annotationDetails.graphicsObjects.push(graphicDetails);
+          });
+        }
+        // Extract Graphics Objects
+        const compoundGraphicSequence = annotation.x00700209; // Graphic Object Sequence
+        if (compoundGraphicSequence) {
+          compoundGraphicSequence.forEach(compoundObject => {
+            const compoundDetails =
+              this.retrieveCompoundObjectDetails(compoundObject);
+            annotationDetails.compoundObjects.push(compoundDetails);
+          });
+        }
+
+        annotations.push(annotationDetails);
+      });
     }
 
-    const layerCanvas = document.createElement("canvas");
-    layerCanvas.width = imageWidth;
-    layerCanvas.height = imageHeight;
+    if (annotations)
+      this.createAnnotationToolData(annotations, image, graphicGroups);
+  }
 
-    const layerContext = layerCanvas.getContext("2d");
-    if (!layerContext) {
-      console.error("Failed to get 2D context for layerCanvas.");
-      return;
+  retrieveTextObjectDetails(textObject: MetaDataTypes): TextDetails {
+    return {
+      unformattedTextValue: textObject.x00700006, // Unformatted Text Value
+      textFormat: textObject.x00700012,
+      boundingBoxUnits: textObject.x00700003, // Bounding Box Annotation Units
+      anchorPointUnits: textObject.x00700004, // Anchor Point Annotation Units
+      boundingBox: {
+        tlhc: textObject.x00700010,
+        brhc: textObject.x00700011
+      },
+      anchorPointVisibility: textObject.x00700015, // Anchor Point Visibility
+      anchorPoint: textObject.x00700014,
+      compoundGraphicInstanceUID: textObject.x00700226,
+      graphicGroupID: textObject.x00700295,
+      trackingID: textObject.x00620020,
+      trackingUID: textObject.x00620021
+    };
+  }
+
+  retrieveGraphicObjectDetails(graphicObject: MetaDataTypes): GraphicDetails {
+    return {
+      graphicAnnotationUnits: graphicObject.x00700005,
+      graphicDimensions: graphicObject.x00700020,
+      graphicPointsNumber: graphicObject.x00700021,
+      graphicData: graphicObject.x00700022,
+      graphicType: graphicObject.x00700023,
+      graphicFilled: graphicObject.x00700024,
+      compoundGraphicInstanceUID: graphicObject.x00700226,
+      graphicGroupID: graphicObject.x00700295,
+      trackingID: graphicObject.x00620020,
+      trackingUID: graphicObject.x00620021
+    };
+  }
+  retrieveCompoundObjectDetails(
+    compoundObject: MetaDataTypes
+  ): CompoundDetails {
+    const compoundDetails = {
+      compoundGraphicUnits: compoundObject.x00700282,
+      graphicDimensions: compoundObject.x00700020,
+      graphicPointsNumber: compoundObject.x00700021,
+      graphicData: compoundObject.x00700022,
+      compoundGraphicType: compoundObject.x00700294,
+      graphicFilled: compoundObject.x00700024,
+      compoundGraphicInstanceUID: compoundObject.x00700226,
+      graphicGroupID: compoundObject.x00700295,
+      rotationAngle: compoundObject.x00700230,
+      rotationPoint: compoundObject.x00700273,
+      gapLength: compoundObject.x00700261,
+      diameterOfVisibility: compoundObject.x00700262,
+      majorTicks: [] as MajorTicks[],
+      tickFormat: compoundObject.x00700274,
+      tickLabelFormat: compoundObject.x00700279,
+      showTick: compoundObject.x00700278
+    };
+    if (compoundObject.x00700287?.length) {
+      const ticks = compoundObject.x00700287;
+      for (let i = 0; i < ticks?.length; i++) {
+        compoundDetails.majorTicks.push({
+          tickPosition: ticks[i].x00700288,
+          tickLabel: ticks[i].x00700289
+        });
+      }
     }
+    return compoundDetails;
+  }
 
-    layerContext.fillStyle = overlay.fillStyle;
-
-    if (overlay.type === "R") {
-      layerContext.fillRect(0, 0, layerCanvas.width, layerCanvas.height);
-      layerContext.globalCompositeOperation = "xor";
-    }
-
-    let i = 0;
-    for (let y = 0; y < overlay.rows!; y++) {
-      for (let x = 0; x < overlay.columns!; x++) {
-        if (overlay.pixelData[i++] > 0) {
-          layerContext.fillRect(x, y, 1, 1);
+  findGraphicLayer(annotationID?: string, graphicLayers?: any) {
+    if (graphicLayers) {
+      for (const layer of graphicLayers) {
+        if (layer.x00700002 === annotationID) {
+          return layer;
         }
       }
     }
+  }
 
-    // Guard against non-number values for overlay coordinates
-    const overlayX = !isNaN(overlay.x!) && isFinite(overlay.x!) ? overlay.x : 0;
-    const overlayY = !isNaN(overlay.y!) && isFinite(overlay.y!) ? overlay.y : 0;
+  createAnnotationToolData(
+    annotations: AnnotationDetails[],
+    image: Image,
+    graphicGroups?: MetaDataTypes[]
+  ) {
+    annotations.forEach(annotation => {
+      const textObjects = annotation.textObjects;
+      const graphicsObjects = annotation.graphicsObjects;
+      const compoundObjects = annotation.compoundObjects;
+      graphicsObjects.forEach(graphicObject => {
+        const graphicType = graphicObject.graphicType;
+        if (!graphicType) return;
+        switch (graphicType) {
+          case "POINT":
+            this.setToolAnnotationsAndOverlays({
+              isAnnotation: true,
+              isOverlay: false,
+              annotationRenderingOrder: annotation.annotationRenderingOrder,
+              isgraphicFilled: graphicObject.graphicFilled,
+              type: "POINT",
+              visible: true,
+              active: true,
+              color: undefined,
+              invalidated: true,
+              handles: {
+                start: {
+                  x: graphicObject.graphicData![0] * image.columns,
+                  y: graphicObject.graphicData![1] * image.rows,
+                  highlight: true,
+                  active: false
+                },
 
-    // Draw the overlay layer onto the canvas
-    canvasContext.drawImage(layerCanvas, overlayX!, overlayY!);
+                initialRotation: 0,
+                textBox: {
+                  active: false,
+                  hasMoved: false,
+                  movesIndependently: false,
+                  drawnIndependently: true,
+                  allowedOutsideImage: true,
+                  hasBoundingBox: true
+                }
+              }
+            });
+            break;
+          case "POLYLINE":
+            const xy: any[] = [];
+            if (graphicObject.graphicData) {
+              for (let i = 0; i < graphicObject.graphicData.length; i += 2) {
+                if (i + 1 < graphicObject.graphicData.length) {
+                  xy.push({
+                    x: graphicObject.graphicData[i] * image.columns,
+                    y: graphicObject.graphicData[i + 1] * image.rows,
+                    lines: []
+                  });
+                }
+              }
+              for (
+                let insertIndex = 0;
+                insertIndex < xy.length;
+                insertIndex++
+              ) {
+                if (xy.length + 1 === xy.length - 1) {
+                  xy[insertIndex].lines.push(xy[0]);
+                } else {
+                  xy[insertIndex].lines.push(xy[insertIndex + 1]);
+                }
+              }
+            }
+
+            this.setToolAnnotationsAndOverlays({
+              isAnnotation: true,
+              isOverlay: false,
+              annotationRenderingOrder: annotation.annotationRenderingOrder,
+              type: "POLYLINE",
+              isgraphicFilled: graphicObject.graphicFilled,
+              visible: true,
+              active: true,
+              color: undefined,
+              invalidated: true,
+              handles: {
+                points: xy,
+                initialRotation: 0,
+                textBox: {
+                  active: false,
+                  hasMoved: false,
+                  movesIndependently: false,
+                  drawnIndependently: true,
+                  allowedOutsideImage: true,
+                  hasBoundingBox: true
+                }
+              }
+            });
+            break;
+          case "INTERPOLATED":
+            break;
+          case "CIRCLE":
+            const center = {
+              x: graphicObject.graphicData![0],
+              y: graphicObject.graphicData![1]
+            };
+            const point = {
+              x: graphicObject.graphicData![2],
+              y: graphicObject.graphicData![3]
+            };
+            const radius = Math.sqrt(
+              Math.pow(center.x - point.x, 2) + Math.pow(center.y - point.y, 2)
+            );
+            this.setToolAnnotationsAndOverlays({
+              isAnnotation: true,
+              isOverlay: false,
+              annotationRenderingOrder: annotation.annotationRenderingOrder,
+              type: "CIRCLE",
+              isgraphicFilled: graphicObject.graphicFilled,
+              visible: true,
+              active: true,
+              color: undefined,
+              invalidated: true,
+              handles: {
+                start: {
+                  x: (center.x - radius / 2) * image.columns,
+                  y: (center.y - radius / 2) * image.rows,
+                  highlight: true,
+                  active: false
+                },
+                end: {
+                  x: (center.x + radius / 2) * image.columns,
+                  y: (center.y + radius / 2) * image.rows,
+                  highlight: true,
+                  active: true
+                },
+                initialRotation: 0,
+                textBox: {
+                  active: false,
+                  hasMoved: false,
+                  movesIndependently: false,
+                  drawnIndependently: true,
+                  allowedOutsideImage: true,
+                  hasBoundingBox: true
+                }
+              }
+            });
+            break;
+          case "ELLIPSE":
+            //push so that this.toolAnnotations is sorted by layer priority order
+            this.setToolAnnotationsAndOverlays({
+              isAnnotation: true,
+              isOverlay: false,
+              annotationRenderingOrder: annotation.annotationRenderingOrder,
+              type: "ELLIPSE",
+              isgraphicFilled: graphicObject.graphicFilled,
+              visible: true,
+              active: true,
+              color: undefined,
+              invalidated: true,
+              handles: {
+                start: {
+                  x: graphicObject.graphicData![0] * image.columns,
+                  y: graphicObject.graphicData![5] * image.rows,
+                  highlight: true,
+                  active: false
+                },
+                end: {
+                  x: graphicObject.graphicData![2] * image.columns,
+                  y: graphicObject.graphicData![7] * image.rows,
+                  highlight: true,
+                  active: true
+                },
+                initialRotation: 0,
+                textBox: {
+                  active: false,
+                  hasMoved: false,
+                  movesIndependently: false,
+                  drawnIndependently: true,
+                  allowedOutsideImage: true,
+                  hasBoundingBox: true
+                }
+              }
+            });
+            break;
+          default:
+            return;
+        }
+      });
+    });
+  }
+
+  renderToolData(evt: any) {
+    const toolData = this.getToolAnnotations();
+
+    if (!toolData) {
+      return;
+    }
+
+    const eventData = evt.detail;
+    const { element, image } = eventData;
+
+    const context = getNewContext(eventData.canvasContext.canvas);
+
+    draw(context, (context: CanvasRenderingContext2D) => {
+      // If we have tool data for this element - iterate over each set and draw it
+      for (let i = 0; i < toolData.length; i++) {
+        const data = toolData[i];
+        if (data.isOverlay === true) {
+          if (data.visible === false) {
+            return;
+          }
+
+          const layerCanvas = document.createElement("canvas");
+          layerCanvas.width = image.width;
+          layerCanvas.height = image.height;
+
+          const layerContext = layerCanvas.getContext("2d");
+          if (!layerContext) {
+            console.error("Failed to get 2D context for layerCanvas.");
+            return;
+          }
+
+          layerContext.fillStyle = data.fillStyle;
+
+          if (data.type === "R") {
+            layerContext.fillRect(0, 0, layerCanvas.width, layerCanvas.height);
+            layerContext.globalCompositeOperation = "xor";
+          }
+
+          let i = 0;
+          for (let y = 0; y < data.rows!; y++) {
+            for (let x = 0; x < data.columns!; x++) {
+              if (data.pixelData[i++] > 0) {
+                layerContext.fillRect(x, y, 1, 1);
+              }
+            }
+          }
+
+          // Guard against non-number values for overlay coordinates
+          const overlayX = !isNaN(data.x!) && isFinite(data.x!) ? data.x : 0;
+          const overlayY = !isNaN(data.y!) && isFinite(data.y!) ? data.y : 0;
+
+          // Draw the overlay layer onto the canvas
+          layerContext.drawImage(layerCanvas, overlayX!, overlayY!);
+        } else if (data.isAnnotation === true) {
+          if (data.visible === false) {
+            continue;
+          }
+
+          // Configure
+          const color = toolColors.getColorIfActive(data);
+
+          setShadow(context, this.configuration);
+
+          if (data.type === "POINT") {
+            const options = {
+              color,
+              fillStyle: data.isgraphicFilled ? color : null,
+              handleRadius: 6
+            };
+            drawHandles(
+              context,
+              eventData,
+              this.configuration.mouseLocation.handles,
+              options
+            );
+          } else if (data.type === "ELLIPSE" || data.type === "CIRCLE") {
+            const ellipseCircleOptions = {
+              color,
+              fillStyle: data.isgraphicFilled ? color : null
+            };
+            drawEllipse(
+              context,
+              element,
+              data.handles.start,
+              data.handles.end,
+              ellipseCircleOptions,
+              "pixel",
+              data.handles.initialRotation
+            );
+          } else if ((data.type = "POLYLINE")) {
+            const isNotTheFirstHandle = data.handles.points.length > 1;
+            const polylineOptions = {
+              color,
+              fillStyle: data.isgraphicFilled ? color : null
+            };
+            if (isNotTheFirstHandle) {
+              for (let j = 0; j < data.handles.points.length; j++) {
+                const lines = [...data.handles.points[j].lines];
+
+                drawJoinedLines(
+                  context,
+                  element,
+                  data.handles.points[j],
+                  lines,
+                  polylineOptions
+                );
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+  //setters
+  setToolAnnotationsAndOverlays(newData: any) {
+    //TODO-Laura implement the sorting logic (following the layer rendering order)
+    this.toolAnnotations.push(newData);
+  }
+  //getters
+  getToolAnnotations() {
+    return this.toolAnnotations;
   }
 
   convertCIELabToRGB(lab: [number, number, number]) {

@@ -1,6 +1,6 @@
 import { Image, Viewport } from "cornerstone-core";
 import { ViewportComplete } from "./tools/types";
-import { LarvitarManager, MetaData, Overlay, Series } from "./types";
+import { AnnotationDetails, CompoundDetails, GraphicDetails, LarvitarManager, MetaData, Series, TextDetails } from "./types";
 import { MetaDataTypes } from "./MetaDataTypes";
 declare const BaseTool: any;
 /**
@@ -18,6 +18,7 @@ export default class GspsTool extends BaseTool {
     maskedPixelData: number[] | null;
     gspsImageId: string | null;
     instanceUID: string | null;
+    toolAnnotations: any;
     constructor(props?: any);
     retrieveLarvitarManager(imageId: string): {
         manager: LarvitarManager;
@@ -35,8 +36,16 @@ export default class GspsTool extends BaseTool {
     applyMask(serie: Series, element: HTMLElement): void;
     applyDisplayShutter(metadata: MetaData, element: HTMLElement, image: Image, originalpixelData: number[]): Promise<void>;
     setPixelData(pixelData: number[]): () => number[];
-    applyOverlay(metadata: MetaData, image: Image): void;
-    renderOverlay(overlay: Overlay, imageWidth: number, imageHeight: number, canvasContext: CanvasRenderingContext2D): void;
+    retrieveOverlayToolData(metadata: MetaData, image: Image, graphicLayers?: MetaDataTypes[], graphicGroups?: MetaDataTypes[]): void;
+    retrieveAnnotationsToolData(metadata: MetaData, image: Image, graphicLayers?: MetaDataTypes[], graphicGroups?: MetaDataTypes[]): void;
+    retrieveTextObjectDetails(textObject: MetaDataTypes): TextDetails;
+    retrieveGraphicObjectDetails(graphicObject: MetaDataTypes): GraphicDetails;
+    retrieveCompoundObjectDetails(compoundObject: MetaDataTypes): CompoundDetails;
+    findGraphicLayer(annotationID?: string, graphicLayers?: any): any;
+    createAnnotationToolData(annotations: AnnotationDetails[], image: Image, graphicGroups?: MetaDataTypes[]): void;
+    renderToolData(evt: any): void;
+    setToolAnnotationsAndOverlays(newData: any): void;
+    getToolAnnotations(): any;
     convertCIELabToRGB(lab: [number, number, number]): number[];
 }
 export {};
