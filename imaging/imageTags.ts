@@ -485,6 +485,19 @@ export function parseTag<T>(
         }
       }
       valueOut = pointsCoords;
+    } else if (
+      propertyName === "x00700010" ||
+      propertyName === "x00700011" ||
+      propertyName === "x00700014"
+    ) {
+      let pointsCoords = [];
+      for (let index = 0; index < 2; index++) {
+        let value = dataSet.float(propertyName, index);
+        if (value) {
+          pointsCoords.push(value);
+        }
+      }
+      valueOut = pointsCoords;
     } else {
       valueOut = dataSet.float(propertyName);
     }

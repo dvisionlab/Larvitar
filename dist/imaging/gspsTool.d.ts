@@ -42,7 +42,8 @@ export default class GspsTool extends BaseTool {
     retrieveGraphicObjectDetails(graphicObject: MetaDataTypes): GraphicDetails;
     retrieveCompoundObjectDetails(compoundObject: MetaDataTypes): CompoundDetails;
     findGraphicLayer(annotationID?: string, graphicLayers?: any): any;
-    createAnnotationToolData(annotations: AnnotationDetails[], image: Image, graphicGroups?: MetaDataTypes[]): void;
+    handleTextAnnotation(annotation: AnnotationDetails, textObject: TextDetails, image: Image): void;
+    handleGraphicAnnotation(annotation: AnnotationDetails, graphicObject: GraphicDetails, image: Image): void;
     renderToolData(evt: any): void;
     setToolAnnotationsAndOverlays(newData: any): void;
     getToolAnnotations(): any;

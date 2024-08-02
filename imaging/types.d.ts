@@ -3,6 +3,7 @@ import { DataSet } from "dicom-parser";
 import { MetaDataTypes } from "./MetaDataTypes";
 import { MetaDataReadable } from "./MetaDataReadable";
 import { Element } from "dicom-parser";
+import { Coords } from "./tools/types";
 // TODO-ts: differentiate each single metadata @szanchi
 /*export type MetadataValue =
   | string
@@ -193,8 +194,8 @@ export type Series = {
 };
 
 export type Overlay = {
-  isAnnotation: boolean;
-  isOverlay: boolean;
+  isGraphicAnnotation?: boolean;
+  isOverlay?: boolean;
   columns?: number;
   description?: string;
   label?: string | number;
@@ -387,9 +388,7 @@ export type NrrdInstance = {
 export type AnnotationDetails = {
   description?: string;
   annotationID?: string;
-  textObjects: TextDetails[];
-  graphicsObjects: GraphicDetails[];
-  compoundObjects: CompoundDetails[];
+
   annotationRenderingOrder?: number;
   presentationGSValue?: number;
   annotationCIELabColor?: [number, number, number];
@@ -401,11 +400,11 @@ export type TextDetails = {
   boundingBoxUnits?: string; // Bounding Box Annotation Units
   anchorPointUnits?: string; // Anchor Point Annotation Units
   boundingBox?: {
-    tlhc?: number;
-    brhc?: number;
+    tlhc?: { x: number | null; y: number | null };
+    brhc?: { x: number | null; y: number | null };
   };
   anchorPointVisibility?: string; // Anchor Point Visibility
-  anchorPoint?: number;
+  anchorPoint?: { x: number | null; y: number | null };
   compoundGraphicInstanceUID?: number;
   graphicGroupID?: number;
   trackingID?: string;

@@ -137,7 +137,7 @@ type HandlePosition = {
 type HandleTextBox = {
   active: boolean;
   allowedOutsideImage: boolean;
-  boundingBox: { height: number; left: number; top: number; width: number };
+  boundingBox: { height: number; left?: number; top?: number; width: number };
   drawnIndependently: boolean;
   hasBoundingBox: boolean;
   hasMoved: boolean;

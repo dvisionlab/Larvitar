@@ -2776,10 +2776,10 @@ export type MetaDataTypes = {
   x00700006?: string;
   x00700008?: MetaDataTypes[];
   x00700009?: MetaDataTypes[];
-  x00700010?: number;
-  x00700011?: number;
+  x00700010?: [number, number];
+  x00700011?: [number, number];
   x00700012?: string;
-  x00700014?: number;
+  x00700014?: [number, number];
   x00700015?: string;
   x00700020?: number;
   x00700021?: number;
