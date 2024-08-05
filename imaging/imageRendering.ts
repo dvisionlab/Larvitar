@@ -28,7 +28,9 @@ import { DEFAULT_TOOLS } from "./tools/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
 import { setPixelShift } from "./loaders/dsaImageLoader";
-
+const rendererOptions = {
+  renderer: "webgl"
+};
 /*
  * This module provides the following functions to be exported:
  * clearImageCache(seriesId)
@@ -249,7 +251,7 @@ export const renderDICOMPDF = function (
           '" type="application/pdf" width="100%" height="100%"></object>';
         setStore(["isPDF", id, true]);
         let t1 = performance.now();
-        console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
+        console.debug(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
         image = null;
         fileTag = undefined;
         pdfByteArray = undefined;
@@ -261,7 +263,7 @@ export const renderDICOMPDF = function (
         // render first page // TODO: render all pages?
         renderFileImage(pngFiles[0], elementId).then(() => {
           let t1 = performance.now();
-          console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
+          console.debug(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
           image = null;
           fileTag = undefined;
           pdfByteArray = undefined;
@@ -312,7 +314,7 @@ export const renderFileImage = function (
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
-    cornerstone.enable(element);
+    cornerstone.enable(element, rendererOptions as any);
   }
 
   let renderPromise = new Promise<true>((resolve, _) => {
@@ -339,7 +341,7 @@ export const renderFileImage = function (
         cornerstone.fitToWindow(element);
 
         const t1 = performance.now();
-        console.log(`Call to renderFileImage took ${t1 - t0} milliseconds.`);
+        console.debug(`Call to renderFileImage took ${t1 - t0} milliseconds.`);
         //@ts-ignore
         image = null;
         //@ts-ignore
@@ -379,7 +381,7 @@ export const renderWebImage = function (
     try {
       cornerstone.getEnabledElement(element);
     } catch (e) {
-      cornerstone.enable(element);
+      cornerstone.enable(element, rendererOptions as any);
     }
     cornerstone.loadImage(url).then(function (image) {
       if (!element) {
@@ -488,7 +490,7 @@ export const renderImage = function (
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
-    cornerstone.enable(element);
+    cornerstone.enable(element, rendererOptions as any);
   }
 
   setStore(["ready", id, false]);

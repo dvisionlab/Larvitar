@@ -152,7 +152,7 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
         }
       });
       let t1 = performance.now();
-      console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
+      console.debug(`Call to buildData took ${t1 - t0} milliseconds.`);
       return data;
     } else {
       store.addSeriesId(series.seriesUID, series.imageIds);
@@ -164,7 +164,7 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
           image_counter += 1;
           if (image_counter == series.imageIds.length) {
             let t1 = performance.now();
-            console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
+            console.debug(`Call to buildData took ${t1 - t0} milliseconds.`);
             return data;
           }
         });
@@ -231,7 +231,7 @@ export const buildDataAsync = function (
         });
       } else {
         let t1 = performance.now();
-        console.log(`Call to buildDataAsync took ${t1 - t0} milliseconds.`);
+        console.debug(`Call to buildDataAsync took ${t1 - t0} milliseconds.`);
         resolve(data);
       }
     }

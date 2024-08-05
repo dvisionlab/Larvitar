@@ -196,7 +196,7 @@ let parseNextFile = function (
   resolve: Function,
   reject: Function
 ) {
-  // initialize t0 on first file of the queue
+  //initialize t0 on first file of the queue
   if (
     Object.keys(allSeriesStack).length === 0 &&
     allSeriesStack.constructor === Object
@@ -206,7 +206,7 @@ let parseNextFile = function (
 
   if (parsingQueue.length === 0) {
     let t1 = performance.now();
-    console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
+    console.debug(`Call to readFiles took ${t1 - t0} milliseconds.`);
     resolve(allSeriesStack);
     return;
   }
@@ -224,7 +224,7 @@ let parseNextFile = function (
     // do not parse the file and stop parsing
     clearImageParsing(allSeriesStack);
     let t1 = performance.now();
-    console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
+    console.debug(`Call to readFiles took ${t1 - t0} milliseconds.`);
     file = null;
     reject("Available memory is not enough");
     return;

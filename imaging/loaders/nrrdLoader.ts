@@ -249,7 +249,7 @@ export const buildNrrdImage = function (
   manager[seriesId] = image as NrrdSeries;
 
   let t1 = performance.now();
-  console.log(`Call to buildNrrdImage took ${t1 - t0} milliseconds.`);
+  console.debug(`Call to buildNrrdImage took ${t1 - t0} milliseconds.`);
   return image;
 };
 
@@ -471,12 +471,13 @@ let createCustomImage = function (
   };
 
   // add function to return pixel data
+  //@ts-ignore
   image.getPixelData = function () {
     if (!imageFrame.pixelData) {
       console.warn('no pixel data for imageId "' + imageId);
       return [];
     }
-    return Array.from(imageFrame.pixelData);
+    return imageFrame.pixelData;
   };
 
   // convert color space

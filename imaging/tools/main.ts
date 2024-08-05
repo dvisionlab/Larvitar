@@ -22,6 +22,9 @@ import { set as setStore } from "../imageStore";
 import type { ToolConfig, ToolSettings, ToolStyle } from "./types";
 //global variable
 declare var cv: any; //opencv-js
+const rendererOptions = {
+  renderer: "webgl"
+};
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
@@ -78,7 +81,7 @@ const csToolsCreateStack = function (
     try {
       cornerstone.getEnabledElement(element);
     } catch (e) {
-      cornerstone.enable(element);
+      cornerstone.enable(element, rendererOptions as any);
     }
   }
   cornerstoneTools.addStackStateManager(element, ["stack"]);
@@ -206,7 +209,7 @@ export const addDefaultTools = function (elementId: string) {
     try {
       cornerstone.getEnabledElement(element);
     } catch (e) {
-      cornerstone.enable(element);
+      cornerstone.enable(element, rendererOptions as any);
     }
   }
 

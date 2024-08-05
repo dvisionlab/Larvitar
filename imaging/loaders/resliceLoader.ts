@@ -119,12 +119,13 @@ let createCustomImage = function (
   };
 
   // add function to return pixel data
+  //@ts-ignore
   image.getPixelData = function () {
     if (!imageFrame.pixelData) {
       console.warn('no pixel data for imageId "' + imageId);
       return [];
     }
-    return Array.from(imageFrame.pixelData);
+    return imageFrame.pixelData;
   };
 
   // convert color space
