@@ -28,7 +28,7 @@ export default class EllipticalRoiTool extends BaseAnnotationTool {
                 highlight: boolean;
                 active: boolean;
             };
-            initialRotation: number | undefined;
+            initialRotation: any;
             textBox: {
                 active: boolean;
                 hasMoved: boolean;

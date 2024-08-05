@@ -4,7 +4,7 @@
  */
 
 // external libraries
-import cornerstone, { EnabledElement } from "cornerstone-core";
+import cornerstone from "cornerstone-core";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { each, has } from "lodash";
 

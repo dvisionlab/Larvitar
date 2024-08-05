@@ -1,4 +1,4 @@
-import { EnabledElement, Viewport } from "cornerstone-core";
+import { EnabledElement } from "cornerstone-core";
 
 type ToolOptions = {
   mouseButtonMask?: number | number[];
@@ -156,146 +156,11 @@ export type Overlay = {
   bitPosition?: number;
   subtype?: string;
 };
-export interface AnnotationLayer {
-  isTextAnnotation?: boolean;
-  isGraphicAnnotation?: boolean;
-  renderingOrder?: number;
-  type: "POINT" | "POLYLINE" | "CIRCLE" | "ELLIPSE";
-  isgraphicFilled?: string;
-  visible: boolean;
-  active: boolean;
-  color: string | undefined;
-  invalidated: boolean;
-  handles: {
-    start?: HandlePosition;
-    end?: HandlePosition;
-    points?: HandlePosition[];
-    initialRotation?: number;
-    textBox: TextBox;
-  };
-}
-export type AnnotationOverlay = {
-  isGraphicAnnotation?: boolean;
-  isOverlay?: boolean;
-  columns?: number;
-  description?: string;
-  label?: string | number;
-  pixelData: number[];
-  roiArea?: number;
-  roiMean?: number;
-  roiStandardDeviation?: number;
-  rows?: number;
-  x?: number;
-  y?: number;
-  visible?: boolean;
-  type?: string; // Keep the original string type but also support "POINT" | "POLYLINE" | "CIRCLE" | "ELLIPSE"
-  fillStyle?: string;
-  renderingOrder?: number;
-  canBeRendered?: boolean;
-  bitsAllocated?: number;
-  bitPosition?: number;
-  subtype?: string;
-  isTextAnnotation?: boolean;
-  isgraphicFilled?: string;
-  active?: boolean;
-  color?: string;
-  invalidated?: boolean;
-  handles?: {
-    start?: HandlePosition;
-    end?: HandlePosition;
-    points?: HandlePosition[];
-    initialRotation?: number;
-    textBox: AnnotationTextBox;
-  };
-};
-interface AnnotationTextBox {
-  text?: string;
-  active: boolean;
-  hasMoved: boolean;
-  movesIndependently: boolean;
-  drawnIndependently: boolean;
-  allowedOutsideImage: boolean;
-  hasBoundingBox: boolean;
-  boundingBox?: {
-    width: number;
-    height: number;
-    left: number;
-    top: number;
-  };
-  anchorPoint?: {
-    x: number | null;
-    y: number | null;
-  };
-  anchorpointVisibility?: string;
-  textFormat?: string;
-  x?: number;
-  y?: number;
-}
-export type AnnotationDetails = {
-  description?: string;
-  annotationID?: string;
-
-  annotationRenderingOrder?: number;
-  presentationGSValue?: number;
-  annotationCIELabColor?: [number, number, number];
-  annotationDescription?: string;
-};
-export type TextDetails = {
-  unformattedTextValue?: string; // Unformatted Text Value
-  textFormat?: string;
-  boundingBoxUnits?: string; // Bounding Box Annotation Units
-  anchorPointUnits?: string; // Anchor Point Annotation Units
-  boundingBox?: {
-    tlhc?: { x: number | null; y: number | null };
-    brhc?: { x: number | null; y: number | null };
-  };
-  anchorPointVisibility?: string; // Anchor Point Visibility
-  anchorPoint?: { x: number | null; y: number | null };
-  compoundGraphicInstanceUID?: number;
-  graphicGroupID?: number;
-  trackingID?: string;
-  trackingUID?: string;
-};
-export type GraphicDetails = {
-  graphicAnnotationUnits?: string;
-  graphicDimensions?: number;
-  graphicPointsNumber?: number;
-  graphicData?: number[];
-  graphicType?: string;
-  graphicFilled?: string;
-  compoundGraphicInstanceUID?: number;
-  graphicGroupID?: number;
-  trackingID?: string;
-  trackingUID?: string;
-};
-export type CompoundDetails = {
-  compoundGraphicUnits?: string;
-  graphicDimensions?: number;
-  graphicPointsNumber?: number;
-  graphicData?: number[];
-  compoundGraphicType?: string;
-  graphicFilled?: string;
-  compoundGraphicInstanceUID?: number;
-  graphicGroupID?: number;
-  rotationAngle?: number;
-  rotationPoint?: [number, number];
-  gapLength?: number;
-  diameterOfVisibility?: number;
-  majorTicks?: MajorTicks[];
-  tickFormat?: string;
-  tickLabelFormat?: string;
-  showTick?: string;
-};
-
-export type MajorTicks = {
-  tickPosition?: number;
-  tickLabel?: string;
-};
 
 type HandleTextBox = {
   active: boolean;
   allowedOutsideImage: boolean;
-  boundingBox: { height: number; left?: number; top?: number; width: number };
+  boundingBox: { height: number; left: number; top: number; width: number };
   drawnIndependently: boolean;
   hasBoundingBox: boolean;
   hasMoved: boolean;
@@ -549,22 +414,6 @@ export interface Coords {
   y: number;
 }
 
-export const enum DisplayAreaVisualizations {
-  "SCALE TO FIT",
-  "TRUE SIZE",
-  "MAGNIFY"
-}
-export interface ViewportComplete extends Viewport {
-  initialRotation: number;
-  displayedArea: Area;
-}
-interface Area {
-  tlhc?: Coords;
-  brhc?: Coords;
-  rowPixelSpacing?: number;
-  columnPixelSpacing?: number;
-  presentationSizeMode?: DisplayAreaVisualizations;
-}
 export interface EventData {
   currentPoints: {
     image: Coords;
