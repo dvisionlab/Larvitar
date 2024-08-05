@@ -1,8 +1,8 @@
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
-import { LarvitarManager, Overlay, Series, Viewport } from "../../types";
-import { EventData } from "../types";
+import { LarvitarManager, Series, Viewport } from "../../types";
+import { EventData, Overlay } from "../types";
 const external = cornerstoneTools.external;
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
 import { getLarvitarImageTracker } from "../../loaders/commonLoader";

@@ -41,7 +41,7 @@ import EllipticalRoiTool from "./custom/EllipticalRoiUSTool";
 import FreehandRoiTool from "./custom/FreehandRoiUSTool";
 import ManualLengthPlotTool from "./custom/ManualLengthPlotTool";
 import OverlayTool from "./custom/OverlayTool";
-import GspsTool from "../gspsTool";
+import GspsTool from "./custom/gspsTool";
 import type {
   ToolConfig,
   ToolMouseKeys,

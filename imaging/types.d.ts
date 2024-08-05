@@ -193,29 +193,6 @@ export type Series = {
   orientation?: "axial" | "coronal" | "sagittal"; // this is needed for legacy reslice
 };
 
-export type Overlay = {
-  isGraphicAnnotation?: boolean;
-  isOverlay?: boolean;
-  columns?: number;
-  description?: string;
-  label?: string | number;
-  pixelData: number[];
-  roiArea?: number;
-  roiMean?: number;
-  roiStandardDeviation?: number;
-  rows?: number;
-  type?: string;
-  x?: number;
-  y?: number;
-  visible: boolean;
-  type: string;
-  fillStyle: string;
-  overlayRenderingOrder?: number;
-  canBeRendered?: boolean;
-  bitsAllocated?: number;
-  bitPosition?: number;
-  subtype?: string;
-};
 export interface Layer extends cornerstone.EnabledElementLayer {
   id: string;
 }
@@ -383,65 +360,4 @@ export type NrrdInstance = {
   patientName: string;
   bitsAllocated: number;
   pixelRepresentation: string;
-};
-
-export type AnnotationDetails = {
-  description?: string;
-  annotationID?: string;
-
-  annotationRenderingOrder?: number;
-  presentationGSValue?: number;
-  annotationCIELabColor?: [number, number, number];
-  annotationDescription?: string;
-};
-export type TextDetails = {
-  unformattedTextValue?: string; // Unformatted Text Value
-  textFormat?: string;
-  boundingBoxUnits?: string; // Bounding Box Annotation Units
-  anchorPointUnits?: string; // Anchor Point Annotation Units
-  boundingBox?: {
-    tlhc?: { x: number | null; y: number | null };
-    brhc?: { x: number | null; y: number | null };
-  };
-  anchorPointVisibility?: string; // Anchor Point Visibility
-  anchorPoint?: { x: number | null; y: number | null };
-  compoundGraphicInstanceUID?: number;
-  graphicGroupID?: number;
-  trackingID?: string;
-  trackingUID?: string;
-};
-export type GraphicDetails = {
-  graphicAnnotationUnits?: string;
-  graphicDimensions?: number;
-  graphicPointsNumber?: number;
-  graphicData?: number[];
-  graphicType?: string;
-  graphicFilled?: string;
-  compoundGraphicInstanceUID?: number;
-  graphicGroupID?: number;
-  trackingID?: string;
-  trackingUID?: string;
-};
-export type CompoundDetails = {
-  compoundGraphicUnits?: string;
-  graphicDimensions?: number;
-  graphicPointsNumber?: number;
-  graphicData?: number[];
-  compoundGraphicType?: string;
-  graphicFilled?: string;
-  compoundGraphicInstanceUID?: number;
-  graphicGroupID?: number;
-  rotationAngle?: number;
-  rotationPoint?: number;
-  gapLength?: number;
-  diameterOfVisibility?: number;
-  majorTicks?: MajorTicks[];
-  tickFormat?: string;
-  tickLabelFormat?: string;
-  showTick?: string;
-};
-
-export type MajorTicks = {
-  tickPosition?: number;
-  tickLabel?: string;
 };
