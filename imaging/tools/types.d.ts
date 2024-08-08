@@ -133,6 +133,29 @@ type HandlePosition = {
   y: number;
   lines?: HandlePosition[];
 };
+export type Overlay = {
+  isGraphicAnnotation?: boolean;
+  isOverlay?: boolean;
+  columns?: number;
+  description?: string;
+  label?: string | number;
+  pixelData: number[];
+  roiArea?: number;
+  roiMean?: number;
+  roiStandardDeviation?: number;
+  rows?: number;
+  type?: string;
+  x?: number;
+  y?: number;
+  visible: boolean;
+  type: string;
+  fillStyle: string;
+  renderingOrder?: number;
+  canBeRendered?: boolean;
+  bitsAllocated?: number;
+  bitPosition?: number;
+  subtype?: string;
+};
 
 type HandleTextBox = {
   active: boolean;

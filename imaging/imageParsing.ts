@@ -9,12 +9,12 @@ import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
 import { getPixelRepresentation, randomId } from "./imageUtils";
-import { parseTag } from "./imageTags";
+import { getNestedObject, parseTag } from "./imageTags";
 import { updateLoadedStack } from "./imageLoading";
 import { checkMemoryAllocation } from "./monitors/memory";
 import { ImageObject, Instance, MetaData, NrrdSeries, Series } from "./types";
 import { getLarvitarManager } from "./loaders/commonLoader";
-import type { MetaDataTypes } from "./MetaDataTypes";
+import type { MetaDataTypes, ExtendedMetaDataTypes } from "./MetaDataTypes";
 
 // global module variables
 var t0: number; // t0 variable for timing debugging purpose
@@ -83,10 +83,6 @@ export const readFile = function (entry: File) {
 //It is important to highlight that even if we set metadata[TAG]=tagValue; whose type (of tagValue) is the correct one (returned by ParseTag).
 //if we then extract x=metadata[TAG]; we obtain tagValue : unknown and a casting with : MetaDataType[typeof TAG] is necessary.
 
-type ExtendedMetaDataTypes = MetaDataTypes & {
-  [key: string]: unknown;
-};
-
 /**
  * Parse metadata from dicom parser dataSet object
  * @instance
@@ -123,30 +119,15 @@ export const parseDataSet = function (
       if (element.items) {
         let nestedArray: MetaDataTypes[] = [];
 
-        function getNestedObject(item: Element) {
-          let nestedObject: ExtendedMetaDataTypes = {};
-          for (let nestedPropertyName in item.dataSet!.elements) {
-            let TAG_tagValue = nestedPropertyName as keyof MetaDataTypes;
-            let tagValue = parseTag<MetaDataTypes[typeof TAG_tagValue]>(
-              item.dataSet!,
-              nestedPropertyName,
-              item.dataSet!.elements[nestedPropertyName]
-            );
-            let TAG_nested = nestedPropertyName as keyof ExtendedMetaDataTypes;
-            nestedObject[TAG_nested] = tagValue;
-          }
-          nestedArray.push(nestedObject);
-        }
-
         if (customFilter && has(customFilter, "frameId")) {
           let item = element.items[customFilter.frameId];
           if (item && Object.keys(item).length !== 0) {
-            getNestedObject(item);
+            getNestedObject(item, nestedArray);
           }
         } else {
           // iterates over nested elements (nested metadata)
           element.items.forEach(function (item) {
-            getNestedObject(item);
+            getNestedObject(item, nestedArray);
           });
         }
         metadata[TAG] = nestedArray;

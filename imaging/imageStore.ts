@@ -28,62 +28,62 @@ type Store = {
 type SetPayload =
   | ["errorLog" | "leftActiveTool" | "rightActiveTool", string]
   | [
-    (
-      | "isColor"
-      | "isMultiframe"
-      | "isPDF"
-      | "waveform"
-      | "dsa"
-      | "isTimeserie"
-      | "isDSAEnabled"
-      | "ready"
-    ),
-    string,
-    boolean
-  ]
+      (
+        | "isColor"
+        | "isMultiframe"
+        | "isPDF"
+        | "waveform"
+        | "dsa"
+        | "isTimeserie"
+        | "isDSAEnabled"
+        | "ready"
+      ),
+      string,
+      boolean
+    ]
   | [
-    (
-      | "progress"
-      | "loading"
-      | "minPixelValue"
-      | "maxPixelValue"
-      | "minSliceId"
-      | "maxSliceId"
-      | "minTimeId"
-      | "maxTimeId"
-      | "rotation"
-      | "scale"
-      | "sliceId"
-      | "timeId"
-      | "thickness"
-      | "numberOfFrames"
-      | "numberOfTemporalPositions"
-    ),
-    string,
-    number
-  ]
+      (
+        | "progress"
+        | "loading"
+        | "minPixelValue"
+        | "maxPixelValue"
+        | "minSliceId"
+        | "maxSliceId"
+        | "minTimeId"
+        | "maxTimeId"
+        | "rotation"
+        | "scale"
+        | "sliceId"
+        | "timeId"
+        | "thickness"
+        | "numberOfFrames"
+        | "numberOfTemporalPositions"
+      ),
+      string,
+      number
+    ]
   | ["cached", string, string, boolean]
   | ["timestamp", string, number | undefined]
   | ["seriesUID" | "modality", string, string | undefined]
   | ["pendingSliceId", string, number | undefined]
   | ["timestamps" | "timeIds" | "pixelShift", string, number[]]
   | [
-    "contrast" | "dimensions" | "spacing" | "translation",
-    string,
-    number,
-    number
-  ]
+      "contrast" | "dimensions" | "spacing" | "translation",
+      string,
+      number,
+      number
+    ]
   | [
-    "defaultViewport",
-    string,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    boolean
-  ];
+      "defaultViewport",
+      string,
+      number,
+      number,
+      number,
+      number,
+      number,
+      number,
+      boolean
+    ];
 
 // Larvitar store object
 let STORE: Store;

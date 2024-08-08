@@ -347,7 +347,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
         }
       }
     });
-    this._applyStrategy(evt)
+    this._applyStrategy(evt);
   }
 
   _withinHandleBoxes(startCanvas, endCanvas) {
@@ -378,7 +378,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     if (!toolData) {
       return;
     }
-    if (this.mode === 'passive' || this.mode === 'disabled') {
+    if (this.mode === "passive" || this.mode === "disabled") {
       return;
     }
     const rectangles = toolData ? toolData.data : [];

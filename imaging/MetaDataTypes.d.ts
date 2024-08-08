@@ -1,5 +1,10 @@
 //dictionary that maps TAGs and corresponding metadata's type, retrieved through the correspondence between VR and types
 //VR=SQ returns nested objects that are encapsuled in MetaDataTypes' Arrays
+
+export type ExtendedMetaDataTypes = MetaDataTypes & {
+  [key: string]: unknown;
+};
+
 export type MetaDataTypes = {
   x20000010?: number;
   x2000001e?: MetaDataTypes[];
@@ -949,12 +954,12 @@ export type MetaDataTypes = {
   x00181604?: number;
   x00181606?: number;
   x00181608?: number;
-  x00181610?: number;
+  x00181610?: [number, number];
   x00181612?: number;
-  x00181620?: number;
+  x00181620?: number[];
   x00181622?: number;
   x00181623?: number;
-  x00181624?: number;
+  x00181624?: [number, number, number];
   x00181700?: string;
   x00181702?: number;
   x00181704?: number;
@@ -1871,10 +1876,10 @@ export type MetaDataTypes = {
   x00282112?: number;
   x00282114?: string;
   x00283000?: MetaDataTypes[];
-  x00283002?: number;
+  x00283002?: [number, number, number];
   x00283003?: string;
   x00283004?: string;
-  x00283006?: string;
+  x00283006?: number[];
   x00283010?: MetaDataTypes[];
   x00283110?: MetaDataTypes[];
   x00284000?: string;
@@ -2638,6 +2643,8 @@ export type MetaDataTypes = {
   x0062000e?: number;
   x0062000f?: MetaDataTypes[];
   x00620010?: string;
+  x00620020?: string;
+  x00620021?: string;
   x00640002?: MetaDataTypes[];
   x00640003?: string;
   x00640005?: MetaDataTypes[];
@@ -2769,14 +2776,14 @@ export type MetaDataTypes = {
   x00700006?: string;
   x00700008?: MetaDataTypes[];
   x00700009?: MetaDataTypes[];
-  x00700010?: number;
-  x00700011?: number;
+  x00700010?: [number, number];
+  x00700011?: [number, number];
   x00700012?: string;
-  x00700014?: number;
+  x00700014?: [number, number];
   x00700015?: string;
   x00700020?: number;
   x00700021?: number;
-  x00700022?: number;
+  x00700022?: number[];
   x00700023?: string;
   x00700024?: string;
   x00700040?: number;
@@ -2784,8 +2791,8 @@ export type MetaDataTypes = {
   x00700042?: number;
   x00700050?: number;
   x00700051?: number;
-  x00700052?: number;
-  x00700053?: number;
+  x00700052?: [number, number];
+  x00700053?: [number, number];
   x0070005a?: MetaDataTypes[];
   x00700060?: MetaDataTypes[];
   x00700062?: number;
@@ -2800,8 +2807,8 @@ export type MetaDataTypes = {
   x00700086?: MetaDataTypes[];
   x00700087?: MetaDataTypes[];
   x00700100?: string;
-  x00700101?: number;
-  x00700102?: number;
+  x00700101?: [number, number];
+  x00700102?: [number, number];
   x00700103?: number;
   x00700207?: string;
   x00700208?: string;
@@ -2835,7 +2842,7 @@ export type MetaDataTypes = {
   x00700258?: number;
   x00700261?: number;
   x00700262?: number;
-  x00700273?: number;
+  x00700273?: [number, number];
   x00700274?: string;
   x00700278?: string;
   x00700279?: string;
@@ -2862,7 +2869,7 @@ export type MetaDataTypes = {
   x0070031a?: string;
   x0070031c?: MetaDataTypes[];
   x0070031e?: MetaDataTypes[];
-  x00700401?: number;
+  x00700401?: [number, number, number];
   x00700402?: MetaDataTypes[];
   x00700403?: number;
   x00700404?: MetaDataTypes[];

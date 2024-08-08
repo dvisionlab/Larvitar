@@ -732,32 +732,32 @@ let sortStackCallback = function (
       return seriesData.instances[imageId].metadata.x00080033;
 
     case "imagePosition":
-      let p = seriesData.instances[imageId].metadata.imagePosition!;
-      let pStr = p?.map(String);
-      let o = seriesData.instances[imageId].metadata.imageOrientation!;
-      let oStr = o?.map(String);
+      let p = seriesData.instances[imageId].metadata.imagePosition;
 
-      var v1, v2, v3: number;
-      v1 = o[0] * o[0] + o[3] * o[3];
-      v2 = o[1] * o[1] + o[4] * o[4];
-      v3 = o[2] * o[2] + o[5] * o[5];
+      let o = seriesData.instances[imageId].metadata.imageOrientation;
 
-      var sortIndex = -1;
-      if (v1 <= v2 && v2 <= v3) {
-        sortIndex = 0;
-      }
-      if (v2 <= v1 && v2 <= v3) {
-        sortIndex = 1;
-      }
-      if (v3 <= v1 && v3 <= v2) {
-        sortIndex = 2;
+      if (o && p) {
+        var v1, v2, v3: number;
+        v1 = o[0] * o[0] + o[3] * o[3];
+        v2 = o[1] * o[1] + o[4] * o[4];
+        v3 = o[2] * o[2] + o[5] * o[5];
+        var sortIndex = -1;
+        if (v1 <= v2 && v2 <= v3) {
+          sortIndex = 0;
+        }
+        if (v2 <= v1 && v2 <= v3) {
+          sortIndex = 1;
+        }
+        if (v3 <= v1 && v3 <= v2) {
+          sortIndex = 2;
+        }
+
+        if (sortIndex === -1) {
+          throw new Error("Invalid sort index");
+        }
+        return p[sortIndex];
       }
 
-      if (sortIndex === -1) {
-        throw new Error("Invalid sort index");
-      }
-
-      return p[sortIndex];
     default:
       break;
   }

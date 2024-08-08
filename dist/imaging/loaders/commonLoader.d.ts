@@ -27,6 +27,15 @@ export declare const populateLarvitarManager: (larvitarSeriesInstanceUID: string
     [key: string]: Series | import("../types").NrrdSeries;
 };
 /**
+ * This function can be called in order to populate the instance GSPS dictionary
+ * @instance
+ * @function populateInstanceGSPSDict
+ * @param {String} prSeriesInstanceUID The Id of the pr manager stack
+ * @param {Object} seriesData The series data
+ * @returns {void}
+ */
+export declare const populateInstanceGSPSDict: (larvitarSeriesInstanceUID: string, seriesData: Series) => void;
+/**
  * Return the common data loader manager
  * @instance
  * @function getLarvitarManager
@@ -34,6 +43,18 @@ export declare const populateLarvitarManager: (larvitarSeriesInstanceUID: string
  */
 export declare const getLarvitarManager: () => {
     [key: string]: Series | import("../types").NrrdSeries;
+};
+/**
+ * Return the dictionary that maps a sopInstanceUID with an array containing its PS
+ * @instance
+ * @function getInstanceGSPSDict
+ * @returns {Object} the GSPS dictionary
+ */
+export declare const getInstanceGSPSDict: () => {
+    [key: string]: {
+        seriesId: string;
+        imageId: string;
+    }[] | null;
 };
 /**
  * Return the common image tracker
@@ -50,6 +71,12 @@ export declare const getLarvitarImageTracker: () => {
  * @function resetLarvitarManager
  */
 export declare const resetLarvitarManager: () => void;
+/**
+ * Reset the Instance GSPS dictionary
+ * @instance
+ * @function resetInstanceGSPSDict
+ */
+export declare const resetInstanceGSPSDict: () => void;
 /**
  * Remove a stored seriesId from the larvitar Manager
  * @instance

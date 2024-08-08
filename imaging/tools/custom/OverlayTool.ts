@@ -1,8 +1,8 @@
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
-import { LarvitarManager, Overlay, Series, Viewport } from "../../types";
-import { EventData } from "../types";
+import { LarvitarManager, Series, Viewport } from "../../types";
+import { EventData, Overlay } from "../types";
 const external = cornerstoneTools.external;
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
 import { getLarvitarImageTracker } from "../../loaders/commonLoader";
@@ -106,7 +106,7 @@ export default class OverlayTool extends BaseTool {
     if (!eventData || !enabledElement || !overlayPlaneMetadata) {
       return;
     }
-    if (!this.setupViewport(viewport)) {
+    if (!this.setupViewport(viewport as Viewport)) {
       return;
     }
 
@@ -126,7 +126,8 @@ export default class OverlayTool extends BaseTool {
       const layerContext: CanvasRenderingContext2D =
         layerCanvas.getContext("2d")!;
 
-      layerContext.fillStyle = overlay.fillStyle || viewport.overlayColor;
+      layerContext.fillStyle =
+        overlay.fillStyle || ((viewport as Viewport).overlayColor as string);
 
       if (overlay.type === "R") {
         layerContext.fillRect(0, 0, layerCanvas.width, layerCanvas.height);

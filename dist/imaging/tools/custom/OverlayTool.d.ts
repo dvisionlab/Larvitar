@@ -1,5 +1,5 @@
-import { Overlay, Viewport } from "../../types";
-import { EventData } from "../types";
+import { Viewport } from "../../types";
+import { EventData, Overlay } from "../types";
 declare const BaseTool: any;
 interface ToolMouseEvent {
     detail: EventData;
