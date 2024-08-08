@@ -329,8 +329,8 @@ export function parseTag<T>(
     // are not allowed. The integer, n, represented shall be in the range:
     // -231 <= n <= (231 - 1).
     if (vr === "IS") {
-      let value = valueIn.split("\\").map(Number);
-      valueOut = value.length > 1 ? value : valueIn;
+      let value = valueIn.split("\\").map(v => parseInt(v));
+      valueOut = value.length > 1 ? value : parseInt(valueIn);
     }
     // A string of characters representing either a fixed point number
     // or a floating point number. A fixed point number shall contain only
