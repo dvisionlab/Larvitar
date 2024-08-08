@@ -11,6 +11,14 @@ import type { MetaDataTypes } from "./MetaDataTypes";
  */
 export declare function parseTag<T>(dataSet: DataSet, propertyName: string, //x0000000 string
 element: Element): Element | T | undefined;
+/**
+ * Gets nested objects inside item
+ * @instance
+ * @function getNestedObject
+ * @param {Element} item - The nested starting item
+ * @param {MetaDataTypes[]} nestedArray - Nested array that will contain the nested object
+ * @return {string} - The fixed charset
+ */
 export declare function getNestedObject(item: Element, nestedArray: MetaDataTypes[]): void;
 /**
  * Extract tag value according to its value rapresentation, see

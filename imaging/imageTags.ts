@@ -444,7 +444,6 @@ export function parseTag<T>(
     valueOut = dataSet.uint32(propertyName);
   } else if (vr === "SL") {
     if (propertyName === "x00700052" || propertyName === "x00700053") {
-      // RWaveTimeVector
       let coordinateArray: number[] = [];
       for (let index = 0; index < 2; index++) {
         let value = dataSet.int32(propertyName, index);
@@ -555,6 +554,14 @@ export function parseTag<T>(
   return valueOut as T;
 }
 
+/**
+ * Gets nested objects inside item
+ * @instance
+ * @function getNestedObject
+ * @param {Element} item - The nested starting item
+ * @param {MetaDataTypes[]} nestedArray - Nested array that will contain the nested object
+ * @return {string} - The fixed charset
+ */
 export function getNestedObject(item: Element, nestedArray: MetaDataTypes[]) {
   let nestedObject: ExtendedMetaDataTypes = {};
   for (let nestedPropertyName in item.dataSet!.elements) {

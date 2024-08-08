@@ -3,7 +3,6 @@ import { DataSet } from "dicom-parser";
 import { MetaDataTypes } from "./MetaDataTypes";
 import { MetaDataReadable } from "./MetaDataReadable";
 import { Element } from "dicom-parser";
-import { Coords } from "./tools/types";
 // TODO-ts: differentiate each single metadata @szanchi
 /*export type MetadataValue =
   | string

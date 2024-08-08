@@ -54,9 +54,6 @@ export const updateLarvitarManager = function (
   if (larvitarManager === null) {
     larvitarManager = {};
   }
-  if (instanceGSPSDict === null) {
-    larvitarManager = {};
-  }
   let data = { ...imageObject };
 
   if (data.metadata?.isMultiframe) {
@@ -85,7 +82,7 @@ export const populateLarvitarManager = function (
   larvitarSeriesInstanceUID: string,
   seriesData: Series
 ) {
-  const metadata = seriesData.instances[seriesData.imageIds[0]].metadata;
+  const metadata = seriesData.instances[seriesData.imageIds[0]]?.metadata;
   if (larvitarManager === null) {
     larvitarManager = {};
   }
@@ -93,7 +90,7 @@ export const populateLarvitarManager = function (
   if (data.isMultiframe) {
     buildMultiFrameImage(larvitarSeriesInstanceUID, data);
   } else if (metadata.seriesModality === "pr") {
-    const prSeriesInstanceUID = larvitarSeriesInstanceUID + "-pr";
+    const prSeriesInstanceUID = larvitarSeriesInstanceUID + "_PR";
     larvitarManager[prSeriesInstanceUID] = data;
     populateInstanceGSPSDict(prSeriesInstanceUID, seriesData);
   } else {
@@ -120,24 +117,18 @@ export const populateInstanceGSPSDict = function (
     if (referenceInstanceSeqAttribute) {
       referenceInstanceSeqAttribute.forEach(elem => {
         const instanceUID = elem?.x00081155;
+        if (instanceGSPSDict == null) {
+          instanceGSPSDict = {};
+        }
         if (instanceUID) {
-          if (instanceGSPSDict == null) {
-            instanceGSPSDict = {};
-          }
-
-          if (!instanceGSPSDict[instanceUID]) {
-            instanceGSPSDict[instanceUID] = [
-              {
+          instanceGSPSDict[instanceUID]
+            ? instanceGSPSDict[instanceUID]!.push({
                 seriesId: larvitarSeriesInstanceUID,
                 imageId: imageId
-              }
-            ];
-          } else {
-            instanceGSPSDict[instanceUID]!.push({
-              seriesId: larvitarSeriesInstanceUID,
-              imageId: imageId
-            });
-          }
+              })
+            : (instanceGSPSDict[instanceUID] = [
+                { seriesId: larvitarSeriesInstanceUID, imageId: imageId }
+              ]);
         }
       });
     }
