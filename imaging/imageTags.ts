@@ -446,6 +446,7 @@ export function parseTag<T>(
       let rgbArray: number[] = [];
       for (let index = 0; index < 3; index++) {
         let value = dataSet.uint16(propertyName, index);
+        console.log(value);
         if (value) {
           rgbArray.push(value);
         }
