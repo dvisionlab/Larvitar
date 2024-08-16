@@ -435,7 +435,25 @@ export function parseTag<T>(
       }
     }
   } else if (vr === "US") {
-    valueOut = dataSet.uint16(propertyName);
+    if (
+      propertyName === "x00700241" ||
+      propertyName === "x00181624" ||
+      propertyName === "x00700401" ||
+      propertyName === "x00700247" ||
+      propertyName === "x00700251" ||
+      propertyName === "x00700252"
+    ) {
+      let rgbArray: number[] = [];
+      for (let index = 0; index < 3; index++) {
+        let value = dataSet.uint16(propertyName, index);
+        if (value !== null && !Number.isNaN(value) && value !== undefined) {
+          rgbArray.push(value);
+        }
+      }
+      valueOut = rgbArray;
+    } else {
+      valueOut = dataSet.uint16(propertyName);
+    }
   } else if (vr === "SS") {
     valueOut = dataSet.int16(propertyName);
   } else if (vr === "US|SS") {

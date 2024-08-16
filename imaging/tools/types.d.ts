@@ -132,6 +132,8 @@ type HandlePosition = {
   x: number;
   y: number;
   lines?: HandlePosition[];
+  hasBoundingBox?: boolean;
+  boundingBox?: HandleTextBox;
 };
 export type Overlay = {
   isGraphicAnnotation?: boolean;
