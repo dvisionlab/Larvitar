@@ -33,7 +33,7 @@ export const anonymize = function (series: Series): Series {
           }
         }
         if (vr) {
-          const deIdentifiedValue = makeDeIdentifiedValue(text.length, vr);
+          const deIdentifiedValue = makeDeIdentifiedValue(text.length, vr, text);
           if (deIdentifiedValue !== undefined) {
             for (let i: number = 0; i < element.length; i++) {
               const char =
@@ -100,22 +100,68 @@ const pad = function (num: number, size: number): string {
   while (s.length < size) s = "0" + s;
   return s;
 };
+/**
+ * A simple but high quality 53-bit hash, that uses imul.
+ * https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
+ * @function cyrb53
+ * @param {number} string - the starting string to hash
+ * @param {number} seed - seed to create different hash
+ * @returns {string} random string
+ */
 
+const cyrb53 = (str:string, seed:number = 0) => {
+  let h1 = 0xdeadbeef ^ seed,
+    h2 = 0x41c6ce57 ^ seed;
+  for (let i = 0, ch; i < str.length; i++) {
+    ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+};
+
+/**
+ * Maka a crypted string using SHA 256
+ *
+ */
+export async function digestMessage(message: string) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(message);
+  const hashBuffer = await window.crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const digest = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  return digest;
+}
 /**
  * Make a de-identified value for a given length and VR
  * @function makeDeIdentifiedValue
  * @param {number} length - length of the value to generate
  * @param {string} vr - VR of the value to generate
+ * @param {boolean} hash
  * @returns {string} de-identified value
  */
 const makeDeIdentifiedValue = function (
   length: number,
-  vr: string
+  vr: string,
+  value: string,
+  hash: boolean = false
 ): string | undefined {
   if (vr === "LO" || vr === "SH" || vr === "PN") {
+    if (hash){
+      return cyrb53(value).toString(16);;
+    }
     return makeRandomString(length);
   } else if (vr === "DA") {
-    let oldDate = new Date(1900, 0, 1);
+    let oldDate = new Date(1900, 1, 1);
+    if (hash){
+      return oldDate.getFullYear() + pad(oldDate.getMonth(), 0) +
+      pad(oldDate.getDate(), 0);
+    }
     return (
       oldDate.getFullYear() +
       pad(oldDate.getMonth() + 1, 2) +
@@ -123,6 +169,13 @@ const makeDeIdentifiedValue = function (
     );
   } else if (vr === "TM") {
     var now = new Date();
+    if (hash){
+      return (
+        pad(now.getHours(), 0) +
+        pad(now.getMinutes(),0) +
+        pad(now.getSeconds(),0)
+      );
+    }
     return (
       pad(now.getHours(), 2) +
       pad(now.getMinutes(), 2) +
