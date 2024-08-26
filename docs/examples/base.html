@@ -254,40 +254,6 @@
             }
           }
           if (Object.keys(newMetaData) != 0) {
-            const brandNewMetaData = {
-                x00100010: 'Polo',
-                x00100030: '01-01-1900', // Patient's Birth Date
-                // "x00100032": '00:00:00', // Patient's Birth Time
-                x00100040: '', // Patient's Sex
-                x00101000: '0', // Other Patient Ids
-                x00101001: "", // Other Patient Names
-                x00101010: 0, // Patient's Age
-                x00101020: "", // Patient's Size
-                x00101030: "", // Patient's Weight
-                x00080050: '', // Accession Number
-                x00080080: "", // Institution Name
-                x00080081: "", // Institution Address
-                x00080090: "", // Referring Physician's Name
-                x00080092: "", // Referring Physician's Address
-                x00080094: "", // Referring Physician's Telephone numbers
-                x00081010: "", // Station Name
-                x00081030: 'safasg', // Study Description
-                x0008103e: "", // Series Description
-                x00081040: "", // Institutional Department name
-                x00081048: "", // Physician(s) of Record
-                x00081050: "", // Performing Physicians' Name
-                x00081060: "", // Name of Physician(s) Reading study
-                x00081070: "" // Operator's Name
-                /* OTHER TAGS TO ANONYMIZE
-                "x00102160", // Ethnic Group
-                "x00102180", // Occupation
-                "x001021b0", // Additional Patient's History
-                "x00104000", // Patient Comments
-                "x00181030", // Protocol Name
-                "x00200010", // Study ID
-                "x00204000", // Image Comments
-                */
-              };
             larvitar.customizeByteArray(series, newMetaData);
           }
 

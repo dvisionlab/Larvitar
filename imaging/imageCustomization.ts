@@ -55,7 +55,6 @@ export const customizeByteArray = function (
       // filter custom tags not present in dataset
       let customTagToBeChanged:any = {};
       for (const [key, value] of Object.entries(customTags)) {
-        console.log(`${key}: ${value}`);
         if (dataSet.elements[key]){
           let customTag = value;
           customTagToBeChanged[key] = customTag;
