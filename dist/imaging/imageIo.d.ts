@@ -23,7 +23,7 @@ export declare const getCachedPixelData: (imageId: string) => Promise<number[]>;
  * @param {Bool} useSeriesData - Flag to force using "series" data instead of cached ones
  * @returns {Array} Contiguous pixel array
  */
-export declare const buildData: (series: Series, useSeriesData: boolean) => Float64Array | Uint8Array | Int8Array | Uint16Array | Int16Array | Int32Array | Uint32Array | Float32Array | undefined;
+export declare const buildData: (series: Series, useSeriesData: boolean) => Uint8Array | Int8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array | undefined;
 /**
  * Build the contiguous typed array from slices (async version)
  * @function buildDataAsync

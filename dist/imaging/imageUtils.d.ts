@@ -46,7 +46,7 @@ export declare const getPixelRepresentation: (dataSet: CustomDataSet) => string;
  * @param {Object} dataType - The data type
  * @returns {TypedArray} The typed array
  */
-export declare const getTypedArrayFromDataType: (dataType: string) => Uint8ArrayConstructor | Int8ArrayConstructor | Uint16ArrayConstructor | Int16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor | null;
+export declare const getTypedArrayFromDataType: (dataType: string) => Uint8ArrayConstructor | Uint16ArrayConstructor | Float32ArrayConstructor | Int8ArrayConstructor | Int16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float64ArrayConstructor | null;
 /**
  * Sort the array of images ids of a series trying with:
  * - content time order, if the series has cardiacNumberOfImages tag > 1
@@ -130,7 +130,7 @@ export declare const getCmprMetadata: (reslicedSeriesId: string, imageLoaderName
  * @param {Object} reslicedData - The resliced series data (target)
  * @return {Object} - A single resliced slice pixel array
  */
-export declare const getReslicedPixeldata: (imageId: string, originalData: Series, reslicedData: Series) => Float64Array | Uint8Array | Int8Array | Uint16Array | Int16Array | Int32Array | Uint32Array | Float32Array;
+export declare const getReslicedPixeldata: (imageId: string, originalData: Series, reslicedData: Series) => Uint8Array | Int8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 /**
  * Get distance between two slices
  * @instance

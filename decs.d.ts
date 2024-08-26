@@ -5,6 +5,9 @@ declare module "cornerstone-web-image-loader";
 declare module "cornerstone-file-image-loader";
 declare module "dicom-character-set";
 
+// cs3D
+declare module "@cornerstonejs/dicom-image-loader";
+
 declare global {
   interface Document {
     documentMode?: any;

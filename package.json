@@ -6,7 +6,7 @@
     "medical",
     "cornerstone"
   ],
-  "version": "2.6.1",
+  "version": "3.0.0-beta.1",
   "description": "typescript library for parsing, loading, rendering and interacting with DICOM images",
   "repository": {
     "url": "https://github.com/dvisionlab/Larvitar.git",
@@ -34,6 +34,10 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@cornerstonejs/core": "^1.84.1",
+    "@cornerstonejs/dicom-image-loader": "^1.84.1",
+    "@cornerstonejs/streaming-image-volume-loader": "^1.84.1",
+    "@cornerstonejs/tools": "^1.84.1",
     "@rollup/plugin-commonjs": "^17.1.0",
     "cornerstone-core": "^2.6.1",
     "cornerstone-file-image-loader": "^0.3.0",

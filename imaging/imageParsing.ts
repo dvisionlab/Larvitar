@@ -3,7 +3,7 @@
  */
 
 // external libraries
-import { DataSet, Element, parseDicom } from "dicom-parser";
+import { DataSet, parseDicom } from "dicom-parser";
 import { forEach, each, has, pick } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 

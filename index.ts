@@ -7,6 +7,9 @@ console.groupCollapsed(
 );
 
 import cornerstone from "cornerstone-core";
+import * as _cornerstone from "@cornerstonejs/core";
+import { default as _cornerstoneDICOMImageLoader } from "@cornerstonejs/dicom-image-loader";
+
 import cornerstoneTools from "cornerstone-tools";
 import { parseDicom } from "dicom-parser";
 import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
@@ -257,7 +260,15 @@ import {
   toggleMouseToolsListeners
 } from "./imaging/tools/interaction";
 
+// Cornestone 3D
+import { initializeImageLoader as _initializeImageLoader } from "./imaging3d/imageLoading";
+import { readFiles as _readFiles } from "./imaging3d/imageParsing";
 export {
+  // cs3D
+  _cornerstone,
+  _cornerstoneDICOMImageLoader,
+  _initializeImageLoader,
+  _readFiles,
   VERSION,
   // global cornerstone variables
   cornerstone,
