@@ -52,10 +52,19 @@ export const customizeByteArray = function (
       //sort custom tags from lowest offset to highest one
 
       let shift = 0;
+      // filter custom tags not present in dataset
+      let customTagToBeChanged:any = {};
+      for (const [key, value] of Object.entries(customTags)) {
+        console.log(`${key}: ${value}`);
+        if (dataSet.elements[key]){
+          let customTag = value;
+          customTagToBeChanged[key] = customTag;
+        }
+      }
 
       const { sortedTags, sortedCustomTags, shiftTotal } = sortTags(
         dataSet,
-        customTags
+        customTagToBeChanged
       );
       preProcessByteArray(dataSet, metadata);
 
