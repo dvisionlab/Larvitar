@@ -94,12 +94,9 @@ export const buildMultiFrameImage = function (
   let imageId = getMultiFrameImageId("multiFrameLoader");
   imageTracker[imageId] = larvitarSeriesInstanceUID;
 
-  // check if manager exists for this seriesId
-  if (!manager[larvitarSeriesInstanceUID]) {
-    manager[larvitarSeriesInstanceUID] = serie;
-    manager[larvitarSeriesInstanceUID].imageIds = [];
-    manager[larvitarSeriesInstanceUID].instances = {};
-  }
+  manager[larvitarSeriesInstanceUID] = serie;
+  manager[larvitarSeriesInstanceUID].imageIds = [];
+  manager[larvitarSeriesInstanceUID].instances = {};
 
   each(range(numberOfFrames as number), function (frameNumber) {
     let frameImageId = imageId + "?frame=" + frameNumber;
