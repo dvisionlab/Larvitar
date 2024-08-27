@@ -102,7 +102,7 @@ const pad = function (num: number, size: number): string {
 };
 /**
  * A simple but high quality 53-bit hash, that uses imul.
- * https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
+ * https://github.com/bryc/code/blob/master/jshash/experimental/cyrb53.js
  * @function cyrb53
  * @param {number} string - the starting string to hash
  * @param {number} seed - seed to create different hash
