@@ -22,3 +22,8 @@ export declare const registerStreamingImageVolume: () => void;
  * @param {number} sliceIndex - Optional custom index to overwrite slice index as default one
  */
 export declare const updateLoadedStack: (seriesData: ImageObject, allSeriesStack: ReturnType<typeof getLarvitarManager>, customId?: string, sliceIndex?: number) => void;
+export declare const removeInvalidTags: (srcMetadata: {
+    [tagId: string]: any;
+}) => any;
+export default function getPixelSpacingInformation(instance: any): any;
+export declare const loadAndCacheMetadata: (imageIds: string[]) => void;

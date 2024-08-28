@@ -264,6 +264,7 @@ import {
 import * as csTools3d from "@cornerstonejs/tools";
 import { initializeImageLoader as _initializeImageLoader } from "./imaging3d/imageLoading";
 import { registerStreamingImageVolume as _registerStreamingImageVolume } from "./imaging3d/imageLoading";
+import { loadAndCacheMetadata as _loadAndCacheMetadata } from "./imaging3d/imageLoading";
 import { readFiles as _readFiles } from "./imaging3d/imageParsing";
 import { convertMetadata as _convertMetadata } from "./imaging3d/imageParsing";
 import { renderImage as _renderImage } from "./imaging3d/imageRendering";
@@ -278,6 +279,7 @@ export {
   _renderImage,
   _registerStreamingImageVolume,
   _convertMetadata,
+  _loadAndCacheMetadata,
   VERSION,
   // global cornerstone variables
   cornerstone,

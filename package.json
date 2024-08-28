@@ -45,6 +45,7 @@
     "cornerstone-wado-image-loader": "^4.13.2",
     "cornerstone-web-image-loader": "^2.1.1",
     "crypto-js": "^4.1.1",
+    "dcmjs": "^0.34.0",
     "dicom-character-set": "^1.0.3",
     "dicom-parser": "^1.8.13",
     "docdash": "^1.2.0",

@@ -7,6 +7,8 @@ declare module "dicom-character-set";
 
 // cs3D
 declare module "@cornerstonejs/dicom-image-loader";
+declare module "@cornerstonejs/core/dist/esm/utilities";
+declare module "dcmjs";
 
 declare global {
   interface Document {

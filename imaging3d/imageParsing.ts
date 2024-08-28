@@ -498,7 +498,7 @@ export const convertMetadata = function (dataSet: DataSet) {
 
     keys.forEach(key => {
       const value = (obj as unknown as { [key: string]: any })[key];
-      if (value !== undefined) {
+      if (value !== undefined && typeof value !== "object") {
         const vr = dataSet.elements[key].vr;
         if (vr !== undefined) {
           if (vr === "US" || vr === "DS" || vr === "IS") {

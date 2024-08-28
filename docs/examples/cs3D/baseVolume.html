@@ -52,7 +52,7 @@
 
       const getDemoFileNames = function () {
         let demoFileList = [];
-        for (let i = 1; i < 25; i++) {
+        for (let i = 1; i < 6; i++) {
           let filename = "anon" + i;
           demoFileList.push(filename);
         }
@@ -65,15 +65,16 @@
       larvitar._registerStreamingImageVolume();
       // larvitar.initializeCSTools();
       larvitar.store.initialize();
-      // larvitar.store.addViewport("viewer");
+      larvitar.store.addViewport("viewer-1");
+      larvitar.store.addViewport("viewer-2");
 
       async function createFile(fileName, cb) {
-        let response = await fetch("../demo/" + fileName);
+        let response = await fetch("../demo/3d/" + fileName);
         let data = await response.blob();
         let file = new File([data], fileName);
         demoFiles.push(file);
         counter++;
-        if (counter == 24) {
+        if (counter == 5) {
           cb();
         }
       }
@@ -82,8 +83,6 @@
         larvitar
           ._readFiles(demoFiles) // need to port the updateLoadedStack function
           .then(async seriesStack => {
-            console.log(seriesStack);
-
             const seriesId = _.keys(seriesStack)[0];
             const serie = seriesStack[seriesId];
             const imageIds = serie.imageIds;
@@ -110,19 +109,13 @@
               );
             });
 
-            console.log(
-              larvitar._cornerstoneDICOMImageLoader.wadors.metaDataManager.get(
-                imageIds[0]
-              )
-            );
+            await larvitar._loadAndCacheMetadata(imageIds);
 
             const volume =
-              await larvitar._cornerstone.volumeLoader.createAndCacheVolumeFromImages(
+              await larvitar._cornerstone.volumeLoader.createAndCacheVolume(
                 volumeId,
-                {}
+                { imageIds: imageIds.map(id => id) }
               );
-
-            console.log(volume);
 
             const viewportId1 = "CT_AXIAL";
             const viewportId2 = "CT_SAGITTAL";
@@ -146,16 +139,28 @@
             ];
 
             renderingEngine.setViewports(viewportInput);
-            volume.load();
-
+            await volume.load();
+            console.log(volume);
+            console.log("volume loaded");
             larvitar._cornerstone.setVolumesForViewports(
               renderingEngine,
-              [{ volumeId }],
+              [
+                {
+                  volumeId,
+                  callback: ({ volumeActor }) => {
+                    console.log("volumeActor", volumeActor);
+                  }
+                }
+              ],
               [viewportId1, viewportId2]
             );
 
             // Render the image
-            renderingEngine.renderViewports([viewportId1, viewportId2]);
+            // renderingEngine.enableElement(viewportInput);
+            // renderingEngine.render();
+            await renderingEngine.renderViewports([viewportId1, viewportId2]);
+
+            console.log("renderingEngine", renderingEngine);
           })
           .catch(err => console.error(err));
       }

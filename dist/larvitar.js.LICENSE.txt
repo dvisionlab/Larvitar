@@ -1534,6 +1534,8 @@ License: MIT
 
 /*! no static exports found */
 
+/*! pako 2.0.4 https://github.com/nodeca/pako @license (MIT AND Zlib) */
+
 /*! regenerator-runtime */
 
 /*!****************!*\
