@@ -25,13 +25,25 @@
         <p style="position: absolute; color: white">
           Press "p" to play/pause frame animation
         </p>
+        <p style="position: absolute; top: 20px; color: white">
+          Press "e" to play/pause ecg animation
+        </p>
         <p
           id="frame-rate"
-          style="position: absolute; top: 20px; color: white"
+          style="position: absolute; top: 40px; color: white"
+        ></p>
+        <p id="fps" style="position: absolute; top: 60px; color: white"></p>
+        <p
+          id="loop-time"
+          style="position: absolute; top: 80px; color: white"
+        ></p>
+        <p
+          id="last-loop"
+          style="position: absolute; top: 100px; color: white"
         ></p>
         <p
           id="image-time"
-          style="position: absolute; top: 40px; color: white"
+          style="position: absolute; top: 120px; color: white"
         ></p>
       </div>
 
@@ -189,20 +201,28 @@
         larvitar.setToolActive("StackScroll");
 
         //await larvitar.loadAndCacheImageStack(multiFrameSerie);
-        console.log(
-          "Stack has been loaded and cached",
-          multiFrameSerie.bytes / 1048576
-        );
-
+        // console.log(
+        //   "Stack has been loaded and cached",
+        //   multiFrameSerie.bytes / 1048576
+        // );
+        let updateECG = true;
         let animation = true;
         let animationId = null;
         let numberOfFrames = multiFrameSerie.numberOfFrames;
         let frameTime = multiFrameSerie.frameTime;
         let frameRate = multiFrameSerie.frameTime;
-        $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
+        $("#frame-rate").html("Frame Rate: " + frameRate.toFixed(3) + "ms");
+        $("#fps").html("FPS: " + (1000 / frameRate).toFixed(3));
+        $("#loop-time").html(
+          "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms"
+        );
+        $("#last-loop").html("- ms");
         $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
 
+        let tStart = performance.now();
+        let endLoop = false;
         animationId = setInterval(function () {
+          endLoop = frameId == numberOfFrames - 1 ? true : false;
           let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
           frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
           larvitar.updateImage(series, "viewer", frameId, true);
@@ -210,7 +230,17 @@
           $("#image-time").html(
             "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames
           );
-          larvitar.updateECGFrame(trace_data, frameId, numberOfFrames, "ecg");
+          if (updateECG) {
+            larvitar.updateECGFrame(trace_data, frameId, numberOfFrames, "ecg");
+          }
+          if (endLoop) {
+            let tEnd = performance.now();
+            const lastLoop = tEnd - tStart;
+            $("#last-loop").html(
+              "Loop Rendering Time: " + lastLoop.toFixed(3) + "ms"
+            );
+            tStart = performance.now();
+          }
         }, frameRate);
 
         const t2 = performance.now();
@@ -269,6 +299,9 @@
 
         document.onkeypress = function (e) {
           e = e || window.event;
+          if (e.keyCode == 101) {
+            updateECG = !updateECG;
+          }
           if (e.keyCode == 112) {
             animation = !animation;
             if (animation) {
