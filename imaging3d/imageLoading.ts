@@ -5,6 +5,7 @@
 
 // external libraries
 import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
+import * as StreamingImageVolumeLoader from "@cornerstonejs/streaming-image-volume-loader";
 import * as cornerstone from "@cornerstonejs/core";
 import dicomParser from "dicom-parser";
 import { forEach } from "lodash";
@@ -78,6 +79,14 @@ export const initializeImageLoader = function (maxConcurrency?: number) {
 
   console.log(
     `CornestoneDICOMImageLoader initialized with ${globalConfig.maxWebWorkers} WebWorkers.`
+  );
+};
+
+export const registerStreamingImageVolume = function () {
+  cornerstone.volumeLoader.registerVolumeLoader(
+    "cornerstoneStreamingImageVolume",
+    // @ts-ignore
+    StreamingImageVolumeLoader.cornerstoneStreamingImageVolumeLoader
   );
 };
 

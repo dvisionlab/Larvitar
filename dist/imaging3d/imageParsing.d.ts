@@ -40,3 +40,9 @@ export declare const parseDataSet: (dataSet: DataSet, metadata: ExtendedMetaData
     tags: string[];
     frameId: number;
 }) => void;
+export declare const convertMetadata: (dataSet: DataSet) => {
+    [key: string]: {
+        Value: any[];
+        vr: string;
+    };
+};

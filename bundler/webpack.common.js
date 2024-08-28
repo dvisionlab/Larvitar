@@ -21,8 +21,14 @@ module.exports = {
       }
     ]
   },
+  experiments: {
+    asyncWebAssembly: true
+  },
   resolve: {
-    extensions: [".tsx", ".ts", ".js", ".d.ts"],
+    extensions: [".tsx", ".ts", ".js", ".d.ts", ".wasm"],
+    alias: {
+      "@cornerstonejs/tools": "@cornerstonejs/tools/dist/umd/index.js"
+    },
     fallback: {
       fs: false,
       path: false,

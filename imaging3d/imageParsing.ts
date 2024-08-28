@@ -3,7 +3,7 @@
  */
 
 // external libraries
-import { DataSet, parseDicom } from "dicom-parser";
+import { DataSet, parseDicom, explicitDataSetToJS } from "dicom-parser";
 import { forEach, each, has, pick } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
@@ -483,4 +483,48 @@ const parseFile = function (file: File) {
     reader.readAsArrayBuffer(file);
   });
   return parsePromise;
+};
+
+export const convertMetadata = function (dataSet: DataSet) {
+  const options = {
+    omitPrivateAttibutes: false,
+    maxElementLength: 128
+  };
+  let metadata: { [key: string]: { Value: any[]; vr: string } } = {};
+  try {
+    const obj = explicitDataSetToJS(dataSet, options);
+    const imageMetadata: { [key: string]: { Value: any[]; vr: string } } = {};
+    const keys = Object.keys(dataSet.elements);
+
+    keys.forEach(key => {
+      const value = (obj as unknown as { [key: string]: any })[key];
+      if (value !== undefined) {
+        const vr = dataSet.elements[key].vr;
+        if (vr !== undefined) {
+          if (vr === "US" || vr === "DS" || vr === "IS") {
+            imageMetadata[key.slice(1).toUpperCase()] = {
+              Value: value.split("\\").map((v: any) => parseInt(v) || 0),
+              vr: vr
+            };
+          } else if (vr === "CS") {
+            imageMetadata[key.slice(1).toUpperCase()] = {
+              Value: value.split("\\"),
+              vr: vr
+            };
+          } else if (vr !== "OB") {
+            imageMetadata[key.slice(1).toUpperCase()] = {
+              Value: [value],
+              vr: vr
+            };
+          }
+        }
+      }
+    });
+
+    metadata = imageMetadata;
+  } catch (err) {
+    // we catch the error and display it to the user
+    console.log("parseError: " + err);
+  }
+  return metadata;
 };

@@ -130,7 +130,7 @@ export declare const getCmprMetadata: (reslicedSeriesId: string, imageLoaderName
  * @param {Object} reslicedData - The resliced series data (target)
  * @return {Object} - A single resliced slice pixel array
  */
-export declare const getReslicedPixeldata: (imageId: string, originalData: Series, reslicedData: Series) => Uint8Array | Int8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
+export declare const getReslicedPixeldata: (imageId: string, originalData: Series, reslicedData: Series) => Uint8Array | Float64Array | Int8Array | Uint16Array | Int16Array | Int32Array | Uint32Array | Float32Array;
 /**
  * Get distance between two slices
  * @instance

@@ -11,6 +11,7 @@ import { ImageObject } from "../imaging/types";
  * @param {number} maxConcurrency - Optional maximum number of web workers
  */
 export declare const initializeImageLoader: (maxConcurrency?: number) => void;
+export declare const registerStreamingImageVolume: () => void;
 /**
  * Update the allSeriesStack object using DICOMImageLoader fileManager
  * @instance

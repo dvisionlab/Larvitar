@@ -5,6 +5,13 @@ https://github.com/mholt/PapaParse
 License: MIT
 */
 
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <http://feross.org>
+ * @license  MIT
+ */
+
 /*! ../../../../externalModules.js */
 
 /*! ../../../../store/index.js */
@@ -1520,6 +1527,8 @@ License: MIT
 /*! exports provided: vertexShader */
 
 /*! exports provided: wait, waitForEnabledElementImageToLoad, default */
+
+/*! https://mths.be/punycode v1.4.1 by @mathias */
 
 /*! ms */
 
@@ -3178,6 +3187,12 @@ License: MIT
 /*!********************************************************************************************************!*\
   !*** ./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/updatePerpendicularLine.js ***!
   \********************************************************************************************************/
+
+/**
+ * @license
+ * Copyright 2019 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 /**
  * @license
