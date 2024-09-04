@@ -63,13 +63,12 @@
       larvitar._cornerstone.init();
       larvitar._initializeImageLoader();
       larvitar._registerStreamingImageVolume();
-      // larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer-1");
       larvitar.store.addViewport("viewer-2");
 
       async function createFile(fileName, cb) {
-        let response = await fetch("../demo/3d/" + fileName);
+        let response = await fetch("../demo/" + fileName);
         let data = await response.blob();
         let file = new File([data], fileName);
         demoFiles.push(file);
@@ -156,8 +155,6 @@
             );
 
             // Render the image
-            // renderingEngine.enableElement(viewportInput);
-            // renderingEngine.render();
             await renderingEngine.renderViewports([viewportId1, viewportId2]);
 
             console.log("renderingEngine", renderingEngine);

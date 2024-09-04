@@ -503,7 +503,7 @@ export const convertMetadata = function (dataSet: DataSet) {
         if (vr !== undefined) {
           if (vr === "US" || vr === "DS" || vr === "IS") {
             imageMetadata[key.slice(1).toUpperCase()] = {
-              Value: value.split("\\").map((v: any) => parseInt(v) || 0),
+              Value: value.split("\\").map((v: any) => parseFloat(v) || 0),
               vr: vr
             };
           } else if (vr === "CS") {
