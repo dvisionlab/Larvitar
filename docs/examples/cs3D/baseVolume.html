@@ -31,15 +31,11 @@
         class="col-4 h-100"
         style="background-color: black"
       ></div>
-
-      <div class="col-4 h-100">
-        <pre class="h-100">
-          <code class="javascript" style="background-color: #000000">
-          <p style="font-size:0.6vw;"> 
-          </p>
-          </code>
-        </pre>
-      </div>
+      <div
+        id="viewer-3"
+        class="col-4 h-100"
+        style="background-color: black"
+      ></div>
     </div>
 
     <script src="../../../dist/larvitar.js"></script>
@@ -52,8 +48,9 @@
 
       const getDemoFileNames = function () {
         let demoFileList = [];
-        for (let i = 1; i < 6; i++) {
-          let filename = "anon" + i;
+        for (let i = 1; i < 33; i++) {
+          i = i.toString().padStart(2, "0");
+          let filename = i;
           demoFileList.push(filename);
         }
         return demoFileList;
@@ -66,14 +63,15 @@
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer-1");
       larvitar.store.addViewport("viewer-2");
+      larvitar.store.addViewport("viewer-3");
 
       async function createFile(fileName, cb) {
-        let response = await fetch("../demo/" + fileName);
+        let response = await fetch("../demo/3d/" + fileName);
         let data = await response.blob();
         let file = new File([data], fileName);
         demoFiles.push(file);
         counter++;
-        if (counter == 5) {
+        if (counter == 32) {
           cb();
         }
       }
@@ -84,80 +82,11 @@
           .then(async seriesStack => {
             const seriesId = _.keys(seriesStack)[0];
             const serie = seriesStack[seriesId];
-            const imageIds = serie.imageIds;
-
-            console.log(serie);
-
-            const element1 = document.getElementById("viewer-1");
-            const element2 = document.getElementById("viewer-2");
-
-            const renderingEngineId = "myRenderingEngine";
-            const renderingEngine = new larvitar._cornerstone.RenderingEngine(
-              renderingEngineId
-            );
-
-            const volumeId = "cornerstoneStreamingImageVolume: myVolume";
-
-            imageIds.forEach(imageId => {
-              const metadata = larvitar._convertMetadata(
-                serie.instances[imageId].dataSet
-              );
-              larvitar._cornerstoneDICOMImageLoader.wadors.metaDataManager.add(
-                imageId,
-                metadata
-              );
-            });
-
-            await larvitar._loadAndCacheMetadata(imageIds);
-
-            const volume =
-              await larvitar._cornerstone.volumeLoader.createAndCacheVolume(
-                volumeId,
-                { imageIds: imageIds.map(id => id) }
-              );
-
-            const viewportId1 = "CT_AXIAL";
-            const viewportId2 = "CT_SAGITTAL";
-            const viewportInput = [
-              {
-                viewportId: viewportId1,
-                element: element1,
-                type: "orthographic",
-                defaultOptions: {
-                  orientation: "axial"
-                }
-              },
-              {
-                viewportId: viewportId2,
-                element: element2,
-                type: "orthographic",
-                defaultOptions: {
-                  orientation: "sagittal"
-                }
-              }
-            ];
-
-            renderingEngine.setViewports(viewportInput);
-            await volume.load();
-            console.log(volume);
-            console.log("volume loaded");
-            larvitar._cornerstone.setVolumesForViewports(
-              renderingEngine,
-              [
-                {
-                  volumeId,
-                  callback: ({ volumeActor }) => {
-                    console.log("volumeActor", volumeActor);
-                  }
-                }
-              ],
-              [viewportId1, viewportId2]
-            );
-
-            // Render the image
-            await renderingEngine.renderViewports([viewportId1, viewportId2]);
-
-            console.log("renderingEngine", renderingEngine);
+            larvitar
+              ._renderMpr(serie, "viewer-1", "viewer-2", "viewer-3")
+              .then(() => {
+                console.log("Volume rendered");
+              });
           })
           .catch(err => console.error(err));
       }

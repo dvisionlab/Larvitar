@@ -5,8 +5,8 @@
 
 // external libraries
 import * as cornerstone from "@cornerstonejs/core";
-//import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
-import { each, has } from "lodash";
+import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
+import { each, has, reject } from "lodash";
 
 // internal libraries
 //import { getPerformanceMonitor } from "./monitors/performance";
@@ -16,6 +16,10 @@ import { each, has } from "lodash";
 import store, { set as setStore } from "../imaging/imageStore";
 //import { applyColorMap } from "../imaging/imageColormaps";
 import { isElement } from "../imaging/imageUtils";
+
+import { convertMetadata } from "../imaging3d/imageParsing";
+import { loadAndCacheMetadata } from "../imaging3d/imageLoading";
+
 import {
   //Image,
   Instance,
@@ -105,8 +109,8 @@ export const renderImage = function (
     }
     // viewport.csImage è l'istanza di cornerstone.Image
 
-    // todo modificare lo store
-    //storeViewportData(image, element.id, storedViewport as Viewport, data);
+    // TODO modificare lo store
+    // storeViewportData(image, element.id, storedViewport as Viewport, data);
     setStore(["ready", element.id, true]);
     setStore(["seriesUID", element.id, data.seriesUID]);
     const t1 = performance.now();
@@ -120,6 +124,175 @@ export const renderImage = function (
     serie = null;
     // @ts-ignore
     data = null;
+    resolve(true);
+  });
+
+  return renderPromise;
+};
+
+export const renderMpr = function (
+  seriesStack: Series,
+  axialElementId: string | HTMLElement,
+  coronalElementId: string | HTMLElement,
+  sagittalElementId: string | HTMLElement,
+  defaultProps: StoreViewportOptions
+) {
+  const t0 = performance.now();
+  // get Axial Element and enable it
+  const axialElement = isElement(axialElementId)
+    ? (axialElementId as HTMLDivElement)
+    : (document.getElementById(axialElementId as string) as HTMLDivElement);
+  if (!axialElement) {
+    console.error("invalid html element: " + axialElementId);
+    return new Promise((_, reject) =>
+      reject("invalid html element: " + axialElementId)
+    );
+  }
+  const axialId: string = isElement(axialElementId)
+    ? axialElement.id
+    : (axialElementId as string);
+
+  // get Coronal Element and enable it
+  const coronalElement = isElement(coronalElementId)
+    ? (coronalElementId as HTMLDivElement)
+    : (document.getElementById(coronalElementId as string) as HTMLDivElement);
+  if (!coronalElement) {
+    console.error("invalid html element: " + coronalElementId);
+    return new Promise((_, reject) =>
+      reject("invalid html element: " + coronalElementId)
+    );
+  }
+  const coronalId: string = isElement(coronalElementId)
+    ? coronalElement.id
+    : (coronalElementId as string);
+
+  // get Sagittal Element and enable it
+  const sagittalElement = isElement(sagittalElementId)
+    ? (sagittalElementId as HTMLDivElement)
+    : (document.getElementById(sagittalElementId as string) as HTMLDivElement);
+  if (!sagittalElement) {
+    console.error("invalid html element: " + sagittalElementId);
+    return new Promise((_, reject) =>
+      reject("invalid html element: " + sagittalElementId)
+    );
+  }
+  const sagittalId: string = isElement(sagittalElementId)
+    ? sagittalElement.id
+    : (sagittalElementId as string);
+
+  const renderingEngine = new cornerstone.RenderingEngine("mpr");
+  const volumeId = `cornerstoneStreamingImageVolume:  volume-mpr`;
+
+  let serie = { ...seriesStack };
+
+  setStore(["ready", axialId, false]);
+  setStore(["ready", coronalId, false]);
+  setStore(["ready", sagittalId, false]);
+  let data = getSeriesData(serie, defaultProps);
+
+  if (!data.imageId) {
+    console.warn("error during renderImage: imageId has not been loaded yet.");
+    return new Promise((_, reject) => {
+      setStore(["pendingSliceId", axialId, data.imageIndex]);
+      setStore(["pendingSliceId", coronalId, data.imageIndex]);
+      setStore(["pendingSliceId", sagittalId, data.imageIndex]);
+      reject("error during renderImage: imageId has not been loaded yet.");
+    });
+  }
+
+  serie.imageIds.forEach(imageId => {
+    const dataSet = serie.instances[imageId].dataSet;
+    if (!dataSet) {
+      console.error("no dataset found for imageId: " + imageId);
+      return;
+    }
+    const metadata = convertMetadata(dataSet);
+    cornerstoneDICOMImageLoader.wadors.metaDataManager.add(imageId, metadata);
+  });
+
+  const renderPromise = new Promise<true>(async (resolve, reject) => {
+    loadAndCacheMetadata(serie.imageIds);
+
+    const volume = await cornerstone.volumeLoader.createAndCacheVolume(
+      volumeId,
+      {
+        imageIds: serie.imageIds.map(id => id)
+      }
+    );
+
+    const viewportId1 = "CT_AXIAL";
+    const viewportId2 = "CT_CORONAL";
+    const viewportId3 = "CT_SAGITTAL";
+
+    const viewportInput = [
+      {
+        viewportId: viewportId1,
+        element: axialElement,
+        type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
+        defaultOptions: {
+          orientation: cornerstone.Enums.OrientationAxis.AXIAL
+        }
+      },
+      {
+        viewportId: viewportId2,
+        element: coronalElement,
+        type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
+        defaultOptions: {
+          orientation: cornerstone.Enums.OrientationAxis.CORONAL
+        }
+      },
+      {
+        viewportId: viewportId3,
+        element: sagittalElement,
+        type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
+        defaultOptions: {
+          orientation: cornerstone.Enums.OrientationAxis.SAGITTAL
+        }
+      }
+    ];
+
+    renderingEngine.setViewports(viewportInput);
+    await volume.load();
+
+    const t1 = performance.now();
+    console.log("Time to load volume: " + (t1 - t0) + " milliseconds.");
+
+    cornerstone.setVolumesForViewports(
+      renderingEngine,
+      [
+        {
+          volumeId
+        }
+      ],
+      [viewportId1, viewportId2, viewportId3]
+    );
+    // Render the image
+    renderingEngine.renderViewports([viewportId1, viewportId2]);
+
+    // TODO FIT TO WINDOW ?
+    // TODO VOI
+    // TODO DEFAULT PROPS (SCALE, TR, COLORMAP)
+
+    // TODO modificare lo store
+    // storeViewportData(image, element.id, storedViewport as Viewport, data);
+    setStore(["ready", axialElement.id, true]);
+    setStore(["ready", coronalElement.id, true]);
+    setStore(["ready", sagittalElement.id, true]);
+
+    const t2 = performance.now();
+    console.log("Time to render volume: " + (t2 - t1) + " milliseconds.");
+
+    // const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+    //   data.imageId
+    // ).url;
+    // cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+    // @ts-ignore
+
+    // @ts-ignore
+    serie = null;
+    // @ts-ignore
+    data = null;
+
     resolve(true);
   });
 

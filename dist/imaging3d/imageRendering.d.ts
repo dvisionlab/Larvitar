@@ -13,3 +13,4 @@ import { Series, StoreViewportOptions } from "../imaging/types";
  * @return {Promise} Return a promise which will resolve when image is displayed
  */
 export declare const renderImage: (seriesStack: Series, elementId: string | HTMLElement, defaultProps: StoreViewportOptions) => Promise<true>;
+export declare const renderMpr: (seriesStack: Series, axialElementId: string | HTMLElement, coronalElementId: string | HTMLElement, sagittalElementId: string | HTMLElement, defaultProps: StoreViewportOptions) => Promise<unknown>;

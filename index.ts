@@ -268,6 +268,7 @@ import { loadAndCacheMetadata as _loadAndCacheMetadata } from "./imaging3d/image
 import { readFiles as _readFiles } from "./imaging3d/imageParsing";
 import { convertMetadata as _convertMetadata } from "./imaging3d/imageParsing";
 import { renderImage as _renderImage } from "./imaging3d/imageRendering";
+import { renderMpr as _renderMpr } from "./imaging3d/imageRendering";
 
 export {
   // cs3D
@@ -277,6 +278,7 @@ export {
   _initializeImageLoader,
   _readFiles,
   _renderImage,
+  _renderMpr,
   _registerStreamingImageVolume,
   _convertMetadata,
   _loadAndCacheMetadata,
