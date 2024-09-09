@@ -3,7 +3,7 @@
  *         rendering images in html canvas using cornerstone
  */
 import cornerstone from "cornerstone-core";
-import { Image, Series, StoreViewport, StoreViewportOptions, Viewport } from "./types";
+import { Series, StoreViewport, StoreViewportOptions, Viewport } from "./types";
 /**
  * Purge the cornestone internal cache
  * If seriesId is passed as argument only imageIds of the series are purged from internal cache

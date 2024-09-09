@@ -10,14 +10,13 @@ import { each, has } from "lodash";
 
 // internal libraries
 import { getPerformanceMonitor } from "./monitors/performance";
-import { getFileImageId, getFileManager } from "./loaders/fileLoader";
+import { getFileImageId } from "./loaders/fileLoader";
 import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
 import { isElement } from "./imageUtils";
 import {
-  Image,
   Instance,
   Series,
   StoreViewport,
@@ -25,8 +24,6 @@ import {
   Viewport
 } from "./types";
 import { DEFAULT_TOOLS } from "./tools/default";
-import { initializeFileImageLoader } from "./imageLoading";
-import { generateFiles } from "./parsers/pdf";
 import { setPixelShift } from "./loaders/dsaImageLoader";
 
 /*
@@ -256,23 +253,7 @@ export const renderDICOMPDF = function (
         PDF = null;
         resolve(true);
       } else if (convertToImage === true) {
-        initializeFileImageLoader();
-        let pngFiles = await generateFiles(fileURL);
-        // render first page // TODO: render all pages?
-        renderFileImage(pngFiles[0], elementId).then(() => {
-          let t1 = performance.now();
-          console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
-          image = null;
-          fileTag = undefined;
-          pdfByteArray = undefined;
-          PDF = null;
-          // activate the scroll stack tool
-          if (element) {
-            csToolsCreateStack(element, Object.values(getFileManager()), 0);
-          }
-          toggleMouseToolsListeners(id, false);
-          resolve(true);
-        });
+        console.log("Not Supported in this version");
       }
     } else {
       reject("This is not a DICOM with a PDF");
