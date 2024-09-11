@@ -43,12 +43,23 @@ export declare const renderECG: (data: number[], divId: string, colorMarker: str
  */
 export declare const syncECGFrame: (traceData: Partial<Plotly.PlotData>[], seriesId: string, canvasId: string, numberOfFrames: number, divId: string) => void;
 /**
- * Sync ECG waveform with rendered image on click
+ * Update the ECG waveform on the plot according to new frame time
  * @instance
- * @function updateECGFrame
+ * @function updateECGTotalTime
+ * @param {Object} traceData - Plotly trace data
+ * @param {number} frameId - FrameId of the image
+ * @param {number} numberOfFrames - Number of frames in the image
+ * @param {string} frameTime - Time interval of each frame in the image
+ * @param {string} divId - DivId to render waveform in
+ */
+export declare const updateECGTotalTime: (traceData: Partial<Plotly.PlotData>[], frameId: number, numberOfFrames: number, frameTime: number, divId: string) => void;
+/**
+ * Update the ECG waveform dot on the plot
+ * @instance
+ * @function updateECGMarker
  * @param {Object} traceData - Plotly trace data
  * @param {number} frameId - FrameId of the image
  * @param {number} numberOfFrames - Number of frames in the image
  * @param {string} divId - DivId to render waveform in
  */
-export declare const updateECGFrame: (traceData: Partial<Plotly.PlotData>[], frameId: number, numberOfFrames: number, divId: string) => void;
+export declare const updateECGMarker: (traceData: Partial<Plotly.PlotData>[], frameId: number, numberOfFrames: number, divId: string) => void;
