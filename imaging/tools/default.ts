@@ -41,6 +41,7 @@ import EllipticalRoiTool from "./custom/EllipticalRoiUSTool";
 import FreehandRoiTool from "./custom/FreehandRoiUSTool";
 import ManualLengthPlotTool from "./custom/ManualLengthPlotTool";
 import OverlayTool from "./custom/OverlayTool";
+import { GridTool } from "./custom/gridTool";
 import type {
   ToolConfig,
   ToolMouseKeys,
@@ -552,6 +553,15 @@ const DEFAULT_TOOLS: {
     cleanable: true,
     defaultActive: true,
     class: "OverlayTool"
+  },
+  Grid: {
+    name: "Grid",
+    viewports: "all",
+    configuration: {},
+    options: {},
+    cleanable: true,
+    defaultActive: false,
+    class: "GridTool"
   }
 };
 
@@ -575,7 +585,8 @@ const dvTools: {
   EllipticalRoiTool: EllipticalRoiTool,
   FreehandRoiTool: FreehandRoiTool,
   ManualLengthPlotTool: ManualLengthPlotTool,
-  OverlayTool: OverlayTool
+  OverlayTool: OverlayTool,
+  GridTool: GridTool
 };
 
 /**
