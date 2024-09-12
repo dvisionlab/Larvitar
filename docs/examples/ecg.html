@@ -33,17 +33,20 @@
           style="position: absolute; top: 40px; color: white"
         ></p>
         <p id="fps" style="position: absolute; top: 60px; color: white"></p>
+        <p style="position: absolute; top: 80px; color: white">
+          Press "+/-" to change frame rate
+        </p>
         <p
           id="loop-time"
-          style="position: absolute; top: 80px; color: white"
-        ></p>
-        <p
-          id="last-loop"
           style="position: absolute; top: 100px; color: white"
         ></p>
         <p
-          id="image-time"
+          id="last-loop"
           style="position: absolute; top: 120px; color: white"
+        ></p>
+        <p
+          id="image-time"
+          style="position: absolute; top: 140px; color: white"
         ></p>
       </div>
 
@@ -126,7 +129,7 @@
                               " of " +
                               numberOfFrames
                           );
-                          larvitar.updateECGFrame(
+                          larvitar.updateECGMarker(
                             trace_data,
                             frameId,
                             numberOfFrames,
@@ -231,7 +234,12 @@
             "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames
           );
           if (updateECG) {
-            larvitar.updateECGFrame(trace_data, frameId, numberOfFrames, "ecg");
+            larvitar.updateECGMarker(
+              trace_data,
+              frameId,
+              numberOfFrames,
+              "ecg"
+            );
           }
           if (endLoop) {
             let tEnd = performance.now();
@@ -302,6 +310,41 @@
           if (e.keyCode == 101) {
             updateECG = !updateECG;
           }
+          if (e.keyCode == 43) {
+            animation = false;
+            clearInterval(animationId);
+            frameRate += frameRate * 0.1;
+            larvitar.updateECGTotalTime(
+              trace_data,
+              frameId,
+              numberOfFrames,
+              frameRate,
+              "ecg"
+            );
+            $("#frame-rate").html("Frame Rate: " + frameRate.toFixed(3) + "ms");
+            $("#fps").html("FPS: " + (1000 / frameRate).toFixed(3));
+            $("#loop-time").html(
+              "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms"
+            );
+          }
+          if (e.keyCode == 45) {
+            animation = false;
+            clearInterval(animationId);
+            frameRate -= frameRate * 0.1;
+            larvitar.updateECGTotalTime(
+              trace_data,
+              frameId,
+              numberOfFrames,
+              frameRate,
+              "ecg"
+            );
+            $("#frame-rate").html("Frame Rate: " + frameRate.toFixed(3) + "ms");
+            $("#fps").html("FPS: " + (1000 / frameRate).toFixed(3));
+            $("#loop-time").html(
+              "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms"
+            );
+          }
+
           if (e.keyCode == 112) {
             animation = !animation;
             if (animation) {
@@ -318,7 +361,7 @@
                     " of " +
                     numberOfFrames
                 );
-                larvitar.updateECGFrame(
+                larvitar.updateECGMarker(
                   trace_data,
                   frameId,
                   numberOfFrames,

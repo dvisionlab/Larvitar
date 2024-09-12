@@ -39,7 +39,8 @@ import {
   renderECG,
   unrenderECG,
   syncECGFrame,
-  updateECGFrame,
+  updateECGMarker,
+  updateECGTotalTime,
   getDefaultECGLayout
 } from "./imaging/waveforms/ecg";
 
@@ -283,7 +284,8 @@ export {
   renderECG,
   unrenderECG,
   syncECGFrame,
-  updateECGFrame,
+  updateECGMarker,
+  updateECGTotalTime,
   getDefaultECGLayout,
   // imagePresets
   getImagePresets,
