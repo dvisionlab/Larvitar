@@ -104,7 +104,6 @@ export const renderECG = function (
   // convert info using frameTime and numberOfFrames
   const totalTime = (numberOfFrames - 1) * (frameTime * 1e-3);
   const dotX: number = Math.floor((frameId * data.length) / numberOfFrames);
-  console.log(dotX, data[dotX])
   // build the trace data
   const trace: Partial<Plotly.PlotData> = {
     x: data.map((_, i) => (i * totalTime) / data.length),
@@ -113,7 +112,7 @@ export const renderECG = function (
     type: "scatter",
     line: {
       width: 1.5,
-      shape: "linear",
+      shape: "linear"
     }
   };
 
@@ -128,7 +127,7 @@ export const renderECG = function (
       color: colorMarker,
       symbol: "line-ns-open",
       line: {
-        width: 3,
+        width: 3
       }
     }
   };
