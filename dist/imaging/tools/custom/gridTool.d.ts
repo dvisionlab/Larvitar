@@ -1,5 +1,6 @@
-import { Image } from "cornerstone-core";
-import { MeasurementMouseEvent } from "../types";
+import { EnabledElement, Image } from "cornerstone-core";
+declare const BaseTool: any;
+import { Coords, MeasurementMouseEvent } from "../types";
 export declare const config: {
     dashHeightMM: number;
     dashWidthMM: number;
@@ -7,22 +8,81 @@ export declare const config: {
     colorFractionDark: number;
     maxVal8bit: number;
     maxVal16bit: number;
+    gridSizeMM: number;
+    minPixelSpacing: number;
 };
-declare const BaseTool: any;
+/**
+ * @public
+ * @class GridTool
+ * @memberof Tools.Base
+ * @classdesc Tool for drawing a grid with customizable parameters on image,
+ * such as grid dimension and center position
+ * @extends Tools.Base
+ */
 export declare class GridTool extends BaseTool {
+    center: Coords | null;
     constructor(props?: {});
+    /**
+     * function triggered when tool is set to active
+     *
+     * @private
+     * @param {HTMLElement} element - The viewport element to add event listeners to.
+     * @modifies {element}
+     * @returns {Promise<void>}
+     */
     activeCallback(element: HTMLElement): Promise<void>;
+    /**
+     * function triggered when tool is set to disabled
+     *
+     * @private
+     * @param {HTMLElement} element - The viewport element to add remove listeners to.
+     * @modifies {element}
+     * @returns {void}
+     */
+    disabledCallback(element: HTMLElement): void;
+    /**
+     * function to change center of the grid position on user click
+     *
+     * @private
+     * @param {MeasurementMouseEvent} evt - The click event
+     * @returns {void}
+     */
+    handleMouseClick(evt: MeasurementMouseEvent): void;
+    /**
+     * @private
+     * @param {MeasurementMouseEvent} evt - The click event
+     * @returns {void}
+     */
     renderToolData(evt: MeasurementMouseEvent): void;
-    triggerDrawGrid(enabledElement: any): void;
-    validatePixelSpacing(spacingX: number, spacingY: number): void;
-    drawGridPattern(context: CanvasRenderingContext2D, element: HTMLElement, bitDepth: number, pixelSpacing: any, image: Image): void;
-    findImageCoords(element: HTMLElement, image: Image): {
-        start: import("cornerstone-core").CanvasCoordinate;
-        end: import("cornerstone-core").CanvasCoordinate;
-    };
-    getGridSizeInPixels(pixelSpacing: any): {
-        gridSizeX: number;
-        gridSizeY: number;
-    };
+    /**
+     * function to trigger the draw grid
+     * @private
+     * @param {EnabledElement} enabledElement
+     * @returns {void}
+     */
+    triggerDrawGrid(enabledElement: EnabledElement): void;
+    /**
+     * function to draw the grid
+     * @private
+     * @param {CanvasRenderingContext2D} context
+     * @param {number} xCenter
+     * @param {number} yCenter
+     * @param {Coords} start
+     * @param {Coords} end
+     * @param {number} patternWidth
+     * @param {number} patternHeight
+     * @param {number} dashWidth
+     * @param {number} dashHeight
+     * @param {string} lightGray
+     * @param {string} darkGray
+     * @returns {void}
+     */
+    drawDashedGrid(context: CanvasRenderingContext2D, xCenter: number, yCenter: number, start: Coords, end: Coords, patternWidth: number, patternHeight: number, dashWidth: number, dashHeight: number, lightGray: string, darkGray: string, image: Image, element: HTMLElement): void;
+    /**
+     * returns grid's pixelArray
+     * @private
+     * @returns {number[]}
+     */
+    getGridPixelArray(): any;
 }
 export {};

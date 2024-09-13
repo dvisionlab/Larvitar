@@ -1,53 +1,134 @@
-import { getColors, mmToPixels } from "./gridToolUtils";
+//external imports
 import cornerstoneTools from "cornerstone-tools";
-import { Image, PixelCoordinate, pixelToCanvas } from "cornerstone-core";
-import { handleElement } from "./gridToolUtils";
-import { MeasurementMouseEvent } from "../types";
+import {
+  EnabledElement,
+  Image,
+  PixelCoordinate,
+  pixelToCanvas,
+  updateImage
+} from "cornerstone-core";
 const getNewContext = cornerstoneTools.importInternal("drawing/getNewContext");
-
-export const config = {
-  dashHeightMM: 2, // Altezza del pattern in millimetri
-  dashWidthMM: 10, // Larghezza del pattern in millimetri
-  colorFractionLight: 2 / 3, // Frazione per calcolo del grigio chiaro
-  colorFractionDark: 1 / 3, // Frazione per calcolo del grigio scuro
-  maxVal8bit: 2 ** 8, // Valore massimo per immagini a 8-bit
-  maxVal16bit: 2 ** 16 // Valore massimo per immagini a 16-bit
-};
-const MIN_PIXEL_SPACING = 0.1; //min pixel spacing
-const GRID_SIZE_MM = 50; // Quadretti da 5 cm
+const EVENTS = cornerstoneTools.EVENTS;
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
+//internal imports
+import {
+  convertDimensionsToCanvas,
+  drawHorizontalLines,
+  drawVerticalLines,
+  findImageCoords,
+  getColors,
+  mmToPixels,
+  validatePixelSpacing
+} from "./gridToolUtils";
+import { handleElement } from "./gridToolUtils";
+import { Coords, MeasurementMouseEvent } from "../types";
 
+//global config of grid
+export const config = {
+  dashHeightMM: 2, // Dash default height in mm
+  dashWidthMM: 10, // Dash default width in mm
+  colorFractionLight: 2 / 3, // Fraction of lightGray color
+  colorFractionDark: 1 / 3, // Fraction of darkGray color
+  maxVal8bit: 2 ** 8, // Max value for 8-bit images
+  maxVal16bit: 2 ** 16, // Max value for 16-bit images
+  gridSizeMM: 50, // Pattern squares default size (5cm)
+  minPixelSpacing: 0.1
+};
+
+/**
+ * @public
+ * @class GridTool
+ * @memberof Tools.Base
+ * @classdesc Tool for drawing a grid with customizable parameters on image,
+ * such as grid dimension and center position
+ * @extends Tools.Base
+ */
 export class GridTool extends BaseTool {
+  public center: Coords | null = null;
   constructor(props = {}) {
     super({
       name: "GridTool",
-      configuration: {},
+      configuration: {
+        patternDimension: null,
+        gridPixelArray: []
+      },
       ...props
     });
+    this.handleMouseClick = this.handleMouseClick.bind(this);
   }
 
+  /**
+   * function triggered when tool is set to active
+   *
+   * @private
+   * @param {HTMLElement} element - The viewport element to add event listeners to.
+   * @modifies {element}
+   * @returns {Promise<void>}
+   */
   async activeCallback(element: HTMLElement) {
     const enabledElement = await handleElement(element);
+    element.addEventListener(EVENTS.MOUSE_CLICK, this.handleMouseClick);
     if (enabledElement) {
       this.enabledElement = enabledElement;
       this.triggerDrawGrid(enabledElement);
     }
   }
 
+  /**
+   * function triggered when tool is set to disabled
+   *
+   * @private
+   * @param {HTMLElement} element - The viewport element to add remove listeners to.
+   * @modifies {element}
+   * @returns {void}
+   */
+  disabledCallback(element: HTMLElement) {
+    element.removeEventListener(EVENTS.MOUSE_CLICK, this.handleMouseClick);
+  }
+
+  /**
+   * function to change center of the grid position on user click
+   *
+   * @private
+   * @param {MeasurementMouseEvent} evt - The click event
+   * @returns {void}
+   */
+  handleMouseClick(evt: MeasurementMouseEvent) {
+    const center = evt.detail.currentPoints.image;
+
+    if (center?.x && center.y) {
+      this.center = center;
+    }
+    updateImage(this.enabledElement.element);
+  }
+
+  /**
+   * @private
+   * @param {MeasurementMouseEvent} evt - The click event
+   * @returns {void}
+   */
   renderToolData(evt: MeasurementMouseEvent) {
     if (this.enabledElement) {
       this.triggerDrawGrid(this.enabledElement);
     }
   }
 
-  triggerDrawGrid(enabledElement: any) {
-    const image = enabledElement.image;
+  /**
+   * function to trigger the draw grid
+   * @private
+   * @param {EnabledElement} enabledElement
+   * @returns {void}
+   */
+  triggerDrawGrid(enabledElement: EnabledElement) {
+    this.configuration.gridPixelArray = [];
+    const image = enabledElement.image as Image;
     const pixelSpacing = {
-      spacingX: image.columnPixelSpacing,
-      spacingY: image.rowPixelSpacing
+      x: image.columnPixelSpacing,
+      y: image.rowPixelSpacing
     };
+
     try {
-      this.validatePixelSpacing(pixelSpacing.spacingX, pixelSpacing.spacingY);
+      validatePixelSpacing(pixelSpacing.x, pixelSpacing.y);
     } catch (error: any) {
       console.error(error.message);
       return;
@@ -56,74 +137,130 @@ export class GridTool extends BaseTool {
     const context: CanvasRenderingContext2D = getNewContext(
       enabledElement.canvas
     );
-    this.drawGridPattern(
+    const element = enabledElement.element;
+
+    //grid pattern color
+    const bitDepth = (image as any).bitsAllocated;
+    const { lightGray, darkGray } = getColors(bitDepth);
+
+    //pattern squares dimension
+    let patternHeight = this.configuration.patternDimension
+      ? mmToPixels(this.configuration.patternDimension, pixelSpacing.y)
+      : mmToPixels(config.gridSizeMM, pixelSpacing.y);
+    let patternWidth = this.configuration.patternDimension
+      ? mmToPixels(this.configuration.patternDimension, pixelSpacing.x)
+      : mmToPixels(config.gridSizeMM, pixelSpacing.x);
+    const patternCanvasDimensions = convertDimensionsToCanvas(
+      element,
+      patternWidth,
+      patternHeight
+    );
+
+    //dash dimension
+    let dashHeight = mmToPixels(config.dashHeightMM, pixelSpacing.y);
+    let dashWidth = mmToPixels(config.dashWidthMM, pixelSpacing.x);
+    const dashCanvasDimensions = convertDimensionsToCanvas(
+      element,
+      dashWidth,
+      dashHeight
+    );
+
+    //grid center coordinates
+    const { start, end } = findImageCoords(element, image);
+    let center = { x: (end.x + start.x) / 2, y: (end.y + start.y) / 2 };
+    if (this.center) {
+      center = pixelToCanvas(element, this.center as PixelCoordinate);
+    }
+
+    this.drawDashedGrid(
       context,
-      enabledElement.element,
-      image.bitsAllocated,
-      pixelSpacing,
-      image!
+      center.x,
+      center.y,
+      start,
+      end,
+      patternCanvasDimensions.width,
+      patternCanvasDimensions.height,
+      dashCanvasDimensions.width,
+      dashCanvasDimensions.height,
+      lightGray,
+      darkGray,
+      image,
+      element
     );
   }
 
-  validatePixelSpacing(spacingX: number, spacingY: number) {
-    if (spacingX < MIN_PIXEL_SPACING || spacingY < MIN_PIXEL_SPACING) {
-      throw new Error("Pixel size is too small or invalid.");
-    }
-  }
-
-  drawGridPattern(
+  /**
+   * function to draw the grid
+   * @private
+   * @param {CanvasRenderingContext2D} context
+   * @param {number} xCenter
+   * @param {number} yCenter
+   * @param {Coords} start
+   * @param {Coords} end
+   * @param {number} patternWidth
+   * @param {number} patternHeight
+   * @param {number} dashWidth
+   * @param {number} dashHeight
+   * @param {string} lightGray
+   * @param {string} darkGray
+   * @returns {void}
+   */
+  drawDashedGrid(
     context: CanvasRenderingContext2D,
-    element: HTMLElement,
-    bitDepth: number,
-    pixelSpacing: any,
-    image: Image
+    xCenter: number,
+    yCenter: number,
+    start: Coords,
+    end: Coords,
+    patternWidth: number,
+    patternHeight: number,
+    dashWidth: number,
+    dashHeight: number,
+    lightGray: string,
+    darkGray: string,
+    image: Image,
+    element: HTMLElement
   ) {
-    const { lightGray, darkGray } = getColors(bitDepth); // Calculating the colors
-
-    // Conversion of the grid square size from mm to pixels (50 mm x 50 mm)
-    const patternHeight = mmToPixels(GRID_SIZE_MM, pixelSpacing.spacingY);
-    const patternWidth = mmToPixels(GRID_SIZE_MM, pixelSpacing.spacingX);
-
-    // Dashed line properties from the config
-    const dashHeight = mmToPixels(config.dashHeightMM, pixelSpacing.spacingY);
-    const dashWidth = mmToPixels(config.dashWidthMM, pixelSpacing.spacingX);
-
-    // Get canvas dimensions
-    const { start, end } = this.findImageCoords(element, image);
-
-    // Variable to keep track of which color to use (alternating between lightGray and darkGray)
-    let isLight = true;
-    // Draw the grid pattern
-    context.lineWidth = dashHeight; // Set line width for the grid
-    for (let y = start.y; y < end.y; y += patternHeight) {
-      for (let x = start.x; x < end.x; x += patternWidth) {
-        // Set dashed line properties
-        context.setLineDash([dashWidth, dashWidth]); // Dash and gap widths
-        context.strokeStyle = isLight ? lightGray : darkGray;
-        context.strokeRect(x, y, patternWidth, patternHeight);
-        isLight = !isLight;
-      }
-      isLight = !isLight;
-    }
-  }
-  findImageCoords(element: HTMLElement, image: Image) {
-    // Set canvas size to match the image dimensions
-    const start = pixelToCanvas(element, {
-      x: 0,
-      y: 0
-    } as PixelCoordinate);
-    const end = pixelToCanvas(element, {
-      x: image.width,
-      y: image.height
-    } as PixelCoordinate);
-
-    return { start, end };
+    // Create the 1D array to represent the pixel map
+    this.configuration.gridPixelArray = new Array(
+      image.width * image.height
+    ).fill(0);
+    drawVerticalLines(
+      context,
+      xCenter,
+      start,
+      end,
+      patternWidth,
+      dashWidth,
+      dashHeight,
+      lightGray,
+      darkGray,
+      this.configuration.gridPixelArray,
+      image,
+      element
+    );
+    drawHorizontalLines(
+      context,
+      yCenter,
+      start,
+      end,
+      patternHeight,
+      dashWidth,
+      dashHeight,
+      lightGray,
+      darkGray,
+      this.configuration.gridPixelArray,
+      image,
+      element
+    );
   }
 
-  getGridSizeInPixels(pixelSpacing: any) {
-    return {
-      gridSizeX: GRID_SIZE_MM / pixelSpacing.spacingX,
-      gridSizeY: GRID_SIZE_MM / pixelSpacing.spacingY
-    };
+  /**
+   * returns grid's pixelArray
+   * @private
+   * @returns {number[]}
+   */
+  getGridPixelArray() {
+    console.log("GRID'S PIXEL ARRAY", this.configuration.gridPixelArray);
+    return this.configuration.gridPixelArray;
   }
 }
