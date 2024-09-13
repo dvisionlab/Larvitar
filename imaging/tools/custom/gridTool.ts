@@ -19,8 +19,8 @@ import {
   getColors,
   mmToPixels,
   validatePixelSpacing
-} from "./gridToolUtils";
-import { handleElement } from "./gridToolUtils";
+} from "./utils/gridToolUtils/gridToolUtils";
+import { handleElement } from "./utils/gridToolUtils/gridToolUtils";
 import { Coords, MeasurementMouseEvent } from "../types";
 
 //global config of grid

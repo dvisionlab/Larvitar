@@ -8,16 +8,16 @@ import {
   CanvasCoordinate
 } from "cornerstone-core";
 //internal imports
-import { Coords } from "../types";
-import { config } from "./gridTool";
+import { Coords } from "../../../types";
+import { config } from "../../gridTool";
 
 export type GridData = {
   from: Coords;
   to: Coords;
   color: string;
 };
-let lightColorCode = config.colorFractionLight;
-let darkColorCode = config.colorFractionDark;
+let lightColorCode = 1;
+let darkColorCode = 0;
 
 //retrieves cornerstone active enabled element
 export function handleElement(element: HTMLElement): Promise<any> {
@@ -101,6 +101,8 @@ export function getColors(bitDepth: number) {
   const darkGray = `#${Math.ceil(maxVal * config.colorFractionDark).toString(
     16
   )}`;
+  lightColorCode = config.colorFractionLight;
+  darkColorCode = config.colorFractionDark;
   return { lightGray, darkGray };
 }
 
@@ -336,8 +338,6 @@ export function drawHorizontalLines(
       gridPixelArray,
       darkColorCode
     );
-    console.log(darkColorCode);
-    console.log(lightColorCode);
   }
 }
 

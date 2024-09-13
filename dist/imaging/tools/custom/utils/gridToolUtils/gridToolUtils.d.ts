@@ -1,5 +1,5 @@
 import { Image, CanvasCoordinate } from "cornerstone-core";
-import { Coords } from "../types";
+import { Coords } from "../../../types";
 export type GridData = {
     from: Coords;
     to: Coords;
