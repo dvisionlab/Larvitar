@@ -51,7 +51,7 @@ export const renderImage = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
   defaultProps: StoreViewportOptions
-): Promise<true> {
+): Promise<{ success: boolean, renderingEngine: cornerstone.RenderingEngine }> {
   const t0 = performance.now();
   // get element and enable it
   const element = isElement(elementId)
@@ -65,10 +65,10 @@ export const renderImage = function (
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
 
-  const renderingEngine = new cornerstone.RenderingEngine(id);
+  const renderingEngine = new cornerstone.RenderingEngine('2d');
   const viewportInput = {
     viewportId: id,
-    element: element,
+    element,
     type: cornerstone.Enums.ViewportType.STACK
   };
   // TODO check if there is an enabledElement with this id
@@ -89,7 +89,7 @@ export const renderImage = function (
     });
   }
 
-  const renderPromise = new Promise<true>((resolve, reject) => {
+  const renderPromise = new Promise<{ success: boolean, renderingEngine: cornerstone.RenderingEngine }>((resolve, reject) => {
     // @ts-ignore IViewport does not have a setStack method
     viewport.setStack(serie.imageIds, 5);
     viewport.render();
@@ -124,7 +124,7 @@ export const renderImage = function (
     serie = null;
     // @ts-ignore
     data = null;
-    resolve(true);
+    resolve({ success: true, renderingEngine });
   });
 
   return renderPromise;

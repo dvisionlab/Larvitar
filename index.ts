@@ -11,6 +11,7 @@ import * as _cornerstone from "@cornerstonejs/core";
 import { default as _cornerstoneDICOMImageLoader } from "@cornerstonejs/dicom-image-loader";
 
 import cornerstoneTools from "cornerstone-tools";
+import * as _cornerstoneTools from '@cornerstonejs/tools';
 import { parseDicom } from "dicom-parser";
 import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 
@@ -261,7 +262,6 @@ import {
 } from "./imaging/tools/interaction";
 
 // Cornestone 3D
-import * as csTools3d from "@cornerstonejs/tools";
 import { initializeImageLoader as _initializeImageLoader } from "./imaging3d/imageLoading";
 import { registerStreamingImageVolume as _registerStreamingImageVolume } from "./imaging3d/imageLoading";
 import { loadAndCacheMetadata as _loadAndCacheMetadata } from "./imaging3d/imageLoading";
@@ -274,7 +274,7 @@ export {
   // cs3D
   _cornerstone,
   _cornerstoneDICOMImageLoader,
-  csTools3d,
+  _cornerstoneTools,
   _initializeImageLoader,
   _readFiles,
   _renderImage,
