@@ -419,6 +419,7 @@ export interface Coords {
 export interface EventData {
   currentPoints: {
     image: Coords;
+    canvas?: Coords;
   };
   element: HTMLElement;
   buttons: number;
