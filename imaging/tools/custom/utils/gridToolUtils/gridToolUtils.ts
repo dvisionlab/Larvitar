@@ -375,7 +375,7 @@ function updatePixelArrayWithHorizontalDashedLine(
           from.y > imageHeight && from.y > 0
             ? Math.floor(from.y)
             : Math.round(from.y);
-        const index = x * imageHeight + yOffset;
+        const index = yOffset * imageWidth + x;
         pixelArray[index] = value;
       }
     }

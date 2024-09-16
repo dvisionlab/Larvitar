@@ -8,6 +8,11 @@ type ToolOptions = {
   invert?: boolean;
 } & { [key: string]: unknown };
 
+export type GridConfig = {
+  patternDimension: number | null;
+  gridPixelArray: number[];
+};
+
 export type ToolConfig = {
   name: string;
   viewports: string | string[];

@@ -557,7 +557,10 @@ const DEFAULT_TOOLS: {
   Grid: {
     name: "Grid",
     viewports: "all",
-    configuration: {},
+    configuration: {
+      patternDimension: null,
+      gridPixelArray: []
+    },
     options: {},
     cleanable: true,
     defaultActive: false,
