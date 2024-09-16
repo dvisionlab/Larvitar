@@ -109,7 +109,7 @@ export const renderECG = function (
     x: data.map((_, i) => (i * totalTime) / data.length),
     y: data,
     mode: "lines",
-    type: "scattergl",
+    type: "scatter",
     line: {
       width: 1.5,
       shape: "linear"
@@ -121,7 +121,7 @@ export const renderECG = function (
     x: [dotX],
     y: [data[dotX]],
     mode: "markers",
-    type: "scattergl",
+    type: "scatter",
     marker: {
       size: 12,
       color: colorMarker,
@@ -273,39 +273,23 @@ export const updateECGMarker = function (
   traceData[1].x = [dotX];
   traceData[1].y = Array.isArray(dotY) ? dotY : [dotY];
 
-  // OLD METHOD WORKING FINE BUT SLOW
-  Plotly.extendTraces(divId, {}, [0]);
-
-  // const updatedMarker: Partial<Plotly.PlotData> = {
-  //   x: [dotX], // New X position
-  //   y: Array.isArray(dotY) ? dotY : [dotY], // New Y position
-  //   mode: "markers",
-  //   type: "scattergl",
-  //   marker: {
-  //     size: 12,
-  //     color: "red",
-  //     symbol: "line-ns-open",
-  //     line: {
-  //       width: 3
-  //     }
-  //   }
-  // };
-
-  // // @ts-ignore Plotly.animate is not in the types
-  // Plotly.animate(
-  //   divId,
-  //   {
-  //     data: [updatedMarker], // Pass the updated marker trace
-  //     traces: [1] // Ensure this is the correct index for your marker trace
-  //   },
-  //   {
-  //     transition: {
-  //       duration: 0 // Duration for the animation
-  //     },
-  //     frame: {
-  //       duration: 0, // Frame duration
-  //       redraw: false // Redraw the plot, keep this false if you don't need a full redraw
-  //     }
-  //   }
-  // );
+  // !! Plotly.animate does not work with "scattegl" trace type
+  // @ts-ignore Plotly.animate is not in the types
+  Plotly.animate(
+    divId,
+    {
+      data: [{ y: traceData[1].y }], // Updated marker data
+      traces: [1] // Index of marker trace
+    },
+    {
+      transition: {
+        duration: totalTime / (numberOfFrames - 1) // Must be <= frame duration
+      },
+      frame: {
+        duration: totalTime / (numberOfFrames - 1), // Frame duration
+        redraw: false // Redraw the plot, keep this false if you don't need a full redraw
+      }
+    }
+  );
 };
+
