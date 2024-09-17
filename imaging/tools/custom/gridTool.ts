@@ -209,6 +209,8 @@ export class GridTool extends BaseTool {
       patternCanvasDimensions.height,
       dashCanvasDimensions.width,
       dashCanvasDimensions.height,
+      dashHeight,
+      dashWidth,
       lightGray,
       darkGray,
       image,
@@ -242,6 +244,8 @@ export class GridTool extends BaseTool {
     patternHeight: number,
     dashWidth: number,
     dashHeight: number,
+    imageDashHeight: number,
+    imageDashWidth: number,
     lightGray: string,
     darkGray: string,
     image: Image,
@@ -259,6 +263,8 @@ export class GridTool extends BaseTool {
       patternWidth,
       dashWidth,
       dashHeight,
+      imageDashHeight,
+      imageDashWidth,
       lightGray,
       darkGray,
       this.configuration.gridPixelArray,
@@ -273,6 +279,8 @@ export class GridTool extends BaseTool {
       patternHeight,
       dashWidth,
       dashHeight,
+      imageDashHeight,
+      imageDashWidth,
       lightGray,
       darkGray,
       this.configuration.gridPixelArray,
@@ -281,6 +289,9 @@ export class GridTool extends BaseTool {
     );
     (DEFAULT_TOOLS["Grid"].configuration as GridConfig).gridPixelArray =
       this.configuration.gridPixelArray;
+    //TEST PIXEL ARRAY
+    // image.getPixelData = () => this.configuration.gridPixelArray;
+    // updateImage(element);
   }
 
   /**
