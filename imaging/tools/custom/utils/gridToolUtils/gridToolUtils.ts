@@ -111,8 +111,8 @@ export function getColors(bitDepth: number) {
   const darkGray = `#${Math.ceil(maxVal * config.colorFractionDark).toString(
     16
   )}`;
-  lightColorCode = config.colorFractionLight;
-  darkColorCode = config.colorFractionDark;
+  lightColorCode = maxVal * config.colorFractionLight;
+  darkColorCode = maxVal * config.colorFractionDark;
   return { lightGray, darkGray };
 }
 
