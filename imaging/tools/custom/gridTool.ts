@@ -85,7 +85,6 @@ export class GridTool extends BaseTool {
   }
 
   triggerInputPatternDimensionChange(event: any) {
-    console.log("INPUT PATTERN DIMENSION:", event.target.value);
     (DEFAULT_TOOLS["Grid"].configuration as GridConfig).patternDimension =
       event.target.value;
     updateImage(this.enabledElement.element);
