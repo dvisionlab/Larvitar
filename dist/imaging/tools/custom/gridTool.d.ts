@@ -78,7 +78,7 @@ export declare class GridTool extends BaseTool {
      * @param {string} darkGray
      * @returns {void}
      */
-    drawDashedGrid(context: CanvasRenderingContext2D, xCenter: number, yCenter: number, start: Coords, end: Coords, patternWidth: number, patternHeight: number, dashWidth: number, dashHeight: number, lightGray: string, darkGray: string, image: Image, element: HTMLElement): void;
+    drawDashedGrid(context: CanvasRenderingContext2D, xCenter: number, yCenter: number, start: Coords, end: Coords, patternWidth: number, patternHeight: number, dashWidth: number, dashHeight: number, imageDashHeight: number, imageDashWidth: number, lightGray: string, darkGray: string, image: Image, element: HTMLElement): void;
     /**
      * returns grid's pixelArray
      * @private

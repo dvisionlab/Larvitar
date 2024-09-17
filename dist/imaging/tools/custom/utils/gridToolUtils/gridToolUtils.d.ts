@@ -21,5 +21,5 @@ export declare function getColors(bitDepth: number): {
     darkGray: string;
 };
 export declare function drawDashedLine(context: CanvasRenderingContext2D, from: Coords, to: Coords, color: string): void;
-export declare function drawVerticalLines(context: CanvasRenderingContext2D, xCenter: number, start: Coords, end: Coords, patternWidth: number, dashWidth: number, dashHeight: number, lightGray: string, darkGray: string, gridPixelArray: number[], image: Image, element: HTMLElement): void;
-export declare function drawHorizontalLines(context: CanvasRenderingContext2D, yCenter: number, start: Coords, end: Coords, patternHeight: number, dashWidth: number, dashHeight: number, lightGray: string, darkGray: string, gridPixelArray: number[], image: Image, element: HTMLElement): void;
+export declare function drawVerticalLines(context: CanvasRenderingContext2D, xCenter: number, start: Coords, end: Coords, patternWidth: number, dashWidth: number, dashHeight: number, imageDashHeight: number, imageDashWidth: number, lightGray: string, darkGray: string, gridPixelArray: number[], image: Image, element: HTMLElement): void;
+export declare function drawHorizontalLines(context: CanvasRenderingContext2D, yCenter: number, start: Coords, end: Coords, patternHeight: number, dashWidth: number, dashHeight: number, imageDashHeight: number, imageDashWidth: number, lightGray: string, darkGray: string, gridPixelArray: number[], image: Image, element: HTMLElement): void;
