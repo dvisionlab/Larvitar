@@ -47,6 +47,7 @@
     // init all
     larvitar._cornerstone.init();
     larvitar._initializeImageLoader();
+    larvitar._cornerstoneTools.init();
     larvitar.store.initialize();
     larvitar.store.addViewport("viewer");
 
@@ -94,9 +95,9 @@
             const { MouseBindings } = csToolsEnums;
 
             _cornerstoneTools.addTool(WindowLevelTool);
-            // _cornerstoneTools.addTool(PanTool);
-            // _cornerstoneTools.addTool(StackScrollMouseWheelTool);
-            // _cornerstoneTools.addTool(ZoomTool);
+            _cornerstoneTools.addTool(PanTool);
+            _cornerstoneTools.addTool(StackScrollMouseWheelTool);
+            _cornerstoneTools.addTool(ZoomTool);
 
             const toolGroupId = 'GROUP_ID';
             const toolGroup = ToolGroupManager.createToolGroup(toolGroupId);
@@ -106,9 +107,9 @@
 
             // Add tools to the tool group
             toolGroup.addTool(WindowLevelTool.toolName);
-            // toolGroup.addTool(PanTool.toolName);
-            // toolGroup.addTool(ZoomTool.toolName);
-            // toolGroup.addTool(StackScrollMouseWheelTool.toolName, { loop: false });
+            toolGroup.addTool(PanTool.toolName);
+            toolGroup.addTool(ZoomTool.toolName);
+            toolGroup.addTool(StackScrollMouseWheelTool.toolName, { loop: false });
 
             toolGroup.setToolActive(WindowLevelTool.toolName, {
               bindings: [
@@ -118,7 +119,6 @@
               ],
             });
 
-            /*
             toolGroup.setToolActive(PanTool.toolName, {
               bindings: [
                 {
@@ -136,9 +136,10 @@
             });
 
             toolGroup.setToolActive(StackScrollMouseWheelTool.toolName);
-            */
 
             renderingEngine.renderViewport("viewer");
+
+            // cursors not showing up is a known issue: https://github.com/cornerstonejs/cornerstone3D/issues/1428
 
           });
         })
