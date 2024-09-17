@@ -42,6 +42,15 @@ export declare class GridTool extends BaseTool {
      */
     disabledCallback(element: HTMLElement): void;
     /**
+     * function triggered when tool is set to passive
+     *
+     * @private
+     * @param {HTMLElement} element - The viewport element to add remove listeners to.
+     * @modifies {element}
+     * @returns {void}
+     */
+    passiveCallback(element: HTMLElement): void;
+    /**
      * function to change center of the grid position on user click
      *
      * @private
