@@ -51,7 +51,7 @@ export const renderImage = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
   defaultProps: StoreViewportOptions
-): Promise<{ success: boolean, renderingEngine: cornerstone.RenderingEngine }> {
+): Promise<{ success: boolean; renderingEngine: cornerstone.RenderingEngine }> {
   const t0 = performance.now();
   // get element and enable it
   const element = isElement(elementId)
@@ -65,7 +65,7 @@ export const renderImage = function (
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
 
-  const renderingEngine = new cornerstone.RenderingEngine('2d');
+  const renderingEngine = new cornerstone.RenderingEngine("2d");
   const viewportInput = {
     viewportId: id,
     element,
@@ -89,7 +89,10 @@ export const renderImage = function (
     });
   }
 
-  const renderPromise = new Promise<{ success: boolean, renderingEngine: cornerstone.RenderingEngine }>((resolve, reject) => {
+  const renderPromise = new Promise<{
+    success: boolean;
+    renderingEngine: cornerstone.RenderingEngine;
+  }>((resolve, reject) => {
     // @ts-ignore IViewport does not have a setStack method
     viewport.setStack(serie.imageIds, 5);
     viewport.render();
@@ -132,6 +135,7 @@ export const renderImage = function (
 
 export const renderMpr = function (
   seriesStack: Series,
+  // TODO change to array o viewports or objects to understand the orientation
   axialElementId: string | HTMLElement,
   coronalElementId: string | HTMLElement,
   sagittalElementId: string | HTMLElement,
@@ -210,87 +214,89 @@ export const renderMpr = function (
     cornerstoneDICOMImageLoader.wadors.metaDataManager.add(imageId, metadata);
   });
 
-  const renderPromise = new Promise<cornerstone.RenderingEngine>(async (resolve, reject) => {
-    loadAndCacheMetadata(serie.imageIds);
+  const renderPromise = new Promise<cornerstone.RenderingEngine>(
+    async (resolve, reject) => {
+      loadAndCacheMetadata(serie.imageIds);
 
-    const volume = await cornerstone.volumeLoader.createAndCacheVolume(
-      volumeId,
-      {
-        imageIds: serie.imageIds.map(id => id)
-      }
-    );
-
-    const viewportInput = [
-      {
-        viewportId: axialId,
-        element: axialElement,
-        type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-        defaultOptions: {
-          orientation: cornerstone.Enums.OrientationAxis.AXIAL
-        }
-      },
-      {
-        viewportId: coronalId,
-        element: coronalElement,
-        type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-        defaultOptions: {
-          orientation: cornerstone.Enums.OrientationAxis.CORONAL
-        }
-      },
-      {
-        viewportId: sagittalId,
-        element: sagittalElement,
-        type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-        defaultOptions: {
-          orientation: cornerstone.Enums.OrientationAxis.SAGITTAL
-        }
-      }
-    ];
-
-    renderingEngine.setViewports(viewportInput);
-    await volume.load();
-
-    const t1 = performance.now();
-    console.log("Time to load volume: " + (t1 - t0) + " milliseconds.");
-
-    cornerstone.setVolumesForViewports(
-      renderingEngine,
-      [
+      const volume = await cornerstone.volumeLoader.createAndCacheVolume(
+        volumeId,
         {
-          volumeId
+          imageIds: serie.imageIds.map(id => id)
         }
-      ],
-      [axialId, coronalId, sagittalId]
-    );
-    // Render the image
-    renderingEngine.renderViewports([axialId, coronalId, sagittalId]);
+      );
 
-    // TODO FIT TO WINDOW ?
-    // TODO VOI
-    // TODO DEFAULT PROPS (SCALE, TR, COLORMAP)
+      const viewportInput = [
+        {
+          viewportId: axialId,
+          element: axialElement,
+          type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
+          defaultOptions: {
+            orientation: cornerstone.Enums.OrientationAxis.AXIAL
+          }
+        },
+        {
+          viewportId: coronalId,
+          element: coronalElement,
+          type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
+          defaultOptions: {
+            orientation: cornerstone.Enums.OrientationAxis.CORONAL
+          }
+        },
+        {
+          viewportId: sagittalId,
+          element: sagittalElement,
+          type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
+          defaultOptions: {
+            orientation: cornerstone.Enums.OrientationAxis.SAGITTAL
+          }
+        }
+      ];
 
-    // TODO modificare lo store
-    // storeViewportData(image, element.id, storedViewport as Viewport, data);
-    setStore(["ready", axialId, true]);
-    setStore(["ready", coronalId, true]);
-    setStore(["ready", sagittalId, true]);
+      renderingEngine.setViewports(viewportInput);
+      await volume.load();
 
-    const t2 = performance.now();
-    console.log("Time to render volume: " + (t2 - t1) + " milliseconds.");
+      const t1 = performance.now();
+      console.log("Time to load volume: " + (t1 - t0) + " milliseconds.");
 
-    // const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
-    //   data.imageId
-    // ).url;
-    // cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
-    // @ts-ignore
+      cornerstone.setVolumesForViewports(
+        renderingEngine,
+        [
+          {
+            volumeId
+          }
+        ],
+        [axialId, coronalId, sagittalId]
+      );
+      // Render the image
+      renderingEngine.renderViewports([axialId, coronalId, sagittalId]);
 
-    // @ts-ignore
-    serie = null;
-    // @ts-ignore
-    data = null;
+      // TODO FIT TO WINDOW ?
+      // TODO VOI
+      // TODO DEFAULT PROPS (SCALE, TR, COLORMAP)
 
-    resolve(renderingEngine);
-  });
+      // TODO modificare lo store
+      // storeViewportData(image, element.id, storedViewport as Viewport, data);
+      setStore(["ready", axialId, true]);
+      setStore(["ready", coronalId, true]);
+      setStore(["ready", sagittalId, true]);
+
+      const t2 = performance.now();
+      console.log("Time to render volume: " + (t2 - t1) + " milliseconds.");
+
+      // const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+      //   data.imageId
+      // ).url;
+      // cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      // @ts-ignore
+
+      // @ts-ignore
+      serie = null;
+      // @ts-ignore
+      data = null;
+
+      resolve(renderingEngine);
+    }
+  );
 
   return renderPromise;
 };

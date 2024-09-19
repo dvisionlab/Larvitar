@@ -270,6 +270,7 @@ import { renderMpr as _renderMpr } from "./imaging3d/imageRendering";
 import { prefetchMetadataInformation as _prefetchMetadataInformation } from "./imaging3d/multiframe";
 import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imaging3d/multiframe";
 import { addDefaultTools as _addDefaultTools } from "./imaging3d/tools/main";
+import { addDefaultTools3D as _addDefaultTools3D } from "./imaging3d/tools/main";
 
 export {
   // cs3D
@@ -286,6 +287,7 @@ export {
   _prefetchMetadataInformation,
   _convertMultiframeImageIds,
   _addDefaultTools,
+  _addDefaultTools3D,
   VERSION,
   // global cornerstone variables
   cornerstone,

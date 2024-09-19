@@ -77,3 +77,36 @@ export const addDefaultTools = function (
     console.error("Failed to create tool group");
   }
 };
+
+/**
+ * @function addDefaultTools3D
+ * @desc Adds default tools to the rendering engine (crosshairs)
+ * @param elementIds - the ids of the elements where the tools will be added
+ * @param renderingEngine - the rendering engine where the tools will be added
+ */
+export const addDefaultTools3D = function (
+  elementIds: string[],
+  renderingEngine: cornerstone.RenderingEngine
+) {
+  elementIds.forEach(viewportId => {
+    const element = renderingEngine.getViewport(viewportId).element;
+    element.oncontextmenu = e => e.preventDefault();
+  });
+
+  cornerstoneTools.addTool(cornerstoneTools.CrosshairsTool);
+
+  const toolGroupId = "default3D";
+  const toolGroup =
+    cornerstoneTools.ToolGroupManager.createToolGroup(toolGroupId);
+  if (toolGroup) {
+    elementIds.forEach(viewportId => {
+      toolGroup.addViewport(viewportId, renderingEngine.id);
+    });
+    toolGroup.addTool(cornerstoneTools.CrosshairsTool.toolName);
+    toolGroup.setToolActive(cornerstoneTools.CrosshairsTool.toolName, {
+      bindings: [{ mouseButton: cornerstoneTools.Enums.MouseBindings.Primary }]
+    });
+  } else {
+    console.error("Failed to create tool group");
+  }
+};
