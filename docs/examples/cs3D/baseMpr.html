@@ -1,100 +1,119 @@
 <!DOCTYPE html>
 <html class="h-100 overflow-hidden">
-  <head>
-    <meta charset="UTF-8" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
-    />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
-    <script>
-      hljs.highlightAll();
-    </script>
-    <title>Larvitar CS3D - Basic MPR rendering example</title>
-  </head>
 
-  <body class="h-100" style="background-color: #000000">
-    <div class="row h-100">
-      <div
-        id="viewer-1"
-        class="col-4 h-100"
-        style="background-color: black"
-      ></div>
-      <div
-        id="viewer-2"
-        class="col-4 h-100"
-        style="background-color: black"
-      ></div>
-      <div
-        id="viewer-3"
-        class="col-4 h-100"
-        style="background-color: black"
-      ></div>
-    </div>
+<head>
+  <meta charset="UTF-8" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css" />
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+  <script>
+    hljs.highlightAll();
+  </script>
+  <title>Larvitar CS3D - Basic MPR rendering example</title>
+</head>
 
-    <script src="../../../dist/larvitar.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+<body class="h-100" style="background-color: #000000">
+  <div class="row h-100">
+    <div id="axial" class="col-4 h-100" style="background-color: black"></div>
+    <div id="sagittal" class="col-4 h-100" style="background-color: black"></div>
+    <div id="coronal" class="col-4 h-100" style="background-color: black"></div>
+  </div>
 
-    <script>
-      let demoFiles = [];
-      let counter = 0;
-      let series;
+  <script src="../../../dist/larvitar.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
-      const getDemoFileNames = function () {
-        let demoFileList = [];
-        for (let i = 1; i < 33; i++) {
-          i = i.toString().padStart(2, "0");
-          let filename = i;
-          demoFileList.push(filename);
-        }
-        return demoFileList;
-      };
+  <script>
+    let demoFiles = [];
+    let counter = 0;
+    let series;
 
-      // init all
-      larvitar._cornerstone.init();
-      larvitar._initializeImageLoader();
-      larvitar._registerStreamingImageVolume();
-      larvitar.store.initialize();
-      larvitar.store.addViewport("viewer-1");
-      larvitar.store.addViewport("viewer-2");
-      larvitar.store.addViewport("viewer-3");
-
-      async function createFile(fileName, cb) {
-        let response = await fetch("../demo/3d/" + fileName);
-        let data = await response.blob();
-        let file = new File([data], fileName);
-        demoFiles.push(file);
-        counter++;
-        if (counter == 32) {
-          cb();
-        }
+    const getDemoFileNames = function () {
+      let demoFileList = [];
+      for (let i = 1; i < 33; i++) {
+        i = i.toString().padStart(2, "0");
+        let filename = i;
+        demoFileList.push(filename);
       }
+      return demoFileList;
+    };
 
-      async function renderSerie() {
-        larvitar
-          ._readFiles(demoFiles) // need to port the updateLoadedStack function
-          .then(async seriesStack => {
-            const seriesId = _.keys(seriesStack)[0];
-            const serie = seriesStack[seriesId];
-            larvitar
-              ._renderMpr(serie, "viewer-1", "viewer-2", "viewer-3")
-              .then(() => {
-                console.log("Volume rendered");
+    const toolGroupId = 'TOOLGROUP_ID';
+    const viewportId1 = 'axial';
+    const viewportId2 = 'sagittal';
+    const viewportId3 = 'coronal';
+    const viewportIds = [viewportId1, viewportId2, viewportId3];
+
+    // init all
+    larvitar._cornerstone.init();
+    larvitar._initializeImageLoader();
+    larvitar._registerStreamingImageVolume();
+    larvitar._cornerstoneTools.init();
+    larvitar.store.initialize();
+    larvitar.store.addViewport(viewportId1);
+    larvitar.store.addViewport(viewportId2);
+    larvitar.store.addViewport(viewportId3);
+
+    async function createFile(fileName, cb) {
+      let response = await fetch("../demo/3d/" + fileName);
+      let data = await response.blob();
+      let file = new File([data], fileName);
+      demoFiles.push(file);
+      counter++;
+      if (counter == 32) {
+        cb();
+      }
+    }
+
+    // tools stuff 
+    const {
+      ToolGroupManager,
+      Enums: csToolsEnums,
+      CrosshairsTool,
+      synchronizers,
+    } = larvitar._cornerstoneTools;
+
+    const { MouseBindings } = csToolsEnums;
+
+    async function renderSerie() {
+      larvitar
+        ._readFiles(demoFiles) // need to port the updateLoadedStack function
+        .then(async seriesStack => {
+          const seriesId = _.keys(seriesStack)[0];
+          const serie = seriesStack[seriesId];
+          larvitar
+            ._renderMpr(serie, ...viewportIds)
+            .then((renderingEngine) => {
+              console.log("Volume rendered", renderingEngine);
+
+              viewportIds.forEach((viewportId) => {
+                const element = renderingEngine.getViewport(viewportId).element;
+                element.oncontextmenu = (e) => e.preventDefault();
               });
-          })
-          .catch(err => console.error(err));
-      }
 
-      let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
-        createFile(demoFile, renderSerie);
-      });
-    </script>
-  </body>
+              larvitar._cornerstoneTools.addTool(CrosshairsTool);
+
+              const toolGroup = ToolGroupManager.createToolGroup(toolGroupId);
+              toolGroup.addViewport(viewportId1, renderingEngine.id);
+              toolGroup.addViewport(viewportId2, renderingEngine.id);
+              toolGroup.addViewport(viewportId3, renderingEngine.id);
+
+              toolGroup.addTool(CrosshairsTool.toolName);
+
+              toolGroup.setToolActive(CrosshairsTool.toolName, {
+                bindings: [{ mouseButton: MouseBindings.Primary }],
+              });
+
+            });
+        })
+        .catch(err => console.error(err));
+    }
+
+    let demoFileList = getDemoFileNames();
+    _.each(demoFileList, function (demoFile) {
+      createFile(demoFile, renderSerie);
+    });
+  </script>
+</body>
+
 </html>

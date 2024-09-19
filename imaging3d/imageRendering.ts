@@ -51,7 +51,7 @@ export const renderImage = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
   defaultProps: StoreViewportOptions
-): Promise<true> {
+): Promise<{ success: boolean, renderingEngine: cornerstone.RenderingEngine }> {
   const t0 = performance.now();
   // get element and enable it
   const element = isElement(elementId)
@@ -65,10 +65,10 @@ export const renderImage = function (
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
 
-  const renderingEngine = new cornerstone.RenderingEngine(id);
+  const renderingEngine = new cornerstone.RenderingEngine('2d');
   const viewportInput = {
     viewportId: id,
-    element: element,
+    element,
     type: cornerstone.Enums.ViewportType.STACK
   };
   // TODO check if there is an enabledElement with this id
@@ -89,7 +89,7 @@ export const renderImage = function (
     });
   }
 
-  const renderPromise = new Promise<true>((resolve, reject) => {
+  const renderPromise = new Promise<{ success: boolean, renderingEngine: cornerstone.RenderingEngine }>((resolve, reject) => {
     // @ts-ignore IViewport does not have a setStack method
     viewport.setStack(serie.imageIds, 5);
     viewport.render();
@@ -124,7 +124,7 @@ export const renderImage = function (
     serie = null;
     // @ts-ignore
     data = null;
-    resolve(true);
+    resolve({ success: true, renderingEngine });
   });
 
   return renderPromise;
@@ -210,7 +210,7 @@ export const renderMpr = function (
     cornerstoneDICOMImageLoader.wadors.metaDataManager.add(imageId, metadata);
   });
 
-  const renderPromise = new Promise<true>(async (resolve, reject) => {
+  const renderPromise = new Promise<cornerstone.RenderingEngine>(async (resolve, reject) => {
     loadAndCacheMetadata(serie.imageIds);
 
     const volume = await cornerstone.volumeLoader.createAndCacheVolume(
@@ -220,13 +220,9 @@ export const renderMpr = function (
       }
     );
 
-    const viewportId1 = "CT_AXIAL";
-    const viewportId2 = "CT_CORONAL";
-    const viewportId3 = "CT_SAGITTAL";
-
     const viewportInput = [
       {
-        viewportId: viewportId1,
+        viewportId: axialId,
         element: axialElement,
         type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
         defaultOptions: {
@@ -234,7 +230,7 @@ export const renderMpr = function (
         }
       },
       {
-        viewportId: viewportId2,
+        viewportId: coronalId,
         element: coronalElement,
         type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
         defaultOptions: {
@@ -242,7 +238,7 @@ export const renderMpr = function (
         }
       },
       {
-        viewportId: viewportId3,
+        viewportId: sagittalId,
         element: sagittalElement,
         type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
         defaultOptions: {
@@ -264,10 +260,10 @@ export const renderMpr = function (
           volumeId
         }
       ],
-      [viewportId1, viewportId2, viewportId3]
+      [axialId, coronalId, sagittalId]
     );
     // Render the image
-    renderingEngine.renderViewports([viewportId1, viewportId2]);
+    renderingEngine.renderViewports([axialId, coronalId, sagittalId]);
 
     // TODO FIT TO WINDOW ?
     // TODO VOI
@@ -275,9 +271,9 @@ export const renderMpr = function (
 
     // TODO modificare lo store
     // storeViewportData(image, element.id, storedViewport as Viewport, data);
-    setStore(["ready", axialElement.id, true]);
-    setStore(["ready", coronalElement.id, true]);
-    setStore(["ready", sagittalElement.id, true]);
+    setStore(["ready", axialId, true]);
+    setStore(["ready", coronalId, true]);
+    setStore(["ready", sagittalId, true]);
 
     const t2 = performance.now();
     console.log("Time to render volume: " + (t2 - t1) + " milliseconds.");
@@ -293,7 +289,7 @@ export const renderMpr = function (
     // @ts-ignore
     data = null;
 
-    resolve(true);
+    resolve(renderingEngine);
   });
 
   return renderPromise;
