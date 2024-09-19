@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
+    <title>Larvitar CS3D - Multiframe rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-8 h-100"
+        style="background-color: black"
+      ></div>
+
+      <div class="col-4 h-100">
+        <pre class="h-100">
+          <code class="javascript" style="background-color: #000000">
+          <p style="font-size:0.6vw;"> 
+          </p>
+          </code>
+        </pre>
+      </div>
+    </div>
+
+    <script src="../../../dist/larvitar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+
+    <script>
+      let demoFiles = [];
+      let series;
+
+      // init all
+      larvitar._cornerstone.init();
+      larvitar._initializeImageLoader();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("../demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        cb();
+      }
+      createFile("xa_integris.dcm", renderSerie);
+
+      async function renderSerie() {
+        larvitar
+          ._readFiles(demoFiles)
+          .then(async seriesStack => {
+            const seriesId = _.keys(seriesStack)[0];
+            const serie = seriesStack[seriesId];
+            // TODO FIX RENDERING WITH INDEX
+            larvitar
+              ._renderImage(serie, "viewer")
+              .then(async ({ success, renderingEngine }) => {
+                console.log("Image has been rendered");
+                // add and enable wwwc, pan, zoom, and stack tools
+                larvitar._addDefaultTools("viewer", renderingEngine);
+              });
+          })
+          .catch(err => console.error(err));
+      }
+    </script>
+  </body>
+</html>

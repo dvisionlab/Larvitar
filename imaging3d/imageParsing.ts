@@ -221,11 +221,11 @@ let parseNextFile = function (
   } else {
     // parse the file and wait for results
     parseFile(file)
-      .then((seriesData: ImageObject | null) => {
+      .then(async (seriesData: ImageObject | null) => {
         // use generated series uid if not found in dicom file
         seriesData!.metadata.seriesUID = seriesData!.metadata.seriesUID || uuid;
         // add file to cornerstoneDICOMImageLoader file manager
-        updateLoadedStack(seriesData!, allSeriesStack);
+        await updateLoadedStack(seriesData!, allSeriesStack);
         // proceed with the next file to parse
         parseNextFile(parsingQueue, allSeriesStack, uuid, resolve, reject);
         seriesData = null;

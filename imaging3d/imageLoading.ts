@@ -11,11 +11,14 @@ import * as cornerstone from "@cornerstonejs/core";
 import dicomParser from "dicom-parser";
 import { forEach } from "lodash";
 import { calibratedPixelSpacingMetadataProvider } from "@cornerstonejs/core/dist/esm/utilities";
-import { imageMetadataProvider } from "./imageMetadataProvider";
 
 // internal libraries
-
 import store from "../imaging/imageStore";
+import { imageMetadataProvider } from "./imageMetadataProvider";
+import {
+  prefetchMetadataInformation,
+  convertMultiframeImageIds
+} from "./multiframe";
 
 // global variables
 const { DicomMetaDictionary } = dcmjs.data;
@@ -113,7 +116,7 @@ export const registerStreamingImageVolume = function () {
  * @param {String} customId - Optional custom id to overwrite seriesUID as default one
  * @param {number} sliceIndex - Optional custom index to overwrite slice index as default one
  */
-export const updateLoadedStack = function (
+export const updateLoadedStack = async function (
   seriesData: ImageObject,
   allSeriesStack: ReturnType<typeof getLarvitarManager>,
   customId?: string,
@@ -209,6 +212,11 @@ export const updateLoadedStack = function (
     allSeriesStack[id].bytes += seriesData.file.size;
     allSeriesStack[id].dataSet = seriesData.dataSet;
     allSeriesStack[id].metadata = seriesData.metadata;
+    let imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(
+      seriesData.file
+    ) as string;
+    await prefetchMetadataInformation([imageId]);
+    allSeriesStack[id].imageIds = convertMultiframeImageIds([imageId]);
   } else if (isNewInstance(allSeriesStack[id].instances, iid!)) {
     // generate an imageId for the file and store it
     // in allSeriesStack imageIds array, used by
@@ -216,7 +224,9 @@ export const updateLoadedStack = function (
     let imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(
       seriesData.file
     ) as string;
+
     imageTracker[imageId] = lid as string;
+
     if (sliceIndex !== undefined) {
       allSeriesStack[id].imageIds[sliceIndex] = imageId;
     } else {
