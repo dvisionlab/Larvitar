@@ -7,14 +7,9 @@ console.groupCollapsed(
 );
 
 import cornerstone from "cornerstone-core";
-import * as _cornerstone from "@cornerstonejs/core";
-import { default as _cornerstoneDICOMImageLoader } from "@cornerstonejs/dicom-image-loader";
-
 import cornerstoneTools from "cornerstone-tools";
-import * as _cornerstoneTools from '@cornerstonejs/tools';
 import { parseDicom } from "dicom-parser";
 import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
-
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 const segModule = cornerstoneTools.getModule("segmentation");
 
@@ -262,6 +257,9 @@ import {
 } from "./imaging/tools/interaction";
 
 // Cornestone 3D
+import * as _cornerstone from "@cornerstonejs/core";
+import * as _cornerstoneTools from "@cornerstonejs/tools";
+import { default as _cornerstoneDICOMImageLoader } from "@cornerstonejs/dicom-image-loader";
 import { initializeImageLoader as _initializeImageLoader } from "./imaging3d/imageLoading";
 import { registerStreamingImageVolume as _registerStreamingImageVolume } from "./imaging3d/imageLoading";
 import { loadAndCacheMetadata as _loadAndCacheMetadata } from "./imaging3d/imageLoading";
@@ -269,6 +267,9 @@ import { readFiles as _readFiles } from "./imaging3d/imageParsing";
 import { convertMetadata as _convertMetadata } from "./imaging3d/imageParsing";
 import { renderImage as _renderImage } from "./imaging3d/imageRendering";
 import { renderMpr as _renderMpr } from "./imaging3d/imageRendering";
+import { prefetchMetadataInformation as _prefetchMetadataInformation } from "./imaging3d/multiframe";
+import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imaging3d/multiframe";
+import { addDefaultTools as _addDefaultTools } from "./imaging3d/tools/main";
 
 export {
   // cs3D
@@ -282,6 +283,9 @@ export {
   _registerStreamingImageVolume,
   _convertMetadata,
   _loadAndCacheMetadata,
+  _prefetchMetadataInformation,
+  _convertMultiframeImageIds,
+  _addDefaultTools,
   VERSION,
   // global cornerstone variables
   cornerstone,
