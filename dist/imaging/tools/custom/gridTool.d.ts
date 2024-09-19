@@ -31,6 +31,7 @@ export declare class GridTool extends BaseTool {
      * @returns {Promise<void>}
      */
     activeCallback(element: HTMLElement): Promise<void>;
+    triggerInputPatternDimensionChange(event: any): void;
     /**
      * function triggered when tool is set to disabled
      *
@@ -40,6 +41,15 @@ export declare class GridTool extends BaseTool {
      * @returns {void}
      */
     disabledCallback(element: HTMLElement): void;
+    /**
+     * function triggered when tool is set to passive
+     *
+     * @private
+     * @param {HTMLElement} element - The viewport element to add remove listeners to.
+     * @modifies {element}
+     * @returns {void}
+     */
+    passiveCallback(element: HTMLElement): void;
     /**
      * function to change center of the grid position on user click
      *
@@ -77,7 +87,7 @@ export declare class GridTool extends BaseTool {
      * @param {string} darkGray
      * @returns {void}
      */
-    drawDashedGrid(context: CanvasRenderingContext2D, xCenter: number, yCenter: number, start: Coords, end: Coords, patternWidth: number, patternHeight: number, dashWidth: number, dashHeight: number, lightGray: string, darkGray: string, image: Image, element: HTMLElement): void;
+    drawDashedGrid(context: CanvasRenderingContext2D, xCenter: number, yCenter: number, start: Coords, end: Coords, patternWidth: number, patternHeight: number, dashWidth: number, dashHeight: number, imageDashHeight: number, imageDashWidth: number, lightGray: string, darkGray: string, image: Image, element: HTMLElement): void;
     /**
      * returns grid's pixelArray
      * @private

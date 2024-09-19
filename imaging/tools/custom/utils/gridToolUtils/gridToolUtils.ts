@@ -83,12 +83,22 @@ export function convertDimensionsToCanvas(
     x: 0,
     y: 0
   } as PixelCoordinate);
-  const endPattern = pixelToCanvas(element, {
+  const endPatternx = pixelToCanvas(element, {
     x: width,
+    y: 0
+  } as PixelCoordinate);
+  const endPatterny = pixelToCanvas(element, {
+    x: 0,
     y: height
   } as PixelCoordinate);
-  width = endPattern.x - startPattern.x;
-  height = endPattern.y - startPattern.y;
+  width = Math.sqrt(
+    Math.pow(endPatternx.x - startPattern.x, 2) +
+      Math.pow(endPatternx.y - startPattern.y, 2)
+  );
+  height = Math.sqrt(
+    Math.pow(endPatterny.x - startPattern.x, 2) +
+      Math.pow(endPatterny.y - startPattern.y, 2)
+  );
   return { width, height };
 }
 
@@ -101,8 +111,8 @@ export function getColors(bitDepth: number) {
   const darkGray = `#${Math.ceil(maxVal * config.colorFractionDark).toString(
     16
   )}`;
-  lightColorCode = config.colorFractionLight;
-  darkColorCode = config.colorFractionDark;
+  lightColorCode = maxVal * config.colorFractionLight;
+  darkColorCode = maxVal * config.colorFractionDark;
   return { lightGray, darkGray };
 }
 
@@ -130,6 +140,8 @@ export function drawVerticalLines(
   patternWidth: number,
   dashWidth: number,
   dashHeight: number,
+  imageDashHeight: number,
+  imageDashWidth: number,
   lightGray: string,
   darkGray: string,
   gridPixelArray: number[],
@@ -148,9 +160,10 @@ export function drawVerticalLines(
     updatePixelArrayWithVerticalDashedLine(
       canvasToPixel(element, from as CanvasCoordinate),
       canvasToPixel(element, to as CanvasCoordinate),
-      dashWidth,
       image.width,
       image.height,
+      imageDashWidth,
+      imageDashHeight,
       gridPixelArray,
       lightColorCode
     );
@@ -162,9 +175,10 @@ export function drawVerticalLines(
     updatePixelArrayWithVerticalDashedLine(
       canvasToPixel(element, from as CanvasCoordinate),
       canvasToPixel(element, to as CanvasCoordinate),
-      dashWidth,
       image.width,
       image.height,
+      imageDashWidth,
+      imageDashHeight,
       gridPixelArray,
       darkColorCode
     );
@@ -184,9 +198,10 @@ export function drawVerticalLines(
     updatePixelArrayWithVerticalDashedLine(
       canvasToPixel(element, from as CanvasCoordinate),
       canvasToPixel(element, to as CanvasCoordinate),
-      dashWidth,
       image.width,
       image.height,
+      imageDashWidth,
+      imageDashHeight,
       gridPixelArray,
       lightColorCode
     );
@@ -203,9 +218,10 @@ export function drawVerticalLines(
     updatePixelArrayWithVerticalDashedLine(
       canvasToPixel(element, from as CanvasCoordinate),
       canvasToPixel(element, to as CanvasCoordinate),
-      dashWidth,
       image.width,
       image.height,
+      imageDashWidth,
+      imageDashHeight,
       gridPixelArray,
       darkColorCode
     );
@@ -216,9 +232,10 @@ export function drawVerticalLines(
 function updatePixelArrayWithVerticalDashedLine(
   from: Coords,
   to: Coords,
-  dashWidth: number,
   imageWidth: number,
   imageHeight: number,
+  dashWidth: number,
+  dashHeight: number,
   pixelArray: number[],
   value: number // 1 for light gray, 2 for dark gray
 ) {
@@ -233,19 +250,16 @@ function updatePixelArrayWithVerticalDashedLine(
     let y1 = from.y + (currentLength + dashLength);
 
     if (currentLength + dashLength > lineLength) {
-      y1 = from.y + dashLength;
+      y1 = lineLength;
     }
 
     for (
-      let y = y0 < 0 ? Math.round(y0) : Math.floor(y0);
-      y < (y1 > imageWidth ? Math.floor(y1) : Math.round(y1));
+      let y = Math.max(0, Math.floor(y0));
+      y < Math.min(Math.round(y1), imageHeight);
       y++
     ) {
-      if (y >= 0 && y < imageHeight) {
-        let xOffset =
-          from.x > imageWidth && from.x > 0
-            ? Math.floor(from.x)
-            : Math.round(from.x);
+      for (let x = 0; x < dashHeight; x++) {
+        let xOffset = Math.round(from.x) + x - Math.floor(dashHeight / 2);
         const index = y * imageWidth + xOffset;
         pixelArray[index] = value;
       }
@@ -265,6 +279,8 @@ export function drawHorizontalLines(
   patternHeight: number,
   dashWidth: number,
   dashHeight: number,
+  imageDashHeight: number,
+  imageDashWidth: number,
   lightGray: string,
   darkGray: string,
   gridPixelArray: number[],
@@ -287,7 +303,8 @@ export function drawHorizontalLines(
     updatePixelArrayWithHorizontalDashedLine(
       canvasToPixel(element, from as CanvasCoordinate),
       canvasToPixel(element, to as CanvasCoordinate),
-      dashWidth,
+      imageDashWidth,
+      imageDashHeight,
       image.width,
       image.height,
       gridPixelArray,
@@ -299,7 +316,8 @@ export function drawHorizontalLines(
     updatePixelArrayWithHorizontalDashedLine(
       canvasToPixel(element, from as CanvasCoordinate),
       canvasToPixel(element, to as CanvasCoordinate),
-      dashWidth,
+      imageDashWidth,
+      imageDashHeight,
       image.width,
       image.height,
       gridPixelArray,
@@ -320,7 +338,8 @@ export function drawHorizontalLines(
     updatePixelArrayWithHorizontalDashedLine(
       canvasToPixel(element, from as CanvasCoordinate),
       canvasToPixel(element, to as CanvasCoordinate),
-      dashWidth,
+      imageDashWidth,
+      imageDashHeight,
       image.width,
       image.height,
       gridPixelArray,
@@ -332,7 +351,8 @@ export function drawHorizontalLines(
     updatePixelArrayWithHorizontalDashedLine(
       canvasToPixel(element, from as CanvasCoordinate),
       canvasToPixel(element, to as CanvasCoordinate),
-      dashWidth,
+      imageDashWidth,
+      imageDashHeight,
       image.width,
       image.height,
       gridPixelArray,
@@ -346,6 +366,7 @@ function updatePixelArrayWithHorizontalDashedLine(
   from: Coords,
   to: Coords,
   dashWidth: number,
+  dashHeight: number,
   imageWidth: number,
   imageHeight: number,
   pixelArray: number[],
@@ -362,20 +383,16 @@ function updatePixelArrayWithHorizontalDashedLine(
     let x1 = from.x + (currentLength + dashLength);
 
     if (currentLength + dashLength > lineLength) {
-      x1 = from.x + dashLength;
+      x1 = lineLength;
     }
-
     for (
-      let x = x0 < 0 ? Math.round(x0) : Math.floor(x0);
-      x < (x1 > imageWidth ? Math.floor(x1) : Math.round(x1));
+      let x = Math.max(0, Math.floor(x0));
+      x < Math.min(Math.round(x1), imageWidth);
       x++
     ) {
-      if (x >= 0 && x < imageWidth) {
-        let yOffset =
-          from.y > imageHeight && from.y > 0
-            ? Math.floor(from.y)
-            : Math.round(from.y);
-        const index = x * imageHeight + yOffset;
+      for (let y = 0; y < dashHeight; y++) {
+        let yOffset = Math.round(from.y) + y - Math.floor(dashHeight / 2);
+        const index = yOffset * imageWidth + x;
         pixelArray[index] = value;
       }
     }
