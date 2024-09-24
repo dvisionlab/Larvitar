@@ -558,6 +558,7 @@ const DEFAULT_TOOLS: {
     name: "Grid",
     viewports: "all",
     configuration: {
+      setup: null,
       patternDimension: null,
       gridPixelArray: []
     },

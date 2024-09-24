@@ -1,16 +1,6 @@
 import { EnabledElement, Image } from "cornerstone-core";
 declare const BaseTool: any;
 import { Coords, MeasurementMouseEvent } from "../types";
-export declare const config: {
-    dashHeightMM: number;
-    dashWidthMM: number;
-    colorFractionLight: number;
-    colorFractionDark: number;
-    maxVal8bit: number;
-    maxVal16bit: number;
-    gridSizeMM: number;
-    minPixelSpacing: number;
-};
 /**
  * @public
  * @class GridTool

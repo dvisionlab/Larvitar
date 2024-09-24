@@ -6,7 +6,7 @@ export type GridData = {
     color: string;
 };
 export declare function handleElement(element: HTMLElement): Promise<any>;
-export declare function validatePixelSpacing(spacingX: number, spacingY: number): void;
+export declare function validatePixelSpacing(spacingX: number, spacingY: number, minPixelSpacing: number): void;
 export declare function mmToPixels(mm: number, pixelSpacing: any): number;
 export declare function findImageCoords(element: HTMLElement, image: Image): {
     start: CanvasCoordinate;
@@ -16,7 +16,7 @@ export declare function convertDimensionsToCanvas(element: HTMLElement, width: n
     width: number;
     height: number;
 };
-export declare function getColors(bitDepth: number): {
+export declare function getColors(bitDepth: number, colorFractionLight: number, colorFractionDark: number): {
     lightGray: string;
     darkGray: string;
 };

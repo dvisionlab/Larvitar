@@ -9,8 +9,20 @@ type ToolOptions = {
 } & { [key: string]: unknown };
 
 export type GridConfig = {
+  setup: gridSettings;
   patternDimension: number | null;
   gridPixelArray: number[];
+};
+
+export type gridSettings = {
+  minRows: number;
+  minColumns: number;
+  dashHeightMM: number;
+  dashWidthMM: number;
+  colorFractionLight: number;
+  colorFractionDark: number;
+  gridSizeMM: number;
+  minPixelSpacing: number;
 };
 
 export type ToolConfig = {
