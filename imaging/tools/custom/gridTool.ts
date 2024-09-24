@@ -24,7 +24,7 @@ import { handleElement } from "./utils/gridToolUtils/gridToolUtils";
 import { Coords, GridConfig, MeasurementMouseEvent } from "../types";
 import { DEFAULT_TOOLS } from "../default";
 
-const defaultGridSize = 50;
+const defaultGridSize = 50; // Pattern squares default size (5cm)
 const defaultConfig = {
   minRows: 500,
   minColumns: 500,
@@ -32,7 +32,6 @@ const defaultConfig = {
   dashWidthMM: 10, // Dash default width in mm
   colorFractionLight: 2 / 3, // Fraction of lightGray color
   colorFractionDark: 1 / 3, // Fraction of darkGray color
-  gridSizeMM: 50, // Pattern squares default size (5cm)
   minPixelSpacing: 0.1
 };
 /**

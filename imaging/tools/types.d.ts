@@ -21,7 +21,6 @@ export type gridSettings = {
   dashWidthMM: number;
   colorFractionLight: number;
   colorFractionDark: number;
-  gridSizeMM: number;
   minPixelSpacing: number;
 };
 
