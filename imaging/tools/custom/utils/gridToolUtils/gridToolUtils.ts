@@ -9,7 +9,11 @@ import {
 } from "cornerstone-core";
 //internal imports
 import { Coords } from "../../../types";
-import { config } from "../../gridTool";
+
+const maxValues = {
+  maxVal8bit: 2 ** 8, // Max value for 8-bit images
+  maxVal16bit: 2 ** 16 // Max value for 16-bit images
+};
 
 export type GridData = {
   from: Coords;
@@ -49,8 +53,12 @@ export function handleElement(element: HTMLElement): Promise<any> {
 }
 
 //checks if pixel spacing is valid
-export function validatePixelSpacing(spacingX: number, spacingY: number) {
-  if (spacingX < config.minPixelSpacing || spacingY < config.minPixelSpacing) {
+export function validatePixelSpacing(
+  spacingX: number,
+  spacingY: number,
+  minPixelSpacing: number
+) {
+  if (spacingX < minPixelSpacing || spacingY < minPixelSpacing) {
     throw new Error("Pixel size is too small or invalid.");
   }
 }
@@ -103,16 +111,18 @@ export function convertDimensionsToCanvas(
 }
 
 //retrieves dash colors based on image bitDepth
-export function getColors(bitDepth: number) {
-  const maxVal = bitDepth === 8 ? config.maxVal8bit : config.maxVal16bit;
-  const lightGray = `#${Math.ceil(maxVal * config.colorFractionLight).toString(
-    16
-  )}`;
-  const darkGray = `#${Math.ceil(maxVal * config.colorFractionDark).toString(
-    16
-  )}`;
-  lightColorCode = maxVal * config.colorFractionLight;
-  darkColorCode = maxVal * config.colorFractionDark;
+export function getColors(
+  bitDepth: number,
+  colorFractionLight: number,
+  colorFractionDark: number
+) {
+  const maxVal = bitDepth === 8 ? maxValues.maxVal8bit : maxValues.maxVal16bit;
+  lightColorCode = maxVal * colorFractionLight;
+  darkColorCode = maxVal * colorFractionDark;
+  const lightGrayVal = Math.ceil(255 * colorFractionLight);
+  const darkGrayVal = Math.ceil(255 * colorFractionDark);
+  const lightGray = `rgb(${lightGrayVal}, ${lightGrayVal}, ${lightGrayVal})`;
+  const darkGray = `rgb(${darkGrayVal}, ${darkGrayVal}, ${darkGrayVal})`;
   return { lightGray, darkGray };
 }
 

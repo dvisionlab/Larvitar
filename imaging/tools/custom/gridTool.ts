@@ -24,18 +24,16 @@ import { handleElement } from "./utils/gridToolUtils/gridToolUtils";
 import { Coords, GridConfig, MeasurementMouseEvent } from "../types";
 import { DEFAULT_TOOLS } from "../default";
 
-//global config of grid
-export const config = {
+const defaultGridSize = 50; // Pattern squares default size (5cm)
+const defaultConfig = {
+  minRows: 500,
+  minColumns: 500,
   dashHeightMM: 2, // Dash default height in mm
   dashWidthMM: 10, // Dash default width in mm
   colorFractionLight: 2 / 3, // Fraction of lightGray color
   colorFractionDark: 1 / 3, // Fraction of darkGray color
-  maxVal8bit: 2 ** 8, // Max value for 8-bit images
-  maxVal16bit: 2 ** 16, // Max value for 16-bit images
-  gridSizeMM: 50, // Pattern squares default size (5cm)
   minPixelSpacing: 0.1
 };
-
 /**
  * @public
  * @class GridTool
@@ -50,9 +48,12 @@ export class GridTool extends BaseTool {
     super({
       name: "GridTool",
       configuration: {
+        setup:
+          (DEFAULT_TOOLS["Grid"].configuration as GridConfig).setup ??
+          defaultConfig,
         patternDimension:
           (DEFAULT_TOOLS["Grid"].configuration as GridConfig)
-            .patternDimension || null,
+            .patternDimension ?? defaultGridSize,
         gridPixelArray: []
       },
       ...props
@@ -73,7 +74,17 @@ export class GridTool extends BaseTool {
   async activeCallback(element: HTMLElement) {
     const enabledElement = await handleElement(element);
     element.addEventListener(EVENTS.MOUSE_CLICK, this.handleMouseClick);
-    if (enabledElement) {
+    const newSetup = (DEFAULT_TOOLS["Grid"].configuration as GridConfig).setup;
+    const newGridSize = (DEFAULT_TOOLS["Grid"].configuration as GridConfig)
+      .patternDimension;
+    this.configuration.setup = newSetup ?? defaultConfig;
+    this.configuration.patternDimension = newGridSize ?? defaultGridSize;
+
+    if (
+      enabledElement &&
+      enabledElement.image.rows >= this.configuration.setup.minRows &&
+      enabledElement.image.columns >= this.configuration.setup.minColumns
+    ) {
       this.enabledElement = enabledElement;
       this.triggerDrawGrid(enabledElement);
     }
@@ -152,6 +163,12 @@ export class GridTool extends BaseTool {
    */
   triggerDrawGrid(enabledElement: EnabledElement) {
     this.configuration.gridPixelArray = [];
+    const newSetup = (DEFAULT_TOOLS["Grid"].configuration as GridConfig).setup;
+    const newGridSize = (DEFAULT_TOOLS["Grid"].configuration as GridConfig)
+      .patternDimension;
+    if (newSetup) this.configuration.setup = newSetup;
+    if (newGridSize) this.configuration.patternDimension = newGridSize;
+
     const image = enabledElement.image as Image;
     const pixelSpacing = {
       x: image.columnPixelSpacing,
@@ -159,7 +176,11 @@ export class GridTool extends BaseTool {
     };
 
     try {
-      validatePixelSpacing(pixelSpacing.x, pixelSpacing.y);
+      validatePixelSpacing(
+        pixelSpacing.x,
+        pixelSpacing.y,
+        this.configuration.setup.minPixelSpacing
+      );
     } catch (error: any) {
       console.error(error.message);
       return;
@@ -172,21 +193,18 @@ export class GridTool extends BaseTool {
 
     //grid pattern color
     const bitDepth = (image as any).bitsAllocated;
-    const { lightGray, darkGray } = getColors(bitDepth);
+    const { lightGray, darkGray } = getColors(
+      bitDepth,
+      this.configuration.setup.colorFractionLight,
+      this.configuration.setup.colorFractionDark
+    );
 
-    //pattern squares dimension
-
-    if ((DEFAULT_TOOLS["Grid"].configuration as GridConfig).patternDimension) {
-      this.configuration.patternDimension = (
-        DEFAULT_TOOLS["Grid"].configuration as GridConfig
-      ).patternDimension;
-    }
     let patternHeight = this.configuration.patternDimension
       ? mmToPixels(this.configuration.patternDimension, pixelSpacing.y)
-      : mmToPixels(config.gridSizeMM, pixelSpacing.y);
+      : mmToPixels(this.configuration.patternDimension, pixelSpacing.y);
     let patternWidth = this.configuration.patternDimension
       ? mmToPixels(this.configuration.patternDimension, pixelSpacing.x)
-      : mmToPixels(config.gridSizeMM, pixelSpacing.x);
+      : mmToPixels(this.configuration.patternDimension, pixelSpacing.x);
     const patternCanvasDimensions = convertDimensionsToCanvas(
       element,
       patternWidth,
@@ -194,8 +212,14 @@ export class GridTool extends BaseTool {
     );
 
     //dash dimension
-    let dashHeight = mmToPixels(config.dashHeightMM, pixelSpacing.y);
-    let dashWidth = mmToPixels(config.dashWidthMM, pixelSpacing.x);
+    let dashHeight = mmToPixels(
+      this.configuration.setup.dashHeightMM,
+      pixelSpacing.y
+    );
+    let dashWidth = mmToPixels(
+      this.configuration.setup.dashWidthMM,
+      pixelSpacing.x
+    );
     const dashCanvasDimensions = convertDimensionsToCanvas(
       element,
       dashWidth,
