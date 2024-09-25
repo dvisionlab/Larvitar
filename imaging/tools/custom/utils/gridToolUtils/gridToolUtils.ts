@@ -117,10 +117,12 @@ export function getColors(
   colorFractionDark: number
 ) {
   const maxVal = bitDepth === 8 ? maxValues.maxVal8bit : maxValues.maxVal16bit;
-  const lightGray = `#${Math.ceil(maxVal * colorFractionLight).toString(16)}`;
-  const darkGray = `#${Math.ceil(maxVal * colorFractionDark).toString(16)}`;
   lightColorCode = maxVal * colorFractionLight;
   darkColorCode = maxVal * colorFractionDark;
+  const lightGrayVal = Math.ceil(255 * colorFractionLight);
+  const darkGrayVal = Math.ceil(255 * colorFractionDark);
+  const lightGray = `rgb(${lightGrayVal}, ${lightGrayVal}, ${lightGrayVal})`;
+  const darkGray = `rgb(${darkGrayVal}, ${darkGrayVal}, ${darkGrayVal})`;
   return { lightGray, darkGray };
 }
 
