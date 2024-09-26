@@ -24,16 +24,6 @@ import { handleElement } from "./utils/gridToolUtils/gridToolUtils";
 import { Coords, GridConfig, MeasurementMouseEvent } from "../types";
 import { DEFAULT_TOOLS } from "../default";
 
-const defaultGridSize = 50; // Pattern squares default size (5cm)
-const defaultConfig = {
-  minRows: 500,
-  minColumns: 500,
-  dashHeightMM: 2, // Dash default height in mm
-  dashWidthMM: 10, // Dash default width in mm
-  colorFractionLight: 2 / 3, // Fraction of lightGray color
-  colorFractionDark: 1 / 3, // Fraction of darkGray color
-  minPixelSpacing: 0.1
-};
 /**
  * @public
  * @class GridTool
@@ -48,19 +38,14 @@ export class GridTool extends BaseTool {
     super({
       name: "GridTool",
       configuration: {
-        setup:
-          (DEFAULT_TOOLS["Grid"].configuration as GridConfig).setup ??
-          defaultConfig,
-        patternDimension:
-          (DEFAULT_TOOLS["Grid"].configuration as GridConfig)
-            .patternDimension ?? defaultGridSize,
+        setup: (DEFAULT_TOOLS["Grid"].configuration as GridConfig).setup,
         gridPixelArray: []
       },
       ...props
     });
     this.handleMouseClick = this.handleMouseClick.bind(this);
-    this.triggerInputPatternDimensionChange =
-      this.triggerInputPatternDimensionChange.bind(this);
+    this.triggerInputGridDimensionChange =
+      this.triggerInputGridDimensionChange.bind(this);
   }
 
   /**
@@ -75,11 +60,7 @@ export class GridTool extends BaseTool {
     const enabledElement = await handleElement(element);
     element.addEventListener(EVENTS.MOUSE_CLICK, this.handleMouseClick);
     const newSetup = (DEFAULT_TOOLS["Grid"].configuration as GridConfig).setup;
-    const newGridSize = (DEFAULT_TOOLS["Grid"].configuration as GridConfig)
-      .patternDimension;
-    this.configuration.setup = newSetup ?? defaultConfig;
-    this.configuration.patternDimension = newGridSize ?? defaultGridSize;
-
+    this.configuration.setup = newSetup;
     if (
       enabledElement &&
       enabledElement.image.rows >= this.configuration.setup.minRows &&
@@ -88,15 +69,15 @@ export class GridTool extends BaseTool {
       this.enabledElement = enabledElement;
       this.triggerDrawGrid(enabledElement);
     }
-    const buttonPatternDimension = document.getElementById("patternDimension");
-    buttonPatternDimension?.addEventListener(
+    const buttonGridDimension = document.getElementById("patternDimension");
+    buttonGridDimension?.addEventListener(
       "input",
-      this.triggerInputPatternDimensionChange
+      this.triggerInputGridDimensionChange
     );
   }
 
-  triggerInputPatternDimensionChange(event: any) {
-    (DEFAULT_TOOLS["Grid"].configuration as GridConfig).patternDimension =
+  triggerInputGridDimensionChange(event: any) {
+    (DEFAULT_TOOLS["Grid"].configuration as GridConfig).setup.gridDimensionMM =
       event.target.value;
     updateImage(this.enabledElement.element);
   }
@@ -110,10 +91,10 @@ export class GridTool extends BaseTool {
    */
   disabledCallback(element: HTMLElement) {
     element.removeEventListener(EVENTS.MOUSE_CLICK, this.handleMouseClick);
-    const buttonPatternDimension = document.getElementById("patternDimension");
-    buttonPatternDimension?.removeEventListener(
+    const buttonGridDimension = document.getElementById("gridDimension");
+    buttonGridDimension?.removeEventListener(
       "input",
-      this.triggerInputPatternDimensionChange
+      this.triggerInputGridDimensionChange
     );
   }
 
@@ -164,10 +145,7 @@ export class GridTool extends BaseTool {
   triggerDrawGrid(enabledElement: EnabledElement) {
     this.configuration.gridPixelArray = [];
     const newSetup = (DEFAULT_TOOLS["Grid"].configuration as GridConfig).setup;
-    const newGridSize = (DEFAULT_TOOLS["Grid"].configuration as GridConfig)
-      .patternDimension;
     if (newSetup) this.configuration.setup = newSetup;
-    if (newGridSize) this.configuration.patternDimension = newGridSize;
 
     const image = enabledElement.image as Image;
     const pixelSpacing = {
@@ -199,12 +177,12 @@ export class GridTool extends BaseTool {
       this.configuration.setup.colorFractionDark
     );
 
-    let patternHeight = this.configuration.patternDimension
-      ? mmToPixels(this.configuration.patternDimension, pixelSpacing.y)
-      : mmToPixels(this.configuration.patternDimension, pixelSpacing.y);
-    let patternWidth = this.configuration.patternDimension
-      ? mmToPixels(this.configuration.patternDimension, pixelSpacing.x)
-      : mmToPixels(this.configuration.patternDimension, pixelSpacing.x);
+    let patternHeight = this.configuration.setup.gridDimensionMM
+      ? mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing.y)
+      : mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing.y);
+    let patternWidth = this.configuration.setup.gridDimensionMM
+      ? mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing.x)
+      : mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing.x);
     const patternCanvasDimensions = convertDimensionsToCanvas(
       element,
       patternWidth,

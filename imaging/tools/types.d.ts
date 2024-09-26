@@ -22,6 +22,7 @@ export type gridSettings = {
   colorFractionLight: number;
   colorFractionDark: number;
   minPixelSpacing: number;
+  gridDimensionMM: number;
 };
 
 export type ToolConfig = {
