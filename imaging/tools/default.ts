@@ -558,8 +558,16 @@ const DEFAULT_TOOLS: {
     name: "Grid",
     viewports: "all",
     configuration: {
-      setup: null,
-      patternDimension: null,
+      setup: {
+        minRows: 500,
+        minColumns: 500,
+        dashHeightMM: 2, // Dash default height in mm
+        dashWidthMM: 10, // Dash default width in mm
+        colorFractionLight: 2 / 3, // Fraction of lightGray color
+        colorFractionDark: 1 / 3, // Fraction of darkGray color
+        minPixelSpacing: 0.1,
+        gridDimensionMM: 50 // Pattern squares default size (5cm)
+      },
       gridPixelArray: []
     },
     options: {},

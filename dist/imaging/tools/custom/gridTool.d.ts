@@ -21,7 +21,7 @@ export declare class GridTool extends BaseTool {
      * @returns {Promise<void>}
      */
     activeCallback(element: HTMLElement): Promise<void>;
-    triggerInputPatternDimensionChange(event: any): void;
+    triggerInputGridDimensionChange(event: any): void;
     /**
      * function triggered when tool is set to disabled
      *
