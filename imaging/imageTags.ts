@@ -528,7 +528,6 @@ export function parseTag<T>(
     vr === "OF" ||
     vr === "UT"
   ) {
-    const str = dataSet.string(propertyName);
     // If it is some other length and we have no string
     if (element.length === 2) {
       valueOut =
@@ -542,8 +541,8 @@ export function parseTag<T>(
         element.length +
         " as uint32: " +
         dataSet.uint32(propertyName);
-    } else if (str) {
-      valueOut = str;
+    } else if (dataSet.string(propertyName)) {
+      valueOut = dataSet.string(propertyName);
     } else {
       valueOut = tagData;
     }
