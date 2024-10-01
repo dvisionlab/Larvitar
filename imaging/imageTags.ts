@@ -541,6 +541,8 @@ export function parseTag<T>(
         element.length +
         " as uint32: " +
         dataSet.uint32(propertyName);
+    } else if (dataSet.string(propertyName)) {
+      valueOut = dataSet.string(propertyName);
     } else {
       valueOut = tagData;
     }
