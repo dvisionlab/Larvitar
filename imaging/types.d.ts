@@ -246,7 +246,7 @@ export type LarvitarManager = {
 } | null;
 
 export type InstanceGSPSDict = {
-  [key: string]: { seriesId: string; imageId: string }[] | null;
+  [key: string]: { seriesId: string | null; imageId: string | null }[] | null;
 } | null;
 
 export type ImageFrame = {

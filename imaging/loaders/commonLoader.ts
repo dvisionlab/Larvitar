@@ -211,11 +211,20 @@ export const resetLarvitarManager = function () {
  * @function resetInstanceGSPSDict
  */
 export const resetInstanceGSPSDict = function () {
-  each(instanceGSPSDict, function (array) {
-    array = null;
-  });
+  if (instanceGSPSDict) {
+    Object.keys(instanceGSPSDict).forEach(key => {
+      const instances = instanceGSPSDict![key]; // Avoid null warning by asserting non-null
+      if (instances && Array.isArray(instances)) {
+        instances.forEach(instance => {
+          instance.seriesId = null;
+          instance.imageId = null;
+        });
+      }
+      instanceGSPSDict![key] = null; // Reset the entry to null
+    });
 
-  instanceGSPSDict = null;
+    instanceGSPSDict = null;
+  }
 };
 
 /**
