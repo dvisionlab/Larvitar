@@ -52,8 +52,8 @@ export declare const getLarvitarManager: () => {
  */
 export declare const getInstanceGSPSDict: () => {
     [key: string]: {
-        seriesId: string;
-        imageId: string;
+        seriesId: string | null;
+        imageId: string | null;
     }[] | null;
 };
 /**
