@@ -44,9 +44,9 @@
 
       const getDemoFileNames = function () {
         let demoFileList = [];
-        for (let i = 1; i < 33; i++) {
-          i = i.toString().padStart(2, "0");
-          let filename = i;
+        for (let i = 1; i < 742; i++) {
+          i = i.toString().padStart(3, "0");
+          let filename = "IM-0017-0" + i + ".dcm";
           demoFileList.push(filename);
         }
         return demoFileList;
@@ -69,12 +69,12 @@
       larvitar.store.addViewport(viewportId3);
 
       async function createFile(fileName, cb) {
-        let response = await fetch("../demo/3d/" + fileName);
+        let response = await fetch("../demo/3dfull/" + fileName);
         let data = await response.blob();
         let file = new File([data], fileName);
         demoFiles.push(file);
         counter++;
-        if (counter == 32) {
+        if (counter == 741) {
           cb();
         }
       }

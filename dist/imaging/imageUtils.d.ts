@@ -130,7 +130,7 @@ export declare const getCmprMetadata: (reslicedSeriesId: string, imageLoaderName
  * @param {Object} reslicedData - The resliced series data (target)
  * @return {Object} - A single resliced slice pixel array
  */
-export declare const getReslicedPixeldata: (imageId: string, originalData: Series, reslicedData: Series) => Float64Array | Uint8Array | Int8Array | Uint16Array | Int16Array | Int32Array | Uint32Array | Float32Array;
+export declare const getReslicedPixeldata: (imageId: string, originalData: Series, reslicedData: Series) => Uint8Array | Float64Array | Int8Array | Uint16Array | Int16Array | Int32Array | Uint32Array | Float32Array;
 /**
  * Get distance between two slices
  * @instance
@@ -152,7 +152,7 @@ export declare const getDistanceBetweenSlices: (seriesData: Series, sliceIndex1:
 export declare const getImageMetadata: (seriesId: string, instanceUID: string, frameId?: number) => ({
     tag: string;
     name: string;
-    value: string | number | number[] | MetaDataTypes[] | null | undefined;
+    value: string | number | MetaDataTypes[] | number[] | null | undefined;
 } | undefined)[];
 /**
  * Check if a div tag is a valid DOM HTMLElement
