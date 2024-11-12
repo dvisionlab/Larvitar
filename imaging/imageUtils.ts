@@ -691,11 +691,49 @@ export const getImageMetadata = function (
         keyName.slice(5) +
         ")"
       ).toUpperCase();
-      return {
-        tag: tag,
-        name: name,
-        value: value
-      };
+
+      if (
+        Array.isArray(value) &&
+        value.every(nestedItem => typeof nestedItem === "object")
+      ) {
+        // loop nested metadata
+        const nestedMetadata = map(value, function (nestedItem) {
+          const nestedMetadata_keys = Object.keys(nestedItem);
+          // loop nested metadata using metadata_keys and return list of key value pairs
+          return map(nestedMetadata_keys, function (nestedKey) {
+            const nestedKeyName = (nestedKey.charAt(0) +
+              nestedKey.slice(1).toUpperCase()) as keyof typeof TAG_DICT;
+            const nestedName = TAG_DICT[nestedKeyName]
+              ? TAG_DICT[nestedKeyName].name
+              : "";
+            //@ts-ignore
+            const nestedValue = nestedItem[nestedKey];
+            const nestedTag = (
+              "(" +
+              nestedKeyName.slice(1, 5) +
+              "," +
+              nestedKeyName.slice(5) +
+              ")"
+            ).toUpperCase();
+            return {
+              tag: nestedTag,
+              name: nestedName,
+              value: nestedValue
+            };
+          });
+        });
+        return {
+          tag: tag,
+          name: name,
+          value: nestedMetadata
+        };
+      } else {
+        return {
+          tag: tag,
+          name: name,
+          value: value
+        };
+      }
     }
   });
 

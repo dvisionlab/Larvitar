@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metadata</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      /* Simple table styling */
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+
+      /* Search field styling */
+      #searchField {
+        margin-bottom: 15px;
+        padding: 8px;
+        width: 100%;
+        font-size: 16px;
+      }
+
+      /* Nested table styling */
+      .nested-table {
+        margin-top: 10px;
+        width: 90%;
+      }
+      .nested-table th,
+      .nested-table td {
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Image Metadata</h2>
+    <input type="text" id="searchField" placeholder="Search metadata..." />
+    <table id="metadataTable">
+      <thead>
+        <tr>
+          <th>Tag</th>
+          <th>Name</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows will be added here dynamically -->
+      </tbody>
+    </table>
+
+    <script>
+      const tableBody = document.querySelector("#metadataTable tbody");
+      const searchField = document.getElementById("searchField");
+      let data = []; // Array to hold table data
+
+      // Function to create a nested table for arrays of objects
+      function createNestedTable(nestedData) {
+        const nestedTable = document.createElement("table");
+        nestedTable.classList.add("nested-table");
+        nestedTable.innerHTML = `
+          <thead>
+            <tr>
+              <th>Tag</th>
+              <th>Name</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+        `;
+
+        const tbody = document.createElement("tbody");
+        nestedData.forEach(item => {
+          console.log(item);
+          if (item.name != "ItemDelimitationItem") {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+            <td>${item.tag}</td>
+            <td>${item.name}</td>
+            <td>${
+              Array.isArray(item.value) &&
+              item.value.every(inner => typeof inner === "object")
+                ? ""
+                : item.value
+            }</td>
+          `;
+
+            tbody.appendChild(row);
+          }
+        });
+        nestedTable.appendChild(tbody);
+        return nestedTable;
+      }
+
+      // Function to populate table with data
+      function populateTable(data) {
+        tableBody.innerHTML = ""; // Clear existing rows
+
+        data.forEach(item => {
+          const row = document.createElement("tr");
+
+          // Render main item fields
+          row.innerHTML = `
+            <td>${item.tag}</td>
+            <td>${item.name}</td>
+          `;
+
+          // Render value field
+          const valueCell = document.createElement("td");
+
+          if (
+            Array.isArray(item.value) &&
+            item.value.every(
+              nestedItem =>
+                Array.isArray(nestedItem) && typeof nestedItem === "object"
+            )
+          ) {
+            // check if item.value is an array of arrays or objects or array of objects
+            item.value.forEach(nestedItem => {
+              valueCell.appendChild(createNestedTable(nestedItem));
+            });
+          } else {
+            // If value is a simple text or not an array of arrays, display it directly
+            valueCell.textContent = item.value;
+          }
+
+          row.appendChild(valueCell);
+          tableBody.appendChild(row);
+        });
+      }
+
+      // Retrieve data from localStorage and populate table
+      document.addEventListener("DOMContentLoaded", () => {
+        data = JSON.parse(localStorage.getItem("tableData")) || [];
+        populateTable(data);
+      });
+
+      // Filter table rows based on search query
+      searchField.addEventListener("input", e => {
+        const query = e.target.value.toLowerCase();
+        const filteredData = data.filter(
+          item =>
+            item.tag.toLowerCase().includes(query) ||
+            item.name.toLowerCase().includes(query) ||
+            (Array.isArray(item.value) &&
+            item.value.every(
+              nestedItem =>
+                Array.isArray(nestedItem) || typeof nestedItem === "object"
+            )
+              ? item.value
+                  .flat()
+                  .some(
+                    nestedItem =>
+                      typeof nestedItem === "object" &&
+                      (nestedItem.tag.toLowerCase().includes(query) ||
+                        nestedItem.name.toLowerCase().includes(query) ||
+                        String(nestedItem.value).toLowerCase().includes(query))
+                  )
+              : String(item.value).toLowerCase().includes(query))
+        );
+        populateTable(filteredData);
+      });
+    </script>
+  </body>
+</html>
