@@ -151,7 +151,6 @@ import {
 import {
   csToolsCreateStack,
   csToolsUpdateImageIds,
-  csToolsUpdateImageIndex,
   initializeCSTools,
   setToolsStyle,
   addDefaultTools,
@@ -431,7 +430,6 @@ export {
   // tools/main
   csToolsCreateStack,
   csToolsUpdateImageIds,
-  csToolsUpdateImageIndex,
   initializeCSTools,
   setToolsStyle,
   addDefaultTools,

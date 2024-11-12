@@ -20,13 +20,13 @@ declare const initializeCSTools: (settings?: ToolSettings, style?: ToolStyle) =>
  * @param {String} currentImageId - The current image id.
  */
 declare const csToolsCreateStack: (element: HTMLElement, imageIds?: string[], currentImageIndex?: number) => void;
-export declare function csToolsUpdateImageIds(elementId: string, imageIds: string[], imageIdIndex: number): void;
 /**
- * Update currentImageIdIndex in cs tools stack
- * @param {String} elementId - The target html element id
- * @param {String} imageId - The imageId in the form xxxxxx//:imageIndex
+ * Update stack object to sync stack tools
+ * @function csToolsUpdateImageIds
+ * @param {String} elementId - The target html element id.
+ * @param {Array} imageIds - Stack image ids.
  */
-export declare function csToolsUpdateImageIndex(elementId: string, imageId: string): void;
+export declare function csToolsUpdateImageIds(elementId: string, imageIds: string[]): void;
 /**
  * Add a cornerstone tool (grab it from original library or dvision custom tools)
  * @param {*} toolName
