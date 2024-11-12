@@ -152,6 +152,14 @@ export declare const getDistanceBetweenSlices: (seriesData: Series, sliceIndex1:
 export declare const getImageMetadata: (seriesId: string, instanceUID: string, frameId?: number) => ({
     tag: string;
     name: string;
+    value: {
+        tag: string;
+        name: string;
+        value: any;
+    }[][];
+} | {
+    tag: string;
+    name: string;
     value: string | number | number[] | MetaDataTypes[] | null | undefined;
 } | undefined)[];
 /**
