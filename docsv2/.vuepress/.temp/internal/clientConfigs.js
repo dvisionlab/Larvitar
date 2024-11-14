@@ -5,8 +5,9 @@ import * as clientConfig3 from '/home/daron1337/Projects/Larvitar/node_modules/@
 import * as clientConfig4 from '/home/daron1337/Projects/Larvitar/node_modules/@vuepress/plugin-medium-zoom/lib/client/config.js'
 import * as clientConfig5 from '/home/daron1337/Projects/Larvitar/node_modules/@vuepress/plugin-nprogress/lib/client/config.js'
 import * as clientConfig6 from '/home/daron1337/Projects/Larvitar/docsv2/.vuepress/.temp/prismjs/config.js'
-import * as clientConfig7 from '/home/daron1337/Projects/Larvitar/node_modules/@vuepress/plugin-theme-data/lib/client/config.js'
-import * as clientConfig8 from '/home/daron1337/Projects/Larvitar/node_modules/@vuepress/theme-default/lib/client/config.js'
+import * as clientConfig7 from '/home/daron1337/Projects/Larvitar/docsv2/.vuepress/.temp/markdown-tab/config.js'
+import * as clientConfig8 from '/home/daron1337/Projects/Larvitar/node_modules/@vuepress/plugin-theme-data/lib/client/config.js'
+import * as clientConfig9 from '/home/daron1337/Projects/Larvitar/node_modules/@vuepress/theme-default/lib/client/config.js'
 
 export const clientConfigs = [
   clientConfig0,
@@ -18,4 +19,5 @@ export const clientConfigs = [
   clientConfig6,
   clientConfig7,
   clientConfig8,
+  clientConfig9,
 ].map((m) => m.default).filter(Boolean)

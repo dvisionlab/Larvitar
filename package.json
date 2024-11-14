@@ -23,7 +23,9 @@
     "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json",
     "build": "webpack --config ./bundler/webpack.prod.js && cp ./dist/larvitar.js ./docs/examples/larvitar.js",
     "dev": "webpack --progress --config ./bundler/webpack.dev.js && cp ./dist/larvitar.js ./docs/examples/larvitar.js",
-    "dev-wip": "webpack serve --config ./bundler/webpack.dev-wip.js"
+    "dev-wip": "webpack serve --config ./bundler/webpack.dev-wip.js",
+    "docs:dev": "vuepress dev docsv2",
+    "docs:build": "vuepress build docsv2"
   },
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
   "contributors": [
@@ -65,8 +67,8 @@
     "@types/plotly.js": "^2.12.30",
     "@types/plotly.js-dist-min": "^2.3.4",
     "@types/uuid": "^9.0.1",
-    "@vuepress/bundler-vite": "^2.0.0-rc.15",
-    "@vuepress/theme-default": "^2.0.0-rc.42",
+    "@vuepress/bundler-vite": "^2.0.0-rc.18",
+    "@vuepress/theme-default": "^2.0.0-rc.60",
     "babel-loader": "^9.1.2",
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^11.0.0",
@@ -77,6 +79,7 @@
     "jsdoc": "^3.6.4",
     "lodash-webpack-plugin": "^0.11.6",
     "portfinder-sync": "^0.0.2",
+    "sass-embedded": "^1.80.7",
     "ts-loader": "^9.4.2",
     "typescript": "^5.0.2",
     "typescript-coverage-report": "^0.7.0",

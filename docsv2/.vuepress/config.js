@@ -16,13 +16,26 @@ export default {
       "/guide/": [
         {
           text: "Guide",
-          children: ["/guide/installation.md", "/guide/examples.md"]
+          children: [
+            { text: "Installation", link: "/guide/installation.md" },
+            { text: "Examples", link: "/guide/examples.md" }
+          ]
         }
       ],
       "/api/": [
         {
           text: "API",
-          children: ["/api/core.md", "/api/modules.md"]
+          children: [
+            { text: "Parsing", link: "/api/parsing.md" },
+            { text: "Loading", link: "/api/loading.md" },
+            { text: "Rendering", link: "/api/rendering.md" },
+            { text: "Interacting", link: "/api/interacting.md" },
+            {
+              text: "Modules",
+              link: "/api/modules.md",
+              children: [{ text: "todo", link: "/api/modules/todo.md" }]
+            }
+          ]
         }
       ]
     }

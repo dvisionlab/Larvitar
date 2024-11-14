@@ -19,9 +19,9 @@ import {
   unref,
   watch,
   watchEffect
-} from "./chunk-PAUCAATC.js";
+} from "./chunk-AISQ2WAO.js";
 
-// node_modules/vue-router/dist/vue-router.mjs
+// node_modules/@vuepress/core/node_modules/vue-router/dist/vue-router.mjs
 var isBrowser = typeof document !== "undefined";
 function isESModule(obj) {
   return obj.__esModule || obj[Symbol.toStringTag] === "Module";

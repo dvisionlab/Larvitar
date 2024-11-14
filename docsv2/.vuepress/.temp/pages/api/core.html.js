@@ -1,5 +1,5 @@
 import comp from "/home/daron1337/Projects/Larvitar/docsv2/.vuepress/.temp/pages/api/core.html.vue"
-const data = JSON.parse("{\"path\":\"/api/core.html\",\"title\":\"\",\"lang\":\"en-US\",\"frontmatter\":{},\"headers\":[],\"git\":{\"updatedTime\":null,\"contributors\":[]},\"filePathRelative\":\"api/core.md\"}")
+const data = JSON.parse("{\"path\":\"/api/core.html\",\"title\":\"\",\"lang\":\"en-US\",\"frontmatter\":{},\"headers\":[],\"git\":{\"updatedTime\":1725459784000,\"contributors\":[{\"name\":\"daron1337\",\"email\":\"simone.manini@gmail.com\",\"commits\":2,\"url\":\"https://github.com/daron1337\"},{\"name\":\"Simone Manini\",\"email\":\"572819+daron1337@users.noreply.github.com\",\"commits\":1,\"url\":\"https://github.com/Simone Manini\"}]},\"filePathRelative\":\"api/core.md\"}")
 export { comp, data }
 
 if (import.meta.webpackHot) {
