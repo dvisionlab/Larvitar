@@ -659,63 +659,39 @@ export const updateImage = async function (
 
   //check if it is a metadata-only object
   if (
-    series.instances[series.imageIds[imageIndex]].metadata.pixelDataLength != 0
+    !isDSAEnabled &&
+    imageId &&
+    series.instances[imageId].metadata.pixelDataLength === 0
   ) {
-    if (isDSAEnabled === true) {
-      // get the optional custom pixel shift
-      const pixelShift = store.get(["viewports", id, "pixelShift"]);
-      setPixelShift(pixelShift);
+    return;
+  }
+
+  if (isDSAEnabled === true) {
+    // get the optional custom pixel shift
+    const pixelShift = store.get(["viewports", id, "pixelShift"]);
+    setPixelShift(pixelShift);
+  }
+
+  if (!imageId) {
+    setStore(["pendingSliceId", id, imageIndex]);
+    throw `Error: wrong image index ${imageIndex}, no imageId available`;
+  }
+
+  if (series.is4D) {
+    const timestamp = series.instances[imageId].metadata.contentTime;
+    const timeId =
+      series.instances[imageId].metadata.temporalPositionIdentifier! - 1; // timeId from 0 to N
+    setStore(["timeId", id as string, timeId]);
+    setStore(["timestamp", id as string, timestamp]);
+  }
+
+  if (cacheImage) {
+    let t0: number | undefined;
+    if (getPerformanceMonitor() === true) {
+      t0 = performance.now();
     }
 
-    if (!imageId) {
-      setStore(["pendingSliceId", id, imageIndex]);
-      throw `Error: wrong image index ${imageIndex}, no imageId available`;
-    }
-
-    if (series.is4D) {
-      const timestamp = series.instances[imageId].metadata.contentTime;
-      const timeId =
-        series.instances[imageId].metadata.temporalPositionIdentifier! - 1; // timeId from 0 to N
-      setStore(["timeId", id as string, timeId]);
-      setStore(["timestamp", id as string, timestamp]);
-    }
-
-    if (cacheImage) {
-      let t0: number | undefined;
-      if (getPerformanceMonitor() === true) {
-        t0 = performance.now();
-      }
-
-      cornerstone.loadAndCacheImage(imageId).then(function (image) {
-        cornerstone.displayImage(element, image);
-
-        if (getPerformanceMonitor() === true) {
-          const t1 = performance.now();
-          if (t0 !== undefined) {
-            // check if t0 is defined before using it
-            console.log(
-              `Call to updateImage for viewport ${id} took ${
-                t1 - t0
-              } milliseconds.`
-            );
-          }
-        }
-        setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
-        setStore(["sliceId", id, imageIndex]);
-        const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
-        if (imageIndex == pendingSliceId) {
-          setStore(["pendingSliceId", id, undefined]);
-        }
-        setStore(["minPixelValue", id, image.minPixelValue]);
-        setStore(["maxPixelValue", id, image.maxPixelValue]);
-      });
-    } else {
-      let t0: number | undefined;
-      if (getPerformanceMonitor() === true) {
-        t0 = performance.now();
-      }
-
-      const image = await cornerstone.loadImage(imageId);
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
       cornerstone.displayImage(element, image);
 
       if (getPerformanceMonitor() === true) {
@@ -729,7 +705,7 @@ export const updateImage = async function (
           );
         }
       }
-
+      setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
       setStore(["sliceId", id, imageIndex]);
       const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
       if (imageIndex == pendingSliceId) {
@@ -737,7 +713,33 @@ export const updateImage = async function (
       }
       setStore(["minPixelValue", id, image.minPixelValue]);
       setStore(["maxPixelValue", id, image.maxPixelValue]);
+    });
+  } else {
+    let t0: number | undefined;
+    if (getPerformanceMonitor() === true) {
+      t0 = performance.now();
     }
+
+    const image = await cornerstone.loadImage(imageId);
+    cornerstone.displayImage(element, image);
+
+    if (getPerformanceMonitor() === true) {
+      const t1 = performance.now();
+      if (t0 !== undefined) {
+        // check if t0 is defined before using it
+        console.log(
+          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
+        );
+      }
+    }
+
+    setStore(["sliceId", id, imageIndex]);
+    const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
+    if (imageIndex == pendingSliceId) {
+      setStore(["pendingSliceId", id, undefined]);
+    }
+    setStore(["minPixelValue", id, image.minPixelValue]);
+    setStore(["maxPixelValue", id, image.maxPixelValue]);
   }
 };
 
