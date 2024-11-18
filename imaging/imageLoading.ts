@@ -325,6 +325,12 @@ let isNewInstance = function (
   return isNewInstance;
 };
 
+/**
+ * General reset of cache, loaders, store and managers
+ * @inner
+ * @function reset
+ * @return {void}
+ */
 export function reset() {
   //Reset file manager and loader
   resetFileLoader();
