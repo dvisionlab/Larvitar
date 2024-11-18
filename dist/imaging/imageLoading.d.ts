@@ -57,3 +57,4 @@ export declare const registerDsaImageLoader: () => void;
  * @param {number} sliceIndex - Optional custom index to overwrite slice index as default one
  */
 export declare const updateLoadedStack: (seriesData: ImageObject, allSeriesStack: ReturnType<typeof getLarvitarManager>, customId?: string, sliceIndex?: number) => void;
+export declare function reset(): void;

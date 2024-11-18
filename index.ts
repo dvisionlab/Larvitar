@@ -94,7 +94,8 @@ import {
   registerResliceLoader,
   registerMultiFrameImageLoader,
   registerDsaImageLoader,
-  updateLoadedStack
+  updateLoadedStack,
+  reset
 } from "./imaging/imageLoading";
 
 import {
@@ -330,6 +331,8 @@ export {
   registerMultiFrameImageLoader,
   registerDsaImageLoader,
   updateLoadedStack,
+  // General reset of cache, store and managers
+  reset,
   // imageParsing
   readFile,
   readFiles,
