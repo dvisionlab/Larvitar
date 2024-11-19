@@ -22,8 +22,13 @@ import { loadDsaImage } from "./loaders/dsaImageLoader";
 import { ImageObject, Instance, Series, StagedProtocol } from "./types";
 import {
   getLarvitarImageTracker,
-  getLarvitarManager
+  getLarvitarManager,
+  resetInstanceGSPSDict,
+  resetLarvitarManager
 } from "./loaders/commonLoader";
+import { resetFileLoader, resetFileManager } from "./loaders/fileLoader";
+import { clearImageCache } from "./imageRendering";
+import { clearCornerstoneElements } from "./imageTools";
 
 /**
  * Global standard configuration
@@ -319,3 +324,21 @@ let isNewInstance = function (
   });
   return isNewInstance;
 };
+
+/**
+ * General reset of cache, loaders, store and managers
+ * @inner
+ * @function reset
+ * @return {void}
+ */
+export function reset() {
+  //Reset file manager,larvitar manager, multiframe cache and gsps dict
+  resetFileManager();
+  resetLarvitarManager();
+  resetInstanceGSPSDict();
+  //Reset cornerstone cache and enabled elements
+  clearImageCache();
+  clearCornerstoneElements();
+  //Reset and initialize store
+  store.initialize();
+}
