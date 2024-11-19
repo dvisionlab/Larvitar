@@ -332,10 +332,8 @@ let isNewInstance = function (
  * @return {void}
  */
 export function reset() {
-  //Reset file manager and loader
-  resetFileLoader();
+  //Reset file manager,larvitar manager, multiframe cache and gsps dict
   resetFileManager();
-  //Reset larvitar manager, multiframe cache and gsps dict
   resetLarvitarManager();
   resetInstanceGSPSDict();
   //Reset cornerstone cache and enabled elements
