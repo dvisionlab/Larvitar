@@ -23,3 +23,6 @@ template/docdash/
 
 # TS coverage reports
 /coverage-ts
+
+# docs
+/docsv2/.vuepress/*
