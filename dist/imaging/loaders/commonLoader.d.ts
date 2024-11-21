@@ -93,6 +93,14 @@ export declare const removeSeriesFromLarvitarManager: (seriesId: string) => void
  */
 export declare const getSeriesDataFromLarvitarManager: (seriesId: string) => Series | import("../types").NrrdSeries | null;
 /**
+ * Return the metadata of a specific imageId stored in the Larvitar Manager
+ * @instance
+ * @function getImageDataFromLarvitarManager
+ * @param {String} imageId The Id of the image
+ * @return {MetaData | null} Image metadata
+ */
+export declare const getImageDataFromLarvitarManager: (imageId: string) => MetaData | null;
+/**
  * Compute and return image frame
  * @instance
  * @function getImageFrame
