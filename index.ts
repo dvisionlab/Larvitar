@@ -199,6 +199,7 @@ import {
   resetInstanceGSPSDict,
   removeSeriesFromLarvitarManager,
   getSeriesDataFromLarvitarManager,
+  getImageDataFromLarvitarManager,
   getImageFrame,
   getSopInstanceUIDFromLarvitarManager
 } from "./imaging/loaders/commonLoader";
@@ -375,6 +376,7 @@ export {
   resetInstanceGSPSDict,
   removeSeriesFromLarvitarManager,
   getSeriesDataFromLarvitarManager,
+  getImageDataFromLarvitarManager,
   getImageFrame,
   getSopInstanceUIDFromLarvitarManager,
   // loaders/nrrdLoader

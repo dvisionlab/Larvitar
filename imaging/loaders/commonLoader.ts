@@ -261,6 +261,25 @@ export const getSeriesDataFromLarvitarManager = function (seriesId: string) {
 };
 
 /**
+ * Return the metadata of a specific imageId stored in the Larvitar Manager
+ * @instance
+ * @function getImageDataFromLarvitarManager
+ * @param {String} imageId The Id of the image
+ * @return {MetaData | null} Image metadata
+ */
+export const getImageDataFromLarvitarManager = function (imageId: string) {
+  if (larvitarManager) {
+    for (const [seriesId, seriesObj] of Object.entries(larvitarManager)) {
+      if (seriesObj.imageIds && seriesObj.imageIds.includes(imageId)) {
+        const imageData = seriesObj.instances[imageId].metadata;
+        return imageData;
+      }
+    }
+  }
+  return null;
+};
+
+/**
  * Compute and return image frame
  * @instance
  * @function getImageFrame

@@ -23,6 +23,7 @@ import {
 import { handleElement } from "./utils/gridToolUtils/gridToolUtils";
 import { Coords, GridConfig, MeasurementMouseEvent } from "../types";
 import { DEFAULT_TOOLS } from "../default";
+import { getImageDataFromLarvitarManager } from "../../loaders/commonLoader";
 
 /**
  * @public
@@ -148,15 +149,12 @@ export class GridTool extends BaseTool {
     if (newSetup) this.configuration.setup = newSetup;
 
     const image = enabledElement.image as Image;
-    const pixelSpacing = {
-      x: image.columnPixelSpacing,
-      y: image.rowPixelSpacing
-    };
-
+    const imageMetadata = getImageDataFromLarvitarManager(image.imageId);
+    const pixelSpacing = imageMetadata!.pixelSpacing!;
     try {
       validatePixelSpacing(
-        pixelSpacing.x,
-        pixelSpacing.y,
+        pixelSpacing[0],
+        pixelSpacing[1],
         this.configuration.setup.minPixelSpacing
       );
     } catch (error: any) {
@@ -178,11 +176,11 @@ export class GridTool extends BaseTool {
     );
 
     let patternHeight = this.configuration.setup.gridDimensionMM
-      ? mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing.y)
-      : mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing.y);
+      ? mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing[1])
+      : mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing[1]);
     let patternWidth = this.configuration.setup.gridDimensionMM
-      ? mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing.x)
-      : mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing.x);
+      ? mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing[0])
+      : mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing[0]);
     const patternCanvasDimensions = convertDimensionsToCanvas(
       element,
       patternWidth,
@@ -192,11 +190,11 @@ export class GridTool extends BaseTool {
     //dash dimension
     let dashHeight = mmToPixels(
       this.configuration.setup.dashHeightMM,
-      pixelSpacing.y
+      pixelSpacing[1]
     );
     let dashWidth = mmToPixels(
       this.configuration.setup.dashWidthMM,
-      pixelSpacing.x
+      pixelSpacing[0]
     );
     const dashCanvasDimensions = convertDimensionsToCanvas(
       element,
