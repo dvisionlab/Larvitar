@@ -918,7 +918,6 @@ export const storeViewportData = function (
   setStore(["modality", elementId, data.modality]);
   // slice id from 0 to n - 1
   setStore(["minSliceId", elementId, 0]);
-  console.log(data);
   if (data.imageIndex !== undefined) {
     setStore(["sliceId", elementId, data.imageIndex]);
   }
