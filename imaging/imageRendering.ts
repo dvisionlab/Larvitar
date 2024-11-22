@@ -918,7 +918,7 @@ export const storeViewportData = function (
   setStore(["modality", elementId, data.modality]);
   // slice id from 0 to n - 1
   setStore(["minSliceId", elementId, 0]);
-  if (data.imageIndex) {
+  if (data.imageIndex !== undefined) {
     setStore(["sliceId", elementId, data.imageIndex]);
   }
   const pendingSliceId = store.get(["viewports", elementId, "pendingSliceId"]);
@@ -926,7 +926,7 @@ export const storeViewportData = function (
     setStore(["pendingSliceId", elementId, undefined]);
   }
 
-  if (data.numberOfSlices) {
+  if (data.numberOfSlices !== undefined) {
     setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
   }
 
