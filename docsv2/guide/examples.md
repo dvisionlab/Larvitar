@@ -1,3 +1,7 @@
+<div style="text-align: center;">
+    <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" alt="Larvitar" height="200" />
+</div>
+
 # Larvitar Examples
 
 Explore these [examples](https://larvitar.dvisionlab.com/examples/index.html) to learn how to use Larvitar for various medical imaging tasks. Each example demonstrates a specific functionality, making it easy to get started and see Larvitar in action.
@@ -210,8 +214,8 @@ Key features covered in this example include:
 
 [View Example ➔](https://larvitar.dvisionlab.com/examples/nrrd.html)
 
----
+<br><br>
 
-## More Examples
-
-For a comple
+<div style="text-align: center;">
+    <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" alt="D/Vision Lab" height="200" />
+</div>

@@ -1,3 +1,7 @@
+<div style="text-align: center;">
+    <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" alt="Larvitar" height="200" />
+</div>
+
 # Larvitar Documentation
 
 Welcome to the official documentation for Larvitar! Larvitar is an open-source library developed by [D/Vision Lab](https://www.dvisionlab.com) designed to simplify and enhance medical imaging workflows. 
@@ -18,3 +22,9 @@ To get started, refer to the [installation guide](./guide/installation.md) and f
 - Core Functionality: Discover the main capabilities of Larvitar, designed to give you a solid foundation for medical imaging projects.
 - Modules: Explore additional modules to expand functionality based on your specific needs.
 - [Examples](guide/examples.md): Check out real-world examples to see how Larvitar can streamline and enhance your imaging workflows.
+
+<br><br>
+
+<div style="text-align: center;">
+    <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" alt="D/Vision Lab" height="200" />
+</div>

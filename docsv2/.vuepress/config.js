@@ -26,6 +26,7 @@ export default {
         {
           text: "API",
           children: [
+            { text: "Initializing", link: "/api/initializing.md" },
             { text: "Parsing", link: "/api/parsing.md" },
             { text: "Loading", link: "/api/loading.md" },
             { text: "Rendering", link: "/api/rendering.md" },

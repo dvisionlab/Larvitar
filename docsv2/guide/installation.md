@@ -1,3 +1,7 @@
+<div style="text-align: center;">
+    <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" alt="Larvitar" height="200" />
+</div>
+
 # Larvitar Installation Guide
 
 This guide walks you through the steps to install Larvitar and get it up and running. Larvitar is an open-source TypeScript library built on CornerstoneJS, designed for easy and efficient medical imaging applications.
@@ -37,3 +41,9 @@ If you encounter any issues, try the following:
 - Node Compatibility: Larvitar works best with Node.js 14.x or higher.
   
 Still having trouble? Check out the [Issues section](https://github.com/dvisionlab/Larvitar/issues) on our GitHub page or contact our support.
+
+<br><br>
+
+<div style="text-align: center;">
+    <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" alt="D/Vision Lab" height="200" />
+</div>

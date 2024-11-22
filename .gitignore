@@ -25,4 +25,5 @@ template/docdash/
 /coverage-ts
 
 # docs
-/docsv2/.vuepress/*
+docsv2/.vuepress/.cache/
+docsv2/.vuepress/.temp/
