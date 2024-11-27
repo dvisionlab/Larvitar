@@ -65,12 +65,12 @@ initializeCSTools(toolSettings?: ToolSettings, toolStyle?: ToolStyle): void
 
 | Property                | Description                                                      | Default Value |
 |-------------------------|------------------------------------------------------------------|---------------|
-| `mouseEnabled`          | Enables tools for mouse interactions.                           | `true`        |
-| `touchEnabled`          | Enables tools for touch interactions.                           | `false`       |
-| `showSVGCursors`        | Enables SVG cursors for better visualization of tools.          | `true`        |
-| `globalToolSyncEnabled` | Synchronizes tool settings across all viewports.                | `true`        |
+| `mouseEnabled`          | Enables tools for mouse interactions.                            | `true`        |
+| `touchEnabled`          | Enables tools for touch interactions.                            | `false`       |
+| `showSVGCursors`        | Enables SVG cursors for better visualization of tools.           | `true`        |
+| `globalToolSyncEnabled` | Synchronizes tool settings across all viewports.                 | `true`        |
 | `autoResizeViewports`   | Automatically resizes viewports when the browser window changes. | `true`        |
-| `lineDash`              | Defines the dash pattern for line tools (e.g., `[4, 4]`).       | `[4, 4]`      |
+| `lineDash`              | Defines the dash pattern for line tools (e.g., `[4, 4]`).        | `[4, 4]`      |
 
 ---
 
@@ -80,7 +80,7 @@ initializeCSTools(toolSettings?: ToolSettings, toolStyle?: ToolStyle): void
 |-------------------|------------------------------------------------|-------------------------|
 | `width`           | Stroke width for tools (e.g., lines, circles). | `1`                     |
 | `color`           | Default color for tools.                       | `"#00FF00"`             |
-| `activeColor`     | Color for active tools (e.g., when selected).   | `"#FF0000"`             |
+| `activeColor`     | Color for active tools (e.g., when selected).  | `"#FF0000"`             |
 | `fillColor`       | Fill color for shapes like circles.            | `"#0000FF"`             |
 | `fontFamily`      | Font family for text annotations.              | `"Arial"`               |
 | `fontSize`        | Font size for text annotations.                | `12`                    |

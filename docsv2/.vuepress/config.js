@@ -34,7 +34,12 @@ export default {
             {
               text: "Modules",
               link: "/api/modules.md",
-              children: [{ text: "todo", link: "/api/modules/todo.md" }]
+              children: [
+                { text: "Ecg", link: "/api/modules/ecg.md" },
+                { text: "Stress Echo", link: "/api/modules/stressecho.md" },
+                { text: "DSA", link: "/api/modules/dsa.md" },
+                { text: "Overlays", link: "/api/modules/overlays.md" }
+              ]
             }
           ]
         }

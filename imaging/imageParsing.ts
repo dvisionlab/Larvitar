@@ -300,7 +300,8 @@ const parseFile = function (file: File) {
           "XA",
           "US",
           "IVUS",
-          "OCT"
+          "OCT",
+          "SR"
         ];
         // US XA RF IVUS OCT DX CR PX MG
         // Overwrite SOPInstanceUID to manage single stack images (US, XA).
