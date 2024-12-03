@@ -109,7 +109,7 @@ const INITIAL_STORE_DATA: Store = {
 
 // default viewport object
 const DEFAULT_VIEWPORT: StoreViewport = {
-  loading: 0, // from 0 to 100 (%)
+  loading: null, // from 0 to 100 (%)
   ready: false, // true when currentImageId is rendered
   minSliceId: 0,
   maxSliceId: 0,

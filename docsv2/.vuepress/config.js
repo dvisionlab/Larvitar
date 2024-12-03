@@ -35,6 +35,7 @@ export default {
               text: "Modules",
               link: "/api/modules.md",
               children: [
+                { text: "Store", link: "/api/modules/store.md" },
                 { text: "Ecg", link: "/api/modules/ecg.md" },
                 { text: "Stress Echo", link: "/api/modules/stressecho.md" },
                 { text: "DSA", link: "/api/modules/dsa.md" },

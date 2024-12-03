@@ -32,7 +32,7 @@ export type sortedTags = {
 export type pdfType = { getPage: function; numPages: number };
 
 export type StoreViewport = {
-  loading: number;
+  loading: number | null;
   ready: boolean;
   minSliceId: number;
   maxSliceId: number;
@@ -61,7 +61,7 @@ export type StoreViewport = {
   isPDF: boolean;
   waveform: boolean;
   dsa: boolean;
-  imageIndex?: number;
+  imageIndex?: number; // TODO CAN BE DEPRECATED?
   imageId?: string;
   numberOfSlices?: number;
   numberOfTemporalPositions?: number;

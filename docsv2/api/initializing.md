@@ -88,8 +88,14 @@ initializeCSTools(toolSettings?: ToolSettings, toolStyle?: ToolStyle): void
 
 ## Initializing the Larvitar store
 
-TODO
+The [Larvitar Store](../api/modules/store.md) is a centralized data configuration store that manages the state and settings required for the application. It keeps track of information related to tools, series, viewports, and other imaging-related data, enabling dynamic interaction with the viewer.
 
+The store must be initialized before use:
+
+```typescript
+import { store } from 'larvitar';
+store.initialize();
+```
 
 <br><br>
 
