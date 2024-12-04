@@ -175,6 +175,8 @@ The store provides several utility functions for managing data:
 | `ResetActiveTools`	| `elementId`                   | Resets the active tools.                                              |
 
 
+<br></br>
+
 <div style="text-align: center;">
     <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" alt="D/Vision Lab" height="200" />
 </div>

@@ -58,7 +58,7 @@ The Series type defines the structure of parsed DICOM data. Here are the main pr
 | `modality`                      | Modality of the series                                           | (0008,0060)                                     |
 | `color`                         | True if the series is colored and not grayscale                  | (0028,0004)                                     |       
 | `bytes`                         | Number of allocated bytes for the series                         | [Link](parsing.md#bytes)                        |  
-| `stagedProtocol`                | Contains stress echo staged protocol (optional)                  | [Stress Echo](../api/modules/StressEcho.md)     |
+| `stagedProtocol`                | Contains stress echo staged protocol (optional)                  | [Stress Echo](../api/modules/stressecho.md)     |
 | `dataSet`                       | The parsed DICOM dataset for the series (optional)               | [Link](parsing.md#dataset)                      |
 | `metadata`                      | Metadata extracted from the DICOM file  (optional)               | [Link](parsing.md#metadata)                     |    
 | `frameDelay`                    | Delay between frames in a multiframe series (optional)           | (0018,1066)                                     |
