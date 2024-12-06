@@ -250,6 +250,11 @@
     gud "^1.0.0"
     warning "^4.0.3"
 
+"@hyzyla/pdfium@^2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@hyzyla/pdfium/-/pdfium-2.1.2.tgz#71d71c1f88fd095174759576016eff013864f37d"
+  integrity sha512-8Xynglks59jQsPDrIMTaytEf/rzBTR8IyhUVscaJuKBBNsOqu5fs6phR+eRG3ApEpS1XsVFhB1JsWoolUYWlWg==
+
 "@istanbuljs/schema@^0.1.2":
   version "0.1.3"
   resolved "https://registry.npmjs.org/@istanbuljs/schema/-/schema-0.1.3.tgz"

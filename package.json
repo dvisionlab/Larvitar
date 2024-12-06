@@ -34,6 +34,7 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@hyzyla/pdfium": "^2.1.2",
     "@rollup/plugin-commonjs": "^17.1.0",
     "cornerstone-core": "^2.6.1",
     "cornerstone-file-image-loader": "^0.3.0",
