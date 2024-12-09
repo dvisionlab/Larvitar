@@ -1,12 +1,11 @@
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
-import { LarvitarManager, Series, Viewport } from "../../types";
+import { SeriesManager, Series, Viewport } from "../../types";
 import { EventData, Overlay } from "../types";
 const external = cornerstoneTools.external;
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
-import { getLarvitarImageTracker } from "../../loaders/commonLoader";
-import { getLarvitarManager } from "../../loaders/commonLoader";
+import { getImageTracker, getSeriesManager } from "../../imageManagers";
 
 interface ToolMouseEvent {
   detail: EventData;
@@ -64,9 +63,9 @@ export default class OverlayTool extends BaseTool {
         cornerstoneDICOMImageLoader.wadouri.parseImageId(image.imageId);
 
       const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
-      const imageTracker = getLarvitarImageTracker();
+      const imageTracker = getImageTracker();
       const seriesId: string = imageTracker[rootImageId];
-      const manager = getLarvitarManager() as LarvitarManager;
+      const manager = getSeriesManager() as SeriesManager;
 
       const seriesData = manager![seriesId] as Series;
       if (seriesData && seriesData.instances[image.imageId]) {

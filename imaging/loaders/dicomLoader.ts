@@ -85,12 +85,7 @@ export const loadAndCacheImageStack = async function (
           imageId &&
           seriesData.instances[imageId].metadata.pixelDataLength != 0
         ) {
-          setStore([
-            "cached",
-            seriesData.larvitarSeriesInstanceUID,
-            imageId,
-            true
-          ]);
+          setStore(["cached", seriesData.uniqueUID, imageId, true]);
           return cornerstone.loadAndCacheImage(imageId);
         } else {
           return Promise.resolve(undefined); // Return a resolved Promise with undefined
@@ -156,12 +151,7 @@ export const loadAndCacheDsaImageStack = async function (
           if (forceRecache) {
             cornerstone.imageCache.removeImageLoadObject(imageId);
           }
-          setStore([
-            "cached",
-            seriesData.larvitarSeriesInstanceUID,
-            imageId,
-            true
-          ]);
+          setStore(["cached", seriesData.uniqueUID, imageId, true]);
           return cornerstone.loadAndCacheImage(imageId);
         });
       Promise.all(dsaPromises).then(() => {

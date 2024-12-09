@@ -186,7 +186,7 @@ export type Series = {
   numberOfSlices: number;
   numberOfTemporalPositions: number;
   studyUID: string;
-  larvitarSeriesInstanceUID: string;
+  uniqueUID: string;
   elements?: { [key: string]: any } | null;
   layer: Layer;
   orientation?: "axial" | "coronal" | "sagittal"; // this is needed for legacy reslice
@@ -241,12 +241,16 @@ export type Volume = {
   acquisition_date?: string;
 };
 
-export type LarvitarManager = {
+export type SeriesManager = {
   [key: string]: NrrdSeries | Series;
 } | null;
 
-export type InstanceGSPSDict = {
+export type GSPSManager = {
   [key: string]: { seriesId: string | null; imageId: string | null }[] | null;
+} | null;
+
+export type FileManager = {
+  [key: string]: string;
 } | null;
 
 export type ImageFrame = {

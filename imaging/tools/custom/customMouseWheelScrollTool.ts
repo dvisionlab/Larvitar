@@ -16,9 +16,8 @@ import store, { set as setStore } from "../../imageStore";
 import { DEFAULT_TOOLS } from "../default";
 import { StoreViewport } from "../../types";
 import scrollToIndex from "./utils/customMouseWheelScrollToolUtils/customMouseWheelUtils";
-import { getLarvitarImageTracker } from "../../loaders/commonLoader";
-import { getLarvitarManager } from "../../loaders/commonLoader";
-import { LarvitarManager, Series } from "../../types";
+import { getSeriesManager, getImageTracker } from "../../imageManagers";
+import { SeriesManager, Series } from "../../types";
 import { getActiveLayer, setActiveLayer } from "../../imageLayers";
 
 // global variables
@@ -199,9 +198,9 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
           );
 
         const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
-        const imageTracker = getLarvitarImageTracker();
+        const imageTracker = getImageTracker();
         const seriesId: string = imageTracker[rootImageId];
-        const manager = getLarvitarManager() as LarvitarManager;
+        const manager = getSeriesManager() as SeriesManager;
 
         const multiFrameSerie = manager![seriesId] as Series;
 

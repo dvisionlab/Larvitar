@@ -23,7 +23,7 @@ To get started, refer to the [installation guide](./guide/installation.md) and f
 - Modules: Explore additional modules to expand functionality based on your specific needs.
 - [Examples](guide/examples.md): Check out real-world examples to see how Larvitar can streamline and enhance your imaging workflows.
 
-<br><br>
+<br></br>
 
 <div style="text-align: center;">
     <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" alt="D/Vision Lab" height="200" />

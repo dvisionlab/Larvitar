@@ -39,8 +39,21 @@ export default {
               children: [
                 { text: "Store", link: "/api/modules/store.md" },
                 {
-                  text: "Larvitar Manager",
-                  link: "/api/modules/larvitarManager.md"
+                  text: "Managers",
+                  children: [
+                    {
+                      text: "Series Manager",
+                      link: "/api/modules/managers/seriesManager.md"
+                    },
+                    {
+                      text: "GSPS Manager",
+                      link: "/api/modules/managers/gspsManager.md"
+                    },
+                    {
+                      text: "File Manager",
+                      link: "/api/modules/managers/fileManager.md"
+                    }
+                  ]
                 },
                 {
                   text: "Parsers",

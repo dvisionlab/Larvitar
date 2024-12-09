@@ -9,11 +9,11 @@ import { each, find, range } from "lodash";
 
 // internal libraries
 import {
-  getLarvitarImageTracker,
-  getLarvitarManager,
-  getSeriesDataFromLarvitarManager
-} from "./commonLoader";
-import type { DSA, Image, LarvitarManager, Series } from "../types";
+  getImageTracker,
+  getSeriesManager,
+  getSeriesDataFromSeriesManager
+} from "../imageManagers";
+import type { DSA, Image, SeriesManager, Series } from "../types";
 import { getMaxPixelValue, getMinPixelValue } from "../imageUtils";
 import { applyDSA } from "../postProcessing/applyDSA";
 
@@ -38,9 +38,9 @@ let PIXEL_SHIFT: number[] | undefined = undefined;
 export const loadDsaImage: ImageLoader = function (imageId: string): any {
   let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
-  let imageTracker = getLarvitarImageTracker();
+  let imageTracker = getImageTracker();
   let seriesId = imageTracker[rootImageId];
-  let manager = getLarvitarManager() as LarvitarManager;
+  let manager = getSeriesManager() as SeriesManager;
 
   if (manager) {
     let multiFrameSerie = manager[seriesId] as Series;
@@ -65,18 +65,14 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
  * @param {String} seriesId - SeriesId tag
  * @param {Object} serie - parsed serie object
  */
-export const populateDsaImageIds = function (
-  larvitarSeriesInstanceUID: string
-) {
+export const populateDsaImageIds = function (uniqueUID: string) {
   let t0 = performance.now();
-  const serie = getSeriesDataFromLarvitarManager(
-    larvitarSeriesInstanceUID
-  ) as Series;
+  const serie = getSeriesDataFromSeriesManager(uniqueUID) as Series;
   if (serie) {
     const numberOfFrames: number = serie.metadata!.numberOfFrames!;
     const imageId: string = getDsaImageId("dsaImageLoader");
-    let imageTracker = getLarvitarImageTracker();
-    imageTracker[imageId] = larvitarSeriesInstanceUID;
+    let imageTracker = getImageTracker();
+    imageTracker[imageId] = uniqueUID;
     let imageIds: string[] = [];
     each(range(numberOfFrames as number), function (frameNumber: number) {
       const frameImageId: string = imageId + "?frame=" + frameNumber;
@@ -97,9 +93,7 @@ export const populateDsaImageIds = function (
     };
     serie.dsa = dsa;
   } else {
-    throw new Error(
-      "No serie found for seriesId: " + larvitarSeriesInstanceUID
-    );
+    throw new Error("No serie found for seriesId: " + uniqueUID);
   }
 
   let t1 = performance.now();

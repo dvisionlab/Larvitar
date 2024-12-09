@@ -2,9 +2,9 @@
     <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" alt="Larvitar" height="200" />
 </div>
 
-# The Larvitar Manager
+# The Series Manager
 
-The Larvitar Manager Module provides core functionalities for managing and loading DICOM data, including parsing, organizing, and storing series, instances, and associated metadata. It acts as a central store and utility set for handling DICOM imaging workflows.
+The Series Manager Module provides core functionalities for managing and loading DICOM data, including parsing, organizing, and storing series, instances, and associated metadata. It acts as a central store and utility set for handling DICOM imaging workflows.
 
 ## Key Responsibilities
 
@@ -16,7 +16,7 @@ The Larvitar Manager Module provides core functionalities for managing and loadi
 
 ### Image Tracker
 
-The `Image Tracker` is a utility within the Larvitar Manager ecosystem that maps image IDs to their associated series. It is primarily used for efficient tracking and retrieval of images across series, enabling streamlined workflows for parsing, loading, and managing DICOM data.
+The `Image Tracker` is a utility within the Series Manager ecosystem that maps image IDs to their associated series. It is primarily used for efficient tracking and retrieval of images across series, enabling streamlined workflows for parsing, loading, and managing DICOM data.
 
 The Image Tracker serves as a lookup table to:
 
@@ -26,7 +26,7 @@ The Image Tracker serves as a lookup table to:
 
 1. **Mapping Image IDs to Series:**
 
-   - Each `imageId` is mapped to the corresponding `larvitarSeriesInstanceUID`.
+   - Each `imageId` is mapped to the corresponding `uniqueUID`.
 
 2. **Dynamic Updates:**
 
@@ -34,22 +34,22 @@ The Image Tracker serves as a lookup table to:
 
 3. **Integration with Series Management:**
 
-   - The tracker is seamlessly integrated with the `Larvitar Manager` for series-based operations.
+   - The tracker is seamlessly integrated with the `Series Manager` for series-based operations.
 
 ## Main Functions
 
-### updateLarvitarManager
+### updateSeriesManager
 
-Updates and initializes the Larvitar Manager to parse and load a single DICOM object.
+Updates and initializes the Series Manager to parse and load a single DICOM object.
 
 #### Syntax:
 
 ```typescript
-updateLarvitarManager(
+updateSeriesManager(
   imageObject: ImageObject,
   customId?: string,
   sliceIndex?: number
-): LarvitarManager
+): SeriesManager
 ```
 
 #### Parameters:
@@ -62,67 +62,67 @@ updateLarvitarManager(
 
 #### Returns: 
 
-`LarvitarManager` – The updated Larvitar Manager.
+`SeriesManager` – The updated Series Manager.
 
 ---
 
-### populateLarvitarManager
-Populates the Larvitar Manager with a specific series.
+### populateSeriesManager
+Populates the Series Manager with a specific series.
 
 #### Syntax:
 
 ```typescript
-populateLarvitarManager(
-  larvitarSeriesInstanceUID: string,
+populateSeriesManager(
+  uniqueUID: string,
   seriesData: Series
-): LarvitarManager
+): SeriesManager
 ```
 
 #### Parameters:
 
-| Parameter	                  | Type    | Description                   | 
-|-----------------------------|---------|-------------------------------|
-| `larvitarSeriesInstanceUID`	| string	 | The unique ID for the series. | 
-| `seriesData`	               | string  | Data to populate.             | 
+| Parameter	        | Type    | Description                   | 
+|-------------------|---------|-------------------------------|
+| `uniqueUID`	      | string	| The unique ID for the series. | 
+| `seriesData`	    | string  | Data to populate.             | 
 
 #### Returns: 
 
-`LarvitarManager` – The updated Larvitar Manager with added series.
+`SeriesManager` – The updated Series Manager with added series.
 
 ---
 
-### getLarvitarManager
-Retrieves the Larvitar Manager, initializing it if necessary.
+### getSeriesManager
+Retrieves the Series Manager, initializing it if necessary.
 
 #### Syntax:
 
 ```typescript
-getLarvitarManager(): LarvitarManager
+getSeriesManager(): SeriesManager
 ``` 
 #### Returns: 
 
-`LarvitarManager` – The current manager object.
+`SeriesManager` – The current manager object.
 
 ---
 
-### resetLarvitarManager
-Resets the Larvitar Manager, clearing all stored series, instances, and metadata.
+### resetSeriesManager
+Resets the Series Manager, clearing all stored series, instances, and metadata.
 
 #### Syntax:
 
 ```typescript
-resetLarvitarManager(): void
+resetSeriesManager(): void
 ``` 
 
 ---
 
-### removeSeriesFromLarvitarManager
-Removes a specific series from the Larvitar Manager.
+### removeSeriesFromSeriesManager
+Removes a specific series from the Series Manager.
 
 #### Syntax:
 
 ```typescript
-removeSeriesFromLarvitarManager(seriesId: string): void
+removeSeriesFromSeriesManager(seriesId: string): void
 ```
 
 #### Parameters:
@@ -133,13 +133,13 @@ removeSeriesFromLarvitarManager(seriesId: string): void
 
 ---
 
-### getSeriesDataFromLarvitarManager
+### getSeriesDataFromSeriesManager
 Retrieves the data for a specific series.
 
 #### Syntax:
 
 ```typescript
-getSeriesDataFromLarvitarManager(seriesId: string): Series | null
+getSeriesDataFromSeriesManager(seriesId: string): Series | null
 ```
 
 #### Parameters:
@@ -154,21 +154,21 @@ getSeriesDataFromLarvitarManager(seriesId: string): Series | null
 
 ---
 
-### getSopInstanceUIDFromLarvitarManager
-Return the SOP Instance UID of a specific imageId stored in the Larvitar Manager.
+### getSopInstanceUIDFromSeriesManager
+Return the SOP Instance UID of a specific imageId stored in the Series Manager.
 
 #### Syntax:
 
 ```typescript
-getSopInstanceUIDFromLarvitarManager(larvitarSeriesInstanceUID:string, imageId: string): string | null
+getSopInstanceUIDFromSeriesManager(uniqueUID:string, imageId: string): string | null
 ```
 
 #### Parameters:
 
-| Parameter	                  | Type    | Description                   | 
-|-----------------------------|---------|-------------------------------|
-| `larvitarSeriesInstanceUID`	| string	 | The unique ID for the series. | 
-| `imageId`	                  | string	 | The unique ID for the image.  |
+| Parameter	        | Type    | Description                   | 
+|-------------------|---------|-------------------------------|
+| `uniqueUID`	      | string	| The unique ID for the series. | 
+| `imageId`	        | string	| The unique ID for the image.  |
 
 #### Returns: 
 
@@ -176,13 +176,13 @@ getSopInstanceUIDFromLarvitarManager(larvitarSeriesInstanceUID:string, imageId: 
 
 ---
 
-### getLarvitarImageTracker
+### getImageTracker
 Retrieves the image tracker that maps image IDs to series.
 
 #### Syntax:
 
 ```typescript
-getLarvitarImageTracker(): ImageTracker
+getImageTracker(): ImageTracker
 ```
 
 #### Returns: 

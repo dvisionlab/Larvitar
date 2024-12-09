@@ -17,7 +17,7 @@ Before working with the Core API, we need to [Initialize the library](./initiali
 - [Rendering a DICOM](./rendering.md): The rendering functionality provides tools for displaying the DICOM image on the viewer canvas. This step involves rendering the image data in a user-friendly format, allowing users to view and analyze the image.
 - [Interacting with a DICOM](./interacting.md): The interaction functionality allows users to interact with the DICOM image, such as zooming, panning, and adjusting the windowing settings. This step enhances the user experience by providing intuitive controls for navigating and exploring the image.
 
-<br><br>
+<br></br>
 
 <div style="text-align: center;">
     <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" alt="D/Vision Lab" height="200" />

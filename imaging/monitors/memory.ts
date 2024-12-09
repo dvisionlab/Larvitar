@@ -4,9 +4,9 @@
  */
 
 import {
-  getLarvitarManager,
-  removeSeriesFromLarvitarManager
-} from "../loaders/commonLoader";
+  getSeriesManager,
+  removeSeriesFromSeriesManager
+} from "../imageManagers";
 import { clearImageCache } from "../imageRendering";
 import store from "../imageStore";
 
@@ -41,7 +41,7 @@ export const checkAndClearMemory = function (
 ) {
   const isEnough = checkMemoryAllocation(bytes);
   if (isEnough === false) {
-    const manager = getLarvitarManager();
+    const manager = getSeriesManager();
     // get all key of manager and create a list
     const seriesIds = Object.keys(manager);
     // create a list of non rendered series ids
@@ -50,7 +50,7 @@ export const checkAndClearMemory = function (
     );
     // remove non rendered series from manager
     nonRenderedSeriesIds.forEach(seriesId => {
-      removeSeriesFromLarvitarManager(seriesId);
+      removeSeriesFromSeriesManager(seriesId);
       clearImageCache(seriesId);
       store.removeSeriesId(seriesId);
     });

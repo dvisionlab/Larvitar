@@ -42,7 +42,7 @@ If you encounter any issues, try the following:
   
 Still having trouble? Check out the [Issues section](https://github.com/dvisionlab/Larvitar/issues) on our GitHub page or contact our support.
 
-<br><br>
+<br></br>
 
 <div style="text-align: center;">
     <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" alt="D/Vision Lab" height="200" />

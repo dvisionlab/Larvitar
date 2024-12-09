@@ -9,10 +9,7 @@ import { each } from "lodash";
 
 // internal libraries
 import { getReslicedMetadata, getReslicedPixeldata } from "./imageUtils";
-import {
-  getLarvitarImageTracker,
-  getLarvitarManager
-} from "./loaders/commonLoader";
+import { getImageTracker, getSeriesManager } from "./imageManagers";
 import store from "./imageStore";
 import { Series } from "./types";
 
@@ -58,8 +55,8 @@ export function resliceSeries(
       reslicedSeries: Series
     ) {
       let t0 = performance.now();
-      let imageTracker = getLarvitarImageTracker();
-      let manager = getLarvitarManager();
+      let imageTracker = getImageTracker();
+      let manager = getSeriesManager();
       each(reslicedSeries.imageIds, function (imageId: string) {
         reslicedSeries.instances[imageId].pixelData = getReslicedPixeldata(
           imageId,

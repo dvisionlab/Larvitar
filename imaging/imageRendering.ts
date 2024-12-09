@@ -10,14 +10,13 @@ import { each, has } from "lodash";
 
 // internal libraries
 import { getPerformanceMonitor } from "./monitors/performance";
-import { getFileImageId, getFileManager } from "./loaders/fileLoader";
+import { getDataFromFileManager, getFileManager } from "./imageManagers";
 import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
 import { isElement } from "./imageUtils";
 import {
-  Image,
   Instance,
   Series,
   StoreViewport,
@@ -106,7 +105,7 @@ export function loadAndCacheImage(
     //check if it is a metadata-only object
     if (imageId && series.instances[imageId].metadata.pixelDataLength != 0) {
       cornerstone.loadAndCacheImage(imageId).then(function () {
-        setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
+        setStore(["cached", series.uniqueUID, imageId, true]);
         const t1 = performance.now();
         console.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
         console.debug(
@@ -171,7 +170,7 @@ export function loadAndCacheImages(
     //check if it is a metadata-only object
     if (imageId && series.instances[imageId].metadata.pixelDataLength != 0) {
       cornerstone.loadAndCacheImage(imageId).then(function () {
-        setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
+        setStore(["cached", series.uniqueUID, imageId, true]);
         updateProgress();
         callback(response);
       });
@@ -317,7 +316,7 @@ export const renderFileImage = function (
 
   let renderPromise = new Promise<true>((resolve, _) => {
     // check if imageId is already stored in fileManager
-    const imageId = getFileImageId(file as File);
+    const imageId = getDataFromFileManager(file as File);
     if (imageId) {
       cornerstone.loadImage(imageId).then(function (image) {
         if (!element) {
@@ -705,7 +704,7 @@ export const updateImage = async function (
           );
         }
       }
-      setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
+      setStore(["cached", series.uniqueUID, imageId, true]);
       setStore(["sliceId", id, imageIndex]);
       const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
       if (imageIndex == pendingSliceId) {
@@ -1114,7 +1113,7 @@ export const rotateImageRight = function (elementId: string | HTMLElement) {
 };
 
 /**
- * Update Larvitar manager temporal viewport data
+ * Update Series manager temporal viewport data
  * @instance
  * @function updateTemporalViewportData
  * @param {Series} seriesStack The Id of the series
@@ -1209,7 +1208,7 @@ const getSeriesData = function (
   };
   type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
-  data.seriesUID = series.larvitarSeriesInstanceUID || series.seriesUID; //case of resliced series
+  data.seriesUID = series.uniqueUID || series.seriesUID; //case of resliced series
   data.modality = series.modality;
   if (series.isMultiframe) {
     data.isMultiframe = true;

@@ -214,7 +214,7 @@ Key features covered in this example include:
 
 [View Example ➔](https://larvitar.dvisionlab.com/examples/nrrd.html)
 
-<br><br>
+<br></br>
 
 <div style="text-align: center;">
     <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" alt="D/Vision Lab" height="200" />

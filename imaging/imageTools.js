@@ -19,7 +19,7 @@ import { ContoursTool } from "./tools/custom/contourTool";
 import { EditMaskTool } from "./tools/custom/editMaskTool";
 import { DiameterTool } from "./tools/custom/diameterTool";
 import { getImageIdFromSlice } from "./loaders/nrrdLoader";
-import { getSeriesDataFromLarvitarManager } from "./loaders/commonLoader";
+import { getSeriesDataFromSeriesManager } from "./imageManagers";
 import { parseContours } from "./imageContours";
 import { isElement } from "./imageUtils";
 
@@ -229,7 +229,7 @@ export const getCurrentMaskData = function (viewportId) {
  */
 export const addStackStateToElement = function (seriesId, element) {
   // Define the Stack object
-  const stack = getSeriesDataFromLarvitarManager(seriesId)[element.id];
+  const stack = getSeriesDataFromSeriesManager(seriesId)[element.id];
   // Add the stack tool state to the enabled element
   cornerstoneTools.addStackStateManager(element, ["stack"]);
   cornerstoneTools.addToolState(element, "stack", stack);
@@ -627,7 +627,7 @@ export const syncToolStack = function (
   seriesId
 ) {
   // get the imageIds array
-  let seriesData = getSeriesDataFromLarvitarManager(seriesId);
+  let seriesData = getSeriesDataFromSeriesManager(seriesId);
   let imageIds = seriesData[viewport].imageIds;
 
   // get the tool state of source imageId

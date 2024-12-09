@@ -71,7 +71,7 @@ The parser includes robust error detection and messages for:
   - Requires strict adherence to the NRRD specification for fields like space directions and kinds.
   - Text-based encoding (ascii) can be slower for large datasets.
 
-<br><br>
+<br></br>
 
 <div style="text-align: center;">
     <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" alt="D/Vision Lab" height="200" />

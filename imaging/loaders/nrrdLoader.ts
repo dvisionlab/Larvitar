@@ -17,16 +17,14 @@ import {
   getTypedArrayFromDataType
 } from "../imageUtils";
 
-import {
-  getImageFrame,
-  getLarvitarImageTracker,
-  getLarvitarManager
-} from "./commonLoader";
+import { getImageFrame } from "./commonLoader";
+import { getImageTracker, getSeriesManager } from "../imageManagers";
+
 import type {
   Image,
   Instance,
   Volume,
-  LarvitarManager,
+  SeriesManager,
   ImageFrame,
   ImageTracker,
   MetaData,
@@ -67,8 +65,8 @@ export const buildNrrdImage = function (
   let t0 = performance.now();
   // standard image structure
   let image: Partial<NrrdSeries> = {};
-  let manager = getLarvitarManager() as LarvitarManager;
-  let imageTracker = getLarvitarImageTracker() as ImageTracker;
+  let manager = getSeriesManager() as SeriesManager;
+  let imageTracker = getImageTracker() as ImageTracker;
   image.currentImageIdIndex = 0;
   image.imageIds = [];
   image.instances = {};
@@ -243,7 +241,7 @@ export const buildNrrdImage = function (
   image.nrrdHeader = header as NrrdHeader;
 
   if (!manager) {
-    throw new Error("Larvitar manager not initialized");
+    throw new Error("Series manager not initialized");
   }
 
   manager[seriesId] = image as NrrdSeries;
@@ -274,10 +272,10 @@ export const getNrrdImageId = function (customLoaderName: string) {
  * @return {Object} custom image object
  */
 export const loadNrrdImage: ImageLoader = function (imageId: string) {
-  let manager = getLarvitarManager() as LarvitarManager;
-  let imageTracker = getLarvitarImageTracker() as ImageTracker;
+  let manager = getSeriesManager() as SeriesManager;
+  let imageTracker = getImageTracker() as ImageTracker;
   if (!manager || !imageTracker) {
-    throw new Error("Larvitar manager or image tracker not initialized");
+    throw new Error("Series manager or image tracker not initialized");
   }
   let seriesId = imageTracker[imageId];
   let instance = manager[seriesId].instances[imageId];
@@ -301,7 +299,7 @@ export const getImageIdFromSlice = function (
 ) {
   var prefix = "nrrdLoader://";
   var serieImageTracker;
-  let imageTracker = getLarvitarImageTracker() as ImageTracker;
+  let imageTracker = getImageTracker() as ImageTracker;
 
   if (seriesId) {
     serieImageTracker = pickBy(imageTracker, image => {
@@ -342,7 +340,7 @@ export const getSliceNumberFromImageId = function (
   imageId: string,
   orientation: string
 ) {
-  let imageTracker = getLarvitarImageTracker() as ImageTracker;
+  let imageTracker = getImageTracker() as ImageTracker;
   var firstImageIdStr = findKey(imageTracker, entry => {
     return entry[1] == orientation;
   });
@@ -372,7 +370,7 @@ export const getSliceNumberFromImageId = function (
  * @return {Object} Series dimension for each view
  */
 export const getNrrdSerieDimensions = function () {
-  let imageTracker = getLarvitarImageTracker() as ImageTracker;
+  let imageTracker = getImageTracker() as ImageTracker;
   var dim_axial = filter(imageTracker, img => {
     return img[1] == "axial";
   });

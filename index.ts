@@ -189,20 +189,7 @@ import {
   getActiveLabelmapBuffer
 } from "./imaging/tools/segmentation";
 
-import {
-  updateLarvitarManager,
-  populateLarvitarManager,
-  populateInstanceGSPSDict,
-  getLarvitarManager,
-  getInstanceGSPSDict,
-  getLarvitarImageTracker,
-  resetLarvitarManager,
-  resetInstanceGSPSDict,
-  removeSeriesFromLarvitarManager,
-  getSeriesDataFromLarvitarManager,
-  getImageFrame,
-  getSopInstanceUIDFromLarvitarManager
-} from "./imaging/loaders/commonLoader";
+import { getImageFrame } from "./imaging/loaders/commonLoader";
 
 import {
   buildNrrdImage,
@@ -233,11 +220,8 @@ import {
 import { populateDsaImageIds } from "./imaging/loaders/dsaImageLoader";
 
 import {
-  getFileManager,
   resetFileLoader,
-  resetFileManager,
-  populateFileManager,
-  getFileImageId
+  getFileCustomImageId
 } from "./imaging/loaders/fileLoader";
 
 import {
@@ -257,6 +241,24 @@ import {
   removeMouseKeyHandlers,
   toggleMouseToolsListeners
 } from "./imaging/tools/interaction";
+
+import {
+  updateSeriesManager,
+  populateSeriesManager,
+  getSeriesManager,
+  resetSeriesManager,
+  removeSeriesFromSeriesManager,
+  getSeriesDataFromSeriesManager,
+  getSopInstanceUIDFromSeriesManager,
+  getImageTracker,
+  populateGSPSManager,
+  getGSPSManager,
+  resetGSPSManager,
+  getFileManager,
+  resetFileManager,
+  populateFileManager,
+  getDataFromFileManager
+} from "./imaging/imageManagers";
 
 export {
   VERSION,
@@ -358,6 +360,34 @@ export {
   flipImageVertical,
   rotateImageLeft,
   rotateImageRight,
+  // imageManagers
+  updateSeriesManager,
+  updateSeriesManager as updateLarvitarManager, // alias for backward compatibility
+  populateSeriesManager,
+  populateSeriesManager as populateLarvitarManager, // alias for backward compatibility
+  getSeriesManager,
+  getSeriesManager as getLarvitarManager, // alias for backward compatibility
+  resetSeriesManager,
+  resetSeriesManager as resetLarvitarManager, // alias for backward compatibility
+  removeSeriesFromSeriesManager,
+  removeSeriesFromSeriesManager as removeSeriesFromLarvitarManager, // alias for backward compatibility
+  getSeriesDataFromSeriesManager,
+  getSeriesDataFromSeriesManager as getSeriesDataFromLarvitarManager, // alias for backward compatibility
+  getSopInstanceUIDFromSeriesManager,
+  getSopInstanceUIDFromSeriesManager as getSopInstanceUIDFromLarvitarManager, // alias for backward compatibility
+  getImageTracker,
+  getImageTracker as getLarvitarImageTracker, // alias for backward compatibility
+  populateGSPSManager,
+  populateGSPSManager as populateInstanceGSPSDict, // alias for backward compatibility
+  getGSPSManager,
+  getGSPSManager as getInstanceGSPSDict, // alias for backward compatibility
+  resetGSPSManager,
+  resetGSPSManager as resetInstanceGSPSDict, // alias for backward compatibility
+  populateFileManager,
+  getFileManager,
+  resetFileManager,
+  getDataFromFileManager,
+  getDataFromFileManager as getFileImageId, // alias for backward compatibility
   // imageReslice
   resliceSeries,
   // imageColormaps
@@ -369,18 +399,7 @@ export {
   // imageContours
   parseContours,
   // loaders/commonLoader
-  updateLarvitarManager,
-  populateLarvitarManager,
-  populateInstanceGSPSDict,
-  getLarvitarManager,
-  getInstanceGSPSDict,
-  getLarvitarImageTracker,
-  resetLarvitarManager,
-  resetInstanceGSPSDict,
-  removeSeriesFromLarvitarManager,
-  getSeriesDataFromLarvitarManager,
   getImageFrame,
-  getSopInstanceUIDFromLarvitarManager,
   // loaders/nrrdLoader
   buildNrrdImage,
   getNrrdImageId,
@@ -404,11 +423,8 @@ export {
   // loaders/dsaImageLoader
   populateDsaImageIds,
   // loaders/fileLoader
-  getFileManager,
   resetFileLoader,
-  resetFileManager,
-  populateFileManager,
-  getFileImageId,
+  getFileCustomImageId,
   // imaging/postProcessing
   applyDSAShift,
   // imageTools

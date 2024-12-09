@@ -24,7 +24,7 @@ import cornerstone from "cornerstone-core";
 // internal libraries
 import { getDicomImageId } from "./loaders/dicomLoader";
 import TAG_DICT from "./dataDictionary.json";
-import { getSeriesDataFromLarvitarManager } from "./loaders/commonLoader";
+import { getSeriesDataFromSeriesManager } from "./imageManagers";
 import type {
   CustomDataSet,
   MetaData,
@@ -651,7 +651,7 @@ export const getImageMetadata = function (
   instanceUID: string,
   frameId?: number
 ) {
-  const seriesData = getSeriesDataFromLarvitarManager(seriesId);
+  const seriesData = getSeriesDataFromSeriesManager(seriesId);
   if (seriesData === undefined || seriesData === null) {
     console.log(`Invalid Series ID: ${seriesId}`);
     return [];

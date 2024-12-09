@@ -73,7 +73,7 @@ This function updates the `allSeriesStack` object with series and instance infor
 
 4. **Error Handling:** Throws an error if a unique series ID cannot be determined.
    
-<br><br>
+<br></br>
 
 <div style="text-align: center;">
     <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" alt="D/Vision Lab" height="200" />

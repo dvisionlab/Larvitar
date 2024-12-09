@@ -3,10 +3,9 @@ import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 
 // internal libraries
-import { getLarvitarManager } from "../../../../loaders/commonLoader";
-import { LarvitarManager, Series } from "../../../../types";
+import { SeriesManager, Series } from "../../../../types";
 import store from "../../../../imageStore";
-import { getLarvitarImageTracker } from "../../../../loaders/commonLoader";
+import { getImageTracker, getSeriesManager } from "../../../../imageManagers";
 import loadHandlerManager from "./loadHandlerManager";
 //const loadHandlerManager = cornerstoneTools.importInternal(
 //  "stateManagement/loadHandlerManager"
@@ -84,9 +83,9 @@ export default function scrollToIndex(
     cornerstoneDICOMImageLoader.wadouri.parseImageId(originalImageIdSample);
 
   const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
-  const imageTracker = getLarvitarImageTracker();
+  const imageTracker = getImageTracker();
   const seriesId: string = imageTracker[rootImageId];
-  const manager = getLarvitarManager() as LarvitarManager;
+  const manager = getSeriesManager() as SeriesManager;
 
   const multiFrameSerie = manager![seriesId] as Series;
   const id: string = element.id;
