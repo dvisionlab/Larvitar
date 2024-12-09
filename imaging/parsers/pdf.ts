@@ -8,6 +8,7 @@ import { PDFiumLibrary } from "@hyzyla/pdfium/browser/cdn";
 // internal libraries
 import { populateFileManager } from "../loaders/fileLoader";
 
+import wasmUrl from "@hyzyla/pdfium/pdfium.wasm";
 /**
  * Generate an array of files from a pdf file
  * @instance
@@ -17,29 +18,60 @@ import { populateFileManager } from "../loaders/fileLoader";
  */
 export const generateFiles = async function (fileURL: string): Promise<File[]> {
   let files: File[] = [];
-  const pdfFile = await fetch(fileURL).then(response => response.blob());
+  const response = await fetch(fileURL);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch PDF file: ${response.statusText}`);
+  }
+  const pdfFile = await response.blob();
 
-  // Read the PDF file as an array buffer
+  if (pdfFile.type !== "application/pdf") {
+    throw new Error("Invalid MIME type, expected application/pdf");
+  }
+
   const buff = await pdfFile.arrayBuffer();
-
-  console.log(buff);
+  console.log("PDF Byte Array:", new Uint8Array(buff.slice(0, 8))); // Inspect initial bytes
+  console.log(wasmUrl);
   // Initialize the library and load the document
-  const library = await PDFiumLibrary.init();
-  const document = await library.loadDocument(buff);
-  const pages = document.pages();
+  const library = await PDFiumLibrary.init({
+    wasmUrl: wasmUrl
+  });
+  /* const library = await PDFiumLibrary.init({
+    wasmBinaryPath: "/pdfium/pdfium.wasm", // Adjust the path based on your project structure
+    disableCDNWarning: true
+  });*/
+  const usableBuffer = new Uint8Array(buff);
+  const document = await library.loadDocument(usableBuffer);
+  const pages = await document.pages();
+  console.log("pages", pages);
 
-  // Cycle through pages and generate PNG files
-  for (let i = 0; i < pages.length; i++) {
-    let aFile: File | null = await generateFile(pages[i], i + 1);
+  for (const page of document.pages()) {
+    let aFile = await generateFile(page);
     files.push(aFile);
   }
 
-  // Clean up after processing
   document.destroy();
   library.destroy();
+  console.log(files);
 
-  return files; // Return the generated files
+  // Trigger download of generated files
+  for (const file of files) {
+    //downloadFile(file);
+  }
+
+  return files;
 };
+
+// Helper function to download files
+function downloadFile(file: File): void {
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(file);
+  link.href = url;
+  link.download = file.name;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
 
 // internal functions
 
@@ -51,16 +83,17 @@ export const generateFiles = async function (fileURL: string): Promise<File[]> {
  * @param {number} pageNumber - The page number to be converted
  * @returns {File} The png image of the pdf page in a File object
  */
-async function generateFile(page: any, pageNumber: number): Promise<File> {
+async function generateFile(page: any): Promise<File> {
+  console.log(`${page.number} - rendering...`);
   // Render PDF page to PNG image using PDFium
   const image = await page.render({
     scale: 3,
-    render: "sharp"
+    render: "bitmap"
   });
   let blob: Blob | null = new Blob([image.data], {
     type: "image/png"
   });
-  let file: File | null = new File([blob], `pdf_page_${pageNumber}.png`, {
+  let file: File | null = new File([blob], `pdf_page_${page.number}.png`, {
     type: "image/png"
   });
   populateFileManager(file);

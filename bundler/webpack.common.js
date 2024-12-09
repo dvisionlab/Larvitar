@@ -18,15 +18,22 @@ module.exports = {
         test: /\.tsx?$/,
         use: "ts-loader",
         exclude: /node_modules/
+      },
+      {
+        test: /\.wasm$/,
+        type: "asset/resource"
       }
     ]
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".js", ".d.ts"],
+    extensions: [".tsx", ".ts", ".js", ".d.ts", ".wasm"],
     fallback: {
       fs: false,
       path: false,
       crypto: false
     }
+  },
+  experiments: {
+    asyncWebAssembly: true
   }
 };
