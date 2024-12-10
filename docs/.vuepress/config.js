@@ -158,6 +158,10 @@ export default {
                     {
                       text: "ECG",
                       link: "/api/modules/visualizations/ecg.md"
+                    },
+                    {
+                      text: "Color Maps",
+                      link: "/api/modules/visualizations/colorMaps.md"
                     }
                   ]
                 }
