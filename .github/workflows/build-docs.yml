@@ -29,7 +29,7 @@ jobs:
       # Install node modules
       - name: Install node modules
         run: |
-          yarn install
+          yarn install --frozen-lockfile
 
       # Generate docs
       - name: Generate docs
