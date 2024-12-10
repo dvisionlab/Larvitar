@@ -40,6 +40,10 @@ jobs:
         run: |
           cp docs/CNAME docs/.vuepress/dist
 
+      - name: Copy Examples
+        run: |
+          cp -R docs/examples docs/.vuepress/dist
+
       - name: Deploy to GitHub Pages
         uses: crazy-max/ghaction-github-pages@v4
         with:
