@@ -109,14 +109,58 @@ export default {
                   ]
                 },
                 {
-                  text: "Algorithms",
+                  text: "Interaction Tools",
                   children: [
-                    { text: "Ecg", link: "/api/modules/ecg.md" },
-                    { text: "Stress Echo", link: "/api/modules/stressecho.md" },
-                    { text: "DSA", link: "/api/modules/dsa.md" }
+                    {
+                      text: "Main Tools",
+                      link: "/api/modules/tools/tools.md"
+                    }
                   ]
                 },
-                { text: "Overlays", link: "/api/modules/overlays.md" }
+                {
+                  text: "Utilities",
+                  children: [
+                    {
+                      text: "DICOM Anonymization",
+                      link: "/api/modules/utilities/anonymization.md"
+                    },
+                    {
+                      text: "DICOM Customization",
+                      link: "/api/modules/utilities/customization.md"
+                    },
+                    {
+                      text: "Tags",
+                      link: "/api/modules/utilities/imageTags.md"
+                    },
+                    {
+                      text: "Utils",
+                      link: "/api/modules/utilities/imageUtils.md"
+                    },
+                    {
+                      text: "Memory",
+                      link: "/api/modules/utilities/memory.md"
+                    }
+                  ]
+                },
+                {
+                  text: "Post Processing",
+                  children: [
+                    { text: "DSA", link: "/api/modules/postProcessing/dsa.md" }
+                  ]
+                },
+                {
+                  text: "Visualizations",
+                  children: [
+                    {
+                      text: "Overlays",
+                      link: "/api/modules/visualizations/overlays.md"
+                    },
+                    {
+                      text: "ECG",
+                      link: "/api/modules/visualizations/ecg.md"
+                    }
+                  ]
+                }
               ]
             }
           ]

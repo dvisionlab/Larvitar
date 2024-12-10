@@ -2,6 +2,8 @@
     <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" alt="Larvitar" height="200" />
 </div>
 
+Coming soon...
+
 <br></br>
 
 <div style="text-align: center;">
