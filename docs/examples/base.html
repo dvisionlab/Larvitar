@@ -19,15 +19,12 @@
     <script>
       // Check the host and set the script source dynamically
       const script = document.createElement("script");
-
       if (window.location.host === "larvitar.dvisionlab.com") {
         document.write(
           '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
         );
-        console.log("Using the script from the CDN");
       } else {
         document.write('<script src="../../dist/larvitar.js"><\/script>');
-        console.log("Using the local script");
       }
       // Append the script to the document
       document.head.appendChild(script);
