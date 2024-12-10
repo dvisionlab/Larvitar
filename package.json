@@ -20,12 +20,11 @@
   ],
   "scripts": {
     "coverage": "typescript-coverage-report",
-    "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json",
     "build": "webpack --config ./bundler/webpack.prod.js && cp ./dist/larvitar.js ./docs/examples/larvitar.js",
     "dev": "webpack --progress --config ./bundler/webpack.dev.js && cp ./dist/larvitar.js ./docs/examples/larvitar.js",
     "dev-wip": "webpack serve --config ./bundler/webpack.dev-wip.js",
-    "docs:dev": "vuepress dev docsv2",
-    "docs:build": "vuepress build docsv2"
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
   },
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
   "contributors": [
