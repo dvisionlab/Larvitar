@@ -4,6 +4,7 @@ import { viteBundler } from "@vuepress/bundler-vite";
 export default {
   title: "Larvitar Documentation",
   description: "Documentation for the Larvitar library",
+  base: "/Larvitar/",
   theme: defaultTheme({
     colorMode: "auto",
     colorModeSwitch: true,
@@ -15,6 +16,16 @@ export default {
       { text: "GitHub", link: "https://github.com/dvisionlab/Larvitar" }
     ],
     sidebar: {
+      "/": [
+        {
+          text: "Home",
+          children: [
+            { text: "Guide", link: "/guide/index.md" },
+            { text: "API", link: "/api/index.md" },
+            { text: "Examples", link: "/guide/examples.md" }
+          ]
+        }
+      ],
       "/guide/": [
         {
           text: "Guide",

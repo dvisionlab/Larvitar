@@ -4,7 +4,8 @@
 
 # Larvitar Documentation
 
-Welcome to the official documentation for Larvitar! Larvitar is an open-source library developed by [D/Vision Lab](https://www.dvisionlab.com) designed to simplify and enhance medical imaging workflows. 
+Welcome to the official documentation for Larvitar! 
+Larvitar is an open-source library developed by [D/Vision Lab](https://www.dvisionlab.com) designed to simplify and enhance medical imaging workflows. 
 
 Whether you're a developer, researcher, or clinician, Larvitar provides essential tools for visualizing, processing, and analyzing 2D and 3D medical imaging data in a user-friendly and flexible environment.
 
