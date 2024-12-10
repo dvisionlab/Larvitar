@@ -4,7 +4,6 @@ import { viteBundler } from "@vuepress/bundler-vite";
 export default {
   title: "Larvitar Documentation",
   description: "Documentation for the Larvitar library",
-  base: "/Larvitar/",
   theme: defaultTheme({
     colorMode: "auto",
     colorModeSwitch: true,
