@@ -36,14 +36,27 @@ jobs:
         run: |
           yarn run docs:build
 
+      # Generate Build
+      - name: Generate build
+        run: |
+          yarn run build
+
+      # Copy larvitar.js
+      - name: Copy larvitar build for examples
+        run: |
+          cp dist/larvitar.js docs/.vuepress/dist/assets
+
+      # Copy CNAME
       - name: Copy CNAME
         run: |
           cp docs/CNAME docs/.vuepress/dist
 
+      # Copy Examples
       - name: Copy Examples
         run: |
           cp -R docs/examples docs/.vuepress/dist
 
+      # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: crazy-max/ghaction-github-pages@v4
         with:

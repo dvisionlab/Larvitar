@@ -16,6 +16,22 @@
     <script>
       hljs.highlightAll();
     </script>
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+        console.log("Using the script from the CDN");
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+        console.log("Using the local script");
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
     <title>Larvitar - Basic rendering example</title>
     <style>
       body {
@@ -293,7 +309,6 @@
       </div>
     </div>
 
-    <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>

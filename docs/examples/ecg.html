@@ -1,39 +1,57 @@
 <!DOCTYPE html>
 <html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
+    <title>Larvitar - ECG rendering example</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous" />
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css" />
-  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
-  <script>
-    hljs.highlightAll();
-  </script>
-  <title>Larvitar - ECG rendering example</title>
-</head>
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-75">
+      <div id="viewer" class="col-8 h-100" style="background-color: black">
+        <p style="position: absolute; color: white">
+          Press "p" to play/pause frame animation
+        </p>
+        <p style="position: absolute; top: 20px; color: white">
+          Press "e" to play/pause ecg animation
+        </p>
+        <p
+          id="frame-rate"
+          style="position: absolute; top: 40px; color: white"
+        ></p>
+        <p id="fps" style="position: absolute; top: 60px; color: white"></p>
+        <p style="position: absolute; top: 80px; color: white">
+          Press "+/-" to change frame rate
+        </p>
+        <p
+          id="loop-time"
+          style="position: absolute; top: 100px; color: white"
+        ></p>
+        <p
+          id="last-loop"
+          style="position: absolute; top: 120px; color: white"
+        ></p>
+        <p
+          id="image-time"
+          style="position: absolute; top: 140px; color: white"
+        ></p>
+      </div>
 
-<body class="h-100" style="background-color: #000000">
-  <div class="row h-75">
-    <div id="viewer" class="col-8 h-100" style="background-color: black">
-      <p style="position: absolute; color: white">
-        Press "p" to play/pause frame animation
-      </p>
-      <p style="position: absolute; top: 20px; color: white">
-        Press "e" to play/pause ecg animation
-      </p>
-      <p id="frame-rate" style="position: absolute; top: 40px; color: white"></p>
-      <p id="fps" style="position: absolute; top: 60px; color: white"></p>
-      <p style="position: absolute; top: 80px; color: white">
-        Press "+/-" to change frame rate
-      </p>
-      <p id="loop-time" style="position: absolute; top: 100px; color: white"></p>
-      <p id="last-loop" style="position: absolute; top: 120px; color: white"></p>
-      <p id="image-time" style="position: absolute; top: 140px; color: white"></p>
-    </div>
-
-    <div class="col-4 h-100">
-      <pre class="h-100">
+      <div class="col-4 h-100">
+        <pre class="h-100">
           <code class="javascript" style="background-color: #000000">
           <p style="font-size:0.6vw;">
             let demoFiles = [];
@@ -139,227 +157,229 @@
           </p>
           </code>
         </pre>
+      </div>
     </div>
-  </div>
 
-  <div class="row h-25">
-    <div id="ecg"></div>
-  </div>
+    <div class="row h-25">
+      <div id="ecg"></div>
+    </div>
 
-  <script src="./larvitar.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
-    integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+    <script src="../../dist/larvitar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
 
-  <script>
-    let demoFiles = [];
+    <script>
+      let demoFiles = [];
 
-    // init all
-    larvitar.initializeImageLoader();
-    larvitar.registerMultiFrameImageLoader();
-    larvitar.initializeCSTools();
-    larvitar.store.initialize();
-    larvitar.store.addViewport("viewer");
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.registerMultiFrameImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
-    async function renderSerie() {
-      const t0 = performance.now();
-      const seriesStack = await larvitar.readFiles(demoFiles);
-      // render the first series of the study
-      let seriesId = _.keys(seriesStack)[0];
-      let serie = seriesStack[seriesId];
-      larvitar.populateLarvitarManager(seriesId, serie);
-      let manager = larvitar.getLarvitarManager();
-      let multiFrameSerie = manager[seriesId];
+      async function renderSerie() {
+        const t0 = performance.now();
+        const seriesStack = await larvitar.readFiles(demoFiles);
+        // render the first series of the study
+        let seriesId = _.keys(seriesStack)[0];
+        let serie = seriesStack[seriesId];
+        larvitar.populateLarvitarManager(seriesId, serie);
+        let manager = larvitar.getLarvitarManager();
+        let multiFrameSerie = manager[seriesId];
 
-      let frameId = 0;
-      // check if the series has waveform data
-      if (multiFrameSerie.waveform) {
-        larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
-      }
-      await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
-      const t1 = performance.now();
-      console.log("Time to render First frame: " + (t1 - t0) + "ms");
-      larvitar.addDefaultTools();
-      larvitar.setToolActive("StackScroll");
+        let frameId = 0;
+        // check if the series has waveform data
+        if (multiFrameSerie.waveform) {
+          larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
+        }
+        await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        const t1 = performance.now();
+        console.log("Time to render First frame: " + (t1 - t0) + "ms");
+        larvitar.addDefaultTools();
+        larvitar.setToolActive("StackScroll");
 
-      let updateECG = true;
-      let animation = true;
-      let animationId = null;
-      let numberOfFrames = multiFrameSerie.numberOfFrames;
-      let frameTime = multiFrameSerie.frameTime;
-      console.log('frameTime', frameTime);
-      let frameRate = multiFrameSerie.frameTime;
-      $("#frame-rate").html("Frame Rate: " + frameRate.toFixed(3) + "ms");
-      $("#fps").html("FPS: " + (1000 / frameRate).toFixed(3));
-      $("#loop-time").html(
-        "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms"
-      );
-      $("#last-loop").html("- ms");
-      $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
-
-      let tStart = performance.now();
-      let endLoop = false;
-      animationId = setInterval(function () {
-        endLoop = frameId == numberOfFrames - 1 ? true : false;
-        let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
-        frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-        larvitar.updateImage(series, "viewer", frameId, true);
-        larvitar.updateStackToolState("viewer", frameId);
-        $("#image-time").html(
-          "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames
+        let updateECG = true;
+        let animation = true;
+        let animationId = null;
+        let numberOfFrames = multiFrameSerie.numberOfFrames;
+        let frameTime = multiFrameSerie.frameTime;
+        console.log("frameTime", frameTime);
+        let frameRate = multiFrameSerie.frameTime;
+        $("#frame-rate").html("Frame Rate: " + frameRate.toFixed(3) + "ms");
+        $("#fps").html("FPS: " + (1000 / frameRate).toFixed(3));
+        $("#loop-time").html(
+          "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms"
         );
-        if (updateECG) {
-          larvitar.updateECGMarker(
-            trace_data,
-            frameId,
-            numberOfFrames,
-            "ecg"
-          );
-        }
-        if (endLoop) {
-          let tEnd = performance.now();
-          const lastLoop = tEnd - tStart;
-          $("#last-loop").html(
-            "Loop Rendering Time: " + lastLoop.toFixed(3) + "ms"
-          );
-          tStart = performance.now();
-        }
-      }, frameRate);
+        $("#last-loop").html("- ms");
+        $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
 
-      const t2 = performance.now();
-      console.log("Time to start cine loop: " + (t2 - t0) + "ms");
-
-      // add event listener to the wheel to update the UI
-      document
-        .getElementById("viewer")
-        .addEventListener("wheel", function (event) {
-          frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
+        let tStart = performance.now();
+        let endLoop = false;
+        animationId = setInterval(function () {
+          endLoop = frameId == numberOfFrames - 1 ? true : false;
+          let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
+          frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+          larvitar.updateImage(series, "viewer", frameId, true);
+          larvitar.updateStackToolState("viewer", frameId);
           $("#image-time").html(
-            "Current Frame: " +
-            parseInt(frameId + 1) +
-            " of " +
-            numberOfFrames
+            "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames
           );
-        });
+          if (updateECG) {
+            larvitar.updateECGMarker(
+              trace_data,
+              frameId,
+              numberOfFrames,
+              "ecg"
+            );
+          }
+          if (endLoop) {
+            let tEnd = performance.now();
+            const lastLoop = tEnd - tStart;
+            $("#last-loop").html(
+              "Loop Rendering Time: " + lastLoop.toFixed(3) + "ms"
+            );
+            tStart = performance.now();
+          }
+        }, frameRate);
 
-      // generate trace data and render the ECG
-      let layout = larvitar.getDefaultECGLayout();
-      layout.margin.t = 20;
+        const t2 = performance.now();
+        console.log("Time to start cine loop: " + (t2 - t0) + "ms");
 
-      const trace_data = larvitar.renderECG(
-        manager[seriesId].ecgData,
-        "ecg",
-        "red",
-        numberOfFrames,
-        frameTime,
-        0,
-        layout
-      );
-      // save trace data in the manager for futrue use
-      manager[seriesId].trace_data = trace_data;
-      // sync the ECG frame with the image frame
-      larvitar.syncECGFrame(
-        trace_data,
-        seriesId,
-        "viewer",
-        numberOfFrames,
-        "ecg"
-      );
-
-      // add event listener to the wheel to update the UI
-      document
-        .getElementById("viewer")
-        .addEventListener("wheel", function (event) {
-          $("#image-time").html(
-            "Current Frame: " +
-            parseInt(
-              larvitar.store.get(["viewports", "viewer", "sliceId"]) + 1
-            ) +
-            " of " +
-            numberOfFrames
-          );
-        });
-
-      document.onkeypress = function (e) {
-        e = e || window.event;
-        if (e.keyCode == 101) {
-          updateECG = !updateECG;
-        }
-        if (e.keyCode == 43) {
-          animation = false;
-          clearInterval(animationId);
-          frameRate += frameRate * 0.1;
-          larvitar.updateECGTotalTime(
-            trace_data,
-            frameId,
-            numberOfFrames,
-            frameRate,
-            "ecg"
-          );
-          $("#frame-rate").html("Frame Rate: " + frameRate.toFixed(3) + "ms");
-          $("#fps").html("FPS: " + (1000 / frameRate).toFixed(3));
-          $("#loop-time").html(
-            "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms"
-          );
-        }
-        if (e.keyCode == 45) {
-          animation = false;
-          clearInterval(animationId);
-          frameRate -= frameRate * 0.1;
-          larvitar.updateECGTotalTime(
-            trace_data,
-            frameId,
-            numberOfFrames,
-            frameRate,
-            "ecg"
-          );
-          $("#frame-rate").html("Frame Rate: " + frameRate.toFixed(3) + "ms");
-          $("#fps").html("FPS: " + (1000 / frameRate).toFixed(3));
-          $("#loop-time").html(
-            "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms"
-          );
-        }
-
-        if (e.keyCode == 112) {
-          animation = !animation;
-          if (animation) {
+        // add event listener to the wheel to update the UI
+        document
+          .getElementById("viewer")
+          .addEventListener("wheel", function (event) {
             frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
-            animationId = setInterval(function () {
-              let series =
-                larvitar.getSeriesDataFromLarvitarManager(seriesId);
-              frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-              larvitar.updateImage(series, "viewer", frameId, false);
-              larvitar.updateStackToolState("viewer", frameId);
-              $("#image-time").html(
-                "Current Frame: " +
+            $("#image-time").html(
+              "Current Frame: " +
                 parseInt(frameId + 1) +
                 " of " +
                 numberOfFrames
-              );
-              larvitar.updateECGMarker(
-                trace_data,
-                frameId,
-                numberOfFrames,
-                "ecg"
-              );
-            }, frameRate);
-          } else {
-            clearInterval(animationId);
-            $("#image-time").html();
+            );
+          });
+
+        // generate trace data and render the ECG
+        let layout = larvitar.getDefaultECGLayout();
+        layout.margin.t = 20;
+
+        const trace_data = larvitar.renderECG(
+          manager[seriesId].ecgData,
+          "ecg",
+          "red",
+          numberOfFrames,
+          frameTime,
+          0,
+          layout
+        );
+        // save trace data in the manager for futrue use
+        manager[seriesId].trace_data = trace_data;
+        // sync the ECG frame with the image frame
+        larvitar.syncECGFrame(
+          trace_data,
+          seriesId,
+          "viewer",
+          numberOfFrames,
+          "ecg"
+        );
+
+        // add event listener to the wheel to update the UI
+        document
+          .getElementById("viewer")
+          .addEventListener("wheel", function (event) {
+            $("#image-time").html(
+              "Current Frame: " +
+                parseInt(
+                  larvitar.store.get(["viewports", "viewer", "sliceId"]) + 1
+                ) +
+                " of " +
+                numberOfFrames
+            );
+          });
+
+        document.onkeypress = function (e) {
+          e = e || window.event;
+          if (e.keyCode == 101) {
+            updateECG = !updateECG;
           }
-        }
-      };
-    }
+          if (e.keyCode == 43) {
+            animation = false;
+            clearInterval(animationId);
+            frameRate += frameRate * 0.1;
+            larvitar.updateECGTotalTime(
+              trace_data,
+              frameId,
+              numberOfFrames,
+              frameRate,
+              "ecg"
+            );
+            $("#frame-rate").html("Frame Rate: " + frameRate.toFixed(3) + "ms");
+            $("#fps").html("FPS: " + (1000 / frameRate).toFixed(3));
+            $("#loop-time").html(
+              "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms"
+            );
+          }
+          if (e.keyCode == 45) {
+            animation = false;
+            clearInterval(animationId);
+            frameRate -= frameRate * 0.1;
+            larvitar.updateECGTotalTime(
+              trace_data,
+              frameId,
+              numberOfFrames,
+              frameRate,
+              "ecg"
+            );
+            $("#frame-rate").html("Frame Rate: " + frameRate.toFixed(3) + "ms");
+            $("#fps").html("FPS: " + (1000 / frameRate).toFixed(3));
+            $("#loop-time").html(
+              "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms"
+            );
+          }
 
-    async function createFile(fileName, cb) {
-      let response = await fetch("./demo/" + fileName);
-      let data = await response.blob();
-      let file = new File([data], fileName);
-      demoFiles.push(file);
-      cb();
-    }
-    createFile("119265", renderSerie);
-  </script>
-</body>
+          if (e.keyCode == 112) {
+            animation = !animation;
+            if (animation) {
+              frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
+              animationId = setInterval(function () {
+                let series =
+                  larvitar.getSeriesDataFromLarvitarManager(seriesId);
+                frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+                larvitar.updateImage(series, "viewer", frameId, false);
+                larvitar.updateStackToolState("viewer", frameId);
+                $("#image-time").html(
+                  "Current Frame: " +
+                    parseInt(frameId + 1) +
+                    " of " +
+                    numberOfFrames
+                );
+                larvitar.updateECGMarker(
+                  trace_data,
+                  frameId,
+                  numberOfFrames,
+                  "ecg"
+                );
+              }, frameRate);
+            } else {
+              clearInterval(animationId);
+              $("#image-time").html();
+            }
+          }
+        };
+      }
 
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        cb();
+      }
+      createFile("119265", renderSerie);
+    </script>
+  </body>
 </html>

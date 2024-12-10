@@ -20,8 +20,8 @@
   ],
   "scripts": {
     "coverage": "typescript-coverage-report",
-    "build": "webpack --config ./bundler/webpack.prod.js && cp ./dist/larvitar.js ./docs/examples/larvitar.js",
-    "dev": "webpack --progress --config ./bundler/webpack.dev.js && cp ./dist/larvitar.js ./docs/examples/larvitar.js",
+    "build": "webpack --config ./bundler/webpack.prod.js",
+    "dev": "webpack --progress --config ./bundler/webpack.dev.js",
     "dev-wip": "webpack serve --config ./bundler/webpack.dev-wip.js",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs"

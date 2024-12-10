@@ -4,7 +4,7 @@
 
 # Larvitar Examples
 
-Explore these [examples](https://larvitar.dvisionlab.com/examples/index.html) to learn how to use Larvitar for various medical imaging tasks. Each example demonstrates a specific functionality, making it easy to get started and see Larvitar in action.
+Explore these examples to learn how to use Larvitar for various medical imaging tasks. Each example demonstrates a specific functionality, making it easy to get started and see Larvitar in action.
 
 ---
 
