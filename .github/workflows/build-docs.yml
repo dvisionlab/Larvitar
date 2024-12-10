@@ -1,18 +1,16 @@
 name: CI-docs
 
 on:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
+  push:
+    branches:
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # CLone repo at current branch
+      # Clone repo at current branch
       - name: Clone repo
         uses: actions/checkout@v4
         with:
