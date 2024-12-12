@@ -29,49 +29,27 @@ export const generateFiles = async function (fileURL: string): Promise<File[]> {
   }
 
   const buff = await pdfFile.arrayBuffer();
-  console.log("PDF Byte Array:", new Uint8Array(buff.slice(0, 8))); // Inspect initial bytes
-  console.log(wasmUrl);
+
   // Initialize the library and load the document
   const library = await PDFiumLibrary.init({
-    wasmUrl: wasmUrl
-  });
-  /* const library = await PDFiumLibrary.init({
-    wasmBinaryPath: "/pdfium/pdfium.wasm", // Adjust the path based on your project structure
+    wasmUrl: wasmUrl,
     disableCDNWarning: true
-  });*/
-  const usableBuffer = new Uint8Array(buff);
-  const document = await library.loadDocument(usableBuffer);
-  const pages = await document.pages();
-  console.log("pages", pages);
+  });
 
-  for (const page of document.pages()) {
+  const usableBuffer = new Uint8Array(buff);
+  const pdfdocument = await library.loadDocument(usableBuffer);
+  const pages = await pdfdocument.pages();
+
+  for (const page of pdfdocument.pages()) {
     let aFile = await generateFile(page);
     files.push(aFile);
   }
 
-  document.destroy();
+  pdfdocument.destroy();
   library.destroy();
-  console.log(files);
-
-  // Trigger download of generated files
-  for (const file of files) {
-    //downloadFile(file);
-  }
 
   return files;
 };
-
-// Helper function to download files
-function downloadFile(file: File): void {
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(file);
-  link.href = url;
-  link.download = file.name;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
 
 // internal functions
 
@@ -80,23 +58,60 @@ function downloadFile(file: File): void {
  * @instance
  * @function generateFile
  * @param {any} page - The PDF page object
- * @param {number} pageNumber - The page number to be converted
- * @returns {File} The png image of the pdf page in a File object
+ * @returns {File} The PNG image of the PDF page as a File object
  */
 async function generateFile(page: any): Promise<File> {
-  console.log(`${page.number} - rendering...`);
-  // Render PDF page to PNG image using PDFium
+  // Render PDF page to bitmap data using PDFium
   const image = await page.render({
-    scale: 3,
+    scale: 3, // TODO: adjust scale
     render: "bitmap"
   });
-  let blob: Blob | null = new Blob([image.data], {
-    type: "image/png"
-  });
-  let file: File | null = new File([blob], `pdf_page_${page.number}.png`, {
+
+  // Create a canvas element to convert the bitmap to PNG
+  const canvas = document.createElement("canvas");
+  canvas.width = image.width;
+  canvas.height = image.height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    throw new Error("Failed to get 2D context from canvas");
+  }
+
+  // Create an ImageData object from the bitmap data
+  const imageData = new ImageData(
+    new Uint8ClampedArray(image.data), // Use the bitmap data from PDFium
+    image.width,
+    image.height
+  );
+
+  // Draw the image data onto the canvas
+  ctx.putImageData(imageData, 0, 0);
+
+  // Convert the canvas content to a Blob (PNG format)
+  const blob = await new Promise<Blob | null>(resolve =>
+    canvas.toBlob(blob => resolve(blob), "image/png")
+  );
+
+  if (!blob) {
+    throw new Error("Failed to create PNG blob from canvas");
+  }
+
+  // Optionally create a File object
+  const file = new File([blob], `pdf_page_${page.number}.png`, {
     type: "image/png"
   });
   populateFileManager(file);
-  blob = null;
   return file;
+}
+
+// Helper function to download files
+function downloadFile(file: File | Blob): void {
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(file);
+  link.href = url;
+  //@ts-ignore
+  link.download = file.name ?? "downloadPdf";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }

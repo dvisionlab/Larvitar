@@ -19,6 +19,7 @@ module.exports = {
         use: "ts-loader",
         exclude: /node_modules/
       },
+      // webAssembly support
       {
         test: /\.wasm$/,
         type: "asset/resource"
@@ -27,6 +28,7 @@ module.exports = {
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js", ".d.ts", ".wasm"],
+    conditionNames: ["types", "browser", "default", "import", "require"], // Correct order used for importing PDFium CDN
     fallback: {
       fs: false,
       path: false,
