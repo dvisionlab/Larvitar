@@ -267,7 +267,12 @@ export const renderDICOMPDF = function (
           PDF = null;
           // activate the scroll stack tool
           if (element) {
-            csToolsCreateStack(element, Object.values(getFileManager()), 0);
+            const fileManager = getFileManager();
+            if (fileManager) {
+              csToolsCreateStack(element, Object.values(fileManager), 0);
+            } else {
+              console.error("FileManager is null");
+            }
           }
           toggleMouseToolsListeners(id, false);
           resolve(true);
