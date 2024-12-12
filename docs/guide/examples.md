@@ -106,15 +106,15 @@ Key features covered in this example include:
 
 ---
 
-### 8. Visualization and Editing of Mask Layers
+### 8. Visualization and Editing of Segmentation Layers
 
-This example demonstrates how to visualize and edit mask layers in Larvitar. Mask layers are essential for highlighting specific regions, such as lesions or anatomical structures, within medical images. This example covers the steps to load, overlay, and modify mask layers, offering users precise control over segmentation and region-of-interest (ROI) management.
+This example demonstrates how to visualize and edit segmentation layers in Larvitar. Segmentation layers are essential for highlighting specific regions, such as lesions or anatomical structures, within medical images. This example covers the steps to load, overlay, and modify segmentation layers, offering users precise control over segmentation and region-of-interest (ROI) management.
 
 Key features covered in this example include:
-- Loading and visualizing mask layers on top of medical images
-- Adjusting opacity, color, and positioning of masks for optimal clarity
-- Using editing tools, such as brush and eraser, to refine mask boundaries
-- Saving and exporting edited mask layers for further analysis or use in clinical workflows
+- Loading and visualizing segmentation layers on top of medical images
+- Adjusting opacity, color, and positioning of segmentations for optimal clarity
+- Using editing tools, such as brush and eraser, to refine segmentation boundaries
+- Saving and exporting edited segmentation layers for further analysis or use in clinical workflows
 
 [View Example ➔](https://larvitar.dvisionlab.com/examples/masks.html)
 

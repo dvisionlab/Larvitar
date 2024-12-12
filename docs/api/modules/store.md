@@ -74,7 +74,7 @@ The `StoreViewport` [type](https://github.com/dvisionlab/Larvitar/blob/master/im
 | `numberOfFrames`              | `number?`	    | Number of frames in the image.                                            |
 | `minPixelValue`               | `number`	    | Minimum pixel value.                                                      |    
 | `maxPixelValue`               | `number`	    | Maximum pixel value.                                                      |
-| `sliceId`                     | `number`	    | Slice index identifier.                                                   |
+| `sliceId`                     | `number`	    | Slice index identifier of the rendered image.                             |
 | `minSliceId`                  | `number`	    | Minimum slice index.                                                      |
 | `maxSliceId`                  | `number`	    | Maximum slice index.                                                      |
 | `pendingSliceId`              | `number?`	    | Pending slice index to be rendered.                                       |
@@ -82,24 +82,24 @@ The `StoreViewport` [type](https://github.com/dvisionlab/Larvitar/blob/master/im
 | `timeIndex`                   | `number?`	    | Time index, for timeseries.                                               |
 | `minTimeId`                   | `number`	    | Minimum time index, for timeseries.                                       |
 | `maxTimeId`                   | `number`	    | Maximum time index, for timeseries.                                       |
-| `timeIds`                     | `number[]`	| Array of time index identifiers, for timeseries.                          |
+| `timeIds`                     | `number[]`	    | Array of time index identifiers, for timeseries.                          |
 | `timestamp`                   | `number`	    | Timestamp of the image, for timeseries.                                   |
-| `timestamps`                  | `number[]`	| Array of image timestamps, for timeseries.                                |
+| `timestamps`                  | `number[]`	    | Array of image timestamps, for timeseries.                                |
 | `numberOfTemporalPositions`   | `number?`	    | Number of temporal positions, for timeseries.                             |
 | `dsa`                         | `boolean`	    | True if DSA is enabled.                                                   |
-| `pixelShift`                  | `number[]`	| Pixel shift for the image in DSA mode.                                    |
+| `pixelShift`                  | `number[]`	    | Pixel shift for the image in DSA mode.                                    |
 | `waveform`                    | `boolean`	    | True if the image has waveform data, for ecg                              |
-| `viewport`                    | `viewportType`| Type of the viewport.                                                     |
+| `viewport`                    | `viewportType` | Type of the viewport.                                                     |
 
 The `Viewport` type includes the following key properties:
 
 | Property          | Type          | Description                                                                   |
 |-------------------|---------------|-------------------------------------------------------------------------------|
-| `scale`	        | `number`	                                    | Current scale factor for the viewport.        |
-| `rotation`	    | `number`                                      | Current rotation for the viewport.            |
-| `translation`	    | `{x:number, y:number}`	                    | Current translation for the viewport.         |
-| `voi`	            | `{windowCenter:number, windowWidth:number}`	| Current windowing settings for the viewport.  |
-| `default`         | `viewportType`                                | Default viewport settings.                    |
+| `scale`	        | `number`	                                    | Current scale factor for the viewport.       |
+| `rotation`	     | `number`                                       | Current rotation for the viewport.           |
+| `translation`	  | `{x:number, y:number}`	                        | Current translation for the viewport.        |
+| `voi`	           | `{windowCenter:number, windowWidth:number}`	   | Current windowing settings for the viewport. |
+| `default`         | `viewportType`                                 | Default viewport settings.                   |
 
 ### Initialization
 
@@ -164,15 +164,15 @@ store.resetSeriesIds();
 
 The store provides several utility functions for managing data:
 
-| Function              | Parameters                    | Description  |
-|-----------------------|-------------------------------|---------|
-| `setSliceID`	        | `elementId`, `imageIndex`     | Sets the slice ID for the viewport identified by elementId.           |
-| `setPendingSliceId`	| `elementId`, `timeIndex`      | Sets the pending slice ID for the viewport identified by elementId.   |
-| `setMaxSliceId`	    | `elementId`, `imageIndex`     | Sets the max Slice ID for the viewport identified by elementId.       |
+| Function             | Parameters                    | Description                                                           |
+|----------------------|-------------------------------|-----------------------------------------------------------------------|
+| `setSliceId`	        | `elementId`, `imageIndex`     | Sets the slice ID for the viewport identified by elementId.           |
+| `setPendingSliceId`  | `elementId`, `timeIndex`      | Sets the pending slice ID for the viewport identified by elementId.   |
+| `setMaxSliceId`	     | `elementId`, `imageIndex`     | Sets the max Slice ID for the viewport identified by elementId.       |
 | `setTimeId`	        | `elementId`, `timeIndex`      | Sets the time ID for the viewport identified by elementId.            |
-| `setDSAEnabled`	    | `elementId`, `enabled`        | Sets the DSA mode for the viewport identified by elementId.           |
-| `setDSAPixelShift`	| `elementId`, `pixelShift`     | Sets the DSA pixel shift for the viewport identified by elementId.    |
-| `ResetActiveTools`	| `elementId`                   | Resets the active tools.                                              |
+| `setDSAEnabled`	     | `elementId`, `enabled`        | Sets the DSA mode for the viewport identified by elementId.           |
+| `setDSAPixelShift`	  | `elementId`, `pixelShift`     | Sets the DSA pixel shift for the viewport identified by elementId.    |
+| `ResetActiveTools`	  | `elementId`                   | Resets the active tools.                                              |
 
 
 <br></br>
