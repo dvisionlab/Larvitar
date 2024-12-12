@@ -9,12 +9,12 @@ import { each, range } from "lodash";
 
 // internal libraries
 import { getImageFrame } from "./commonLoader";
-import { getImageTracker, getSeriesManager } from "../imageManagers";
+import { getImageTracker, getImageManager } from "../imageManagers";
 import { parseDataSet } from "../imageParsing";
 import type {
   Image,
   ImageFrame,
-  SeriesManager,
+  ImageManager,
   MetaData,
   Series
 } from "../types";
@@ -50,7 +50,7 @@ export const loadMultiFrameImage: ImageLoader = function (
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
   let imageTracker = getImageTracker();
   let seriesId = imageTracker[rootImageId];
-  let manager = getSeriesManager() as SeriesManager;
+  let manager = getImageManager() as ImageManager;
   if (multiframeDatasetCache === null) {
     multiframeDatasetCache = {};
   }
@@ -69,7 +69,7 @@ export const loadMultiFrameImage: ImageLoader = function (
 };
 
 /**
- * Build the multiframe layout in the Series Manager
+ * Build the multiframe layout in the Image Manager
  * @export
  * @function buildMultiFrameImage
  * @param {String} seriesId - SeriesId tag
@@ -80,7 +80,7 @@ export const buildMultiFrameImage = function (
   serie: Series
 ) {
   let t0 = performance.now();
-  let manager = getSeriesManager();
+  let manager = getImageManager();
   let imageTracker = getImageTracker();
   let numberOfFrames = serie.metadata!.numberOfFrames!;
   let frameTime = serie.metadata!.frameTime;

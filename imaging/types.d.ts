@@ -241,7 +241,7 @@ export type Volume = {
   acquisition_date?: string;
 };
 
-export type SeriesManager = {
+export type ImageManager = {
   [key: string]: NrrdSeries | Series;
 } | null;
 

@@ -1,11 +1,11 @@
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
-import { SeriesManager, Series, Viewport } from "../../types";
+import { ImageManager, Series, Viewport } from "../../types";
 import { EventData, Overlay } from "../types";
 const external = cornerstoneTools.external;
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
-import { getImageTracker, getSeriesManager } from "../../imageManagers";
+import { getImageTracker, getImageManager } from "../../imageManagers";
 
 interface ToolMouseEvent {
   detail: EventData;
@@ -65,7 +65,7 @@ export default class OverlayTool extends BaseTool {
       const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
       const imageTracker = getImageTracker();
       const seriesId: string = imageTracker[rootImageId];
-      const manager = getSeriesManager() as SeriesManager;
+      const manager = getImageManager() as ImageManager;
 
       const seriesData = manager![seriesId] as Series;
       if (seriesData && seriesData.instances[image.imageId]) {

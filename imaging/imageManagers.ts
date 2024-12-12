@@ -15,7 +15,7 @@ import {
 import type {
   ImageObject,
   ImageTracker,
-  SeriesManager,
+  ImageManager,
   Series,
   GSPSManager,
   FileManager
@@ -23,103 +23,103 @@ import type {
 import { getFileCustomImageId } from "./loaders/fileLoader";
 
 // global variables
-var seriesManager: SeriesManager = null;
+var imageManager: ImageManager = null;
 var gspsManager: GSPSManager = null;
 var imageTracker: ImageTracker = null;
 var fileManager: FileManager = null;
 
 /*
  * This module provides the following functions to be exported:
- * updateSeriesManager(imageObject)
- * populateSeriesManager(seriesId, seriesData)
- * getSeriesManager()
- * resetSeriesManager()
- * removeSeriesFromSeriesManager(seriesId)
- * getSeriesDataFromSeriesManager(seriesId)
- * getSopInstanceUIDFromSeriesManager(uniqueUID, imageId)
+ * updateImageManager(imageObject)
+ * populateImageManager(uniqueUID, seriesData)
+ * getImageManager()
+ * resetImageManager()
+ * removeDataFromImageManager(uniqueUID)
+ * getDataFromImageManager(uniqueUID)
+ * getSopInstanceUIDFromImageManager(uniqueUID, imageId)
  */
 
 /**
- * This function can be called in order to populate the Series manager
+ * This function can be called in order to populate the image manager
  * @instance
- * @function populateSeriesManager
+ * @function populateImageManager
  * @param {String} uniqueUID The Id of the manager stack
- * @param {Object} seriesData The series data
- * @returns {manager} the Series manager
+ * @param {Object} data The dataset
+ * @returns {ImageManager} the Image manager
  */
-export const populateSeriesManager = function (
+export const populateImageManager = function (
   uniqueUID: string,
-  seriesData: Series
-) {
-  const metadata = seriesData.instances[seriesData.imageIds[0]]?.metadata;
-  if (seriesManager === null) {
-    seriesManager = {};
+  data: Series
+): ImageManager {
+  const metadata = data.instances[data.imageIds[0]]?.metadata;
+  if (imageManager === null) {
+    imageManager = {};
   }
-  let data = { ...seriesData };
-  if (data.isMultiframe) {
-    buildMultiFrameImage(uniqueUID, data);
+  let _data = { ...data };
+  if (_data.isMultiframe) {
+    buildMultiFrameImage(uniqueUID, _data);
   } else if (metadata.seriesModality === "pr") {
-    const prSeriesInstanceUID = uniqueUID + "_PR";
-    seriesManager[prSeriesInstanceUID] = data;
-    populateGSPSManager(prSeriesInstanceUID, seriesData);
+    const prUniqueUID = uniqueUID + "_PR";
+    imageManager[prUniqueUID] = _data;
+    populateGSPSManager(prUniqueUID, _data);
   } else {
-    seriesManager[uniqueUID] = data;
+    imageManager[uniqueUID] = _data;
   }
-  return seriesManager;
+  return imageManager;
 };
 
 /**
- * Update and initialize series manager in order to parse and load a single dicom object
+ * Update and initialize image manager in order to parse and load a single dicom object
  * @instance
- * @function updateSeriesManager
+ * @function updateImageManager
  * @param {Object} imageObject The single dicom object
  * @param {String} customId - Optional custom id to overwrite seriesUID as default one
  * @param {number} sliceIndex - Optional custom index to overwrite slice index as default one
  */
-export const updateSeriesManager = function (
+export const updateImageManager = function (
   imageObject: ImageObject,
   customId?: string,
   sliceIndex?: number
 ) {
-  if (seriesManager === null) {
-    seriesManager = {};
+  if (imageManager === null) {
+    imageManager = {};
   }
   let data = { ...imageObject };
 
   if (data.metadata?.isMultiframe) {
     let seriesId = customId || imageObject.metadata.seriesUID;
-    let loadedStack: ReturnType<typeof getSeriesManager> = {};
+    let loadedStack: ReturnType<typeof getImageManager> = {};
     updateLoadedStack(data, loadedStack, customId, sliceIndex);
     buildMultiFrameImage(
       seriesId as string,
       loadedStack[seriesId as string] as Series
     );
   } else {
-    updateLoadedStack(data, seriesManager, customId, sliceIndex);
+    updateLoadedStack(data, imageManager, customId, sliceIndex);
   }
-  return seriesManager;
+  return imageManager;
 };
 
 /**
- * Return the series manager
+ * Return the image manager
  * @instance
- * @function getSeriesManager
- * @returns {Object} the series manager
+ * @function getImageManager
+ * @returns {ImageManager} the image manager
  */
-export const getSeriesManager = function () {
-  if (seriesManager == null) {
-    seriesManager = {};
+export const getImageManager = function () {
+  if (imageManager == null) {
+    imageManager = {};
   }
-  return seriesManager;
+  return imageManager;
 };
 
 /**
- * Reset the Series Manager
+ * Reset the image manager
  * @instance
- * @function resetSeriesManager
+ * @function resetImageManager
  */
-export const resetSeriesManager = function () {
-  each(seriesManager, function (stack) {
+export const resetImageManager = function () {
+  each(imageManager, function (stack) {
     if ((stack as Series).isMultiframe) {
       if ((stack as Series).dataSet) {
         //@ts-ignore for memory leak
@@ -140,26 +140,26 @@ export const resetSeriesManager = function () {
       instance.metadata = null;
     });
   });
-  seriesManager = null;
+  imageManager = null;
   imageTracker = null;
 };
 
 /**
- * Remove a stored seriesId from the series Manager
+ * Remove a stored seriesId from the image manager
  * @instance
- * @function removeSeriesFromSeriesManager
+ * @function removeDataFromImageManager
  * @param {String} seriesId The Id of the series
  */
-export const removeSeriesFromSeriesManager = function (seriesId: string) {
-  if (seriesManager && seriesManager[seriesId]) {
-    if ((seriesManager[seriesId] as Series).isMultiframe) {
+export const removeDataFromImageManager = function (uniqueUID: string) {
+  if (imageManager && imageManager[uniqueUID]) {
+    if ((imageManager[uniqueUID] as Series).isMultiframe) {
       //@ts-ignore for memory leak
-      (seriesManager[seriesId] as Series).dataSet.byteArray = null;
-      (seriesManager[seriesId] as Series).dataSet = null;
-      (seriesManager[seriesId] as Series).elements = null;
-      clearMultiFrameCache(seriesId);
+      (imageManager[uniqueUID] as Series).dataSet.byteArray = null;
+      (imageManager[uniqueUID] as Series).dataSet = null;
+      (imageManager[uniqueUID] as Series).elements = null;
+      clearMultiFrameCache(uniqueUID);
     }
-    each(seriesManager[seriesId].instances, function (instance) {
+    each(imageManager[uniqueUID].instances, function (instance) {
       if (instance.dataSet) {
         //@ts-ignore for memory leak
         instance.dataSet.byteArray = null;
@@ -170,38 +170,40 @@ export const removeSeriesFromSeriesManager = function (seriesId: string) {
       instance.metadata = null;
     });
     //@ts-ignore for memory leak
-    seriesManager[seriesId] = null;
-    delete seriesManager[seriesId];
+    imageManager[uniqueUID] = null;
+    delete imageManager[uniqueUID];
   }
 };
 
 /**
- * Return the data of a specific seriesId stored in the series Manager
+ * Return the data of a specific uniqueUID stored in the Image manager
  * @instance
- * @function getSeriesDataFromSeriesManager
- * @param {String} seriesId The Id of the series
- * @return {Object} series manager data
+ * @function getDataFromImageManager
+ * @param {String} uniqueUID The unique Id of the dataset
+ * @return {Series | null} image manager data
  */
-export const getSeriesDataFromSeriesManager = function (seriesId: string) {
-  return seriesManager ? seriesManager[seriesId] : null;
+export const getDataFromImageManager = function (
+  uniqueUID: string
+): Series | null {
+  return imageManager ? (imageManager[uniqueUID] as Series) : null;
 };
 
 /**
- * Return the SOP Instance UID of a specific imageId stored in the Series Manager
+ * Return the SOP Instance UID of a specific imageId stored in the image manager
  * @instance
- * @function getSopInstanceUIDFromSeriesManager
+ * @function getSopInstanceUIDFromImageManager
  * @param {String} uniqueUID The Id of the series
  * @param {String} imageId The Id of the image
  * @returns {String} sopInstanceUID
  */
-export const getSopInstanceUIDFromSeriesManager = function (
+export const getSopInstanceUIDFromImageManager = function (
   uniqueUID: string,
   imageId: string
-) {
-  if (seriesManager === null) {
+): string | null | undefined {
+  if (imageManager === null) {
     return null;
   }
-  let series = seriesManager[uniqueUID];
+  let series = imageManager[uniqueUID];
   return Object.keys(series.instanceUIDs).find(
     key => series.instanceUIDs[key] === imageId
   );
@@ -224,12 +226,12 @@ export const getImageTracker = function () {
  * This function can be called in order to populate the GSPS Manager
  * @instance
  * @function populateGSPSManager
- * @param {String} prSeriesInstanceUID The Id of the pr manager stack
+ * @param {String} prUniqueUID The Id of the pr manager stack
  * @param {Object} seriesData The series data
  * @returns {void}
  */
 export const populateGSPSManager = function (
-  uniqueUID: string,
+  prUniqueUID: string,
   seriesData: Series
 ) {
   Object.keys(seriesData.instances).forEach(imageId => {
@@ -244,11 +246,11 @@ export const populateGSPSManager = function (
         if (instanceUID) {
           gspsManager[instanceUID]
             ? gspsManager[instanceUID]!.push({
-                seriesId: uniqueUID,
+                seriesId: prUniqueUID,
                 imageId: imageId
               })
             : (gspsManager[instanceUID] = [
-                { seriesId: uniqueUID, imageId: imageId }
+                { seriesId: prUniqueUID, imageId: imageId }
               ]);
         }
       });
@@ -260,9 +262,9 @@ export const populateGSPSManager = function (
  * Return the dictionary that maps a sopInstanceUID with an array containing its PS
  * @instance
  * @function getGSPSManager
- * @returns {Object} the GSPS Manager
+ * @returns {GSPSManager} the GSPS Manager
  */
-export const getGSPSManager = function () {
+export const getGSPSManager = function (): GSPSManager {
   if (gspsManager == null) {
     gspsManager = {};
   }
@@ -296,7 +298,7 @@ export const resetGSPSManager = function () {
  * @function populateFileManager
  * @param {File | ArrayBuffer} data The file or arrayBuffer to populate
  */
-export const populateFileManager = function (data: File | ArrayBuffer) {
+export const populateFileManager = function (data: File | ArrayBuffer): void {
   let uuid =
     data instanceof File ? data.webkitRelativePath || data.name : uniqueId();
   if (fileManager == null) {
@@ -314,9 +316,9 @@ export const populateFileManager = function (data: File | ArrayBuffer) {
  * Return the File manager
  * @instance
  * @function getFileManager
- * @returns {Object} the file manager
+ * @returns {FileManager} the file manager
  */
-export const getFileManager = function () {
+export const getFileManager = function (): FileManager {
   if (fileManager == null) {
     fileManager = {};
   }

@@ -9,7 +9,7 @@ import { each } from "lodash";
 
 // internal libraries
 import { getReslicedMetadata, getReslicedPixeldata } from "./imageUtils";
-import { getImageTracker, getSeriesManager } from "./imageManagers";
+import { getImageTracker, getImageManager } from "./imageManagers";
 import store from "./imageStore";
 import { Series } from "./types";
 
@@ -56,7 +56,7 @@ export function resliceSeries(
     ) {
       let t0 = performance.now();
       let imageTracker = getImageTracker();
-      let manager = getSeriesManager();
+      let manager = getImageManager();
       each(reslicedSeries.imageIds, function (imageId: string) {
         reslicedSeries.instances[imageId].pixelData = getReslicedPixeldata(
           imageId,

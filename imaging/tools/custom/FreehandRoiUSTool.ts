@@ -32,7 +32,7 @@ const throttle = csTools.importInternal("util/throttle");
 const freehandUtils = csTools.importInternal("util/freehandUtils");
 const getModule = csTools.getModule;
 const state = getModule("segmentation").state;
-import { getImageTracker, getSeriesManager } from "../../imageManagers";
+import { getImageTracker, getImageManager } from "../../imageManagers";
 
 const globalConfiguration = {
   configuration: {
@@ -641,7 +641,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
       colPixelSpacing = image.columnPixelSpacing;
       rowPixelSpacing = image.rowPixelSpacing;
     }
-    //if neceassary, retrieve these values in the Series Manager
+    //if neceassary, retrieve these values in the Image Manager
     if (rowPixelSpacing === undefined || colPixelSpacing === undefined) {
       const parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(
         image.imageId
@@ -649,7 +649,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
       const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
       const imageTracker = getImageTracker();
       const seriesId = imageTracker[rootImageId];
-      const manager = getSeriesManager();
+      const manager = getImageManager();
       if (manager && seriesId) {
         const series = manager[seriesId];
         rowPixelSpacing =
@@ -911,7 +911,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
           colPixelSpacing = image!.columnPixelSpacing;
           rowPixelSpacing = image!.rowPixelSpacing;
         }
-        //if necessary, retrieve these values in the Series Manager
+        //if necessary, retrieve these values in the Image Manager
         if (rowPixelSpacing === undefined || colPixelSpacing === undefined) {
           const parsedImageId =
             cornerstoneDICOMImageLoader.wadouri.parseImageId(
@@ -920,7 +920,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
           const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
           const imageTracker = getImageTracker();
           const seriesId = imageTracker[rootImageId];
-          const manager = getSeriesManager();
+          const manager = getImageManager();
           if (manager && seriesId) {
             const series = manager[seriesId];
             rowPixelSpacing =

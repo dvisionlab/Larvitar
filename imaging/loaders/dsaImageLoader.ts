@@ -10,10 +10,10 @@ import { each, find, range } from "lodash";
 // internal libraries
 import {
   getImageTracker,
-  getSeriesManager,
-  getSeriesDataFromSeriesManager
+  getImageManager,
+  getDataFromImageManager
 } from "../imageManagers";
-import type { DSA, Image, SeriesManager, Series } from "../types";
+import type { DSA, Image, ImageManager, Series } from "../types";
 import { getMaxPixelValue, getMinPixelValue } from "../imageUtils";
 import { applyDSA } from "../postProcessing/applyDSA";
 
@@ -40,7 +40,7 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
   let imageTracker = getImageTracker();
   let seriesId = imageTracker[rootImageId];
-  let manager = getSeriesManager() as SeriesManager;
+  let manager = getImageManager() as ImageManager;
 
   if (manager) {
     let multiFrameSerie = manager[seriesId] as Series;
@@ -67,7 +67,7 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
  */
 export const populateDsaImageIds = function (uniqueUID: string) {
   let t0 = performance.now();
-  const serie = getSeriesDataFromSeriesManager(uniqueUID) as Series;
+  const serie = getDataFromImageManager(uniqueUID) as Series;
   if (serie) {
     const numberOfFrames: number = serie.metadata!.numberOfFrames!;
     const imageId: string = getDsaImageId("dsaImageLoader");

@@ -30,9 +30,9 @@ import {
   EventData
 } from "../types";
 
-import { SeriesManager, Series, StoreViewport } from "../../types";
+import { ImageManager, Series, StoreViewport } from "../../types";
 import store from "../../imageStore";
-import { getImageTracker, getSeriesManager } from "../../imageManagers";
+import { getImageTracker, getImageManager } from "../../imageManagers";
 /*
 /**
  *
@@ -159,7 +159,7 @@ export default class LengthTool extends BaseAnnotationTool {
       let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
       let imageTracker = getImageTracker();
       let seriesId = imageTracker[rootImageId];
-      let manager = getSeriesManager() as SeriesManager;
+      let manager = getImageManager() as ImageManager;
       if (manager && seriesId) {
         let series = manager[seriesId] as Series;
         rowPixelSpacing =
@@ -219,7 +219,7 @@ export default class LengthTool extends BaseAnnotationTool {
       let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
       let imageTracker = getImageTracker();
       let seriesId = imageTracker[rootImageId];
-      let manager = getSeriesManager() as SeriesManager;
+      let manager = getImageManager() as ImageManager;
       if (manager && seriesId) {
         let series = manager[seriesId] as Series;
         rowPixelSpacing =

@@ -10,14 +10,14 @@ The Multiframe Loader Module is a custom DICOM loader specifically designed to h
 
 - **Loading Multiframe Images:** Provides custom logic to load individual frames from multiframe DICOM datasets.
 - **Caching:** Implements an internal cache to optimize performance by avoiding repeated parsing of the dataset.
-- **Integration with Series Management:** Works with the [Series Manager](../managers/seriesManager.md) to organize and retrieve frame-specific metadata and pixel data.
+- **Integration with Series Management:** Works with the [Image Manager](../managers/imageManager.md) to organize and retrieve frame-specific metadata and pixel data.
 - **Custom Image Creation:** Generates Cornerstone-compatible image objects for rendering frames.
 - **DSA Integration:** Supports Digital Subtraction Angiography (DSA) images for specialized visualization.
   
 ## Internal Workflow
 
 1. **Dataset Parsing:**
-   - Metadata for each frame is parsed and stored in the [Series Manager](../managers/seriesManager.md).
+   - Metadata for each frame is parsed and stored in the [Image Manager](../managers/imageManager.md).
 2. **Image ID Management:**
     - Custom image IDs are generated for each frame in the series
 3. **Frame Caching:**

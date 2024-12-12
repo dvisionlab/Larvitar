@@ -1113,7 +1113,7 @@ export const rotateImageRight = function (elementId: string | HTMLElement) {
 };
 
 /**
- * Update Series manager temporal viewport data
+ * Update Image manager temporal viewport data
  * @instance
  * @function updateTemporalViewportData
  * @param {Series} seriesStack The Id of the series

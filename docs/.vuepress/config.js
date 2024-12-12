@@ -52,8 +52,8 @@ export default {
                   text: "Managers",
                   children: [
                     {
-                      text: "Series Manager",
-                      link: "/api/modules/managers/seriesManager.md"
+                      text: "Image Manager",
+                      link: "/api/modules/managers/imageManager.md"
                     },
                     {
                       text: "GSPS Manager",

@@ -22,9 +22,9 @@ import { loadDsaImage } from "./loaders/dsaImageLoader";
 import { ImageObject, Instance, Series, StagedProtocol } from "./types";
 import {
   getImageTracker,
-  getSeriesManager,
+  getImageManager,
   resetGSPSManager,
-  resetSeriesManager,
+  resetImageManager,
   resetFileManager
 } from "./imageManagers";
 import { clearImageCache } from "./imageRendering";
@@ -158,7 +158,7 @@ export const registerDsaImageLoader = function () {
  */
 export const updateLoadedStack = function (
   seriesData: ImageObject,
-  allSeriesStack: ReturnType<typeof getSeriesManager>,
+  allSeriesStack: ReturnType<typeof getImageManager>,
   customId?: string,
   sliceIndex?: number
 ) {
@@ -332,9 +332,9 @@ let isNewInstance = function (
  * @return {void}
  */
 export function reset(): void {
-  //Reset file manager, series manager, multiframe cache and gsps dict
+  //Reset file manager, Image manager, multiframe cache and gsps dict
   resetFileManager();
-  resetSeriesManager();
+  resetImageManager();
   resetGSPSManager();
   //Reset cornerstone cache and enabled elements
   clearImageCache();

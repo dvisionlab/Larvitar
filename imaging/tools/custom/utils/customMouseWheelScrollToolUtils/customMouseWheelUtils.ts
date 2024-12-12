@@ -3,9 +3,9 @@ import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 
 // internal libraries
-import { SeriesManager, Series } from "../../../../types";
+import { ImageManager, Series } from "../../../../types";
 import store from "../../../../imageStore";
-import { getImageTracker, getSeriesManager } from "../../../../imageManagers";
+import { getImageTracker, getImageManager } from "../../../../imageManagers";
 import loadHandlerManager from "./loadHandlerManager";
 //const loadHandlerManager = cornerstoneTools.importInternal(
 //  "stateManagement/loadHandlerManager"
@@ -85,7 +85,7 @@ export default function scrollToIndex(
   const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
   const imageTracker = getImageTracker();
   const seriesId: string = imageTracker[rootImageId];
-  const manager = getSeriesManager() as SeriesManager;
+  const manager = getImageManager() as ImageManager;
 
   const multiFrameSerie = manager![seriesId] as Series;
   const id: string = element.id;

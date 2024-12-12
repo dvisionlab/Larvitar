@@ -13,7 +13,7 @@ import { getNestedObject, parseTag } from "./imageTags";
 import { updateLoadedStack } from "./imageLoading";
 import { checkMemoryAllocation } from "./monitors/memory";
 import { ImageObject, Instance, MetaData, NrrdSeries, Series } from "./types";
-import { getSeriesManager } from "./imageManagers";
+import { getImageManager } from "./imageManagers";
 import type { MetaDataTypes, ExtendedMetaDataTypes } from "./MetaDataTypes";
 
 // global module variables
@@ -34,7 +34,7 @@ var t0: number; // t0 variable for timing debugging purpose
  * @param {Object} seriesStack - Parsed series stack object
  */
 export const clearImageParsing = function (
-  seriesStack: ReturnType<typeof getSeriesManager> | null
+  seriesStack: ReturnType<typeof getImageManager> | null
 ) {
   each(seriesStack, function (stack: Series | NrrdSeries) {
     each(stack.instances, function (instance: Instance) {
@@ -172,7 +172,7 @@ export const parseDataSet = function (
  */
 let parseNextFile = function (
   parsingQueue: File[],
-  allSeriesStack: ReturnType<typeof getSeriesManager>,
+  allSeriesStack: ReturnType<typeof getImageManager>,
   uuid: string,
   resolve: Function,
   reject: Function
@@ -238,7 +238,7 @@ let parseNextFile = function (
  * @returns {Promise} - Return a promise which will resolve to a image object list or fail if an error occurs
  */
 const parseFiles = function (fileList: File[]) {
-  let allSeriesStack: ReturnType<typeof getSeriesManager> = {};
+  let allSeriesStack: ReturnType<typeof getImageManager> = {};
   let parsingQueue: File[] = [];
 
   forEach(fileList, function (file: File) {

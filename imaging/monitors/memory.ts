@@ -3,10 +3,7 @@
  *        monitoring memory usage
  */
 
-import {
-  getSeriesManager,
-  removeSeriesFromSeriesManager
-} from "../imageManagers";
+import { getImageManager, removeDataFromImageManager } from "../imageManagers";
 import { clearImageCache } from "../imageRendering";
 import store from "../imageStore";
 
@@ -41,7 +38,7 @@ export const checkAndClearMemory = function (
 ) {
   const isEnough = checkMemoryAllocation(bytes);
   if (isEnough === false) {
-    const manager = getSeriesManager();
+    const manager = getImageManager();
     // get all key of manager and create a list
     const seriesIds = Object.keys(manager);
     // create a list of non rendered series ids
@@ -50,7 +47,7 @@ export const checkAndClearMemory = function (
     );
     // remove non rendered series from manager
     nonRenderedSeriesIds.forEach(seriesId => {
-      removeSeriesFromSeriesManager(seriesId);
+      removeDataFromImageManager(seriesId);
       clearImageCache(seriesId);
       store.removeSeriesId(seriesId);
     });

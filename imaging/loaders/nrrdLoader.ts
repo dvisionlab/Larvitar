@@ -18,13 +18,13 @@ import {
 } from "../imageUtils";
 
 import { getImageFrame } from "./commonLoader";
-import { getImageTracker, getSeriesManager } from "../imageManagers";
+import { getImageTracker, getImageManager } from "../imageManagers";
 
 import type {
   Image,
   Instance,
   Volume,
-  SeriesManager,
+  ImageManager,
   ImageFrame,
   ImageTracker,
   MetaData,
@@ -65,7 +65,7 @@ export const buildNrrdImage = function (
   let t0 = performance.now();
   // standard image structure
   let image: Partial<NrrdSeries> = {};
-  let manager = getSeriesManager() as SeriesManager;
+  let manager = getImageManager() as ImageManager;
   let imageTracker = getImageTracker() as ImageTracker;
   image.currentImageIdIndex = 0;
   image.imageIds = [];
@@ -241,7 +241,7 @@ export const buildNrrdImage = function (
   image.nrrdHeader = header as NrrdHeader;
 
   if (!manager) {
-    throw new Error("Series manager not initialized");
+    throw new Error("Image manager not initialized");
   }
 
   manager[seriesId] = image as NrrdSeries;
@@ -272,10 +272,10 @@ export const getNrrdImageId = function (customLoaderName: string) {
  * @return {Object} custom image object
  */
 export const loadNrrdImage: ImageLoader = function (imageId: string) {
-  let manager = getSeriesManager() as SeriesManager;
+  let manager = getImageManager() as ImageManager;
   let imageTracker = getImageTracker() as ImageTracker;
   if (!manager || !imageTracker) {
-    throw new Error("Series manager or image tracker not initialized");
+    throw new Error("Image manager or image tracker not initialized");
   }
   let seriesId = imageTracker[imageId];
   let instance = manager[seriesId].instances[imageId];

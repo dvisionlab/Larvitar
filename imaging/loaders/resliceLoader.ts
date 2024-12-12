@@ -9,7 +9,7 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 
 // internal libraries
 import { getImageFrame } from "./commonLoader";
-import { getImageTracker, getSeriesManager } from "../imageManagers";
+import { getImageTracker, getImageManager } from "../imageManagers";
 import type { Image, ImageFrame, MetaData } from "../types";
 
 /*
@@ -25,7 +25,7 @@ import type { Image, ImageFrame, MetaData } from "../types";
  * @returns {Object} custom image object
  */
 export const loadReslicedImage = function (imageId: string) {
-  let manager = getSeriesManager();
+  let manager = getImageManager();
   let imageTracker = getImageTracker();
   let seriesId = imageTracker[imageId];
   let instance = manager[seriesId].instances[imageId];

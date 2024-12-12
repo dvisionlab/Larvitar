@@ -243,13 +243,13 @@ import {
 } from "./imaging/tools/interaction";
 
 import {
-  updateSeriesManager,
-  populateSeriesManager,
-  getSeriesManager,
-  resetSeriesManager,
-  removeSeriesFromSeriesManager,
-  getSeriesDataFromSeriesManager,
-  getSopInstanceUIDFromSeriesManager,
+  updateImageManager,
+  populateImageManager,
+  getImageManager,
+  resetImageManager,
+  removeDataFromImageManager,
+  getDataFromImageManager,
+  getSopInstanceUIDFromImageManager,
   getImageTracker,
   populateGSPSManager,
   getGSPSManager,
@@ -361,20 +361,20 @@ export {
   rotateImageLeft,
   rotateImageRight,
   // imageManagers
-  updateSeriesManager,
-  updateSeriesManager as updateLarvitarManager, // alias for backward compatibility
-  populateSeriesManager,
-  populateSeriesManager as populateLarvitarManager, // alias for backward compatibility
-  getSeriesManager,
-  getSeriesManager as getLarvitarManager, // alias for backward compatibility
-  resetSeriesManager,
-  resetSeriesManager as resetLarvitarManager, // alias for backward compatibility
-  removeSeriesFromSeriesManager,
-  removeSeriesFromSeriesManager as removeSeriesFromLarvitarManager, // alias for backward compatibility
-  getSeriesDataFromSeriesManager,
-  getSeriesDataFromSeriesManager as getSeriesDataFromLarvitarManager, // alias for backward compatibility
-  getSopInstanceUIDFromSeriesManager,
-  getSopInstanceUIDFromSeriesManager as getSopInstanceUIDFromLarvitarManager, // alias for backward compatibility
+  updateImageManager,
+  updateImageManager as updateLarvitarManager, // alias for backward compatibility
+  populateImageManager,
+  populateImageManager as populateLarvitarManager, // alias for backward compatibility
+  getImageManager,
+  getImageManager as getLarvitarManager, // alias for backward compatibility
+  resetImageManager,
+  resetImageManager as resetLarvitarManager, // alias for backward compatibility
+  removeDataFromImageManager,
+  removeDataFromImageManager as removeSeriesFromLarvitarManager, // alias for backward compatibility
+  getDataFromImageManager,
+  getDataFromImageManager as getSeriesDataFromLarvitarManager, // alias for backward compatibility
+  getSopInstanceUIDFromImageManager,
+  getSopInstanceUIDFromImageManager as getSopInstanceUIDFromLarvitarManager, // alias for backward compatibility
   getImageTracker,
   getImageTracker as getLarvitarImageTracker, // alias for backward compatibility
   populateGSPSManager,

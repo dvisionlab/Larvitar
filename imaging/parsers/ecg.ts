@@ -4,7 +4,7 @@
  */
 
 import { DataSet, Element } from "dicom-parser";
-import { getSeriesDataFromSeriesManager } from "../imageManagers";
+import { getDataFromImageManager } from "../imageManagers";
 
 /*
  * This module provides the following functions to be exported:
@@ -49,6 +49,6 @@ export function parseECG(
     let data: number = ((values[nTo] - nMin) / (nMax - nMin)) * 100;
     points.push(data);
   }
-  let series = getSeriesDataFromSeriesManager(seriesId);
+  let series = getDataFromImageManager(seriesId);
   series!.ecgData = points;
 }
