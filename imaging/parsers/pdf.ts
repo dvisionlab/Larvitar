@@ -8,7 +8,6 @@ import { PDFiumLibrary } from "@hyzyla/pdfium/browser/cdn";
 // internal libraries
 import { populateFileManager } from "../loaders/fileLoader";
 
-import wasmUrl from "@hyzyla/pdfium/pdfium.wasm";
 /**
  * Generate an array of files from a pdf file
  * @instance
@@ -32,7 +31,6 @@ export const generateFiles = async function (fileURL: string): Promise<File[]> {
 
   // Initialize the library and load the document
   const library = await PDFiumLibrary.init({
-    wasmUrl: wasmUrl,
     disableCDNWarning: true
   });
 
@@ -40,7 +38,7 @@ export const generateFiles = async function (fileURL: string): Promise<File[]> {
   const pdfdocument = await library.loadDocument(usableBuffer);
   const pages = await pdfdocument.pages();
 
-  for (const page of pdfdocument.pages()) {
+  for (const page of pages) {
     let aFile = await generateFile(page);
     files.push(aFile);
   }
