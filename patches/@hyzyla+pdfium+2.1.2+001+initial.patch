@@ -1,0 +1,15 @@
+diff --git a/node_modules/@hyzyla/pdfium/package.json b/node_modules/@hyzyla/pdfium/package.json
+index 044d678..482edeb 100644
+--- a/node_modules/@hyzyla/pdfium/package.json
++++ b/node_modules/@hyzyla/pdfium/package.json
+@@ -18,8 +18,8 @@
+       "types": "./dist/index.esm.d.ts"
+     },
+     "./browser/cdn": {
+-      "default": "./dist/index.esm.cdn.js",
+-      "types": "./dist/index.esm.cdn.d.ts"
++      "types": "./dist/index.esm.cdn.d.ts",
++      "default": "./dist/index.esm.cdn.js"
+     },
+     "./browser/base64": {
+       "default": "./dist/index.esm.base64.js",
