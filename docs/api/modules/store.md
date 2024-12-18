@@ -53,9 +53,9 @@ The `StoreSeries` type includes the following key properties:
 
 The `StoreViewport` [type](https://github.com/dvisionlab/Larvitar/blob/master/imaging/types.d.ts#L34) includes the following key properties:
 
-| Property                      | Type          | Description                                                               |
-|-------------------------------|---------------|---------------------------------------------------------------------------|
-| `loading` 	                | `number`	    | Caching progress of the series from 0% to 100 %, initialized to null.     |
+| Property                      | Type           | Description                                                               |
+|-------------------------------|--------------- |---------------------------------------------------------------------------|
+| `loading` 	                 | `number`	    | Caching progress of the series from 0% to 100 %, initialized to null.     |
 | `ready`                       | `boolean`	    | True when the viewport is ready and imageId has been rendered.            |
 | `seriesUID`                   | `string?`	    | Unique identifier for the series.                                         |
 | `modality`                    | `string`	    | Modality of the image (e.g., "CT").                                       |

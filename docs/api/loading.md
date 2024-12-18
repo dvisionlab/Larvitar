@@ -28,6 +28,7 @@ These functions are essential for setting up the system to load DICOM (and non D
 The `updateLoadedStack` function is a critical part of the Larvitar core API, responsible for managing the loading and organization of series data during parsing. It initializes series stacks, tracks metadata, handles multiframe and single-frame files, and ensures that image IDs and instance data are correctly ordered and stored.
 
 #### Purpose
+
 This function updates the `allSeriesStack` object with series and instance information based on the provided seriesData. It:
 
 1. **Initializes New Series:** Creates a new entry in allSeriesStack for previously unseen series.
@@ -39,7 +40,6 @@ This function updates the `allSeriesStack` object with series and instance infor
 #### Key Steps in the Function
 
 1. **Extract Metadata:** The function extracts important metadata from seriesData to identify and classify the series:
-
    - Identifiers: Series, study, and instance UIDs.
    - Attributes: Number of slices, frames, modality, whether the data is multiframe, or part of a staged protocol.
    - Special Handling: Identifies 4D datasets, PDFs, color images, and anonymized data.
@@ -67,7 +67,6 @@ This function updates the `allSeriesStack` object with series and instance infor
 1. **Multiframe Support:** For multiframe files, the function tracks numberOfFrames and stores the dataset directly without generating separate imageIds.
 
 2. **4D Dataset Handling:** Uses ContentTime for secondary ordering when dealing with temporal datasets.
-
 
 3. **Staged Protocols:** Recognizes staged protocols (e.g., multi-view acquisitions) and stores additional metadata like stage and view numbers.
 
