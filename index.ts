@@ -6,6 +6,27 @@ console.groupCollapsed(
   "color: #BED730; background: #209A71; font-weight: 900;"
 );
 
+function warnDeprecation(originalName: string, aliasName: string) {
+  console.warn(
+    `%cDeprecation Warning: %c${aliasName} is deprecated and will be removed in a future release. Please use %c${originalName}%c instead.`,
+    "color: orange; font-weight: bold;",
+    "color: red;",
+    "color: green; font-weight: bold;",
+    "color: unset;"
+  );
+}
+
+function createAliasWithWarning(
+  originalFunction: Function,
+  originalName: string,
+  aliasName: string
+) {
+  return function (...args: any) {
+    warnDeprecation(originalName, aliasName);
+    return originalFunction(...args);
+  };
+}
+
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { parseDicom } from "dicom-parser";
@@ -362,32 +383,20 @@ export {
   rotateImageRight,
   // imageManagers
   updateImageManager,
-  updateImageManager as updateLarvitarManager, // alias for backward compatibility
   populateImageManager,
-  populateImageManager as populateLarvitarManager, // alias for backward compatibility
   getImageManager,
-  getImageManager as getLarvitarManager, // alias for backward compatibility
   resetImageManager,
-  resetImageManager as resetLarvitarManager, // alias for backward compatibility
   removeDataFromImageManager,
-  removeDataFromImageManager as removeSeriesFromLarvitarManager, // alias for backward compatibility
   getDataFromImageManager,
-  getDataFromImageManager as getSeriesDataFromLarvitarManager, // alias for backward compatibility
   getSopInstanceUIDFromImageManager,
-  getSopInstanceUIDFromImageManager as getSopInstanceUIDFromLarvitarManager, // alias for backward compatibility
   getImageTracker,
-  getImageTracker as getLarvitarImageTracker, // alias for backward compatibility
   populateGSPSManager,
-  populateGSPSManager as populateInstanceGSPSDict, // alias for backward compatibility
   getGSPSManager,
-  getGSPSManager as getInstanceGSPSDict, // alias for backward compatibility
   resetGSPSManager,
-  resetGSPSManager as resetInstanceGSPSDict, // alias for backward compatibility
   populateFileManager,
   getFileManager,
   resetFileManager,
   getDataFromFileManager,
-  getDataFromFileManager as getFileImageId, // alias for backward compatibility
   // imageReslice
   resliceSeries,
   // imageColormaps
@@ -486,3 +495,77 @@ export {
   getActiveLabelmapBuffer,
   updateTemporalViewportData
 };
+
+// alias for backward compatibility
+// deprecate in future release
+export const updateLarvitarManager = createAliasWithWarning(
+  updateImageManager,
+  "updateImageManager",
+  "updateLarvitarManager"
+);
+
+export const populateLarvitarManager = createAliasWithWarning(
+  populateImageManager,
+  "populateImageManager",
+  "populateLarvitarManager"
+);
+
+export const getLarvitarManager = createAliasWithWarning(
+  getImageManager,
+  "getImageManager",
+  "getLarvitarManager"
+);
+
+export const resetLarvitarManager = createAliasWithWarning(
+  resetImageManager,
+  "resetImageManager",
+  "resetLarvitarManager"
+);
+
+export const removeSeriesFromLarvitarManager = createAliasWithWarning(
+  removeDataFromImageManager,
+  "removeDataFromImageManager",
+  "removeSeriesFromLarvitarManager"
+);
+
+export const getSeriesDataFromLarvitarManager = createAliasWithWarning(
+  getDataFromImageManager,
+  "getDataFromImageManager",
+  "getSeriesDataFromLarvitarManager"
+);
+
+export const getSopInstanceUIDFromLarvitarManager = createAliasWithWarning(
+  getSopInstanceUIDFromImageManager,
+  "getSopInstanceUIDFromImageManager",
+  "getSopInstanceUIDFromLarvitarManager"
+);
+
+export const getLarvitarImageTracker = createAliasWithWarning(
+  getImageTracker,
+  "getImageTracker",
+  "getLarvitarImageTracker"
+);
+
+export const populateInstanceGSPSDict = createAliasWithWarning(
+  populateGSPSManager,
+  "populateGSPSManager",
+  "populateInstanceGSPSDict"
+);
+
+export const getInstanceGSPSDict = createAliasWithWarning(
+  getGSPSManager,
+  "getGSPSManager",
+  "getInstanceGSPSDict"
+);
+
+export const resetInstanceGSPSDict = createAliasWithWarning(
+  resetGSPSManager,
+  "resetGSPSManager",
+  "resetInstanceGSPSDict"
+);
+
+export const getFileImageId = createAliasWithWarning(
+  getDataFromFileManager,
+  "getDataFromFileManager",
+  "getFileImageId"
+);
