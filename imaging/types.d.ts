@@ -32,7 +32,7 @@ export type sortedTags = {
 export type pdfType = { getPage: function; numPages: number };
 
 export type StoreViewport = {
-  loading: number;
+  loading: number | null;
   ready: boolean;
   minSliceId: number;
   maxSliceId: number;
@@ -61,7 +61,7 @@ export type StoreViewport = {
   isPDF: boolean;
   waveform: boolean;
   dsa: boolean;
-  imageIndex?: number;
+  imageIndex?: number; // TODO CAN BE DEPRECATED?
   imageId?: string;
   numberOfSlices?: number;
   numberOfTemporalPositions?: number;
@@ -186,7 +186,7 @@ export type Series = {
   numberOfSlices: number;
   numberOfTemporalPositions: number;
   studyUID: string;
-  larvitarSeriesInstanceUID: string;
+  uniqueUID: string;
   elements?: { [key: string]: any } | null;
   layer: Layer;
   orientation?: "axial" | "coronal" | "sagittal"; // this is needed for legacy reslice
@@ -241,12 +241,16 @@ export type Volume = {
   acquisition_date?: string;
 };
 
-export type LarvitarManager = {
+export type ImageManager = {
   [key: string]: NrrdSeries | Series;
 } | null;
 
-export type InstanceGSPSDict = {
-  [key: string]: { seriesId: string; imageId: string }[] | null;
+export type GSPSManager = {
+  [key: string]: { seriesId: string | null; imageId: string | null }[] | null;
+} | null;
+
+export type FileManager = {
+  [key: string]: string;
 } | null;
 
 export type ImageFrame = {

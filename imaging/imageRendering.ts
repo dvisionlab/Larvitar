@@ -10,14 +10,13 @@ import { each, has } from "lodash";
 
 // internal libraries
 import { getPerformanceMonitor } from "./monitors/performance";
-import { getFileImageId, getFileManager } from "./loaders/fileLoader";
+import { getDataFromFileManager, getFileManager } from "./imageManagers";
 import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
 import { isElement } from "./imageUtils";
 import {
-  Image,
   Instance,
   Series,
   StoreViewport,
@@ -106,7 +105,7 @@ export function loadAndCacheImage(
     //check if it is a metadata-only object
     if (imageId && series.instances[imageId].metadata.pixelDataLength != 0) {
       cornerstone.loadAndCacheImage(imageId).then(function () {
-        setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
+        setStore(["cached", series.uniqueUID, imageId, true]);
         const t1 = performance.now();
         console.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
         console.debug(
@@ -171,7 +170,7 @@ export function loadAndCacheImages(
     //check if it is a metadata-only object
     if (imageId && series.instances[imageId].metadata.pixelDataLength != 0) {
       cornerstone.loadAndCacheImage(imageId).then(function () {
-        setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
+        setStore(["cached", series.uniqueUID, imageId, true]);
         updateProgress();
         callback(response);
       });
@@ -268,7 +267,12 @@ export const renderDICOMPDF = function (
           PDF = null;
           // activate the scroll stack tool
           if (element) {
-            csToolsCreateStack(element, Object.values(getFileManager()), 0);
+            const fileManager = getFileManager();
+            if (fileManager) {
+              csToolsCreateStack(element, Object.values(fileManager), 0);
+            } else {
+              console.error("FileManager is null");
+            }
           }
           toggleMouseToolsListeners(id, false);
           resolve(true);
@@ -317,7 +321,7 @@ export const renderFileImage = function (
 
   let renderPromise = new Promise<true>((resolve, _) => {
     // check if imageId is already stored in fileManager
-    const imageId = getFileImageId(file as File);
+    const imageId = getDataFromFileManager(file as File);
     if (imageId) {
       cornerstone.loadImage(imageId).then(function (image) {
         if (!element) {
@@ -659,63 +663,39 @@ export const updateImage = async function (
 
   //check if it is a metadata-only object
   if (
-    series.instances[series.imageIds[imageIndex]].metadata.pixelDataLength != 0
+    !isDSAEnabled &&
+    imageId &&
+    series.instances[imageId].metadata.pixelDataLength === 0
   ) {
-    if (isDSAEnabled === true) {
-      // get the optional custom pixel shift
-      const pixelShift = store.get(["viewports", id, "pixelShift"]);
-      setPixelShift(pixelShift);
+    return;
+  }
+
+  if (isDSAEnabled === true) {
+    // get the optional custom pixel shift
+    const pixelShift = store.get(["viewports", id, "pixelShift"]);
+    setPixelShift(pixelShift);
+  }
+
+  if (!imageId) {
+    setStore(["pendingSliceId", id, imageIndex]);
+    throw `Error: wrong image index ${imageIndex}, no imageId available`;
+  }
+
+  if (series.is4D) {
+    const timestamp = series.instances[imageId].metadata.contentTime;
+    const timeId =
+      series.instances[imageId].metadata.temporalPositionIdentifier! - 1; // timeId from 0 to N
+    setStore(["timeId", id as string, timeId]);
+    setStore(["timestamp", id as string, timestamp]);
+  }
+
+  if (cacheImage) {
+    let t0: number | undefined;
+    if (getPerformanceMonitor() === true) {
+      t0 = performance.now();
     }
 
-    if (!imageId) {
-      setStore(["pendingSliceId", id, imageIndex]);
-      throw `Error: wrong image index ${imageIndex}, no imageId available`;
-    }
-
-    if (series.is4D) {
-      const timestamp = series.instances[imageId].metadata.contentTime;
-      const timeId =
-        series.instances[imageId].metadata.temporalPositionIdentifier! - 1; // timeId from 0 to N
-      setStore(["timeId", id as string, timeId]);
-      setStore(["timestamp", id as string, timestamp]);
-    }
-
-    if (cacheImage) {
-      let t0: number | undefined;
-      if (getPerformanceMonitor() === true) {
-        t0 = performance.now();
-      }
-
-      cornerstone.loadAndCacheImage(imageId).then(function (image) {
-        cornerstone.displayImage(element, image);
-
-        if (getPerformanceMonitor() === true) {
-          const t1 = performance.now();
-          if (t0 !== undefined) {
-            // check if t0 is defined before using it
-            console.log(
-              `Call to updateImage for viewport ${id} took ${
-                t1 - t0
-              } milliseconds.`
-            );
-          }
-        }
-        setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
-        setStore(["sliceId", id, imageIndex]);
-        const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
-        if (imageIndex == pendingSliceId) {
-          setStore(["pendingSliceId", id, undefined]);
-        }
-        setStore(["minPixelValue", id, image.minPixelValue]);
-        setStore(["maxPixelValue", id, image.maxPixelValue]);
-      });
-    } else {
-      let t0: number | undefined;
-      if (getPerformanceMonitor() === true) {
-        t0 = performance.now();
-      }
-
-      const image = await cornerstone.loadImage(imageId);
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
       cornerstone.displayImage(element, image);
 
       if (getPerformanceMonitor() === true) {
@@ -729,7 +709,7 @@ export const updateImage = async function (
           );
         }
       }
-
+      setStore(["cached", series.uniqueUID, imageId, true]);
       setStore(["sliceId", id, imageIndex]);
       const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
       if (imageIndex == pendingSliceId) {
@@ -737,7 +717,33 @@ export const updateImage = async function (
       }
       setStore(["minPixelValue", id, image.minPixelValue]);
       setStore(["maxPixelValue", id, image.maxPixelValue]);
+    });
+  } else {
+    let t0: number | undefined;
+    if (getPerformanceMonitor() === true) {
+      t0 = performance.now();
     }
+
+    const image = await cornerstone.loadImage(imageId);
+    cornerstone.displayImage(element, image);
+
+    if (getPerformanceMonitor() === true) {
+      const t1 = performance.now();
+      if (t0 !== undefined) {
+        // check if t0 is defined before using it
+        console.log(
+          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
+        );
+      }
+    }
+
+    setStore(["sliceId", id, imageIndex]);
+    const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
+    if (imageIndex == pendingSliceId) {
+      setStore(["pendingSliceId", id, undefined]);
+    }
+    setStore(["minPixelValue", id, image.minPixelValue]);
+    setStore(["maxPixelValue", id, image.maxPixelValue]);
   }
 };
 
@@ -916,7 +922,7 @@ export const storeViewportData = function (
   setStore(["modality", elementId, data.modality]);
   // slice id from 0 to n - 1
   setStore(["minSliceId", elementId, 0]);
-  if (data.imageIndex) {
+  if (data.imageIndex !== undefined) {
     setStore(["sliceId", elementId, data.imageIndex]);
   }
   const pendingSliceId = store.get(["viewports", elementId, "pendingSliceId"]);
@@ -924,7 +930,7 @@ export const storeViewportData = function (
     setStore(["pendingSliceId", elementId, undefined]);
   }
 
-  if (data.numberOfSlices) {
+  if (data.numberOfSlices !== undefined) {
     setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
   }
 
@@ -1112,7 +1118,7 @@ export const rotateImageRight = function (elementId: string | HTMLElement) {
 };
 
 /**
- * Update Larvitar manager temporal viewport data
+ * Update Image manager temporal viewport data
  * @instance
  * @function updateTemporalViewportData
  * @param {Series} seriesStack The Id of the series
@@ -1207,7 +1213,7 @@ const getSeriesData = function (
   };
   type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
-  data.seriesUID = series.larvitarSeriesInstanceUID || series.seriesUID; //case of resliced series
+  data.seriesUID = series.uniqueUID || series.seriesUID; //case of resliced series
   data.modality = series.modality;
   if (series.isMultiframe) {
     data.isMultiframe = true;

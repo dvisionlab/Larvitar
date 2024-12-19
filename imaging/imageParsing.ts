@@ -13,7 +13,7 @@ import { getNestedObject, parseTag } from "./imageTags";
 import { updateLoadedStack } from "./imageLoading";
 import { checkMemoryAllocation } from "./monitors/memory";
 import { ImageObject, Instance, MetaData, NrrdSeries, Series } from "./types";
-import { getLarvitarManager } from "./loaders/commonLoader";
+import { getImageManager } from "./imageManagers";
 import type { MetaDataTypes, ExtendedMetaDataTypes } from "./MetaDataTypes";
 
 // global module variables
@@ -34,7 +34,7 @@ var t0: number; // t0 variable for timing debugging purpose
  * @param {Object} seriesStack - Parsed series stack object
  */
 export const clearImageParsing = function (
-  seriesStack: ReturnType<typeof getLarvitarManager> | null
+  seriesStack: ReturnType<typeof getImageManager> | null
 ) {
   each(seriesStack, function (stack: Series | NrrdSeries) {
     each(stack.instances, function (instance: Instance) {
@@ -172,7 +172,7 @@ export const parseDataSet = function (
  */
 let parseNextFile = function (
   parsingQueue: File[],
-  allSeriesStack: ReturnType<typeof getLarvitarManager>,
+  allSeriesStack: ReturnType<typeof getImageManager>,
   uuid: string,
   resolve: Function,
   reject: Function
@@ -238,7 +238,7 @@ let parseNextFile = function (
  * @returns {Promise} - Return a promise which will resolve to a image object list or fail if an error occurs
  */
 const parseFiles = function (fileList: File[]) {
-  let allSeriesStack: ReturnType<typeof getLarvitarManager> = {};
+  let allSeriesStack: ReturnType<typeof getImageManager> = {};
   let parsingQueue: File[] = [];
 
   forEach(fileList, function (file: File) {
@@ -300,7 +300,8 @@ const parseFile = function (file: File) {
           "XA",
           "US",
           "IVUS",
-          "OCT"
+          "OCT",
+          "SR"
         ];
         // US XA RF IVUS OCT DX CR PX MG
         // Overwrite SOPInstanceUID to manage single stack images (US, XA).
@@ -351,7 +352,7 @@ const parseFile = function (file: File) {
               dataSet: dataSet
             };
             pdfObject.metadata = metadata;
-            pdfObject.metadata.larvitarSeriesInstanceUID = uniqueId;
+            pdfObject.metadata.uniqueUID = uniqueId;
             pdfObject.metadata.seriesUID = seriesInstanceUID;
             pdfObject.instanceUID =
               metadata["x00080018"]?.toString() || randomId();
@@ -379,7 +380,7 @@ const parseFile = function (file: File) {
             };
             imageObject.metadata = metadata as MetaData;
             imageObject.metadata.anonymized = false;
-            imageObject.metadata.larvitarSeriesInstanceUID = uniqueId;
+            imageObject.metadata.uniqueUID = uniqueId;
             imageObject.metadata.sopClassUID = metadata["x00080016"];
             imageObject.metadata.seriesUID = seriesInstanceUID;
             imageObject.metadata.instanceUID = instanceUID;

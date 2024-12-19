@@ -10,7 +10,7 @@ import Plotly, { Datum } from "plotly.js-dist-min";
 import { NrrdSeries, Series } from "../types";
 import { updateImage } from "../imageRendering";
 import store from "../imageStore";
-import { getSeriesDataFromLarvitarManager } from "../loaders/commonLoader";
+import { getDataFromImageManager } from "../imageManagers";
 import { updateStackToolState } from "../imageTools";
 
 /*
@@ -109,7 +109,7 @@ export const renderECG = function (
     x: data.map((_, i) => (i * totalTime) / data.length),
     y: data,
     mode: "lines",
-    type: "scattergl",
+    type: "scatter",
     line: {
       width: 1.5,
       shape: "linear"
@@ -121,7 +121,7 @@ export const renderECG = function (
     x: [dotX],
     y: [data[dotX]],
     mode: "markers",
-    type: "scattergl",
+    type: "scatter",
     marker: {
       size: 12,
       color: colorMarker,
@@ -139,7 +139,7 @@ export const renderECG = function (
   // fix the range of the x-axis
   LAYOUT.xaxis!.range = [0, totalTime];
   // fix the grid of x-axis using a line for each frame
-  LAYOUT.xaxis!.dtick = LAYOUT.xaxis!.dtick = totalTime / (numberOfFrames - 1);
+  LAYOUT.xaxis!.dtick = totalTime / (numberOfFrames - 1);
   Plotly.newPlot(divId, traceData, LAYOUT, {
     responsive: true,
     displayModeBar: false
@@ -179,7 +179,7 @@ export const syncECGFrame = function (
         ((data.points[0].x as number) * numberOfFrames - 1) / totalTime
       );
       const series: Series | NrrdSeries | null =
-        getSeriesDataFromLarvitarManager(seriesId);
+        getDataFromImageManager(seriesId);
       if (series) {
         updateImage(series as Series, canvasId, frameId, false);
         updateStackToolState(canvasId, frameId);
@@ -190,21 +190,73 @@ export const syncECGFrame = function (
   const canvasElement: any = document.getElementById(canvasId);
   canvasElement.addEventListener("wheel", function (e: WheelEvent) {
     const viewport = store.get(["viewports", canvasId]);
-    updateECGFrame(traceData, viewport.sliceId, numberOfFrames, divId);
+    updateECGMarker(traceData, viewport.sliceId, numberOfFrames, divId);
     updateStackToolState(canvasId, viewport.sliceId);
   });
 };
 
 /**
- * Sync ECG waveform with rendered image on click
+ * Update the ECG waveform on the plot according to new frame time
  * @instance
- * @function updateECGFrame
+ * @function updateECGTotalTime
+ * @param {Object} traceData - Plotly trace data
+ * @param {number} frameId - FrameId of the image
+ * @param {number} numberOfFrames - Number of frames in the image
+ * @param {string} frameTime - Time interval of each frame in the image
+ * @param {string} divId - DivId to render waveform in
+ */
+export const updateECGTotalTime = function (
+  traceData: Partial<Plotly.PlotData>[],
+  frameId: number,
+  numberOfFrames: number,
+  frameTime: number,
+  divId: string
+) {
+  const totalTime = (numberOfFrames - 1) * (frameTime * 1e-3);
+
+  // update the x-axis range and dtick
+  const update: Partial<Plotly.Layout> = {
+    xaxis: {
+      range: [0, totalTime],
+      dtick: totalTime / (numberOfFrames - 1),
+      rangemode: "tozero",
+      showgrid: true,
+      gridcolor: "rgba(238,135,51,0.5)",
+      tickwidth: 2,
+      tickcolor: "#f5f5f5",
+      tickformat: ".2f",
+      tickfont: {
+        color: "#f5f5f5"
+      }
+    }
+  };
+  Plotly.relayout(divId, update);
+
+  // @ts-ignore
+  traceData[0].x = traceData[0].x!.map(
+    (_, i) => (i * totalTime) / traceData[0].x!.length
+  );
+
+  const dotX: number = (frameId * totalTime) / (numberOfFrames - 1);
+  const index: number = (traceData[0].x as number[]).findIndex(
+    (x: number) => x >= dotX
+  );
+  const dotY: Datum | Datum[] = traceData[0].y![index];
+  traceData[1].x = [dotX];
+  traceData[1].y = Array.isArray(dotY) ? dotY : [dotY];
+  Plotly.extendTraces(divId, {}, [0]);
+};
+
+/**
+ * Update the ECG waveform dot on the plot
+ * @instance
+ * @function updateECGMarker
  * @param {Object} traceData - Plotly trace data
  * @param {number} frameId - FrameId of the image
  * @param {number} numberOfFrames - Number of frames in the image
  * @param {string} divId - DivId to render waveform in
  */
-export const updateECGFrame = function (
+export const updateECGMarker = function (
   traceData: Partial<Plotly.PlotData>[],
   frameId: number,
   numberOfFrames: number,
@@ -220,5 +272,23 @@ export const updateECGFrame = function (
   const dotY: Datum | Datum[] = traceData[0].y![index];
   traceData[1].x = [dotX];
   traceData[1].y = Array.isArray(dotY) ? dotY : [dotY];
-  Plotly.extendTraces(divId, {}, [0]);
+
+  // !! Plotly.animate does not work with "scattegl" trace type
+  // @ts-ignore Plotly.animate is not in the types
+  Plotly.animate(
+    divId,
+    {
+      data: [{ y: traceData[1].y }], // Updated marker data
+      traces: [1] // Index of marker trace
+    },
+    {
+      transition: {
+        duration: totalTime / (numberOfFrames - 1) // Must be <= frame duration
+      },
+      frame: {
+        duration: totalTime / (numberOfFrames - 1), // Frame duration
+        redraw: false // Redraw the plot, keep this false if you don't need a full redraw
+      }
+    }
+  );
 };

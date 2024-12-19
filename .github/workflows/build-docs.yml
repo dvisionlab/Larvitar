@@ -1,18 +1,16 @@
 name: CI-docs
 
 on:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
+  push:
+    branches:
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # CLone repo at current branch
+      # Clone repo at current branch
       - name: Clone repo
         uses: actions/checkout@v4
         with:
@@ -29,31 +27,41 @@ jobs:
       # Install node modules
       - name: Install node modules
         run: |
-          yarn install
-
-      # Clone template
-      - name: Clone docdash template
-        uses: actions/checkout@v4
-        with:
-          repository: clenemt/docdash
-          path: ./template/docdash/
-
-      # Install docdash node modules
-      - name: Install node modules
-        working-directory: ./template/docdash/
-        run: |
-          yarn install
+          yarn install --frozen-lockfile
 
       # Generate docs
       - name: Generate docs
         run: |
-          yarn generate-docs
+          yarn run docs:build
 
-      # Commit docs on current branch (update pull request)
-      - name: Commit docs
-        uses: actions-js/push@master
+      # Generate Build
+      - name: Generate build
+        run: |
+          yarn run build
+
+      # Copy larvitar.js
+      - name: Copy larvitar build for examples
+        run: |
+          cp dist/larvitar.js docs/.vuepress/dist/assets
+
+      # Copy CNAME
+      - name: Copy CNAME
+        run: |
+          cp docs/CNAME docs/.vuepress/dist
+
+      # Copy Examples
+      - name: Copy Examples
+        run: |
+          cp -R docs/examples docs/.vuepress/dist
+
+      # Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: crazy-max/ghaction-github-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          message: "Update docs"
-          branch: ${{ github.head_ref }}
-          empty: true
+          # deploy to gh-pages branch
+          target_branch: gh-pages
+          # deploy the default output dir of VuePress
+          build_dir: docs/.vuepress/dist
+        env:
+          # @see https://docs.github.com/en/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}

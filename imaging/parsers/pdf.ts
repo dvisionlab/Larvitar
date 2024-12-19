@@ -14,7 +14,7 @@ GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker");
 
 // internal libraries
 import { pdfType } from "../types";
-import { populateFileManager } from "../loaders/fileLoader";
+import { populateFileManager } from "../imageManagers";
 
 /**
  * This module provides the following functions to be exported:

@@ -85,34 +85,20 @@ const csToolsCreateStack = function (
   cornerstoneTools.addToolState(element, "stack", stack);
 };
 
-export function csToolsUpdateImageIds(
-  elementId: string,
-  imageIds: string[],
-  imageIdIndex: number
-) {
+/**
+ * Update stack object to sync stack tools
+ * @function csToolsUpdateImageIds
+ * @param {String} elementId - The target html element id.
+ * @param {Array} imageIds - Stack image ids.
+ */
+
+export function csToolsUpdateImageIds(elementId: string, imageIds: string[]) {
   const element = document.getElementById(elementId);
   if (element) {
     const stackState = cornerstoneTools.getToolState(element, "stack");
     const stackData = stackState.data[0];
     stackData.imageIds = imageIds;
-    stackData.currentImageIdIndex =
-      stackData.currentImageIdIndex < imageIdIndex
-        ? stackData.currentImageIdIndex
-        : (stackData.currentImageIdIndex += 1);
   }
-}
-
-/**
- * Update currentImageIdIndex in cs tools stack
- * @param {String} elementId - The target html element id
- * @param {String} imageId - The imageId in the form xxxxxx//:imageIndex
- */
-export function csToolsUpdateImageIndex(elementId: string, imageId: string) {
-  let currentImageIdIndex = parseInt(imageId.split(":")[1]);
-  const element = document.getElementById(elementId);
-  const stackState = cornerstoneTools.getToolState(element, "stack");
-  const stackData = stackState.data[0];
-  stackData.currentImageIdIndex = currentImageIdIndex;
 }
 
 /**
