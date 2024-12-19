@@ -21,12 +21,12 @@ import { loadMultiFrameImage } from "./loaders/multiframeLoader";
 import { loadDsaImage } from "./loaders/dsaImageLoader";
 import { ImageObject, Instance, Series, StagedProtocol } from "./types";
 import {
-  getLarvitarImageTracker,
-  getLarvitarManager,
-  resetInstanceGSPSDict,
-  resetLarvitarManager
-} from "./loaders/commonLoader";
-import { resetFileLoader, resetFileManager } from "./loaders/fileLoader";
+  getImageTracker,
+  getImageManager,
+  resetGSPSManager,
+  resetImageManager,
+  resetFileManager
+} from "./imageManagers";
 import { clearImageCache } from "./imageRendering";
 import { clearCornerstoneElements } from "./imageTools";
 
@@ -158,12 +158,12 @@ export const registerDsaImageLoader = function () {
  */
 export const updateLoadedStack = function (
   seriesData: ImageObject,
-  allSeriesStack: ReturnType<typeof getLarvitarManager>,
+  allSeriesStack: ReturnType<typeof getImageManager>,
   customId?: string,
   sliceIndex?: number
 ) {
-  let imageTracker = getLarvitarImageTracker();
-  let lid = seriesData.metadata.larvitarSeriesInstanceUID;
+  let imageTracker = getImageTracker();
+  let lid = seriesData.metadata.uniqueUID;
   let sid = seriesData.metadata.seriesUID;
   let ssid = seriesData.metadata.studyUID;
   let iid = seriesData.metadata.instanceUID as string;
@@ -206,7 +206,7 @@ export const updateLoadedStack = function (
       instanceUIDs: {}, // instanceUID: imageId (ordered)
       instances: {},
       seriesDescription: seriesDescription as string,
-      larvitarSeriesInstanceUID: lid as string,
+      uniqueUID: lid as string,
       seriesUID: sid as string,
       studyUID: ssid as string,
       numberOfImages: is4D ? (acquisitionNumberAttribute as number) : 0,
@@ -306,7 +306,7 @@ export const updateLoadedStack = function (
 
 /**
  * Check if the instance is new or not
- * @inner
+ * @instance
  * @function isNewInstance
  * @param {Object} instances - instances already loaded
  * @param {String} iid - instance uid to check
@@ -327,15 +327,15 @@ let isNewInstance = function (
 
 /**
  * General reset of cache, loaders, store and managers
- * @inner
+ * @instance
  * @function reset
  * @return {void}
  */
-export function reset() {
-  //Reset file manager,larvitar manager, multiframe cache and gsps dict
+export function reset(): void {
+  //Reset file manager, Image manager, multiframe cache and gsps dict
   resetFileManager();
-  resetLarvitarManager();
-  resetInstanceGSPSDict();
+  resetImageManager();
+  resetGSPSManager();
   //Reset cornerstone cache and enabled elements
   clearImageCache();
   clearCornerstoneElements();

@@ -44,10 +44,9 @@ import {
   Rectangle,
   Stats
 } from "../types";
-import { LarvitarManager, Series, StoreViewport } from "../../types";
+import { ImageManager, Series, StoreViewport } from "../../types";
 import store from "../../imageStore";
-import { getLarvitarImageTracker } from "../../loaders/commonLoader";
-import { getLarvitarManager } from "../../loaders/commonLoader";
+import { getImageTracker, getImageManager } from "../../imageManagers";
 
 /**
  * @public
@@ -185,9 +184,9 @@ export default class RectangleRoiTool extends BaseAnnotationTool {
         image.imageId
       );
       let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
-      let imageTracker = getLarvitarImageTracker();
+      let imageTracker = getImageTracker();
       let seriesId = imageTracker[rootImageId];
-      let manager = getLarvitarManager() as LarvitarManager;
+      let manager = getImageManager() as ImageManager;
       if (manager && seriesId) {
         let series = manager[seriesId] as Series;
         pixelSpacing.rowPixelSpacing =
@@ -241,9 +240,9 @@ export default class RectangleRoiTool extends BaseAnnotationTool {
         eventData.image.imageId
       );
       let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
-      let imageTracker = getLarvitarImageTracker();
+      let imageTracker = getImageTracker();
       let seriesId = imageTracker[rootImageId];
-      let manager = getLarvitarManager() as LarvitarManager;
+      let manager = getImageManager() as ImageManager;
       if (manager && seriesId) {
         let series = manager[seriesId] as Series;
         rowPixelSpacing =

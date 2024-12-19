@@ -18,8 +18,14 @@ yarn-error.log*
 *.sln
 *.sw?
 
-# JsDocs templates directory
-template/docdash/
-
 # TS coverage reports
 /coverage-ts
+
+# docs
+docs/.vuepress/.cache/
+docs/.vuepress/.temp/
+docs/.vuepress/dist/
+docs_legacy/*
+
+# build files
+dist/*

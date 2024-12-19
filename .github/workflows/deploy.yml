@@ -17,12 +17,24 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GIT_TOKEN }}
 
       # Setup node environment
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+
+      # Install node modules
+      - name: Install node modules
+        run: |
+          yarn install --frozen-lockfile
+
+      # Generate Build
+      - name: Generate build
+        run: |
+          yarn run build
 
       # Clean examples and docs file
       - name: Clean examples and docs file

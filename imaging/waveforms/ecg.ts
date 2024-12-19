@@ -10,7 +10,7 @@ import Plotly, { Datum } from "plotly.js-dist-min";
 import { NrrdSeries, Series } from "../types";
 import { updateImage } from "../imageRendering";
 import store from "../imageStore";
-import { getSeriesDataFromLarvitarManager } from "../loaders/commonLoader";
+import { getDataFromImageManager } from "../imageManagers";
 import { updateStackToolState } from "../imageTools";
 
 /*
@@ -179,7 +179,7 @@ export const syncECGFrame = function (
         ((data.points[0].x as number) * numberOfFrames - 1) / totalTime
       );
       const series: Series | NrrdSeries | null =
-        getSeriesDataFromLarvitarManager(seriesId);
+        getDataFromImageManager(seriesId);
       if (series) {
         updateImage(series as Series, canvasId, frameId, false);
         updateStackToolState(canvasId, frameId);
@@ -292,4 +292,3 @@ export const updateECGMarker = function (
     }
   );
 };
-
