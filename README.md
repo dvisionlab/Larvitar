@@ -8,9 +8,9 @@
 
 ## Dicom Image Toolkit for CornerstoneJS
 
-### Current version: 2.8.0
+### Current version: 3.0.0-beta.1
 
-### Latest Published Release: 2.8.0
+### Latest Published Release: 2.7.3
 
 This library provides common DICOM functionalities to be used in web-applications: it's wrapper that simplifies the use of cornerstone-js environment.
 
