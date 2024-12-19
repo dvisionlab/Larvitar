@@ -500,7 +500,8 @@
         demoFiles.push(file);
         processedFiles++;
         if (processedFiles == 24) {
-          cb();
+          await cb();
+          window.allFilesLoaded = true;
         }
       }
 
