@@ -45,7 +45,6 @@ export default {
             { text: "Interacting", link: "/api/interacting.md" },
             {
               text: "Modules",
-              link: "/api/modules.md",
               children: [
                 { text: "Store", link: "/api/modules/store.md" },
                 {
