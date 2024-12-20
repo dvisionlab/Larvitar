@@ -83,7 +83,7 @@
             }
 
             function renderSerie() {
-              larvitar.resetLarvitarManager();
+              larvitar.resetImageManager();
               larvitar.readFiles(demoFiles, function (seriesStack, err) {
                 if (seriesStack) {
                   // render the first series of the study
@@ -205,7 +205,7 @@
       }
 
       function renderSerie() {
-        larvitar.resetLarvitarManager();
+        larvitar.resetImageManager();
         larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {

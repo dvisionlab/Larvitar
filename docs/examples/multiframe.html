@@ -122,7 +122,7 @@
                 let seriesId = _.keys(seriesStack)[0];
                 let serie = seriesStack[seriesId];
                 larvitar.populateLarvitarManager(seriesId, serie);
-                let manager = larvitar.getLarvitarManager();
+                let manager = larvitar.getImageManager();
                 let multiFrameSerie = manager[seriesId];
 
                 let frameId = 0;
@@ -177,7 +177,7 @@
         let seriesId = _.keys(seriesStack)[0];
         let serie = seriesStack[seriesId];
         larvitar.populateLarvitarManager(seriesId, serie);
-        let manager = larvitar.getLarvitarManager();
+        let manager = larvitar.getImageManager();
         let multiFrameSerie = manager[seriesId];
 
         let frameId = 0;

@@ -448,7 +448,7 @@
       function getMetadata() {
         const modal = document.getElementById("metadataModal");
         const tableBody = document.querySelector("#metadataTable tbody");
-        const stack = larvitar.getLarvitarManager();
+        const stack = larvitar.getImageManager();
         const seriesId = larvitar.store.get([
           "viewports",
           "viewer",
@@ -530,7 +530,7 @@
       });
 
       function previousImage() {
-        const stack = larvitar.getLarvitarManager();
+        const stack = larvitar.getImageManager();
         const seriesIds = Object.keys(stack);
         const seriesId = larvitar.store.get([
           "viewports",
@@ -551,7 +551,7 @@
       }
 
       function nextImage() {
-        const stack = larvitar.getLarvitarManager();
+        const stack = larvitar.getImageManager();
         const seriesIds = Object.keys(stack);
         const seriesId = larvitar.store.get([
           "viewports",
