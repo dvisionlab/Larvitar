@@ -53,12 +53,12 @@
             larvitar.store.addViewport("viewer");
 
             function renderPDF() {
-              larvitar.resetLarvitarManager();
+              larvitar.resetImageManager();
               larvitar
                 .readFile(demoFiles[0])
                 .then(image => {
-                  larvitar.updateLarvitarManager(image);
-                  let manager = larvitar.getLarvitarManager();
+                  larvitar.updateImageManager(image);
+                  let manager = larvitar.getImageManager();
                   let serie =
                     manager["1.2.276.0.7230010.3.1.3.296485376.1.1664404001.305752"];
                   larvitar.renderDICOMPDF(serie, "viewer", true).then(() => {
@@ -93,12 +93,12 @@
       larvitar.store.addViewport("viewer");
 
       function renderPDF() {
-        larvitar.resetLarvitarManager();
+        larvitar.resetImageManager();
         larvitar
           .readFile(demoFiles[0])
           .then(image => {
-            larvitar.updateLarvitarManager(image);
-            let manager = larvitar.getLarvitarManager();
+            larvitar.updateImageManager(image);
+            let manager = larvitar.getImageManager();
             let serie =
               manager["1.2.276.0.7230010.3.1.3.296485376.1.1664404001.305752"];
             larvitar.renderDICOMPDF(serie, "viewer", true).then(() => {

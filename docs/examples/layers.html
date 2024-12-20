@@ -204,7 +204,7 @@
             let serie_2 = { ...seriesStack[seriesId] };
             larvitar.populateLarvitarManager(seriesId, serie_1);
             larvitar.populateLarvitarManager(seriesId, serie_2);
-            let manager = larvitar.getLarvitarManager();
+            let manager = larvitar.getImageManager();
             console.log(manager);
             layer_1 = larvitar.buildLayer(serie_1, "main");
             layer_2 = larvitar.buildLayer(serie_2, "colored", {
