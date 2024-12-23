@@ -16,6 +16,19 @@
     <script>
       hljs.highlightAll();
     </script>
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
     <title>Larvitar - Multiframe rendering example</title>
   </head>
 
@@ -109,7 +122,7 @@
                 let seriesId = _.keys(seriesStack)[0];
                 let serie = seriesStack[seriesId];
                 larvitar.populateLarvitarManager(seriesId, serie);
-                let manager = larvitar.getLarvitarManager();
+                let manager = larvitar.getImageManager();
                 let multiFrameSerie = manager[seriesId];
 
                 let frameId = 0;
@@ -140,7 +153,6 @@
       </div>
     </div>
 
-    <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
@@ -165,7 +177,7 @@
         let seriesId = _.keys(seriesStack)[0];
         let serie = seriesStack[seriesId];
         larvitar.populateLarvitarManager(seriesId, serie);
-        let manager = larvitar.getLarvitarManager();
+        let manager = larvitar.getImageManager();
         let multiFrameSerie = manager[seriesId];
 
         let frameId = 0;

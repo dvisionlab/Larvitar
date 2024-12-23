@@ -48,6 +48,19 @@
     <script>
       hljs.highlightAll();
     </script>
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
     <title>Watershed segmentation implemented in OpenCV.js</title>
   </head>
 
@@ -190,7 +203,7 @@
             }
       
             async function renderSerie() {
-              larvitar.resetLarvitarManager();
+              larvitar.resetImageManager();
               larvitar
                 .readFiles(demoFiles)
                 .then(seriesStack => {
@@ -257,15 +270,11 @@
             Ray et al. [2008] used the iterative watershed transform
             for hepatic tumor segmentation (and volumetry).*/
 
-        </p>    
-    </code>
-  </pre>
+            </p>    
+          </code>
+        </pre>
       </div>
     </div>
-    <script src="../../dist/larvitar.js"></script>
-    <script src="../../node_modules/cornerstone-core/dist/cornerstone.js"></script>
-    <script src="../../node_modules/cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoader.bundle.min.js"></script>
-    <script src="../../node_modules/dicom-parser/dist/dicomParser.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
@@ -383,7 +392,7 @@
       }
 
       async function renderSerie() {
-        larvitar.resetLarvitarManager();
+        larvitar.resetImageManager();
         larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {

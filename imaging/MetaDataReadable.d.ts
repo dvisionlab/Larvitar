@@ -1,7 +1,7 @@
 //human readable dictionary
 export type MetaDataReadable = {
   anonymized?: boolean;
-  larvitarSeriesInstanceUID?: string;
+  uniqueUID?: string;
   seriesUID?: string;
   instanceUID?: string;
   sopClassUID?: string;

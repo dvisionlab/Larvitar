@@ -6,7 +6,7 @@
 // external libraries
 import { PDFiumLibrary } from "@hyzyla/pdfium/browser/cdn";
 // internal libraries
-import { populateFileManager } from "../loaders/fileLoader";
+import { populateFileManager } from "../imageManagers";
 
 /**
  * Generate an array of files from a pdf file

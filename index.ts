@@ -6,6 +6,27 @@ console.groupCollapsed(
   "color: #BED730; background: #209A71; font-weight: 900;"
 );
 
+function warnDeprecation(originalName: string, aliasName: string) {
+  console.warn(
+    `%cDeprecation Warning: %c${aliasName} is deprecated and will be removed in a future release. Please use %c${originalName}%c instead.`,
+    "color: orange; font-weight: bold;",
+    "color: red;",
+    "color: green; font-weight: bold;",
+    "color: unset;"
+  );
+}
+
+function createAliasWithWarning(
+  originalFunction: Function,
+  originalName: string,
+  aliasName: string
+) {
+  return function (...args: any) {
+    warnDeprecation(originalName, aliasName);
+    return originalFunction(...args);
+  };
+}
+
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { parseDicom } from "dicom-parser";
@@ -189,20 +210,7 @@ import {
   getActiveLabelmapBuffer
 } from "./imaging/tools/segmentation";
 
-import {
-  updateLarvitarManager,
-  populateLarvitarManager,
-  populateInstanceGSPSDict,
-  getLarvitarManager,
-  getInstanceGSPSDict,
-  getLarvitarImageTracker,
-  resetLarvitarManager,
-  resetInstanceGSPSDict,
-  removeSeriesFromLarvitarManager,
-  getSeriesDataFromLarvitarManager,
-  getImageFrame,
-  getSopInstanceUIDFromLarvitarManager
-} from "./imaging/loaders/commonLoader";
+import { getImageFrame } from "./imaging/loaders/commonLoader";
 
 import {
   buildNrrdImage,
@@ -233,11 +241,8 @@ import {
 import { populateDsaImageIds } from "./imaging/loaders/dsaImageLoader";
 
 import {
-  getFileManager,
   resetFileLoader,
-  resetFileManager,
-  populateFileManager,
-  getFileImageId
+  getFileCustomImageId
 } from "./imaging/loaders/fileLoader";
 
 import {
@@ -257,6 +262,24 @@ import {
   removeMouseKeyHandlers,
   toggleMouseToolsListeners
 } from "./imaging/tools/interaction";
+
+import {
+  updateImageManager,
+  populateImageManager,
+  getImageManager,
+  resetImageManager,
+  removeDataFromImageManager,
+  getDataFromImageManager,
+  getSopInstanceUIDFromImageManager,
+  getImageTracker,
+  populateGSPSManager,
+  getGSPSManager,
+  resetGSPSManager,
+  getFileManager,
+  resetFileManager,
+  populateFileManager,
+  getDataFromFileManager
+} from "./imaging/imageManagers";
 
 export {
   VERSION,
@@ -358,6 +381,22 @@ export {
   flipImageVertical,
   rotateImageLeft,
   rotateImageRight,
+  // imageManagers
+  updateImageManager,
+  populateImageManager,
+  getImageManager,
+  resetImageManager,
+  removeDataFromImageManager,
+  getDataFromImageManager,
+  getSopInstanceUIDFromImageManager,
+  getImageTracker,
+  populateGSPSManager,
+  getGSPSManager,
+  resetGSPSManager,
+  populateFileManager,
+  getFileManager,
+  resetFileManager,
+  getDataFromFileManager,
   // imageReslice
   resliceSeries,
   // imageColormaps
@@ -369,18 +408,7 @@ export {
   // imageContours
   parseContours,
   // loaders/commonLoader
-  updateLarvitarManager,
-  populateLarvitarManager,
-  populateInstanceGSPSDict,
-  getLarvitarManager,
-  getInstanceGSPSDict,
-  getLarvitarImageTracker,
-  resetLarvitarManager,
-  resetInstanceGSPSDict,
-  removeSeriesFromLarvitarManager,
-  getSeriesDataFromLarvitarManager,
   getImageFrame,
-  getSopInstanceUIDFromLarvitarManager,
   // loaders/nrrdLoader
   buildNrrdImage,
   getNrrdImageId,
@@ -404,11 +432,8 @@ export {
   // loaders/dsaImageLoader
   populateDsaImageIds,
   // loaders/fileLoader
-  getFileManager,
   resetFileLoader,
-  resetFileManager,
-  populateFileManager,
-  getFileImageId,
+  getFileCustomImageId,
   // imaging/postProcessing
   applyDSAShift,
   // imageTools
@@ -470,3 +495,77 @@ export {
   getActiveLabelmapBuffer,
   updateTemporalViewportData
 };
+
+// alias for backward compatibility
+// deprecate in future release
+export const updateLarvitarManager = createAliasWithWarning(
+  updateImageManager,
+  "updateImageManager",
+  "updateLarvitarManager"
+);
+
+export const populateLarvitarManager = createAliasWithWarning(
+  populateImageManager,
+  "populateImageManager",
+  "populateLarvitarManager"
+);
+
+export const getLarvitarManager = createAliasWithWarning(
+  getImageManager,
+  "getImageManager",
+  "getLarvitarManager"
+);
+
+export const resetLarvitarManager = createAliasWithWarning(
+  resetImageManager,
+  "resetImageManager",
+  "resetLarvitarManager"
+);
+
+export const removeSeriesFromLarvitarManager = createAliasWithWarning(
+  removeDataFromImageManager,
+  "removeDataFromImageManager",
+  "removeSeriesFromLarvitarManager"
+);
+
+export const getSeriesDataFromLarvitarManager = createAliasWithWarning(
+  getDataFromImageManager,
+  "getDataFromImageManager",
+  "getSeriesDataFromLarvitarManager"
+);
+
+export const getSopInstanceUIDFromLarvitarManager = createAliasWithWarning(
+  getSopInstanceUIDFromImageManager,
+  "getSopInstanceUIDFromImageManager",
+  "getSopInstanceUIDFromLarvitarManager"
+);
+
+export const getLarvitarImageTracker = createAliasWithWarning(
+  getImageTracker,
+  "getImageTracker",
+  "getLarvitarImageTracker"
+);
+
+export const populateInstanceGSPSDict = createAliasWithWarning(
+  populateGSPSManager,
+  "populateGSPSManager",
+  "populateInstanceGSPSDict"
+);
+
+export const getInstanceGSPSDict = createAliasWithWarning(
+  getGSPSManager,
+  "getGSPSManager",
+  "getInstanceGSPSDict"
+);
+
+export const resetInstanceGSPSDict = createAliasWithWarning(
+  resetGSPSManager,
+  "resetGSPSManager",
+  "resetInstanceGSPSDict"
+);
+
+export const getFileImageId = createAliasWithWarning(
+  getDataFromFileManager,
+  "getDataFromFileManager",
+  "getFileImageId"
+);

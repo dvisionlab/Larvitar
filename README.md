@@ -1,129 +1,98 @@
 <p align="center">
-  <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" width="100" title="hover text" alt="accessibility text">
+  <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" width="100" title="Larvitar Logo" alt="Larvitar Logo">
 </p>
 
 # Larvitar
 
+![License](https://img.shields.io/github/license/dvisionlab/Larvitar)
 [![type-coverage](https://img.shields.io/badge/dynamic/json.svg?label=type-coverage&prefix=%E2%89%A5&suffix=%&query=$.typeCoverage.atLeast&uri=https%3A%2F%2Fraw.githubusercontent.com%2Fplantain-00%2Ftype-coverage%2Fmaster%2Fpackage.json)](https://github.com/dvisionlab/Larvitar)
+![Last Commit](https://img.shields.io/github/last-commit/dvisionlab/Larvitar)
+![GitHub stars](https://img.shields.io/github/stars/dvisionlab/Larvitar?style=social)
 
-## Dicom Image Toolkit for CornerstoneJS
+**Larvitar** is a modern, lightweight TypeScript library for medical imaging applications. Built on top of the Cornerstone ecosystem, Larvitar provides tools for rendering, analyzing, and interacting with medical images, including support for advanced modalities like multiframe images, NRRD, and ECG synchronization.
 
-### Current version: 2.7.4
+## 🛠 Current Version
 
-### Latest Published Release: 2.7.4
+![Build Status](https://img.shields.io/github/actions/workflow/status/dvisionlab/Larvitar/build-docs.yml?branch=master)
+[![GitHub release](https://img.shields.io/github/v/release/dvisionlab/Larvitar?color=green)](https://github.com/dvisionlab/Larvitar/releases/latest)
+![npm](https://img.shields.io/npm/v/larvitar)
 
-This library provides common DICOM functionalities to be used in web-applications: it's wrapper that simplifies the use of cornerstone-js environment.
+Check out the [releases page](https://github.com/dvisionlab/Larvitar/releases) for more details.
 
-## Features:
+## 🚀 Features
 
-- Orthogonal multiplanar reformat with contours generations
-- Custom loader/exporter for nrrd files
-- Segmentation masks support
-- Memory management
-- Support all dicom modalities
-- 4D Cine support
-- Anonymization functionalities
-- Cine tools and ECG Parsing
-- Masks management
+- **Advanced DICOM Image Rendering**: Seamlessly handles single-frame, multiframe, and custom modalities.
+- **ECG and Waveform Visualization**: Built-in tools for synchronizing and rendering waveforms.
+- **Custom Tools and Extensions**: Easily extendable for specific imaging needs.
+- **Integration Ready**: Designed for use in advanced imaging workflows and applications.
 
-Full documentation and examples are available at http://www.dvisionlab.com/Larvitar/.
+---
 
-# Typescript
+## 📖 Documentation
 
-_Types_ can be imported from `larvitar/imaging/types` or `larvitar/imaging/tools/types`.
+Comprehensive documentation is available on the [Larvitar Documentation Page](https://larvitar.dvisionlab.com).
 
-```javascript
-import { Series } from "larvitar/imaging/types";
+### Sections
 
-let newSerie: Series;
-```
+1. [**Core API**](https://larvitar.dvisionlab.com/api/): Learn how to parse, load, and render DICOM images.
+2. [**Modules**](https://larvitar.dvisionlab.com/api/): Explore the segmentation tools, color maps, and advanced rendering features.
+3. [**Examples**](https://larvitar.dvisionlab.com/guide/examples.html): See working examples for ECG synchronization, NRRD image loading, segmentation tools, and more.
+4. [**Installation**](https://larvitar.dvisionlab.com/guide/installation.html): Step-by-step guide to getting started with Larvitar in your project.
 
-<br>
+---
 
-# Dependencies
+## 📦 Dependencies
 
-- `cornerstone`
-- `cornerstone-tools`
-- `dicomParser`
-- `DICOMImageLoader`
-- `webImageLoader`
-- `fileImageLoader`
-- `lodash`
-- `pako`
-- `papaparse`
+Larvitar relies on the following libraries for its core functionality:
 
-# Installation
+- [`cornerstone-core`](https://github.com/cornerstonejs/cornerstone): Core library for medical image visualization.
+- [`cornerstone-tools`](https://github.com/cornerstonejs/cornerstoneTools): A suite of tools for image interaction.
+- [`cornerstone-wado-image-loader`](https://github.com/cornerstonejs/cornerstoneWADOImageLoader): Loader for WADO-based DICOM images.
+- [`dicom-parser`](https://github.com/cornerstonejs/dicomParser): Parser for DICOM files.
+- [`cornerstone-file-image-loader`](https://github.com/webnamics/cornerstoneFileImageLoader): Loader for file-based DICOM images.
 
-`yarn add larvitar`
+Make sure to have these dependencies installed when developing or using Larvitar.
 
-# Build package
+---
 
-`yarn build`
+## 🛠 Development
 
-# Coverage
+To start developing Larvitar or contribute to the project:
 
-Use `yarn coverage` to generate type coverage report.
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/dvisionlab/Larvitar.git
+   cd Larvitar
+   ```
+2. **Install dependencies**:
+   ```bash
+    yarn install
+   ```
+3. **Start the development server**:
+   ```bash
+   yarn run dev
+   ```
+4. **Open the development environment**:
+   - Serve the examples folder using a static server (e.g., `http-server` or visual studio code live server).
+   - Navigate to http://localhost:5500/docs/examples/<example_name>.html (or the port configured in your dev server).
 
-# Development
+## 📝 License
 
-Use `yarn dev` to have `webpack` hot-reload (live recompiling the library).
-In order to test functionalities you can serve the .html file with VSCode extension [LiveServer](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) or other similar tools.
-Once you are done, upgrade the version (README and package.json) and build the library. Docs will be compiled by the Github action.
+Larvitar is licensed under the MIT License. Feel free to use, modify, and distribute it in your projects.
 
-### Repository structure
+## 🤝 Contributing
 
-- `index` main file
-- `dataDictionary` json file for dicom tags
-- `imageAnonymization` provides anonymization functionalities
-- `imageCustomization` provides Byte Array customization functionalities
-- `imageColormaps` provides color maps functionalities
-- `imageContours` using to populate cornerstone tool for segmentation contours on 2D images
-- `imageIo` import a dicom image in .nrrd format and build contiguous array for exporting data as volume
-- `imageLayers` provide support for multi-layer cornerstone fusion renderer
-- `imageLoading` initialize loader and custom loaders
-- `imageParsing` parse dicom files and return a cornerstone data structure ready to be used for rendering
-- `imagePresets` provides default image CT presets and set functionality
-- `imageRendering` provides rendering functionalities
-- `imageReslice` provides reslice functionalities
-- `imageStore` provides data storage functionalities, vuex support is integrated
-- `imageTags` using to handle dicom tags and metadata
-- `imageTools` using to handle standard and custom cornerstone tools
-- `imageUtils` utility functions on pixels and metadata tags
-- `loaders/commonLoader` common functionalities for custom loaders
-- `loaders/dicomLoader` custom loader for DICOM files with support for multiplanar reformat (axial, sagittal and coronal planes)
-- `loaders/fileLoader` custom loader for png/jpg files
-- `loaders/multiFrameLoader` custom loader for multiFrame data
-- `loaders/nrrdLoader`custom loader for nrrd files with support for multiplanar reformat (axial, sagittal and coronal planes)
-- `loaders/resliceLoader` custom loader for resliced data
-- `parsers/ecg` custom parser for ecg data
-- `parsers/nrrd` custom parser for nrrd data
-- `tools/custom/4DSliceScrollTool` is a custom cornerstone tool for handling navigation of slices in a 4D DICOM series
-- `tools/custom/contourTool` is a custom cornerstone tool for 2D visualization of segmented images
-- `tools/custom/diameterTool` is a custom cornerstone tool for 2D visualization of diameter widgets
-- `tools/custom/editMaskTool` is a custom cornerstone tool for 2D visualization of segmentation masks with brush functionalities
-- `tools/custom/EllipticalRoiOverlayTool` is a custom cornerstone tool for 2D visualization of elliptical widgets
-- `tools/custom/polygonSegmentationMixin` is a custom cornerstone tool for 2D visualization of polygonal widgets
-- `tools/custom/polylineScissorTool` is a custom cornerstone tool for 2D visualization of polyline widgets
-- `tools/custom/rectangleRoiOverlayTool` is a custom cornerstone tool for 2D visualization of rectangular widgets
-- `tools/custom/seedTool` is a custom cornerstone tool for 2D interactive seeding with custom colors and labels
-- `tools/custom/setLabelMap3D`
-- `tools/custom/thresholdsBrushTool` is a custom cornerstone tool for handling thresholds in a brush tool
-- `tools/default` default tools map and configuration
-- `tools/interaction` cornerstone interaction tools
-- `tools/io` import and export functionalities for tools
-- `tools/main` tools main functionalities
-- `tools/state` tools state management
-- `tools/segmentation` segmentation masks management
-- `tools/strategies/eraseFreeHand` strategy for erasing freehand masks
-- `tools/strategies/fillFreeHand` strategy for filling freehand masks
-- `tools/strategies/index` strategies index
+Contributions are welcome! If you’d like to report a bug, suggest a feature, or submit a pull request, please follow our [contributing guidelines](CONTRIBUTING.md).
 
-# Contributors
+Larvitar has adopted a [Code of Conduct](CODE_OF_CONDUCT.md) that we expect project participants to adhere to.
 
-- Simone Manini, D/Vision Lab
-- Mattia Ronzoni, D/Vision Lab
-- Sara Zanchi, D/Vision Lab
-- Alessandro Re, D/Vision Lab
-- Laura Borghesi, D/Vision Lab
+## 👨‍💻 Main Developers
 
-![dvisionlab logo](https://press.r1-it.storage.cloud.it/logo_trasparent.png)
+- Simone Manini, D/Vision Lab | [LinkedIn](https://linkedin.com/in/simone-manini)
+- Mattia Ronzoni, D/Vision Lab | [LinkedIn](https://linkedin.com/in/mattiaronzoni90)
+- Laura Borghesi, D/Vision Lab | [LinkedIn](https://linkedin.com/in/laura-borghesi-160557218)
+- Sara Zanchi, D/Vision Lab | [LinkedIn](https://linkedin.com/in/sara-zanchi-113a4b61)
+
+<p align="center">
+  <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" width="200" title="D/Vision Lab Logo" alt="D/Vision Lab Logo">
+</p>

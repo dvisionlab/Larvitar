@@ -16,6 +16,19 @@
     <script>
       hljs.highlightAll();
     </script>
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
     <title>Larvitar - Basic rendering example</title>
     <style>
       body {
@@ -108,7 +121,7 @@
         display: none; /* Hidden by default */
         position: fixed;
         top: 50%;
-        left: 40%;
+        left: 50%;
         transform: translate(-50%, -50%);
         border: 8px solid #f3f3f3;
         border-top: 8px solid #007bff;
@@ -133,7 +146,7 @@
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
-      <div id="viewer" class="col-8 h-100" style="background-color: black">
+      <div id="viewer" class="col-12 h-100" style="background-color: black">
         <p style="position: absolute; color: white">
           <b>Open form:</b> Allows to modify DICOM tags and download the
           modified image/images
@@ -220,80 +233,8 @@
         </div>
         <div id="spinner"></div>
       </div>
-
-      <div class="col-4 h-100">
-        <pre class="h-100">
-          <code class="javascript" style="background-color: #000000">
-          <p style="font-size:0.6vw;">
-            let demoFiles = [];
-            let counter = 0;
-
-            const getDemoFileNames = function () {
-              let demoFileList = [];
-              for (let i = 1; i < 25; i++) {
-                let filename = "anon" + i;
-                demoFileList.push(filename);
-              }
-              return demoFileList;
-            };
-
-            // init all
-            larvitar.initializeImageLoader();
-            larvitar.initializeCSTools();
-            larvitar.store.initialize();
-            larvitar.store.addViewport("viewer");
-
-            async function createFile(fileName, cb) {
-              let response = await fetch("./demo/" + fileName);
-              let data = await response.blob();
-              let file = new File([data], fileName);
-              demoFiles.push(file);
-              counter++;
-              if (counter == 24) {
-                cb();
-              }
-            }
-
-            function renderSerie() {
-              larvitar.resetLarvitarManager();
-              larvitar
-                .readFiles(demoFiles)
-                .then(seriesStack => {
-                  // render the first series of the study
-                  let seriesId = _.keys(seriesStack)[0];
-                  let serie = seriesStack[seriesId];
-                  larvitar.renderImage(serie, "viewer").then(() => {
-                    console.log("Image has been rendered");
-                  });
-                  // optionally cache the series
-                  larvitar.populateLarvitarManager(seriesId, serie);
-                  larvitar.cacheImages(serie, function (resp) {
-                    if (resp.loading == 100) {
-                      let cache = larvitar.cornerstone.imageCache;
-                      console.log(
-                        "Cache size: ",
-                        cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                        "Mb"
-                      );
-                    }
-                  });
-                  larvitar.addDefaultTools();
-                  larvitar.setToolActive("Wwwc");
-                })
-                .catch(err => console.log(err));
-            }
-
-            let demoFileList = getDemoFileNames();
-            _.each(demoFileList, function (demoFile) {
-              createFile(demoFile, renderSerie);
-            });
-          </p>
-          </code>
-        </pre>
-      </div>
     </div>
 
-    <script src="./larvitar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>
@@ -507,7 +448,7 @@
       function getMetadata() {
         const modal = document.getElementById("metadataModal");
         const tableBody = document.querySelector("#metadataTable tbody");
-        const stack = larvitar.getLarvitarManager();
+        const stack = larvitar.getImageManager();
         const seriesId = larvitar.store.get([
           "viewports",
           "viewer",
@@ -527,14 +468,14 @@
       }
 
       function renderSerie() {
-        larvitar.resetLarvitarManager();
+        larvitar.resetImageManager();
         larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
             // render the first series of the study
             let seriesId = _.keys(seriesStack)[0];
-            larvitar.populateLarvitarManager(seriesId, seriesStack[seriesId]);
-            let manager = larvitar.getLarvitarManager();
+            larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
+            let manager = larvitar.getImageManager();
             let serie = manager[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               console.log("Image has been rendered");
@@ -544,7 +485,7 @@
             // optionally cache the series
 
             _.each(_.keys(seriesStack), function (seriesId) {
-              larvitar.populateLarvitarManager(seriesId, seriesStack[seriesId]);
+              larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
               larvitar.cacheImages(seriesStack[seriesId], function (resp) {
                 if (resp.loading == 100) {
                   let cache = larvitar.cornerstone.imageCache;
@@ -589,7 +530,7 @@
       });
 
       function previousImage() {
-        const stack = larvitar.getLarvitarManager();
+        const stack = larvitar.getImageManager();
         const seriesIds = Object.keys(stack);
         const seriesId = larvitar.store.get([
           "viewports",
@@ -610,7 +551,7 @@
       }
 
       function nextImage() {
-        const stack = larvitar.getLarvitarManager();
+        const stack = larvitar.getImageManager();
         const seriesIds = Object.keys(stack);
         const seriesId = larvitar.store.get([
           "viewports",

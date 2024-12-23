@@ -8,16 +8,13 @@ import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 import { each, range } from "lodash";
 
 // internal libraries
-import {
-  getImageFrame,
-  getLarvitarImageTracker,
-  getLarvitarManager
-} from "./commonLoader";
+import { getImageFrame } from "./commonLoader";
+import { getImageTracker, getImageManager } from "../imageManagers";
 import { parseDataSet } from "../imageParsing";
 import type {
   Image,
   ImageFrame,
-  LarvitarManager,
+  ImageManager,
   MetaData,
   Series
 } from "../types";
@@ -51,9 +48,9 @@ export const loadMultiFrameImage: ImageLoader = function (
   let parsedImageId = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
 
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
-  let imageTracker = getLarvitarImageTracker();
+  let imageTracker = getImageTracker();
   let seriesId = imageTracker[rootImageId];
-  let manager = getLarvitarManager() as LarvitarManager;
+  let manager = getImageManager() as ImageManager;
   if (multiframeDatasetCache === null) {
     multiframeDatasetCache = {};
   }
@@ -72,19 +69,19 @@ export const loadMultiFrameImage: ImageLoader = function (
 };
 
 /**
- * Build the multiframe layout in the larvitar Manager
+ * Build the multiframe layout in the Image Manager
  * @export
  * @function buildMultiFrameImage
  * @param {String} seriesId - SeriesId tag
  * @param {Object} serie - parsed serie object
  */
 export const buildMultiFrameImage = function (
-  larvitarSeriesInstanceUID: string,
+  uniqueUID: string,
   serie: Series
 ) {
   let t0 = performance.now();
-  let manager = getLarvitarManager();
-  let imageTracker = getLarvitarImageTracker();
+  let manager = getImageManager();
+  let imageTracker = getImageTracker();
   let numberOfFrames = serie.metadata!.numberOfFrames!;
   let frameTime = serie.metadata!.frameTime;
   let frameDelay = serie.metadata!.frameDelay ? serie.metadata!.frameDelay : 0;
@@ -92,13 +89,13 @@ export const buildMultiFrameImage = function (
   let sopInstanceUID = serie.metadata!["x00080018"] as string;
   let dataSet = serie.dataSet;
   let imageId = getMultiFrameImageId("multiFrameLoader");
-  imageTracker[imageId] = larvitarSeriesInstanceUID;
+  imageTracker[imageId] = uniqueUID;
 
   // check if manager exists for this seriesId
-  if (!manager[larvitarSeriesInstanceUID]) {
-    manager[larvitarSeriesInstanceUID] = serie;
-    manager[larvitarSeriesInstanceUID].imageIds = [];
-    manager[larvitarSeriesInstanceUID].instances = {};
+  if (!manager[uniqueUID]) {
+    manager[uniqueUID] = serie;
+    manager[uniqueUID].imageIds = [];
+    manager[uniqueUID].instances = {};
   }
 
   each(range(numberOfFrames as number), function (frameNumber) {
@@ -112,7 +109,7 @@ export const buildMultiFrameImage = function (
     });
 
     // store file references
-    const managerSeriesId = manager[larvitarSeriesInstanceUID] as Series;
+    const managerSeriesId = manager[uniqueUID] as Series;
     managerSeriesId.seriesUID = serie.metadata!["x0020000e"] as string;
     managerSeriesId.studyUID = serie.metadata!["x0020000d"] as string;
     managerSeriesId.modality = serie.metadata!["x00080060"] as string;
@@ -142,10 +139,10 @@ export const buildMultiFrameImage = function (
 
   // check for DSA
   if (serie.metadata!["x00286100"] !== undefined) {
-    populateDsaImageIds(larvitarSeriesInstanceUID);
+    populateDsaImageIds(uniqueUID);
   }
 
-  store.addSeriesId(larvitarSeriesInstanceUID, serie.imageIds);
+  store.addSeriesId(uniqueUID, serie.imageIds);
 
   let t1 = performance.now();
   console.debug(`Call to buildMultiFrameImage took ${t1 - t0} milliseconds.`);

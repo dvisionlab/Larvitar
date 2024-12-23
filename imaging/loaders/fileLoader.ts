@@ -5,24 +5,37 @@
 
 // external libraries
 import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
-import { has } from "lodash";
 
 // internal libraries
 import { clearImageCache } from "../imageRendering";
 import { clearCornerstoneElements } from "../imageTools";
-
-// global variables
-export var fileManager: {
-  [key: string]: string;
-} = {};
+import { resetFileManager } from "../imageManagers";
 
 /*
  * This module provides the following functions to be exported:
+ * getFileCustomImageId(file)
  * resetFileLoader()
- * resetFileManager()
- * populateFileManager(file)
- * getFileImageId(file)
  */
+
+/**
+ * Get the custom imageId from file loader
+ * @instance
+ * @function getFileCustomImageId
+ * @param {File | ArrayBuffer} data The file object or arrayBuffer to be loaded
+ * @return {String} the custom image id
+ */
+export const getFileCustomImageId = function (
+  data: File | ArrayBuffer
+): string {
+  // check if file is a File
+  if (data instanceof File) {
+    return cornerstoneFileImageLoader.fileManager.add(data);
+  } else if (data instanceof ArrayBuffer) {
+    return cornerstoneFileImageLoader.fileManager.addBuffer(data);
+  } else {
+    throw new Error("Invalid data type");
+  }
+};
 
 /**
  * Reset the Custom File Loader
@@ -33,52 +46,4 @@ export const resetFileLoader = function () {
   clearCornerstoneElements();
   resetFileManager();
   clearImageCache();
-};
-
-/**
- * Reset the File Manager store
- * @instance
- * @function resetFileManager
- */
-export const resetFileManager = function () {
-  fileManager = {};
-};
-
-/**
- * Populate File Manager
- * @instance
- * @function populateFileManager
- * @return {String} current file image id
- */
-export const populateFileManager = function (file: File) {
-  let uuid = file.webkitRelativePath || file.name;
-  if (!has(fileManager, uuid)) {
-    const imageId = cornerstoneFileImageLoader.fileManager.add(file);
-    fileManager[uuid] = imageId;
-  }
-};
-
-/**
- * Get the file imageId from file loader
- * @instance
- * @function getFileImageId
- * @return {String} current file image id
- */
-export const getFileImageId = function (file: File) {
-  let uuid = file.webkitRelativePath || file.name;
-  const imageId = has(fileManager, uuid) ? fileManager[uuid] : null;
-  return imageId;
-};
-
-/**
- * Return the common data file manager
- * @instance
- * @function getFileManager
- * @returns {Object} the file manager
- */
-export const getFileManager = function () {
-  if (fileManager == null) {
-    fileManager = {};
-  }
-  return fileManager;
 };

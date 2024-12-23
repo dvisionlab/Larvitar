@@ -8,11 +8,8 @@ import cornerstone from "cornerstone-core";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 
 // internal libraries
-import {
-  getImageFrame,
-  getLarvitarImageTracker,
-  getLarvitarManager
-} from "./commonLoader";
+import { getImageFrame } from "./commonLoader";
+import { getImageTracker, getImageManager } from "../imageManagers";
 import type { Image, ImageFrame, MetaData } from "../types";
 
 /*
@@ -28,8 +25,8 @@ import type { Image, ImageFrame, MetaData } from "../types";
  * @returns {Object} custom image object
  */
 export const loadReslicedImage = function (imageId: string) {
-  let manager = getLarvitarManager();
-  let imageTracker = getLarvitarImageTracker();
+  let manager = getImageManager();
+  let imageTracker = getImageTracker();
   let seriesId = imageTracker[imageId];
   let instance = manager[seriesId].instances[imageId];
   var reslicedPixeldata = instance.pixelData;
