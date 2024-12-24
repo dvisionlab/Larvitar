@@ -1,47 +1,44 @@
 describe("Larvitar DICOM PDF Rendering", () => {
   beforeEach(() => {
-    // Visit the page where your HTML is served
     cy.visit("../../docs/examples/pdf.html"); // Adjust URL as necessary
   });
 
-  it("should load and render the viewer with DICOM PDF", () => {
-    // Check if the viewer element is visible
-    cy.get("#viewer").should("be.visible");
-
-    // Simulate the loading of the DICOM PDF file and the rendering process
+  it("should wait for cornerstone elements to be enabled and verify Pan activation", () => {
+    const viewportSelector = "#viewer";
+    cy.get(viewportSelector).should("be.visible");
+    cy.wait(1000);
     cy.window().then(win => {
-      // Ensure larvitar is initialized before interacting with it
       cy.wrap(win.larvitar)
         .should("exist")
         .then(larvitar => {
-          // Retry until setToolActive is available
-          cy.wrap(larvitar)
-            .should("have.property", "setToolActive") // Wait until the method exists
-            .then(() => {
-              // Replace setToolActive with a stub to track calls and log arguments
-              const toolActiveStub = cy
-                .stub(larvitar, "setToolActive")
-                .callsFake(arg => {
-                  console.log("setToolActive called with:", arg);
-                })
-                .as("setToolActiveStub");
+          // Stub the `setToolActive` method
+          // cy.stub(larvitar, "setToolActive").as("setToolActiveStub");
+          const larvitarManager = larvitar.getLarvitarManager();
 
-              // Wait for the PDF to be loaded and rendered (adjust duration as needed)
-              cy.wait(2000); // Adjust this duration based on how long it takes to render
+          // Check for WWL tool's active state by its specific identifier
+          expect(larvitarManager).to.have.property(
+            "1.2.276.0.7230010.3.1.3.296485376.1.1664404001.305752"
+          );
+          expect(larvitar.cornerstoneTools).to.exist;
+          expect(larvitar.cornerstone).to.exist;
 
-              // Verify that setToolActive was called with "Pan"
-              cy.get("@setToolActiveStub").should("have.been.called");
+          const element = larvitar.cornerstone.getEnabledElements()[0].element;
+          console.log(element);
+          //expect(larvitar.cornerstoneTools.isToolActiveForElement).to.exist;
+          const imageIds = larvitar.cornerstoneTools.getToolState(
+            element,
+            "stack"
+          ).data[0].imageIds;
+          expect(imageIds.length).to.equal(4);
+          // Validate "Pan" tool activation
+          const isPanActive = larvitar.cornerstoneTools.isToolActiveForElement(
+            element,
+            "Pan"
+          );
 
-              // Check the arguments that were passed to setToolActive
-              cy.get("@setToolActiveStub").should(
-                "have.been.calledWith",
-                "Pan"
-              );
-            });
+          expect(isPanActive).to.equal(true);
+          // Wait for cornerstone to have enabled elements
         });
     });
-
-    // Check if the viewer's layout is updated after rendering the DICOM PDF
-    cy.get("#viewer").should("have.class", "col-8");
   });
 });

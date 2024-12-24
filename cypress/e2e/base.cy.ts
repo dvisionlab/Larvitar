@@ -223,19 +223,15 @@ describe("Testing the base.html functionalities", () => {
     cy.wait(5000);
     // Step 5: Simulate WWL tool interaction (mouse events for adjustment)
     cy.get(".cornerstone-canvas")
-      .trigger("mousedown", {
+      .trigger("mousedown", "center", {
         force: true,
-        which: 1,
-        clientX: 305,
-        clientY: 563
+        which: 1
       })
-      .trigger("mousemove", {
+      .trigger("mousemove", "top", {
         force: true,
-        which: 1,
-        clientX: 310,
-        clientY: 570
+        which: 1
       })
-      .trigger("mouseup", { force: true, which: 1 });
+      .trigger("mouseup", "top", { force: true, which: 1 });
 
     // Step 6: Verify that WW and WC values have changed after interaction
     let updatedWW, updatedWC;
