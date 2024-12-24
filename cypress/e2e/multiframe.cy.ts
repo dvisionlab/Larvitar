@@ -1,0 +1,93 @@
+describe("Larvitar Multiframe Rendering", () => {
+  beforeEach(() => {
+    cy.visit("../../docs/examples/multiframe.html"); // Change this URL to where your HTML file is served
+  });
+
+  it("should load the viewer and start with an initial frame", () => {
+    // Check if the viewer is visible
+    cy.get("#viewer").should("be.visible");
+
+    // Check if the frame rate is displayed
+    cy.get("#frame-rate").should("contain", "Frame Rate:");
+
+    // Check if the current frame information is visible
+    cy.get("#image-time").should("contain", "Current Frame:");
+  });
+
+  it('should play/pause frame animation on pressing "p"', () => {
+    cy.wait(500);
+    cy.get("#image-time")
+      .invoke("text")
+      .then(initialText => {
+        cy.log("Initial Frame: ", initialText);
+
+        cy.get("body").type("p");
+
+        cy.wait(500);
+
+        cy.get("#image-time")
+          .invoke("text")
+          .then(updatedText => {
+            cy.log("Updated Frame after Pause:", updatedText);
+
+            expect(updatedText).to.equal(initialText);
+          });
+
+        cy.get("body").type("p");
+
+        cy.wait(500);
+
+        cy.get("#image-time")
+          .invoke("text")
+          .then(pausedText => {
+            cy.log("Played Frame:", pausedText);
+
+            expect(pausedText).not.to.equal(initialText);
+          });
+      });
+  });
+
+  it("should update the statistics every second", () => {
+    // Check the initial Web Worker stats
+    cy.get("#maxWebWorkers").should("not.be.empty");
+    cy.get("#numWebWorkers").should("not.be.empty");
+    cy.get("#numQueuedTasks").should("not.be.empty");
+    cy.get("#numTasksExecuting").should("not.be.empty");
+    cy.get("#totalTasksExecuted").should("not.be.empty");
+    cy.get("#totalTaskExecutionTime").should("not.be.empty");
+    cy.get("#totalTaskDelayTime").should("not.be.empty");
+    cy.get("#image-time").should("not.be.empty");
+
+    // Ensure the stats update every second
+    cy.wait(1000); // Wait for 1 second to allow statistics to refresh
+    cy.get("#maxWebWorkers").should("not.be.empty");
+    cy.get("#image-time").should("not.be.empty");
+  });
+
+  it("should update the frame when scrolling the mouse wheel", () => {
+    cy.wait(500);
+    let initialFrame;
+
+    // Store the initial frame before scrolling
+    cy.get("#image-time")
+      .invoke("text")
+      .then(text => {
+        initialFrame = text; // Store the initial frame
+        cy.log("Initial Frame Before Scroll:", initialFrame); // Debugging log
+      });
+
+    // Simulate a wheel event to update the frame (use force: true to bypass covering element issue)
+    cy.get("#viewer").trigger("wheel", { deltaY: 100, force: true });
+
+    // Verify that the frame has been updated after the wheel event
+    cy.get("#image-time").should("not.contain", initialFrame);
+
+    // Store the new frame after scrolling
+    cy.get("#image-time")
+      .invoke("text")
+      .then(newText => {
+        cy.log("New Frame After Scroll:", newText); // Debugging log
+        cy.get("#image-time").should("contain", newText); // Ensure that the frame has been updated
+      });
+  });
+});

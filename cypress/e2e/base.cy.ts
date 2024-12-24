@@ -145,10 +145,24 @@ describe("Testing the base.html functionalities", () => {
     const viewportSelector = "#viewer";
     cy.get(viewportSelector).should("be.visible");
 
-    // Wait for the 'allFilesLoaded' event and ensure spinner is gone
+    // Wait for the 'allFilesLoaded' event
     cy.window().should("have.property", "allFilesLoaded", true);
-    cy.get("#spinner").should("not.be.visible");
 
+    // Optionally, you can also check that the spinner has been removed after files are loaded
+    cy.get("#spinner").should("not.be.visible");
+    cy.window()
+      .its("larvitar")
+      .then(larvitar => {
+        const larvitarManager = larvitar.getLarvitarManager();
+        expect(larvitarManager).to.have.property(
+          "1.2.840.113619.2.176.2025.1499492.7391.1171285944.394"
+        );
+        const managerData =
+          larvitarManager[
+            "1.2.840.113619.2.176.2025.1499492.7391.1171285944.394"
+          ];
+        expect(managerData.imageIds).to.have.length(24);
+      });
     // Step 2: Function to get current WWL values from the viewport
     const getWWWCValues = () => {
       return cy
@@ -206,13 +220,22 @@ describe("Testing the base.html functionalities", () => {
         // Verify that WWL tool is active
         expect(isWwwcActive).to.equal(true);
       });
-
+    cy.wait(5000);
     // Step 5: Simulate WWL tool interaction (mouse events for adjustment)
     cy.get(".cornerstone-canvas")
-      .trigger("mousemove", { clientX: 0, clientY: 0, force: true })
-      .trigger("mousedown", { which: 1, force: true })
-      .trigger("mousemove", { clientX: 1000, clientY: 1000, force: true })
-      .trigger("mouseup", { force: true });
+      .trigger("mousedown", {
+        force: true,
+        which: 1,
+        clientX: 305,
+        clientY: 563
+      })
+      .trigger("mousemove", {
+        force: true,
+        which: 1,
+        clientX: 310,
+        clientY: 570
+      })
+      .trigger("mouseup", { force: true, which: 1 });
 
     // Step 6: Verify that WW and WC values have changed after interaction
     let updatedWW, updatedWC;
