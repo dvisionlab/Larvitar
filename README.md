@@ -9,7 +9,6 @@
 ![Last Commit](https://img.shields.io/github/last-commit/dvisionlab/Larvitar)
 ![GitHub stars](https://img.shields.io/github/stars/dvisionlab/Larvitar?style=social)
 
-
 **Larvitar** is a modern, lightweight TypeScript library for medical imaging applications. Built on top of the Cornerstone ecosystem, Larvitar provides tools for rendering, analyzing, and interacting with medical images, including support for advanced modalities like multiframe images, NRRD, and ECG synchronization.
 
 ## 🛠 Current Version
@@ -34,6 +33,7 @@ Check out the [releases page](https://github.com/dvisionlab/Larvitar/releases) f
 Comprehensive documentation is available on the [Larvitar Documentation Page](https://larvitar.dvisionlab.com).
 
 ### Sections
+
 1. [**Core API**](https://larvitar.dvisionlab.com/api/): Learn how to parse, load, and render DICOM images.
 2. [**Modules**](https://larvitar.dvisionlab.com/api/): Explore the segmentation tools, color maps, and advanced rendering features.
 3. [**Examples**](https://larvitar.dvisionlab.com/guide/examples.html): See working examples for ECG synchronization, NRRD image loading, segmentation tools, and more.
@@ -67,16 +67,17 @@ To start developing Larvitar or contribute to the project:
 2. **Install dependencies**:
    ```bash
     yarn install
-    ```
+   ```
 3. **Start the development server**:
-    ```bash
-    yarn run dev
-    ```
+   ```bash
+   yarn run dev
+   ```
 4. **Open the development environment**:
-    - Serve the examples folder using a static server (e.g., `http-server` or visual studio code live server).
-    - Navigate to http://localhost:5500/docs/examples/<example_name>.html (or the port configured in your dev server).
+   - Serve the examples folder using a static server (e.g., `http-server` or visual studio code live server).
+   - Navigate to http://localhost:5500/docs/examples/<example_name>.html (or the port configured in your dev server).
 
 ## 📝 License
+
 Larvitar is licensed under the MIT License. Feel free to use, modify, and distribute it in your projects.
 
 ## 🤝 Contributing
@@ -92,8 +93,6 @@ Larvitar has adopted a [Code of Conduct](CODE_OF_CONDUCT.md) that we expect proj
 - Laura Borghesi, D/Vision Lab | [LinkedIn](https://linkedin.com/in/laura-borghesi-160557218)
 - Sara Zanchi, D/Vision Lab | [LinkedIn](https://linkedin.com/in/sara-zanchi-113a4b61)
 
-
 <p align="center">
   <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" width="200" title="D/Vision Lab Logo" alt="D/Vision Lab Logo">
 </p>
-

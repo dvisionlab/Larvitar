@@ -15,6 +15,7 @@ The NRRD Parser Module provides functionality to parse and decode NRRD (Nearly R
 - **Integration-Ready:** Easily integrates into frameworks like Larvitar as a custom image loader.
 
 ## API Reference
+
 `parse`
 Parses a NRRD file buffer and returns its metadata and image data.
 
@@ -26,8 +27,8 @@ parse(nrrdBuffer: ArrayBuffer, options: { headerOnly?: boolean }): { header: obj
 
 ### Parameters
 
-| Parameter    |	Type	     | Description                                                      |
-|--------------|-----------------|------------------------------------------------------------------|
+| Parameter    |	Type	       | Description                                                      |
+|--------------|---------------|------------------------------------------------------------------|
 | `nrrdBuffer` |	ArrayBuffer	 | The buffer containing the NRRD file data.                        |   
 | `options`    |	object	     | Optional settings. Set headerOnly: true to return only metadata. |
 
