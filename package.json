@@ -30,9 +30,8 @@
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
   "contributors": [
     "Mattia Ronzoni <mattia.ronzoni@dvisionlab.com> (https://www.dvisionlab.com)",
-    "Sara Zanchi <sara.zanchi@dvisionlab.com> (https://www.dvisionlab.com)",
-    "Ale Re <ale.re@dvisionlab.com> (https://www.dvisionlab.com)",
-    "Laura Borghesi <laura.borghesi@dvisionlab.com> (https://www.dvisionlab.com)"
+    "Laura Borghesi <laura.borghesi@dvisionlab.com> (https://www.dvisionlab.com)",
+    "Sara Zanchi <sara.zanchi@dvisionlab.com> (https://www.dvisionlab.com)"
   ],
   "license": "MIT",
   "dependencies": {

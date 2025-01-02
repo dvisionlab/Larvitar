@@ -5,6 +5,7 @@
 
 // external libraries
 import { PDFiumLibrary } from "@hyzyla/pdfium/browser/cdn";
+
 // internal libraries
 import { populateFileManager } from "../imageManagers";
 
@@ -17,34 +18,43 @@ import { populateFileManager } from "../imageManagers";
  */
 export const generateFiles = async function (fileURL: string): Promise<File[]> {
   let files: File[] = [];
-  const response = await fetch(fileURL);
+  const response: Response = await fetch(fileURL);
   if (!response.ok) {
     throw new Error(`Failed to fetch PDF file: ${response.statusText}`);
   }
-  const pdfFile = await response.blob();
+
+  let pdfFile: Blob = await response.blob();
 
   if (pdfFile.type !== "application/pdf") {
     throw new Error("Invalid MIME type, expected application/pdf");
   }
 
-  const buff = await pdfFile.arrayBuffer();
+  let buff: ArrayBuffer = await pdfFile.arrayBuffer();
 
   // Initialize the library and load the document
   const library = await PDFiumLibrary.init({
     disableCDNWarning: true
   });
 
-  const usableBuffer = new Uint8Array(buff);
+  let usableBuffer: Uint8Array = new Uint8Array(buff);
   const pdfdocument = await library.loadDocument(usableBuffer);
   const pages = await pdfdocument.pages();
 
   for (const page of pages) {
-    let aFile = await generateFile(page);
+    const aFile = await generateFile(page);
     files.push(aFile);
   }
 
   pdfdocument.destroy();
   library.destroy();
+
+  // free up memory
+  // @ts-ignore
+  pdfFile = null;
+  // @ts-ignore
+  buff = null;
+  // @ts-ignore
+  usableBuffer = null;
 
   return files;
 };
@@ -60,7 +70,7 @@ export const generateFiles = async function (fileURL: string): Promise<File[]> {
  */
 async function generateFile(page: any): Promise<File> {
   // Render PDF page to bitmap data using PDFium
-  const image = await page.render({
+  let image = await page.render({
     scale: 3, // TODO: adjust scale
     render: "bitmap"
   });
@@ -75,17 +85,15 @@ async function generateFile(page: any): Promise<File> {
   }
 
   // Create an ImageData object from the bitmap data
-  const imageData = new ImageData(
-    new Uint8ClampedArray(image.data), // Use the bitmap data from PDFium
-    image.width,
-    image.height
-  );
+  // Use the bitmap data from PDFium directly
+  let clampedArray = new Uint8ClampedArray(image.data);
+  let imageData = new ImageData(clampedArray, image.width, image.height);
 
   // Draw the image data onto the canvas
   ctx.putImageData(imageData, 0, 0);
 
   // Convert the canvas content to a Blob (PNG format)
-  const blob = await new Promise<Blob | null>(resolve =>
+  let blob = await new Promise<Blob | null>(resolve =>
     canvas.toBlob(blob => resolve(blob), "image/png")
   );
 
@@ -97,7 +105,20 @@ async function generateFile(page: any): Promise<File> {
   const file = new File([blob], `pdf_page_${page.number}.png`, {
     type: "image/png"
   });
+
+  // Populate the file manager with the file
   populateFileManager(file);
+
+  // free up memory
+  // @ts-ignore
+  image = null;
+  // @ts-ignore
+  clampedArray = null;
+  // @ts-ignore
+  imageData = null;
+  // @ts-ignore
+  blob = null;
+
   return file;
 }
 
