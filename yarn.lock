@@ -1410,6 +1410,18 @@
     gray-matter "^4.0.3"
     vue "^3.5.13"
 
+"@vuepress/helper@2.0.0-rc.68":
+  version "2.0.0-rc.68"
+  resolved "https://registry.yarnpkg.com/@vuepress/helper/-/helper-2.0.0-rc.68.tgz#29ee54ef33d596895bd6236df4784d1444d49bfe"
+  integrity sha512-4TlvjNQEiwDCCzb6m5bgfTBGdcMXW+78kevkOBW+1bksYjX0B4Gp8tKfJvzz3YwuHr/FCZ92zhPfSvhsvC5c0g==
+  dependencies:
+    "@vue/shared" "^3.5.13"
+    "@vueuse/core" "^12.2.0"
+    cheerio "1.0.0"
+    fflate "^0.8.2"
+    gray-matter "^4.0.3"
+    vue "^3.5.13"
+
 "@vuepress/highlighter-helper@2.0.0-rc.66":
   version "2.0.0-rc.66"
   resolved "https://registry.yarnpkg.com/@vuepress/highlighter-helper/-/highlighter-helper-2.0.0-rc.66.tgz#e6e417569ca324a0bbddc5f2351ab766a3ca5206"
@@ -1548,6 +1560,18 @@
     "@vuepress/helper" "2.0.0-rc.66"
     sitemap "^8.0.0"
 
+"@vuepress/plugin-slimsearch@^2.0.0-rc.68":
+  version "2.0.0-rc.68"
+  resolved "https://registry.yarnpkg.com/@vuepress/plugin-slimsearch/-/plugin-slimsearch-2.0.0-rc.68.tgz#b97bc8f7c4288fbc437e006b1f6d0514f96dd6bd"
+  integrity sha512-yvE4MF34OwO2Q3iEZb0TtgP3H7dVIBlExNaqfPpIiiNnB2PrJgRvp8/j9dp9oXgvljsPfheODrmHw0aI7SeBtA==
+  dependencies:
+    "@vuepress/helper" "2.0.0-rc.68"
+    "@vueuse/core" "^12.2.0"
+    cheerio "^1.0.0"
+    chokidar "^3.6.0"
+    slimsearch "^2.2.2"
+    vue "^3.5.13"
+
 "@vuepress/plugin-theme-data@2.0.0-rc.66":
   version "2.0.0-rc.66"
   resolved "https://registry.yarnpkg.com/@vuepress/plugin-theme-data/-/plugin-theme-data-2.0.0-rc.66.tgz#39d4213ed1f74b95edc1fc7ff5b66f8013185adb"
@@ -1613,15 +1637,37 @@
     "@vueuse/shared" "12.1.0"
     vue "^3.5.13"
 
+"@vueuse/core@^12.2.0":
+  version "12.3.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/core/-/core-12.3.0.tgz#c502cad93412f80588c1ca7fcbc8be88e279c793"
+  integrity sha512-cnV8QDKZrsyKC7tWjPbeEUz2cD9sa9faxF2YkR8QqNwfofgbOhmfIgvSYmkp+ttSvfOw4E6hLcQx15mRPr0yBA==
+  dependencies:
+    "@types/web-bluetooth" "^0.0.20"
+    "@vueuse/metadata" "12.3.0"
+    "@vueuse/shared" "12.3.0"
+    vue "^3.5.13"
+
 "@vueuse/metadata@12.1.0":
   version "12.1.0"
   resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-12.1.0.tgz#104504feebe8294a7fe6fcd0856b0efb9c159273"
   integrity sha512-XxU3sYdOhqKLO+LbreHzMqklCjs/rdRQcZGtu/AHPTXb2No/GUBVFJr/JruUB1NPWG26F8mr+c55P4YG6nMzcQ==
 
+"@vueuse/metadata@12.3.0":
+  version "12.3.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-12.3.0.tgz#ced4a05df89c6cc10154f6f7412745df928c18c2"
+  integrity sha512-M/iQHHjMffOv2npsw2ihlUx1CTiBwPEgb7DzByLq7zpg1+Ke8r7s9p5ybUWc5OIeGewtpY4Xy0R2cKqFqM8hFg==
+
 "@vueuse/shared@12.1.0":
   version "12.1.0"
   resolved "https://registry.yarnpkg.com/@vueuse/shared/-/shared-12.1.0.tgz#0c5eaf955d23fa69853a3f20abc83f749e911ad4"
   integrity sha512-tnuYb6Rp9dwMjsi/gukNeE+En3RFOfzrnVZX1vwbvq7+MbCkBNnXFvKgMGPlo1TQxgVd46D3NYwhBmM8Ioxd2A==
+  dependencies:
+    vue "^3.5.13"
+
+"@vueuse/shared@12.3.0":
+  version "12.3.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/shared/-/shared-12.3.0.tgz#c1a1fecad6731ec3924ed532a3ddb0d715d9bf56"
+  integrity sha512-X3YD35GUeW0d5Gajcwv9jdLAJTV2Jdb/Ll6Ii2JIYcKLYZqv5wxyLeKtiQkqWmHg3v0J0ZWjDUMVOw2E7RCXfA==
   dependencies:
     vue "^3.5.13"
 
@@ -2104,7 +2150,7 @@ cheerio-select@^2.1.0:
     domhandler "^5.0.3"
     domutils "^3.0.1"
 
-cheerio@1.0.0:
+cheerio@1.0.0, cheerio@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/cheerio/-/cheerio-1.0.0.tgz#1ede4895a82f26e8af71009f961a9b8cb60d6a81"
   integrity sha512-quS9HgjQpdaXOvsZz82Oz7uxtXiy6UIsIQcpBj7HRw2M63Skasm9qlDocAM7jNuaxdhpPU7c4kJN+gA5MCu4ww==
@@ -5427,6 +5473,11 @@ slash@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-5.1.0.tgz#be3adddcdf09ac38eebe8dcdc7b1a57a75b095ce"
   integrity sha512-ZA6oR3T/pEyuqwMgAKT0/hAv8oAXckzbkmR0UkUosQ+Mc4RxGoJkRmwHgHufaenlyAgE1Mxgpdcrf75y6XcnDg==
+
+slimsearch@^2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/slimsearch/-/slimsearch-2.2.2.tgz#b029ee576684d0f88304f7727581f906d16dc3d5"
+  integrity sha512-C+E3y4sKKzPzcOyty0G9CjXdLvY0ZWPSCQCDNqSv/P6+rvoL6RiHvuwr0wnxf0QgdbdyNiJQ0w7OdudHoabpCg==
 
 sockjs@^0.3.24:
   version "0.3.24"
