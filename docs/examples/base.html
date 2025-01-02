@@ -2,20 +2,7 @@
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
-    />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
-    <script>
-      hljs.highlightAll();
-    </script>
+
     <script>
       // Check the host and set the script source dynamically
       const script = document.createElement("script");
@@ -29,7 +16,17 @@
       // Append the script to the document
       document.head.appendChild(script);
     </script>
-    <title>Larvitar - Basic rendering example</title>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
     <style>
       body {
         font-family: Arial, Helvetica, sans-serif;
@@ -141,7 +138,68 @@
           transform: rotate(360deg);
         }
       }
+
+      .modal-content {
+        font-family: monospace;
+        font-size: 14px;
+        background-color: #2d2d2d;
+      }
+      .modal-title {
+        color: white;
+      }
+      pre {
+        margin: 0;
+      }
     </style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        const code = `
+larvitar.initializeImageLoader();
+larvitar.registerMultiFrameImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+larvitar
+  .readFiles(fileList)
+  .then(seriesStack => {
+    const seriesId = _.keys(seriesStack)[0];
+    const serie = seriesStack[seriesId];
+    larvitar.populateImageManager(seriesId, serie);
+    larvitar.renderImage(serie, "viewer").then(() => {
+      console.log("Image has been rendered");
+      larvitar.addDefaultTools();
+    });
+  })`;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
+    <title>Larvitar - Basic rendering example</title>
   </head>
 
   <body class="h-100" style="background-color: #000000">
@@ -158,8 +216,16 @@
           >
         </p>
         <button
+          id="showCodeBtn"
           class="open-button"
           style="position: absolute; top: 50px"
+        >
+          Show Code
+        </button>
+
+        <button
+          class="open-button"
+          style="position: absolute; left: 125px; top: 50px"
           onclick="openForm()"
         >
           Open Form
@@ -167,7 +233,8 @@
 
         <button
           class="open-button"
-          style="position: absolute; left: 125px; top: 50px"
+          id="previous"
+          style="position: absolute; left: 249px; top: 50px"
           onclick="getMetadata()"
         >
           Display Metadata
@@ -175,8 +242,8 @@
 
         <button
           class="open-button"
-          id="previous"
-          style="position: absolute; left: 293px; top: 50px"
+          id="next"
+          style="position: absolute; left: 416px; top: 50px"
           onclick="previousImage()"
         >
           Previous Series <-
@@ -185,7 +252,7 @@
         <button
           class="open-button"
           id="next"
-          style="position: absolute; left: 468px; top: 50px"
+          style="position: absolute; left: 590px; top: 50px"
           onclick="nextImage()"
         >
           Next Series ->
@@ -215,6 +282,44 @@
               Close
             </button>
           </form>
+        </div>
+
+        <!-- Modal -->
+        <div
+          class="modal fade"
+          id="codeModal"
+          tabindex="-1"
+          aria-labelledby="codeModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+              </div>
+              <div class="modal-footer">
+                <button id="copyCodeBtn" class="btn btn-success">
+                  Copy Code
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div id="metadataModal" class="modal">
