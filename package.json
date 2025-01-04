@@ -66,6 +66,7 @@
     "@types/plotly.js-dist-min": "^2.3.4",
     "@types/uuid": "^9.0.1",
     "@vuepress/bundler-vite": "^2.0.0-rc.18",
+    "@vuepress/plugin-slimsearch": "^2.0.0-rc.68",
     "@vuepress/theme-default": "^2.0.0-rc.60",
     "babel-loader": "^9.1.2",
     "clean-webpack-plugin": "^4.0.0",
