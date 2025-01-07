@@ -1,5 +1,4 @@
 module.exports = {
-  devtool: "source-map", // or inline-source-map ?
   module: {
     rules: [
       // HTML
@@ -18,6 +17,11 @@ module.exports = {
         test: /\.tsx?$/,
         use: "ts-loader",
         exclude: /node_modules/
+      },
+      // webAssembly support
+      {
+        test: /\.wasm$/,
+        type: "asset/resource"
       }
     ]
   },
@@ -34,5 +38,8 @@ module.exports = {
       path: false,
       crypto: false
     }
+  },
+  experiments: {
+    asyncWebAssembly: true
   }
 };

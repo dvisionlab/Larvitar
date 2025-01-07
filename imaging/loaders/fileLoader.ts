@@ -4,7 +4,7 @@
  */
 
 // external libraries
-import { cornerstoneFileImageLoader } from "cornerstone-file-image-loader";
+import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 
 // internal libraries
 import { clearImageCache } from "../imageRendering";

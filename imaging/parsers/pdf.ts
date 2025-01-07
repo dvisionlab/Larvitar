@@ -1,57 +1,13 @@
 /** @module imaging/parsers/pdf
  *  @desc  This file provides functionalities for
- *         managing pdf files using pdfjs-dist library
+ *         managing pdf files using PDFium
  */
 
 // external libraries
-import {
-  getDocument,
-  GlobalWorkerOptions,
-  PDFPageProxy,
-  PageViewport
-} from "pdfjs-dist";
-GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker");
+import { PDFiumLibrary } from "@hyzyla/pdfium/browser/cdn";
 
 // internal libraries
-import { pdfType } from "../types";
 import { populateFileManager } from "../imageManagers";
-
-/**
- * This module provides the following functions to be exported:
- * convertToPNG(pdf, pageNumber)
- * generateFiles(fileURL)
- */
-
-/**
- * Convert a pdf page to a png image in base64 format
- * @instance
- * @function convertToPNG
- * @param {pdfType} pdf - The pdf object
- * @param {number} pageNumber - The page number to be converted
- * @returns {string} The png image in base64 format
- */
-export const convertToPNG = async function (
-  pdf: pdfType,
-  pageNumber: number
-): Promise<string> {
-  const page: PDFPageProxy = await pdf.getPage(pageNumber);
-  const viewport: PageViewport = page.getViewport({ scale: 1.5 });
-  const canvas: HTMLCanvasElement = document.createElement("canvas");
-  canvas.height = viewport.height;
-  canvas.width = viewport.width;
-
-  const context: CanvasRenderingContext2D | null = canvas.getContext("2d");
-  if (context === null) {
-    throw new Error("Failed to get 2D context from canvas");
-  }
-
-  const renderContext = {
-    canvasContext: context,
-    viewport: viewport
-  };
-  await page.render(renderContext).promise;
-  return canvas.toDataURL("image/png");
-};
 
 /**
  * Generate an array of files from a pdf file
@@ -62,45 +18,119 @@ export const convertToPNG = async function (
  */
 export const generateFiles = async function (fileURL: string): Promise<File[]> {
   let files: File[] = [];
-  await getDocument(fileURL).promise.then(async (pdf: pdfType) => {
-    // cycle through pages
-    for (let i = 0; i < pdf.numPages; i++) {
-      let aFile: File | null = await generateFile(pdf, i + 1);
-      files[i] = aFile;
-      aFile = null;
-    }
+  const response: Response = await fetch(fileURL);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch PDF file: ${response.statusText}`);
+  }
+
+  let pdfFile: Blob = await response.blob();
+
+  if (pdfFile.type !== "application/pdf") {
+    throw new Error("Invalid MIME type, expected application/pdf");
+  }
+
+  let buff: ArrayBuffer = await pdfFile.arrayBuffer();
+
+  // Initialize the library and load the document
+  const library = await PDFiumLibrary.init({
+    disableCDNWarning: true
   });
-  return files; // Add this line to return the files array
+
+  let usableBuffer: Uint8Array = new Uint8Array(buff);
+  const pdfdocument = await library.loadDocument(usableBuffer);
+  const pages = await pdfdocument.pages();
+
+  for (const page of pages) {
+    const aFile = await generateFile(page);
+    files.push(aFile);
+  }
+
+  pdfdocument.destroy();
+  library.destroy();
+
+  // free up memory
+  // @ts-ignore
+  pdfFile = null;
+  // @ts-ignore
+  buff = null;
+  // @ts-ignore
+  usableBuffer = null;
+
+  return files;
 };
 
 // internal functions
 
 /**
- *
+ * Generate a single PNG file for a PDF page
  * @instance
  * @function generateFile
- * @param {pdfType} pdf - The pdf object
- * @param {number} pageNumber - The page number to be converted
- * @returns {File} The png image of the pdf page in a File object
+ * @param {any} page - The PDF page object
+ * @returns {File} The PNG image of the PDF page as a File object
  */
-async function generateFile(pdf: pdfType, pageNumber: number): Promise<File> {
-  const pngDataURL: string = await convertToPNG(pdf, pageNumber);
-  let byteString: string | null = atob(pngDataURL.split(",")[1]);
-  let ab: ArrayBuffer | null = new ArrayBuffer(byteString.length);
-  let ia: Uint8Array | null = new Uint8Array(ab);
-  for (let j = 0; j < byteString.length; j++) {
-    ia[j] = byteString.charCodeAt(j);
+async function generateFile(page: any): Promise<File> {
+  // Render PDF page to bitmap data using PDFium
+  let image = await page.render({
+    scale: 3, // TODO: adjust scale
+    render: "bitmap"
+  });
+
+  // Create a canvas element to convert the bitmap to PNG
+  const canvas = document.createElement("canvas");
+  canvas.width = image.width;
+  canvas.height = image.height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    throw new Error("Failed to get 2D context from canvas");
   }
-  let blob: Blob | null = new Blob([ab], {
+
+  // Create an ImageData object from the bitmap data
+  // Use the bitmap data from PDFium directly
+  let clampedArray = new Uint8ClampedArray(image.data);
+  let imageData = new ImageData(clampedArray, image.width, image.height);
+
+  // Draw the image data onto the canvas
+  ctx.putImageData(imageData, 0, 0);
+
+  // Convert the canvas content to a Blob (PNG format)
+  let blob = await new Promise<Blob | null>(resolve =>
+    canvas.toBlob(blob => resolve(blob), "image/png")
+  );
+
+  if (!blob) {
+    throw new Error("Failed to create PNG blob from canvas");
+  }
+
+  // Optionally create a File object
+  const file = new File([blob], `pdf_page_${page.number}.png`, {
     type: "image/png"
   });
-  let file: File | null = new File([blob], `pdf_page_${pageNumber}.png`, {
-    type: "image/png"
-  });
+
+  // Populate the file manager with the file
   populateFileManager(file);
-  byteString = null;
-  ab = null;
-  ia = null;
+
+  // free up memory
+  // @ts-ignore
+  image = null;
+  // @ts-ignore
+  clampedArray = null;
+  // @ts-ignore
+  imageData = null;
+  // @ts-ignore
   blob = null;
+
   return file;
+}
+
+// Helper function to download files
+function downloadFile(file: File | Blob): void {
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(file);
+  link.href = url;
+  //@ts-ignore
+  link.download = file.name ?? "downloadPdf";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }

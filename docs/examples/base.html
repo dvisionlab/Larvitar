@@ -2,20 +2,7 @@
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
-    />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
-    <script>
-      hljs.highlightAll();
-    </script>
+
     <script>
       // Check the host and set the script source dynamically
       const script = document.createElement("script");
@@ -29,30 +16,26 @@
       // Append the script to the document
       document.head.appendChild(script);
     </script>
-    <title>Larvitar - Basic rendering example</title>
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
     <style>
-      body {
-        font-family: Arial, Helvetica, sans-serif;
-      }
-      * {
-        box-sizing: border-box;
-      }
       label {
         color: #28b47f;
         font-weight: bold;
         text-align: center;
         border: 2px;
-      }
-      /* Button used to open the contact form - fixed at the bottom of the page */
-      .open-button {
-        background-color: #28b47f;
-        color: white;
-        padding: 16px 20px;
-        border: none;
-        cursor: pointer;
-        opacity: 0.8;
-        position: absolute;
-        top: 30px;
       }
 
       /* The popup form - hidden by default */
@@ -115,33 +98,56 @@
         background-color: #d8eaff;
         color: #0056b3;
       }
-
-      /* Spinner styling */
-      #spinner {
-        display: none; /* Hidden by default */
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        border: 8px solid #f3f3f3;
-        border-top: 8px solid #007bff;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 1s linear infinite;
-        z-index: 1000; /* Ensure it's on top */
-      }
-
-      /* Spinner animation */
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
     </style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        const code = `
+larvitar.initializeImageLoader();
+larvitar.registerMultiFrameImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+larvitar
+  .readFiles(fileList)
+  .then(seriesStack => {
+    const seriesId = Object.keys(seriesStack)[0];
+    const serie = seriesStack[seriesId];
+    larvitar.populateImageManager(seriesId, serie);
+    larvitar.renderImage(serie, "viewer").then(() => {
+      console.log("Image has been rendered");
+      larvitar.addDefaultTools();
+    });
+  })`;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
+    <title>Larvitar - Basic rendering example</title>
   </head>
 
   <body class="h-100" style="background-color: #000000">
@@ -158,8 +164,16 @@
           >
         </p>
         <button
+          id="showCodeBtn"
           class="open-button"
           style="position: absolute; top: 50px"
+        >
+          Show Code
+        </button>
+
+        <button
+          class="open-button"
+          style="position: absolute; left: 125px; top: 50px"
           onclick="openForm()"
         >
           Open Form
@@ -167,7 +181,8 @@
 
         <button
           class="open-button"
-          style="position: absolute; left: 125px; top: 50px"
+          id="previous"
+          style="position: absolute; left: 249px; top: 50px"
           onclick="getMetadata()"
         >
           Display Metadata
@@ -175,8 +190,8 @@
 
         <button
           class="open-button"
-          id="previous"
-          style="position: absolute; left: 293px; top: 50px"
+          id="next"
+          style="position: absolute; left: 416px; top: 50px"
           onclick="previousImage()"
         >
           Previous Series <-
@@ -185,7 +200,7 @@
         <button
           class="open-button"
           id="next"
-          style="position: absolute; left: 468px; top: 50px"
+          style="position: absolute; left: 590px; top: 50px"
           onclick="nextImage()"
         >
           Next Series ->
@@ -215,6 +230,44 @@
               Close
             </button>
           </form>
+        </div>
+
+        <!-- Modal -->
+        <div
+          class="modal fade"
+          id="codeModal"
+          tabindex="-1"
+          aria-labelledby="codeModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+              </div>
+              <div class="modal-footer">
+                <button id="copyCodeBtn" class="btn btn-success">
+                  Copy Code
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div id="metadataModal" class="modal">
@@ -448,7 +501,7 @@
       function getMetadata() {
         const modal = document.getElementById("metadataModal");
         const tableBody = document.querySelector("#metadataTable tbody");
-        const stack = larvitar.getLarvitarManager();
+        const stack = larvitar.getImageManager();
         const seriesId = larvitar.store.get([
           "viewports",
           "viewer",
@@ -473,7 +526,7 @@
           .readFiles(demoFiles)
           .then(seriesStack => {
             // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
             let manager = larvitar.getImageManager();
             let serie = manager[seriesId];
@@ -484,7 +537,7 @@
             });
             // optionally cache the series
 
-            _.each(_.keys(seriesStack), function (seriesId) {
+            Object.keys(seriesStack).forEach(seriesId => {
               larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
               larvitar.cacheImages(seriesStack[seriesId], function (resp) {
                 if (resp.loading == 100) {
@@ -525,12 +578,12 @@
 
       let demoFileList = getDemoFileNames();
       showSpinner(); // Show the spinner
-      _.each(demoFileList, function (demoFile) {
+      demoFileList.forEach(demoFile => {
         createFile(demoFile, renderSerie);
       });
 
       function previousImage() {
-        const stack = larvitar.getLarvitarManager();
+        const stack = larvitar.getImageManager();
         const seriesIds = Object.keys(stack);
         const seriesId = larvitar.store.get([
           "viewports",
@@ -551,7 +604,7 @@
       }
 
       function nextImage() {
-        const stack = larvitar.getLarvitarManager();
+        const stack = larvitar.getImageManager();
         const seriesIds = Object.keys(stack);
         const seriesId = larvitar.store.get([
           "viewports",

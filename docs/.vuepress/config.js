@@ -1,5 +1,6 @@
 import { defaultTheme } from "@vuepress/theme-default";
 import { viteBundler } from "@vuepress/bundler-vite";
+import { slimsearchPlugin } from "@vuepress/plugin-slimsearch";
 
 export default {
   title: "Larvitar Documentation",
@@ -45,7 +46,6 @@ export default {
             { text: "Interacting", link: "/api/interacting.md" },
             {
               text: "Modules",
-              link: "/api/modules.md",
               children: [
                 { text: "Store", link: "/api/modules/store.md" },
                 {
@@ -177,5 +177,10 @@ export default {
     "/": {
       lang: "en-US"
     }
-  }
+  },
+  plugins: [
+    slimsearchPlugin({
+      // options
+    })
+  ]
 };

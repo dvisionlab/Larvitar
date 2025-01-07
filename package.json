@@ -6,7 +6,7 @@
     "medical",
     "cornerstone"
   ],
-  "version": "3.0.0-beta.1",
+  "version": "3.0.0-beta.3",
   "description": "typescript library for parsing, loading, rendering and interacting with DICOM images",
   "repository": {
     "url": "https://github.com/dvisionlab/Larvitar.git",
@@ -20,18 +20,18 @@
   ],
   "scripts": {
     "coverage": "typescript-coverage-report",
+    "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json",
+    "postinstall": "patch-package",
     "build": "webpack --config ./bundler/webpack.prod.js",
     "dev": "webpack --progress --config ./bundler/webpack.dev.js",
-    "dev-wip": "webpack serve --config ./bundler/webpack.dev-wip.js",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs"
   },
   "author": "Simone Manini <simone.manini@dvisionlab.com> (https://www.dvisionlab.com)",
   "contributors": [
     "Mattia Ronzoni <mattia.ronzoni@dvisionlab.com> (https://www.dvisionlab.com)",
-    "Sara Zanchi <sara.zanchi@dvisionlab.com> (https://www.dvisionlab.com)",
-    "Ale Re <ale.re@dvisionlab.com> (https://www.dvisionlab.com)",
-    "Laura Borghesi Re <laura.borghesi@dvisionlab.com> (https://www.dvisionlab.com)"
+    "Laura Borghesi <laura.borghesi@dvisionlab.com> (https://www.dvisionlab.com)",
+    "Sara Zanchi <sara.zanchi@dvisionlab.com> (https://www.dvisionlab.com)"
   ],
   "license": "MIT",
   "dependencies": {
@@ -39,6 +39,7 @@
     "@cornerstonejs/dicom-image-loader": "^1.84.1",
     "@cornerstonejs/streaming-image-volume-loader": "^1.84.1",
     "@cornerstonejs/tools": "^1.84.1",
+    "@hyzyla/pdfium": "^2.1.2",
     "@rollup/plugin-commonjs": "^17.1.0",
     "cornerstone-core": "^2.6.1",
     "cornerstone-file-image-loader": "^0.3.0",
@@ -55,7 +56,7 @@
     "lodash": "^4.17.15",
     "pako": "^1.0.10",
     "papaparse": "^5.3.0",
-    "pdfjs-dist": "3.11.174",
+    "patch-package": "^8.0.0",
     "plotly.js-dist-min": "^2.27.1",
     "uuid": "^8.3.2"
   },
@@ -66,22 +67,18 @@
     "@types/hammerjs": "^2.0.41",
     "@types/lodash": "^4.14.192",
     "@types/papaparse": "^5.3.7",
-    "@types/pdfjs-dist": "^2.10.378",
     "@types/plotly.js": "^2.12.30",
     "@types/plotly.js-dist-min": "^2.3.4",
     "@types/uuid": "^9.0.1",
     "@vuepress/bundler-vite": "^2.0.0-rc.18",
+    "@vuepress/plugin-slimsearch": "^2.0.0-rc.68",
     "@vuepress/theme-default": "^2.0.0-rc.60",
     "babel-loader": "^9.1.2",
     "clean-webpack-plugin": "^4.0.0",
-    "copy-webpack-plugin": "^11.0.0",
-    "fs": "^0.0.1-security",
+    "eslint": "^9.17.0",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.6.0",
-    "ip": "^1.1.8",
-    "jsdoc": "^3.6.4",
     "lodash-webpack-plugin": "^0.11.6",
-    "portfinder-sync": "^0.0.2",
     "sass-embedded": "^1.80.7",
     "ts-loader": "^9.4.2",
     "typescript": "^5.0.2",

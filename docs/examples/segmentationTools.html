@@ -192,7 +192,7 @@
             }
       
             async function renderSerie() {
-              larvitar.resetLarvitarManager();
+              larvitar.resetImageManager();
               larvitar
                 .readFiles(demoFiles)
                 .then(seriesStack => {
@@ -432,7 +432,7 @@
       }
 
       async function renderSerie() {
-        larvitar.resetLarvitarManager();
+        larvitar.resetImageManager();
         const seriesStack = await larvitar.readFiles(demoFiles);
         // render the first series of the study
         let seriesId = _.keys(seriesStack)[0];
