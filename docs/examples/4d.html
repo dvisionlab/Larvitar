@@ -2,20 +2,7 @@
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
-    />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
-    <script>
-      hljs.highlightAll();
-    </script>
+
     <script>
       // Check the host and set the script source dynamically
       const script = document.createElement("script");
@@ -29,186 +16,144 @@
       // Append the script to the document
       document.head.appendChild(script);
     </script>
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        const code = `
+larvitar.initializeImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+larvitar
+  .readFiles(fileList)
+  .then(seriesStack => {
+    const seriesId = Object.keys(seriesStack)[0];
+    const serie = seriesStack[seriesId];
+    larvitar.populateImageManager(seriesId, serie);
+    larvitar.renderImage(serie, "viewer").then(() => {
+      console.log("Image has been rendered");
+      larvitar.addDefaultTools();
+      larvitar.setToolActive("CustomMouseWheelScroll");
+    });
+  })`;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
     <title>Larvitar - 4D rendering example</title>
   </head>
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
-      <button
-        id="toggleButton"
-        style="position: absolute; top: 0px; width: 200px; height: 30px"
-      >
-        Scroll Mode: Slices
-      </button>
-      <div
-        id="viewer"
-        class="col-8 h-100"
-        style="background-color: black"
-      ></div>
+      <div id="viewer" class="col-12 h-100" style="background-color: black">
+        <button
+          id="showCodeBtn"
+          class="open-button"
+          style="position: absolute; top: 10px"
+        >
+          Show Code
+        </button>
+
+        <button
+          id="toggleButton"
+          class="open-button"
+          style="position: absolute; left: 125px; top: 10px"
+        >
+          Scroll Mode: Slices
+        </button>
+        <div id="spinner"></div>
+      </div>
 
       <p
         id="image-time"
-        style="position: absolute; top: 35px; color: white"
+        style="position: absolute; top: 95px; color: white"
       ></p>
-      <p id="timestamp" style="position: absolute; top: 55px; color: white"></p>
-      <p id="slicenum" style="position: absolute; top: 75px; color: white"></p>
-      <p id="animation" style="position: absolute; top: 95px; color: white"></p>
+      <p
+        id="timestamp"
+        style="position: absolute; top: 115px; color: white"
+      ></p>
+      <p id="slicenum" style="position: absolute; top: 135px; color: white"></p>
+      <p
+        id="animation"
+        style="position: absolute; top: 155px; color: white"
+      ></p>
 
-      <div class="col-4 h-100">
-        <pre class="h-100">
-          <code class="javascript" style="background-color: #000000">
-          <p style="font-size:0.6vw;">
-            let currentMode = "stack";
-            let demoFiles = [];
-            let counter = 0;
-            let animation = false;
-            let animationId = null;
-            let frames_number = 0;
-      
-            const getDemoFileNames = function () {
-              let demoFileList = [];
-              for (let i = 1; i < 195; i++) {
-                let filename = "image_(" + i + ").dcm";
-                demoFileList.push(filename);
-              }
-              return demoFileList;
-            };
-      
-            // init all
-            larvitar.initializeImageLoader();
-            larvitar.initializeCSTools();
-            larvitar.store.initialize();
-            larvitar.store.addViewport("viewer");
-      
-            // create files from the demo folder
-            async function createFile(fileName, cb) {
-              let response = await fetch("./demo/4d/" + fileName);
-              let data = await response.blob();
-              let file = new File([data], fileName);
-              demoFiles.push(file);
-              counter++;
-              if (counter == 194) {
-                cb();
-              }
-            }
-      
-            // handle button to change scroll modality
-            function triggerHandleToggle() {
-              let newMode = currentMode === "stack" ? "slice" : "stack";
-              let newModeTxt = newMode === "stack" ? "Slices" : "Frames";
-              if (newMode === "stack") {
-                animation = false;
-                clearInterval(animationId);
-              }
-              larvitar.DEFAULT_TOOLS["CustomMouseWheelScroll"].currentMode = newMode;
-              larvitar.DEFAULT_TOOLS[
-                "CustomMouseWheelScroll"
-              ].configuration.currentMode = newMode;
-              currentMode = newMode;
-              $("#toggleButton").html("Scroll Mode: " + newModeTxt);
-              let animationText =
-                newMode === "stack" ? "" : "Press 'p' to start/stop animation";
-              $("#animation").html(animationText);
-            }
-            // Attach click event to the button
-            const toggleButton = document.getElementById("toggleButton");
-            toggleButton.addEventListener("click", triggerHandleToggle);
-      
-            // Update UI regarding timeId, timestamp and sliceId
-            function changeStamps() {
-              $("#image-time").html(
-                "Image Time Id: " +
-                  larvitar.store.get(["viewports", "viewer", "timeId"]) +
-                  " of " +
-                  larvitar.store.get(["viewports", "viewer", "maxTimeId"])
-              );
-              $("#timestamp").html(
-                "Image Time: " +
-                  larvitar.store.get(["viewports", "viewer", "timestamp"])
-              );
-              $("#slicenum").html(
-                "Slice Number: " +
-                  parseInt(
-                    Math.floor(
-                      larvitar.store.get(["viewports", "viewer", "sliceId"]) /
-                        frames_number
-                    ) + 1
-                  ) +
-                  " of 2"
-              );
-            }
-      
-            // main render function
-            function renderSerie() {
-              larvitar.readFiles(demoFiles).then(seriesStack => {
-                let seriesId = _.keys(seriesStack)[0];
-                let serie = seriesStack[seriesId];
-                larvitar.populateLarvitarManager(seriesId, serie);
-                let manager = larvitar.getImageManager();
-                let multiFrameSerie = manager[seriesId];
-                let frameId = 0;
-                larvitar
-                  .renderImage(multiFrameSerie, "viewer", frameId)
-                  .then(() => {
-                    frames_number = manager[seriesId].numberOfTemporalPositions;
-                    larvitar.addDefaultTools();
-                    larvitar.setToolActive("CustomMouseWheelScroll");
-                    // add information on UI regarding timeId, timestamp and sliceId
-                    changeStamps();
-      
-                    // add event listener to the wheel to update the UI
-                    document
-                      .getElementById("viewer")
-                      .addEventListener("wheel", function (event) {
-                        changeStamps();
-                      });
-      
-                    // add event listener to the keypress to start/stop the animation
-                    document.onkeypress = function (e) {
-                      if (e.key === "p" && currentMode === "slice") {
-                        animation = !animation;
-                        if (animation) {
-                          let sliceId = larvitar.store.get([
-                            "viewports",
-                            "viewer",
-                            "sliceId"
-                          ]);
-                          animationId = setInterval(function () {
-                            const sliceNumber = Math.floor(sliceId / frames_number);
-                            sliceId =
-                              sliceId === (sliceNumber + 1) * frames_number - 1
-                                ? sliceId - (frames_number - 1)
-                                : sliceId + 1;
-      
-                            larvitar.updateImage(serie, "viewer", sliceId, false);
-                            changeStamps();
-                          }, 100);
-                        } else {
-                          clearInterval(animationId);
-                        }
-                      }
-                    };
-                  })
-                  .catch(err => console.error(err));
-              });
-            }
-      
-            let demoFileList = getDemoFileNames();
-            _.each(demoFileList, function (demoFile) {
-              createFile(demoFile, renderSerie);
-            });
-          </p>
-          </code>
-        </pre>
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <script
-      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
-      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
-      crossorigin="anonymous"
-    ></script>
     <script>
       let currentMode = "stack";
       let demoFiles = [];
@@ -217,6 +162,17 @@
       let animationId = null;
       let frames_number = 0;
 
+      const spinner = document.getElementById("spinner");
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+      showSpinner();
       const getDemoFileNames = function () {
         let demoFileList = [];
         for (let i = 1; i < 195; i++) {
@@ -257,10 +213,11 @@
           "CustomMouseWheelScroll"
         ].configuration.currentMode = newMode;
         currentMode = newMode;
-        $("#toggleButton").html("Scroll Mode: " + newModeTxt);
+        document.getElementById("toggleButton").innerHTML =
+          "Scroll Mode: " + newModeTxt;
         let animationText =
           newMode === "stack" ? "" : "Press 'p' to start/stop animation";
-        $("#animation").html(animationText);
+        document.getElementById("animation").innerHTML = animationText;
       }
       // Attach click event to the button
       const toggleButton = document.getElementById("toggleButton");
@@ -268,40 +225,38 @@
 
       // Update UI regarding timeId, timestamp and sliceId
       function changeStamps() {
-        $("#image-time").html(
+        document.getElementById("image-time").innerHTML =
           "Image Time Id: " +
-            larvitar.store.get(["viewports", "viewer", "timeId"]) +
-            " of " +
-            larvitar.store.get(["viewports", "viewer", "maxTimeId"])
-        );
-        $("#timestamp").html(
+          larvitar.store.get(["viewports", "viewer", "timeId"]) +
+          " of " +
+          larvitar.store.get(["viewports", "viewer", "maxTimeId"]);
+        document.getElementById("timestamp").innerHTML =
           "Image Time: " +
-            larvitar.store.get(["viewports", "viewer", "timestamp"])
-        );
-        $("#slicenum").html(
+          larvitar.store.get(["viewports", "viewer", "timestamp"]);
+        document.getElementById("slicenum").innerHTML =
           "Slice Number: " +
-            parseInt(
-              Math.floor(
-                larvitar.store.get(["viewports", "viewer", "sliceId"]) /
-                  frames_number
-              ) + 1
-            ) +
-            " of 2"
-        );
+          parseInt(
+            Math.floor(
+              larvitar.store.get(["viewports", "viewer", "sliceId"]) /
+                frames_number
+            ) + 1
+          ) +
+          " of 2";
       }
 
       // main render function
       function renderSerie() {
         larvitar.readFiles(demoFiles).then(seriesStack => {
-          let seriesId = _.keys(seriesStack)[0];
+          let seriesId = Object.keys(seriesStack)[0];
           let serie = seriesStack[seriesId];
-          larvitar.populateLarvitarManager(seriesId, serie);
+          larvitar.populateImageManager(seriesId, serie);
           let manager = larvitar.getImageManager();
           let multiFrameSerie = manager[seriesId];
           let frameId = 0;
           larvitar
             .renderImage(multiFrameSerie, "viewer", frameId)
             .then(() => {
+              hideSpinner();
               frames_number = manager[seriesId].numberOfTemporalPositions;
               larvitar.addDefaultTools();
               larvitar.setToolActive("CustomMouseWheelScroll");
@@ -346,8 +301,8 @@
       }
 
       let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
-        createFile(demoFile, renderSerie);
+      demoFileList.forEach(fileName => {
+        createFile(fileName, renderSerie);
       });
     </script>
   </body>

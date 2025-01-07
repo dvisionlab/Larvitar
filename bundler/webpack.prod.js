@@ -5,16 +5,19 @@ const LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = merge(commonConfiguration, {
+  devtool: false,
   entry: path.resolve(__dirname, "../index.ts"),
   output: {
     path: path.resolve(__dirname, "../dist"),
     filename: "larvitar.js",
     library: "larvitar",
-    libraryTarget: "umd"
+    libraryTarget: "umd",
+    clean: true
   },
   mode: "production",
   plugins: [new CleanWebpackPlugin(), new LodashModuleReplacementPlugin()],
   optimization: {
-    minimize: true
+    minimize: true,
+    usedExports: true // Enable tree shaking
   }
 });
