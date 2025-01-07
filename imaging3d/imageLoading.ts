@@ -23,10 +23,7 @@ import {
 // global variables
 const { DicomMetaDictionary } = dcmjs.data;
 
-import {
-  getLarvitarImageTracker,
-  getLarvitarManager
-} from "../imaging/loaders/commonLoader";
+import { getImageTracker, getImageManager } from "../imaging/imageManagers";
 
 import {
   ImageObject,
@@ -118,12 +115,12 @@ export const registerStreamingImageVolume = function () {
  */
 export const updateLoadedStack = async function (
   seriesData: ImageObject,
-  allSeriesStack: ReturnType<typeof getLarvitarManager>,
+  allSeriesStack: ReturnType<typeof getImageManager>,
   customId?: string,
   sliceIndex?: number
 ) {
-  let imageTracker = getLarvitarImageTracker();
-  let lid = seriesData.metadata.larvitarSeriesInstanceUID;
+  let imageTracker = getImageTracker();
+  let lid = seriesData.metadata.uniqueUID;
   let sid = seriesData.metadata.seriesUID;
   let ssid = seriesData.metadata.studyUID;
   let iid = seriesData.metadata.instanceUID as string;
@@ -166,7 +163,7 @@ export const updateLoadedStack = async function (
       instanceUIDs: {}, // instanceUID: imageId (ordered)
       instances: {},
       seriesDescription: seriesDescription as string,
-      larvitarSeriesInstanceUID: lid as string,
+      uniqueUID: lid as string,
       seriesUID: sid as string,
       studyUID: ssid as string,
       numberOfImages: is4D ? (acquisitionNumberAttribute as number) : 0,

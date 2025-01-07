@@ -65,11 +65,13 @@
           .then(async seriesStack => {
             const seriesId = _.keys(seriesStack)[0];
             const serie = seriesStack[seriesId];
+            console.log(serie);
             // TODO FIX RENDERING WITH INDEX
             larvitar
               ._renderImage(serie, "viewer")
               .then(async ({ success, renderingEngine }) => {
                 console.log("Image has been rendered");
+                console.log(renderingEngine);
                 // add and enable wwwc, pan, zoom, and stack tools
                 larvitar._addDefaultTools("viewer", renderingEngine);
               });

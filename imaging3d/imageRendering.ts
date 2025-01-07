@@ -23,6 +23,7 @@ import { loadAndCacheMetadata } from "../imaging3d/imageLoading";
 import {
   //Image,
   Instance,
+  MetaData,
   Series,
   StoreViewport,
   StoreViewportOptions,
@@ -79,7 +80,9 @@ export const renderImage = function (
   let serie = { ...seriesStack };
 
   setStore(["ready", id, false]);
+  console.log(serie);
   let data = getSeriesData(serie, defaultProps);
+  console.log("data", data);
 
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
@@ -1170,7 +1173,7 @@ const getSeriesData = function (
   };
   type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
-  data.seriesUID = series.larvitarSeriesInstanceUID || series.seriesUID; //case of resliced series
+  data.seriesUID = series.uniqueUID || series.seriesUID; //case of resliced series
   data.modality = series.modality;
   if (series.isMultiframe) {
     data.isMultiframe = true;
@@ -1224,12 +1227,21 @@ const getSeriesData = function (
   data.isPDF = series.isPDF;
   data.waveform = series.waveform;
   data.dsa = series.dsa ? true : false;
-  if (instance) {
-    data.rows = instance.metadata.x00280010!;
-    data.cols = instance.metadata.x00280011!;
-    data.thickness = instance.metadata.x00180050 as number;
 
-    let spacing = instance.metadata.x00280030!;
+  let metadata: MetaData | undefined = undefined;
+
+  if (series.isMultiframe) {
+    metadata = series.metadata;
+  } else {
+    metadata = instance ? instance.metadata : undefined;
+  }
+
+  if (metadata) {
+    data.rows = metadata.x00280010!;
+    data.cols = metadata.x00280011!;
+    data.thickness = metadata.x00180050 as number;
+
+    let spacing = metadata.x00280030!;
     data.spacing_x = spacing ? spacing[0] : 1;
     data.spacing_y = spacing ? spacing[1] : 1;
     // window center and window width
@@ -1238,11 +1250,11 @@ const getSeriesData = function (
         windowCenter:
           defaultProps && defaultProps.wc
             ? defaultProps.wc
-            : (instance.metadata.x00281050 as number),
+            : (metadata.x00281050 as number),
         windowWidth:
           defaultProps && defaultProps.ww
             ? defaultProps.ww
-            : (instance.metadata.x00281051 as number)
+            : (metadata.x00281051 as number)
       }
     };
     data.default = {
@@ -1269,7 +1281,7 @@ const getSeriesData = function (
     }
   } else {
     console.warn(
-      `ImageId not found in imageIds with index ${data.imageIndex}.`
+      `No metadata found for imageId: ${data.imageId} in series: ${series.seriesUID}`
     );
   }
 
