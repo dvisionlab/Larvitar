@@ -2,20 +2,8 @@
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
-    />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
-    <script>
-      hljs.highlightAll();
-    </script>
+
+    <!-- Include the Larvitar script -->
     <script>
       // Check the host and set the script source dynamically
       const script = document.createElement("script");
@@ -29,173 +17,42 @@
       // Append the script to the document
       document.head.appendChild(script);
     </script>
-    <title>Larvitar - Layers rendering example</title>
-  </head>
 
-  <body class="h-100" style="background-color: #000000">
-    <div class="row h-100">
-      <div
-        id="viewer"
-        class="col-8 h-100"
-        style="background-color: black"
-      ></div>
-      <p style="position: absolute; color: white">
-        Press "a" to change the active layer
-      </p>
-      <p style="position: absolute; top: 20px; color: white">
-        Press "o" to change the opacity of the active layer
-      </p>
-      <p
-        id="active-layer"
-        style="position: absolute; top: 40px; color: white"
-      ></p>
-      <p id="opacity" style="position: absolute; top: 60px; color: white"></p>
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
 
-      <div class="col-4 h-100">
-        <pre class="h-100">
-          <code class="javascript" style="background-color: #000000">
-          <p style="font-size:0.6vw;">
-            let demoFiles = [];
-            let counter = 0;
-      
-            const getDemoFileNames = function () {
-              let demoFileList = [];
-              for (let i = 1; i < 25; i++) {
-                let filename = "anon" + i;
-                demoFileList.push(filename);
-              }
-              return demoFileList;
-            };
-      
-            // init all
-            larvitar.initializeImageLoader();
-            larvitar.initializeCSTools();
-            larvitar.store.initialize();
-            larvitar.store.addViewport("viewer");
-      
-            async function createFile(fileName, cb) {
-              let response = await fetch("./demo/" + fileName);
-              let data = await response.blob();
-              let file = new File([data], fileName);
-              demoFiles.push(file);
-              counter++;
-              if (counter == 24) {
-                cb();
-              }
-            }
-      
-            let layer_1, layer_2;
-      
-            function renderSerie() {
-              larvitar
-                .readFiles(demoFiles)
-                .then(seriesStack => {
-                  let seriesId = _.keys(seriesStack)[0];
-      
-                  let serie_1 = { ...seriesStack[seriesId] };
-                  let serie_2 = { ...seriesStack[seriesId] };
-      
-                  layer_1 = larvitar.buildLayer(serie_1, "main");
-                  layer_2 = larvitar.buildLayer(serie_2, "colored", {
-                    opacity: 0.25,
-                    colormap: "hotIron"
-                  });
-      
-                  // define a layer into the series object to be rendered
-                  serie_1.layer = layer_1;
-                  serie_2.layer = layer_2;
-      
-                  larvitar.renderImage(serie_1, "viewer").then(() => {
-                    console.log("Image 1 has been rendered");
-                  });
-                  larvitar.renderImage(serie_2, "viewer").then(() => {
-                    console.log("Image 2 has been rendered");
-                  });
-      
-                  $("#active-layer").html("Active Layer: main");
-                  $("#opacity").html("Opacity: 1.0");
-      
-                  larvitar.addDefaultTools();
-                })
-                .catch(err => console.log(err));
-            }
-            let demoFileList = getDemoFileNames();
-            _.each(demoFileList, function (demoFile) {
-              createFile(demoFile, renderSerie);
-            });
-      
-            document.onkeypress = function (e) {
-              e = e || window.event;
-              if (e.keyCode == 97) {
-                let activeLayer = larvitar.getActiveLayer("viewer");
-                let newActiveLayer =
-                  activeLayer.layerId == layer_1.id ? layer_2 : layer_1;
-      
-                larvitar.setActiveLayer("viewer", newActiveLayer.id);
-                $("#active-layer").html(
-                  "Active Layer: " + newActiveLayer.options.name
-                );
-                $("#opacity").html("Opacity: " + newActiveLayer.options.opacity);
-              }
-              if (e.keyCode == 111) {
-                let activeLayer = larvitar.getActiveLayer("viewer");
-                let opacity =
-                  activeLayer.options.opacity == 1.0
-                    ? 0.0
-                    : activeLayer.options.opacity + 0.25;
-                larvitar.updateLayer("viewer", activeLayer.layerId, {
-                  opacity: opacity
-                });
-                $("#opacity").html("Opacity: " + opacity);
-              }
-            };
-          </p>
-          </code>
-        </pre>
-      </div>
-    </div>
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
 
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <script
-      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
-      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
-      crossorigin="anonymous"
-    ></script>
+    <!-- custom styles for the example -->
+    <style></style>
 
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
     <script>
-      let demoFiles = [];
-      let counter = 0;
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
 
-      const getDemoFileNames = function () {
-        let demoFileList = [];
-        for (let i = 1; i < 25; i++) {
-          let filename = "anon" + i;
-          demoFileList.push(filename);
-        }
-        return demoFileList;
-      };
-
-      // init all
-      larvitar.initializeImageLoader();
-      larvitar.initializeCSTools();
-      larvitar.store.initialize();
-      larvitar.store.addViewport("viewer");
-
-      async function createFile(fileName, cb) {
-        let response = await fetch("./demo/" + fileName);
-        let data = await response.blob();
-        let file = new File([data], fileName);
-        demoFiles.push(file);
-        counter++;
-        if (counter == 24) {
-          cb();
-        }
-      }
-
-      let layer_1, layer_2;
-
-      function renderSerie() {
-        larvitar
+        // TODO Code snippet to be displayed and updated for the example
+        const code = `
+larvitar.initializeImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+ larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
             let seriesId = _.keys(seriesStack)[0];
@@ -240,28 +97,199 @@
                     );
                   }
                 });
-                const enabledElement =
-                  larvitar.cornerstone.getEnabledElements();
-                console.log(enabledElement);
-                const imageId = enabledElement[0].image.imageId;
-                let parsedImageId =
-                  larvitar.cornerstoneDICOMImageLoader.wadouri.parseImageId(
-                    imageId
-                  );
-                console.log(parsedImageId);
-                let rootImageId =
-                  parsedImageId.scheme + ":" + parsedImageId.url;
-                console.log(rootImageId);
-                let imageTracker = larvitar.getLarvitarImageTracker();
-                console.log(imageTracker);
-                seriesId = imageTracker[rootImageId];
-                console.log(seriesId);
                 larvitar.addDefaultTools();
               });
             });
 
             $("#active-layer").html("Active Layer: main");
             $("#opacity").html("Opacity: 1.0");
+          })
+`;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
+    <title>Larvitar - Layers rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div id="viewer" class="col-12 h-100" style="background-color: black">
+        <p style="position: absolute; color: white">
+          Press "a" to change the active layer
+        </p>
+        <p style="position: absolute; top: 20px; color: white">
+          Press "o" to change the opacity of the active layer
+        </p>
+        <p
+          id="active-layer"
+          style="position: absolute; top: 40px; color: white"
+        ></p>
+        <p id="opacity" style="position: absolute; top: 60px; color: white"></p>
+        <button
+          id="showCodeBtn"
+          class="open-button"
+          style="position: absolute; top: 80px"
+        >
+          Show Code
+        </button>
+
+        <!-- Modal -->
+        <div
+          class="modal fade"
+          id="codeModal"
+          tabindex="-1"
+          aria-labelledby="codeModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div
+                class="modal-body"
+                style="max-height: 70vh; overflow-y: auto"
+              >
+                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+              </div>
+              <div class="modal-footer">
+                <button id="copyCodeBtn" class="btn btn-success">
+                  Copy Code
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spinner icon -->
+        <div id="spinner"></div>
+      </div>
+    </div>
+
+    <script>
+      const spinner = document.getElementById("spinner");
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+      let demoFiles = [];
+      let counter = 0;
+
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 24) {
+          cb();
+        }
+      }
+
+      let layer_1, layer_2;
+
+      function renderSerie() {
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            let seriesId = _.keys(seriesStack)[0];
+
+            let serie_1 = { ...seriesStack[seriesId] };
+            let serie_2 = { ...seriesStack[seriesId] };
+            larvitar.populateImageManager(seriesId, serie_1);
+            larvitar.populateImageManager(seriesId, serie_2);
+            let manager = larvitar.getImageManager();
+            console.log(manager);
+            layer_1 = larvitar.buildLayer(serie_1, "main");
+            layer_2 = larvitar.buildLayer(serie_2, "colored", {
+              opacity: 0.25,
+              colormap: "hotIron"
+            });
+
+            // define a layer into the series object to be rendered
+            serie_1.layer = layer_1;
+            serie_2.layer = layer_2;
+
+            larvitar.renderImage(serie_1, "viewer").then(() => {
+              console.log("Image 1 has been rendered");
+              larvitar.cacheImages(serie_1, function (resp) {
+                if (resp.loading == 100) {
+                  let cache = larvitar.cornerstone.imageCache;
+                  console.log(
+                    "Cache size: ",
+                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                    "Mb"
+                  );
+                }
+              });
+              larvitar.renderImage(serie_2, "viewer").then(() => {
+                console.log("Image 2 has been rendered");
+                larvitar.cacheImages(serie_2, function (resp) {
+                  if (resp.loading == 100) {
+                    let cache = larvitar.cornerstone.imageCache;
+                    console.log(
+                      "Cache size: ",
+                      cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                      "Mb"
+                    );
+                  }
+                });
+                larvitar.addDefaultTools();
+              });
+            });
+
+            document.getElementById("active-layer").innerText =
+              "Active Layer: main";
+            document.getElementById("opacity").innerText = "Opacity: 1.0";
           })
           .catch(err => console.log(err));
       }
@@ -278,10 +306,10 @@
             activeLayer.layerId == layer_1.id ? layer_2 : layer_1;
 
           larvitar.setActiveLayer("viewer", newActiveLayer.id);
-          $("#active-layer").html(
-            "Active Layer: " + newActiveLayer.options.name
-          );
-          $("#opacity").html("Opacity: " + newActiveLayer.options.opacity);
+          document.getElementById("active-layer").innerText =
+            "Active Layer: " + newActiveLayer.options.name;
+          document.getElementById("opacity").innerText =
+            "Opacity: " + newActiveLayer.options.opacity;
         }
         if (e.keyCode == 111) {
           let activeLayer = larvitar.getActiveLayer("viewer");
@@ -292,7 +320,7 @@
           larvitar.updateLayer("viewer", activeLayer.layerId, {
             opacity: opacity
           });
-          $("#opacity").html("Opacity: " + opacity);
+          document.getElementById("opacity").innerText = "Opacity: " + opacity;
         }
       };
     </script>

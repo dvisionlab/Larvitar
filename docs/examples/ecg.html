@@ -2,20 +2,8 @@
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
-    />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
-    <script>
-      hljs.highlightAll();
-    </script>
+
+    <!-- Include the Larvitar script -->
     <script>
       // Check the host and set the script source dynamically
       const script = document.createElement("script");
@@ -29,12 +17,190 @@
       // Append the script to the document
       document.head.appendChild(script);
     </script>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- custom styles for the example -->
+    <style></style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        // TODO Code snippet to be displayed and updated for the example
+        const code = `
+larvitar.initializeImageLoader();
+larvitar.registerMultiFrameImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+
+async function renderSerie() {
+  const seriesStack = await larvitar.readFiles(demoFiles);
+  let seriesId = _.keys(seriesStack)[0];
+  let serie = seriesStack[seriesId];
+  larvitar.populateImageManager(seriesId, serie);
+
+  let manager = larvitar.getImageManager();
+  let multiFrameSerie = manager[seriesId];
+  let frameId = 0;
+
+  // Check and parse waveform data if available
+  if (multiFrameSerie.waveform) {
+    larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
+  }
+
+  // Render the first frame
+  await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+  larvitar.addDefaultTools();
+  larvitar.setToolActive("StackScroll");
+
+  let updateECG = true;
+  let animation = true;
+  let animationId = null;
+  let numberOfFrames = multiFrameSerie.numberOfFrames;
+  let frameTime = multiFrameSerie.frameTime;
+
+  let tStart = performance.now();
+
+  // Cine loop
+  animationId = setInterval(function () {
+    let endLoop = frameId === numberOfFrames - 1;
+    frameId = endLoop ? 0 : frameId + 1;
+
+    let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
+    larvitar.updateImage(series, "viewer", frameId, true);
+    larvitar.updateStackToolState("viewer", frameId);
+
+    if (updateECG) {
+      larvitar.updateECGMarker(trace_data, frameId, numberOfFrames, "ecg");
+    }
+
+    if (endLoop) {
+      let tEnd = performance.now();
+      tStart = performance.now();
+    }
+  }, frameTime);
+
+  // Generate and sync ECG data
+  let layout = larvitar.getDefaultECGLayout();
+  layout.margin.t = 20;
+
+  const trace_data = larvitar.renderECG(
+    manager[seriesId].ecgData,
+    "ecg",
+    "red",
+    numberOfFrames,
+    frameTime,
+    0,
+    layout
+  );
+
+  manager[seriesId].trace_data = trace_data;
+
+  larvitar.syncECGFrame(trace_data, seriesId, "viewer", numberOfFrames, "ecg");
+
+  // Handle keypresses
+  document.onkeypress = function (e) {
+    e = e || window.event;
+    if (e.keyCode === 101) updateECG = !updateECG; // Toggle ECG update
+
+    if (e.keyCode === 43 || e.keyCode === 45) {
+      animation = false;
+      clearInterval(animationId);
+
+      frameTime += e.keyCode === 43 ? frameTime * 0.1 : -frameTime * 0.1;
+      larvitar.updateECGTotalTime(
+        trace_data,
+        frameId,
+        numberOfFrames,
+        frameTime,
+        "ecg"
+      );
+
+      // Restart animation if needed
+      if (animation) {
+        animationId = setInterval(function () {
+          let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
+          frameId = frameId === numberOfFrames - 1 ? 0 : frameId + 1;
+          larvitar.updateImage(series, "viewer", frameId, false);
+          larvitar.updateStackToolState("viewer", frameId);
+          larvitar.updateECGMarker(
+            trace_data,
+            frameId,
+            numberOfFrames,
+            "ecg"
+          );
+        }, frameTime);
+      }
+    }
+
+    if (e.keyCode === 112) { // Toggle animation
+      animation = !animation;
+      if (animation) {
+        animationId = setInterval(function () {
+          let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
+          frameId = frameId === numberOfFrames - 1 ? 0 : frameId + 1;
+          larvitar.updateImage(series, "viewer", frameId, false);
+          larvitar.updateStackToolState("viewer", frameId);
+          larvitar.updateECGMarker(
+            trace_data,
+            frameId,
+            numberOfFrames,
+            "ecg"
+          );
+        }, frameTime);
+      } else {
+        clearInterval(animationId);
+      }
+    }
+  };
+}
+
+`;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
     <title>Larvitar - ECG rendering example</title>
   </head>
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-75">
-      <div id="viewer" class="col-8 h-100" style="background-color: black">
+      <div id="viewer" class="col-12 h-100" style="background-color: black">
         <p style="position: absolute; color: white">
           Press "p" to play/pause frame animation
         </p>
@@ -61,131 +227,74 @@
           id="image-time"
           style="position: absolute; top: 140px; color: white"
         ></p>
-      </div>
+        <button
+          id="showCodeBtn"
+          class="open-button"
+          style="position: absolute; top: 160px"
+        >
+          Show Code
+        </button>
 
-      <div class="col-4 h-100">
-        <pre class="h-100">
-          <code class="javascript" style="background-color: #000000">
-          <p style="font-size:0.6vw;">
-            let demoFiles = [];
+        <!-- Modal -->
+        <div
+          class="modal fade"
+          id="codeModal"
+          tabindex="-1"
+          aria-labelledby="codeModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div
+                class="modal-body"
+                style="max-height: 70vh; overflow-y: auto"
+              >
+                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+              </div>
+              <div class="modal-footer">
+                <button id="copyCodeBtn" class="btn btn-success">
+                  Copy Code
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            // init all
-            larvitar.initializeImageLoader();
-            larvitar.registerMultiFrameImageLoader();
-            larvitar.initializeCSTools();
-            larvitar.store.initialize();
-            larvitar.store.addViewport("viewer");
-
-            function renderSerie() {
-              larvitar.readFiles(demoFiles).then(seriesStack => {
-                let seriesId = _.keys(seriesStack)[0];
-                let serie = seriesStack[seriesId];
-                larvitar.populateLarvitarManager(seriesId, serie);
-                let manager = larvitar.getImageManager();
-                let multiFrameSerie = manager[seriesId];
-                let frameId = 0;
-                // check if the series has waveform data
-                if (multiFrameSerie.waveform) {
-                  larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
-                }
-                larvitar.renderImage(multiFrameSerie, "viewer", frameId).then(() => {
-                  console.log("Image has been rendered");
-                  larvitar.addDefaultTools();
-                  let animation = false;
-                  let animationId = null;
-                  let numberOfFrames = multiFrameSerie.numberOfFrames;
-                  let frameTime = multiFrameSerie.frameTime;
-                  // generate trace data and render the ECG
-
-                  const trace_data = larvitar.renderECG(
-                    manager[seriesId].ecgData,
-                    "ecg",
-                    "red",
-                    numberOfFrames,
-                    frameTime,
-                    0
-                  );
-                  // save trace data in the manager for futrue use
-                  manager[seriesId].trace_data = trace_data;
-                  // sync the ECG frame with the image frame
-                  larvitar.syncECGFrame(
-                    trace_data,
-                    seriesId,
-                    "viewer",
-                    numberOfFrames,
-                    "ecg"
-                  );
-
-                  let frameRate = multiFrameSerie.frameTime;
-                  $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
-                  $("#current-frame").html("Current Frame: 1 of " + numberOfFrames);
-
-                  document.onkeypress = function (e) {
-                    e = e || window.event;
-                    if (e.keyCode == 112) {
-                      animation = !animation;
-                      if (animation) {
-                        frameId = larvitar.store.get([
-                          "viewports",
-                          "viewer",
-                          "sliceId"
-                        ]);
-                        animationId = setInterval(function () {
-                          let series =
-                            larvitar.getSeriesDataFromLarvitarManager(seriesId);
-                          frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-                          larvitar.updateImage(series, "viewer", frameId, false);
-                          larvitar.updateStackToolState("viewer", frameId);
-                          $("#current-frame").html(
-                            "Current Frame: " +
-                              parseInt(frameId + 1) +
-                              " of " +
-                              numberOfFrames
-                          );
-                          larvitar.updateECGMarker(
-                            trace_data,
-                            frameId,
-                            numberOfFrames,
-                            "ecg"
-                          );
-                        }, frameRate);
-                      } else {
-                        clearInterval(animationId);
-                        $("#current-frame").html();
-                      }
-                    }
-                  };
-                });
-              });
-            }
-
-            async function createFile(fileName, cb) {
-              let response = await fetch("./demo/" + fileName);
-              let data = await response.blob();
-              let file = new File([data], fileName);
-              demoFiles.push(file);
-              cb();
-            }
-            createFile("119265", renderSerie);
-          </p>
-          </code>
-        </pre>
+        <!-- Spinner icon -->
+        <div id="spinner"></div>
       </div>
     </div>
-
     <div class="row h-25">
       <div id="ecg"></div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <script
-      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
-      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
-      crossorigin="anonymous"
-    ></script>
-
     <script>
-      let demoFiles = [];
+      const spinner = document.getElementById("spinner");
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
 
       // init all
       larvitar.initializeImageLoader();
@@ -193,6 +302,7 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+      let demoFiles = [];
 
       async function renderSerie() {
         const t0 = performance.now();
@@ -200,7 +310,7 @@
         // render the first series of the study
         let seriesId = _.keys(seriesStack)[0];
         let serie = seriesStack[seriesId];
-        larvitar.populateLarvitarManager(seriesId, serie);
+        larvitar.populateImageManager(seriesId, serie);
         let manager = larvitar.getImageManager();
         let multiFrameSerie = manager[seriesId];
 
@@ -222,25 +332,26 @@
         let frameTime = multiFrameSerie.frameTime;
         console.log("frameTime", frameTime);
         let frameRate = multiFrameSerie.frameTime;
-        $("#frame-rate").html("Frame Rate: " + frameRate.toFixed(3) + "ms");
-        $("#fps").html("FPS: " + (1000 / frameRate).toFixed(3));
-        $("#loop-time").html(
-          "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms"
-        );
-        $("#last-loop").html("- ms");
-        $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
+        document.getElementById("frame-rate").innerText =
+          "Frame Rate: " + frameRate.toFixed(3) + "ms";
+        document.getElementById("fps").innerText =
+          "FPS: " + (1000 / frameRate).toFixed(3);
+        document.getElementById("loop-time").innerText =
+          "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms";
+        document.getElementById("last-loop").innerText = "- ms";
+        document.getElementById("image-time").innerText =
+          "Current Frame: 1 of " + numberOfFrames;
 
         let tStart = performance.now();
         let endLoop = false;
         animationId = setInterval(function () {
           endLoop = frameId == numberOfFrames - 1 ? true : false;
-          let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
+          let series = larvitar.getDataFromImageManager(seriesId);
           frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
           larvitar.updateImage(series, "viewer", frameId, true);
           larvitar.updateStackToolState("viewer", frameId);
-          $("#image-time").html(
-            "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames
-          );
+          document.getElementById("image-time").innerText =
+            "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames;
           if (updateECG) {
             larvitar.updateECGMarker(
               trace_data,
@@ -252,9 +363,8 @@
           if (endLoop) {
             let tEnd = performance.now();
             const lastLoop = tEnd - tStart;
-            $("#last-loop").html(
-              "Loop Rendering Time: " + lastLoop.toFixed(3) + "ms"
-            );
+            document.getElementById("last-loop").innerText =
+              "Loop Rendering Time: " + lastLoop.toFixed(3) + "ms";
             tStart = performance.now();
           }
         }, frameRate);
@@ -267,12 +377,11 @@
           .getElementById("viewer")
           .addEventListener("wheel", function (event) {
             frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
-            $("#image-time").html(
+            document.getElementById("image-time").innerText =
               "Current Frame: " +
-                parseInt(frameId + 1) +
-                " of " +
-                numberOfFrames
-            );
+              parseInt(frameId + 1) +
+              " of " +
+              numberOfFrames;
           });
 
         // generate trace data and render the ECG
@@ -303,14 +412,13 @@
         document
           .getElementById("viewer")
           .addEventListener("wheel", function (event) {
-            $("#image-time").html(
+            document.getElementById("image-time").innerText =
               "Current Frame: " +
-                parseInt(
-                  larvitar.store.get(["viewports", "viewer", "sliceId"]) + 1
-                ) +
-                " of " +
-                numberOfFrames
-            );
+              parseInt(
+                larvitar.store.get(["viewports", "viewer", "sliceId"]) + 1
+              ) +
+              " of " +
+              numberOfFrames;
           });
 
         document.onkeypress = function (e) {
@@ -329,11 +437,12 @@
               frameRate,
               "ecg"
             );
-            $("#frame-rate").html("Frame Rate: " + frameRate.toFixed(3) + "ms");
-            $("#fps").html("FPS: " + (1000 / frameRate).toFixed(3));
-            $("#loop-time").html(
-              "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms"
-            );
+            document.getElementById("frame-rate").innerText =
+              "Frame Rate: " + frameRate.toFixed(3) + "ms";
+            document.getElementById("fps").innerText =
+              "FPS: " + (1000 / frameRate).toFixed(3);
+            document.getElementById("loop-time").innerText =
+              "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms";
           }
           if (e.keyCode == 45) {
             animation = false;
@@ -346,11 +455,12 @@
               frameRate,
               "ecg"
             );
-            $("#frame-rate").html("Frame Rate: " + frameRate.toFixed(3) + "ms");
-            $("#fps").html("FPS: " + (1000 / frameRate).toFixed(3));
-            $("#loop-time").html(
-              "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms"
-            );
+            document.getElementById("frame-rate").innerText =
+              "Frame Rate: " + frameRate.toFixed(3) + "ms";
+            document.getElementById("fps").innerText =
+              "FPS: " + (1000 / frameRate).toFixed(3);
+            document.getElementById("loop-time").innerText =
+              "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms";
           }
 
           if (e.keyCode == 112) {
@@ -358,17 +468,15 @@
             if (animation) {
               frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
               animationId = setInterval(function () {
-                let series =
-                  larvitar.getSeriesDataFromLarvitarManager(seriesId);
+                let series = larvitar.getDataFromImageManager(seriesId);
                 frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
                 larvitar.updateImage(series, "viewer", frameId, false);
                 larvitar.updateStackToolState("viewer", frameId);
-                $("#image-time").html(
+                document.getElementById("image-time").innerText =
                   "Current Frame: " +
-                    parseInt(frameId + 1) +
-                    " of " +
-                    numberOfFrames
-                );
+                  parseInt(frameId + 1) +
+                  " of " +
+                  numberOfFrames;
                 larvitar.updateECGMarker(
                   trace_data,
                   frameId,
@@ -378,7 +486,7 @@
               }, frameRate);
             } else {
               clearInterval(animationId);
-              $("#image-time").html();
+              document.getElementById("image-time").innerText = "";
             }
           }
         };
