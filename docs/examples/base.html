@@ -17,6 +17,9 @@
       document.head.appendChild(script);
     </script>
 
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
     <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
     <link
       rel="stylesheet"
@@ -28,28 +31,11 @@
     />
 
     <style>
-      body {
-        font-family: Arial, Helvetica, sans-serif;
-      }
-      * {
-        box-sizing: border-box;
-      }
       label {
         color: #28b47f;
         font-weight: bold;
         text-align: center;
         border: 2px;
-      }
-      /* Button used to open the contact form - fixed at the bottom of the page */
-      .open-button {
-        background-color: #28b47f;
-        color: white;
-        padding: 16px 20px;
-        border: none;
-        cursor: pointer;
-        opacity: 0.8;
-        position: absolute;
-        top: 30px;
       }
 
       /* The popup form - hidden by default */
@@ -112,44 +98,6 @@
         background-color: #d8eaff;
         color: #0056b3;
       }
-
-      /* Spinner styling */
-      #spinner {
-        display: none; /* Hidden by default */
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        border: 8px solid #f3f3f3;
-        border-top: 8px solid #007bff;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 1s linear infinite;
-        z-index: 1000; /* Ensure it's on top */
-      }
-
-      /* Spinner animation */
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
-      .modal-content {
-        font-family: monospace;
-        font-size: 14px;
-        background-color: #2d2d2d;
-      }
-      .modal-title {
-        color: white;
-      }
-      pre {
-        margin: 0;
-      }
     </style>
 
     <!-- Add the Bootstrap JS and Prism JS for code modal -->
@@ -173,7 +121,7 @@ larvitar.store.addViewport("viewer");
 larvitar
   .readFiles(fileList)
   .then(seriesStack => {
-    const seriesId = _.keys(seriesStack)[0];
+    const seriesId = Object.keys(seriesStack)[0];
     const serie = seriesStack[seriesId];
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer").then(() => {
@@ -578,7 +526,7 @@ larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
             // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
             let manager = larvitar.getImageManager();
             let serie = manager[seriesId];
@@ -589,7 +537,7 @@ larvitar
             });
             // optionally cache the series
 
-            _.each(_.keys(seriesStack), function (seriesId) {
+            Object.keys(seriesStack).forEach(seriesId => {
               larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
               larvitar.cacheImages(seriesStack[seriesId], function (resp) {
                 if (resp.loading == 100) {
@@ -630,7 +578,7 @@ larvitar
 
       let demoFileList = getDemoFileNames();
       showSpinner(); // Show the spinner
-      _.each(demoFileList, function (demoFile) {
+      demoFileList.forEach(demoFile => {
         createFile(demoFile, renderSerie);
       });
 

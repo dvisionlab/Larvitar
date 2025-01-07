@@ -1,5 +1,4 @@
 module.exports = {
-  devtool: "source-map", // or inline-source-map ?
   module: {
     rules: [
       // HTML

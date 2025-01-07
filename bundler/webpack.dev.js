@@ -4,6 +4,7 @@ const commonConfiguration = require("./webpack.common.js");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = merge(commonConfiguration, {
+  devtool: "source-map",
   entry: path.resolve(__dirname, "../index.ts"),
   output: {
     path: path.resolve(__dirname, "../dist"),
