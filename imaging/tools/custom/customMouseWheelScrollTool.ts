@@ -52,7 +52,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
   slicesnumber: number;
   is4D: boolean;
   isMultiframe: boolean;
-  nextIndex: number | null;
   /*
    * @constructs CustomMouseWheelScrollTool
    * @param {object} props - Any properties passed to the component
@@ -73,7 +72,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
     };
 
     super(props, defaultProps);
-    this.nextIndex = null;
     this.currentMode = "stack";
     this.framesNumber = this.configuration.framesNumber;
     this.slicesnumber = 0;
@@ -212,10 +210,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
         // Handle 'stack' mode
 
         // Calculate validIndex for 'stack' mode (no looping) between 0 and (N-1)*framesnumber where N=numberofslices=numberofimageids/numberofframes
-        let lastIndex =
-          this.nextIndex != null
-            ? this.nextIndex
-            : store.get(["viewports", element.id, "sliceId"]);
+        let lastIndex = store.get(["viewports", element.id, "sliceId"]);
         let nextIndex = lastIndex + direction;
 
         if (lastIndex === -1) {
@@ -228,7 +223,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
           nextIndex >= 0 && nextIndex < imageIds.length && this.slicesnumber > 0
             ? nextIndex
             : lastIndex;
-        this.nextIndex = validIndex;
         // Scroll to the calculated index
         scrollToIndex(element, validIndex);
         if (getActiveLayer(element.id)) {
@@ -244,9 +238,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
         // Handle 'slice' mode
         let lastIndex =
           this.isMultiframe === true || this.is4D === true
-            ? this.nextIndex != null
-              ? this.nextIndex
-              : store.get(["viewports", element.id, "sliceId"])
+            ? store.get(["viewports", element.id, "sliceId"])
             : stackData.currentImageIdIndex;
 
         this.slicesnumber = Math.ceil(imageIds.length / this.framesNumber) - 1;
@@ -270,7 +262,6 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
         ) {
           nextIndex = startFrame;
         }
-        this.nextIndex = nextIndex;
         // Scroll to the calculated index
         scrollToIndex(element, nextIndex);
 
