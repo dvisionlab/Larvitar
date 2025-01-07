@@ -536,6 +536,7 @@ larvitar
               console.log("Image has been rendered");
               hideSpinner(); // Hide the spinner when all files are processed
               larvitar.resetViewports(["viewer"]);
+              larvitar.addDefaultTools();
             });
             // optionally cache the series
 
@@ -573,7 +574,6 @@ larvitar
                 newElement.appendChild(newChild);
               }
             }
-            larvitar.addDefaultTools();
           })
           .catch(err => console.error(err));
       }
