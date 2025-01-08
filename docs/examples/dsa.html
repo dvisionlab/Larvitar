@@ -199,86 +199,86 @@
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
-      <div id="viewer" class="col-12 h-100" style="background-color: black">
-        <p style="position: absolute; top: 0px; color: white">
-          Press "1" to render standard image
-        </p>
-        <p style="position: absolute; top: 20px; color: white">
-          Press "2" to apply digital subtraction angiography mask
-        </p>
-        <p style="position: absolute; top: 40px; color: white">
-          Press "w | a | s | d" to apply a pixel shift in the designed direction
-          on current frame
-        </p>
-        <p style="position: absolute; top: 60px; color: white">
-          Press "x" to reset pixel shift on current frame
-        </p>
-        <p style="position: absolute; top: 80px; color: white">
-          Press "3" to apply pixel shift on all the stack
-        </p>
-        <p style="position: absolute; top: 100px; color: white">
-          Press "p" to play/pause frame animation
-        </p>
-        <p
-          id="frame-rate"
-          style="position: absolute; top: 120px; color: white"
-        ></p>
-        <p
-          id="image-time"
-          style="position: absolute; top: 140px; color: white"
-        ></p>
-        <button
-          id="showCodeBtn"
-          class="open-button"
-          style="position: absolute; top: 140px"
-        >
-          Show Code
-        </button>
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; top: 0px; color: white">
+        Press "1" to render standard image
+      </p>
+      <p style="position: absolute; top: 20px; color: white">
+        Press "2" to apply digital subtraction angiography mask
+      </p>
+      <p style="position: absolute; top: 40px; color: white">
+        Press "w | a | s | d" to apply a pixel shift in the designed direction
+        on current frame
+      </p>
+      <p style="position: absolute; top: 60px; color: white">
+        Press "x" to reset pixel shift on current frame
+      </p>
+      <p style="position: absolute; top: 80px; color: white">
+        Press "3" to apply pixel shift on all the stack
+      </p>
+      <p style="position: absolute; top: 100px; color: white">
+        Press "p" to play/pause frame animation
+      </p>
+      <p
+        id="frame-rate"
+        style="position: absolute; top: 120px; color: white"
+      ></p>
+      <p
+        id="image-time"
+        style="position: absolute; top: 140px; color: white"
+      ></p>
+      <button
+        id="showCodeBtn"
+        class="open-button"
+        style="position: absolute; top: 140px"
+      >
+        Show Code
+      </button>
 
-        <!-- Modal -->
-        <div
-          class="modal fade"
-          id="codeModal"
-          tabindex="-1"
-          aria-labelledby="codeModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div
-                class="modal-body"
-                style="max-height: 70vh; overflow-y: auto"
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
               >
-                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-              </div>
-              <div class="modal-footer">
-                <button id="copyCodeBtn" class="btn btn-success">
-                  Copy Code
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-              </div>
+                Close
+              </button>
             </div>
           </div>
         </div>
-
-        <!-- Spinner icon -->
-        <div id="spinner"></div>
       </div>
+
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
     </div>
 
     <script>

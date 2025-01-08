@@ -200,85 +200,85 @@ async function renderSerie() {
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-75">
-      <div id="viewer" class="col-12 h-100" style="background-color: black">
-        <p style="position: absolute; color: white">
-          Press "p" to play/pause frame animation
-        </p>
-        <p style="position: absolute; top: 20px; color: white">
-          Press "e" to play/pause ecg animation
-        </p>
-        <p
-          id="frame-rate"
-          style="position: absolute; top: 40px; color: white"
-        ></p>
-        <p id="fps" style="position: absolute; top: 60px; color: white"></p>
-        <p style="position: absolute; top: 80px; color: white">
-          Press "+/-" to change frame rate
-        </p>
-        <p
-          id="loop-time"
-          style="position: absolute; top: 100px; color: white"
-        ></p>
-        <p
-          id="last-loop"
-          style="position: absolute; top: 120px; color: white"
-        ></p>
-        <p
-          id="image-time"
-          style="position: absolute; top: 140px; color: white"
-        ></p>
-        <button
-          id="showCodeBtn"
-          class="open-button"
-          style="position: absolute; top: 160px"
-        >
-          Show Code
-        </button>
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; color: white">
+        Press "p" to play/pause frame animation
+      </p>
+      <p style="position: absolute; top: 20px; color: white">
+        Press "e" to play/pause ecg animation
+      </p>
+      <p
+        id="frame-rate"
+        style="position: absolute; top: 40px; color: white"
+      ></p>
+      <p id="fps" style="position: absolute; top: 60px; color: white"></p>
+      <p style="position: absolute; top: 80px; color: white">
+        Press "+/-" to change frame rate
+      </p>
+      <p
+        id="loop-time"
+        style="position: absolute; top: 100px; color: white"
+      ></p>
+      <p
+        id="last-loop"
+        style="position: absolute; top: 120px; color: white"
+      ></p>
+      <p
+        id="image-time"
+        style="position: absolute; top: 140px; color: white"
+      ></p>
+      <button
+        id="showCodeBtn"
+        class="open-button"
+        style="position: absolute; top: 160px"
+      >
+        Show Code
+      </button>
 
-        <!-- Modal -->
-        <div
-          class="modal fade"
-          id="codeModal"
-          tabindex="-1"
-          aria-labelledby="codeModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div
-                class="modal-body"
-                style="max-height: 70vh; overflow-y: auto"
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
               >
-                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-              </div>
-              <div class="modal-footer">
-                <button id="copyCodeBtn" class="btn btn-success">
-                  Copy Code
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-              </div>
+                Close
+              </button>
             </div>
           </div>
         </div>
-
-        <!-- Spinner icon -->
-        <div id="spinner"></div>
       </div>
+
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
     </div>
     <div class="row h-25">
       <div id="ecg"></div>

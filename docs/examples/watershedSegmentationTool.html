@@ -207,60 +207,64 @@ async function loadMasks() {
         </button>
       </div>
 
-      <div id="viewer" class="col-12 h-100" style="background-color: black">
-        <p id="info " style="position: absolute; color: white">
-          <b>ctrl+mouse wheel to change brush radius</b><br /><b
-            >click to activate watershed segmentation of features with greyscale
-            value of interest</b
-          ><br />
-          <b>ctrl+click for Label Eraser:</b> erases selected label<br />
-          <b>alt+click for LabelPicker: </b>allows to pick label, click again to
-          apply picked label<br />
-          <b>shift+click+drag for Manual Eraser</b>
-        </p>
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p id="info " style="position: absolute; color: white">
+        <b>ctrl+mouse wheel to change brush radius</b><br /><b
+          >click to activate watershed segmentation of features with greyscale
+          value of interest</b
+        ><br />
+        <b>ctrl+click for Label Eraser:</b> erases selected label<br />
+        <b>alt+click for LabelPicker: </b>allows to pick label, click again to
+        apply picked label<br />
+        <b>shift+click+drag for Manual Eraser</b>
+      </p>
 
-        <!-- Modal -->
-        <div
-          class="modal fade"
-          id="codeModal"
-          tabindex="-1"
-          aria-labelledby="codeModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div class="modal-body">
-                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-              </div>
-              <div class="modal-footer">
-                <button id="copyCodeBtn" class="btn btn-success">
-                  Copy Code
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-              </div>
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
-
-        <!-- Spinner icon -->
-        <div id="spinner"></div>
       </div>
+
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
     </div>
+
     <script>
       function onOpenCvReady() {
         console.log("OpenCV Ready", cv);

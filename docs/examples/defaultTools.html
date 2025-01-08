@@ -145,68 +145,68 @@
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
-      <div id="viewer" class="col-12 h-100" style="background-color: black">
-        <p style="position: absolute; color: white">
-          <b>Left Mouse Button:</b> Press "t" to cycle through tools
-        </p>
-        <p id="active-tool" style="position: absolute; top: 20px; color: white">
-          Active Tool: Wwwc
-        </p>
-        <p style="position: absolute; top: 40px; color: white">
-          <b>Right Mouse Button:</b> drag >> Zoom || drag + Ctrl >> Pan
-        </p>
-        <button
-          id="showCodeBtn"
-          class="open-button"
-          style="position: absolute; top: 70px"
-        >
-          Show Code
-        </button>
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; color: white">
+        <b>Left Mouse Button:</b> Press "t" to cycle through tools
+      </p>
+      <p id="active-tool" style="position: absolute; top: 20px; color: white">
+        Active Tool: Wwwc
+      </p>
+      <p style="position: absolute; top: 40px; color: white">
+        <b>Right Mouse Button:</b> drag >> Zoom || drag + Ctrl >> Pan
+      </p>
+      <button
+        id="showCodeBtn"
+        class="open-button"
+        style="position: absolute; top: 70px"
+      >
+        Show Code
+      </button>
 
-        <!-- Modal -->
-        <div
-          class="modal fade"
-          id="codeModal"
-          tabindex="-1"
-          aria-labelledby="codeModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div
-                class="modal-body"
-                style="max-height: 70vh; overflow-y: auto"
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
               >
-                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-              </div>
-              <div class="modal-footer">
-                <button id="copyCodeBtn" class="btn btn-success">
-                  Copy Code
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-              </div>
+                Close
+              </button>
             </div>
           </div>
         </div>
-
-        <!-- Spinner icon -->
-        <div id="spinner"></div>
       </div>
+
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
     </div>
 
     <script>

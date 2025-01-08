@@ -154,37 +154,42 @@ larvitar
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
-      <div id="viewer" class="col-12 h-100" style="background-color: black">
-        <p style="position: absolute; color: white">
-          <b>Open form:</b> Allows to modify DICOM tags and download the
-          modified image/images
-        </p>
-        <p style="position: absolute; top: 20px; color: white">
-          <b
-            >Drag and drop a folder or a list of dicom files to visualize in the
-            current viewer</b
-          >
-        </p>
-        <button
-          id="showCodeBtn"
-          class="open-button"
-          style="position: absolute; top: 50px"
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; color: white">
+        <b>Open form:</b> Allows to modify DICOM tags and download the modified
+        image/images
+      </p>
+      <p style="position: absolute; top: 20px; color: white">
+        <b
+          >Drag and drop a folder or a list of dicom files to visualize in the
+          current viewer</b
         >
+      </p>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          position: absolute;
+          top: 50px;
+        "
+      >
+        <button id="showCodeBtn" class="open-button" style="width: auto">
           Show Code
         </button>
 
-        <button
-          class="open-button"
-          style="position: absolute; left: 125px; top: 50px"
-          onclick="openForm()"
-        >
+        <button class="open-button" style="width: auto" onclick="openForm()">
           Open Form
         </button>
 
         <button
           class="open-button"
+          style="width: auto"
           id="previous"
-          style="position: absolute; left: 249px; top: 50px"
           onclick="getMetadata()"
         >
           Display Metadata
@@ -192,8 +197,8 @@ larvitar
 
         <button
           class="open-button"
-          id="next"
-          style="position: absolute; left: 416px; top: 50px"
+          style="width: auto"
+          id="previous"
           onclick="previousImage()"
         >
           Previous Series <-
@@ -201,93 +206,93 @@ larvitar
 
         <button
           class="open-button"
+          style="width: auto"
           id="next"
-          style="position: absolute; left: 590px; top: 50px"
           onclick="nextImage()"
         >
           Next Series ->
         </button>
+      </div>
 
-        <div class="form-popup" id="myForm">
-          <form id="myFormSub" class="form-container">
-            <h1 style="text-align: center; color: #28b47f; font-weight: bold">
-              Metadata
-            </h1>
-            <div id="metadata" style="overflow-y: scroll; height: 300px"></div>
-            <div>
-              <input type="checkbox" id="downloadCheck" />
-              <label> Download modified image/images</label><br />
-              <label style="display: none" id="downloadLabel"
-                >Download image N:</label
-              >
-              <input
-                type="number"
-                id="downloadInput"
-                style="display: none"
-                placeholder="Download all images"
-              />
+      <div class="form-popup" id="myForm">
+        <form id="myFormSub" class="form-container">
+          <h1 style="text-align: center; color: #28b47f; font-weight: bold">
+            Metadata
+          </h1>
+          <div id="metadata" style="overflow-y: scroll; height: 300px"></div>
+          <div>
+            <input type="checkbox" id="downloadCheck" />
+            <label> Download modified image/images</label><br />
+            <label style="display: none" id="downloadLabel"
+              >Download image N:</label
+            >
+            <input
+              type="number"
+              id="downloadInput"
+              style="display: none"
+              placeholder="Download all images"
+            />
+          </div>
+          <button id="submit" class="btn">submit</button>
+          <button type="button" class="btn cancel" onclick="closeForm()">
+            Close
+          </button>
+        </form>
+      </div>
+
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
             </div>
-            <button id="submit" class="btn">submit</button>
-            <button type="button" class="btn cancel" onclick="closeForm()">
-              Close
-            </button>
-          </form>
-        </div>
-
-        <!-- Modal -->
-        <div
-          class="modal fade"
-          id="codeModal"
-          tabindex="-1"
-          aria-labelledby="codeModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div class="modal-body">
-                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-              </div>
-              <div class="modal-footer">
-                <button id="copyCodeBtn" class="btn btn-success">
-                  Copy Code
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-              </div>
+            <div class="modal-body">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
-
-        <div id="metadataModal" class="modal">
-          <table id="metadataTable">
-            <thead>
-              <tr>
-                <th>Tag</th>
-                <th>Name</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Rows will be added here dynamically -->
-            </tbody>
-          </table>
-        </div>
-        <div id="spinner"></div>
       </div>
+
+      <div id="metadataModal" class="modal">
+        <table id="metadataTable">
+          <thead>
+            <tr>
+              <th>Tag</th>
+              <th>Name</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rows will be added here dynamically -->
+          </tbody>
+        </table>
+      </div>
+      <div id="spinner"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
