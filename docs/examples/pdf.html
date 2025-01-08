@@ -26,6 +26,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
     />
+    <link rel="stylesheet" href="resources/styles.css" />
 
     <style>
       .modal-content {
@@ -94,7 +95,13 @@ larvitar
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
       <div class="container mt-5">
-        <button id="showCodeBtn" class="btn btn-primary">Show Code</button>
+        <button
+          id="showCodeBtn"
+          class="open-button"
+          style="position: absolute; top: 10px; width: 8%; left: 10px"
+        >
+          Show Code
+        </button>
       </div>
       <div
         id="viewer"
