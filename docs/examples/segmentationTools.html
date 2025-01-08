@@ -130,35 +130,7 @@ larvitar.resetImageManager();
             larvitar.setActiveLabelmap(0, "viewer");
           });
       }
-document.onkeypress = function (e) {
-        e = e || window.event;
-        //larvitar.clearSegmentationState();
-        if (e.keyCode == 116 || e.keyCode == 84) {
-          if (tool != undefined) {
-            //clearToolData(element, tool);
-          }
-          const selectedNames = [
-            "Brush",
-            "RectangleScissors",
-            "FreehandScissors",
-            "CircleScissors",
-            "CorrectionScissors",
-            "PolylineScissors",
-            "WSToggle"
-          ]; // Replace with your selected names
-          const selectedTools = _.filter(larvitar.DEFAULT_TOOLS, tool =>
-            _.includes(selectedNames, tool.name)
-          );
 
-          const tools = _.map(selectedTools, "name");
-
-          let increment = e.shiftKey ? -1 : 1;
-          tool_counter =
-            tool_counter == tools.length - 1 ? 0 : tool_counter + increment;
-          tool_counter = tool_counter < 0 ? 0 : tool_counter;
-          tool = tools[tool_counter];
-
-          larvitar.setToolActive(tool);}
 `;
 
         // Show the modal and populate code snippet

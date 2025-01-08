@@ -52,6 +52,23 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+      const customColorMap = function () {
+        let array = [[0, 0, 0, 255]];
+
+        for (let i = 1; i < 255; i++) {
+          let rgb;
+          rgb = larvitar.HSVToRGB(i / 360, 1, 1);
+          rgb[0] = Math.floor(rgb[0] * 255);
+          rgb[1] = Math.floor(rgb[1] * 255);
+          rgb[2] = Math.floor(rgb[2] * 255);
+          rgb[3] = 255;
+
+          array.push(rgb);
+        }
+
+        array.push([0, 0, 0, 255]);
+        return array;
+      };
 
       larvitar.addColorMap("custom", "CUSTOM", customColorMap());
       larvitar
@@ -67,17 +84,7 @@
             });
           })
 
-        document.onkeypress = function (e) {
-        e = e || window.event;
-        let color_maps = larvitar.getColormapsList();
-        color_counter =
-          color_counter == color_maps.length - 1 ? 0 : color_counter + 1;
-        let color_map = color_maps[color_counter];
-        if (e.keyCode == 109) {
-          larvitar.applyColorMap(color_map.id);
-          $("#active-color-map").html("Active Color Map: " + color_map.name);
-        }
-      };
+        
 `;
 
         // Show the modal and populate code snippet

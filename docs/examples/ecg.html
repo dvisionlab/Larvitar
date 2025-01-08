@@ -119,63 +119,6 @@ async function renderSerie() {
 
   larvitar.syncECGFrame(trace_data, seriesId, "viewer", numberOfFrames, "ecg");
 
-  // Handle keypresses
-  document.onkeypress = function (e) {
-    e = e || window.event;
-    if (e.keyCode === 101) updateECG = !updateECG; // Toggle ECG update
-
-    if (e.keyCode === 43 || e.keyCode === 45) {
-      animation = false;
-      clearInterval(animationId);
-
-      frameTime += e.keyCode === 43 ? frameTime * 0.1 : -frameTime * 0.1;
-      larvitar.updateECGTotalTime(
-        trace_data,
-        frameId,
-        numberOfFrames,
-        frameTime,
-        "ecg"
-      );
-
-      // Restart animation if needed
-      if (animation) {
-        animationId = setInterval(function () {
-          let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
-          frameId = frameId === numberOfFrames - 1 ? 0 : frameId + 1;
-          larvitar.updateImage(series, "viewer", frameId, false);
-          larvitar.updateStackToolState("viewer", frameId);
-          larvitar.updateECGMarker(
-            trace_data,
-            frameId,
-            numberOfFrames,
-            "ecg"
-          );
-        }, frameTime);
-      }
-    }
-
-    if (e.keyCode === 112) { // Toggle animation
-      animation = !animation;
-      if (animation) {
-        animationId = setInterval(function () {
-          let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
-          frameId = frameId === numberOfFrames - 1 ? 0 : frameId + 1;
-          larvitar.updateImage(series, "viewer", frameId, false);
-          larvitar.updateStackToolState("viewer", frameId);
-          larvitar.updateECGMarker(
-            trace_data,
-            frameId,
-            numberOfFrames,
-            "ecg"
-          );
-        }, frameTime);
-      } else {
-        clearInterval(animationId);
-      }
-    }
-  };
-}
-
 `;
 
         // Show the modal and populate code snippet
