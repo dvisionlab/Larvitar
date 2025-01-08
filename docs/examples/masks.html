@@ -227,7 +227,7 @@
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
       larvitar.registerNRRDImageLoader();
-
+      showSpinner();
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
         let data = await response.blob();
@@ -248,6 +248,7 @@
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
+              hideSpinner();
               demoFiles = [];
               loadMasks();
               larvitar.addDefaultTools();

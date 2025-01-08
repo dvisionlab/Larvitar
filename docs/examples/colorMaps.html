@@ -176,7 +176,7 @@
 
       let demoFiles = [];
       let counter = 0;
-
+      showSpinner();
       const getDemoFileNames = function () {
         let demoFileList = [];
         for (let i = 1; i < 25; i++) {
@@ -232,6 +232,7 @@
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
+              hideSpinner();
               console.log("Image has been rendered");
               larvitar.addDefaultTools();
               larvitar.setToolActive("Wwwc");

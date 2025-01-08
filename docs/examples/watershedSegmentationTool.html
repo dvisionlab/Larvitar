@@ -373,6 +373,7 @@ async function loadMasks() {
       element.addEventListener("click", rotateLoader);
       larvitar.registerNRRDImageLoader();
       larvitar.initSegmentationModule();
+      showSpinner();
       const cornerstone = larvitar.cornerstone;
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/covid/" + fileName);
@@ -395,6 +396,7 @@ async function loadMasks() {
             let seriesId = _.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
+              hideSpinner();
               console.log("Image has been rendered");
             });
             // optionally cache the series

@@ -302,6 +302,7 @@
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
       let demoFiles = [];
+      showSpinner();
       async function renderSerie() {
         const seriesStack = await larvitar.readFiles(demoFiles);
         // render the first series of the study
@@ -313,6 +314,7 @@
 
         let frameId = 0;
         await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        hideSpinner();
         console.log("Image has been rendered");
 
         larvitar.addDefaultTools();

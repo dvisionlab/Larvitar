@@ -391,7 +391,7 @@ document.onkeypress = function (e) {
       larvitar.store.addViewport("viewer");
       larvitar.registerNRRDImageLoader();
       larvitar.initSegmentationModule();
-
+      showSpinner();
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
         let data = await response.blob();
@@ -410,6 +410,7 @@ document.onkeypress = function (e) {
         let seriesId = _.keys(seriesStack)[0];
         let serie = seriesStack[seriesId];
         await larvitar.renderImage(serie, "viewer");
+        hideSpinner();
         console.log("Image has been rendered");
         larvitar.addDefaultTools();
         loadMasks();

@@ -303,7 +303,7 @@ async function renderSerie() {
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
       let demoFiles = [];
-
+      showSpinner();
       async function renderSerie() {
         const t0 = performance.now();
         const seriesStack = await larvitar.readFiles(demoFiles);
@@ -320,6 +320,7 @@ async function renderSerie() {
           larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
         }
         await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        hideSpinner();
         const t1 = performance.now();
         console.log("Time to render First frame: " + (t1 - t0) + "ms");
         larvitar.addDefaultTools();

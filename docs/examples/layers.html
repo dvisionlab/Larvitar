@@ -223,7 +223,7 @@ larvitar.store.addViewport("viewer");
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
-
+      showSpinner();
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
         let data = await response.blob();
@@ -260,6 +260,7 @@ larvitar.store.addViewport("viewer");
             serie_2.layer = layer_2;
 
             larvitar.renderImage(serie_1, "viewer").then(() => {
+              hideSpinner();
               console.log("Image 1 has been rendered");
               larvitar.cacheImages(serie_1, function (resp) {
                 if (resp.loading == 100) {
