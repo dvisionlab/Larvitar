@@ -45,56 +45,56 @@
         const showCodeBtn = document.getElementById("showCodeBtn");
         const codeSnippet = document.getElementById("codeSnippet");
         const copyCodeBtn = document.getElementById("copyCodeBtn");
-
+        const closeCodeBtn = document.getElementById("closeModal");
         // TODO Code snippet to be displayed and updated for the example
         const code = `
-        larvitar.initializeImageLoader();
-        larvitar.initializeCSTools();
-        larvitar.store.initialize();
-        larvitar.store.addViewport("viewer");
-        larvitar.resetImageManager();
-        larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
-            let serie = seriesStack[seriesId];
-            larvitar.renderImage(serie, "viewer").then(() => {
-              demoFiles = [];
-              loadMasks();
-              larvitar.addDefaultTools();
-            });
-          })
- async function loadMasks() {
-        larvitar.initSegmentationModule();
+              larvitar.initializeImageLoader();
+              larvitar.initializeCSTools();
+              larvitar.store.initialize();
+              larvitar.store.addViewport("viewer");
+              larvitar.resetImageManager();
+              larvitar
+                .readFiles(demoFiles)
+                .then(seriesStack => {
+                  // render the first series of the study
+                  let seriesId = _.keys(seriesStack)[0];
+                  let serie = seriesStack[seriesId];
+                  larvitar.renderImage(serie, "viewer").then(() => {
+                    demoFiles = [];
+                    loadMasks();
+                    larvitar.addDefaultTools();
+                  });
+                })
+       async function loadMasks() {
+              larvitar.initSegmentationModule();
 
-        // fetch data
-        let response = await fetch("./demo/" + "segmentation.nrrd");
-        let data = await response.blob();
-        let nrrd_file = new File([data], "segmentation.nrrd");
-        // read file
-        let reader = new FileReader();
-        reader.readAsArrayBuffer(nrrd_file);
-        reader.onload = function () {
-          // create volume
-          let volume = larvitar.importNRRDImage(reader.result);
-          // define mask properties
-          let properties = {
-            // color: "#00ff00",
-            opacity: 0.2,
-            labelId: 0
-          };
-          // add to viewport
-          larvitar
-            .addSegmentationMask(properties, volume.data, "viewer")
-            .then(() => {
-              // activate brush on this labelmap
-              larvitar.setActiveLabelmap(0, "viewer");
-              larvitar.setToolActive("Brush");
-            });
-        };
-      }
-`;
+              // fetch data
+              let response = await fetch("./demo/" + "segmentation.nrrd");
+              let data = await response.blob();
+              let nrrd_file = new File([data], "segmentation.nrrd");
+              // read file
+              let reader = new FileReader();
+              reader.readAsArrayBuffer(nrrd_file);
+              reader.onload = function () {
+                // create volume
+                let volume = larvitar.importNRRDImage(reader.result);
+                // define mask properties
+                let properties = {
+                  // color: "#00ff00",
+                  opacity: 0.2,
+                  labelId: 0
+                };
+                // add to viewport
+                larvitar
+                  .addSegmentationMask(properties, volume.data, "viewer")
+                  .then(() => {
+                    // activate brush on this labelmap
+                    larvitar.setActiveLabelmap(0, "viewer");
+                    larvitar.setToolActive("Brush");
+                  });
+              };
+            }
+      `;
 
         // Show the modal and populate code snippet
         showCodeBtn.addEventListener("click", () => {
@@ -104,11 +104,17 @@
             document.getElementById("codeModal")
           );
           codeModal.show();
+          document.documentElement.style.overflow = "hidden";
+          larvitar.setToolDisabled("Brush");
         });
 
         // Copy the code to clipboard
         copyCodeBtn.addEventListener("click", () => {
           navigator.clipboard.writeText(code);
+        });
+        closeCodeBtn.addEventListener("click", () => {
+          console.log("closed");
+          larvitar.setToolActive("Brush");
         });
       });
     </script>
@@ -176,6 +182,7 @@
                 <button
                   type="button"
                   class="btn btn-secondary"
+                  id="closeModal"
                   data-bs-dismiss="modal"
                 >
                   Close
