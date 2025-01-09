@@ -100,24 +100,30 @@ larvitar
           class="open-button"
           style="position: absolute; left: 130px; width: 179px; top: 10px"
         >
-          Scroll Mode: Slices
+          Toggle Scroll Mode
         </button>
         <div id="spinner"></div>
       </div>
-
+      <p
+        id="animation"
+        style="
+          position: absolute;
+          top: 55px;
+          color: rgb(255, 255, 255);
+          font-weight: bold;
+        "
+      >
+        Scroll Mode Active: Slices
+      </p>
       <p
         id="image-time"
-        style="position: absolute; top: 95px; color: white"
+        style="position: absolute; top: 100px; color: white"
       ></p>
       <p
         id="timestamp"
-        style="position: absolute; top: 115px; color: white"
+        style="position: absolute; top: 125px; color: white"
       ></p>
-      <p id="slicenum" style="position: absolute; top: 135px; color: white"></p>
-      <p
-        id="animation"
-        style="position: absolute; top: 155px; color: white"
-      ></p>
+      <p id="slicenum" style="position: absolute; top: 145px; color: white"></p>
 
       <!-- Modal -->
       <div
@@ -217,10 +223,10 @@ larvitar
           "CustomMouseWheelScroll"
         ].configuration.currentMode = newMode;
         currentMode = newMode;
-        document.getElementById("toggleButton").innerHTML =
-          "Scroll Mode: " + newModeTxt;
         let animationText =
-          newMode === "stack" ? "" : "Press 'p' to start/stop animation";
+          newMode === "stack"
+            ? "Scroll Mode Active: Slices"
+            : "Scroll Mode Active: Frames.<br> Press 'p' to start/stop animation";
         document.getElementById("animation").innerHTML = animationText;
       }
       // Attach click event to the button

@@ -133,17 +133,62 @@
         Example of loading a segmentation mask on the image. You can modify the
         mask using Brush tool. (press ctrl to delete instead of adding)
       </p>
-      <button id="btn-label" class="btn btn-danger m-1" onclick="switchLabel()">
-        Switch label
-      </button>
-      <button class="btn btn-primary m-1" onclick="undo()">Undo</button
-      ><button class="btn btn-primary m-1" onclick="redo()">Redo</button>
+
       <button
         id="showCodeBtn"
-        class="btn btn-danger m-1"
-        style="position: absolute; background-color: green; border-color: green"
+        class="open-button"
+        style="
+          position: absolute;
+          background-color: green;
+          border-color: green;
+          top: 20px;
+          left: 20px;
+        "
       >
         Show Code
+      </button>
+      <p style="color: #ffffff">
+        Example of loading a segmentation mask on the image. You can modify the
+        mask using Brush tool. (press ctrl to delete instead of adding)
+      </p>
+      <button
+        id="btn-label"
+        class="open-button"
+        onclick="switchLabel()"
+        style="
+          position: absolute;
+          background-color: green;
+          border-color: green;
+          top: 20px;
+          left: 154px;
+        "
+      >
+        Switch label
+      </button>
+      <button
+        class="open-button"
+        onclick="undo()"
+        style="
+          position: absolute;
+          background-color: rgb(210, 0, 0);
+          border-color: rgb(210, 0, 0);
+          top: 20px;
+          left: 289px;
+        "
+      >
+        Undo</button
+      ><button
+        class="open-button"
+        onclick="redo()"
+        style="
+          position: absolute;
+          background-color: blue;
+          border-color: blue;
+          top: 20px;
+          left: 423px;
+        "
+      >
+        Redo
       </button>
 
       <!-- Modal -->

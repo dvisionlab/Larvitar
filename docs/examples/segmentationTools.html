@@ -160,49 +160,6 @@ larvitar.resetImageManager();
   </head>
 
   <body class="h-100" style="background-color: #000000">
-    <div class="container">
-      <div id="buttonBar" class="row" style="display: none">
-        <div id="loaderDiv" class="col">
-          <div class="loader" id="loader"></div>
-        </div>
-
-        <!-- Bootstrap grid system for alignment -->
-        <div id="toggleButtonDiv" class="col">
-          <button id="toggleButton" class="btn btn-primary">
-            Current Image
-          </button>
-        </div>
-
-        <div id="masksNumberDiv" class="col">
-          <input
-            type="number"
-            class="form-control manualInput"
-            id="masksNumber"
-            placeholder="N° Masks"
-          />
-        </div>
-
-        <div id="startImageDiv" class="col">
-          <input
-            type="number"
-            class="form-control manualInput"
-            id="startImage"
-            placeholder="startImage"
-            style="display: none"
-          />
-        </div>
-
-        <div id="endImageDiv" class="col">
-          <input
-            type="number"
-            class="form-control manualInput"
-            id="endImage"
-            placeholder="endImage"
-            style="display: none"
-          />
-        </div>
-      </div>
-    </div>
     <div class="row h-100">
       <div
         id="viewer"
@@ -223,7 +180,56 @@ larvitar.resetImageManager();
       >
         Show Code
       </button>
+      <div
+        class="container"
+        style="position: absolute; top: 160px; left: 134px"
+      >
+        <div id="buttonBar" class="row" style="display: none">
+          <div id="loaderDiv" class="col">
+            <div class="loader" id="loader"></div>
+          </div>
 
+          <!-- Bootstrap grid system for alignment -->
+          <div id="toggleButtonDiv" class="col">
+            <button
+              id="toggleButton"
+              class="open-button"
+              style="width: 200px; border-color: blue; background-color: blue"
+            >
+              Current Image
+            </button>
+          </div>
+
+          <div id="masksNumberDiv" class="col">
+            <input
+              type="number"
+              class="form-control manualInput"
+              id="masksNumber"
+              placeholder="N° Masks"
+            />
+          </div>
+
+          <div id="startImageDiv" class="col">
+            <input
+              type="number"
+              class="form-control manualInput"
+              id="startImage"
+              placeholder="startImage"
+              style="display: none"
+            />
+          </div>
+
+          <div id="endImageDiv" class="col">
+            <input
+              type="number"
+              class="form-control manualInput"
+              id="endImage"
+              placeholder="endImage"
+              style="display: none"
+            />
+          </div>
+        </div>
+      </div>
       <!-- Modal -->
       <div
         class="modal fade"

@@ -43,8 +43,7 @@
       }
       #buttonBar {
         gap: 10px;
-        margin-bottom: 20px;
-        position: relative;
+        position: absolute;
       }
 
       .button {
@@ -157,6 +156,21 @@ async function loadMasks() {
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p id="info " style="position: absolute; color: white">
+        <b>ctrl+mouse wheel to change brush radius</b><br /><b
+          >click to activate watershed segmentation of features with greyscale
+          value of interest</b
+        ><br />
+        <b>ctrl+click for Label Eraser:</b> erases selected label<br />
+        <b>alt+click for LabelPicker: </b>allows to pick label, click again to
+        apply picked label<br />
+        <b>shift+click+drag for Manual Eraser</b>
+      </p>
       <div id="buttonBar">
         <button
           id="showCodeBtn"
@@ -165,6 +179,7 @@ async function loadMasks() {
             position: absolute;
             background-color: green;
             border-color: green;
+            top: 130px;
           "
         >
           Show Code
@@ -176,6 +191,7 @@ async function loadMasks() {
         >
           Current Image
         </button>
+
         <input
           type="number"
           class="manualInput"
@@ -206,23 +222,6 @@ async function loadMasks() {
           Loading...
         </button>
       </div>
-
-      <div
-        id="viewer"
-        class="col-12 h-100"
-        style="background-color: black"
-      ></div>
-      <p id="info " style="position: absolute; color: white">
-        <b>ctrl+mouse wheel to change brush radius</b><br /><b
-          >click to activate watershed segmentation of features with greyscale
-          value of interest</b
-        ><br />
-        <b>ctrl+click for Label Eraser:</b> erases selected label<br />
-        <b>alt+click for LabelPicker: </b>allows to pick label, click again to
-        apply picked label<br />
-        <b>shift+click+drag for Manual Eraser</b>
-      </p>
-
       <!-- Modal -->
       <div
         class="modal fade"
