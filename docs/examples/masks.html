@@ -46,6 +46,8 @@
         const codeSnippet = document.getElementById("codeSnippet");
         const copyCodeBtn = document.getElementById("copyCodeBtn");
         const closeCodeBtn = document.getElementById("closeModal");
+        const closeCodeXBtn = document.getElementById("closeModalX");
+
         // TODO Code snippet to be displayed and updated for the example
         const code = `
               larvitar.initializeImageLoader();
@@ -113,6 +115,10 @@
           navigator.clipboard.writeText(code);
         });
         closeCodeBtn.addEventListener("click", () => {
+          console.log("closed");
+          larvitar.setToolActive("Brush");
+        });
+        closeCodeXBtn.addEventListener("click", () => {
           console.log("closed");
           larvitar.setToolActive("Brush");
         });
@@ -207,6 +213,7 @@
                 type="button"
                 class="btn-close"
                 data-bs-dismiss="modal"
+                id="closeModalX"
                 aria-label="Close"
               ></button>
             </div>
