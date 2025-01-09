@@ -71,110 +71,6 @@
       larvitar.setToolActive("Wwwc");
       await larvitar.loadAndCacheImageStack(multiFrameSerie);
       await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
-
-      document.onkeypress = function (e) {
-          e = e || window.event;
-          let storedPixelShift = larvitar.store.get([
-            "viewports",
-            "viewer",
-            "pixelShift"
-          ])
-            ? larvitar.store.get(["viewports", "viewer", "pixelShift"])
-            : [0.0, 0.0];
-          const delta = 1;
-          switch (e.keyCode) {
-            case 49: // 1
-              // standard Mode
-              larvitar.store.setDSAEnabled(["viewer"], false);
-              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
-              break;
-            case 50: // 2
-              // DSA Mode
-              larvitar.store.setDSAEnabled(["viewer"], true);
-              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
-              break;
-            case 51: // 3
-              // async function
-              larvitar.loadAndCacheDsaImageStack(multiFrameSerie, true);
-              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
-              larvitar.redrawImage("viewer");
-              break;
-            case 119: // W
-              // vertical shift to the upper part of the image
-              // value has to be negative
-              larvitar.applyDSAShift("viewer", multiFrameSerie, frameId, [
-                storedPixelShift[0] - delta,
-                storedPixelShift[1]
-              ]);
-              break;
-            case 97: // A
-              // horizontal shift to the left part of the image
-              // value has to be positive
-              larvitar.applyDSAShift("viewer", multiFrameSerie, frameId, [
-                storedPixelShift[0],
-                storedPixelShift[1] + delta
-              ]);
-              break;
-            case 115: // S
-              // vertical shift to the bottom part of the image
-              // value has to be positive
-              larvitar.applyDSAShift("viewer", multiFrameSerie, frameId, [
-                storedPixelShift[0] + delta,
-                storedPixelShift[1]
-              ]);
-              break;
-            case 100: // D
-              // horizontal shift to the right part of the image
-              // value has to be negative
-              larvitar.applyDSAShift("viewer", multiFrameSerie, frameId, [
-                storedPixelShift[0],
-                storedPixelShift[1] - delta
-              ]);
-              break;
-            case 120: // x
-              // RESET pixel shift
-              // async function
-              larvitar.applyDSAShift(
-                "viewer",
-                multiFrameSerie,
-                frameId,
-                [0.0, 0.0]
-              );
-              break;
-            case 112: // P
-              animation = !animation;
-              if (animation) {
-                frameId = larvitar.store.get([
-                  "viewports",
-                  "viewer",
-                  "sliceId"
-                ]);
-                animationId = setInterval(function () {
-                  frameId =
-                    frameId == multiFrameSerie.numberOfFrames - 1
-                      ? 0
-                      : frameId + 1;
-                  larvitar.updateImage(
-                    multiFrameSerie,
-                    "viewer",
-                    frameId,
-                    false
-                  );
-                  $("#image-time").html(
-                    "Current Frame: " +
-                      parseInt(frameId + 1) +
-                      " of " +
-                      numberOfFrames
-                  );
-                }, multiFrameSerie.frameTime);
-              } else {
-                clearInterval(animationId);
-                $("#image-time").html();
-              }
-              break;
-          }
-        };
-      }
 `;
 
         // Show the modal and populate code snippet
@@ -199,86 +95,86 @@
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
-      <div id="viewer" class="col-12 h-100" style="background-color: black">
-        <p style="position: absolute; top: 0px; color: white">
-          Press "1" to render standard image
-        </p>
-        <p style="position: absolute; top: 20px; color: white">
-          Press "2" to apply digital subtraction angiography mask
-        </p>
-        <p style="position: absolute; top: 40px; color: white">
-          Press "w | a | s | d" to apply a pixel shift in the designed direction
-          on current frame
-        </p>
-        <p style="position: absolute; top: 60px; color: white">
-          Press "x" to reset pixel shift on current frame
-        </p>
-        <p style="position: absolute; top: 80px; color: white">
-          Press "3" to apply pixel shift on all the stack
-        </p>
-        <p style="position: absolute; top: 100px; color: white">
-          Press "p" to play/pause frame animation
-        </p>
-        <p
-          id="frame-rate"
-          style="position: absolute; top: 120px; color: white"
-        ></p>
-        <p
-          id="image-time"
-          style="position: absolute; top: 140px; color: white"
-        ></p>
-        <button
-          id="showCodeBtn"
-          class="open-button"
-          style="position: absolute; top: 140px"
-        >
-          Show Code
-        </button>
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; top: 0px; color: white">
+        Press "1" to render standard image
+      </p>
+      <p style="position: absolute; top: 20px; color: white">
+        Press "2" to apply digital subtraction angiography mask
+      </p>
+      <p style="position: absolute; top: 40px; color: white">
+        Press "w | a | s | d" to apply a pixel shift in the designed direction
+        on current frame
+      </p>
+      <p style="position: absolute; top: 60px; color: white">
+        Press "x" to reset pixel shift on current frame
+      </p>
+      <p style="position: absolute; top: 80px; color: white">
+        Press "3" to apply pixel shift on all the stack
+      </p>
+      <p style="position: absolute; top: 100px; color: white">
+        Press "p" to play/pause frame animation
+      </p>
+      <p
+        id="frame-rate"
+        style="position: absolute; top: 120px; color: white"
+      ></p>
+      <p
+        id="image-time"
+        style="position: absolute; top: 140px; color: white"
+      ></p>
+      <button
+        id="showCodeBtn"
+        class="open-button"
+        style="position: absolute; top: 140px"
+      >
+        Show Code
+      </button>
 
-        <!-- Modal -->
-        <div
-          class="modal fade"
-          id="codeModal"
-          tabindex="-1"
-          aria-labelledby="codeModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div
-                class="modal-body"
-                style="max-height: 70vh; overflow-y: auto"
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
               >
-                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-              </div>
-              <div class="modal-footer">
-                <button id="copyCodeBtn" class="btn btn-success">
-                  Copy Code
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-              </div>
+                Close
+              </button>
             </div>
           </div>
         </div>
-
-        <!-- Spinner icon -->
-        <div id="spinner"></div>
       </div>
+
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
     </div>
 
     <script>

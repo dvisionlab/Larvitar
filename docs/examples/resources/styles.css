@@ -5,13 +5,11 @@ body {
 .open-button {
   background-color: #28b47f;
   color: white;
-  padding: 16px 20px;
+  padding: 10px 5px;
   border: none;
-  cursor: pointer;
-  opacity: 0.8;
-  position: absolute;
-  top: 30px;
+  width: 8rem
 }
+
 .open-button:hover {
   opacity: 1;
 }
