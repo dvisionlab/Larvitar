@@ -12,20 +12,25 @@ export default class BorderMagnifyTool extends MagnifyTool {
     // Additional configuration options
     this.configuration.showBorders = props.showBorders || true; // Default to true
     this.configuration.showInfo = props.showInfo || true; // Default to true
-    this.configuration.borderColor = props.borderColor ; // Default border color is green
-
-
-    // Add global keydown event listener
-    window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    this.configuration.borderColor = props.borderColor; // Default border color is green
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
-
+  activeCallback(element) {
+    element.addEventListener("keydown", this.handleKeyDown);
+  }
+  disabledCallback(element) {
+    element.removeEventListener("keydown", this.handleKeyDown);
+  }
+  passiveCallback(element) {
+    element.removeEventListener("keydown", this.handleKeyDown);
+  }
   /**
    * Event handler for the "keydown" event to toggle the visibility of borders and info on "B" key press.
    * @param {KeyboardEvent} event
    * @returns {void}
    */
   handleKeyDown(event) {
-    if (event.key === 'M' || event.key === 'm') {
+    if (event.key === "M" || event.key === "m") {
       // Toggle the visibility of borders
       this.configuration.showBorders = !this.configuration.showBorders;
 
@@ -46,15 +51,19 @@ export default class BorderMagnifyTool extends MagnifyTool {
     // Call the parent method to draw the magnification tool
     super._drawMagnificationTool(evt);
     // Query for the magnify canvas using the correct class name
-    const magnifyCanvas = evt ? evt.detail.element.querySelector('.magnifyTool') : null;
+    const magnifyCanvas = evt
+      ? evt.detail.element.querySelector(".magnifyTool")
+      : null;
 
     if (magnifyCanvas) {
-      const context = magnifyCanvas.getContext('2d');
+      const context = magnifyCanvas.getContext("2d");
 
       // Check if the user wants to show borders
       if (this.configuration.showBorders) {
         // Add configurable borders
-        context.strokeStyle = this.configuration.borderColor|| toolColors.getColorIfActive({active: true});
+        context.strokeStyle =
+          this.configuration.borderColor ||
+          toolColors.getColorIfActive({ active: true });
         context.lineWidth = 4;
         context.strokeRect(0, 0, magnifyCanvas.width, magnifyCanvas.height);
       }
@@ -78,21 +87,23 @@ export default class BorderMagnifyTool extends MagnifyTool {
         const text = `Zoom: x${zoomLevel}`;
         const str = `ROI: ${roiWidth}px x ${roiHeight}px`;
         const fontHeight = textStyle.getFontSize();
-        const color=this.configuration.borderColor|| toolColors.getColorIfActive({active: true});
-      // Draw text 5px away from cursor
-      const textCoords = {
-        x: 5,
-        y: 2,
-      };
-  
-      drawTextBox(
-        context,
-        str,
-        textCoords.x,
-        textCoords.y + fontHeight + 5,
-        color
-      );
-      drawTextBox(context, text, textCoords.x, textCoords.y, color);
+        const color =
+          this.configuration.borderColor ||
+          toolColors.getColorIfActive({ active: true });
+        // Draw text 5px away from cursor
+        const textCoords = {
+          x: 5,
+          y: 2
+        };
+
+        drawTextBox(
+          context,
+          str,
+          textCoords.x,
+          textCoords.y + fontHeight + 5,
+          color
+        );
+        drawTextBox(context, text, textCoords.x, textCoords.y, color);
       }
     }
   }
