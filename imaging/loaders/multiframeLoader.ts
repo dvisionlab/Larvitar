@@ -233,22 +233,17 @@ let createCustomImage = function (
   let pixelDataElement = dataSet.elements.x7fe00010;
   // Extract pixelData of the required frame
   let pixelData: number[];
-  console.log(pixelDataElement);
-  console.log(dataSet);
-  console.log(frameIndex);
   try {
     if (pixelDataElement.encapsulatedPixelData) {
       pixelData = cornerstoneDICOMImageLoader.wadouri.getEncapsulatedImageFrame(
         dataSet,
         frameIndex
       );
-      console.log(pixelData);
     } else {
       pixelData = cornerstoneDICOMImageLoader.wadouri.getUncompressedImageFrame(
         dataSet,
         frameIndex
       );
-      console.log(pixelData);
     }
   } catch (error) {
     console.error(error);
