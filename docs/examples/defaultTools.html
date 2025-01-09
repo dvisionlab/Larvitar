@@ -55,7 +55,7 @@
     larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               console.log("Image has been rendered");
@@ -215,7 +215,7 @@
         larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               hideSpinner();
@@ -246,7 +246,7 @@
       }
 
       let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
+      demoFileList.forEach(demoFile => {
         createFile(demoFile, renderSerie);
       });
 
@@ -254,10 +254,11 @@
       document.onkeypress = function (e) {
         e = e || window.event;
         if (e.keyCode == 116 || e.keyCode == 84) {
-          let tools = _.map(larvitar.DEFAULT_TOOLS, "name");
-          // remove useless tools for the live example
-          tools = _.without(
-            tools,
+          let tools = Object.values(larvitar.DEFAULT_TOOLS).map(
+            tool => tool.name
+          );
+          // List of tools to remove
+          const uselessTools = [
             "CustomMouseWheelScroll",
             "StackScrollMouseWheel",
             "TextMarker",
@@ -267,12 +268,7 @@
             "ScaleOverlay",
             "ManualLengthPlot",
             "WSToggle",
-            "Overlay"
-          );
-          // remove not working tools for the live example
-          // see open issue
-          tools = _.without(
-            tools,
+            "Overlay",
             "Brush",
             "ThresholdsBrush",
             "RectangleScissors",
@@ -280,14 +276,19 @@
             "CircleScissors",
             "CorrectionScissors",
             "PolylineScissors"
-          );
+          ];
+
+          // Filter out segmentation tools
+          tools = tools.filter(tool => !uselessTools.includes(tool));
+
           let increment = e.shiftKey ? -1 : 1;
           tool_counter =
             tool_counter == tools.length - 1 ? 0 : tool_counter + increment;
           tool_counter = tool_counter < 0 ? 0 : tool_counter;
           let tool = tools[tool_counter];
           larvitar.setToolActive(tool, { mouseButtonMask: 1 });
-          $("#active-tool").html("Active Tool: " + tool);
+          document.getElementById("active-tool").innerText =
+            "Active Tool: " + tool;
         }
       };
     </script>

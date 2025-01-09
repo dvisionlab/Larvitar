@@ -57,9 +57,9 @@
 
       const seriesStack = await larvitar.readFiles(demoFiles);
       // render the first series of the study
-      let seriesId = _.keys(seriesStack)[0];
+      let seriesId = Object.keys(seriesStack)[0];
       let serie = seriesStack[seriesId];
-      larvitar.populateLarvitarManager(seriesId, serie);
+      larvitar.populateImageManager(seriesId, serie);
       let manager = larvitar.getImageManager();
       let multiFrameSerie = manager[seriesId];
 
@@ -202,9 +202,9 @@
       async function renderSerie() {
         const seriesStack = await larvitar.readFiles(demoFiles);
         // render the first series of the study
-        let seriesId = _.keys(seriesStack)[0];
+        let seriesId = Object.keys(seriesStack)[0];
         let serie = seriesStack[seriesId];
-        larvitar.populateLarvitarManager(seriesId, serie);
+        larvitar.populateImageManager(seriesId, serie);
         let manager = larvitar.getImageManager();
         let multiFrameSerie = manager[seriesId];
 
@@ -222,20 +222,21 @@
         let animationId = null;
         let numberOfFrames = multiFrameSerie.numberOfFrames;
         let frameRate = multiFrameSerie.frameTime;
-        $("#frame-rate").html("Frame Rate: " + parseInt(frameRate) + "ms");
-        $("#image-time").html("Current Frame: 1 of " + numberOfFrames);
+        document.getElementById("frame-rate").innerText =
+          "Frame Rate: " + parseInt(frameRate) + "ms";
+        document.getElementById("image-time").innerText =
+          "Current Frame: 1 of " + numberOfFrames;
 
         // add event listener to the wheel to update the UI
         document
           .getElementById("viewer")
           .addEventListener("wheel", function (event) {
             frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
-            $("#image-time").html(
+            document.getElementById("image-time").innerText =
               "Current Frame: " +
-                parseInt(frameId + 1) +
-                " of " +
-                numberOfFrames
-            );
+              parseInt(frameId + 1) +
+              " of " +
+              numberOfFrames;
           });
 
         document.onkeypress = function (e) {
@@ -326,16 +327,15 @@
                     frameId,
                     false
                   );
-                  $("#image-time").html(
+                  document.getElementById("image-time").innerText =
                     "Current Frame: " +
-                      parseInt(frameId + 1) +
-                      " of " +
-                      numberOfFrames
-                  );
+                    parseInt(frameId + 1) +
+                    " of " +
+                    numberOfFrames;
                 }, multiFrameSerie.frameTime);
               } else {
                 clearInterval(animationId);
-                $("#image-time").html();
+                document.getElementById("image-time").innerText = "";
               }
               break;
           }

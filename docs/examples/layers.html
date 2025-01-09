@@ -55,7 +55,7 @@ larvitar.store.addViewport("viewer");
  larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
 
             let serie_1 = { ...seriesStack[seriesId] };
             let serie_2 = { ...seriesStack[seriesId] };
@@ -239,7 +239,7 @@ larvitar.store.addViewport("viewer");
         larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
 
             let serie_1 = { ...seriesStack[seriesId] };
             let serie_2 = { ...seriesStack[seriesId] };
@@ -293,7 +293,7 @@ larvitar.store.addViewport("viewer");
           .catch(err => console.log(err));
       }
       let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
+      demoFileList.forEach(demoFile => {
         createFile(demoFile, renderSerie);
       });
 

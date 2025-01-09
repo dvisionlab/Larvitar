@@ -90,7 +90,7 @@ larvitar.store.addViewport("viewer");
 larvitar.resetImageManager();
         const seriesStack = await larvitar.readFiles(demoFiles);
         // render the first series of the study
-        let seriesId = _.keys(seriesStack)[0];
+        let seriesId = Object.keys(seriesStack)[0];
         let serie = seriesStack[seriesId];
         await larvitar.renderImage(serie, "viewer");
         console.log("Image has been rendered");
@@ -98,7 +98,7 @@ larvitar.resetImageManager();
         loadMasks();
 
         // optionally cache the series
-        larvitar.populateLarvitarManager(seriesId, serie);
+        larvitar.populateImageManager(seriesId, serie);
 
         await larvitar.loadAndCacheImageStack(serie);
         setTimeout(function () {
@@ -379,7 +379,7 @@ larvitar.resetImageManager();
         larvitar.resetImageManager();
         const seriesStack = await larvitar.readFiles(demoFiles);
         // render the first series of the study
-        let seriesId = _.keys(seriesStack)[0];
+        let seriesId = Object.keys(seriesStack)[0];
         let serie = seriesStack[seriesId];
         await larvitar.renderImage(serie, "viewer");
         hideSpinner();
@@ -388,7 +388,7 @@ larvitar.resetImageManager();
         loadMasks();
 
         // optionally cache the series
-        larvitar.populateLarvitarManager(seriesId, serie);
+        larvitar.populateImageManager(seriesId, serie);
 
         await larvitar.loadAndCacheImageStack(serie);
         setTimeout(function () {
@@ -424,7 +424,7 @@ larvitar.resetImageManager();
       }
 
       let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
+      demoFileList.forEach(demoFile => {
         createFile(demoFile, renderSerie);
       });
       let element = document.getElementById("viewer");
@@ -439,6 +439,7 @@ larvitar.resetImageManager();
           if (tool != undefined) {
             //clearToolData(element, tool);
           }
+
           const selectedNames = [
             "Brush",
             "RectangleScissors",
@@ -448,12 +449,13 @@ larvitar.resetImageManager();
             "PolylineScissors",
             "WSToggle"
           ]; // Replace with your selected names
-          const selectedTools = _.filter(larvitar.DEFAULT_TOOLS, tool =>
-            _.includes(selectedNames, tool.name)
+
+          // Filter out segmentation tools
+          const selectedTools = Object.values(larvitar.DEFAULT_TOOLS).filter(
+            tool => selectedNames.includes(tool.name)
           );
 
-          const tools = _.map(selectedTools, "name");
-
+          const tools = Object.values(selectedTools).map(tool => tool.name);
           let increment = e.shiftKey ? -1 : 1;
           tool_counter =
             tool_counter == tools.length - 1 ? 0 : tool_counter + increment;
@@ -489,7 +491,8 @@ larvitar.resetImageManager();
             buttonBar.style.display = "none"; // make it invisible
             element.removeEventListener("click", rotateLoader);
           }
-          $("#active-tool").html("Active Tool: " + tool);
+          document.getElementById("active-tool").innerText =
+            "Active Tool: " + tool;
         }
       };
     </script>

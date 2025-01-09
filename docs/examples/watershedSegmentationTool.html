@@ -89,7 +89,7 @@
           .then(seriesStack => {
             console.log(seriesStack);
             // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               console.log("Image has been rendered");
@@ -397,7 +397,7 @@ async function loadMasks() {
           .then(seriesStack => {
             console.log(seriesStack);
             // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               hideSpinner();
@@ -447,7 +447,7 @@ async function loadMasks() {
       }
 
       let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
+      demoFileList.forEach(demoFile => {
         createFile(demoFile, renderSerie);
       });
       /*Hahn and Peitgen [2000] extracted the brain with a single watershed transform from MRI data.

@@ -56,7 +56,7 @@ larvitar.store.addViewport("viewer");
 
 async function renderSerie() {
   const seriesStack = await larvitar.readFiles(demoFiles);
-  let seriesId = _.keys(seriesStack)[0];
+  let seriesId = Object.keys(seriesStack)[0];
   let serie = seriesStack[seriesId];
   larvitar.populateImageManager(seriesId, serie);
 
@@ -251,7 +251,7 @@ async function renderSerie() {
         const t0 = performance.now();
         const seriesStack = await larvitar.readFiles(demoFiles);
         // render the first series of the study
-        let seriesId = _.keys(seriesStack)[0];
+        let seriesId = Object.keys(seriesStack)[0];
         let serie = seriesStack[seriesId];
         larvitar.populateImageManager(seriesId, serie);
         let manager = larvitar.getImageManager();

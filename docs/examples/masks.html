@@ -57,7 +57,7 @@
                 .readFiles(demoFiles)
                 .then(seriesStack => {
                   // render the first series of the study
-                  let seriesId = _.keys(seriesStack)[0];
+                  let seriesId = Object.keys(seriesStack)[0];
                   let serie = seriesStack[seriesId];
                   larvitar.renderImage(serie, "viewer").then(() => {
                     demoFiles = [];
@@ -65,34 +65,34 @@
                     larvitar.addDefaultTools();
                   });
                 })
-       async function loadMasks() {
-              larvitar.initSegmentationModule();
+              async function loadMasks() {
+                larvitar.initSegmentationModule();
 
-              // fetch data
-              let response = await fetch("./demo/" + "segmentation.nrrd");
-              let data = await response.blob();
-              let nrrd_file = new File([data], "segmentation.nrrd");
-              // read file
-              let reader = new FileReader();
-              reader.readAsArrayBuffer(nrrd_file);
-              reader.onload = function () {
-                // create volume
-                let volume = larvitar.importNRRDImage(reader.result);
-                // define mask properties
-                let properties = {
-                  // color: "#00ff00",
-                  opacity: 0.2,
-                  labelId: 0
+                // fetch data
+                let response = await fetch("./demo/" + "segmentation.nrrd");
+                let data = await response.blob();
+                let nrrd_file = new File([data], "segmentation.nrrd");
+                // read file
+                let reader = new FileReader();
+                reader.readAsArrayBuffer(nrrd_file);
+                reader.onload = function () {
+                  // create volume
+                  let volume = larvitar.importNRRDImage(reader.result);
+                  // define mask properties
+                  let properties = {
+                    // color: "#00ff00",
+                    opacity: 0.2,
+                    labelId: 0
+                  };
+                  // add to viewport
+                  larvitar
+                    .addSegmentationMask(properties, volume.data, "viewer")
+                    .then(() => {
+                      // activate brush on this labelmap
+                      larvitar.setActiveLabelmap(0, "viewer");
+                      larvitar.setToolActive("Brush");
+                    });
                 };
-                // add to viewport
-                larvitar
-                  .addSegmentationMask(properties, volume.data, "viewer")
-                  .then(() => {
-                    // activate brush on this labelmap
-                    larvitar.setActiveLabelmap(0, "viewer");
-                    larvitar.setToolActive("Brush");
-                  });
-              };
             }
       `;
 
@@ -237,7 +237,7 @@
           .readFiles(demoFiles)
           .then(seriesStack => {
             // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               hideSpinner();
@@ -251,7 +251,7 @@
 
       let demoFileList = getDemoFileNames();
 
-      _.each(demoFileList, function (demoFile) {
+      demoFileList.forEach(demoFile => {
         createFile(demoFile, renderSerie);
       });
 

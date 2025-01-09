@@ -87,7 +87,7 @@
           .readFiles(demoFiles)
           .then(seriesStack => {
             // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.populateImageManager(seriesId, serie);
             larvitar.renderImage(serie, "viewer-base").then(() => {
@@ -236,7 +236,7 @@
           .readFiles(demoFiles)
           .then(seriesStack => {
             // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.populateImageManager(seriesId, serie);
             larvitar.renderImage(serie, "viewer-base").then(() => {
@@ -260,7 +260,7 @@
       }
 
       let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
+      demoFileList.forEach(demoFile => {
         createFile(demoFile, renderSerie);
       });
     </script>

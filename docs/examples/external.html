@@ -58,7 +58,7 @@
           .readFiles(demoFiles)
           .then(seriesStack => {
             // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               console.log("Image has been rendered");
@@ -207,7 +207,7 @@
           .readFiles(demoFiles)
           .then(seriesStack => {
             // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               hideSpinner();
@@ -232,7 +232,7 @@
       }
 
       let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
+      demoFileList.forEach(demoFile => {
         createFile(demoFile, renderSerie);
       });
     </script>
