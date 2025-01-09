@@ -48,36 +48,36 @@
 
         // TODO Code snippet to be displayed and updated for the example
         const code = `
-      larvitar.initializeImageLoader();
-      larvitar.initializeCSTools();
-      larvitar.store.initialize();
-      larvitar.store.addViewport("viewer");
-      larvitar.registerExternalTool("Test", TestTool);
-      larvitar.resetImageManager();
-        larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            // render the first series of the study
-            let seriesId = Object.keys(seriesStack)[0];
-            let serie = seriesStack[seriesId];
-            larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
-            });
-            // optionally cache the series
-            larvitar.populateImageManager(seriesId, serie);
-            larvitar.cacheImages(serie, function (resp) {
-              if (resp.loading == 100) {
-                let cache = larvitar.cornerstone.imageCache;
-                console.log(
-                  "Cache size: ",
-                  cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                  "Mb"
-                );
-              }
-            });
-            larvitar.addTool("Test");
-            larvitar.setToolActive("Test");
-          })
+larvitar.initializeImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+larvitar.registerExternalTool("Test", TestTool);
+larvitar.resetImageManager();
+larvitar
+  .readFiles(demoFiles)
+  .then(seriesStack => {
+    // render the first series of the study
+    let seriesId = Object.keys(seriesStack)[0];
+    let serie = seriesStack[seriesId];
+    larvitar.renderImage(serie, "viewer").then(() => {
+      console.log("Image has been rendered");
+    });
+    // optionally cache the series
+    larvitar.populateImageManager(seriesId, serie);
+    larvitar.cacheImages(serie, function (resp) {
+      if (resp.loading == 100) {
+        let cache = larvitar.cornerstone.imageCache;
+        console.log(
+          "Cache size: ",
+          cache.getCacheInfo().cacheSizeInBytes / 1e6,
+          "Mb"
+        );
+      }
+    });
+    larvitar.addTool("Test");
+    larvitar.setToolActive("Test");
+  })
 `;
 
         // Show the modal and populate code snippet

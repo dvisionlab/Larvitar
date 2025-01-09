@@ -50,53 +50,55 @@
 
         // TODO Code snippet to be displayed and updated for the example
         const code = `
-              larvitar.initializeImageLoader();
-              larvitar.initializeCSTools();
-              larvitar.store.initialize();
-              larvitar.store.addViewport("viewer");
-              larvitar.resetImageManager();
-              larvitar
-                .readFiles(demoFiles)
-                .then(seriesStack => {
-                  // render the first series of the study
-                  let seriesId = Object.keys(seriesStack)[0];
-                  let serie = seriesStack[seriesId];
-                  larvitar.renderImage(serie, "viewer").then(() => {
-                    demoFiles = [];
-                    loadMasks();
-                    larvitar.addDefaultTools();
-                  });
-                })
-              async function loadMasks() {
-                larvitar.initSegmentationModule();
+larvitar.initializeImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+larvitar.resetImageManager();
+larvitar
+  .readFiles(demoFiles)
+  .then(seriesStack => {
+    // render the first series of the study
+    let seriesId = Object.keys(seriesStack)[0];
+    let serie = seriesStack[seriesId];
+    larvitar.renderImage(serie, "viewer").then(() => {
+      demoFiles = [];
+      loadMasks();
+      larvitar.addDefaultTools();
+    });
+  })
 
-                // fetch data
-                let response = await fetch("./demo/" + "segmentation.nrrd");
-                let data = await response.blob();
-                let nrrd_file = new File([data], "segmentation.nrrd");
-                // read file
-                let reader = new FileReader();
-                reader.readAsArrayBuffer(nrrd_file);
-                reader.onload = function () {
-                  // create volume
-                  let volume = larvitar.importNRRDImage(reader.result);
-                  // define mask properties
-                  let properties = {
-                    // color: "#00ff00",
-                    opacity: 0.2,
-                    labelId: 0
-                  };
-                  // add to viewport
-                  larvitar
-                    .addSegmentationMask(properties, volume.data, "viewer")
-                    .then(() => {
-                      // activate brush on this labelmap
-                      larvitar.setActiveLabelmap(0, "viewer");
-                      larvitar.setToolActive("Brush");
-                    });
-                };
-            }
-      `;
+async function loadMasks() {
+  larvitar.initSegmentationModule();
+
+  // fetch data
+  let response = await fetch("./demo/" + "segmentation.nrrd");
+  let data = await response.blob();
+  let nrrd_file = new File([data], "segmentation.nrrd");
+  // read file
+  let reader = new FileReader();
+  reader.readAsArrayBuffer(nrrd_file);
+  reader.onload = function () {
+    // create volume
+    let volume = larvitar.importNRRDImage(reader.result);
+    // define mask properties
+    let properties = {
+      // color: "#00ff00",
+      opacity: 0.2,
+      labelId: 0
+    };
+    // add to viewport
+    larvitar
+      .addSegmentationMask(properties, volume.data, "viewer")
+      .then(() => {
+        // activate brush on this labelmap
+        larvitar.setActiveLabelmap(0, "viewer");
+        larvitar.setToolActive("Brush");
+      });
+    };
+  }
+});
+`;
 
         // Show the modal and populate code snippet
         showCodeBtn.addEventListener("click", () => {

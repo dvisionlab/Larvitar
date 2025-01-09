@@ -48,43 +48,41 @@
 
         // TODO Code snippet to be displayed and updated for the example
         const code = `
-      larvitar.initializeImageLoader();
-      larvitar.initializeCSTools();
-      larvitar.store.initialize();
-      larvitar.store.addViewport("viewer");
-      const customColorMap = function () {
-        let array = [[0, 0, 0, 255]];
+larvitar.initializeImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+const customColorMap = function () {
+  let array = [[0, 0, 0, 255]];
 
-        for (let i = 1; i < 255; i++) {
-          let rgb;
-          rgb = larvitar.HSVToRGB(i / 360, 1, 1);
-          rgb[0] = Math.floor(rgb[0] * 255);
-          rgb[1] = Math.floor(rgb[1] * 255);
-          rgb[2] = Math.floor(rgb[2] * 255);
-          rgb[3] = 255;
+  for (let i = 1; i < 255; i++) {
+    let rgb;
+    rgb = larvitar.HSVToRGB(i / 360, 1, 1);
+    rgb[0] = Math.floor(rgb[0] * 255);
+    rgb[1] = Math.floor(rgb[1] * 255);
+    rgb[2] = Math.floor(rgb[2] * 255);
+    rgb[3] = 255;
 
-          array.push(rgb);
-        }
+    array.push(rgb);
+  }
 
-        array.push([0, 0, 0, 255]);
-        return array;
-      };
+  array.push([0, 0, 0, 255]);
+  return array;
+};
 
-      larvitar.addColorMap("custom", "CUSTOM", customColorMap());
-      larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            // render the first series of the study
-            let seriesId = Object.keys(seriesStack)[0];
-            let serie = seriesStack[seriesId];
-            larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
-              larvitar.addDefaultTools();
-              larvitar.setToolActive("Wwwc");
-            });
-          })
-
-        
+larvitar.addColorMap("custom", "CUSTOM", customColorMap());
+larvitar
+  .readFiles(demoFiles)
+  .then(seriesStack => {
+    // render the first series of the study
+    let seriesId = Object.keys(seriesStack)[0];
+    let serie = seriesStack[seriesId];
+    larvitar.renderImage(serie, "viewer").then(() => {
+      console.log("Image has been rendered");
+      larvitar.addDefaultTools();
+      larvitar.setToolActive("Wwwc");
+    });
+  })
 `;
 
         // Show the modal and populate code snippet

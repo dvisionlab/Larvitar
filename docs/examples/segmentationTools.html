@@ -89,49 +89,48 @@ larvitar.initializeCSTools();
 larvitar.store.initialize();
 larvitar.store.addViewport("viewer");
 larvitar.resetImageManager();
-        const seriesStack = await larvitar.readFiles(demoFiles);
-        // render the first series of the study
-        let seriesId = Object.keys(seriesStack)[0];
-        let serie = seriesStack[seriesId];
-        await larvitar.renderImage(serie, "viewer");
-        console.log("Image has been rendered");
-        larvitar.addDefaultTools();
-        loadMasks();
+const seriesStack = await larvitar.readFiles(demoFiles);
+// render the first series of the study
+let seriesId = Object.keys(seriesStack)[0];
+let serie = seriesStack[seriesId];
+await larvitar.renderImage(serie, "viewer");
+console.log("Image has been rendered");
+larvitar.addDefaultTools();
+loadMasks();
 
-        // optionally cache the series
-        larvitar.populateImageManager(seriesId, serie);
+// optionally cache the series
+larvitar.populateImageManager(seriesId, serie);
 
-        await larvitar.loadAndCacheImageStack(serie);
-        setTimeout(function () {
-          larvitar.setToolActive("Brush");
-        }, 1000);
+await larvitar.loadAndCacheImageStack(serie);
+setTimeout(function () {
+  larvitar.setToolActive("Brush");
+}, 1000);
 
-        let mouseConfig = {
-          mouse_button_right: {
-            ctrl: "Pan",
-            default: "Zoom"
-          },
-          debug: true
-        };
+let mouseConfig = {
+  mouse_button_right: {
+    ctrl: "Pan",
+    default: "Zoom"
+  },
+  debug: true
+};
 
-        // NOTE: this also activate the tools marked as default for each mouse button
-        larvitar.addMouseKeyHandlers(mouseConfig);
-  async function loadMasks() {
-        let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
-        let properties = {
-          // color: "#00ff00",
-          opacity: 0.2,
-          labelId: 0
-        };
-        // add to viewport
-        await larvitar
-          .addSegmentationMask(properties, data, "viewer")
-          .then(() => {
-            // activate brush on this labelmap
-            larvitar.setActiveLabelmap(0, "viewer");
-          });
-      }
-
+// NOTE: this also activate the tools marked as default for each mouse button
+larvitar.addMouseKeyHandlers(mouseConfig);
+async function loadMasks() {
+let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
+let properties = {
+  // color: "#00ff00",
+  opacity: 0.2,
+  labelId: 0
+};
+// add to viewport
+await larvitar
+  .addSegmentationMask(properties, data, "viewer")
+  .then(() => {
+    // activate brush on this labelmap
+    larvitar.setActiveLabelmap(0, "viewer");
+  });
+}
 `;
 
         // Show the modal and populate code snippet

@@ -48,40 +48,39 @@
 
         // TODO Code snippet to be displayed and updated for the example
         const code = `
-    larvitar.initializeImageLoader();
-    larvitar.initializeCSTools();
-    larvitar.store.initialize();
-    larvitar.store.addViewport("viewer");
-    larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            let seriesId = Object.keys(seriesStack)[0];
-            let serie = seriesStack[seriesId];
-            larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
-              larvitar.addDefaultTools();
+larvitar.initializeImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+larvitar
+  .readFiles(demoFiles)
+  .then(seriesStack => {
+    let seriesId = Object.keys(seriesStack)[0];
+    let serie = seriesStack[seriesId];
+    larvitar.renderImage(serie, "viewer").then(() => {
+      console.log("Image has been rendered");
+      larvitar.addDefaultTools();
 
-              let mouseConfig = {
-                keyboard_shortcuts: {
-                  KEY_A: "Angle",
-                  KEY_L: "Length"
-                },
-                mouse_button_left: {
-                  ctrl: "Pan",
-                  default: "Wwwc"
-                },
-                mouse_button_right: {
-                  ctrl: "Pan",
-                  default: "Zoom"
-                },
-                debug: true
-              };
+      let mouseConfig = {
+        keyboard_shortcuts: {
+          KEY_A: "Angle",
+          KEY_L: "Length"
+        },
+        mouse_button_left: {
+          ctrl: "Pan",
+          default: "Wwwc"
+        },
+        mouse_button_right: {
+          ctrl: "Pan",
+          default: "Zoom"
+        },
+        debug: true
+      };
 
-              // NOTE: this also activate the tools marked as default for each mouse button
-              larvitar.addMouseKeyHandlers(mouseConfig);
-            });
-          })
-     
+      // NOTE: this also activate the tools marked as default for each mouse button
+      larvitar.addMouseKeyHandlers(mouseConfig);
+    });
+  })
 `;
 
         // Show the modal and populate code snippet

@@ -77,34 +77,34 @@
 
         // TODO Code snippet to be displayed and updated for the example
         const code = `
-      larvitar.initializeImageLoader();
-      larvitar.registerResliceLoader();
-      larvitar.initializeCSTools();
-      larvitar.store.initialize();
-      larvitar.store.addViewport("viewer-base");
-      larvitar.store.addViewport("viewer-reslice");
-          larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            // render the first series of the study
-            let seriesId = Object.keys(seriesStack)[0];
-            let serie = seriesStack[seriesId];
-            larvitar.populateImageManager(seriesId, serie);
-            larvitar.renderImage(serie, "viewer-base").then(() => {
-              console.log("Image axial has been rendered");
-            });
-            larvitar.cacheImages(serie, function (resp) {
-              if (resp.loading == 100) {
-                larvitar.resliceSeries(serie, "coronal").then(data => {
-                  larvitar.renderImage(data, "viewer-reslice").then(() => {
-                    console.log("Image resliced has been rendered");
-                  });
-                  larvitar.addDefaultTools();
-                  larvitar.setToolActive("Wwwc");
-                });
-              }
-            });
-          })
+larvitar.initializeImageLoader();
+larvitar.registerResliceLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer-base");
+larvitar.store.addViewport("viewer-reslice");
+larvitar
+  .readFiles(demoFiles)
+  .then(seriesStack => {
+    // render the first series of the study
+    let seriesId = Object.keys(seriesStack)[0];
+    let serie = seriesStack[seriesId];
+    larvitar.populateImageManager(seriesId, serie);
+    larvitar.renderImage(serie, "viewer-base").then(() => {
+      console.log("Image axial has been rendered");
+    });
+    larvitar.cacheImages(serie, function (resp) {
+      if (resp.loading == 100) {
+        larvitar.resliceSeries(serie, "coronal").then(data => {
+          larvitar.renderImage(data, "viewer-reslice").then(() => {
+            console.log("Image resliced has been rendered");
+          });
+          larvitar.addDefaultTools();
+          larvitar.setToolActive("Wwwc");
+        });
+      }
+    });
+  })
 `;
 
         // Show the modal and populate code snippet

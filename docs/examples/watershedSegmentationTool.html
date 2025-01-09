@@ -74,64 +74,66 @@
 
         // TODO Code snippet to be displayed and updated for the example
         const code = `
-      larvitar.initializeImageLoader();
-      larvitar.initializeCSTools();
-      larvitar.store.initialize();
-      larvitar.store.addViewport("viewer");
-      let element = document.getElementById("viewer");
-      element.addEventListener("click", rotateLoader);
-      larvitar.registerNRRDImageLoader();
-      larvitar.initSegmentationModule();
-      larvitar.resetImageManager();
-      larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            console.log(seriesStack);
-            // render the first series of the study
-            let seriesId = Object.keys(seriesStack)[0];
-            let serie = seriesStack[seriesId];
-            larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
-            });
-            // optionally cache the series
-            larvitar.populateImageManager(seriesId, serie);
+larvitar.initializeImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+let element = document.getElementById("viewer");
+element.addEventListener("click", rotateLoader);
+larvitar.registerNRRDImageLoader();
+larvitar.initSegmentationModule();
+larvitar.resetImageManager();
+larvitar
+  .readFiles(demoFiles)
+  .then(seriesStack => {
+    console.log(seriesStack);
+    // render the first series of the study
+    let seriesId = Object.keys(seriesStack)[0];
+    let serie = seriesStack[seriesId];
+    larvitar.renderImage(serie, "viewer").then(() => {
+      console.log("Image has been rendered");
+    });
+    // optionally cache the series
+    larvitar.populateImageManager(seriesId, serie);
 
-            larvitar
-              .cacheImages(serie, function (resp) {
-                if (resp.loading == 100) {
-                  let cache = larvitar.cornerstone.imageCache;
-                  console.log(
-                    "Cache size: ",
-                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                    "Mb"
-                  );
-                }
-              })
-              .then(() => {
-                setTimeout(function () {
-                  console.log("Cache has been loaded. Calling loadMasks.");
-                  larvitar.addDefaultTools();
-                  loadMasks();
-                }, 3000);
-              });
-          })
-        async function loadMasks() {
-            console.log("loadMasks() called");
-            let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
-            let properties = {
-              // color: "#00ff00",
-              opacity: 0.2,
-              labelId: 0
-            };
-            // add to viewport
-            await larvitar
-              .addSegmentationMask(properties, data, "viewer")
-              .then(() => {
-                // activate brush on this labelmap
-                larvitar.setActiveLabelmap(0, "viewer");
-                larvitar.setToolActive("WSToggle");
-              });
-      }
+    larvitar
+      .cacheImages(serie, function (resp) {
+        if (resp.loading == 100) {
+          let cache = larvitar.cornerstone.imageCache;
+          console.log(
+            "Cache size: ",
+            cache.getCacheInfo().cacheSizeInBytes / 1e6,
+            "Mb"
+          );
+        }
+      })
+      .then(() => {
+        setTimeout(function () {
+          console.log("Cache has been loaded. Calling loadMasks.");
+          larvitar.addDefaultTools();
+          loadMasks();
+        }, 3000);
+      });
+  })
+  async function loadMasks() {
+    console.log("loadMasks() called");
+    let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
+    let properties = {
+      // color: "#00ff00",
+      opacity: 0.2,
+      labelId: 0
+    };
+    // add to viewport
+    await larvitar
+      .addSegmentationMask(properties, data, "viewer")
+      .then(() => {
+        // activate brush on this labelmap
+        larvitar.setActiveLabelmap(0, "viewer");
+        larvitar.setToolActive("WSToggle");
+      });
+    });
+  }
+}
 `;
 
         // Show the modal and populate code snippet

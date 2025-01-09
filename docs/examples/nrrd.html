@@ -48,20 +48,20 @@
 
         // TODO Code snippet to be displayed and updated for the example
         const code = `
-        larvitar.initializeImageLoader();
-        larvitar.registerNRRDImageLoader();
-        larvitar.initializeCSTools();
-        larvitar.store.initialize();
-        larvitar.store.addViewport("viewer");
-        let reader = new FileReader();
-        reader.readAsArrayBuffer(nrrd_file);
-        reader.onload = function () {
-          let volume = larvitar.importNRRDImage(reader.result);
-          let serie = larvitar.buildNrrdImage(volume, "1234", {});
-          larvitar.renderImage(serie, "viewer");
-          larvitar.addDefaultTools();
-          larvitar.setToolActive("Wwwc");
-        };
+larvitar.initializeImageLoader();
+larvitar.registerNRRDImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+let reader = new FileReader();
+reader.readAsArrayBuffer(nrrd_file);
+reader.onload = function () {
+  let volume = larvitar.importNRRDImage(reader.result);
+  let serie = larvitar.buildNrrdImage(volume, "1234", {});
+  larvitar.renderImage(serie, "viewer");
+  larvitar.addDefaultTools();
+  larvitar.setToolActive("Wwwc");
+};
 `;
 
         // Show the modal and populate code snippet

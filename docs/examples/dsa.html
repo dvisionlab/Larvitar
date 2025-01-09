@@ -48,29 +48,29 @@
 
         // TODO Code snippet to be displayed and updated for the example
         const code = `
-      larvitar.initializeImageLoader();
-      larvitar.registerMultiFrameImageLoader();
-      larvitar.registerDsaImageLoader();
-      larvitar.initializeCSTools();
-      larvitar.store.initialize();
-      larvitar.store.addViewport("viewer");
+larvitar.initializeImageLoader();
+larvitar.registerMultiFrameImageLoader();
+larvitar.registerDsaImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
 
-      const seriesStack = await larvitar.readFiles(demoFiles);
-      // render the first series of the study
-      let seriesId = Object.keys(seriesStack)[0];
-      let serie = seriesStack[seriesId];
-      larvitar.populateImageManager(seriesId, serie);
-      let manager = larvitar.getImageManager();
-      let multiFrameSerie = manager[seriesId];
+const seriesStack = await larvitar.readFiles(demoFiles);
+// render the first series of the study
+let seriesId = Object.keys(seriesStack)[0];
+let serie = seriesStack[seriesId];
+larvitar.populateImageManager(seriesId, serie);
+let manager = larvitar.getImageManager();
+let multiFrameSerie = manager[seriesId];
 
-      let frameId = 0;
-      await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
-      console.log("Image has been rendered");
+let frameId = 0;
+await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+console.log("Image has been rendered");
 
-      larvitar.addDefaultTools();
-      larvitar.setToolActive("Wwwc");
-      await larvitar.loadAndCacheImageStack(multiFrameSerie);
-      await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
+larvitar.addDefaultTools();
+larvitar.setToolActive("Wwwc");
+await larvitar.loadAndCacheImageStack(multiFrameSerie);
+await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
 `;
 
         // Show the modal and populate code snippet
