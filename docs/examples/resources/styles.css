@@ -7,7 +7,8 @@ body {
   color: white;
   padding: 10px 5px;
   border: none;
-  width: 8rem
+  width: 8rem;
+  border-radius: 5%;
 }
 
 .open-button:hover {
