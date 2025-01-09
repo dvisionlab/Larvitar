@@ -115,22 +115,22 @@
                 }, 3000);
               });
           })
-async function loadMasks() {
-        console.log("loadMasks() called");
-        let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
-        let properties = {
-          // color: "#00ff00",
-          opacity: 0.2,
-          labelId: 0
-        };
-        // add to viewport
-        await larvitar
-          .addSegmentationMask(properties, data, "viewer")
-          .then(() => {
-            // activate brush on this labelmap
-            larvitar.setActiveLabelmap(0, "viewer");
-            larvitar.setToolActive("WSToggle");
-          });
+        async function loadMasks() {
+            console.log("loadMasks() called");
+            let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
+            let properties = {
+              // color: "#00ff00",
+              opacity: 0.2,
+              labelId: 0
+            };
+            // add to viewport
+            await larvitar
+              .addSegmentationMask(properties, data, "viewer")
+              .then(() => {
+                // activate brush on this labelmap
+                larvitar.setActiveLabelmap(0, "viewer");
+                larvitar.setToolActive("WSToggle");
+              });
       }
 `;
 
@@ -417,11 +417,9 @@ async function loadMasks() {
                 }
               })
               .then(() => {
-                setTimeout(function () {
-                  console.log("Cache has been loaded. Calling loadMasks.");
-                  larvitar.addDefaultTools();
-                  loadMasks();
-                }, 3000);
+                console.log("Cache has been loaded. Calling loadMasks.");
+                larvitar.addDefaultTools();
+                loadMasks();
               });
           })
           .catch(err => console.error(err));
