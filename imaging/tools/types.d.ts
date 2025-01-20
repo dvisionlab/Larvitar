@@ -419,6 +419,11 @@ export interface Coords {
 export interface EventData {
   currentPoints: {
     image: Coords;
+    client: Coords;
+  };
+  startPoints: {
+    image: Coords;
+    client: Coords;
   };
   element: HTMLElement;
   buttons: number;
