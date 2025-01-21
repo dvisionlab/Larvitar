@@ -157,23 +157,6 @@ const addTool = function (
   }
 };
 
-async function waitForImageId(element: EnabledElement) {
-  return new Promise((resolve, reject) => {
-    const startTime = Date.now(); // Record the start time
-    const check = () => {
-      if (element.image && element.image.imageId) {
-        resolve(element.image.imageId);
-      } else if (Date.now() - startTime >= 2000) {
-        // Check if 2000 ms timeout is reached
-        reject(new Error("Timeout: Image ID not available within 2000 ms"));
-      } else {
-        setTimeout(check, 50); // Check again in 100 milliseconds
-      }
-    };
-    check();
-  });
-}
-
 /**
  * Add all default tools, as listed in tools/default.js
  * @function addDefaultTools

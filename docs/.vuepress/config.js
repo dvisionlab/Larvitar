@@ -110,10 +110,15 @@ export default {
                 },
                 {
                   text: "Interaction Tools",
+                  link: "/api/modules/tools/tools.md",
                   children: [
                     {
-                      text: "Main Tools",
-                      link: "/api/modules/tools/tools.md"
+                      text: "Initialize and manage Tools",
+                      link: "/api/modules/tools/initialization.md"
+                    },
+                    {
+                      text: "Default Tools",
+                      link: "/api/modules/tools/default.md"
                     },
                     {
                       text: "Segmentation Tools",
