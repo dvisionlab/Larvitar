@@ -47,6 +47,7 @@ import type {
   ToolSettings,
   ToolStyle
 } from "./types";
+import RotateTool from "./custom/rotateTool";
 
 /**
  * These tools are added with `addDefaultTools()`
@@ -575,7 +576,8 @@ const dvTools: {
   EllipticalRoiTool: EllipticalRoiTool,
   FreehandRoiTool: FreehandRoiTool,
   ManualLengthPlotTool: ManualLengthPlotTool,
-  OverlayTool: OverlayTool
+  OverlayTool: OverlayTool,
+  RotateTool: RotateTool
 };
 
 /**
