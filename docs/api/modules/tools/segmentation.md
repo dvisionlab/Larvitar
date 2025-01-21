@@ -2,19 +2,7 @@
     <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" alt="Larvitar" height="200" />
 </div>
 
-# Cornestone Tools
-
-spiegare cosa sono i tools di cornerstone con un link alla libreria
-
-## Features
-
-1. **Foo:**
-
-   - bar.
-   - asd.
-
-## API Reference
-
+Coming soon...
 
 <br></br>
 

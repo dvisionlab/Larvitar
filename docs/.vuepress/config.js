@@ -114,6 +114,10 @@ export default {
                     {
                       text: "Main Tools",
                       link: "/api/modules/tools/tools.md"
+                    },
+                    {
+                      text: "Segmentation Tools",
+                      link: "/api/modules/tools/segmentation.md"
                     }
                   ]
                 },
