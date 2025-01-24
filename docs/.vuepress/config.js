@@ -123,6 +123,10 @@ export default {
                     {
                       text: "Segmentation Tools",
                       link: "/api/modules/tools/segmentation.md"
+                    },
+                    {
+                      text: "DvTools",
+                      link: "/api/modules/tools/dvTools.md"
                     }
                   ]
                 },
