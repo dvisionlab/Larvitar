@@ -20,7 +20,7 @@ In `default.ts` the list of Larvitar default tools is exported as `DEFAULT_TOOLS
 
 These tools are either cornerstone-customized tools or fully custom tools (e.g., `watershedSegmentationTool`) and can be added to the viewport through `addDefaultTools`.
 
-### Example Tool Definition
+### Example: Tool Definition
 
 ```typescript
 Zoom: {
@@ -46,27 +46,27 @@ Zoom: {
   }
 ```
 
-### Example Default Tools Activation
+### Example: Default Tools Activation
 
 ```typescript
-larvitar.store.addViewport("viewer");
-larvitar.initializeCSTools();
-larvitar.addDefaultTools();
-larvitar.setToolActive("Wwwc"); //explicitly set the active tool. If not, default active is StackScroll
+store.addViewport("viewer");
+initializeCSTools();
+addDefaultTools();
+setToolActive("Wwwc"); //explicitly set the active tool. If not, default active is StackScroll
 ```
 
 ## Introduction: custom Tools
 
 User can add custom tools calling `registerExternalTool`. The tool will be registered in the dvTools object and in `DEFAULT_TOOLS` array. If done **before** adding the tools with `addDefaultTools`, the tool will be added automatically along with the default ones. Otherwise, the user can simply add its tool using `addTool`.
 
-### Example Custom Tools Registration
+### Example: Custom Tools Registration
 
 ```typescript
-larvitar.initializeCSTools();
-larvitar.store.addViewport("viewer");
-larvitar.registerExternalTool("customTool");
-larvitar.addTool("customTool"); //or directly use larvitar.addDefaultTools();
-larvitar.setToolActive("customTool");
+initializeCSTools();
+store.addViewport("viewer");
+registerExternalTool("customTool");
+addTool("customTool"); //or directly use addDefaultTools();
+setToolActive("customTool");
 ```
 
 ## API Reference
