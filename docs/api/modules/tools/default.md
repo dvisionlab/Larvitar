@@ -2,7 +2,7 @@
     <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" alt="Larvitar" height="200" />
 </div>
 
-## Introduction
+## Introduction: default Tools
 
 In `default.ts` the list of Larvitar default tools is exported as `DEFAULT_TOOLS`, along with their default configuration, that extendes the cornerstoneTools configuration with these properties:
 
@@ -18,7 +18,7 @@ In `default.ts` the list of Larvitar default tools is exported as `DEFAULT_TOOLS
 - **Type:** tool category inside Larvitar (one of: `"utils", "annotation", "segmentation", "overlay"`),
 - **Description:** a string that describes the tool (eg to be shown in a tooltip)
 
-These tools are either cornerstone-customized tools or fully custom tools (e.g., `watershedSegmentationTool`)
+These tools are either cornerstone-customized tools or fully custom tools (e.g., `watershedSegmentationTool`) and can be added to the viewport through `addDefaultTools`.
 
 ### Example Tool Definition
 
@@ -44,6 +44,29 @@ Zoom: {
     shortcut: "ctrl-z",
     type: "utils"
   }
+```
+
+### Example Default Tools Activation
+
+```typescript
+larvitar.store.addViewport("viewer");
+larvitar.initializeCSTools();
+larvitar.addDefaultTools();
+larvitar.setToolActive("Wwwc"); //explicitly set the active tool. If not, default active is StackScroll
+```
+
+## Introduction: custom Tools
+
+User can add custom tools calling `registerExternalTool`. The tool will be registered in the dvTools object and in `DEFAULT_TOOLS` array. If done **before** adding the tools with `addDefaultTools`, the tool will be added automatically along with the default ones. Otherwise, the user can simply add its tool using `addTool`.
+
+### Example Custom Tools Registration
+
+```typescript
+larvitar.initializeCSTools();
+larvitar.store.addViewport("viewer");
+larvitar.registerExternalTool("customTool");
+larvitar.addTool("customTool"); //or directly use larvitar.addDefaultTools();
+larvitar.setToolActive("customTool");
 ```
 
 ## API Reference
@@ -88,11 +111,68 @@ setDefaultToolsProps(newProps: Partial<ToolConfig>[]): void
 
 `void` – The function does not return a value. It directly modifies the DEFAULT_TOOLS object with the new properties.
 
+### `registerExternalTool`
+
+Overrides the default properties of tools.
+NOTE:
+
+- if toolName is already existent in `DEFAULT_TOOLS`, it will ovverride the tool
+- toolClass must be a valid cornerstone tool
+
+#### Syntax
+
+```typescript
+registerExternalTool(toolName: string, toolClass: any): void
+```
+
+#### Parameters
+
+| Parameter   | Type   | Description          |
+| ----------- | ------ | -------------------- |
+| `toolName`  | string | The name of the tool |
+| `toolClass` | string | The tool class       |
+
+#### Returns
+
+`void` – The function does not return a value. It directly modifies the DEFAULT_TOOLS and dvTools objects with the new tool.
+
+```typescript
+dvTools[toolClass.name] = toolClass;
+DEFAULT_TOOLS[toolName] = {
+  name: toolName,
+  class: toolClass.name,
+  viewports: "all",
+  configuration: {},
+  options: { mouseButtonMask: 1 },
+  defaultActive: false
+};
+```
+
+### `addDefaultTools`
+
+Add all default tools, as listed in `DEFAULT_TOOLS`
+
+#### Syntax
+
+```typescript
+addDefaultTools(elementId: string): void
+```
+
+#### Parameters
+
+| Parameter  | Type   | Description                                                                    |
+| ---------- | ------ | ------------------------------------------------------------------------------ |
+| `toolName` | string | The id of the cornerstone Enabled Element on which the tools will be activated |
+
+#### Returns
+
+`void`
+
 ## Constants
 
 ### `dvTools`
 
-contains a set of custom tools that are used for various processing tasks. The tools are accessible by their respective names and can be extended or modified as needed.
+Contains a set of custom tools that are used for various processing tasks. The tools are accessible by their respective names and can be extended or modified as needed.
 
 #### Syntax
 

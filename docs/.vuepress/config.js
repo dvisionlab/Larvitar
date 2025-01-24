@@ -117,7 +117,7 @@ export default {
                       link: "/api/modules/tools/initialization.md"
                     },
                     {
-                      text: "Default Tools",
+                      text: "Default and Custom Tools",
                       link: "/api/modules/tools/default.md"
                     },
                     {
