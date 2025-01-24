@@ -26,8 +26,8 @@ declare var cv: any; //opencv-js
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
  * @function initializeCSTools
- * @param {Object} settings - the settings object (see tools/default.js)
- * @param {Object} settings - the style object (see tools/default.js)
+ * @param {ToolSettings} settings - the settings object (see tools/default.js)
+ * @param {ToolStyle} style - the style object (see tools/default.js)
  * @example larvitar.initializeCSTools({showSVGCursors:false}, {color: "0000FF"});
  */
 const initializeCSTools = function (
@@ -376,7 +376,7 @@ const setToolEnabled = function (
 };
 
 /**
- * Set Tool "enabled" on all elements (ie, rendered and manipulable passively) & refresh cornerstone elements
+ * Set Tool "passive" on all elements (ie, rendered and manipulable passively) & refresh cornerstone elements
  * @function setToolPassive
  * @param {String} toolName - The tool name.
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
