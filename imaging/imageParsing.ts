@@ -79,7 +79,7 @@ export const readFile = function (entry: File) {
  * @instance
  * @function convertQidoMetadata
  * @param {Object} data - QIDO metadata object
- * @returns {Object} - Return a metadata object
+ * @returns {MetaData} - Return a metadata object
  */
 export const convertQidoMetadata = function (data: any): MetaData {
   const metadata: MetaData = Object.keys(data).reduce(

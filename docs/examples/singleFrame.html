@@ -2,49 +2,129 @@
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
-    />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+
+    <!-- Include the Larvitar script -->
     <script>
-      hljs.highlightAll();
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
     </script>
-    <title>Larvitar - Singleframe rendering example</title>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- custom styles for the example -->
+    <style></style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        // TODO Code snippet to be displayed and updated for the example
+        const code = ``;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
+    <title>Larvitar - Frame by Frame example</title>
   </head>
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
       <div
         id="viewer"
-        class="col-8 h-100"
+        class="col-12 h-100"
         style="background-color: black"
       ></div>
+      <button
+        id="showCodeBtn"
+        class="open-button"
+        style="position: absolute; top: 10px"
+      >
+        Show Code
+      </button>
 
-      <div class="col-4 h-100">
-        <pre class="h-100">
-          <code class="javascript" style="background-color: #000000">
-            <p style="font-size:0.7vw;">
-              
-            </p>
-          </code>
-        </pre>
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <script src="../../dist/larvitar.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <script
-      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
-      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
-      crossorigin="anonymous"
-    ></script>
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
+    </div>
 
     <script>
       let demoFiles = [];
@@ -56,6 +136,9 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      const url =
+        "http://192.168.72.141:44301/wado/studies/1.2.826.0.1.3680043.2.97.1.1.3711790758.1703291035445600/series/1.2.826.0.1.3680043.2.97.19529.21573.1055897903.1703291031217420/instances/1.2.826.0.1.3680043.2.97.19529.21573.811363059.170329103232882/frames/";
 
       const qidoMetadata = {
         "00020001": {
@@ -611,55 +694,69 @@
         }
       };
 
-      function getImageFrameURI(metadataURI, metadata) {
-        // Use the BulkDataURI if present int the metadata
-        if (metadata["7FE00010"] && metadata["7FE00010"].BulkDataURI) {
-          return metadata["7FE00010"].BulkDataURI;
+      // function getImageFrameURI(metadataURI, metadata) {
+      //   // Use the BulkDataURI if present int the metadata
+      //   if (metadata["7FE00010"] && metadata["7FE00010"].BulkDataURI) {
+      //     return metadata["7FE00010"].BulkDataURI;
+      //   }
+
+      //   // fall back to using frame #1
+      //   return metadataURI + "/frames/1";
+      // }
+
+      const metadata = larvitar.convertQidoMetadata(qidoMetadata);
+      const numberOfFrames = metadata.x00280008;
+      console.log("rendering " + numberOfFrames + " frames");
+
+      async function cacheFrames() {
+        for (let i = 0; i < 30; i++) {
+          let t0 = performance.now();
+          const frameUrl = url + i;
+          let response = await fetch(frameUrl, {
+            method: "GET",
+            headers: {
+              Accept: "application/octet-stream"
+            }
+          });
+          let data = await response.arrayBuffer();
+          let t1 = performance.now();
+          console.log(
+            "Call to wado frame: " + i + " took " + (t1 - t0) + " milliseconds."
+          );
+          cacheFrame(data, i);
         }
-
-        // fall back to using frame #1
-        return metadataURI + "/frames/1";
       }
 
-      async function renderSerie(resp) {
+      async function cacheFrame(data, i) {
         const t0 = performance.now();
-
-        const metadata = larvitar.convertQidoMetadata(qidoMetadata);
-        const transferSyntax = metadata["x00020010"];
-        console.log(`transferSyntax is ${transferSyntax}`);
-
-        const imageId = larvitar.setSingleFrameCache(resp, metadata);
-        larvitar.renderSingleFrame(imageId, "viewer");
-
-        // let imageId =
-        //   larvitar.cornerstoneDICOMImageLoader.wadouri.fileManager.add(
-        //     fileFrame
-        //   );
-        // console.log(imageId);
-        // await larvitar.cornerstone.loadImage(imageId, "viewer");
-
-        //larvitar.addDefaultTools();
-        //larvitar.setToolActive("Wwwc");
-      }
-
-      async function createFile(cb) {
-        let t0 = performance.now();
-        const url =
-          "http://192.168.72.141:44301/wado/studies/1.2.826.0.1.3680043.2.97.1.1.3711790758.1703291035445600/series/1.2.826.0.1.3680043.2.97.19529.21573.1055897903.1703291031217420/instances/1.2.826.0.1.3680043.2.97.19529.21573.811363059.170329103232882/frames/1";
-        let response = await fetch(url, {
-          method: "GET",
-          headers: {
-            Accept: "application/octet-stream"
-          }
-        });
-        let data = await response.arrayBuffer();
-        //let data = await response.blob();
-        //let fileFrame = new File([data], "test");
+        const imageId = await larvitar.setSingleFrameCache(data, metadata);
         let t1 = performance.now();
-        console.log("Call to wado took " + (t1 - t0) + " milliseconds.");
-        cb(data);
+        console.log(
+          "Call to setSingleFrameCache took " + (t1 - t0) + " milliseconds."
+        );
+        larvitar.renderSingleFrame(imageId, "viewer");
+        console.log(i);
+        if (i === 1) {
+          larvitar.addDefaultTools();
+          larvitar.setToolActive("StackScroll");
+        }
       }
-      createFile(renderSerie);
+
+      cacheFrames();
+
+      // async function renderSerie(resp) {
+      //   const t0 = performance.now();
+
+      //   const imageId = await larvitar.setSingleFrameCache(resp, metadata);
+      //   let t1 = performance.now();
+      //   console.log(
+      //     "Call to setSingleFrameCache took " + (t1 - t0) + " milliseconds."
+      //   );
+      //   larvitar.renderSingleFrame(imageId, "viewer");
+
+      //   larvitar.addDefaultTools();
+      //   larvitar.setToolActive("StackScroll");
+      // }
     </script>
   </body>
 </html>

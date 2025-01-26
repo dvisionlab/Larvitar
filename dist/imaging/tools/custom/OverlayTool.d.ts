@@ -1,16 +1,6 @@
 import { Viewport } from "../../types";
-import { EventData } from "../types";
+import { EventData, Overlay } from "../types";
 declare const BaseTool: any;
-type Overlay = {
-    pixelData: number[];
-    visible: boolean;
-    rows: number;
-    columns: number;
-    x: number;
-    y: number;
-    type: string;
-    fillStyle: CanvasGradient;
-};
 interface ToolMouseEvent {
     detail: EventData;
     currentTarget: any;
@@ -27,6 +17,7 @@ interface ToolMouseEvent {
  * @extends Tools.Base.BaseTool
  */
 export default class OverlayTool extends BaseTool {
+    static [x: string]: any;
     constructor(configuration?: {});
     enabledCallback(element: HTMLElement): void;
     disabledCallback(element: HTMLElement): void;

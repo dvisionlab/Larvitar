@@ -24,32 +24,35 @@ let singleFrameCache: { [key: string]: SingleFrameCache } = {};
  * Set the single frame cache
  * @export
  * @function setSingleFrameCache
- * @param {Array} pixelData - Pixel data array
+ * @param {Array} data - Pixel data array
  * @param {MetaData} metadata - Metadata object
  */
-export const setSingleFrameCache = function (
-  data: ArrayBuffer,
+export const setSingleFrameCache = async function (
+  data: Uint8ClampedArray,
   metadata: MetaData
-): string {
+): Promise<string> {
   const t0 = performance.now();
   const imageId = getSingleFrameImageId("singleFrameLoader");
-  let pixelData = new Uint8Array(data);
-  // let pixelData = new Uint8ClampedArray((rgbArray.length * 4) / 3);
-  // for (let i = 0, j = 0; i < rgbArray.length; i += 3, j += 4) {
-  //   pixelData[j] = rgbArray[i]; // Red
-  //   pixelData[j + 1] = rgbArray[i + 1]; // Green
-  //   pixelData[j + 2] = rgbArray[i + 2]; // Blue
-  //   pixelData[j + 3] = 255; // Alpha
-  // }
-  // // @ts-ignore: is needed to clear the cache
-  // rgbArray = null;
-
-  singleFrameCache[imageId] = { pixelData, metadata };
-  const t1 = performance.now();
-  console.debug(
-    `setSingleFrameCache took ${t1 - t0} milliseconds for image ${imageId}`
-  );
-  return imageId;
+  try {
+    let array = await convertRGBToRGBA(data);
+    let pixelData = new Uint8Array(array);
+    singleFrameCache[imageId] = { pixelData, metadata };
+    const t1 = performance.now();
+    console.debug(
+      `setSingleFrameCache took ${t1 - t0} milliseconds for image ${imageId}`
+    );
+    // free memory
+    // @ts-ignore: is needed to clear the cache
+    array = null;
+    // @ts-ignore: is needed to clear the cache
+    data = null;
+    // @ts-ignore: is needed to clear the cache
+    pixelData = null;
+    return imageId;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
 
 /**
@@ -96,6 +99,52 @@ export const loadSingleFrameImage: ImageLoader = function (
 };
 
 // internal methods
+
+/**
+ * Convert RGB pixel data to RGBA pixel data
+ * @function convertRGBToRGBA
+ * @param {ArrayBuffer} data - RGB pixel data in ArrayBuffer format
+ * @returns {Promise<Uint8ClampedArray>} - RGBA pixel data
+ */
+const convertRGBToRGBA = function (
+  data: ArrayBuffer
+): Promise<Uint8ClampedArray> {
+  let blob: Blob = new Blob([data], { type: "image/jpeg" });
+  let imgUrl = URL.createObjectURL(blob);
+  let img = new Image();
+  return new Promise<Uint8ClampedArray>(resolve => {
+    img.onload = function () {
+      // Create a canvas to draw the image
+      let canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      let ctx = canvas.getContext("2d");
+      ctx!.drawImage(img, 0, 0);
+
+      // Extract pixel data
+      let imageData = ctx!.getImageData(0, 0, img.width, img.height);
+
+      // clean up memory
+      // @ts-ignore: is needed to clear the cache
+      blob = null;
+      // @ts-ignore: is needed to clear the cache
+      img = null;
+      // @ts-ignore: is needed to clear the cache
+      data = null;
+      // @ts-ignore: is needed to clear the cache
+      canvas = null;
+      // @ts-ignore: is needed to clear the cache
+      ctx = null;
+      // @ts-ignore: is needed to clear the cache
+      imgUrl = null;
+      URL.revokeObjectURL(imgUrl);
+      // resolve the promise
+      resolve(imageData.data);
+    };
+    img.src = imgUrl;
+  });
+};
 
 /**
  * Get the custom imageId from custom loader
