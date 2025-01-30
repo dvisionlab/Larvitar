@@ -152,8 +152,8 @@ export default {
                   text: "Visualizations",
                   children: [
                     {
-                      text: "Overlays",
-                      link: "/api/modules/visualizations/overlays.md"
+                      text: "Layers",
+                      link: "/api/modules/visualizations/layers.md"
                     },
                     {
                       text: "ECG",
