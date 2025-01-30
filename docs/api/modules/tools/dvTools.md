@@ -18,7 +18,7 @@ setToolActive("WwwcRemoveRegion");
 
 The WSToggleTool is built around the Watershed Segmentation Algorithm and offers robust functionality for segmenting regions based on user-defined thresholds. It works by analyzing a selected brush area and identifying features with similar density for segmentation. This tool can be applied to a single image slice or used across an entire volume stack, making it suitable for both 2D and 3D imaging workflows. For more information and a usage example, see the [Watershed Segmentation Demo](../../../examples/watershedSegmentationTool.html).Enspired by [Lung Lobe Segmentation by Kuhnigk et al](https://www.researchgate.net/publication/228602836_Lung_lobe_segmentation_by_anatomy-guided_3D_watershed_transform)
 
-#### Useful interaction features:
+#### Useful features:
 
 1. **Ctrl + Mouse Wheel: Change Brush Radius**
    Use this feature to dynamically adjust the size of the brush used for segmentation, particularly useful for handling regions of varying sizes.
@@ -46,7 +46,7 @@ setToolActive("BorderMagnify");
 
 The CustomMouseWheelScrollTool customizes the behavior of the mouse wheel for scrolling through image stacks or other multi-layered data. This tool enhances user interaction by allowing more precise and tailored control over navigation within imaging datasets. It is particularly beneficial in applications where smooth and intuitive scrolling is essential.
 
-#### Useful interaction features:
+#### Useful features:
 
 1. **"Stack" Mode:** In this mode, the tool keeps the current frame fixed and scrolls through the slices of a 3D volume. Ideal for exploring a 3D dataset slice by slice while maintaining the same frame or time point in a 4D image.
 
@@ -67,6 +67,25 @@ setToolActive("LengthPlot");
 ### OverlayTool
 
 The OverlayTool enables the display of custom overlays for annotations, measurements, or data visualization. This tool enhances the interpretability of imaging data by providing users with additional layers of information directly on the image, ensuring a more comprehensive analysis experience.
+
+#### Useful features:
+
+1. **Overlay Extraction:**
+
+- Retrieves overlay data from DICOM metadata.
+- Supports pixel-wise overlay rendering.
+
+2. **Pixel Shift Support:**
+
+- Allows fractional pixel shifts for precise overlay positioning.
+
+3. **Custom Overlay Colors:**
+
+- Uses viewport overlay color settings for customization.
+
+4. **Dynamic Overlay Rendering:**
+
+- Automatically updates overlays when enabling or disabling the tool.
 
 ```typescript
 setToolActive("Overlay");
