@@ -68,11 +68,11 @@ addColorMap(
 
 #### Parameters
 
-| Parameter      | Type                 | Description                                                  |
-| -------------- | -------------------- | ------------------------------------------------------------ |
-| `colormapId`   | string               | The new colormap id                                          |
-| `colormapName` | string               | The new colormap name                                        |
-| `colors`       | Array<Array<number>> | Array containing 255 rgb colors (ie [[r,g,b], [r,g,b], ...]) |
+| Parameter      | Type       | Description                                                  |
+| -------------- | ---------- | ------------------------------------------------------------ |
+| `colormapId`   | string     | The new colormap id                                          |
+| `colormapName` | string     | The new colormap name                                        |
+| `colors`       | number[][] | Array containing 255 rgb colors (ie [[r,g,b], [r,g,b], ...]) |
 
 #### Returns
 
@@ -114,10 +114,10 @@ applyColorMap(
 
 #### Parameters
 
-| Parameter       | Type          | Description                             |
-| --------------- | ------------- | --------------------------------------- |
-| `colormapId`    | string        | The colormap name                       |
-| `viewportNames` | Array<string> | List of viewports where to apply preset |
+| Parameter       | Type     | Description                             |
+| --------------- | -------- | --------------------------------------- |
+| `colormapId`    | string   | The colormap name                       |
+| `viewportNames` | string[] | List of viewports where to apply preset |
 
 #### Returns
 
