@@ -110,7 +110,6 @@ export default {
                 },
                 {
                   text: "Interaction Tools",
-                  link: "/api/modules/tools/tools.md",
                   children: [
                     {
                       text: "Initialize and manage Tools",
