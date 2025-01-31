@@ -76,6 +76,34 @@ getMaxPixelValue(pixelData: number[]): number
 
 ---
 
+### `getMeanValue`
+
+Get the mean value of a specified dicom tag in a serie.
+
+#### Syntax
+
+```typescript
+getMeanValue(
+  series: Series,
+  tag: keyof MetaData,
+  isArray: boolean
+): number | number[]
+```
+
+#### Parameters
+
+| Parameter | Type           | Description                   |
+| --------- | -------------- | ----------------------------- |
+| `series`  | Series         | The cornerstone series object |
+| `tag`     | keyof MetaData | The target tag key            |
+| `isArray` | boolean        | True if tag value is an array |
+
+#### Returns
+
+`number` - Tag mean value
+
+---
+
 ### `getPixelRepresentation`
 
 Creates a pixel representation string from DICOM tags.
@@ -95,6 +123,28 @@ getPixelRepresentation(dataSet: CustomDataSet): string
 #### Returns
 
 `string` - The pixel representation (e.g., `Sint16`, `Uint16`).
+
+---
+
+### `getTypedArrayFromDataType`
+
+Get a typed array from a representation type
+
+#### Syntax
+
+```typescript
+getTypedArrayFromDataType(dataType: string) : typedArray
+```
+
+#### Parameters
+
+| Parameter  | Type   | Description   |
+| ---------- | ------ | ------------- |
+| `dataType` | string | The data type |
+
+#### Returns
+
+`typedArray` - Get typed array from tag and size of original array
 
 ---
 
@@ -122,6 +172,30 @@ getSortedStack(seriesData: Series, sortPriorities: Array<"imagePosition" | "cont
 
 ---
 
+### `getSortedUIDs`
+
+Sort the array of instanceUIDs according to imageIds sorted using sortSeriesStack
+
+#### Syntax
+
+```typescript
+getSortedUIDs(seriesData: Series):  {
+    [key: string]: string;
+}
+```
+
+#### Parameters
+
+| Parameter    | Type   | Description                          |
+| ------------ | ------ | ------------------------------------ |
+| `seriesData` | Series | The dataset representing the series. |
+
+#### Returns
+
+`{[key: string]: string;}` - The sorted instanceUIDs
+
+---
+
 ### `randomId`
 
 Generates a random unique identifier.
@@ -135,6 +209,96 @@ randomId(): string
 #### Returns
 
 `string` - A randomly generated UID.
+
+---
+
+### `getReslicedMetadata`
+
+Generates a random unique identifier.
+
+```typescript
+getReslicedMetadata(
+  reslicedSeriesId: string,
+  fromOrientation: "axial" | "coronal" | "sagittal",
+  toOrientation: "axial" | "coronal" | "sagittal",
+  seriesData: Series,
+  imageLoaderName: string
+): object[]
+```
+
+#### Parameters
+
+| Parameter          | Type                               | Description                                        |
+| ------------------ | ---------------------------------- | -------------------------------------------------- |
+| `reslicedSeriesId` | string                             | The id of the resliced serie                       |
+| `fromOrientation`  | "axial" or "coronal" or "sagittal" | Source orientation (eg axial, coronal or sagittal) |
+| `toOrientation`    | "axial" or "coronal" or "sagittal" | Target orientation (eg axial, coronal or sagittal) |
+| `seriesData`       | Series                             | The original series data                           |
+| `imageLoaderName`  | string                             | The registered loader name                         |
+
+#### Returns
+
+```typescript
+{
+    imageIds: reslicedImageIds,
+    instances: reslicedInstances,
+    currentImageIdIndex: 0
+  };
+```
+
+Used in `resliceSeries` to retrieve Cornerstone series object resliced from native orientation to coronal or sagittal orientation, filled only with metadata.
+
+---
+
+### `getReslicedPixeldata`
+
+Generates a random unique identifier.
+
+```typescript
+getReslicedPixeldata(
+  imageId: string,
+  originalData: Series,
+  reslicedData: Series
+): TypedArray
+```
+
+#### Parameters
+
+| Parameter      | Type   | Description                       |
+| -------------- | ------ | --------------------------------- |
+| `imageId`      | string | The id of the resulting image     |
+| `originalData` | Series | The original series data (source) |
+| `reslicedData` | Series | The resliced series data (target) |
+
+#### Returns
+
+`TypedArray` - A single resliced slice pixel array. Used in `resliceSeries` to retrieve pixel data for the resliced image from native orientation to coronal or sagittal orientation.
+
+---
+
+### `getDistanceBetweenSlices`
+
+Generates a random unique identifier.
+
+```typescript
+getDistanceBetweenSlices (
+  seriesData: Series,
+  sliceIndex1: number,
+  sliceIndex2: number
+): number
+```
+
+#### Parameters
+
+| Parameter     | Type   | Description            |
+| ------------- | ------ | ---------------------- |
+| `seriesData`  | Series | The series data        |
+| `sliceIndex1` | number | The first slice index  |
+| `sliceIndex2` | number | The second slice index |
+
+#### Returns
+
+`number` - Get distance between two slices. Used to get sliceThickness metadata.
 
 ---
 
@@ -159,6 +323,44 @@ getImageMetadata(seriesId: string, instanceUID: string, frameId?: number): objec
 #### Returns
 
 `object[]` - List of metadata objects containing tags, names, and values.
+
+---
+
+### `getCmprMetadata`
+
+Compute cmpr metadata from pyCmpr data (generated using [Scyther](https://github.com/dvisionlab/Scyther))
+
+#### Syntax
+
+```typescript
+getCmprMetadata(
+  reslicedSeriesId: string,
+  imageLoaderName: string,
+  header: any,
+): {
+    imageIds: reslicedImageIds,
+    instances: reslicedInstances
+  };
+```
+
+#### Parameters
+
+| Parameter          | Type   | Description                                   |
+| ------------------ | ------ | --------------------------------------------- |
+| `reslicedSeriesId` | string | The id of the resliced serie                  |
+| `imageLoaderName`  | string | The registered loader name                    |
+| `header`           | any    | The header of the resliced serie from Scyther |
+
+#### Returns
+
+```typescript
+{
+    imageIds: reslicedImageIds,
+    instances: reslicedInstances
+};
+```
+
+Cornerstone series object, filled only with metadata
 
 <br></br>
 
