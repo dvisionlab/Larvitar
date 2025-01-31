@@ -18,11 +18,11 @@ The following DSA mask operations are supported:
 
 ### Related DICOM Tags
 
-- **(0028,6101) DSA Mask Operation:** Specifies the mask operation to be performed (AVG_SUB, TID, REV_TID)
-- **(0028,6110) Frame Numbers:** Specifies the frame numbers used for mask operations.
-- **(0028,6114) Mask Sub-pixel Shift:** Specifies any fractional pixel shifts that need to be applied during mask subtraction (vertical and horizontal).
-- **(0028,6112) Contrast Frame Averaging:** Specifies the number of contrast frames to average together before applying the subtraction.
-- **(0028,6102) Frame Range for Mask Operation:** Defines the range of frames over which the mask operation is valid.
+- **x00286101 - DSA Mask Operation:** Specifies the mask operation to be performed (AVG_SUB, TID, REV_TID)
+- **x00286110 - Frame Numbers:** Specifies the frame numbers used for mask operations.
+- **x00286114 - Mask Sub-pixel Shift:** Specifies any fractional pixel shifts that need to be applied during mask subtraction (vertical and horizontal).
+- **x00286112 - Contrast Frame Averaging:** Specifies the number of contrast frames to average together before applying the subtraction.
+- **x00286102 - Frame Range for Mask Operation:** Defines the range of frames over which the mask operation is valid.
 
 See [Standard Dicom DSA](https://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.10.html#sect_C.7.6.10)
 
