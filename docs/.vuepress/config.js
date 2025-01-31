@@ -112,8 +112,20 @@ export default {
                   text: "Interaction Tools",
                   children: [
                     {
-                      text: "Main Tools",
-                      link: "/api/modules/tools/tools.md"
+                      text: "Initialize and manage Tools",
+                      link: "/api/modules/tools/initialization.md"
+                    },
+                    {
+                      text: "Default and Custom Tools",
+                      link: "/api/modules/tools/default.md"
+                    },
+                    {
+                      text: "Segmentation Tools",
+                      link: "/api/modules/tools/segmentation.md"
+                    },
+                    {
+                      text: "DvTools",
+                      link: "/api/modules/tools/dvTools.md"
                     }
                   ]
                 },

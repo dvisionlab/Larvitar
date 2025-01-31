@@ -236,7 +236,7 @@ export function addSegmentationMask(
 
 /**
  * Set a new mask slice into the labelmap buffer
- * @param {String} elementId - The target html element Id or its DOM HTMLElement
+ * @param {string | HTMLElement} elementId - The target html element Id or its DOM HTMLElement
  * @param {Number} sliceIndex - the index of the new mask slice
  * @param {ArrayBuffer} pixelData - the pixelData array
  */
