@@ -52,7 +52,7 @@ applyDSA(
 
 #### Returns
 
-`void` – applies mask based on switch on DSA MaskOperation
+`number[] ` – Pixel data of the frame after DSA.
 
 ### `applyDSAShift`
 
