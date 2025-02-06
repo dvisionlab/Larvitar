@@ -3,7 +3,7 @@
  */
 
 // external libraries
-import { DataSet, Element, parseDicom } from "dicom-parser";
+import { DataSet, parseDicom } from "dicom-parser";
 import { forEach, each, has, pick } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
@@ -18,7 +18,18 @@ import type { MetaDataTypes, ExtendedMetaDataTypes } from "./MetaDataTypes";
 
 // global module variables
 var t0: number; // t0 variable for timing debugging purpose
-
+const singleFrameModalities = [
+  "CR",
+  "DX",
+  "MG",
+  "PX",
+  "RF",
+  "XA",
+  "US",
+  "IVUS",
+  "OCT",
+  "SR"
+];
 /*
  * This module provides the following functions to be exported:
  * readFiles(fileList)
@@ -84,7 +95,7 @@ export const readFile = function (entry: File) {
 export const convertQidoMetadata = function (data: any): MetaData {
   const metadata: MetaData = Object.keys(data).reduce(
     (accumulator: any, key) => {
-      let value = data[key].Value[0];
+      let value = data[key].Value ? data[key].Value[0] : undefined;
       // check if value is an object with key "Alphabetic"
       if (value && value.Alphabetic) {
         value = value.Alphabetic;
@@ -102,6 +113,108 @@ export const convertQidoMetadata = function (data: any): MetaData {
     },
     {}
   );
+  // add human readable values
+  const modality = metadata["x00080060"] as string;
+  // US XA RF IVUS OCT DX CR PX MG
+  // Overwrite SOPInstanceUID to manage single stack images (US, XA).
+  // Usually different SeriesInstanceUID means different series and that value
+  // is used into the application to group different instances into the same series,
+  // but if a DICOM file contains a multiframe series, then the SeriesInstanceUID
+  // can be shared by other files of the same study.
+  // In these cases, the SOPInstanceUID (unique) is used as SeriesInstanceUID.
+  const uniqueId = singleFrameModalities.includes(modality)
+    ? metadata["x00080018"]
+    : metadata["x0020000e"];
+  const seriesInstanceUID = metadata["x0020000e"];
+  const pixelSpacing = metadata.x00280030
+    ? metadata.x00280030
+    : metadata.x00080060 === "US" &&
+      metadata["x00186011"] != undefined &&
+      metadata["x00186011"][0].x0018602e != undefined &&
+      metadata["x00186011"][0].x0018602c != undefined
+    ? ([
+        metadata["x00186011"][0].x0018602e * 10, //so that from cm goes to mm
+        metadata["x00186011"][0].x0018602c * 10
+      ] as [number, number])
+    : metadata.x00181164
+    ? metadata.x00181164
+    : [1, 1];
+  const imageOrientation = metadata["x00200037"];
+  const imagePosition = metadata["x00200032"];
+  const sliceThickness = metadata["x00180050"];
+  const numberOfFrames = metadata["x00280008"];
+  const isMultiframe = (numberOfFrames as number) > 1 ? true : false;
+  const waveform = metadata["x50003000"] ? true : false;
+  // check dicom tag image type x00080008 if contains the word BIPLANE A or BIPLANE B
+  // if true, then it is a biplane image
+  const biplane = metadata["x00080008"]
+    ? metadata["x00080008"].includes("BIPLANE")
+    : false;
+  // 4D
+  const temporalPositionIdentifier = metadata["x00200100"]; // Temporal order of a dynamic or functional set of Images.
+  const numberOfTemporalPositions = metadata["x00200105"]; // Total number of temporal positions prescribed.
+  const is4D =
+    temporalPositionIdentifier !== undefined &&
+    (numberOfTemporalPositions as number) > 1
+      ? true
+      : false;
+
+  metadata.anonymized = false;
+  metadata.uniqueUID = uniqueId;
+  metadata.sopClassUID = metadata["x00080016"];
+  metadata.seriesUID = seriesInstanceUID;
+  metadata.instanceUID = metadata["x00080018"]?.toString() || randomId();
+  metadata.studyUID = metadata["x0020000d"];
+  metadata.accessionNumber = metadata["x00080050"];
+  metadata.studyDescription = metadata["x00081030"];
+  metadata.patientName = metadata["x00100010"] as string;
+  metadata.patientBirthdate = metadata["x00100030"];
+  metadata.seriesDescription = metadata["x0008103e"] as string;
+  metadata.seriesDate = metadata["x00080021"];
+  metadata.seriesModality = metadata["x00080060"]?.toString().toLowerCase();
+  metadata.intercept = metadata["x00281052"];
+  metadata.slope = metadata["x00281053"];
+  metadata.pixelSpacing = pixelSpacing as [number, number];
+  metadata.sliceThickness = sliceThickness;
+  metadata.imageOrientation = imageOrientation;
+  metadata.imagePosition = imagePosition;
+  metadata.rows = metadata["x00280010"];
+  metadata.cols = metadata["x00280011"];
+  metadata.numberOfSlices = metadata["x00540081"]
+    ? metadata["x00540081"] // number of slices
+    : metadata["x00201002"]; // number of instances
+  metadata.numberOfFrames = numberOfFrames;
+  if (isMultiframe) {
+    metadata.frameTime = metadata["x00181063"];
+    metadata.frameDelay = metadata["x00181066"];
+    if (metadata["x00186060"]) {
+      metadata.rWaveTimeVector = metadata["x00186060"];
+    }
+  }
+  metadata.isMultiframe = isMultiframe;
+  if (is4D) {
+    metadata.temporalPositionIdentifier = metadata["x00200100"];
+    metadata.numberOfTemporalPositions = metadata["x00200105"];
+    metadata.contentTime = metadata["x00080033"];
+  }
+  if (biplane) {
+    // TODO
+  }
+  metadata.is4D = is4D;
+  metadata.waveform = waveform;
+  metadata.windowCenter = metadata["x00281050"];
+  metadata.windowWidth = metadata["x00281051"];
+  metadata.minPixelValue = metadata["x00280106"];
+  metadata.maxPixelValue = metadata["x00280107"];
+
+  const bitsAllocated = metadata["x00280100"];
+  const pixelRepresentation = metadata["x00280103"];
+  const representation =
+    pixelRepresentation != undefined && parseInt(pixelRepresentation) === 1
+      ? "Sint" + bitsAllocated
+      : "Uint" + bitsAllocated;
+  metadata.repr = representation;
+
   return metadata;
 };
 
@@ -323,18 +436,7 @@ const parseFile = function (file: File) {
             : false;
 
         let modality = metadata["x00080060"] as string;
-        let singleFrameModalities = [
-          "CR",
-          "DX",
-          "MG",
-          "PX",
-          "RF",
-          "XA",
-          "US",
-          "IVUS",
-          "OCT",
-          "SR"
-        ];
+
         // US XA RF IVUS OCT DX CR PX MG
         // Overwrite SOPInstanceUID to manage single stack images (US, XA).
         // Usually different SeriesInstanceUID means different series and that value

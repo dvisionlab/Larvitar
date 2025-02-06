@@ -20,7 +20,13 @@ import { loadReslicedImage } from "./loaders/resliceLoader";
 import { loadMultiFrameImage } from "./loaders/multiframeLoader";
 import { loadSingleFrameImage } from "./loaders/singleFrameLoader";
 import { loadDsaImage } from "./loaders/dsaImageLoader";
-import { ImageObject, Instance, Series, StagedProtocol } from "./types";
+import {
+  ImageObject,
+  Instance,
+  MetaData,
+  Series,
+  StagedProtocol
+} from "./types";
 import {
   getImageTracker,
   getImageManager,
@@ -259,12 +265,37 @@ export const updateLoadedStack = function (
   const sortMethods: Array<"imagePosition" | "contentTime" | "instanceNumber"> =
     is4D ? [defaultMethod, "contentTime"] : [defaultMethod];
 
-  // if the parsed file is a new series instance, keep it
-
-  if (isMultiframe) {
+  // image is a dicom multiframe object with file and dataset attributes
+  // that has been parsed by the dicomParser and is ready to be loaded
+  if (isMultiframe && seriesData.file && seriesData.dataSet) {
     allSeriesStack[id].bytes += seriesData.file.size;
     allSeriesStack[id].dataSet = seriesData.dataSet;
     allSeriesStack[id].metadata = seriesData.metadata;
+  }
+  // image is a single frame of a multiframe object
+  // that has not been parsed by the dicomParser
+  // but it has been received as a single frame buffer
+  else if (isMultiframe) {
+    console.log("Single frame of a multiframe object");
+    const imageId = seriesData.imageId as string;
+    imageTracker[imageId] = lid as string;
+    if (sliceIndex !== undefined) {
+      allSeriesStack[id].imageIds[sliceIndex] = imageId;
+    } else {
+      allSeriesStack[id].imageIds.push(imageId);
+    }
+
+    // store needed instance tags
+    allSeriesStack[id].instances[imageId] = {
+      frame: sliceIndex ? sliceIndex : allSeriesStack[id].imageIds.length - 1,
+      instanceId: iid,
+      metadata: seriesData.metadata
+    };
+
+    // TODO FIX THIS ONLY THE FIRST
+    allSeriesStack[id].instanceUIDs[iid] = imageId;
+
+    store.addSeriesId(id, allSeriesStack[id].imageIds);
   } else if (isNewInstance(allSeriesStack[id].instances, iid!)) {
     // generate an imageId for the file and store it
     // in allSeriesStack imageIds array, used by
@@ -283,8 +314,9 @@ export const updateLoadedStack = function (
       allSeriesStack[id].numberOfImages =
         (allSeriesStack[id].numberOfImages || 0) + 1;
     }
-
-    allSeriesStack[id].bytes += seriesData.file.size;
+    if (seriesData.file) {
+      allSeriesStack[id].bytes += seriesData.file.size;
+    }
     // store needed instance tags
     allSeriesStack[id].instances[imageId] = {
       metadata: seriesData.metadata,

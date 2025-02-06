@@ -783,7 +783,7 @@ export const renderSingleFrame = async function (
       setStore(["ready", element.id, true]);
       //setStore(["seriesUID", element.id, data.seriesUID]);
       const t1 = performance.now();
-      console.log(`Call to renderSingleFrame took ${t1 - t0} milliseconds.`);
+      //console.log(`Call to renderSingleFrame took ${t1 - t0} milliseconds.`);
 
       const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
       cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
@@ -792,6 +792,7 @@ export const renderSingleFrame = async function (
       resolve(true);
     });
   });
+
   return renderPromise;
 };
 

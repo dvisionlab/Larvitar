@@ -85,8 +85,7 @@ export const updateImageManager = function (
     imageManager = {};
   }
   let data = { ...imageObject };
-
-  if (data.metadata?.isMultiframe) {
+  if (data.metadata?.isMultiframe && data.file && data.dataSet) {
     let seriesId = customId || imageObject.metadata.seriesUID;
     let loadedStack: ReturnType<typeof getImageManager> = {};
     updateLoadedStack(data, loadedStack, customId, sliceIndex);

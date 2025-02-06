@@ -127,6 +127,18 @@
     </div>
 
     <script>
+      const spinner = document.getElementById("spinner");
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+
       let demoFiles = [];
 
       // init all
@@ -136,9 +148,10 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+      showSpinner();
 
       const url =
-        "http://192.168.72.141:44301/wado/studies/1.2.826.0.1.3680043.2.97.1.1.3711790758.1703291035445600/series/1.2.826.0.1.3680043.2.97.19529.21573.1055897903.1703291031217420/instances/1.2.826.0.1.3680043.2.97.19529.21573.811363059.170329103232882/frames/";
+        "http://192.168.72.141:80/dicomwebcore/wado/studies/1.2.826.0.1.3680043.2.97.1.1.3711790758.1703291035445600/series/1.2.826.0.1.3680043.2.97.19529.21573.1055897903.1703291031217420/instances/1.2.826.0.1.3680043.2.97.19529.21573.811363059.170329103232882/frames/";
 
       const qidoMetadata = {
         "00020001": {
@@ -694,22 +707,442 @@
         }
       };
 
-      // function getImageFrameURI(metadataURI, metadata) {
-      //   // Use the BulkDataURI if present int the metadata
-      //   if (metadata["7FE00010"] && metadata["7FE00010"].BulkDataURI) {
-      //     return metadata["7FE00010"].BulkDataURI;
-      //   }
-
-      //   // fall back to using frame #1
-      //   return metadataURI + "/frames/1";
-      // }
+      const qidoMetadata2 = {
+        "00080005": {
+          vr: "CS",
+          Value: ["ISO_IR 100"]
+        },
+        "00080008": {
+          vr: "CS",
+          Value: ["DERIVED\\PRIMARY\\\\0011"]
+        },
+        "00080016": {
+          vr: "UI",
+          Value: ["1.2.840.10008.5.1.4.1.1.3.1"]
+        },
+        "00080018": {
+          vr: "UI",
+          Value: [
+            "1.2.826.0.1.3680043.2.97.19529.21573.811363059.170329103232882"
+          ]
+        },
+        "00080020": {
+          vr: "DA",
+          Value: ["20230809"]
+        },
+        "00080021": {
+          vr: "DA",
+          Value: ["20160419"]
+        },
+        "00080023": {
+          vr: "DA",
+          Value: ["20160419"]
+        },
+        "0008002A": {
+          vr: "DT",
+          Value: ["20160419141930.000"]
+        },
+        "00080030": {
+          vr: "TM",
+          Value: ["134525"]
+        },
+        "00080031": {
+          vr: "TM",
+          Value: ["134525"]
+        },
+        "00080033": {
+          vr: "TM",
+          Value: ["141930"]
+        },
+        "00080050": {
+          vr: "SH",
+          Value: ["PW-US-10"]
+        },
+        "00080060": {
+          vr: "CS",
+          Value: ["US"]
+        },
+        "00080070": {
+          vr: "LO",
+          Value: ["GE Vingmed Ultrasound"]
+        },
+        "00080080": {
+          vr: "LO",
+          Value: ["unknown"]
+        },
+        "00080081": {
+          vr: "ST",
+          Value: ["Date of Import:09-08-23 04:26:47"]
+        },
+        "00080090": {
+          vr: "PN",
+          Value: [
+            {
+              Alphabetic: "unknown"
+            }
+          ]
+        },
+        "00081010": {
+          vr: "SH",
+          Value: ["unknown"]
+        },
+        "00081030": {
+          vr: "LO",
+          Value: ["ECHO-STRESS"]
+        },
+        "00081048": {
+          vr: "PN",
+          Value: [
+            {
+              Alphabetic: "unknown"
+            }
+          ]
+        },
+        "00081050": {
+          vr: "PN",
+          Value: [
+            {
+              Alphabetic: "unknown"
+            }
+          ]
+        },
+        "00081060": {
+          vr: "PN",
+          Value: [
+            {
+              Alphabetic: "unknown"
+            }
+          ]
+        },
+        "00081070": {
+          vr: "PN",
+          Value: [
+            {
+              Alphabetic: "unknown"
+            }
+          ]
+        },
+        "00081090": {
+          vr: "LO",
+          Value: ["Vivid E9"]
+        },
+        "00082112": {
+          vr: "SQ",
+          Value: [
+            {
+              "00081150": {
+                vr: "UI",
+                Value: ["1.2.840.10008.5.1.4.1.1.6.1"]
+              },
+              "00081155": {
+                vr: "UI",
+                Value: ["1.2.840.113619.2.239.9665.1461055301.0.662"]
+              }
+            }
+          ]
+        },
+        "00082120": {
+          vr: "SH",
+          Value: ["Atropin"]
+        },
+        "00082122": {
+          vr: "IS",
+          Value: [6]
+        },
+        "00082124": {
+          vr: "IS",
+          Value: [7]
+        },
+        "00082127": {
+          vr: "SH",
+          Value: ["2CH"]
+        },
+        "00082128": {
+          vr: "IS",
+          Value: [2]
+        },
+        "0008212A": {
+          vr: "IS",
+          Value: [4]
+        },
+        "00082142": {
+          vr: "IS",
+          Value: [1]
+        },
+        "00082143": {
+          vr: "IS",
+          Value: [42]
+        },
+        "00082144": {
+          vr: "IS",
+          Value: [25]
+        },
+        "00100010": {
+          vr: "PN",
+          Value: [
+            {
+              Alphabetic: "PACSWEB^US-10-STRESS"
+            }
+          ]
+        },
+        "00100020": {
+          vr: "LO",
+          Value: ["PW-US-10"]
+        },
+        "00100021": {
+          vr: "LO"
+        },
+        "00100030": {
+          vr: "DA",
+          Value: ["19380101"]
+        },
+        "00100040": {
+          vr: "CS",
+          Value: ["M"]
+        },
+        "00180040": {
+          vr: "IS",
+          Value: [25]
+        },
+        "00180072": {
+          vr: "DS",
+          Value: [1.64]
+        },
+        "00181020": {
+          vr: "LO",
+          Value: ["Vivid E9:113.1.3"]
+        },
+        "00181030": {
+          vr: "LO",
+          Value: ["Stressecho"]
+        },
+        "00181063": {
+          vr: "DS",
+          Value: [40.49887]
+        },
+        "00181066": {
+          vr: "DS",
+          Value: [0]
+        },
+        "00181088": {
+          vr: "IS",
+          Value: [75]
+        },
+        "00181242": {
+          vr: "IS",
+          Value: [32]
+        },
+        "00181244": {
+          vr: "US",
+          Value: [0]
+        },
+        "00186011": {
+          vr: "SQ",
+          Value: [
+            {
+              "00186012": {
+                vr: "US",
+                Value: [1]
+              },
+              "00186014": {
+                vr: "US",
+                Value: [2]
+              },
+              "00186016": {
+                vr: "UL",
+                Value: [0]
+              },
+              "00186018": {
+                vr: "UL",
+                Value: [105]
+              },
+              "0018601A": {
+                vr: "UL",
+                Value: [50]
+              },
+              "0018601C": {
+                vr: "UL",
+                Value: [910]
+              },
+              "0018601E": {
+                vr: "UL",
+                Value: [749]
+              },
+              "00186020": {
+                vr: "SL",
+                Value: [403]
+              },
+              "00186022": {
+                vr: "SL",
+                Value: [1]
+              },
+              "00186024": {
+                vr: "US",
+                Value: [3]
+              },
+              "00186026": {
+                vr: "US",
+                Value: [3]
+              },
+              "0018602C": {
+                vr: "FD",
+                Value: [0.02716352819873084]
+              },
+              "0018602E": {
+                vr: "FD",
+                Value: [0.02716352819873084]
+              },
+              "00186030": {
+                vr: "UL",
+                Value: [1670]
+              },
+              "00186032": {
+                vr: "UL",
+                Value: [3500]
+              }
+            }
+          ]
+        },
+        "00186060": {
+          vr: "FL",
+          Value: [345.9992, 1194.36121]
+        },
+        "0020000D": {
+          vr: "UI",
+          Value: ["1.2.826.0.1.3680043.2.97.1.1.3711790758.1703291035445600"]
+        },
+        "0020000E": {
+          vr: "UI",
+          Value: [
+            "1.2.826.0.1.3680043.2.97.19529.21573.1055897903.1703291031217420"
+          ]
+        },
+        "00200010": {
+          vr: "SH",
+          Value: ["EXUS63324"]
+        },
+        "00200011": {
+          vr: "IS",
+          Value: [1]
+        },
+        "00200013": {
+          vr: "IS",
+          Value: [24]
+        },
+        "00200020": {
+          vr: "CS"
+        },
+        "00204000": {
+          vr: "LT",
+          Value: [
+            "GEMSQualifier:RowNumber=5:RowId=Atropin:ColNumber=1:ColId=2CH"
+          ]
+        },
+        "00280002": {
+          vr: "US",
+          Value: [3]
+        },
+        "00280004": {
+          vr: "CS",
+          Value: ["YBR_FULL_422"]
+        },
+        "00280006": {
+          vr: "US",
+          Value: [0]
+        },
+        "00280008": {
+          vr: "IS",
+          Value: [42]
+        },
+        "00280009": {
+          vr: "AT",
+          Value: ["00181063"]
+        },
+        "00280010": {
+          vr: "US",
+          Value: [758]
+        },
+        "00280011": {
+          vr: "US",
+          Value: [1016]
+        },
+        "00280014": {
+          vr: "US",
+          Value: [1]
+        },
+        "00280100": {
+          vr: "US",
+          Value: [8]
+        },
+        "00280101": {
+          vr: "US",
+          Value: [8]
+        },
+        "00280102": {
+          vr: "US",
+          Value: [7]
+        },
+        "00280103": {
+          vr: "US",
+          Value: [0]
+        },
+        "00280301": {
+          vr: "CS",
+          Value: ["YES"]
+        },
+        "00282110": {
+          vr: "CS",
+          Value: ["01"]
+        },
+        "00282112": {
+          vr: "DS",
+          Value: [16.3]
+        },
+        "00400242": {
+          vr: "SH",
+          Value: ["unknown"]
+        },
+        "00540220": {
+          vr: "SQ",
+          Value: [
+            {
+              "00080100": {
+                vr: "SH",
+                Value: ["G-A19B"]
+              },
+              "00080102": {
+                vr: "SH",
+                Value: ["SRT"]
+              },
+              "00080104": {
+                vr: "LO",
+                Value: ["Apical two chamber"]
+              }
+            }
+          ]
+        },
+        "00080056": {
+          vr: "CS",
+          Value: ["ONLINE"]
+        },
+        "00081190": {
+          vr: "UR",
+          Value: [
+            "http://192.168.72.141:44301/wado/studies/1.2.826.0.1.3680043.2.97.1.1.3711790758.1703291035445600/series/1.2.826.0.1.3680043.2.97.19529.21573.1055897903.1703291031217420/instances/1.2.826.0.1.3680043.2.97.19529.21573.811363059.170329103232882"
+          ]
+        },
+        "00080201": {
+          vr: "SH",
+          Value: ["01:00:00"]
+        }
+      };
 
       const metadata = larvitar.convertQidoMetadata(qidoMetadata);
-      const numberOfFrames = metadata.x00280008;
-      console.log("rendering " + numberOfFrames + " frames");
+      //const numberOfFrames = metadata.x00280008;
+      const numberOfFrames = 42;
 
       async function cacheFrames() {
-        for (let i = 0; i < 30; i++) {
+        for (let i = 1; i < numberOfFrames; i++) {
           let t0 = performance.now();
           const frameUrl = url + i;
           let response = await fetch(frameUrl, {
@@ -723,40 +1156,64 @@
           console.log(
             "Call to wado frame: " + i + " took " + (t1 - t0) + " milliseconds."
           );
-          cacheFrame(data, i);
+          const t2 = performance.now();
+          const imageId = await larvitar.setSingleFrameCache(data, metadata);
+          const t3 = performance.now();
+          console.log(
+            "Call to setSingleFrameCache took " + (t3 - t2) + " milliseconds."
+          );
+          const imageObject = {
+            instanceUID: metadata.x00080018,
+            metadata: metadata,
+            imageId: imageId
+          };
+          larvitar.updateImageManager(imageObject);
+          console.log(larvitar.getImageManager());
+
+          if (i == 1) {
+            renderFrame(i);
+          }
         }
       }
 
-      async function cacheFrame(data, i) {
-        const t0 = performance.now();
-        const imageId = await larvitar.setSingleFrameCache(data, metadata);
-        let t1 = performance.now();
-        console.log(
-          "Call to setSingleFrameCache took " + (t1 - t0) + " milliseconds."
-        );
-        larvitar.renderSingleFrame(imageId, "viewer");
-        console.log(i);
+      async function renderFrame(i) {
+        const imageManager = larvitar.getImageManager();
+        const uniqueId = Object.keys(imageManager)[0];
+        const dicomSerie = imageManager[uniqueId];
+        const imageId = dicomSerie.imageIds[i - 1];
+        if (imageId) {
+          const t0 = performance.now();
+          larvitar.renderSingleFrame(imageId, "viewer");
+          const t1 = performance.now();
+          // console.log(
+          //   "Call to renderSingleFrame took " + (t1 - t0) + " milliseconds."
+          // );
+        } else {
+          console.log("imageId not found");
+        }
+        hideSpinner();
         if (i === 1) {
           larvitar.addDefaultTools();
-          larvitar.setToolActive("StackScroll");
+          larvitar.setToolActive("Wwwc");
+          let frameId = 1;
+          frameId++;
+          const frameRate = metadata.frameTime;
+          console.log("frameTime: " + frameRate);
+          setInterval(function () {
+            const imageId = dicomSerie.imageIds[frameId];
+            if (imageId) {
+              larvitar.renderSingleFrame(imageId, "viewer");
+              frameId = frameId == 42 ? 1 : frameId + 1;
+            } else {
+              frameId = 1;
+              larvitar.renderSingleFrame(dicomSerie.imageIds[0], "viewer");
+              frameId++;
+            }
+          }, frameRate);
         }
       }
 
       cacheFrames();
-
-      // async function renderSerie(resp) {
-      //   const t0 = performance.now();
-
-      //   const imageId = await larvitar.setSingleFrameCache(resp, metadata);
-      //   let t1 = performance.now();
-      //   console.log(
-      //     "Call to setSingleFrameCache took " + (t1 - t0) + " milliseconds."
-      //   );
-      //   larvitar.renderSingleFrame(imageId, "viewer");
-
-      //   larvitar.addDefaultTools();
-      //   larvitar.setToolActive("StackScroll");
-      // }
     </script>
   </body>
 </html>

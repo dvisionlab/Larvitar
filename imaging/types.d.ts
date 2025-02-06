@@ -270,12 +270,13 @@ export type ImageTracker = {
   [key: string]: string;
 } | null;
 
-// the result of readFile
+// the result of readFile or from data buffer
 export type ImageObject = {
-  file: File;
+  file?: File;
   instanceUID: string;
   metadata: MetaData;
-  dataSet: DataSet;
+  dataSet?: DataSet;
+  imageId?: string;
 };
 
 export type CachingResponse = {
