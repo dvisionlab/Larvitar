@@ -7,7 +7,7 @@ import {
 import {
   applySpatialTransformation,
   applyZoomPan
-} from "./gspsUtils/spatialTransformationUtils.ts";
+} from "./gspsUtils/spatialTransformationUtils";
 import {
   retrieveAnnotationsToolData,
   retrieveOverlayToolData
@@ -89,7 +89,7 @@ export default class GspsTool extends BaseTool {
       //check if active gsps is applicable on current displayed image
       if (gsps?.seriesId) {
         const gspsSeries = manager[gsps.seriesId];
-        const gspsImageId = gsps.imageId
+        const gspsImageId = gsps.imageId;
         const gspsMetadata = gspsSeries.instances[gspsImageId].metadata;
 
         this.gspsMetadata = gspsMetadata;
