@@ -205,7 +205,14 @@ Key features covered in this example include:
 
 ### 14. Visualizing Grayscale Presentation States
 
-TODO GSPS
+This example demonstrates how to use GSPS in Larvitar to visualize presentation states (LUT, spatial transformations, graphic and text annotations) on its corresponding dispayed image.
+
+Key features covered in this example include:
+
+- parsing presentation states metadata
+- initializing and visualizing presentation state
+- toggling GSPS tool on displayed image
+
 
 [View Example ➔](https://larvitar.dvisionlab.com/examples/gsps.html)
 

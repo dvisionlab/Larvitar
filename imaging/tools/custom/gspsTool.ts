@@ -85,11 +85,11 @@ export default class GspsTool extends BaseTool {
       const currentInstanceUID =
         serie.instances[image.imageId].metadata.instanceUID!;
       let gspsManager: any = getGSPSManager();
-      const gsps = gspsManager[currentInstanceUID];
+      const gsps = gspsManager[currentInstanceUID][0];
       //check if active gsps is applicable on current displayed image
-      if (gsps?.gspsSeriesUID && gsps?.gspsInstanceUID) {
-        const gspsSeries = manager[gsps.gspsSeriesUID];
-        const gspsImageId = gspsSeries.instanceUIDs[gsps.gspsInstanceUID];
+      if (gsps?.seriesId) {
+        const gspsSeries = manager[gsps.seriesId];
+        const gspsImageId = gsps.imageId
         const gspsMetadata = gspsSeries.instances[gspsImageId].metadata;
 
         this.gspsMetadata = gspsMetadata;

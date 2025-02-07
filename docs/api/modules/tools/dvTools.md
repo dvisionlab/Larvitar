@@ -42,6 +42,19 @@ The BorderMagnifyTool provides enhanced magnification of the image within a squa
 setToolActive("BorderMagnify");
 ```
 
+### GspsTool
+
+The GspsTool allows to parse presentation states metadata and applies them on their corresponding image based on the information stored in gspsManager (see [GSPS Manager](../managers/gspsManager.md)). The presentation state stores information that are used to display the following features:
+- grayscale contrast transformations (VOI LUT or modality LUT)
+- mask subtraction for multiframe images
+- selection of the displayed area of the image
+- rotation, zoom, pan, flip
+- image annotations: graphic, text, overlays and compound
+
+```typescript
+setToolEnabled("Gsps");
+```
+
 ### CustomMouseWheelScrollTool
 
 The CustomMouseWheelScrollTool customizes the behavior of the mouse wheel for scrolling through image stacks or other multi-layered data. This tool enhances user interaction by allowing more precise and tailored control over navigation within imaging datasets. It is particularly beneficial in applications where smooth and intuitive scrolling is essential.
