@@ -205,14 +205,19 @@ Key features covered in this example include:
 
 ### 14. Visualizing Grayscale Presentation States
 
-This example demonstrates how to use GSPS in Larvitar to visualize presentation states (LUT, spatial transformations, graphic and text annotations) on its corresponding dispayed image.
+This example provides a practical guide for leveraging GSPS (Grayscale Softcopy Presentation State) in Larvitar to enhance medical image visualization and allows to visualize the result with new properties including:
 
-Key features covered in this example include:
+- LUT (Lookup Table) adjustments
+- Spatial transformations
+- Graphic and text annotations
 
-- parsing presentation states metadata
-- initializing and visualizing presentation state
-- toggling GSPS tool on displayed image
+These elements are applied to the corresponding displayed image, ensuring accurate visualization.
 
+Key Features Covered:
+
+- Populating the gspsManager in order to map instanceUIDs with their corresponding PS
+- Initializing GspsTool, parsing and rendering the presentation state
+- Toggling the GspsTool on the displayed image
 
 [View Example ➔](https://larvitar.dvisionlab.com/examples/gsps.html)
 

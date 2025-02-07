@@ -44,15 +44,25 @@ setToolActive("BorderMagnify");
 
 ### GspsTool
 
-The GspsTool allows to parse presentation states metadata and applies them on their corresponding image based on the information stored in gspsManager (see [GSPS Manager](../managers/gspsManager.md)). The presentation state stores information that are used to display the following features:
+The GspsTool allows to parse presentation states metadata and applies them on their corresponding image based on the information stored in gspsManager (see [GSPS Manager](../managers/gspsManager.md)).
+
+The presentation state defines how an image or multiple images should be displayed by storing key visualization parameters, including:
+
 - grayscale contrast transformations (VOI LUT or modality LUT)
 - mask subtraction for multiframe images
 - selection of the displayed area of the image
 - rotation, zoom, pan, flip
-- image annotations: graphic, text, overlays and compound
+- image annotations, all with a specified style and position, including:
+
+1. graphic annotations (ROIs)
+2. text annotations
+3. image masks and overlays
+4. compound objects
+
+(see [GSPS Standard Dicom](https://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.33.html) for more info).
 
 ```typescript
-setToolEnabled("Gsps");
+setToolEnabled("Gsps"); //also setToolPassive("Gsps") can be used
 ```
 
 ### CustomMouseWheelScrollTool
