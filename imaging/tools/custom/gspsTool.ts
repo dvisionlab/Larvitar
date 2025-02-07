@@ -55,9 +55,7 @@ export default class GspsTool extends BaseTool {
     const defaultProps = {
       name: "Gsps",
       supportedInteractionTypes: ["Mouse", "Touch"],
-      configuration: {
-        orientation: 0
-      }
+      configuration: {}
     };
 
     super(props, defaultProps);
@@ -79,13 +77,14 @@ export default class GspsTool extends BaseTool {
     const image = activeElement.image;
     const viewport = cornerstone.getViewport(element) as Viewport;
     //TODO understand how to retrieve gsps
-    let gspsManager: any = getGSPSManager();
+
     const { manager, seriesId } = this.retrieveLarvitarManager(image.imageId);
 
     if (manager) {
       const serie = manager[seriesId];
       const currentInstanceUID =
         serie.instances[image.imageId].metadata.instanceUID!;
+      let gspsManager: any = getGSPSManager();
       const gsps = gspsManager[currentInstanceUID];
       //check if active gsps is applicable on current displayed image
       if (gsps?.gspsSeriesUID && gsps?.gspsInstanceUID) {
