@@ -51,7 +51,6 @@ export default class GspsTool extends BaseTool {
   public showAnnotations: boolean = false;
   public canvas?: Element;
   public gspsMetadata?: MetaData;
-  public layoutStore: any;
   constructor(props: any = {}) {
     const defaultProps = {
       name: "Gsps",
@@ -79,125 +78,63 @@ export default class GspsTool extends BaseTool {
     const activeElement = await this.handleElement(element);
     const image = activeElement.image;
     const viewport = cornerstone.getViewport(element) as Viewport;
-    const currentStudyId = this.layoutStore.activePane.dicom.studyInstanceUID;
-    //possible applicable active gsps on current study
-    const currentActiveGSPSUIDs = this.layoutStore.availableGSPS[
-      currentStudyId
-    ]?.active.includes(true)
-      ? this.layoutStore.availableGSPS[currentStudyId].value
-      : null;
-    // const gspsDict = get();
-    getGSPSManager();
-    if (image && viewport && currentActiveGSPSUIDs) {
-      //find current image instanceUID
-      const { manager, seriesId } = this.retrieveLarvitarManager(image.imageId);
-      if (manager) {
-        const serie = manager[seriesId];
-        const currentInstanceUID =
-          serie.instances[image.imageId].metadata.instanceUID!;
-        //find first active gsps data (only one per time is applicable)
-        const activeIndexes = this.layoutStore.availableGSPS[
-          currentStudyId
-        ]?.active
-          .map((isActive: boolean, index: number) =>
-            isActive === true ? index : -1
-          ) // Map to index or -1
-          .filter((index: number) => index !== -1);
-        const gsps = this.findGSPSApplicableOnImage(
-          activeIndexes,
-          manager,
-          currentActiveGSPSUIDs,
-          gspsDict[currentInstanceUID]
+    //TODO understand how to retrieve gsps
+    let gspsManager: any = getGSPSManager();
+    const { manager, seriesId } = this.retrieveLarvitarManager(image.imageId);
+
+    if (manager) {
+      const serie = manager[seriesId];
+      const currentInstanceUID =
+        serie.instances[image.imageId].metadata.instanceUID!;
+      const gsps = gspsManager[currentInstanceUID];
+      //check if active gsps is applicable on current displayed image
+      if (gsps?.gspsSeriesUID && gsps?.gspsInstanceUID) {
+        const gspsSeries = manager[gsps.gspsSeriesUID];
+        const gspsImageId = gspsSeries.instanceUIDs[gsps.gspsInstanceUID];
+        const gspsMetadata = gspsSeries.instances[gspsImageId].metadata;
+
+        this.gspsMetadata = gspsMetadata;
+        this.showAnnotations = true;
+        applySoftcopyLUT(gspsMetadata, viewport);
+        cornerstone.setViewport(element, viewport);
+
+        applyModalityLUT(gspsMetadata, image, viewport);
+        cornerstone.setViewport(element, viewport);
+
+        applySoftcopyPresentationLUT(gspsMetadata, viewport);
+        cornerstone.setViewport(element, viewport);
+
+        applyMask(serie as Series, element);
+        cornerstone.setViewport(element, viewport);
+
+        const graphicLayers = gspsMetadata.x00700060;
+        const graphicGroups = gspsMetadata.x00700234;
+        retrieveOverlayToolData(
+          gspsMetadata,
+          this.toolAnnotations,
+          graphicGroups
         );
+        cornerstone.setViewport(element, viewport);
+        applyZoomPan(gspsMetadata, viewport as ViewportComplete, element);
+        cornerstone.setViewport(element, viewport);
 
-        //check if active gsps is applicable on current displayed image
-        if (gsps?.gspsSeriesUID && gsps?.gspsInstanceUID) {
-          const gspsSeries = manager[gsps.gspsSeriesUID];
-          const gspsImageId = gspsSeries.instanceUIDs[gsps.gspsInstanceUID];
-          const gspsMetadata = gspsSeries.instances[gspsImageId].metadata;
+        applySpatialTransformation(gspsMetadata, viewport as ViewportComplete);
+        cornerstone.setViewport(element, viewport);
 
-          this.gspsMetadata = gspsMetadata;
-          this.showAnnotations = true;
-          applySoftcopyLUT(gspsMetadata, viewport);
-          cornerstone.setViewport(element, viewport);
-
-          applyModalityLUT(gspsMetadata, image, viewport);
-          cornerstone.setViewport(element, viewport);
-
-          applySoftcopyPresentationLUT(gspsMetadata, viewport);
-          cornerstone.setViewport(element, viewport);
-
-          applyMask(serie as Series, element);
-          cornerstone.setViewport(element, viewport);
-
-          const graphicLayers = gspsMetadata.x00700060;
-          const graphicGroups = gspsMetadata.x00700234;
-          retrieveOverlayToolData(
-            gspsMetadata,
-            this.toolAnnotations,
-            graphicGroups
-          );
-          cornerstone.setViewport(element, viewport);
-          applyZoomPan(gspsMetadata, viewport as ViewportComplete, element);
-          cornerstone.setViewport(element, viewport);
-
-          applySpatialTransformation(
-            gspsMetadata,
-            viewport as ViewportComplete
-          );
-          cornerstone.setViewport(element, viewport);
-
-          retrieveAnnotationsToolData(
-            gspsMetadata,
-            element,
-            this.toolAnnotations,
-            graphicLayers,
-            graphicGroups
-          );
-          cornerstone.setViewport(element, viewport);
-        } else {
-          this.gspsMetadata = undefined;
-        }
+        retrieveAnnotationsToolData(
+          gspsMetadata,
+          element,
+          this.toolAnnotations,
+          graphicLayers,
+          graphicGroups
+        );
+        cornerstone.setViewport(element, viewport);
+      } else {
+        this.gspsMetadata = undefined;
       }
     }
   }
-  findGSPSApplicableOnImage(
-    activeIndexes: number[],
-    manager: any,
-    currentActiveGSPSUIDs: any,
-    currentGSPSDict: any
-  ) {
-    if (!currentGSPSDict) {
-      console.warn("No gsps available.");
-      return null;
-    }
-    // Iterate over activeIndexes
-    for (const activeIndex of activeIndexes) {
-      // Step 1: Get the GSPS Instance UID for the current active index
-      const gspsInstanceUID = currentActiveGSPSUIDs[activeIndex];
 
-      // Step 2: Get all series UIDs from the manager
-      const allSeriesUIDs = Object.keys(manager);
-
-      // Step 3: Find the GSPS Series UID
-      const gspsSeriesUID = allSeriesUIDs.find(seriesId =>
-        Object.keys(manager[seriesId].instanceUIDs).includes(gspsInstanceUID)
-      );
-
-      // Step 4: Extract the series IDs from gspsDict
-      const seriesIdArray = currentGSPSDict.map((item: any) => item.seriesId);
-
-      // Step 5: Check if gspsSeriesUID is in the seriesIdArray
-      if (seriesIdArray && seriesIdArray.includes(gspsSeriesUID)) {
-        //console.log(`Match found: PR Series ID ${gspsSeriesUID}`)
-        return { gspsSeriesUID, gspsInstanceUID }; // Return the gspsSeriesUID when condition is met
-      }
-    }
-
-    // If no match is found
-    console.warn("No match found for this image for any active GSPS.");
-    return null;
-  }
   renderToolData(evt: any) {
     const toolData = this.toolAnnotations;
 
