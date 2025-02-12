@@ -86,6 +86,43 @@ export const readFile = function (entry: File) {
 };
 
 /**
+ * @instance
+ * @function parseSequence
+ * @param {any} sequence - Sequence object
+ * @returns {any} - Return a parsed sequence object
+ */
+function parseSequence(sequence: any): any {
+  if (!sequence || typeof sequence !== "object") return sequence;
+
+  // Ensure sequence is processed as an array
+  if (!Array.isArray(sequence)) {
+    sequence = [sequence];
+  }
+
+  return sequence.map(
+    (item: {
+      [x: string]: {
+        vr: string;
+        Value: any;
+      };
+    }) =>
+      Object.keys(item).reduce((acc: { [key: string]: any }, key) => {
+        const value = item[key]?.Value ? item[key].Value[0] : undefined;
+
+        if (value && typeof value === "object" && "Alphabetic" in value) {
+          acc[key.toLowerCase()] = value.Alphabetic;
+        } else if (item[key]?.vr === "SQ") {
+          acc[key.toLowerCase()] = parseSequence(item[key].Value); // Recursively parse nested SQ
+        } else {
+          acc[key.toLowerCase()] = value;
+        }
+
+        return acc;
+      }, {})
+  );
+}
+
+/**
  * Convert QIDO metadata to a more readable format
  * @instance
  * @function convertQidoMetadata
@@ -102,10 +139,7 @@ export const convertQidoMetadata = function (data: any): MetaData {
       }
       // check if value is an array and fill with values
       if (data[key].vr === "SQ") {
-        const arrValue = Object.keys(value).map(key => ({
-          [key]: value[key].Value[0]
-        }));
-        value = arrValue;
+        value = parseSequence(value);
       }
       const newKey = `x${key.toLowerCase()}`;
       accumulator[newKey] = value;
