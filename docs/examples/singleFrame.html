@@ -273,7 +273,6 @@
 
           let lastFrameTime = 0;
           function animate(timestamp) {
-            //console.log("animate on canvas: ", canvasId);
             let stepsNeeded = Math.floor(
               (timestamp - lastFrameTime) / frameRate
             );
@@ -289,7 +288,7 @@
           // let endLoop = false;
 
           function advanceFrame() {
-            // endLoop = frameId == numberOfFrames - 1 ? true : false;
+            endLoop = frameId == numberOfFrames - 1 ? true : false;
             const imageId = dicomSerie.imageIds[frameId];
             if (imageId) {
               larvitar.renderSingleFrame(imageId, canvasId);
@@ -299,12 +298,12 @@
               larvitar.renderSingleFrame(dicomSerie.imageIds[0], canvasId);
               frameId++;
             }
-            // if (endLoop) {
-            //   let tEnd = performance.now();
-            //   const lastLoop = tEnd - tStart;
-            //   console.log(canvasId + "lastLoop:", lastLoop.toFixed(3), "ms");
-            //   tStart = performance.now();
-            // }
+            if (endLoop) {
+              let tEnd = performance.now();
+              const lastLoop = tEnd - tStart;
+              console.debug(canvasId + "lastLoop:", lastLoop.toFixed(3), "ms");
+              tStart = performance.now();
+            }
           }
         }
       }
