@@ -782,17 +782,17 @@ export const renderSingleFrame = async function (
       }
 
       cornerstone.displayImage(element, image);
-      //cornerstone.fitToWindow(element);
+      cornerstone.fitToWindow(element);
 
       setStore(["ready", element.id, true]);
       //setStore(["seriesUID", element.id, data.seriesUID]);
       const t1 = performance.now();
       //console.log(`Call to renderSingleFrame took ${t1 - t0} milliseconds.`);
 
-      //const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
-      //cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
       //@ts-ignore
-      //image = null;
+      image = null;
       resolve(true);
     });
   });
