@@ -320,10 +320,20 @@ export function setToolAnnotationsAndOverlays(
 }
 
 // OVERLAY
-/*
-  Extracts and structures overlay data (e.g., ROI, label, description)
+/**
+ *  Extracts and structures overlay data (e.g., ROI, label, description)
   from DICOM metadata to manage overlays that can be rendered over the image.
-*/
+ * @name renderGraphicAnnotation
+ * @protected
+ * @param  {MetaData} metadata //ps metadata
+ * @param  {any[]} toolAnnotations //annotations array
+ * @param  {MetaData[]} graphicGroups //graphic groups whose the annotation belongs to
+ * @param  {string} color //annotation color
+ * @param  {ViewportComplete} viewport 
+ * @param  {Image} image 
+ *
+ * @returns {void}
+ */
 export function retrieveOverlayToolData(
   metadata: MetaData,
   toolAnnotations: any[],

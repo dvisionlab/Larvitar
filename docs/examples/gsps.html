@@ -1,115 +1,59 @@
 <!DOCTYPE html>
 <html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
-  <meta charset="UTF-8" />
+    <!-- Include the Larvitar script -->
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
 
-  <!-- Include the Larvitar script -->
-  <script>
-    // Check the host and set the script source dynamically
-    const script = document.createElement("script");
-    if (window.location.host === "larvitar.dvisionlab.com") {
-      document.write(
-        '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
-      );
-    } else {
-      document.write('<script src="../../dist/larvitar.js"><\/script>');
-    }
-    // Append the script to the document
-    document.head.appendChild(script);
-  </script>
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
 
-  <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
 
-  <!-- Include the CSS file -->
-  <link rel="stylesheet" href="resources/styles.css" />
+    <!-- custom styles for the example -->
+    <style>
+      label {
+        color: #28b47f;
+        font-weight: bold;
+        text-align: center;
+        border: 2px;
+      }
+    </style>
 
-  <!-- custom styles for the example -->
-  <style>
-    label {
-      color: #28b47f;
-      font-weight: bold;
-      text-align: center;
-      border: 2px;
-    }
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
 
-    /* The popup form - hidden by default */
-    .form-popup {
-      display: none;
-      position: absolute;
-      top: 30px;
-      border: 3px solid #555;
-      z-index: 9;
-    }
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
 
-    /* Add styles to the form container */
-    .form-container {
-      max-width: 300px;
-      padding: 10px;
-      background-color: rgb(0, 0, 0);
-    }
-
-    /* Full-width input fields */
-    .form-container input[type="text"],
-    .form-container input[type="password"] {
-      width: 100%;
-      padding: 15px;
-      margin: 5px 0 22px 0;
-      border: none;
-      background: #f1f1f1;
-    }
-
-    /* When the inputs get focus, do something */
-    .form-container input[type="text"]:focus,
-    .form-container input[type="password"]:focus {
-      background-color: #ddd;
-      outline: none;
-    }
-
-    /* Set a style for the submit/login button */
-    .form-container .btn {
-      background-color: #04aa6d;
-      color: white;
-      padding: 16px 20px;
-      border: none;
-      cursor: pointer;
-      width: 100%;
-      margin-bottom: 10px;
-      opacity: 0.8;
-    }
-
-    /* Add a red background color to the cancel button */
-    .form-container .cancel {
-      background-color: red;
-    }
-
-    /* Add some hover effects to buttons */
-    .form-container .btn:hover,
-    .open-button:hover {
-      opacity: 1;
-    }
-
-    /* Mask overlay */
-    .dragover {
-      opacity: 0.3;
-    }
-  </style>
-
-  <!-- Add the Bootstrap JS and Prism JS for code modal -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-
-  <!-- Code to be displayed as source example code -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const showCodeBtn = document.getElementById("showCodeBtn");
-      const codeSnippet = document.getElementById("codeSnippet");
-      const copyCodeBtn = document.getElementById("copyCodeBtn");
-
-      const code = `
+        const code = `
 larvitar.initializeImageLoader();
 larvitar.registerMultiFrameImageLoader();
 larvitar.initializeCSTools();
@@ -136,234 +80,182 @@ larvitar
     larvitar.populateImageManager(seriesId, serie);
   })`;
 
-      // Show the modal and populate code snippet
-      showCodeBtn.addEventListener("click", () => {
-        codeSnippet.textContent = code;
-        Prism.highlightElement(codeSnippet); // Highlight the code
-        const codeModal = new bootstrap.Modal(
-          document.getElementById("codeModal")
-        );
-        codeModal.show();
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
       });
+    </script>
 
-      // Copy the code to clipboard
-      copyCodeBtn.addEventListener("click", () => {
-        navigator.clipboard.writeText(code);
-      });
-    });
-  </script>
+    <title>Larvitar - GSPS Example</title>
+  </head>
 
-  <title>Larvitar - Basic rendering example</title>
-</head>
-
-<body class="h-100" style="background-color: #000000">
-  <div class="row h-100">
-    <div id="viewer" class="col-12 h-100" style="background-color: black"></div>
-    <p style="position: absolute; color: white">
-      <b>Toggle GSPS:</b> Allows to show presentation state (GSPS) annotations on displayed image
-    </p>
-    <div style="
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; color: white">
+        <b>Toggle GSPS:</b> Allows to show presentation state (GSPS) annotations
+        on displayed image
+      </p>
+      <div
+        style="
           display: flex;
           align-items: center;
           gap: 10px;
           position: absolute;
           top: 25px;
-        ">
-      <button id="showCodeBtn" class="open-button" style="width: auto">
-        Show Code
-      </button>
-      <button id="ToggleGsps" class="open-button" style="width: auto">
-        Toggle GSPS
-      </button>
-    </div>
-
-    <div class="form-popup" id="myForm">
-      <form id="myFormSub" class="form-container">
-        <h1 style="text-align: center; color: #28b47f; font-weight: bold">
-          Metadata
-        </h1>
-        <div id="metadata" style="overflow-y: scroll; height: 300px"></div>
-        <div>
-          <input type="checkbox" id="downloadCheck" />
-          <label> Download modified image/images</label><br />
-          <label style="display: none" id="downloadLabel">Download image N:</label>
-          <input type="number" id="downloadInput" style="display: none" placeholder="Download all images" />
-        </div>
-        <button id="submit" class="btn">submit</button>
-        <button type="button" class="btn cancel" onclick="closeForm()">
-          Close
+        "
+      >
+        <button id="showCodeBtn" class="open-button" style="width: auto">
+          Show Code
         </button>
-      </form>
-    </div>
+        <button id="ToggleGsps" class="open-button" style="width: auto">
+          Toggle GSPS
+        </button>
+      </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="codeModal" tabindex="-1" aria-labelledby="codeModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-          </div>
-          <div class="modal-footer">
-            <button id="copyCodeBtn" class="btn btn-success">
-              Copy Code
-            </button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              Close
-            </button>
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      <div id="spinner"></div>
     </div>
 
-    <div id="metadataModal" class="modal">
-      <table id="metadataTable">
-        <thead>
-          <tr>
-            <th>Tag</th>
-            <th>Name</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Rows will be added here dynamically -->
-        </tbody>
-      </table>
-    </div>
-    <div id="spinner"></div>
-  </div>
+    <script>
+      let imageFiles = [];
+      let gspsFiles = [];
+      let series;
 
-  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+      const spinner = document.getElementById("spinner");
+      const toggleGsps = document.getElementById("ToggleGsps");
 
-  <script>
-    let imageFiles = [];
-    let gspsFiles = []
-    let newMetaData = {};
-    let series;
-    let totalFiles = 0;
-    let processedFiles = 0;
-
-    const dropCanvas = document.getElementById("viewer");
-    const spinner = document.getElementById("spinner");
-    const toggleGsps = document.getElementById("ToggleGsps")
-
-    let isGspsActive = true
-    function toggleButton() {
-      if (isGspsActive) {
-        larvitar.setToolDisabled("Gsps")
-      } else {
-        larvitar.setToolEnabled("Gsps")
+      let isGspsActive = true;
+      function toggleButton() {
+        if (isGspsActive) {
+          larvitar.setToolDisabled("Gsps");
+        } else {
+          larvitar.setToolEnabled("Gsps");
+        }
+        isGspsActive = !isGspsActive;
       }
-      isGspsActive = !isGspsActive
-    }
-    toggleGsps.addEventListener("click", toggleButton)
+      toggleGsps.addEventListener("click", toggleButton);
 
-    // Function to handle individual files
-    function handleFile(file) {
-      demoFiles.push(file);
-      processedFiles++;
-      if (processedFiles === totalFiles) {
-        processFileList(demoFiles); // Call the function when all files are processed
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
       }
-    }
 
-    // Function to handle the full list once it's ready
-    function processFileList(demoFiles) {
-      renderSerie();
-    }
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
 
-    // Show spinner
-    function showSpinner() {
-      spinner.style.display = "block";
-    }
+      let keys = [];
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        const filename = "image.dcm";
+        demoFileList.push(filename);
+        return demoFileList;
+      };
 
-    // Hide spinner
-    function hideSpinner() {
-      spinner.style.display = "none";
-    }
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.registerMultiFrameImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
+      async function createFile(fileName, cb, demoFiles) {
+        let response = await fetch("./demo/GSPS/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        cb();
+      }
 
-    let keys = [];
-    const getDemoFileNames = function () {
-      let demoFileList = [];
-      const filename = "image.dcm"
-      demoFileList.push(filename);
-      return demoFileList;
-    };
-
-    // init all
-    larvitar.initializeImageLoader();
-    larvitar.registerMultiFrameImageLoader();
-    larvitar.initializeCSTools();
-    larvitar.store.initialize();
-    larvitar.store.addViewport("viewer");
-
-    async function createFile(fileName, cb, demoFiles) {
-      let response = await fetch("./demo/GSPS/" + fileName);
-      let data = await response.blob();
-      let file = new File([data], fileName);
-      demoFiles.push(file);
-      cb();
-    }
-
-    function renderSerie() {
-      larvitar
-        .readFiles(imageFiles)
-        .then(seriesStack => {
-          // render the first series of the study
-          let seriesId = Object.keys(seriesStack)[0];
-          larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
-          let manager = larvitar.getImageManager();
-          let serie = manager[seriesId];
-          larvitar.renderImage(serie, "viewer").then(() => {
-            console.log("Image has been rendered");
-            hideSpinner(); // Hide the spinner when all files are processed
-            larvitar.resetViewports(["viewer"]);
-            larvitar.addDefaultTools();
-            larvitar.setToolEnabled("Gsps");
-          });
-          // optionally cache the series
-
-          Object.keys(seriesStack).forEach(seriesId => {
+      function renderSerie() {
+        larvitar
+          .readFiles(imageFiles)
+          .then(seriesStack => {
+            // render the first series of the study
+            let seriesId = Object.keys(seriesStack)[0];
             larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
-            larvitar.cacheImages(seriesStack[seriesId], function (resp) {
-              if (resp.loading == 100) {
-                let cache = larvitar.cornerstone.imageCache;
-                console.log(
-                  "Cache size: ",
-                  cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                  "Mb"
-                );
-              }
+            let manager = larvitar.getImageManager();
+            let serie = manager[seriesId];
+            larvitar.renderImage(serie, "viewer").then(() => {
+              console.log("Image has been rendered");
+              hideSpinner(); // Hide the spinner when all files are processed
+              larvitar.addDefaultTools();
+              larvitar.setToolEnabled("Gsps");
             });
-          });
-        })
-        .catch(err => console.error(err));
-    }
+          })
+          .catch(err => console.error(err));
+      }
 
-    function manageGsps() {
-      larvitar
-        .readFiles(gspsFiles)
-        .then(seriesStack => {
+      function manageGsps() {
+        larvitar.readFiles(gspsFiles).then(seriesStack => {
           // render the first series of the study
           let seriesId = Object.keys(seriesStack)[0];
           larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
         });
-    }
+      }
 
-    let demoFileList = getDemoFileNames();
-    showSpinner(); // Show the spinner
-    demoFileList.forEach(demoFile => {
-      createFile(demoFile, renderSerie, imageFiles);
-    });
+      let demoFileList = getDemoFileNames();
+      showSpinner(); // Show the spinner
+      demoFileList.forEach(demoFile => {
+        createFile(demoFile, renderSerie, imageFiles);
+      });
 
-    const psFile = "ps.dcm"
-    createFile(psFile, manageGsps, gspsFiles);
-
-  </script>
-</body>
-
+      const psFile = "ps.dcm";
+      createFile(psFile, manageGsps, gspsFiles);
+    </script>
+  </body>
 </html>

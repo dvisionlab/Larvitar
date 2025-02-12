@@ -31,8 +31,20 @@ const drawArrow = csTools.importInternal("drawing/drawArrow");
 const drawLine = csTools.importInternal("drawing/drawLine");
 const drawLink = csTools.importInternal("drawing/drawLink");
 
-/* Renders different types of graphic annotations (POINT, POLYLINE, CIRCLE, ELLIPSE) on the canvas, 
-   adhering to DICOM graphic layer module (0070,0020) and annotation sequences.*/
+/**
+ * Renders different types of graphic annotations (POINT, POLYLINE, CIRCLE, ELLIPSE) on the canvas, 
+   adhering to DICOM graphic layer module (0070,0020) and annotation sequences.
+ * @name renderGraphicAnnotation
+ * @protected
+ * @param  {GraphicDetails} graphicObject //object containing graphic parameters for annotations
+ * @param  {CanvasRenderingContext2D} context //context on which annotations will be displayed
+ * @param  {HTMLElement} element //viewport's element
+ * @param  {string} color //annotation color
+ * @param  {ViewportComplete} viewport 
+ * @param  {Image} image 
+ *
+ * @returns {void}
+ */
 export function renderGraphicAnnotation(
   graphicObject: GraphicDetails,
   context: CanvasRenderingContext2D,

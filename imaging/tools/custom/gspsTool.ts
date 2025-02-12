@@ -37,10 +37,10 @@ const BaseTool = csTools.importInternal("base/BaseTool");
 
 /**
  * @public
- * @class WwwcManualTool
+ * @class GspsTool
  * @memberof Tools
  *
- * @classdesc Tool for setting wwwc by dragging with mouse/touch.
+ * @classdesc Tool for visualizing presentation states over displayed image
  * @extends Tools.Base.BaseTool
  */
 export default class GspsTool extends BaseTool {
@@ -76,7 +76,6 @@ export default class GspsTool extends BaseTool {
     const activeElement = await this.handleElement(element);
     const image = activeElement.image;
     const viewport = cornerstone.getViewport(element) as Viewport;
-    //TODO understand how to retrieve gsps
 
     const { manager, seriesId } = this.retrieveLarvitarManager(image.imageId);
 
@@ -250,7 +249,6 @@ export default class GspsTool extends BaseTool {
     enabledElement.viewport!.displayedArea = undefined;
   }
 
-  //TODO-Laura understand how to manage getEnabledElement(element) async (property image is undefined at first)
   /*
    Handles the asynchronous availability of an image within a Cornerstone-enabled element,
    ensuring that the image is loaded before proceeding with operations.
