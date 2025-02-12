@@ -94,8 +94,9 @@ export const loadSingleFrameImage: ImageLoader = function (
     throw new Error(`Image ${imageId} not found in SingleFrameCache Manager`);
   }
   // recover metadata and pixelData from the imageId
-  const { metadata, pixelData } = singleFrameCache[imageId];
-  return createCustomImage(imageId, pixelData, metadata);
+  //const { metadata, pixelData } = singleFrameCache[imageId];
+  //return createCustomImage(imageId, pixelData, metadata);
+  return createCustomImage(imageId);
 };
 
 // internal methods
@@ -169,11 +170,13 @@ const getSingleFrameImageId = function (customLoaderName: string): string {
  * @returns {Object} custom image object
  */
 const createCustomImage = function (
-  imageId: string,
-  pixelData: TypedArray,
-  metadata: MetaData
+  imageId: string
+  //pixelData: TypedArray,
+  //metadata: MetaData
 ): ImageLoadObject {
-  let promise: Promise<Image> = new Promise((resolve, reject) => {
+  const { metadata, pixelData } = singleFrameCache[imageId];
+
+  let promise: Promise<Image> = new Promise((resolve, _) => {
     let pixelSpacing = metadata.x00280030
       ? metadata.x00280030
       : metadata.x00080060 === "US" &&
@@ -210,7 +213,6 @@ const createCustomImage = function (
       columns: metadata.x00280011!,
       height: metadata.x00280010!,
       floatPixelData: undefined,
-      getPixelData: () => Array.from(pixelData),
       intercept: rescaleIntercept ? (rescaleIntercept as number) : 0,
       invert: metadata.x00280004 === "MONOCHROME1",
       minPixelValue: metadata.x00280106,
@@ -225,6 +227,14 @@ const createCustomImage = function (
       windowWidth: windowWidth as number,
       decodeTimeInMS: undefined, // TODO
       loadTimeInMS: undefined // TODO
+    };
+    // add function to return pixel data
+    // @ts-ignore: is needed to avoid array conversion
+    image.getPixelData = function () {
+      if (pixelData === undefined) {
+        throw new Error("No pixel data for image " + imageId);
+      }
+      return pixelData;
     };
 
     let isJPEGBaseline8BitColor = false;
@@ -300,6 +310,8 @@ const createCustomImage = function (
         image.windowCenter = (maxVoi + minVoi) / 2;
       }
     }
+
+    clearSingleFrameCache(imageId);
 
     resolve(image as Image);
   });

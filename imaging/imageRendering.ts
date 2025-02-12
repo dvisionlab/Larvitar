@@ -765,12 +765,16 @@ export const renderSingleFrame = async function (
     );
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-  cornerstone.enable(element);
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    cornerstone.enable(element);
+  }
 
   setStore(["ready", id, false]);
 
   const renderPromise = new Promise<true>((resolve, reject) => {
-    cornerstone.loadImage(imageId).then(function (image) {
+    cornerstone.loadAndCacheImage(imageId).then(function (image) {
       if (!element) {
         console.error("invalid html element: " + elementId);
         reject("invalid html element: " + elementId);
@@ -778,17 +782,17 @@ export const renderSingleFrame = async function (
       }
 
       cornerstone.displayImage(element, image);
-      cornerstone.fitToWindow(element);
+      //cornerstone.fitToWindow(element);
 
       setStore(["ready", element.id, true]);
       //setStore(["seriesUID", element.id, data.seriesUID]);
       const t1 = performance.now();
       //console.log(`Call to renderSingleFrame took ${t1 - t0} milliseconds.`);
 
-      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
-      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      //const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+      //cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
       //@ts-ignore
-      image = null;
+      //image = null;
       resolve(true);
     });
   });

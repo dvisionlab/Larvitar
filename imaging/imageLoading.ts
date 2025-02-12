@@ -276,7 +276,6 @@ export const updateLoadedStack = function (
   // that has not been parsed by the dicomParser
   // but it has been received as a single frame buffer
   else if (isMultiframe) {
-    console.log("Single frame of a multiframe object");
     const imageId = seriesData.imageId as string;
     imageTracker[imageId] = lid as string;
     if (sliceIndex !== undefined) {
