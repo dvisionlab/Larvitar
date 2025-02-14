@@ -6,8 +6,14 @@ import { DisplayAreaVisualizations, ViewportComplete } from "../../types";
 
 /**
  * Applies spatial transformations like rotation and flipping to the viewport
- * using the DICOM Graphic Layer Module (x00700041, x00700042).
- * Considers initial rotation and flip settings.
+   using the DICOM Graphic Layer Module (x00700041, x00700042).
+   Considers initial rotation and flip settings.
+ * @name applySpatialTransformation
+ * @protected
+ * @param  {MetaData} metadata //ps metadata
+ * @param  {ViewportComplete} viewport //viewport object containing display settings
+ *
+ * @returns {void}
  */
 export function applySpatialTransformation(
   metadata: MetaData,
@@ -32,9 +38,16 @@ export function applySpatialTransformation(
 
 /**
  * Applies zoom and pan transformations to the viewport based on the
- * DICOM Displayed Area Selection Sequence (x0070005a). Handles pixel
- * origin interpretation, top-left/bottom-right coordinates, pixel spacing,
- * and magnification.
+   DICOM Displayed Area Selection Sequence (x0070005a). Handles pixel
+   origin interpretation, top-left/bottom-right coordinates, pixel spacing,
+   and magnification.
+ * @name applyZoomPan
+ * @protected
+ * @param  {MetaData} metadata //ps metadata
+ * @param  {ViewportComplete} viewport //viewport properties
+ * @param  {HTMLElement} element //
+ *
+ * @returns {void}
  */
 export function applyZoomPan(
   metadata: MetaData,
@@ -124,6 +137,17 @@ export function applyZoomPan(
   }
 }
 
+/**
+ * Sets the viewport's row and column pixel spacing 
+   based on the presentation size mode
+ * @name handlePixelSpacing
+ * @protected
+ * @param  {ViewportComplete} viewport //viewport object containing display settings
+ * @param  {[number, number]} spacing //pixel spacing values 
+ * @param  {[number, number]} defaultSpacing //default pixel spacing values
+ *
+ * @returns {void}
+ */
 function handlePixelSpacing(
   viewport: ViewportComplete,
   spacing: [number, number],
@@ -143,6 +167,16 @@ function handlePixelSpacing(
   }
 }
 
+/**
+ * Sets the row and column pixel spacing of the viewport's displayed area 
+   based on the provided aspect ratio.
+ * @name handleAspectRatio
+ * @protected
+ * @param  {ViewportComplete} viewport //viewport object containing display settings
+ * @param  {[number, number]} aspectRatio //tuple representing the aspect ratio
+ *
+ * @returns {void}
+ */
 function handleAspectRatio(
   viewport: ViewportComplete,
   aspectRatio: [number, number]

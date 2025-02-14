@@ -5,9 +5,16 @@ import { ImageParameters } from "../../types";
 import { setLUT } from "./genericMathUtils";
 
 /**
- * Applies the Modality LUT or rescale operation to map stored pixel values
- * to meaningful output values using DICOM attributes (x00283000, x00281052, x00281053).
- * Handles both LUT Sequence and linear rescale.
+  * Applies the Modality LUT or rescale operation to map stored pixel values
+    to meaningful output values using DICOM attributes (x00283000, x00281052, x00281053).
+    Handles both LUT Sequence and linear rescale.
+ * @name applyModalityLUT
+ * @protected
+ * @param  {MetaData} metadata //ps metadata
+ * @param  {ImageParameters} image //image parameters
+ * @param  {Viewport} viewport //viewport data
+ *
+ * @returns {void}
  */
 export function applyModalityLUT(
   metadata: MetaData,
@@ -33,11 +40,16 @@ export function applyModalityLUT(
 }
 
 // SOFTCOPY LUT
-
 /**
  * Applies the Softcopy VOI LUT (Window Width and Window Center) to the viewport
- * based on the DICOM metadata (attributes: x00281050, x00281051, x00283010).
- * Handles both explicit VOI LUT Sequence and window settings.
+   based on the DICOM metadata (attributes: x00281050, x00281051, x00283010).
+   Handles both explicit VOI LUT Sequence and window settings.
+ * @name applySoftcopyLUT
+ * @protected
+ * @param  {MetaData} metadata //ps metadata
+ * @param  {Viewport} viewport //viewport data
+ *
+ * @returns {void}
  */
 export function applySoftcopyLUT(metadata: MetaData, viewport: Viewport) {
   const voiLutMetadata = metadata.x00283110; // VOI LUT Sequence
@@ -66,8 +78,14 @@ export function applySoftcopyLUT(metadata: MetaData, viewport: Viewport) {
 //SOFTCOPY PRESENTATION LUT
 /**
  * Applies the Presentation LUT Sequence or shape to the viewport,
- * modifying the display output as per DICOM attributes (x20500010, x20500020).
- * Supports both LUT application and inversion logic.
+   modifying the display output as per DICOM attributes (x20500010, x20500020).
+   Supports both LUT application and inversion logic.
+ * @name applySoftcopyPresentationLUT
+ * @protected
+ * @param  {MetaData} metadata //ps metadata
+ * @param  {Viewport} viewport //viewport data
+ *
+ * @returns {void}
  */
 export function applySoftcopyPresentationLUT(
   metadata: MetaData,
