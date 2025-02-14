@@ -71,6 +71,7 @@ export type TextDetails = {
   textFormat?: string;
   boundingBoxUnits?: string; // Bounding Box Annotation Units
   anchorPointUnits?: string; // Anchor Point Annotation Units
+  anchorpointVisibility: boolean;
   boundingBox?: {
     tlhc?: { x: number | null; y: number | null };
     brhc?: { x: number | null; y: number | null };

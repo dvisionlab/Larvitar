@@ -1,18 +1,30 @@
 import type { TextDetails } from "./types";
 import { rotateCoords } from "./genericMathUtils";
 import * as csTools from "cornerstone-tools";
-import cornerstone, { Image } from "cornerstone-core";
+import cornerstone, { Image, PixelCoordinate } from "cornerstone-core";
 import { Coords, ViewportComplete } from "../../types";
 const drawArrow = csTools.importInternal("drawing/drawArrow");
 const drawLine = csTools.importInternal("drawing/drawLine");
 
 //SHUTTERS
 
-/*
+/** 
   Implements a circular shutter by calculating the center and radius,
   then drawing the circular area on the canvas,
   masking out the areas outside the circle.
-*/
+ * @name applyCircularShutter
+ * @protected
+ * @param  {[number, number]} center 
+ * @param  {number} radius 
+ * @param  {ViewportComplete} viewport 
+ * @param  {Image} image 
+ * @param  {HTMLElement} element 
+ * @param  {HTMLCanvasElement} canvas 
+ * @param  {[number, number, number]} color 
+ * @param  {CanvasRenderingContext2D} ctx 
+ *
+ * @returns {void}
+ */
 export function applyCircularShutter(
   center: [number, number],
   radius: number,
@@ -30,11 +42,14 @@ export function applyCircularShutter(
     viewport as ViewportComplete
   );
 
-  const canvasPoints = cornerstone.pixelToCanvas(element, centerRotated as any);
+  const canvasPoints = cornerstone.pixelToCanvas(
+    element,
+    centerRotated as PixelCoordinate
+  );
   const point = cornerstone.pixelToCanvas(element, {
     x: centerRotated.x,
     y: centerRotated.y + radius
-  } as any);
+  } as PixelCoordinate);
 
   const canvasRadius = Math.sqrt(
     Math.pow(point.x - canvasPoints.x, 2) +
@@ -50,10 +65,21 @@ export function applyCircularShutter(
   ctx.fill();
 }
 
-/*
+/** 
     Implements a rectangular shutter by drawing black rectangles on the areas
     outside the defined shutter edges, masking the rest of the image.
-*/
+ * @name applyRectangularShutter
+ * @protected
+ * @param  {number} left 
+ * @param  {number} right 
+ * @param  {number} upper 
+ * @param  {number} lower 
+ * @param  {HTMLElement} ctx 
+ * @param  {HTMLCanvasElement} canvas 
+ * @param  {[number, number, number]} color 
+ *
+ * @returns {void}
+ */
 export function applyRectangularShutter(
   left: number,
   right: number,
@@ -70,10 +96,17 @@ export function applyRectangularShutter(
   ctx.fillRect(right, upper, canvas.width - right, lower - upper);
 }
 
-/*
+/** 
  Implements a polygonal shutter by defining a polygon shape using vertex
  coordinates and clipping the canvas to mask the image outside the polygon.
-*/
+ * @name applyPolygonalShutter
+ * @protected
+ * @param  {number[]} vertices 
+ * @param  {HTMLElement} ctx 
+ * @param  {HTMLCanvasElement} canvas 
+ *
+ * @returns {void}
+ */
 export function applyPolygonalShutter(
   vertices: number[],
   ctx: CanvasRenderingContext2D,
@@ -89,7 +122,7 @@ export function applyPolygonalShutter(
   const startPoint = cornerstone.pixelToCanvas(element, {
     x: vertices[0],
     y: vertices[1]
-  } as any);
+  } as PixelCoordinate);
   ctx.moveTo(startPoint.x, startPoint.y);
 
   // Draw lines to subsequent vertices
@@ -97,7 +130,7 @@ export function applyPolygonalShutter(
     const point = cornerstone.pixelToCanvas(element, {
       x: vertices[i],
       y: vertices[i + 1]
-    } as any);
+    } as PixelCoordinate);
     ctx.lineTo(point.x, point.y);
   }
   // Close the polygon path
@@ -112,7 +145,7 @@ export function applyPolygonalShutter(
     const point = cornerstone.pixelToCanvas(element, {
       x: vertices[i],
       y: vertices[i + 1]
-    } as any);
+    } as PixelCoordinate);
     ctx.lineTo(point.x, point.y);
   }
 
@@ -128,11 +161,20 @@ export function applyPolygonalShutter(
   ctx.restore();
 }
 
-/*
+/** 
   Draws text on the canvas, respecting various styles such as bold, italic,
   shadow, and color based on a textObject.
   It also handles the text alignment and multiline text rendering.
-*/
+ * @name drawText
+ * @protected
+ * @param  {CanvasRenderingContext2D} context 
+ * @param  {TextDetails} textObject 
+ * @param  {number} textX 
+ * @param  {number} textY 
+ * @param  {string} color 
+ *
+ * @returns {void}
+ */
 export function drawText(
   context: CanvasRenderingContext2D,
   textObject: TextDetails,
@@ -165,7 +207,7 @@ export function drawText(
 
   context.font = fontName;
   context.fillStyle = textColor;
-  context.textAlign = textObject.textFormat as any;
+  context.textAlign = textObject.textFormat as CanvasTextAlign;
   context.textBaseline = "top";
 
   const fontSize = parseInt(context.font.match(/\d+/)![0], 10);
@@ -178,8 +220,21 @@ export function drawText(
   context.restore();
 }
 
-/*This function draws a rectangular bounding box around the text->
-  Useful for visualizing the area occupied by the text on the canvas.*/
+/**This function draws a rectangular bounding box around the text->
+  Useful for visualizing the area occupied by the text on the canvas.
+ * @name drawBoundingBox
+ * @protected
+ * @param  {CanvasRenderingContext2D} context 
+ * @param  {TextDetails} textObject 
+ * @param  {number} left 
+ * @param  {number} top 
+ * @param  {number} width 
+ * @param  {number} height 
+ * @param  {string} color 
+ *
+ * @returns {void}
+ */
+
 export function drawBoundingBox(
   context: CanvasRenderingContext2D,
   left: number,
@@ -195,8 +250,20 @@ export function drawBoundingBox(
   context.restore();
 }
 
-/*
+/** 
   Draws ellipse on context
+  * @name drawEllipse
+ * @protected
+ * @param  {CanvasRenderingContext2D} context 
+ * @param  {Coords} canvasCenter 
+ * @param  {Coords} left 
+ * @param  {Coords} right 
+ * @param  {Coords} bottom 
+ * @param  {Coords} top 
+ * @param  {string} color 
+ * @param  {boolean} shouldFill 
+ *
+ * @returns {void}
  */
 export function drawEllipse(
   context: CanvasRenderingContext2D,
@@ -220,8 +287,17 @@ export function drawEllipse(
   context.stroke();
 }
 
-/*
+/** 
   Draws rectangle on context
+  * @name drawRectangle
+ * @protected
+ * @param  {CanvasRenderingContext2D} context 
+ * @param  {Coords} tlhcCanvas 
+ * @param  {Coords} brhcCanvas 
+ * @param  {string} color 
+ * @param  {boolean} shouldFill 
+ *
+ * @returns {void}
  */
 export function drawRectangle(
   context: CanvasRenderingContext2D,
@@ -246,7 +322,21 @@ export function drawRectangle(
   context.stroke();
 }
 
-/*Allows to draw a cutline on the canvas*/
+/**Allows to draw a cutline on the canvas
+ * @name drawCutline
+ * @param {CanvasRenderingContext2D} context - The rendering context of the canvas.
+ * @param {HTMLElement} element - The HTML element associated with the canvas.
+ * @param {Coords} startHandleCanvas - The starting coordinates of the cutline.
+ * @param {Coords} endHandleCanvas - The ending coordinates of the cutline.
+ * @param {Coords} midpoint - The midpoint coordinates of the cutline.
+ * @param {Coords} direction - The direction vector of the cutline.
+ * @param {number} length - The total length of the cutline.
+ * @param {string} color - The color of the cutline.
+ * @param {number} lineWidth - The width of the cutline.
+ * @param {number} [gapLength] - The optional length of the gap in the cutline.
+ * @param {any} [lineStyleSequence] - Optional style configuration for the cutline.
+ * @returns {void}
+ */
 export function drawCutline(
   context: CanvasRenderingContext2D,
   element: HTMLElement,
@@ -322,10 +412,16 @@ export function drawCutline(
   context.stroke();
 }
 
-/*
-  Allows to draw a perpendicular tick to a segment at a certain coord
-  useful for ruler and crosshair annotations
-*/
+/**
+ * Draws a perpendicular tick to a segment at a certain coordinate.
+ * Useful for ruler and crosshair annotations.
+ * @name drawPerpendicularTickAtPoint
+ * @param {Coords} point - The coordinate where the tick is drawn.
+ * @param {Coords} direction - The direction vector of the segment.
+ * @param {CanvasRenderingContext2D} context - The rendering context of the canvas.
+ * @param {number} tickLength - The length of the perpendicular tick.
+ * @returns {void}
+ */
 export function drawPerpendicularTickAtPoint(
   point: Coords,
   direction: Coords,
@@ -349,7 +445,19 @@ export function drawPerpendicularTickAtPoint(
   context.stroke();
 }
 
-/*Draws a tick of certain length on a segment that can be at a TOP, CENTER or BOTTOM position*/
+/**
+ * Draws a tick of a certain length on a segment, which can be positioned at TOP, CENTER, or BOTTOM.
+ * @name drawTick
+ * @param {number} position - The position of the tick along the segment.
+ * @param {string} label - The label of the tick.
+ * @param {string} alignment - The alignment of the tick (TOP, CENTER, BOTTOM).
+ * @param {string} labelAlignment - The alignment of the label (TOP, BOTTOM).
+ * @param {CanvasRenderingContext2D} context - The rendering context of the canvas.
+ * @param {Coords} direction - The direction vector of the segment.
+ * @param {Coords} startPoint - The starting point of the segment.
+ * @param {boolean} showLabel - Whether to display the label.
+ * @returns {void}
+ */
 export function drawTick(
   position: number,
   label: string,
@@ -432,10 +540,14 @@ export function drawTick(
 }
 
 //STYLE
-/*
-   Converts CIELab color values to RGB format using reference white values,
-   as outlined in the DICOM color space transformations.
-*/
+/**
+ * Converts CIELab color values to RGB format using reference white values,
+ * as outlined in the DICOM color space transformations.
+ * @name convertCIELabToRGBWithRefs
+ * @param {number[]} cieLabColor - An array containing CIELab values.
+ * @returns {[number, number, number]} - The converted RGB values.
+ */
+
 export function convertCIELabToRGBWithRefs(
   cieLabColor: number[]
 ): [number, number, number] {
@@ -534,6 +646,15 @@ class ColorConversion {
   }
 }
 
+/**
+ * Converts CIELab color values to XYZ coordinates, following DICOM guidelines for color transformations
+ * and reference illuminants.
+ * @name CIELabToXYZ
+ * @param {number} l - The lightness component of CIELab.
+ * @param {number} a - The 'a' component of CIELab.
+ * @param {number} b - The 'b' component of CIELab.
+ * @returns {[number, number, number]} - The converted XYZ values.
+ */
 export function CIELabToXYZ(l: number, a: number, b: number) {
   const REF_X = 95.047;
   const REF_Y = 100.0;
@@ -558,10 +679,14 @@ export function CIELabToXYZ(l: number, a: number, b: number) {
   return [REF_X * varX, REF_Y * varY, REF_Z * varZ];
 }
 
-/*
-  Converts CIELab color values to XYZ coordinates, following DICOM guidelines for color transformations
-  and reference illuminants.
-*/
+/**
+ * Converts XYZ color values to RGB using DICOM color space transformations.
+ * @name XYZToRGB
+ * @param {number} x - The X component of the XYZ color space.
+ * @param {number} y - The Y component of the XYZ color space.
+ * @param {number} z - The Z component of the XYZ color space.
+ * @returns {[number, number, number]} - The converted RGB values.
+ */
 export function XYZToRGB(
   x: number,
   y: number,

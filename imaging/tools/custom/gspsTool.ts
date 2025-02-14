@@ -18,9 +18,13 @@ import {
   renderCompoundAnnotation,
   renderTextAnnotation
 } from "./gspsUtils/annotationAndOverlayRenderingUtils";
-import { ImageManager, Series, MetaData } from "../../types";
+import { ImageManager, Series, MetaData, GSPSManager } from "../../types";
 import * as csTools from "cornerstone-tools";
-import cornerstone, { getEnabledElement, Viewport } from "cornerstone-core";
+import cornerstone, {
+  EnabledElement,
+  getEnabledElement,
+  Viewport
+} from "cornerstone-core";
 import {
   getGSPSManager,
   getImageManager,
@@ -28,7 +32,12 @@ import {
 } from "../../imageManagers";
 import { redrawImage, resetViewports } from "../../imageRendering";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
-import { ViewportComplete } from "../types";
+import {
+  ImageParameters,
+  MeasurementMouseEvent,
+  ViewportComplete
+} from "../types";
+import { ToolAnnotations } from "./gspsUtils/types";
 const toolColors = csTools.toolColors;
 const setShadow = csTools.importInternal("drawing/setShadow");
 const getNewContext = csTools.importInternal("drawing/getNewContext");
@@ -45,9 +54,8 @@ const BaseTool = csTools.importInternal("base/BaseTool");
  */
 export default class GspsTool extends BaseTool {
   public name: string;
-  public configuration: any = {};
   //TODO-Laura create a correct type for toolAnnotations
-  public toolAnnotations: any = [];
+  public toolAnnotations: ToolAnnotations = [];
   public showAnnotations: boolean = false;
   public canvas?: Element;
   public gspsMetadata?: MetaData;
@@ -74,66 +82,74 @@ export default class GspsTool extends BaseTool {
   async activePassiveCallback(element: HTMLElement) {
     //current element, image and viewport data
     const activeElement = await this.handleElement(element);
-    const image = activeElement.image;
-    const viewport = cornerstone.getViewport(element) as Viewport;
+    if (activeElement) {
+      const image = activeElement.image;
+      const viewport = cornerstone.getViewport(element) as Viewport;
 
-    const { manager, seriesId } = this.retrieveLarvitarManager(image.imageId);
+      const { manager, seriesId } = this.retrieveLarvitarManager(
+        image!.imageId
+      );
 
-    if (manager) {
-      const serie = manager[seriesId];
-      const currentInstanceUID =
-        serie.instances[image.imageId].metadata.instanceUID!;
-      let gspsManager: any = getGSPSManager();
-      const gsps = gspsManager[currentInstanceUID][0];
-      //check if active gsps is applicable on current displayed image
-      if (gsps?.seriesId) {
-        const gspsSeries = manager[gsps.seriesId];
-        const gspsImageId = gsps.imageId;
-        const gspsMetadata = gspsSeries.instances[gspsImageId].metadata;
+      if (manager) {
+        const serie = manager[seriesId];
+        const currentInstanceUID =
+          serie.instances[image!.imageId].metadata.instanceUID!;
+        let gspsManager: GSPSManager = getGSPSManager();
+        if (gspsManager && gspsManager[currentInstanceUID]) {
+          const gsps = gspsManager[currentInstanceUID][0];
+          //check if active gsps is applicable on current displayed image
+          if (gsps?.seriesId && gsps?.imageId) {
+            const gspsSeries = manager[gsps.seriesId];
+            const gspsImageId = gsps.imageId;
+            const gspsMetadata = gspsSeries.instances[gspsImageId].metadata;
 
-        this.gspsMetadata = gspsMetadata;
-        this.showAnnotations = true;
-        applySoftcopyLUT(gspsMetadata, viewport);
-        cornerstone.setViewport(element, viewport);
+            this.gspsMetadata = gspsMetadata;
+            this.showAnnotations = true;
+            applySoftcopyLUT(gspsMetadata, viewport);
+            cornerstone.setViewport(element, viewport);
 
-        applyModalityLUT(gspsMetadata, image, viewport);
-        cornerstone.setViewport(element, viewport);
+            applyModalityLUT(gspsMetadata, image!, viewport);
+            cornerstone.setViewport(element, viewport);
 
-        applySoftcopyPresentationLUT(gspsMetadata, viewport);
-        cornerstone.setViewport(element, viewport);
+            applySoftcopyPresentationLUT(gspsMetadata, viewport);
+            cornerstone.setViewport(element, viewport);
 
-        applyMask(serie as Series, element);
-        cornerstone.setViewport(element, viewport);
+            applyMask(serie as Series, element);
+            cornerstone.setViewport(element, viewport);
 
-        const graphicLayers = gspsMetadata.x00700060;
-        const graphicGroups = gspsMetadata.x00700234;
-        retrieveOverlayToolData(
-          gspsMetadata,
-          this.toolAnnotations,
-          graphicGroups
-        );
-        cornerstone.setViewport(element, viewport);
-        applyZoomPan(gspsMetadata, viewport as ViewportComplete, element);
-        cornerstone.setViewport(element, viewport);
+            const graphicLayers = gspsMetadata.x00700060;
+            const graphicGroups = gspsMetadata.x00700234;
+            retrieveOverlayToolData(
+              gspsMetadata,
+              this.toolAnnotations,
+              graphicGroups
+            );
+            cornerstone.setViewport(element, viewport);
+            applyZoomPan(gspsMetadata, viewport as ViewportComplete, element);
+            cornerstone.setViewport(element, viewport);
 
-        applySpatialTransformation(gspsMetadata, viewport as ViewportComplete);
-        cornerstone.setViewport(element, viewport);
+            applySpatialTransformation(
+              gspsMetadata,
+              viewport as ViewportComplete
+            );
+            cornerstone.setViewport(element, viewport);
 
-        retrieveAnnotationsToolData(
-          gspsMetadata,
-          element,
-          this.toolAnnotations,
-          graphicLayers,
-          graphicGroups
-        );
-        cornerstone.setViewport(element, viewport);
-      } else {
-        this.gspsMetadata = undefined;
+            retrieveAnnotationsToolData(
+              gspsMetadata,
+              this.toolAnnotations,
+              graphicLayers,
+              graphicGroups
+            );
+            cornerstone.setViewport(element, viewport);
+          } else {
+            this.gspsMetadata = undefined;
+          }
+        }
       }
     }
   }
 
-  renderToolData(evt: any) {
+  renderToolData(evt: MeasurementMouseEvent) {
     const toolData = this.toolAnnotations;
 
     if (!toolData) {
@@ -196,7 +212,6 @@ export default class GspsTool extends BaseTool {
             renderGraphicAnnotation(
               data,
               context,
-              canvas,
               element,
               color,
               viewport as ViewportComplete,
@@ -225,7 +240,6 @@ export default class GspsTool extends BaseTool {
             renderCompoundAnnotation(
               data,
               context,
-              canvas,
               element,
               color,
               viewport as ViewportComplete,
@@ -245,7 +259,9 @@ export default class GspsTool extends BaseTool {
 
   resetViewportToDefault(element: HTMLElement) {
     resetViewports([element.id]);
-    const enabledElement = getEnabledElement(element) as any;
+    const enabledElement = getEnabledElement(element) as any as {
+      viewport: ViewportComplete;
+    };
     enabledElement.viewport!.displayedArea = undefined;
   }
 
@@ -253,7 +269,7 @@ export default class GspsTool extends BaseTool {
    Handles the asynchronous availability of an image within a Cornerstone-enabled element,
    ensuring that the image is loaded before proceeding with operations.
 */
-  handleElement(element: HTMLElement): Promise<any> {
+  handleElement(element: HTMLElement): Promise<EnabledElement | undefined> {
     try {
       const activeElement = cornerstone.getEnabledElement(element);
 
