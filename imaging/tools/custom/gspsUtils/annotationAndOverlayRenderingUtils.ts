@@ -26,7 +26,7 @@ import {
   drawRectangle
 } from "./genericDrawingUtils";
 import * as csTools from "cornerstone-tools";
-import cornerstone, { Image } from "cornerstone-core";
+import cornerstone, { Image, PixelCoordinate } from "cornerstone-core";
 import { Coords, ViewportComplete } from "../../types";
 const drawArrow = csTools.importInternal("drawing/drawArrow");
 const drawLine = csTools.importInternal("drawing/drawLine");
@@ -897,7 +897,10 @@ export function renderCompoundAnnotation(
         };
       }
 
-      const originCanvas = cornerstone.pixelToCanvas(element, origin as any);
+      const originCanvas = cornerstone.pixelToCanvas(
+        element,
+        origin as PixelCoordinate
+      );
 
       // Draw the crosshair
       if (

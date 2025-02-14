@@ -4,7 +4,8 @@ import type {
   CompoundDetails,
   GraphicDetails,
   MajorTicks,
-  ToolAnnotations
+  ToolAnnotations,
+  MergedDetails
 } from "./types";
 import { MetaData } from "../../../types";
 import { Overlay } from "../../types";
@@ -38,10 +39,10 @@ export function retrieveAnnotationsToolData(
     graphicAnnotationSequence.forEach((annotation: MetaData) => {
       const annotationID = annotation.x00700002; // Graphic Layer
 
-      const targetLayer: MetaData = findGraphicLayer(
+      const targetLayer = findGraphicLayer(
         annotationID,
         graphicLayers
-      );
+      ) as MetaData;
 
       const annotationDetails: AnnotationDetails = {
         description: targetLayer?.x00700068,
@@ -179,7 +180,7 @@ export function retrieveTextObjectDetails(
               italic: textObject.x00700231[0].x00700250
             }
           : null
-      } as any as TextDetails,
+      } as unknown as TextDetails,
       toolAnnotations
     );
   }
@@ -314,11 +315,14 @@ as described in the DICOM standard for managing presentation state annotations (
 * @name findGraphicLayer
  * @protected
  * @param  {string} annotationID //ps metadata
- * @param  {any} graphicLayers //annotations array
+ * @param  {MetaData[]} graphicLayers //annotations array
  *
  * @returns {void}
  */
-export function findGraphicLayer(annotationID?: string, graphicLayers?: any) {
+export function findGraphicLayer(
+  annotationID?: string,
+  graphicLayers?: MetaData[]
+) {
   if (graphicLayers) {
     for (const layer of graphicLayers) {
       if (layer.x00700002 === annotationID) {
@@ -333,20 +337,20 @@ export function findGraphicLayer(annotationID?: string, graphicLayers?: any) {
  ensuring compliance with the DICOM rendering sequence standards.
  * @name retrieveOverlayToolData
  * @protected
- * @param  {any} newData //ps metadata
- * @param  {any[]} toolAnnotations //annotations array
+ * @param  {MergedDetails} newData //ps metadata
+ * @param  {ToolAnnotations[]} toolAnnotations //annotations array
  *
  * @returns {void}
  */
 export function setToolAnnotationsAndOverlays(
-  newData: any,
-  toolAnnotations: any[]
+  newData: MergedDetails,
+  toolAnnotations: ToolAnnotations
 ) {
   const renderingOrder = newData.renderingOrder!;
 
   // Find the correct position to insert the new data
   let insertIndex = toolAnnotations.findIndex(
-    (item: any) => item.renderingOrder! > renderingOrder
+    (item: MergedDetails) => item.renderingOrder! > renderingOrder
   );
 
   // If no such position is found, insert at the end
@@ -365,14 +369,14 @@ export function setToolAnnotationsAndOverlays(
  * @name retrieveOverlayToolData
  * @protected
  * @param  {MetaData} metadata //ps metadata
- * @param  {any[]} toolAnnotations //annotations array
+ * @param  {ToolAnnotations[]} toolAnnotations //annotations array
  * @param  {MetaData[]} graphicGroups //graphic groups whose the annotation belongs to
  *
  * @returns {void}
  */
 export function retrieveOverlayToolData(
   metadata: MetaData,
-  toolAnnotations: any[],
+  toolAnnotations: ToolAnnotations[],
   graphicGroups?: MetaData[]
 ) {
   const presentationValue = metadata.x00181622 ?? 0; // Shutter Presentation Value

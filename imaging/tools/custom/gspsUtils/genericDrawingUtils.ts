@@ -1,7 +1,7 @@
 import type { TextDetails } from "./types";
 import { rotateCoords } from "./genericMathUtils";
 import * as csTools from "cornerstone-tools";
-import cornerstone, { Image } from "cornerstone-core";
+import cornerstone, { Image, PixelCoordinate } from "cornerstone-core";
 import { Coords, ViewportComplete } from "../../types";
 const drawArrow = csTools.importInternal("drawing/drawArrow");
 const drawLine = csTools.importInternal("drawing/drawLine");
@@ -42,11 +42,14 @@ export function applyCircularShutter(
     viewport as ViewportComplete
   );
 
-  const canvasPoints = cornerstone.pixelToCanvas(element, centerRotated as any);
+  const canvasPoints = cornerstone.pixelToCanvas(
+    element,
+    centerRotated as PixelCoordinate
+  );
   const point = cornerstone.pixelToCanvas(element, {
     x: centerRotated.x,
     y: centerRotated.y + radius
-  } as any);
+  } as PixelCoordinate);
 
   const canvasRadius = Math.sqrt(
     Math.pow(point.x - canvasPoints.x, 2) +
@@ -119,7 +122,7 @@ export function applyPolygonalShutter(
   const startPoint = cornerstone.pixelToCanvas(element, {
     x: vertices[0],
     y: vertices[1]
-  } as any);
+  } as PixelCoordinate);
   ctx.moveTo(startPoint.x, startPoint.y);
 
   // Draw lines to subsequent vertices
@@ -127,7 +130,7 @@ export function applyPolygonalShutter(
     const point = cornerstone.pixelToCanvas(element, {
       x: vertices[i],
       y: vertices[i + 1]
-    } as any);
+    } as PixelCoordinate);
     ctx.lineTo(point.x, point.y);
   }
   // Close the polygon path
@@ -142,7 +145,7 @@ export function applyPolygonalShutter(
     const point = cornerstone.pixelToCanvas(element, {
       x: vertices[i],
       y: vertices[i + 1]
-    } as any);
+    } as PixelCoordinate);
     ctx.lineTo(point.x, point.y);
   }
 
@@ -204,7 +207,7 @@ export function drawText(
 
   context.font = fontName;
   context.fillStyle = textColor;
-  context.textAlign = textObject.textFormat as any;
+  context.textAlign = textObject.textFormat as CanvasTextAlign;
   context.textBaseline = "top";
 
   const fontSize = parseInt(context.font.match(/\d+/)![0], 10);

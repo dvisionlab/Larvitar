@@ -1,6 +1,10 @@
 import { MetaData } from "../../../types";
 import type { ViewportComplete, Coords } from "../../types";
-import cornerstone, { Image, Viewport } from "cornerstone-core";
+import cornerstone, {
+  Image,
+  PixelCoordinate,
+  Viewport
+} from "cornerstone-core";
 
 /**
  * Configures the viewport with LUT data using the given VOI LUT Sequence.
@@ -169,9 +173,9 @@ export function applyPixelToCanvas(
       return cornerstone.pixelToCanvas(element, {
         x: coord.x * xMultiplier + xScope,
         y: coord.y * yMultiplier + yScope
-      } as any);
+      } as PixelCoordinate);
     } else {
-      return cornerstone.pixelToCanvas(element, coord as any);
+      return cornerstone.pixelToCanvas(element, coord as PixelCoordinate);
     }
   });
 }

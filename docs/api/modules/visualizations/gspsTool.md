@@ -55,7 +55,7 @@ constructor(props: any = {}) {
 
 ### Class Methods
 
-#### `activePassiveCallback(element: HTMLElement)`
+#### `activePassiveCallback`
 
 Performs key operations:
 
@@ -64,7 +64,7 @@ Performs key operations:
 - Applies LUT transformations and masks
 - Retrieves and renders annotations and overlays
 
-#### `renderToolData(evt: any)`
+#### `renderToolData`
 
 Renders annotations and overlays by:
 
@@ -72,15 +72,15 @@ Renders annotations and overlays by:
 - Checking image validity
 - Drawing overlays, graphic annotations, text annotations, and compound annotations
 
-#### `resetViewportToDefault(element: HTMLElement)`
+#### `resetViewportToDefault`
 
 Resets the viewport to its default state when the tool is Disabled.
 
-#### `handleElement(element: HTMLElement): Promise<any>`
+#### `handleElement`
 
 Waits for the image to become available before proceeding.
 
-#### `retrieveLarvitarManager(imageId: string)`
+#### `retrieveLarvitarManager`
 
 Extracts image tracking data and retrieves the image manager for handling DICOM images.
 
@@ -188,8 +188,8 @@ Extracts image tracking data and retrieves the image manager for handling DICOM 
 
 **Parameters**:
 
-- `newData: any` - New annotation data.
-- `toolAnnotations: any[]` - Array of annotations.
+- `newData: MergedDetails` - New annotation data.
+- `toolAnnotations: ToolAnnotations` - Array of annotations.
 
 **Process**:
 
@@ -205,7 +205,7 @@ Extracts image tracking data and retrieves the image manager for handling DICOM 
 **Parameters**:
 
 - `metadata: MetaData` - DICOM metadata containing overlay data.
-- `toolAnnotations: any[]` - Array for storing overlays.
+- `toolAnnotations: ToolAnnotations` - Array for storing overlays.
 - `graphicGroups?: MetaData[]` - Graphic groups related to the annotation.
 
 **Process**:

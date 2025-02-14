@@ -1,7 +1,6 @@
 //MODALITY LUT
-import { Viewport } from "cornerstone-core";
+import { Image, Viewport } from "cornerstone-core";
 import { MetaData } from "../../../types";
-import { ImageParameters } from "../../types";
 import { setLUT } from "./genericMathUtils";
 
 /**
@@ -11,7 +10,7 @@ import { setLUT } from "./genericMathUtils";
  */
 export function applyModalityLUT(
   metadata: MetaData,
-  image: ImageParameters,
+  image: Image,
   viewport: Viewport
 ) {
   const modalityLUTSequence = metadata.x00283000;
