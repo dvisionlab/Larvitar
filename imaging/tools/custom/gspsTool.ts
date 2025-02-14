@@ -29,6 +29,7 @@ import {
 import { redrawImage, resetViewports } from "../../imageRendering";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { ViewportComplete } from "../types";
+import { ToolAnnotations } from "./gspsUtils/types";
 const toolColors = csTools.toolColors;
 const setShadow = csTools.importInternal("drawing/setShadow");
 const getNewContext = csTools.importInternal("drawing/getNewContext");
@@ -47,7 +48,7 @@ export default class GspsTool extends BaseTool {
   public name: string;
   public configuration: any = {};
   //TODO-Laura create a correct type for toolAnnotations
-  public toolAnnotations: any = [];
+  public toolAnnotations: ToolAnnotations = [];
   public showAnnotations: boolean = false;
   public canvas?: Element;
   public gspsMetadata?: MetaData;
@@ -121,7 +122,6 @@ export default class GspsTool extends BaseTool {
 
         retrieveAnnotationsToolData(
           gspsMetadata,
-          element,
           this.toolAnnotations,
           graphicLayers,
           graphicGroups
@@ -196,7 +196,6 @@ export default class GspsTool extends BaseTool {
             renderGraphicAnnotation(
               data,
               context,
-              canvas,
               element,
               color,
               viewport as ViewportComplete,
@@ -225,7 +224,6 @@ export default class GspsTool extends BaseTool {
             renderCompoundAnnotation(
               data,
               context,
-              canvas,
               element,
               color,
               viewport as ViewportComplete,

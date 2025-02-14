@@ -3,8 +3,10 @@ import type { ViewportComplete, Coords } from "../../types";
 import cornerstone, { Image, Viewport } from "cornerstone-core";
 
 /**
- * Configures the viewport with LUT data using the given VOI LUT Sequence,
- * translating the LUT descriptor and data into a usable form for display.
+ * Configures the viewport with LUT data using the given VOI LUT Sequence.
+ * @name setLUT
+ * @param {MetaData} voiLut - The metadata containing LUT Descriptor and LUT Data.
+ * @param {Viewport} viewport - The viewport to apply LUT settings to.
  */
 export function setLUT(voiLut: MetaData, viewport: Viewport) {
   const lutDescriptor = voiLut.x00283002; // LUT Descriptor
@@ -21,7 +23,14 @@ export function setLUT(voiLut: MetaData, viewport: Viewport) {
   }
 }
 
-/* Adjusts the coordinates of a point based on the image rotation.*/
+/**
+ * Adjusts the coordinates of a point based on the image rotation.
+ * @name rotateCoords
+ * @param {Coords} point - The point coordinates.
+ * @param {Image} image - The cornerstone image object.
+ * @param {ViewportComplete} viewport - The viewport containing rotation information.
+ * @returns {Coords} - The adjusted coordinates.
+ */
 export function rotateCoords(
   point: Coords,
   image: Image,
@@ -46,7 +55,12 @@ export function rotateCoords(
   return point;
 }
 
-/*Calculates ellipse coordinates from a starting array containing start and end point of its two main axis*/
+/**
+ * Calculates ellipse coordinates from an array containing the start and end points of its two main axes.
+ * @name calculateEllipseCoordinates
+ * @param {number[]} graphicData - The array containing ellipse coordinate data.
+ * @returns {Record<string, Coords>} - The calculated coordinates.
+ */
 export function calculateEllipseCoordinates(
   graphicData: number[]
 ): Record<string, Coords> {
@@ -74,8 +88,12 @@ export function calculateEllipseCoordinates(
   };
 }
 
-/*Calculates rectangle coordinates from a starting array containing top left corner and
- bottom right corner */
+/**
+ * Calculates rectangle coordinates from an array containing top-left and bottom-right corners.
+ * @name calculateRectangleCoordinates
+ * @param {number[]} graphicData - The array containing rectangle coordinate data.
+ * @returns {Record<string, Coords>} - The calculated coordinates.
+ */
 export function calculateRectangleCoordinates(
   graphicData: number[]
 ): Record<string, Coords> {
@@ -91,7 +109,13 @@ export function calculateRectangleCoordinates(
   };
 }
 
-/*Calculates start, end and mid handles of a segment */
+/**
+ * Calculates the start, end, and midpoint handles of a segment.
+ * @name calculateHandles
+ * @param {number[]} graphicData - The array containing segment coordinate data.
+ * @param {number} index - The starting index of the segment in the array.
+ * @returns {Record<string, Coords>} - The calculated handle coordinates.
+ */
 export function calculateHandles(
   graphicData: number[],
   index: number
@@ -114,9 +138,19 @@ export function calculateHandles(
   };
 }
 
-/*
-  Converts coordinates to canvas starting from PIXEL coordinates (referred to original image system)
-  or DISPLAY coordinates (referred to the currently displayed area of the image system)
+/**
+ * Converts coordinates to canvas space from pixel or display coordinates.
+ * @name applyPixelToCanvas
+ * @param {Coords[]} coords - The array of coordinates.
+ * @param {HTMLElement} element - The HTML element associated with the canvas.
+ * @param {number} xMultiplier - The multiplier for the x-axis.
+ * @param {number} yMultiplier - The multiplier for the y-axis.
+ * @param {number} xScope - The x-offset.
+ * @param {number} yScope - The y-offset.
+ * @param {Image} image - The cornerstone image.
+ * @param {Viewport} viewport - The viewport settings.
+ * @param {boolean} isDisplayUnit - Whether the coordinates are in display units.
+ * @returns {Coords[]} - The transformed coordinates.
  */
 export function applyPixelToCanvas(
   coords: Coords[],
@@ -142,6 +176,14 @@ export function applyPixelToCanvas(
   });
 }
 
+/**
+ * Applies rotation and translation to a set of coordinates.
+ * @name applyRotationAndTranslation
+ * @param {Coords[]} coords - The array of coordinates.
+ * @param {number} rotationAngle - The rotation angle in degrees.
+ * @param {Coords} rotationPoint - The point around which to rotate.
+ * @returns {Coords[]} - The transformed coordinates.
+ */
 export function applyRotationAndTranslation(
   coords: Coords[],
   rotationAngle: number,
@@ -164,7 +206,19 @@ export function applyRotationAndTranslation(
   });
 }
 
-/* Finds the intersection, if present, between two lines */
+/**
+ * Finds the intersection point between two line segments, if it exists.
+ * @name intersect
+ * @param {number} x1 - x-coordinate of the first point of the first line.
+ * @param {number} y1 - y-coordinate of the first point of the first line.
+ * @param {number} x2 - x-coordinate of the second point of the first line.
+ * @param {number} y2 - y-coordinate of the second point of the first line.
+ * @param {number} x3 - x-coordinate of the first point of the second line.
+ * @param {number} y3 - y-coordinate of the first point of the second line.
+ * @param {number} x4 - x-coordinate of the second point of the second line.
+ * @param {number} y4 - y-coordinate of the second point of the second line.
+ * @returns {Coords|false} - The intersection coordinates or false if no intersection exists.
+ */
 export function intersect(
   x1: number,
   y1: number,

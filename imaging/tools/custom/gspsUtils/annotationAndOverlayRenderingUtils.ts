@@ -3,7 +3,8 @@ import type {
   AnnotationOverlay,
   CompoundDetails,
   GraphicDetails,
-  MajorTicks
+  MajorTicks,
+  TextDetails
 } from "./types";
 
 import { rotateCoords } from "./genericMathUtils";
@@ -48,7 +49,6 @@ const drawLink = csTools.importInternal("drawing/drawLink");
 export function renderGraphicAnnotation(
   graphicObject: GraphicDetails,
   context: CanvasRenderingContext2D,
-  canvas: HTMLCanvasElement,
   element: HTMLElement,
   color: string,
   viewport: ViewportComplete,
@@ -254,12 +254,22 @@ export function renderGraphicAnnotation(
   }
 }
 
-/*
+/**
   This function renders a text annotation on the canvas, including its bounding box. 
   It calculates the correct position and size based on viewport and image dimensions.
-*/
+ * @name renderTextAnnotation
+ * @protected
+ * @param  {TextDetails} textObject //object containing graphic parameters for annotations
+ * @param  {CanvasRenderingContext2D} context //context on which annotations will be displayed
+ * @param  {string} color //annotation color
+ * @param  {HTMLElement} element //viewport's element
+ * @param  {Image} image 
+ * @param  {ViewportComplete} viewport 
+ *
+ * @returns {void}
+ */
 export function renderTextAnnotation(
-  textObject: any,
+  textObject: TextDetails,
   context: CanvasRenderingContext2D,
   color: string,
   element: HTMLElement,
@@ -279,9 +289,9 @@ export function renderTextAnnotation(
 
   const [tlhc, brhc, anchorPoint] = applyPixelToCanvas(
     [
-      textObject.boundingBox?.tlhc,
-      textObject.boundingBox.brhc,
-      textObject.anchorPoint
+      textObject.boundingBox?.tlhc as Coords,
+      textObject.boundingBox?.brhc as Coords,
+      textObject.anchorPoint as Coords
     ],
     element,
     xMultiplier,
@@ -312,7 +322,7 @@ export function renderTextAnnotation(
   const textY =
     top +
     boundingBoxHeight / 2 -
-    (fontSize * textObject.unformattedTextValue.split("\n").length) / 2;
+    (fontSize * textObject.unformattedTextValue!.split("\n").length) / 2;
   let textX = xCenter;
 
   switch (textObject.textFormat) {
@@ -359,13 +369,23 @@ export function renderTextAnnotation(
   }
 }
 
-/* Renders different types of compound annotation:
+/** Renders different types of compound annotation:
    (ELLIPSE,RECTANGLE,ARROW,MULTILINE,INFINITELINE,AXIS,RANGELINE,CUTLINE,RULER,CROSSHAIR) on the canvas, 
-   adhering to DICOM graphic layer module (0070,0020) and annotation sequences.*/
+   adhering to DICOM graphic layer module (0070,0020) and annotation sequences.
+ * @name renderTextAnnotation
+ * @protected
+ * @param  {CompoundDetails} compoundObject //object containing graphic parameters for annotations
+ * @param  {CanvasRenderingContext2D} context //context on which annotations will be displayed
+ * @param  {HTMLElement} element //viewport's element
+ * @param  {string} color //annotation color
+ * @param  {ViewportComplete} viewport 
+ * @param  {Image} image 
+ *
+ * @returns {void}
+ */
 export function renderCompoundAnnotation(
   compoundObject: CompoundDetails,
   context: CanvasRenderingContext2D,
-  canvas: HTMLCanvasElement,
   element: HTMLElement,
   color: string,
   viewport: ViewportComplete,
@@ -937,8 +957,15 @@ export function renderCompoundAnnotation(
   }
 }
 
-/* Renders an overlay on the image canvas based on annotation data, following DICOM standards 
-   for overlay planes and pixel data (60xx,3000).*/
+/** Renders an overlay on the image canvas based on annotation data, following DICOM standards 
+   for overlay planes and pixel data (60xx,3000).
+ * @name renderOverlay
+ * @protected
+ * @param  {AnnotationOverlay} data //object containing graphic parameters for annotations
+ * @param  {Image} image 
+ *
+ * @returns {void}
+ */
 export function renderOverlay(data: AnnotationOverlay, image: Image) {
   if (data.visible === false) {
     return;

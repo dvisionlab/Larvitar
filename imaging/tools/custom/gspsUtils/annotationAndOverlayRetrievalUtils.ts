@@ -12,14 +12,21 @@ import { convertCIELabToRGBWithRefs } from "./genericDrawingUtils";
 
 //RETRIEVE ANNOTATIONS
 
-/*
+/** 
  Extracts annotation sequences (text and graphic objects) from DICOM metadata,
  organizing them for display over the image, including handling of graphic
  layers and rendering order.
-*/
+* @name retrieveAnnotationsToolData
+ * @protected
+ * @param  {MetaData} textObject //ps metadata
+ * @param  {ToolAnnotations} toolAnnotations //annotations array
+ * @param  {MetaData[]} graphicLayers //graphic layers metadata array
+ * @param  {MetaData[]} graphicGroups //graphic groups metadata array
+ *
+ * @returns {void}
+ */
 export function retrieveAnnotationsToolData(
   metadata: MetaData,
-  element: HTMLElement,
   toolAnnotations: ToolAnnotations,
   graphicLayers?: MetaData[],
   graphicGroups?: MetaData[]
@@ -55,7 +62,6 @@ export function retrieveAnnotationsToolData(
           retrieveTextObjectDetails(
             textObject,
             annotationDetails,
-            element,
             toolAnnotations
           );
         });
@@ -88,14 +94,20 @@ export function retrieveAnnotationsToolData(
 }
 
 //TEXT ANNOTATION
-/*
+/** 
   Processes individual text objects from the DICOM annotation sequence,
   extracting details like position, bounding box, and style for display over the image.
-*/
+* @name retrieveTextObjectDetails
+ * @protected
+ * @param  {MetaData} textObject //ps metadata
+ * @param  {AnnotationDetails} annotation //annotations array
+ * @param  {ToolAnnotations} toolAnnotations //annotations array
+ *
+ * @returns {void}
+ */
 export function retrieveTextObjectDetails(
   textObject: MetaData,
   annotation: AnnotationDetails,
-  element: HTMLElement,
   toolAnnotations: ToolAnnotations
 ) {
   if (textObject.x00700006) {
@@ -167,18 +179,25 @@ export function retrieveTextObjectDetails(
               italic: textObject.x00700231[0].x00700250
             }
           : null
-      } as TextDetails,
+      } as any as TextDetails,
       toolAnnotations
     );
   }
 }
 
 //GRAPHIC ANNOTATION
-/*
+/** 
  Processes individual graphic objects (e.g., lines, shapes)
  from the DICOM annotation sequence,
  extracting details like coordinates and styles for display over the image.
-*/
+* @name retrieveGraphicObjectDetails
+ * @protected
+ * @param  {MetaData} graphicObject //ps metadata
+ * @param  {AnnotationDetails} annotation //annotations array
+ * @param  {ToolAnnotations} toolAnnotations //annotations array
+ *
+ * @returns {void}
+ */
 export function retrieveGraphicObjectDetails(
   graphicObject: MetaData,
   annotation: AnnotationDetails,
@@ -221,11 +240,18 @@ export function retrieveGraphicObjectDetails(
 }
 
 //COMPOUND ANNOTATIONS
-/*
+/** 
   Handles more complex graphic annotations,
   including compound objects with properties like rotation, major ticks,
   and line styles, according to the DICOM standard.
-*/
+* @name findGraphicLayer
+ * @protected
+ * @param  {MetaData} compoundObject //ps metadata
+ * @param  {AnnotationDetails} annotation //annotations array
+ * @param  {ToolAnnotations} toolAnnotations //annotations array
+ *
+ * @returns {void}
+ */
 export function retrieveCompoundObjectDetails(
   compoundObject: MetaData,
   annotation: AnnotationDetails,
@@ -283,8 +309,15 @@ export function retrieveCompoundObjectDetails(
   );
 }
 
-/* Finds and returns the graphic layer that matches a given annotation ID from the graphic layers array,
-as described in the DICOM standard for managing presentation state annotations (0070,0002).*/
+/**  Finds and returns the graphic layer that matches a given annotation ID from the graphic layers array,
+as described in the DICOM standard for managing presentation state annotations (0070,0002).
+* @name findGraphicLayer
+ * @protected
+ * @param  {string} annotationID //ps metadata
+ * @param  {any} graphicLayers //annotations array
+ *
+ * @returns {void}
+ */
 export function findGraphicLayer(annotationID?: string, graphicLayers?: any) {
   if (graphicLayers) {
     for (const layer of graphicLayers) {
@@ -295,10 +328,16 @@ export function findGraphicLayer(annotationID?: string, graphicLayers?: any) {
   }
 }
 
-/*
+/**
  Inserts new annotation data into the tool annotations array in the correct rendering order,
  ensuring compliance with the DICOM rendering sequence standards.
-*/
+ * @name retrieveOverlayToolData
+ * @protected
+ * @param  {any} newData //ps metadata
+ * @param  {any[]} toolAnnotations //annotations array
+ *
+ * @returns {void}
+ */
 export function setToolAnnotationsAndOverlays(
   newData: any,
   toolAnnotations: any[]
@@ -323,14 +362,11 @@ export function setToolAnnotationsAndOverlays(
 /**
  *  Extracts and structures overlay data (e.g., ROI, label, description)
   from DICOM metadata to manage overlays that can be rendered over the image.
- * @name renderGraphicAnnotation
+ * @name retrieveOverlayToolData
  * @protected
  * @param  {MetaData} metadata //ps metadata
  * @param  {any[]} toolAnnotations //annotations array
  * @param  {MetaData[]} graphicGroups //graphic groups whose the annotation belongs to
- * @param  {string} color //annotation color
- * @param  {ViewportComplete} viewport 
- * @param  {Image} image 
  *
  * @returns {void}
  */
