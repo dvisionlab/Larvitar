@@ -59,7 +59,7 @@ The presentation state defines how an image or multiple images should be display
 3. image masks and overlays
 4. compound objects
 
-(see [GSPS Standard Dicom](https://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.33.html) for more info).
+See [GSPS Standard Dicom](https://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.33.html) and [GSPS Visualization](../visualizations/gspsTool.md) for more info.
 
 ```typescript
 setToolEnabled("Gsps"); //also setToolPassive("Gsps") can be used

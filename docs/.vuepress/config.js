@@ -174,6 +174,10 @@ export default {
                     {
                       text: "Color Maps",
                       link: "/api/modules/visualizations/colorMaps.md"
+                    },
+                    {
+                      text: "Greyscale Presentation States",
+                      link: "/api/modules/visualizations/gsps.md"
                     }
                   ]
                 }
