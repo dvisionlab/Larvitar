@@ -369,14 +369,14 @@ export function setToolAnnotationsAndOverlays(
  * @name retrieveOverlayToolData
  * @protected
  * @param  {MetaData} metadata //ps metadata
- * @param  {ToolAnnotations[]} toolAnnotations //annotations array
+ * @param  {ToolAnnotations} toolAnnotations //annotations array
  * @param  {MetaData[]} graphicGroups //graphic groups whose the annotation belongs to
  *
  * @returns {void}
  */
 export function retrieveOverlayToolData(
   metadata: MetaData,
-  toolAnnotations: ToolAnnotations[],
+  toolAnnotations: ToolAnnotations,
   graphicGroups?: MetaData[]
 ) {
   const presentationValue = metadata.x00181622 ?? 0; // Shutter Presentation Value

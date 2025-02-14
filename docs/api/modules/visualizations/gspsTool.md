@@ -80,26 +80,24 @@ Resets the viewport to its default state when the tool is Disabled.
 
 Waits for the image to become available before proceeding.
 
-#### `retrieveLarvitarManager`
-
-Extracts image tracking data and retrieves the image manager for handling DICOM images.
-
 ### Apply Annotations on Image
 
 #### Retrieve Annotations from DICOM Metadata
 
 ##### `retrieveAnnotationsToolData`
 
-**Purpose**: Extracts annotation sequences (text and graphic objects) from DICOM metadata, organizes them for display, and handles rendering order.
+Extracts annotation sequences (text and graphic objects) from DICOM metadata, organizes them for display, and handles rendering order.
 
-**Parameters**:
+```typescript
+function retrieveAnnotationsToolData(
+  metadata: MetaData,
+  toolAnnotations: ToolAnnotations,
+  graphicLayers?: MetaData[],
+  graphicGroups?: MetaData[]
+);
+```
 
-- `metadata: MetaData` - DICOM metadata containing annotation information.
-- `toolAnnotations: ToolAnnotations` - Array where extracted annotations are stored.
-- `graphicLayers?: MetaData[]` - Metadata for graphic layers.
-- `graphicGroups?: MetaData[]` - Metadata for graphic groups.
-
-**Process**:
+**Implementation Details**:
 
 1. Retrieves the **Graphic Annotation Sequence** (`x00700001`).
 2. Iterates through each annotation and extracts:
@@ -115,15 +113,17 @@ Extracts image tracking data and retrieves the image manager for handling DICOM 
 
 ##### `retrieveTextObjectDetails`
 
-**Purpose**: Extracts text annotation details, including position, bounding box, and text style.
+Extracts text annotation details, including position, bounding box, and text style.
 
-**Parameters**:
+```typescript
+function retrieveTextObjectDetails(
+  textObject: MetaData,
+  annotation: AnnotationDetails,
+  toolAnnotations: ToolAnnotations
+);
+```
 
-- `textObject: MetaData` - Metadata for a text annotation.
-- `annotation: AnnotationDetails` - Parent annotation details.
-- `toolAnnotations: ToolAnnotations` - Array for storing annotations.
-
-**Process**:
+**Implementation Details**:
 
 1. Extracts text position, bounding box, and anchor point.
 2. Retrieves text formatting details (font, color, alignment, shadow properties).
@@ -133,15 +133,17 @@ Extracts image tracking data and retrieves the image manager for handling DICOM 
 
 ##### `retrieveGraphicObjectDetails`
 
-**Purpose**: Extracts graphic annotation details (e.g., lines, shapes) for display.
+Extracts graphic annotation details (e.g., lines, shapes) for display.
 
-**Parameters**:
+```typescript
+function retrieveGraphicObjectDetails(
+  graphicObject: MetaData,
+  annotation: AnnotationDetails,
+  toolAnnotations: ToolAnnotations
+);
+```
 
-- `graphicObject: MetaData` - Metadata for a graphic object.
-- `annotation: AnnotationDetails` - Parent annotation details.
-- `toolAnnotations: ToolAnnotations` - Array for storing annotations.
-
-**Process**:
+**Implementation Details**:
 
 1. Extracts graphic properties (dimensions, points, type, fill status).
 2. Retrieves line style details (thickness, pattern, shadow effects).
@@ -151,15 +153,17 @@ Extracts image tracking data and retrieves the image manager for handling DICOM 
 
 ##### `retrieveCompoundObjectDetails`
 
-**Purpose**: Processes complex annotations that include rotation, major ticks, and detailed line styles.
+Processes complex annotations that include rotation, major ticks, and detailed line styles.
 
-**Parameters**:
+```typescript
+function retrieveCompoundObjectDetails(
+  compoundObject: MetaData,
+  annotation: AnnotationDetails,
+  toolAnnotations: ToolAnnotations
+);
+```
 
-- `compoundObject: MetaData` - Metadata for a compound annotation.
-- `annotation: AnnotationDetails` - Parent annotation details.
-- `toolAnnotations: ToolAnnotations` - Array for storing annotations.
-
-**Process**:
+**Implementation Details**:
 
 1. Extracts additional properties such as **rotation angle**, **tick marks**, and **line styles**.
 2. Structures the extracted details.
@@ -169,14 +173,13 @@ Extracts image tracking data and retrieves the image manager for handling DICOM 
 
 ##### `findGraphicLayer`
 
-**Purpose**: Finds and returns the graphic layer matching a given annotation ID from `graphicLayers`.
+Finds and returns the graphic layer matching a given annotation ID from `graphicLayers`.
 
-**Parameters**:
+```typescript
+function findGraphicLayer(annotationID?: string, graphicLayers?: MetaData[]);
+```
 
-- `annotationID?: string` - ID of the annotation.
-- `graphicLayers?: MetaData[]` - Array of graphic layers.
-
-**Process**:
+**Implementation Details**:
 
 - Iterates through `graphicLayers` and returns the matching layer.
 
@@ -184,14 +187,16 @@ Extracts image tracking data and retrieves the image manager for handling DICOM 
 
 ##### `setToolAnnotationsAndOverlays`
 
-**Purpose**: Inserts annotation data into `toolAnnotations` in the correct rendering order.
+Inserts annotation data into `toolAnnotations` in the correct rendering order.
 
-**Parameters**:
+```typescript
+function setToolAnnotationsAndOverlays(
+  newData: MergedDetails,
+  toolAnnotations: ToolAnnotations
+);
+```
 
-- `newData: MergedDetails` - New annotation data.
-- `toolAnnotations: ToolAnnotations` - Array of annotations.
-
-**Process**:
+**Implementation Details**:
 
 1. Determines the correct position based on rendering order.
 2. Inserts the new annotation at the determined position.
@@ -200,15 +205,17 @@ Extracts image tracking data and retrieves the image manager for handling DICOM 
 
 ##### `retrieveOverlayToolData`
 
-**Purpose**: Extracts and structures overlay data (e.g., ROIs, labels, descriptions) from DICOM metadata.
+Extracts and structures overlay data (e.g., ROIs, labels, descriptions) from DICOM metadata.
 
-**Parameters**:
+```typescript
+function retrieveOverlayToolData(
+  metadata: MetaData,
+  toolAnnotations: ToolAnnotations,
+  graphicGroups?: MetaData[]
+);
+```
 
-- `metadata: MetaData` - DICOM metadata containing overlay data.
-- `toolAnnotations: ToolAnnotations` - Array for storing overlays.
-- `graphicGroups?: MetaData[]` - Graphic groups related to the annotation.
-
-**Process**:
+**Implementation Details**:
 
 1. Extracts **presentation value**, **overlay color**, and **shutter shape**.
 2. Retrieves overlay-specific metadata (rows, columns, origin, type, etc.).
@@ -223,7 +230,7 @@ Renders different types of graphic annotations (POINT, POLYLINE, CIRCLE, ELLIPSE
 adhering to DICOM graphic layer module (0070,0020) and annotation sequences.
 
 ```typescript
-export function renderGraphicAnnotation(
+function renderGraphicAnnotation(
   graphicObject: GraphicDetails,
   context: CanvasRenderingContext2D,
   element: HTMLElement,

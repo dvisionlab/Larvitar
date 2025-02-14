@@ -177,7 +177,7 @@ export default {
                     },
                     {
                       text: "Greyscale Presentation States",
-                      link: "/api/modules/visualizations/gsps.md"
+                      link: "/api/modules/visualizations/gspsTool.md"
                     }
                   ]
                 }
