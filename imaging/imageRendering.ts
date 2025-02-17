@@ -15,7 +15,7 @@ import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
-import { getSortedStack, isElement } from "./imageUtils";
+import { isElement } from "./imageUtils";
 import {
   Instance,
   Series,
