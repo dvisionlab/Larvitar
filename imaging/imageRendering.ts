@@ -15,7 +15,7 @@ import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
-import { isElement } from "./imageUtils";
+import { getSortedStack, isElement } from "./imageUtils";
 import {
   Instance,
   Series,
@@ -1252,12 +1252,17 @@ const getSeriesData = function (
         ? defaultProps.numberOfSlices
         : series.imageIds.length;
     data.numberOfSlices = numberOfSlices;
-    data.imageIndex =
-      defaultProps?.sliceNumber !== undefined && defaultProps?.sliceNumber >= 0 // slice number between 0 and n-1
-        ? defaultProps.sliceNumber
-        : Math.floor(numberOfSlices / 2);
+    data.imageIndex = defaultProps?.sliceImageId
+      ? series.imageIds.findIndex(
+          imageId => imageId === defaultProps?.sliceImageId
+        )
+      : defaultProps?.sliceNumber !== undefined &&
+        defaultProps?.sliceNumber >= 0 // slice number between 0 and n-1
+      ? defaultProps.sliceNumber
+      : Math.floor(numberOfSlices / 2);
 
-    data.imageId = series.imageIds[data.imageIndex];
+    data.imageId =
+      defaultProps?.sliceImageId ?? series.imageIds[data.imageIndex];
   }
   const instance: Instance | null = data.imageId
     ? series.instances[data.imageId]
