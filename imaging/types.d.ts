@@ -305,6 +305,7 @@ type StoreViewport = typeof DEFAULT_VIEWPORT;
 type StoreViewportOptions = {
   numberOfSlices?: number;
   sliceNumber?: number;
+  sliceImageId?: string;
   wc?: number;
   ww?: number;
   defaultWC?: number;
