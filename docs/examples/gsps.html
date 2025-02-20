@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Include the Larvitar script -->
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- custom styles for the example -->
+    <style>
+      label {
+        color: #28b47f;
+        font-weight: bold;
+        text-align: center;
+        border: 2px;
+      }
+    </style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        const code = `
+larvitar.initializeImageLoader();
+larvitar.registerMultiFrameImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+larvitar
+  .readFiles(imageList)
+  .then(seriesStack => {
+    const seriesId = Object.keys(seriesStack)[0];
+    const serie = seriesStack[seriesId];
+    larvitar.populateImageManager(seriesId, serie);
+    larvitar.renderImage(serie, "viewer").then(() => {
+      console.log("Image has been rendered");
+      larvitar.addDefaultTools();
+      larvitar.setToolEnabled("Gsps")
+    });
+  })
+
+  larvitar
+  .readFiles(gspsList)
+  .then(seriesStack => {
+    const seriesId = Object.keys(seriesStack)[0];
+    const serie = seriesStack[seriesId];
+    larvitar.populateImageManager(seriesId, serie);
+  })`;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
+    <title>Larvitar - GSPS Example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; color: white">
+        <b>Toggle GSPS:</b> Allows to show presentation state (GSPS) annotations
+        on displayed image
+      </p>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          position: absolute;
+          top: 25px;
+        "
+      >
+        <button id="showCodeBtn" class="open-button" style="width: auto">
+          Show Code
+        </button>
+        <button id="ToggleGsps" class="open-button" style="width: auto">
+          Toggle GSPS
+        </button>
+      </div>
+
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="spinner"></div>
+    </div>
+
+    <script>
+      let imageFiles = [];
+      let gspsFiles = [];
+      let series;
+
+      const spinner = document.getElementById("spinner");
+      const toggleGsps = document.getElementById("ToggleGsps");
+
+      let isGspsActive = true;
+      function toggleButton() {
+        if (isGspsActive) {
+          larvitar.setToolDisabled("Gsps");
+        } else {
+          larvitar.setToolEnabled("Gsps");
+        }
+        isGspsActive = !isGspsActive;
+      }
+      toggleGsps.addEventListener("click", toggleButton);
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+
+      let keys = [];
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        const filename = "image.dcm";
+        demoFileList.push(filename);
+        return demoFileList;
+      };
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.registerMultiFrameImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+
+      async function createFile(fileName, cb, demoFiles) {
+        let response = await fetch("./demo/GSPS/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        cb();
+      }
+
+      function renderSerie() {
+        larvitar
+          .readFiles(imageFiles)
+          .then(seriesStack => {
+            // render the first series of the study
+            let seriesId = Object.keys(seriesStack)[0];
+            larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
+            let manager = larvitar.getImageManager();
+            let serie = manager[seriesId];
+            larvitar.renderImage(serie, "viewer").then(() => {
+              console.log("Image has been rendered");
+              hideSpinner(); // Hide the spinner when all files are processed
+              larvitar.addDefaultTools();
+              larvitar.setToolEnabled("Gsps");
+            });
+          })
+          .catch(err => console.error(err));
+      }
+
+      function manageGsps() {
+        larvitar.readFiles(gspsFiles).then(seriesStack => {
+          // render the first series of the study
+          let seriesId = Object.keys(seriesStack)[0];
+          larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
+        });
+      }
+
+      let demoFileList = getDemoFileNames();
+      showSpinner(); // Show the spinner
+      demoFileList.forEach(demoFile => {
+        createFile(demoFile, renderSerie, imageFiles);
+      });
+
+      const psFile = "ps.dcm";
+      createFile(psFile, manageGsps, gspsFiles);
+    </script>
+  </body>
+</html>
