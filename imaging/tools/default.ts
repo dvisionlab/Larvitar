@@ -47,6 +47,8 @@ import type {
   ToolSettings,
   ToolStyle
 } from "./types";
+import RotateTool from "./custom/rotateTool";
+import GspsTool from "./custom/gspsTool";
 
 /**
  * These tools are added with `addDefaultTools()`
@@ -552,6 +554,16 @@ const DEFAULT_TOOLS: {
     cleanable: true,
     defaultActive: true,
     class: "OverlayTool"
+  },
+  Gsps: {
+    name: "Gsps",
+    viewports: "all",
+    configuration: {},
+    options: {},
+    cleanable: true,
+    defaultActive: true,
+    //description: "Watershed Segmentation Algorithm based on selected area",
+    class: "GspsTool"
   }
 };
 
@@ -575,7 +587,9 @@ const dvTools: {
   EllipticalRoiTool: EllipticalRoiTool,
   FreehandRoiTool: FreehandRoiTool,
   ManualLengthPlotTool: ManualLengthPlotTool,
-  OverlayTool: OverlayTool
+  OverlayTool: OverlayTool,
+  RotateTool: RotateTool,
+  GspsTool: GspsTool
 };
 
 /**

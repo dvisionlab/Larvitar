@@ -135,6 +135,28 @@ type HandlePosition = {
   hasBoundingBox?: boolean;
   boundingBox?: HandleTextBox;
 };
+export interface ViewportComplete extends Viewport {
+  initialRotation: number;
+  displayedArea: Area;
+  scale: number;
+  rotation: number;
+  vflip: boolean;
+  hflip: boolean;
+}
+export type ImageParameters = {
+  color: string;
+  columns: number;
+  rows: number;
+  slope: number;
+  intercept: number;
+};
+
+export const enum DisplayAreaVisualizations {
+  "SCALE TO FIT",
+  "TRUE SIZE",
+  "MAGNIFY"
+}
+
 export type Overlay = {
   isGraphicAnnotation?: boolean;
   isOverlay?: boolean;
@@ -419,6 +441,11 @@ export interface Coords {
 export interface EventData {
   currentPoints: {
     image: Coords;
+    client: Coords;
+  };
+  startPoints: {
+    image: Coords;
+    client: Coords;
   };
   element: HTMLElement;
   buttons: number;

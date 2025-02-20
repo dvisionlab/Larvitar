@@ -2,20 +2,8 @@
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
-    />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
-    <script>
-      hljs.highlightAll();
-    </script>
+
+    <!-- Include the Larvitar script -->
     <script>
       // Check the host and set the script source dynamically
       const script = document.createElement("script");
@@ -29,93 +17,160 @@
       // Append the script to the document
       document.head.appendChild(script);
     </script>
-    <title>Larvitar - Basic rendering example</title>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- custom styles for the example -->
+    <style></style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        // TODO Code snippet to be displayed and updated for the example
+        const code = `
+larvitar.initializeImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+larvitar.registerExternalTool("Test", TestTool);
+larvitar.resetImageManager();
+larvitar
+  .readFiles(demoFiles)
+  .then(seriesStack => {
+    // render the first series of the study
+    let seriesId = Object.keys(seriesStack)[0];
+    let serie = seriesStack[seriesId];
+    larvitar.renderImage(serie, "viewer").then(() => {
+      console.log("Image has been rendered");
+    });
+    // optionally cache the series
+    larvitar.populateImageManager(seriesId, serie);
+    larvitar.cacheImages(serie, function (resp) {
+      if (resp.loading == 100) {
+        let cache = larvitar.cornerstone.imageCache;
+        console.log(
+          "Cache size: ",
+          cache.getCacheInfo().cacheSizeInBytes / 1e6,
+          "Mb"
+        );
+      }
+    });
+    larvitar.addTool("Test");
+    larvitar.setToolActive("Test");
+  })
+`;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
+    <title>Larvitar - External Tool example</title>
   </head>
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
       <div
         id="viewer"
-        class="col-8 h-100"
+        class="col-12 h-100"
         style="background-color: black"
       ></div>
+      <button
+        id="showCodeBtn"
+        class="open-button"
+        style="position: absolute; top: 10px"
+      >
+        Show Code
+      </button>
 
-      <div class="col-4 h-100">
-        <pre class="h-100">
-          <code class="javascript" style="background-color: #000000">
-          <p style="font-size:0.6vw;">
-            let demoFiles = [];
-            let counter = 0;
-
-            const getDemoFileNames = function () {
-              let demoFileList = [];
-              for (let i = 1; i < 25; i++) {
-                let filename = "anon" + i;
-                demoFileList.push(filename);
-              }
-              return demoFileList;
-            };
-
-            // init all
-            larvitar.initializeImageLoader();
-            larvitar.initializeCSTools();
-            larvitar.store.initialize();
-            larvitar.store.addViewport("viewer");
-
-            async function createFile(fileName, cb) {
-              let response = await fetch("./demo/" + fileName);
-              let data = await response.blob();
-              let file = new File([data], fileName);
-              demoFiles.push(file);
-              counter++;
-              if (counter == 24) {
-                cb();
-              }
-            }
-
-            function renderSerie() {
-              larvitar.resetImageManager();
-              larvitar
-                .readFiles(demoFiles)
-                .then(seriesStack => {
-                  // render the first series of the study
-                  let seriesId = _.keys(seriesStack)[0];
-                  let serie = seriesStack[seriesId];
-                  larvitar.renderImage(serie, "viewer").then(() => {
-                    console.log("Image has been rendered");
-                  });
-                  // optionally cache the series
-                  larvitar.populateLarvitarManager(seriesId, serie);
-                  larvitar.cacheImages(serie, function (resp) {
-                    if (resp.loading == 100) {
-                      let cache = larvitar.cornerstone.imageCache;
-                      console.log(
-                        "Cache size: ",
-                        cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                        "Mb"
-                      );
-                    }
-                  });
-                  larvitar.addDefaultTools();
-                  larvitar.setToolActive("Wwwc");
-                })
-                .catch(err => console.log(err));
-            }
-
-            let demoFileList = getDemoFileNames();
-            _.each(demoFileList, function (demoFile) {
-              createFile(demoFile, renderSerie);
-            });
-          </p>
-          </code>
-        </pre>
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
+    </div>
     <script src="./TestTool.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>
+      const spinner = document.getElementById("spinner");
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+
       let demoFiles = [];
       let counter = 0;
 
@@ -134,7 +189,7 @@
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
       larvitar.registerExternalTool("Test", TestTool);
-
+      showSpinner();
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
         let data = await response.blob();
@@ -152,13 +207,14 @@
           .readFiles(demoFiles)
           .then(seriesStack => {
             // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
+              hideSpinner();
               console.log("Image has been rendered");
             });
             // optionally cache the series
-            larvitar.populateLarvitarManager(seriesId, serie);
+            larvitar.populateImageManager(seriesId, serie);
             larvitar.cacheImages(serie, function (resp) {
               if (resp.loading == 100) {
                 let cache = larvitar.cornerstone.imageCache;
@@ -176,7 +232,7 @@
       }
 
       let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
+      demoFileList.forEach(demoFile => {
         createFile(demoFile, renderSerie);
       });
     </script>

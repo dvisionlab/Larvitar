@@ -49,19 +49,9 @@
         // TODO Code snippet to be displayed and updated for the example
         const code = `
 larvitar.initializeImageLoader();
-larvitar.registerNRRDImageLoader();
 larvitar.initializeCSTools();
 larvitar.store.initialize();
 larvitar.store.addViewport("viewer");
-let reader = new FileReader();
-reader.readAsArrayBuffer(nrrd_file);
-reader.onload = function () {
-  let volume = larvitar.importNRRDImage(reader.result);
-  let serie = larvitar.buildNrrdImage(volume, "1234", {});
-  larvitar.renderImage(serie, "viewer");
-  larvitar.addDefaultTools();
-  larvitar.setToolActive("Wwwc");
-};
 `;
 
         // Show the modal and populate code snippet
@@ -81,64 +71,61 @@ reader.onload = function () {
       });
     </script>
 
-    <title>Larvitar - Nrrd example</title>
+    <title>Larvitar - <EXAMPLE-NAME> example</title>
   </head>
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
-      <div
-        id="viewer"
-        class="col-12 h-100"
-        style="background-color: black"
-      ></div>
-      <button
-        id="showCodeBtn"
-        class="open-button"
-        style="position: absolute; top: 10px"
-      >
-        Show Code
-      </button>
+      <div id="viewer" class="col-12 h-100" style="background-color: black">
+        <button
+          id="showCodeBtn"
+          class="open-button"
+          style="position: absolute; top: 10px"
+        >
+          Show Code
+        </button>
 
-      <!-- Modal -->
-      <div
-        class="modal fade"
-        id="codeModal"
-        tabindex="-1"
-        aria-labelledby="codeModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="modal-body">
-              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-            </div>
-            <div class="modal-footer">
-              <button id="copyCodeBtn" class="btn btn-success">
-                Copy Code
-              </button>
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
+        <!-- Modal -->
+        <div
+          class="modal fade"
+          id="codeModal"
+          tabindex="-1"
+          aria-labelledby="codeModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+              </div>
+              <div class="modal-footer">
+                <button id="copyCodeBtn" class="btn btn-success">
+                  Copy Code
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Spinner icon -->
-      <div id="spinner"></div>
+        <!-- Spinner icon -->
+        <div id="spinner"></div>
+      </div>
     </div>
 
     <script>
@@ -156,29 +143,12 @@ reader.onload = function () {
 
       // init all
       larvitar.initializeImageLoader();
-      larvitar.registerNRRDImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
-      showSpinner();
-      createFile("example.nrrd", function (nrrd_file) {
-        let reader = new FileReader();
-        reader.readAsArrayBuffer(nrrd_file);
-        reader.onload = function () {
-          let volume = larvitar.importNRRDImage(reader.result);
-          let serie = larvitar.buildNrrdImage(volume, "1234", {});
-          larvitar.renderImage(serie, "viewer");
-          hideSpinner();
-          larvitar.addDefaultTools();
-          larvitar.setToolActive("Wwwc");
-        };
-      });
 
-      async function createFile(fileName, callback) {
-        let response = await fetch("./demo/" + fileName);
-        let data = await response.blob();
-        let file = new File([data], fileName);
-        callback(file);
+      function renderSerie() {
+        // TODO
       }
     </script>
   </body>

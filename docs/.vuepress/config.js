@@ -112,8 +112,20 @@ export default {
                   text: "Interaction Tools",
                   children: [
                     {
-                      text: "Main Tools",
-                      link: "/api/modules/tools/tools.md"
+                      text: "Initialize and manage Tools",
+                      link: "/api/modules/tools/initialization.md"
+                    },
+                    {
+                      text: "Default and Custom Tools",
+                      link: "/api/modules/tools/default.md"
+                    },
+                    {
+                      text: "Segmentation Tools",
+                      link: "/api/modules/tools/segmentation.md"
+                    },
+                    {
+                      text: "DvTools",
+                      link: "/api/modules/tools/dvTools.md"
                     }
                   ]
                 },
@@ -152,8 +164,8 @@ export default {
                   text: "Visualizations",
                   children: [
                     {
-                      text: "Overlays",
-                      link: "/api/modules/visualizations/overlays.md"
+                      text: "Layers",
+                      link: "/api/modules/visualizations/layers.md"
                     },
                     {
                       text: "ECG",
@@ -162,6 +174,10 @@ export default {
                     {
                       text: "Color Maps",
                       link: "/api/modules/visualizations/colorMaps.md"
+                    },
+                    {
+                      text: "Greyscale Presentation States",
+                      link: "/api/modules/visualizations/gspsTool.md"
                     }
                   ]
                 }

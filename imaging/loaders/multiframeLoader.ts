@@ -246,6 +246,7 @@ let createCustomImage = function (
       );
     }
   } catch (error) {
+    console.error(error);
     throw new Error("No pixel data for id: " + id);
   }
 

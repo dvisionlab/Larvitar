@@ -1,11 +1,37 @@
 <!DOCTYPE html>
 <html class="h-100 overflow-hidden">
   <head>
-    <meta http-equiv="Content-type" content="text/html" charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    <meta charset="UTF-8" />
+
+    <!-- Include the Larvitar script -->
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- custom styles for the example -->
     <style>
       .loading-text {
         position: absolute;
@@ -17,8 +43,7 @@
       }
       #buttonBar {
         gap: 10px;
-        margin-bottom: 20px;
-        position: relative;
+        position: absolute;
       }
 
       .button {
@@ -34,51 +59,141 @@
         font-size: 14px; /* Adjust the font size for better visibility */
       }
     </style>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/vs2015.min.css"
-    />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
     <script>
-      hljs.highlightAll();
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        // TODO Code snippet to be displayed and updated for the example
+        const code = `
+larvitar.initializeImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+let element = document.getElementById("viewer");
+element.addEventListener("click", rotateLoader);
+larvitar.registerNRRDImageLoader();
+larvitar.initSegmentationModule();
+larvitar.resetImageManager();
+larvitar
+  .readFiles(demoFiles)
+  .then(seriesStack => {
+    console.log(seriesStack);
+    // render the first series of the study
+    let seriesId = Object.keys(seriesStack)[0];
+    let serie = seriesStack[seriesId];
+    larvitar.renderImage(serie, "viewer").then(() => {
+      console.log("Image has been rendered");
+    });
+    // optionally cache the series
+    larvitar.populateImageManager(seriesId, serie);
+
+    larvitar
+      .cacheImages(serie, function (resp) {
+        if (resp.loading == 100) {
+          let cache = larvitar.cornerstone.imageCache;
+          console.log(
+            "Cache size: ",
+            cache.getCacheInfo().cacheSizeInBytes / 1e6,
+            "Mb"
+          );
+        }
+      })
+      .then(() => {
+        setTimeout(function () {
+          console.log("Cache has been loaded. Calling loadMasks.");
+          larvitar.addDefaultTools();
+          loadMasks();
+        }, 3000);
+      });
+  })
+  async function loadMasks() {
+    console.log("loadMasks() called");
+    let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
+    let properties = {
+      // color: "#00ff00",
+      opacity: 0.2,
+      labelId: 0
+    };
+    // add to viewport
+    await larvitar
+      .addSegmentationMask(properties, data, "viewer")
+      .then(() => {
+        // activate brush on this labelmap
+        larvitar.setActiveLabelmap(0, "viewer");
+        larvitar.setToolActive("WSToggle");
+      });
+    });
+  }
+}
+`;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
     </script>
-    <script>
-      // Check the host and set the script source dynamically
-      const script = document.createElement("script");
-      if (window.location.host === "larvitar.dvisionlab.com") {
-        document.write(
-          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
-        );
-      } else {
-        document.write('<script src="../../dist/larvitar.js"><\/script>');
-      }
-      // Append the script to the document
-      document.head.appendChild(script);
-    </script>
-    <title>Watershed segmentation implemented in OpenCV.js</title>
+
+    <title>Larvitar - Watershed Segmentation example</title>
   </head>
 
   <body class="h-100" style="background-color: #000000">
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-      crossorigin="anonymous"
-    ></script>
     <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p id="info " style="position: absolute; color: white">
+        <b>ctrl+mouse wheel to change brush radius</b><br /><b
+          >click to activate watershed segmentation of features with greyscale
+          value of interest</b
+        ><br />
+        <b>ctrl+click for Label Eraser:</b> erases selected label<br />
+        <b>alt+click for LabelPicker: </b>allows to pick label, click again to
+        apply picked label<br />
+        <b>shift+click+drag for Manual Eraser</b>
+      </p>
       <div id="buttonBar">
+        <button
+          id="showCodeBtn"
+          class="btn btn-primary"
+          style="
+            position: absolute;
+            background-color: green;
+            border-color: green;
+            top: 130px;
+          "
+        >
+          Show Code
+        </button>
         <button
           id="toggleButton"
           class="btn btn-primary"
-          style="margin-left: 600px"
+          style="margin-left: 40%"
         >
           Current Image
         </button>
+
         <input
           type="number"
           class="manualInput"
@@ -109,174 +224,47 @@
           Loading...
         </button>
       </div>
-      <div id="viewer" class="col-8 h-100" style="background-color: black">
-        <p id="info " style="position: absolute; color: white">
-          <b>ctrl+mouse wheel to change brush radius</b><br /><b
-            >click to activate watershed segmentation of features with greyscale
-            value of interest</b
-          ><br />
-          <b>ctrl+click for Label Eraser:</b> erases selected label<br />
-          <b>alt+click for LabelPicker: </b>allows to pick label, click again to
-          apply picked label<br />
-          <b>shift+click+drag for Manual Eraser</b>
-        </p>
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="col-4 h-100">
-        <pre class="h-100">
-       
-        <code class="typescript" style="background-color: #000000">
-          <p style="font-size:0.7vw;">
-            function triggerHandleToggle() {
-              let isMultiImage =
-                larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage === false
-                  ? true
-                  : false;
-              larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage =
-                isMultiImage;
-              toggleButton.innerHTML =
-                isMultiImage === true ? "Multi Image" : "Current Image";
-              if (isMultiImage) {
-                startInput.style.removeProperty("display");
-                endInput.style.removeProperty("display");
-              } else {
-                startInput.style.display = "none";
-                endInput.style.display = "none";
-              }
-            }
-            const masksNumberInput = document.getElementById("masksNumber");
-            // Add an input event listener
-            masksNumberInput.addEventListener("input", function (event) {
-              // Update the variable with the input value
-              larvitar.DEFAULT_TOOLS["WSToggle"].configuration.masksNumber =
-                event.target.value;
-            });
-            const startInput = document.getElementById("startImage");
-            // Add an input event listener
-            startInput.addEventListener("input", function (event) {
-              // Update the variable with the input value
-              console.log("Start", event.target.value);
-              larvitar.DEFAULT_TOOLS["WSToggle"].configuration.startIndex =
-                event.target.value;
-            });
-            const endInput = document.getElementById("endImage");
-            // Add an input event listener
-            endInput.addEventListener("input", function (event) {
-              // Update the variable with the input value
-              console.log("end", event.target.value);
-              larvitar.DEFAULT_TOOLS["WSToggle"].configuration.endIndex =
-                event.target.value;
-            });
-            // Attach click event to the button
-            const toggleButton = document.getElementById("toggleButton");
-            toggleButton.addEventListener("click", triggerHandleToggle);
-      
-            let demoFiles = [];
-            let counter = 0;
-            const getDemoFileNames = function () {
-              let demoFileList = [];
-              for (let i = 101; i < 125; i++) {
-                let filename = "I" + i;
-                demoFileList.push(filename);
-              }
-              return demoFileList;
-            };
-            // init all
-            larvitar.initializeImageLoader();
-            larvitar.initializeCSTools();
-            larvitar.store.initialize();
-            larvitar.store.addViewport("viewer");
-            let element = document.getElementById("viewer");
-            element.addEventListener("click", rotateLoader);
-            larvitar.registerNRRDImageLoader();
-            larvitar.initSegmentationModule();
-            const cornerstone = larvitar.cornerstone;
-            async function createFile(fileName, cb) {
-              let response = await fetch("./demo/covid/" + fileName);
-              let data = await response.blob();
-              let file = new File([data], fileName);
-              demoFiles.push(file);
-              counter++;
-              if (counter == 24) {
-                cb();
-              }
-            }
-      
-            async function renderSerie() {
-              larvitar.resetImageManager();
-              larvitar
-                .readFiles(demoFiles)
-                .then(seriesStack => {
-                  console.log(seriesStack);
-                  // render the first series of the study
-                  let seriesId = _.keys(seriesStack)[0];
-                  let serie = seriesStack[seriesId];
-                  larvitar.renderImage(serie, "viewer").then(() => {
-                    console.log("Image has been rendered");
-                  });
-                  // optionally cache the series
-                  larvitar.populateLarvitarManager(seriesId, serie);
-      
-                  larvitar
-                    .cacheImages(serie, function (resp) {
-                      if (resp.loading == 100) {
-                        let cache = larvitar.cornerstone.imageCache;
-                        console.log(
-                          "Cache size: ",
-                          cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                          "Mb"
-                        );
-                      }
-                    })
-                    .then(() => {
-                      setTimeout(function () {
-                        console.log("Cache has been loaded. Calling loadMasks.");
-                        larvitar.addDefaultTools();
-                        loadMasks();
-                      }, 3000);
-                    });
-                })
-                .catch(err => console.error(err));
-            }
-      
-            async function loadMasks() {
-              console.log("loadMasks() called");
-              let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
-              let properties = {
-                // color: "#00ff00",
-                opacity: 0.2,
-                labelId: 0
-              };
-              // add to viewport
-              await larvitar
-                .addSegmentationMask(properties, data, "viewer")
-                .then(() => {
-                  // activate brush on this labelmap
-                  larvitar.setActiveLabelmap(0, "viewer");
-                  larvitar.setToolActive("WSToggle");
-                });
-            }
-      
-            let demoFileList = getDemoFileNames();
-            _.each(demoFileList, function (demoFile) {
-              createFile(demoFile, renderSerie);
-            });
-            /*Hahn and Peitgen [2000] extracted the brain with a single watershed transform from MRI data.
-            Also, the cerebral ventricles were reliably segmented with minimal interaction.
-            Hahn and Peitgen [2003] demonstrated the application to the challenging problem of
-            delineating individual bones in the human wrist (see Fig. 4.17).
-            Kuhnigk et al. [2003] employed the above-described variant of the watershed segmentation
-            to the delineation of lung lobes in CT data.
-            Ray et al. [2008] used the iterative watershed transform
-            for hepatic tumor segmentation (and volumetry).*/
-
-            </p>    
-          </code>
-        </pre>
-      </div>
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>
       function onOpenCvReady() {
@@ -316,6 +304,17 @@
     </script>
 
     <script>
+      const spinner = document.getElementById("spinner");
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
       function triggerHandleToggle() {
         let isMultiImage =
           larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage === false
@@ -379,6 +378,7 @@
       element.addEventListener("click", rotateLoader);
       larvitar.registerNRRDImageLoader();
       larvitar.initSegmentationModule();
+      showSpinner();
       const cornerstone = larvitar.cornerstone;
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/covid/" + fileName);
@@ -398,13 +398,14 @@
           .then(seriesStack => {
             console.log(seriesStack);
             // render the first series of the study
-            let seriesId = _.keys(seriesStack)[0];
+            let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
+              hideSpinner();
               console.log("Image has been rendered");
             });
             // optionally cache the series
-            larvitar.populateLarvitarManager(seriesId, serie);
+            larvitar.populateImageManager(seriesId, serie);
 
             larvitar
               .cacheImages(serie, function (resp) {
@@ -418,11 +419,9 @@
                 }
               })
               .then(() => {
-                setTimeout(function () {
-                  console.log("Cache has been loaded. Calling loadMasks.");
-                  larvitar.addDefaultTools();
-                  loadMasks();
-                }, 3000);
+                console.log("Cache has been loaded. Calling loadMasks.");
+                larvitar.addDefaultTools();
+                loadMasks();
               });
           })
           .catch(err => console.error(err));
@@ -447,7 +446,7 @@
       }
 
       let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
+      demoFileList.forEach(demoFile => {
         createFile(demoFile, renderSerie);
       });
       /*Hahn and Peitgen [2000] extracted the brain with a single watershed transform from MRI data.
