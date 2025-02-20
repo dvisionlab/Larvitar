@@ -41,7 +41,6 @@ import { setPixelShift } from "./loaders/dsaImageLoader";
  * renderImage(series, elementId, defaultProps)
  * redrawImage(elementId)
  * updateImage(series, elementId, imageIndex)
- * renderSingleFrame(imageId, elementId)
  * resetViewports([elementIds])
  * updateViewportData(elementId)
  * toggleMouseHandlers(elementId, disableFlag)
@@ -468,13 +467,16 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
  * @function renderImage
  * @param {Object} seriesStack - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {Object} defaultProps - Optional default props
+ * @param {Object | undefined} options - Optional properties
  * @return {Promise} Return a promise which will resolve when image is displayed
  */
 export const renderImage = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
-  defaultProps: StoreViewportOptions
+  options?: {
+    defaultProps?: StoreViewportOptions;
+    cached?: boolean;
+  }
 ): Promise<true> {
   const t0 = performance.now();
   // get element and enable it
@@ -500,7 +502,10 @@ export const renderImage = function (
   setStore(["ready", id, false]);
 
   let series = { ...seriesStack };
-  let data = getSeriesData(series, defaultProps);
+  let data = getSeriesData(
+    series,
+    options && options.defaultProps ? options.defaultProps : {}
+  );
 
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
@@ -509,12 +514,17 @@ export const renderImage = function (
       reject("error during renderImage: imageId has not been loaded yet.");
     });
   }
-  console.log(data.imageId);
+
+  const loadImageFunction =
+    options && options.cached
+      ? cornerstone.loadAndCacheImage
+      : cornerstone.loadImage;
+
   const renderPromise = new Promise<true>((resolve, reject) => {
     //check if it is a metadata-only object
     if (series.instances[data.imageId!].metadata.pixelDataLength != 0) {
       // load and display one image (imageId)
-      cornerstone.loadImage(data.imageId as string).then(function (image) {
+      loadImageFunction(data.imageId as string).then(function (image) {
         if (!element) {
           console.error("invalid html element: " + elementId);
           reject("invalid html element: " + elementId);
@@ -559,24 +569,38 @@ export const renderImage = function (
 
         cornerstone.fitToWindow(element);
 
-        if (defaultProps && defaultProps.scale !== undefined) {
-          viewport.scale = defaultProps["scale"];
+        if (
+          options &&
+          options.defaultProps &&
+          options &&
+          options.defaultProps.scale !== undefined
+        ) {
+          viewport.scale = options.defaultProps["scale"];
           cornerstone.setViewport(element, viewport);
         }
 
         if (
-          defaultProps &&
-          defaultProps.tr_x !== undefined &&
-          defaultProps.tr_y !== undefined
+          options &&
+          options.defaultProps &&
+          options &&
+          options.defaultProps.tr_x !== undefined &&
+          options &&
+          options.defaultProps.tr_y !== undefined
         ) {
-          viewport.translation.x = defaultProps.tr_x;
-          viewport.translation.y = defaultProps.tr_y;
+          viewport.translation.x = options.defaultProps.tr_x;
+          viewport.translation.y = options.defaultProps.tr_y;
           cornerstone.setViewport(element, viewport);
         }
 
         // color maps
-        if (defaultProps && defaultProps.colormap && image.color == false) {
-          applyColorMap(defaultProps["colormap"]);
+        if (
+          options &&
+          options.defaultProps &&
+          options &&
+          options.defaultProps.colormap &&
+          image.color == false
+        ) {
+          applyColorMap(options.defaultProps["colormap"]);
         }
 
         const storedViewport = cornerstone.getViewport(element);
@@ -747,57 +771,6 @@ export const updateImage = async function (
     setStore(["minPixelValue", id, image.minPixelValue]);
     setStore(["maxPixelValue", id, image.maxPixelValue]);
   }
-};
-
-export const renderSingleFrame = async function (
-  imageId: string,
-  elementId: string | HTMLElement
-): Promise<true> {
-  const t0 = performance.now();
-  // get element and enable it
-  const element = isElement(elementId)
-    ? (elementId as HTMLElement)
-    : document.getElementById(elementId as string);
-  if (!element) {
-    console.error("invalid html element: " + elementId);
-    return new Promise((_, reject) =>
-      reject("invalid html element: " + elementId)
-    );
-  }
-  const id: string = isElement(elementId) ? element.id : (elementId as string);
-  try {
-    cornerstone.getEnabledElement(element);
-  } catch (e) {
-    cornerstone.enable(element);
-  }
-
-  setStore(["ready", id, false]);
-
-  const renderPromise = new Promise<true>((resolve, reject) => {
-    cornerstone.loadAndCacheImage(imageId).then(function (image) {
-      if (!element) {
-        console.error("invalid html element: " + elementId);
-        reject("invalid html element: " + elementId);
-        return;
-      }
-
-      cornerstone.displayImage(element, image);
-      cornerstone.fitToWindow(element);
-
-      setStore(["ready", element.id, true]);
-      //setStore(["seriesUID", element.id, data.seriesUID]);
-      const t1 = performance.now();
-      //console.log(`Call to renderSingleFrame took ${t1 - t0} milliseconds.`);
-
-      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
-      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
-      //@ts-ignore
-      image = null;
-      resolve(true);
-    });
-  });
-
-  return renderPromise;
 };
 
 /**

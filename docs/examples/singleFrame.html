@@ -169,7 +169,11 @@
       larvitar.registerSingleFrameImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();
-      larvitar.store.addViewport("viewer");
+      larvitar.store.addViewport("viewer-1");
+      larvitar.store.addViewport("viewer-2");
+      larvitar.store.addViewport("viewer-3");
+      larvitar.store.addViewport("viewer-4");
+      larvitar.store.addViewport("viewer-5");
       showSpinner();
 
       larvitar.clearSingleFrameCache();
@@ -177,31 +181,14 @@
       const pacsURL = "http://192.168.72.141:80/dicomwebcore/";
       const wadoPrefix = "wado/";
       const qidoPrefix = "qidors/";
-      // const patientID = "PW-US-10";
       const patientID = "TEST_FIVEMF_STRESS";
-      //const accessionNumber = "PW-US-10";
-      // const studyID =
-      //   "1.2.826.0.1.3680043.2.97.1.1.3711790758.1703291035445600";
       const studyID =
         "1.2.826.0.1.3680043.2.97.4.2017.1247782231.250207090009398";
-
-      // const seriesInstanceUID =
-      //   "1.2.826.0.1.3680043.2.97.19529.21573.1055897903.1703291031217420";
       const seriesInstanceUID =
         "1.2.826.0.1.3680043.2.97.4.2017.1044975747.250207090029960";
 
       const qidoUrl = `${pacsURL}${qidoPrefix}instances?SeriesInstanceUID=${seriesInstanceUID}&StudyInstanceUID=${studyID}&PatientID=${patientID}&includefield=header`;
-
       const wadoUrl = `${pacsURL}${wadoPrefix}studies/${studyID}/series/${seriesInstanceUID}/instances/`;
-
-      // const instanceUID_1 =
-      //   "1.2.826.0.1.3680043.2.97.19529.21573.263898223.170329103224101";
-      // const instanceUID_2 =
-      //   "1.2.826.0.1.3680043.2.97.19529.21573.584472604.170329103138257";
-      // const instanceUID_3 =
-      //   "1.2.826.0.1.3680043.2.97.19529.21573.811363059.170329103232882";
-      // const instanceUID_4 =
-      //   "1.2.826.0.1.3680043.2.97.19529.21573.1283758274.1703291032142570";
 
       const instanceUID_1 =
         "1.2.826.0.1.3680043.2.97.19529.21573.851230414.250207090046713";
@@ -231,10 +218,9 @@
 
       async function cacheFrames(instanceId, metadata, canvasId) {
         const numberOfFrames = metadata.x00280008;
-        for (let frameId = 0; frameId < numberOfFrames - 1; frameId++) {
+        for (let frameId = 0; frameId < numberOfFrames; frameId++) {
           let t0 = performance.now();
-          const index = parseInt(frameId) + 1;
-          const frameUrl = `${wadoUrl}${instanceId}/frames/${index}`;
+          const frameUrl = `${wadoUrl}${instanceId}/frames/${frameId}`;
           let response = await fetch(frameUrl, {
             method: "GET",
             headers: {
@@ -272,66 +258,73 @@
       async function renderFrame(instanceUID, canvasId, frameId) {
         const imageManager = larvitar.getImageManager();
         const dicomSerie = imageManager[instanceUID];
-        const imageId = dicomSerie.imageIds[frameId];
-        if (imageId) {
-          const t0 = performance.now();
-          larvitar.renderSingleFrame(imageId, canvasId);
-          const t1 = performance.now();
-          console.debug(
-            "Call to renderSingleFrame took " + (t1 - t0) + " milliseconds."
-          );
-        } else {
-          console.log("imageId not found");
-        }
-        hideSpinner();
-        if (frameId === 0) {
-          larvitar.addDefaultTools();
-          larvitar.setToolActive("Wwwc");
-          frameId++;
-          const frameRate =
-            dicomSerie.instances[dicomSerie.imageIds[0]].metadata.frameTime;
-          const numberOfFrames =
-            dicomSerie.instances[dicomSerie.imageIds[0]].metadata
-              .numberOfFrames;
-          let endloop = false;
-          let tStart = performance.now();
-
-          let lastFrameTime = 0;
-          function animate(timestamp) {
-            let stepsNeeded = Math.floor(
-              (timestamp - lastFrameTime) / frameRate
+        const t0 = performance.now();
+        larvitar
+          .renderImage(dicomSerie, canvasId, {
+            cached: true,
+            defaultProps: { sliceNumber: 0 }
+          })
+          .then(() => {
+            const t1 = performance.now();
+            console.debug(
+              "Call to renderImage took " + (t1 - t0) + " milliseconds."
             );
-            if (stepsNeeded >= 1) {
-              lastFrameTime += stepsNeeded * frameRate;
-              // Render only once, skipping intermediate frames
-              advanceFrame();
+            hideSpinner();
+
+            // cine LOOP
+            if (frameId === 0) {
+              larvitar.addDefaultTools();
+              larvitar.setToolActive("StackScroll");
+              frameId++;
+              const frameRate =
+                dicomSerie.instances[dicomSerie.imageIds[0]].metadata.frameTime;
+              const numberOfFrames =
+                dicomSerie.instances[dicomSerie.imageIds[0]].metadata
+                  .numberOfFrames;
+
+              let endloop = false;
+              let tStart = performance.now();
+
+              let lastFrameTime = 0;
+              function animate(timestamp) {
+                let stepsNeeded = Math.floor(
+                  (timestamp - lastFrameTime) / frameRate
+                );
+                if (stepsNeeded >= 1) {
+                  lastFrameTime += stepsNeeded * frameRate;
+                  // Render only once, skipping intermediate frames
+                  advanceFrame();
+                }
+                // Schedule the next animation callback
+                requestAnimationFrame(animate);
+              }
+              requestAnimationFrame(animate);
+              let endLoop = false;
+              function advanceFrame() {
+                endLoop = frameId == numberOfFrames - 1 ? true : false;
+                const imageId = dicomSerie.imageIds[frameId];
+                const currentFrameId = imageId ? frameId : frameId - 1;
+                larvitar.updateImage(
+                  dicomSerie,
+                  canvasId,
+                  currentFrameId,
+                  true
+                );
+                frameId =
+                  currentFrameId == numberOfFrames - 1 ? 0 : currentFrameId + 1;
+                if (endLoop) {
+                  let tEnd = performance.now();
+                  const lastLoop = tEnd - tStart;
+                  console.debug(
+                    canvasId + "lastLoop:",
+                    lastLoop.toFixed(3),
+                    "ms"
+                  );
+                  tStart = performance.now();
+                }
+              }
             }
-            // Schedule the next animation callback
-            requestAnimationFrame(animate);
-          }
-          requestAnimationFrame(animate);
-          let endLoop = false;
-          function advanceFrame() {
-            endLoop = frameId == numberOfFrames - 1 ? true : false;
-            const imageId = dicomSerie.imageIds[frameId];
-            if (imageId) {
-              larvitar.renderSingleFrame(imageId, canvasId);
-              frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-            } else {
-              frameId = frameId == numberOfFrames - 1 ? 0 : frameId - 1;
-              larvitar.renderSingleFrame(
-                dicomSerie.imageIds[frameId],
-                canvasId
-              );
-            }
-            if (endLoop) {
-              let tEnd = performance.now();
-              const lastLoop = tEnd - tStart;
-              console.debug(canvasId + "lastLoop:", lastLoop.toFixed(3), "ms");
-              tStart = performance.now();
-            }
-          }
-        }
+          });
       }
 
       (async function () {

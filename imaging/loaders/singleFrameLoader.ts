@@ -93,9 +93,6 @@ export const loadSingleFrameImage: ImageLoader = function (
   if (!singleFrameCache[imageId]) {
     throw new Error(`Image ${imageId} not found in SingleFrameCache Manager`);
   }
-  // recover metadata and pixelData from the imageId
-  //const { metadata, pixelData } = singleFrameCache[imageId];
-  //return createCustomImage(imageId, pixelData, metadata);
   return createCustomImage(imageId);
 };
 
@@ -165,15 +162,9 @@ const getSingleFrameImageId = function (customLoaderName: string): string {
  * @instance
  * @function createCustomImage
  * @param {String} imageId the imageId tag
- * @param {Object} pixelData pixel data object
- * @param {Object} metadata the metadata object
  * @returns {Object} custom image object
  */
-const createCustomImage = function (
-  imageId: string
-  //pixelData: TypedArray,
-  //metadata: MetaData
-): ImageLoadObject {
+const createCustomImage = function (imageId: string): ImageLoadObject {
   const { metadata, pixelData } = singleFrameCache[imageId];
 
   let promise: Promise<Image> = new Promise((resolve, _) => {
