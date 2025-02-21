@@ -32,7 +32,7 @@ These functions enable rendering of images from various sources and formats.
   - **PNG & JPEG:** Directly displayed as standard 2D images.
   - **PDF:** Requires conversion to an image format before rendering.
 - `renderWebImage(url, elementId)`: Loads and renders an image from a URL (PNG, JPEG, or other supported formats) into the designated viewport.
-- `renderImage(series, elementId, defaultProps)`: Displays an image series in the viewport while applying default rendering properties such as contrast, brightness, and annotations.
+- `renderImage(series, elementId, options)`: Displays an image series in the viewport while applying default rendering properties such as contrast, brightness, and annotations or caching settings.
 - `updateImage(series, elementId, imageIndex)`: Updates the displayed image in a given series, ensuring smooth navigation between slices or frames.
 
 ### Viewport Management
@@ -56,6 +56,9 @@ Image transformation functions allow real-time modifications to improve visualiz
 - `flipImageVertical(elementId)`: Flips the image vertically, useful for correcting misoriented images.
 - `rotateImageLeft(elementId)`: Rotates the image 90 degrees counterclockwise.
 - `rotateImageRight(elementId)`: Rotates the image 90 degrees clockwise.
+
+### Rendering API
+TODO (with new options parameter)
 
 <br></br>
 

@@ -95,6 +95,10 @@ export default {
                       link: "/api/modules/loaders/multiframeLoader.md"
                     },
                     {
+                      text: "SingleFrame Loader",
+                      link: "/api/modules/loaders/singleframeLoader.md"
+                    },
+                    {
                       text: "DSA Image Loader",
                       link: "/api/modules/loaders/dsaImageLoader.md"
                     },

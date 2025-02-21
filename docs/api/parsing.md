@@ -17,6 +17,8 @@ After parsing, Larvitar returns a structured data object where the key is a uniq
 
 The main logic for parsing is implemented in Larvitar's [imageParsing.ts](https://github.com/dvisionlab/Larvitar/blob/master/imaging/imageParsing.ts) file.
 
+In addition to parsing, Larvitar also provides an utility function (`convertQidoMetadata`) for converting QIDO responses to Metadata objects. This function help streamline data processing.
+
 ### Parsing API
 
 ```typescript
@@ -31,6 +33,9 @@ readFile(file:File).then((series) => {
 readFiles(files:File[]).then((series) => {
   console.log('Parsed series:', series);
 });
+
+// convert a QIDO response to a Metadata object
+const metadata: Metadata = convertQidoMetadata(data: object);
 ```
 
 ## Structure of a Series Object
