@@ -291,8 +291,9 @@ export const updateLoadedStack = function (
       metadata: seriesData.metadata
     };
 
-    // TODO FIX THIS ONLY THE FIRST
-    allSeriesStack[id].instanceUIDs[iid] = imageId;
+    if (allSeriesStack[id].instanceUIDs[iid] === undefined) {
+      allSeriesStack[id].instanceUIDs[iid] = imageId;
+    }
 
     store.addSeriesId(id, allSeriesStack[id].imageIds);
   } else if (isNewInstance(allSeriesStack[id].instances, iid!)) {
