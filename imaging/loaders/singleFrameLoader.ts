@@ -7,7 +7,7 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 
 // internal libraries
-import type { Image, MetaData, SingleFrameCache, TypedArray } from "../types";
+import type { Image, MetaData, SingleFrameCache } from "../types";
 
 // global module variables
 let customImageLoaderCounter = 0;
