@@ -4,7 +4,7 @@
  */
 
 // external libraries
-import { get as _get, cloneDeep as _cloneDeep, conforms } from "lodash";
+import { get as _get, cloneDeep as _cloneDeep } from "lodash";
 import type { StoreViewport } from "./types.d";
 
 type StoreSeries = {

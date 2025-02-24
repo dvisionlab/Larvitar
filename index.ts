@@ -113,6 +113,7 @@ import {
   registerNRRDImageLoader,
   registerResliceLoader,
   registerMultiFrameImageLoader,
+  registerSingleFrameImageLoader,
   registerDsaImageLoader,
   updateLoadedStack,
   reset
@@ -122,7 +123,8 @@ import {
   readFile,
   readFiles,
   parseDataSet,
-  clearImageParsing
+  clearImageParsing,
+  convertQidoMetadata
 } from "./imaging/imageParsing";
 
 import {
@@ -236,6 +238,12 @@ import {
   getMultiFrameImageId,
   clearMultiFrameCache
 } from "./imaging/loaders/multiframeLoader";
+
+import {
+  setSingleFrameCache,
+  clearSingleFrameCache,
+  loadSingleFrameImage
+} from "./imaging/loaders/singleFrameLoader";
 
 import { populateDsaImageIds } from "./imaging/loaders/dsaImageLoader";
 
@@ -380,6 +388,7 @@ export {
   registerNRRDImageLoader,
   registerResliceLoader,
   registerMultiFrameImageLoader,
+  registerSingleFrameImageLoader,
   registerDsaImageLoader,
   updateLoadedStack,
   // General reset of cache, store and managers
@@ -389,6 +398,7 @@ export {
   readFiles,
   parseDataSet,
   clearImageParsing,
+  convertQidoMetadata,
   // imageRendering
   clearImageCache,
   loadAndCacheImages,
@@ -458,6 +468,10 @@ export {
   buildMultiFrameImage,
   getMultiFrameImageId,
   clearMultiFrameCache,
+  // loaders/singleFrameLoader
+  setSingleFrameCache,
+  clearSingleFrameCache,
+  loadSingleFrameImage,
   // loaders/dsaImageLoader
   populateDsaImageIds,
   // loaders/fileLoader

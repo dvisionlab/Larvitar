@@ -39,6 +39,7 @@ import { setPixelShift } from "./loaders/dsaImageLoader";
  * unloadViewport(elementId, seriesId)
  * resizeViewport(elementId)
  * renderImage(series, elementId, defaultProps)
+ * redrawImage(elementId)
  * updateImage(series, elementId, imageIndex)
  * resetViewports([elementIds])
  * updateViewportData(elementId)
@@ -466,13 +467,16 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
  * @function renderImage
  * @param {Object} seriesStack - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {Object} defaultProps - Optional default props
+ * @param {Object | undefined} options - Optional properties
  * @return {Promise} Return a promise which will resolve when image is displayed
  */
 export const renderImage = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
-  defaultProps: StoreViewportOptions
+  options?: {
+    defaultProps?: StoreViewportOptions;
+    cached?: boolean;
+  }
 ): Promise<true> {
   const t0 = performance.now();
   // get element and enable it
@@ -498,7 +502,10 @@ export const renderImage = function (
   setStore(["ready", id, false]);
 
   let series = { ...seriesStack };
-  let data = getSeriesData(series, defaultProps);
+  let data = getSeriesData(
+    series,
+    options && options.defaultProps ? options.defaultProps : {}
+  );
 
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
@@ -508,11 +515,16 @@ export const renderImage = function (
     });
   }
 
+  const loadImageFunction =
+    options && options.cached
+      ? cornerstone.loadAndCacheImage
+      : cornerstone.loadImage;
+
   const renderPromise = new Promise<true>((resolve, reject) => {
     //check if it is a metadata-only object
     if (series.instances[data.imageId!].metadata.pixelDataLength != 0) {
       // load and display one image (imageId)
-      cornerstone.loadImage(data.imageId as string).then(function (image) {
+      loadImageFunction(data.imageId as string).then(function (image) {
         if (!element) {
           console.error("invalid html element: " + elementId);
           reject("invalid html element: " + elementId);
@@ -557,24 +569,38 @@ export const renderImage = function (
 
         cornerstone.fitToWindow(element);
 
-        if (defaultProps && defaultProps.scale !== undefined) {
-          viewport.scale = defaultProps["scale"];
+        if (
+          options &&
+          options.defaultProps &&
+          options &&
+          options.defaultProps.scale !== undefined
+        ) {
+          viewport.scale = options.defaultProps["scale"];
           cornerstone.setViewport(element, viewport);
         }
 
         if (
-          defaultProps &&
-          defaultProps.tr_x !== undefined &&
-          defaultProps.tr_y !== undefined
+          options &&
+          options.defaultProps &&
+          options &&
+          options.defaultProps.tr_x !== undefined &&
+          options &&
+          options.defaultProps.tr_y !== undefined
         ) {
-          viewport.translation.x = defaultProps.tr_x;
-          viewport.translation.y = defaultProps.tr_y;
+          viewport.translation.x = options.defaultProps.tr_x;
+          viewport.translation.y = options.defaultProps.tr_y;
           cornerstone.setViewport(element, viewport);
         }
 
         // color maps
-        if (defaultProps && defaultProps.colormap && image.color == false) {
-          applyColorMap(defaultProps["colormap"]);
+        if (
+          options &&
+          options.defaultProps &&
+          options &&
+          options.defaultProps.colormap &&
+          image.color == false
+        ) {
+          applyColorMap(options.defaultProps["colormap"]);
         }
 
         const storedViewport = cornerstone.getViewport(element);
