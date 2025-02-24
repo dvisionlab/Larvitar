@@ -116,12 +116,12 @@ let createCustomImage = function (
   };
 
   // add function to return pixel data
+  // @ts-ignore: is needed to avoid array conversion
   image.getPixelData = function () {
-    if (!imageFrame.pixelData) {
-      console.warn('no pixel data for imageId "' + imageId);
-      return [];
+    if (imageFrame.pixelData === undefined) {
+      throw new Error("No pixel data for image " + imageId);
     }
-    return Array.from(imageFrame.pixelData);
+    return imageFrame.pixelData;
   };
 
   // convert color space

@@ -3,28 +3,41 @@
  */
 
 // external libraries
-import { DataSet, Element, parseDicom } from "dicom-parser";
+import { DataSet, parseDicom } from "dicom-parser";
 import { forEach, each, has, pick } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
-import { getPixelRepresentation, randomId } from "./imageUtils";
+import { randomId } from "./imageUtils";
 import { getNestedObject, parseTag } from "./imageTags";
 import { updateLoadedStack } from "./imageLoading";
 import { checkMemoryAllocation } from "./monitors/memory";
 import { ImageObject, Instance, MetaData, NrrdSeries, Series } from "./types";
 import { getImageManager } from "./imageManagers";
 import type { MetaDataTypes, ExtendedMetaDataTypes } from "./MetaDataTypes";
+import { MetaDataReadable } from "./MetaDataReadable";
 
 // global module variables
 var t0: number; // t0 variable for timing debugging purpose
-
+const singleFrameModalities = [
+  "CR",
+  "DX",
+  "MG",
+  "PX",
+  "RF",
+  "XA",
+  "US",
+  "IVUS",
+  "OCT",
+  "SR"
+];
 /*
  * This module provides the following functions to be exported:
  * readFiles(fileList)
  * readFile(file)
  * parseDataSet(dataSet, metadata, customFilter)
  * clearImageParsing(seriesStack)
+ * convertQidoMetadata(data)
  */
 
 /**
@@ -73,15 +86,35 @@ export const readFile = function (entry: File) {
   return parseFile(entry);
 };
 
-/* Internal module functions */
-
-//This type is used to instantiate metadata and nested objects in imageParsing in order to allow dynamic setting
-//of MetaDataTypes objects' properties.
-//In other words, metadata : ExtendedMetaDataTypes is useful and substitutes metadata : MetaDataTypes when metadata values
-//aren't called explicitly using metadata['xGGGGEEEEE']
-//and are instead called using TAG as a variable (i.e. metadata[TAG]).
-//It is important to highlight that even if we set metadata[TAG]=tagValue; whose type (of tagValue) is the correct one (returned by ParseTag).
-//if we then extract x=metadata[TAG]; we obtain tagValue : unknown and a casting with : MetaDataType[typeof TAG] is necessary.
+/**
+ * Convert QIDO metadata to a more readable format
+ * @instance
+ * @function convertQidoMetadata
+ * @param {Object} data - QIDO metadata object
+ * @returns {MetaData} - Return a metadata object
+ */
+export const convertQidoMetadata = function (data: any): MetaData {
+  const metadata: MetaData = Object.keys(data).reduce(
+    (accumulator: any, key) => {
+      let value = data[key].Value ? data[key].Value[0] : undefined;
+      // check if value is an object with key "Alphabetic"
+      if (value && value.Alphabetic) {
+        value = value.Alphabetic;
+      }
+      // check if value is an array and fill with values
+      if (data[key].vr === "SQ") {
+        value = parseSequence(value);
+      }
+      const newKey = `x${key.toLowerCase()}`;
+      accumulator[newKey] = value;
+      return accumulator;
+    },
+    {}
+  );
+  // add human readable values
+  const metadataReadables: MetaDataReadable = fillMetadataReadable(metadata);
+  return { ...metadata, ...metadataReadables };
+};
 
 /**
  * Parse metadata from dicom parser dataSet object
@@ -91,8 +124,6 @@ export const readFile = function (entry: File) {
  * @param {Object} metadata - Initialized metadata object
  * @param {Array} customFilter - Optional filter: {tags:[], frameId: 0}
  */
-// This function iterates through dataSet recursively and store tag values into metadata object
-
 export const parseDataSet = function (
   dataSet: DataSet,
   metadata: ExtendedMetaDataTypes,
@@ -159,6 +190,8 @@ export const parseDataSet = function (
     console.log(err);
   }
 };
+
+/* Internal module functions */
 
 /**
  * Manage the parsing process waiting for the parsed object before proceeding with the next parse request
@@ -282,62 +315,8 @@ const parseFile = function (file: File) {
         let metadata: MetaData = {};
         parseDataSet(dataSet, metadata);
 
-        let temporalPositionIdentifier = metadata["x00200100"]; // Temporal order of a dynamic or functional set of Images.
-        let numberOfTemporalPositions = metadata["x00200105"]; // Total number of temporal positions prescribed.
-        const is4D =
-          temporalPositionIdentifier !== undefined &&
-          (numberOfTemporalPositions as number) > 1
-            ? true
-            : false;
-
-        let modality = metadata["x00080060"] as string;
-        let singleFrameModalities = [
-          "CR",
-          "DX",
-          "MG",
-          "PX",
-          "RF",
-          "XA",
-          "US",
-          "IVUS",
-          "OCT",
-          "SR"
-        ];
-        // US XA RF IVUS OCT DX CR PX MG
-        // Overwrite SOPInstanceUID to manage single stack images (US, XA).
-        // Usually different SeriesInstanceUID means different series and that value
-        // is used into the application to group different instances into the same series,
-        // but if a DICOM file contains a multiframe series, then the SeriesInstanceUID
-        // can be shared by other files of the same study.
-        // In these cases, the SOPInstanceUID (unique) is used as SeriesInstanceUID.
-        let uniqueId = singleFrameModalities.includes(modality)
-          ? metadata["x00080018"]
-          : metadata["x0020000e"];
-        let seriesInstanceUID = metadata["x0020000e"];
-        let pixelSpacing = metadata.x00280030
-          ? metadata.x00280030
-          : metadata.x00080060 === "US" &&
-            metadata["x00186011"] != undefined &&
-            metadata["x00186011"][0].x0018602e != undefined &&
-            metadata["x00186011"][0].x0018602c != undefined
-          ? ([
-              metadata["x00186011"][0].x0018602e * 10, //so that from cm goes to mm
-              metadata["x00186011"][0].x0018602c * 10
-            ] as [number, number])
-          : metadata.x00181164
-          ? metadata.x00181164
-          : [1, 1];
-        let imageOrientation = metadata["x00200037"];
-        let imagePosition = metadata["x00200032"];
-        let sliceThickness = metadata["x00180050"];
-        let numberOfFrames = metadata["x00280008"];
-        let isMultiframe = (numberOfFrames as number) > 1 ? true : false;
-        let waveform = metadata["x50003000"] ? true : false;
-        // check dicom tag image type x00080008 if contains the word BIPLANE A or BIPLANE B
-        // if true, then it is a biplane image
-        let biplane = metadata["x00080008"]
-          ? metadata["x00080008"].includes("BIPLANE")
-          : false;
+        const metadataReadables: MetaDataReadable =
+          fillMetadataReadable(metadata);
 
         if (dataSet.warnings.length > 0) {
           // warnings
@@ -352,19 +331,20 @@ const parseFile = function (file: File) {
               dataSet: dataSet
             };
             pdfObject.metadata = metadata;
-            pdfObject.metadata.uniqueUID = uniqueId;
-            pdfObject.metadata.seriesUID = seriesInstanceUID;
-            pdfObject.instanceUID =
-              metadata["x00080018"]?.toString() || randomId();
-            pdfObject.metadata.studyUID = metadata["x0020000d"];
-            pdfObject.metadata.accessionNumber = metadata["x00080050"];
-            pdfObject.metadata.studyDescription = metadata["x00081030"];
-            pdfObject.metadata.patientName = metadata["x00100010"] as string;
-            pdfObject.metadata.patientBirthdate = metadata["x00100030"];
-            pdfObject.metadata.seriesDate = metadata["x00080021"];
-            pdfObject.metadata.seriesModality = metadata["x00080060"]
-              ?.toString()
-              .toLowerCase();
+            pdfObject.metadata.uniqueUID = metadataReadables.uniqueUID;
+            pdfObject.metadata.seriesUID = metadataReadables.seriesUID;
+            pdfObject.instanceUID = metadataReadables.instanceUID;
+            pdfObject.metadata.studyUID = metadataReadables.studyUID;
+            pdfObject.metadata.accessionNumber =
+              metadataReadables.accessionNumber;
+            pdfObject.metadata.studyDescription =
+              metadataReadables.studyDescription;
+            pdfObject.metadata.patientName = metadataReadables.patientName;
+            pdfObject.metadata.patientBirthdate =
+              metadataReadables.patientBirthdate;
+            pdfObject.metadata.seriesDate = metadataReadables.seriesDate;
+            pdfObject.metadata.seriesModality =
+              metadataReadables.seriesModality;
             pdfObject.metadata.mimeType = metadata["x00420012"];
             pdfObject.metadata.is4D = false;
             pdfObject.metadata.numberOfFrames = 0;
@@ -372,97 +352,19 @@ const parseFile = function (file: File) {
             pdfObject.metadata.numberOfTemporalPositions = 0;
             resolve(pdfObject as ImageObject);
           } else {
-            let instanceUID = metadata["x00080018"] || randomId();
             let imageObject: Partial<ImageObject> = {
               // data needed for rendering
               file: file,
               dataSet: dataSet
             };
             imageObject.metadata = metadata as MetaData;
-            imageObject.metadata.anonymized = false;
-            imageObject.metadata.uniqueUID = uniqueId;
-            imageObject.metadata.sopClassUID = metadata["x00080016"];
-            imageObject.metadata.seriesUID = seriesInstanceUID;
-            imageObject.metadata.instanceUID = instanceUID;
-            imageObject.metadata.studyUID = metadata["x0020000d"];
-            imageObject.metadata.accessionNumber = metadata["x00080050"];
-            imageObject.metadata.studyDescription = metadata["x00081030"];
-            imageObject.metadata.patientName = metadata["x00100010"] as string;
-            imageObject.metadata.patientBirthdate = metadata["x00100030"];
-            imageObject.metadata.seriesDescription = metadata[
-              "x0008103e"
-            ] as string;
-            imageObject.metadata.seriesDate = metadata["x00080021"];
-            imageObject.metadata.seriesModality = metadata["x00080060"]
-              ?.toString()
-              .toLowerCase();
-            imageObject.metadata.intercept = metadata["x00281052"];
-            imageObject.metadata.slope = metadata["x00281053"];
-            imageObject.metadata.pixelSpacing = pixelSpacing as [
-              number,
-              number
-            ];
-            imageObject.metadata.sliceThickness = sliceThickness;
-            imageObject.metadata.imageOrientation = imageOrientation;
-            imageObject.metadata.imagePosition = imagePosition;
-            imageObject.metadata.rows = metadata["x00280010"];
-            imageObject.metadata.cols = metadata["x00280011"];
-            imageObject.metadata.numberOfSlices = metadata["x00540081"]
-              ? metadata["x00540081"] // number of slices
-              : metadata["x00201002"]; // number of instances
-            imageObject.metadata.numberOfFrames = numberOfFrames;
-            if (isMultiframe) {
-              imageObject.metadata.frameTime = metadata["x00181063"];
-              imageObject.metadata.frameDelay = metadata["x00181066"];
-              if (metadata["x00186060"]) {
-                imageObject.metadata.rWaveTimeVector = metadata["x00186060"];
-              }
-            }
-            imageObject.metadata.isMultiframe = isMultiframe;
-            if (is4D) {
-              imageObject.metadata.temporalPositionIdentifier =
-                metadata["x00200100"];
-              imageObject.metadata.numberOfTemporalPositions =
-                metadata["x00200105"];
-              imageObject.metadata.contentTime = metadata["x00080033"];
-            }
-            if (biplane) {
-              // check if dicom tag image type x00080008 contains the word
-              // BIPLANE A or BIPLANE B
-              // if true, the tag is set to BIPLANE A or BIPLANE B
-              let tag =
-                metadata["x00080008"] &&
-                metadata["x00080008"].includes("BIPLANE A")
-                  ? "BIPLANE A"
-                  : "BIPLANE B";
-              const referencedSOPInstanceUID = metadata["x00081155"];
-              const positionerPrimaryAngle = metadata["x00181510"]
-                ? metadata["x00181510"]
-                : 0;
-              const positionerSecondaryAngle = metadata["x00181511"]
-                ? metadata["x00181511"]
-                : 0;
-              imageObject.metadata.biplane = {};
-              imageObject.metadata.biplane.tag = tag;
-              imageObject.metadata.biplane.referencedSOPInstanceUID =
-                referencedSOPInstanceUID;
-              imageObject.metadata.biplane.positionerPrimaryAngle =
-                (positionerPrimaryAngle as number) >= 0 ? "LAO" : "RAO";
-              imageObject.metadata.biplane.positionerSecondaryAngle =
-                (positionerSecondaryAngle as number) >= 0 ? "CRA" : "CAU";
-            }
-            imageObject.metadata.is4D = is4D;
-            imageObject.metadata.waveform = waveform;
-            imageObject.metadata.windowCenter = metadata["x00281050"];
-            imageObject.metadata.windowWidth = metadata["x00281051"];
-            imageObject.metadata.minPixelValue = metadata["x00280106"];
-            imageObject.metadata.maxPixelValue = metadata["x00280107"];
+            imageObject.metadata = { ...metadata, ...metadataReadables };
+
             // check if pixelDataElement is found, if not sets pixelDataLength=0
             // means that it is a metadata-only object
             imageObject.metadata.pixelDataLength = pixelDataElement
               ? pixelDataElement.length
               : 0;
-            imageObject.metadata.repr = getPixelRepresentation(dataSet);
             resolve(imageObject as ImageObject);
           }
         }
@@ -475,4 +377,181 @@ const parseFile = function (file: File) {
     reader.readAsArrayBuffer(file);
   });
   return parsePromise;
+};
+
+/**
+ * @instance
+ * @function fillMetadataReadable
+ * @param {MetaData} metadata - Metadata object
+ * @returns {MetaDataReadable} - Return a readable metadata object
+ */
+const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
+  const metadataReadable: MetaDataReadable = {};
+
+  const modality = metadata["x00080060"] as string;
+  // US XA RF IVUS OCT DX CR PX MG
+  // Overwrite SOPInstanceUID to manage single stack images (US, XA).
+  // Usually different SeriesInstanceUID means different series and that value
+  // is used into the application to group different instances into the same series,
+  // but if a DICOM file contains a multiframe series, then the SeriesInstanceUID
+  // can be shared by other files of the same study.
+  // In these cases, the SOPInstanceUID (unique) is used as SeriesInstanceUID.
+  const uniqueUID = singleFrameModalities.includes(modality)
+    ? metadata["x00080018"]
+    : metadata["x0020000e"];
+  const seriesInstanceUID = metadata["x0020000e"];
+  const pixelSpacing = metadata.x00280030
+    ? metadata.x00280030
+    : metadata.x00080060 === "US" &&
+      metadata["x00186011"] != undefined &&
+      metadata["x00186011"][0].x0018602e != undefined &&
+      metadata["x00186011"][0].x0018602c != undefined
+    ? ([
+        metadata["x00186011"][0].x0018602e * 10, //so that from cm goes to mm
+        metadata["x00186011"][0].x0018602c * 10
+      ] as [number, number])
+    : metadata.x00181164
+    ? metadata.x00181164
+    : [1, 1];
+  const imageOrientation = metadata["x00200037"];
+  const imagePosition = metadata["x00200032"];
+  const sliceThickness = metadata["x00180050"];
+  const numberOfFrames = metadata["x00280008"];
+  const isMultiframe = (numberOfFrames as number) > 1 ? true : false;
+  const waveform = metadata["x50003000"] ? true : false;
+  // check dicom tag image type x00080008 if contains the word BIPLANE A or BIPLANE B
+  // if true, then it is a biplane image
+  const biplane = metadata["x00080008"]
+    ? metadata["x00080008"].includes("BIPLANE")
+    : false;
+  // 4D
+  const temporalPositionIdentifier = metadata["x00200100"]; // Temporal order of a dynamic or functional set of Images.
+  const numberOfTemporalPositions = metadata["x00200105"]; // Total number of temporal positions prescribed.
+  const is4D =
+    temporalPositionIdentifier !== undefined &&
+    (numberOfTemporalPositions as number) > 1
+      ? true
+      : false;
+
+  metadataReadable.anonymized = false;
+  metadataReadable.uniqueUID = uniqueUID;
+  metadataReadable.seriesUID = seriesInstanceUID;
+  metadataReadable.instanceUID =
+    metadata["x00080018"]?.toString() || randomId();
+  metadataReadable.sopClassUID = metadata["x00080016"];
+  metadataReadable.studyUID = metadata["x0020000d"];
+  metadataReadable.accessionNumber = metadata["x00080050"];
+  metadataReadable.studyDescription = metadata["x00081030"];
+  metadataReadable.patientName = metadata["x00100010"] as string;
+  metadataReadable.patientBirthdate = metadata["x00100030"];
+  metadataReadable.seriesDescription = metadata["x0008103e"] as string;
+  metadataReadable.seriesDate = metadata["x00080021"];
+  metadataReadable.seriesModality = metadata["x00080060"]
+    ?.toString()
+    .toLowerCase();
+  metadataReadable.intercept = metadata["x00281052"];
+  metadataReadable.slope = metadata["x00281053"];
+  metadataReadable.pixelSpacing = pixelSpacing as [number, number];
+  metadataReadable.sliceThickness = sliceThickness;
+  metadataReadable.imageOrientation = imageOrientation;
+  metadataReadable.imagePosition = imagePosition;
+  metadataReadable.rows = metadata["x00280010"];
+  metadataReadable.cols = metadata["x00280011"];
+  metadataReadable.numberOfSlices = metadata["x00540081"]
+    ? metadata["x00540081"] // number of slices
+    : metadata["x00201002"]; // number of instances
+  metadataReadable.windowCenter = metadata["x00281050"];
+  metadataReadable.windowWidth = metadata["x00281051"];
+  metadataReadable.minPixelValue = metadata["x00280106"];
+  metadataReadable.maxPixelValue = metadata["x00280107"];
+  metadataReadable.numberOfFrames = numberOfFrames;
+
+  if (isMultiframe) {
+    metadataReadable.frameTime = metadata["x00181063"];
+    metadataReadable.frameDelay = metadata["x00181066"];
+    if (metadata["x00186060"]) {
+      metadataReadable.rWaveTimeVector = metadata["x00186060"];
+    }
+  }
+  metadataReadable.isMultiframe = isMultiframe;
+
+  if (is4D) {
+    metadataReadable.temporalPositionIdentifier = temporalPositionIdentifier;
+    metadataReadable.numberOfTemporalPositions = numberOfTemporalPositions;
+    metadataReadable.contentTime = metadata["x00080033"];
+  }
+  metadataReadable.is4D = is4D;
+  metadataReadable.waveform = waveform;
+
+  if (biplane) {
+    // check if dicom tag image type x00080008 contains the word
+    // BIPLANE A or BIPLANE B
+    // if true, the tag is set to BIPLANE A or BIPLANE B
+    const tag =
+      metadata["x00080008"] && metadata["x00080008"].includes("BIPLANE A")
+        ? "BIPLANE A"
+        : "BIPLANE B";
+    const referencedSOPInstanceUID = metadata["x00081155"];
+    const positionerPrimaryAngle = metadata["x00181510"]
+      ? metadata["x00181510"]
+      : 0;
+    const positionerSecondaryAngle = metadata["x00181511"]
+      ? metadata["x00181511"]
+      : 0;
+    metadataReadable.biplane = {};
+    metadataReadable.biplane.tag = tag;
+    metadataReadable.biplane.referencedSOPInstanceUID =
+      referencedSOPInstanceUID;
+    metadataReadable.biplane.positionerPrimaryAngle =
+      (positionerPrimaryAngle as number) >= 0 ? "LAO" : "RAO";
+    metadataReadable.biplane.positionerSecondaryAngle =
+      (positionerSecondaryAngle as number) >= 0 ? "CRA" : "CAU";
+  }
+
+  const bitsAllocated = metadata["x00280100"];
+  const pixelRepresentation = metadata["x00280103"];
+  const representation =
+    pixelRepresentation != undefined && parseInt(pixelRepresentation) === 1
+      ? "Sint" + bitsAllocated
+      : "Uint" + bitsAllocated;
+  metadataReadable.repr = representation;
+
+  return metadataReadable;
+};
+
+/**
+ * @instance
+ * @function parseSequence
+ * @param {any} sequence - Sequence object
+ * @returns {any} - Return a parsed sequence object
+ */
+const parseSequence = function (sequence: any): any {
+  if (!sequence || typeof sequence !== "object") return sequence;
+
+  // Ensure sequence is processed as an array
+  if (!Array.isArray(sequence)) {
+    sequence = [sequence];
+  }
+
+  return sequence.map(
+    (item: {
+      [x: string]: {
+        vr: string;
+        Value: any;
+      };
+    }) =>
+      Object.keys(item).reduce((acc: { [key: string]: any }, key) => {
+        const value = item[key]?.Value ? item[key].Value[0] : undefined;
+
+        if (value && typeof value === "object" && "Alphabetic" in value) {
+          acc[key.toLowerCase()] = value.Alphabetic;
+        } else if (item[key]?.vr === "SQ") {
+          acc[key.toLowerCase()] = parseSequence(item[key].Value); // Recursively parse nested SQ
+        } else {
+          acc[key.toLowerCase()] = value;
+        }
+
+        return acc;
+      }, {})
+  );
 };
