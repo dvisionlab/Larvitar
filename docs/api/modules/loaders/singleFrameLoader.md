@@ -33,7 +33,7 @@ The singleFrameLoader module is a custom DICOM loader designed to cache and rend
 #### Syntax:
 
 ```typescript
-setSingleFrameCache(data: Uint8ClampedArray, metadata: Metadata): string
+setSingleFrameCache(data: Uint8ClampedArray, metadata: Metadata): ImageObject
 ```
 
 #### Parameters:
@@ -45,7 +45,7 @@ setSingleFrameCache(data: Uint8ClampedArray, metadata: Metadata): string
 
 #### Returns:
 
-`string` – The unique ID of the cached single frame.
+`ImageObject` – An object containing the ID of the cached single frame, its metadata and its SOP Instance UID.
 
 ---
 

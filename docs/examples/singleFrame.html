@@ -237,16 +237,15 @@
               " milliseconds."
           );
           const t2 = performance.now();
-          const imageId = await larvitar.setSingleFrameCache(data, metadata);
+          const imageObject = await larvitar.setSingleFrameCache(
+            data,
+            metadata
+          );
           const t3 = performance.now();
           console.debug(
             "Call to setSingleFrameCache took " + (t3 - t2) + " milliseconds."
           );
-          const imageObject = {
-            instanceUID: metadata.x00080018,
-            metadata: metadata,
-            imageId: imageId
-          };
+
           larvitar.updateImageManager(imageObject);
 
           if (frameId == 0) {

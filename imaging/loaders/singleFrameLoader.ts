@@ -7,7 +7,7 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 
 // internal libraries
-import type { Image, MetaData, SingleFrameCache } from "../types";
+import type { Image, ImageObject, MetaData, SingleFrameCache } from "../types";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -26,11 +26,12 @@ let singleFrameCache: { [key: string]: SingleFrameCache } = {};
  * @function setSingleFrameCache
  * @param {Array} data - Pixel data array
  * @param {MetaData} metadata - Metadata object
+ * @returns {ImageObject} - Image object
  */
 export const setSingleFrameCache = async function (
   data: Uint8ClampedArray,
   metadata: MetaData
-): Promise<string> {
+): Promise<ImageObject> {
   const t0 = performance.now();
   const imageId = getSingleFrameImageId("singleFrameLoader");
   try {
@@ -48,7 +49,11 @@ export const setSingleFrameCache = async function (
     data = null;
     // @ts-ignore: is needed to clear the cache
     pixelData = null;
-    return imageId;
+    return {
+      instanceUID: metadata.instanceUID as string,
+      metadata: metadata,
+      imageId: imageId
+    };
   } catch (error) {
     console.error(error);
     throw error;
