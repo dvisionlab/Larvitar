@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Include the Larvitar script -->
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- custom styles for the example -->
+    <style></style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        // TODO Code snippet to be displayed and updated for the example
+        const code = ``;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
+    <title>Larvitar - Frame by Frame example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-50">
+      <div
+        id="viewer-1"
+        class="col-6 h-100"
+        style="background-color: black"
+      ></div>
+      <div
+        id="viewer-2"
+        class="col-6 h-100"
+        style="background-color: black"
+      ></div>
+      <button
+        id="showCodeBtn"
+        class="open-button"
+        style="position: absolute; top: 10px"
+      >
+        Show Code
+      </button>
+
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
+    </div>
+
+    <div class="row h-50">
+      <div
+        id="viewer-3"
+        class="col-4 h-100"
+        style="background-color: black"
+      ></div>
+      <div
+        id="viewer-4"
+        class="col-4 h-100"
+        style="background-color: black"
+      ></div>
+      <div
+        id="viewer-5"
+        class="col-4 h-100"
+        style="background-color: black"
+      ></div>
+    </div>
+
+    <script>
+      const spinner = document.getElementById("spinner");
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+
+      let demoFiles = [];
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.registerSingleFrameImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer-1");
+      larvitar.store.addViewport("viewer-2");
+      larvitar.store.addViewport("viewer-3");
+      larvitar.store.addViewport("viewer-4");
+      larvitar.store.addViewport("viewer-5");
+      showSpinner();
+
+      larvitar.clearSingleFrameCache();
+
+      const pacsURL = "http://192.168.72.141:80/dicomwebcore/";
+      const wadoPrefix = "wado/";
+      const qidoPrefix = "qidors/";
+      const patientID = "TEST_FIVEMF_STRESS";
+      const studyID =
+        "1.2.826.0.1.3680043.2.97.4.2017.1247782231.250207090009398";
+      const seriesInstanceUID =
+        "1.2.826.0.1.3680043.2.97.4.2017.1044975747.250207090029960";
+
+      const qidoUrl = `${pacsURL}${qidoPrefix}instances?SeriesInstanceUID=${seriesInstanceUID}&StudyInstanceUID=${studyID}&PatientID=${patientID}&includefield=header`;
+      const wadoUrl = `${pacsURL}${wadoPrefix}studies/${studyID}/series/${seriesInstanceUID}/instances/`;
+
+      const instanceUID_1 =
+        "1.2.826.0.1.3680043.2.97.19529.21573.851230414.250207090046713";
+      const instanceUID_2 =
+        "1.2.826.0.1.3680043.2.97.19529.21573.486881842.250207090047588";
+      const instanceUID_3 =
+        "1.2.826.0.1.3680043.2.97.19529.21573.1383892180.2502070900458070";
+      const instanceUID_4 =
+        "1.2.826.0.1.3680043.2.97.19529.21573.4271180931.2502070900450260";
+      const instanceUID_5 =
+        "1.2.826.0.1.3680043.2.97.19529.21573.1888853007.2502070900482760";
+
+      async function qido(qidoUrl) {
+        const response = await fetch(qidoUrl, {
+          method: "GET",
+          headers: {
+            Accept: "application/json"
+          }
+        });
+        if (!response.ok) {
+          // If response is not OK, throw an error
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data; // Return the JSON object
+      }
+
+      async function cacheFrames(instanceId, metadata, canvasId) {
+        const numberOfFrames = metadata.x00280008;
+        for (let frameId = 0; frameId < numberOfFrames; frameId++) {
+          let t0 = performance.now();
+          const frameUrl = `${wadoUrl}${instanceId}/frames/${frameId}`;
+          let response = await fetch(frameUrl, {
+            method: "GET",
+            headers: {
+              Accept: "application/octet-stream"
+            }
+          });
+          let data = await response.arrayBuffer();
+          let t1 = performance.now();
+          console.debug(
+            "Call to wado frame: " +
+              frameId +
+              " took " +
+              (t1 - t0) +
+              " milliseconds."
+          );
+          const t2 = performance.now();
+          const imageObject = await larvitar.setSingleFrameCache(
+            data,
+            metadata
+          );
+          const t3 = performance.now();
+          console.debug(
+            "Call to setSingleFrameCache took " + (t3 - t2) + " milliseconds."
+          );
+
+          larvitar.updateImageManager(imageObject);
+
+          if (frameId == 0) {
+            renderFrame(imageObject.instanceUID, canvasId, frameId);
+          }
+        }
+      }
+
+      async function renderFrame(instanceUID, canvasId, frameId) {
+        const imageManager = larvitar.getImageManager();
+        const dicomSerie = imageManager[instanceUID];
+        const t0 = performance.now();
+        larvitar
+          .renderImage(dicomSerie, canvasId, {
+            cached: true,
+            defaultProps: { sliceNumber: 0 }
+          })
+          .then(() => {
+            const t1 = performance.now();
+            console.debug(
+              "Call to renderImage took " + (t1 - t0) + " milliseconds."
+            );
+            hideSpinner();
+
+            // cine LOOP
+            if (frameId === 0) {
+              larvitar.addDefaultTools();
+              larvitar.setToolActive("StackScroll");
+              frameId++;
+              const frameRate =
+                dicomSerie.instances[dicomSerie.imageIds[0]].metadata.frameTime;
+              const numberOfFrames =
+                dicomSerie.instances[dicomSerie.imageIds[0]].metadata
+                  .numberOfFrames;
+
+              let endloop = false;
+              let tStart = performance.now();
+
+              let lastFrameTime = 0;
+              function animate(timestamp) {
+                let stepsNeeded = Math.floor(
+                  (timestamp - lastFrameTime) / frameRate
+                );
+                if (stepsNeeded >= 1) {
+                  lastFrameTime += stepsNeeded * frameRate;
+                  // Render only once, skipping intermediate frames
+                  advanceFrame();
+                }
+                // Schedule the next animation callback
+                requestAnimationFrame(animate);
+              }
+              requestAnimationFrame(animate);
+              let endLoop = false;
+              function advanceFrame() {
+                endLoop = frameId == numberOfFrames - 1 ? true : false;
+                const imageId = dicomSerie.imageIds[frameId];
+                const currentFrameId = imageId ? frameId : frameId - 1;
+                larvitar.updateImage(
+                  dicomSerie,
+                  canvasId,
+                  currentFrameId,
+                  true
+                );
+                frameId =
+                  currentFrameId == numberOfFrames - 1 ? 0 : currentFrameId + 1;
+                if (endLoop) {
+                  let tEnd = performance.now();
+                  const lastLoop = tEnd - tStart;
+                  console.debug(
+                    canvasId + "lastLoop:",
+                    lastLoop.toFixed(3),
+                    "ms"
+                  );
+                  tStart = performance.now();
+                }
+              }
+            }
+          });
+      }
+
+      (async function () {
+        const qidoMetadata = await qido(qidoUrl);
+        const metadata = {};
+        qidoMetadata.forEach((element, _) => {
+          const data = larvitar.convertQidoMetadata(element);
+          metadata[data.instanceUID] = data;
+        });
+
+        cacheFrames(instanceUID_1, metadata[instanceUID_1], "viewer-1");
+        cacheFrames(instanceUID_2, metadata[instanceUID_2], "viewer-2");
+        cacheFrames(instanceUID_3, metadata[instanceUID_3], "viewer-3");
+        cacheFrames(instanceUID_4, metadata[instanceUID_4], "viewer-4");
+        cacheFrames(instanceUID_5, metadata[instanceUID_5], "viewer-5");
+      })();
+    </script>
+  </body>
+</html>
