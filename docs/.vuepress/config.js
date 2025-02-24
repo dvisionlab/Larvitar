@@ -96,7 +96,7 @@ export default {
                     },
                     {
                       text: "SingleFrame Loader",
-                      link: "/api/modules/loaders/singleframeLoader.md"
+                      link: "/api/modules/loaders/singleFrameLoader.md"
                     },
                     {
                       text: "DSA Image Loader",
