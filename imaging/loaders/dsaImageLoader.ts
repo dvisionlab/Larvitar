@@ -16,6 +16,7 @@ import {
 import type { DSA, Image, ImageManager, Series } from "../types";
 import { getMaxPixelValue, getMinPixelValue } from "../imageUtils";
 import { applyDSA } from "../postProcessing/applyDSA";
+import { logger } from "../../logger";
 
 // global module variables
 let customImageLoaderCounter: number = 0;
@@ -51,7 +52,7 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
       imageId: multiFrameSerie.imageIds[index]
     }).image;
 
-    console.debug(`Load DSA Image with custom loader for imageId: ${imageId}`);
+    logger.debug(`Load DSA Image with custom loader for imageId: ${imageId}`);
     return createCustomImage(imageId, srcImage, pixelData);
   } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
@@ -97,7 +98,7 @@ export const populateDsaImageIds = function (uniqueUID: string) {
   }
 
   let t1 = performance.now();
-  console.log(`Call to populateDsaImageIds took ${t1 - t0} milliseconds.`);
+  logger.info(`Call to populateDsaImageIds took ${t1 - t0} milliseconds.`);
 };
 
 /**

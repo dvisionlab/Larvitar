@@ -22,6 +22,7 @@ const drawLinkedTextBox = cornerstoneTools.importInternal(
 );
 
 //internal imports
+import { logger } from "../../../logger";
 import {
   MeasurementData,
   Handles,
@@ -72,7 +73,7 @@ export default class LengthTool extends BaseAnnotationTool {
     }
 
     if (!goodEventData) {
-      console.error(
+      logger.error(
         `required eventData not supplied to tool ${this.name}'s createNewMeasurement`
       );
 
@@ -125,7 +126,7 @@ export default class LengthTool extends BaseAnnotationTool {
     const validParameters = hasStartAndEndHandles;
 
     if (!validParameters) {
-      console.warn(
+      logger.warn(
         `invalid parameters supplied to tool ${this.name}'s pointNearTool`
       );
 

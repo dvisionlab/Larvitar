@@ -65,7 +65,6 @@ let multiFrameSerie = manager[seriesId];
 
 let frameId = 0;
 await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
-console.log("Image has been rendered");
 
 larvitar.addDefaultTools();
 larvitar.setToolActive("Wwwc");
@@ -130,7 +129,7 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
       <button
         id="showCodeBtn"
         class="open-button"
-        style="position: absolute; top: 140px"
+        style="position: absolute; top: 165px"
       >
         Show Code
       </button>
@@ -197,6 +196,10 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       let demoFiles = [];
       showSpinner();
       async function renderSerie() {
@@ -211,7 +214,7 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
         let frameId = 0;
         await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
         hideSpinner();
-        console.log("Image has been rendered");
+        larvitar.logger.debug("Image has been rendered");
 
         larvitar.addDefaultTools();
         larvitar.setToolActive("Wwwc");

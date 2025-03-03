@@ -5,6 +5,8 @@
 
 // external libraries
 import { get as _get, cloneDeep as _cloneDeep } from "lodash";
+
+// internal libraries
 import type { StoreViewport } from "./types.d";
 
 type StoreSeries = {
@@ -381,7 +383,7 @@ const setup = (data = _cloneDeep(INITIAL_STORE_DATA)) => {
       return obj[prop];
     },
     set: (obj, prop: string, value) => {
-      // console.warn("SET", obj, prop, value);
+      // logger.warn("SET", obj, prop, value);
       if (obj[prop] === value) return true;
       obj[prop] = value;
       triggerStoreListener(data);

@@ -8,6 +8,7 @@ import { forEach, each, has, pick } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
+import { logger } from "../logger";
 import { randomId } from "./imageUtils";
 import { getNestedObject, parseTag } from "./imageTags";
 import { updateLoadedStack } from "./imageLoading";
@@ -172,7 +173,7 @@ export const parseDataSet = function (
         let TAG = propertyName as keyof ExtendedMetaDataTypes;
         // identify duplicated tags (keep the first occurency and store the others in another tag eg x00280010_uuid)
         if (metadata[TAG] !== undefined) {
-          console.debug(
+          logger.debug(
             `Identified duplicated tag "${propertyName}", values are:`,
             metadata[TAG],
             tagValue
@@ -187,7 +188,7 @@ export const parseDataSet = function (
       }
     }
   } catch (err) {
-    console.log(err);
+    logger.error(err);
   }
 };
 
@@ -220,7 +221,7 @@ let parseNextFile = function (
 
   if (parsingQueue.length === 0) {
     let t1 = performance.now();
-    console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
+    logger.info(`Call to readFiles took ${t1 - t0} milliseconds.`);
     resolve(allSeriesStack);
     return;
   }
@@ -229,7 +230,7 @@ let parseNextFile = function (
   let file = parsingQueue.shift() as File | undefined | null;
 
   if (!file) {
-    console.warn("File is undefined or null");
+    logger.warn("File is undefined or null");
     return;
   }
 
@@ -238,7 +239,7 @@ let parseNextFile = function (
     // do not parse the file and stop parsing
     clearImageParsing(allSeriesStack);
     let t1 = performance.now();
-    console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
+    logger.info(`Call to readFiles took ${t1 - t0} milliseconds.`);
     file = null;
     reject("Available memory is not enough");
     return;
@@ -256,7 +257,7 @@ let parseNextFile = function (
         file = null;
       })
       .catch(err => {
-        console.error(err);
+        logger.error(err);
         parseNextFile(parsingQueue, allSeriesStack, uuid, resolve, reject);
         file = null;
       });

@@ -10,7 +10,9 @@ import cornerstoneMath from "cornerstone-math";
 import Hammer from "hammerjs";
 import { each, extend } from "lodash";
 const external = cornerstoneTools.external;
+
 // internal libraries
+import { logger } from "../../logger";
 import { saveAnnotations, loadAnnotations, exportAnnotations } from "./io";
 import {
   DEFAULT_TOOLS,
@@ -183,7 +185,7 @@ export const addDefaultTools = function (elementId: string) {
   each(DEFAULT_TOOLS, tool => {
     // check if already added
     if (!isToolMissing(tool.name)) {
-      console.log("missing");
+      logger.warn("missing");
       return;
     }
     // check target viewports and call add tool with options
@@ -222,7 +224,7 @@ function tryUpdateImage(element: HTMLElement) {
   try {
     cornerstone.updateImage(element);
   } catch (err) {
-    // console.warn("updateImage: image has not been loaded yet:", element.id);
+    // logger.warn("updateImage: image has not been loaded yet:", element.id);
   }
 }
 
@@ -242,10 +244,10 @@ const setToolActive = function (
 ) {
   if (toolName === "WSToggle") {
     if (typeof cv !== "undefined" && cv !== null) {
-      console.log("OpenCV has been successfully imported.");
+      logger.info("OpenCV has been successfully imported.");
       // You can use OpenCV functions here
     } else {
-      console.error(
+      logger.error(
         'OpenCV has not been imported. Watershed Segmentation Tool will not work. Please import src="https://docs.opencv.org/4.5.4/opencv.js" in your HTML'
       );
     }
@@ -310,7 +312,7 @@ const setToolDisabled = function (
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (!el) {
-        console.warn("setToolDisabled: element not found:", elementId);
+        logger.warn("setToolDisabled: element not found:", elementId);
         return;
       }
       cornerstoneTools.setToolDisabledForElement(el, toolName);
@@ -351,7 +353,7 @@ const setToolEnabled = function (
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (!el) {
-        console.warn("setToolDisabled: element not found:", elementId);
+        logger.warn("setToolDisabled: element not found:", elementId);
         return;
       }
       cornerstoneTools.setToolEnabledForElement(el, toolName);
@@ -387,7 +389,7 @@ const setToolPassive = function (toolName: string, viewports?: string[]) {
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (!el) {
-        console.warn("setToolDisabled: element not found:", elementId);
+        logger.warn("setToolDisabled: element not found:", elementId);
         return;
       }
       cornerstoneTools.setToolPassiveForElement(el, toolName);

@@ -28,6 +28,7 @@ import {
 import * as csTools from "cornerstone-tools";
 import cornerstone, { Image, PixelCoordinate } from "cornerstone-core";
 import { Coords, ViewportComplete } from "../../types";
+import { logger } from "../../../../logger";
 const drawArrow = csTools.importInternal("drawing/drawArrow");
 const drawLine = csTools.importInternal("drawing/drawLine");
 const drawLink = csTools.importInternal("drawing/drawLink");
@@ -752,7 +753,7 @@ export function renderCompoundAnnotation(
       break;
     case "RANGELINE":
       if (compoundObject.graphicData?.length !== 4) {
-        console.error("RANGELINE requires exactly two points.");
+        logger.error("RANGELINE requires exactly two points.");
         return;
       }
 
@@ -980,7 +981,7 @@ export function renderOverlay(data: AnnotationOverlay, image: Image) {
 
   const layerContext = layerCanvas.getContext("2d");
   if (!layerContext) {
-    console.error("Failed to get 2D context for layerCanvas.");
+    logger.error("Failed to get 2D context for layerCanvas.");
     return;
   }
 

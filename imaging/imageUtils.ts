@@ -33,6 +33,7 @@ import type {
 } from "./types";
 import { getTagValue } from "./imageTags";
 import { MetaDataTypes } from "./MetaDataTypes";
+import { logger } from "../logger";
 
 // global module variables
 // variables used to manage the reslice functionality
@@ -163,7 +164,7 @@ export const getTypedArrayFromDataType = function (dataType: string) {
     ? TYPES_TO_TYPEDARRAY[repr]
     : null;
   if (!typedArray) {
-    console.error("invalid data type: ", dataType);
+    logger.error("invalid data type: ", dataType);
   }
   return typedArray;
 };
@@ -653,7 +654,7 @@ export const getImageMetadata = function (
 ) {
   const seriesData = getDataFromImageManager(seriesId);
   if (seriesData === undefined || seriesData === null) {
-    console.log(`Invalid Series ID: ${seriesId}`);
+    logger.warn(`Invalid Series ID: ${seriesId}`);
     return [];
   }
 
@@ -663,7 +664,7 @@ export const getImageMetadata = function (
     : seriesData.instanceUIDs[instanceUID];
 
   if (imageId === undefined) {
-    console.log(`Invalid InstanceUID ID: ${instanceUID}`);
+    logger.warn(`Invalid InstanceUID ID: ${instanceUID}`);
     return [];
   }
 

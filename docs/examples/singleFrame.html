@@ -174,6 +174,10 @@
       larvitar.store.addViewport("viewer-3");
       larvitar.store.addViewport("viewer-4");
       larvitar.store.addViewport("viewer-5");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       showSpinner();
 
       larvitar.clearSingleFrameCache();
@@ -229,7 +233,7 @@
           });
           let data = await response.arrayBuffer();
           let t1 = performance.now();
-          console.debug(
+          larvitar.logger.debug(
             "Call to wado frame: " +
               frameId +
               " took " +
@@ -242,7 +246,7 @@
             metadata
           );
           const t3 = performance.now();
-          console.debug(
+          larvitar.logger.debug(
             "Call to setSingleFrameCache took " + (t3 - t2) + " milliseconds."
           );
 
@@ -265,7 +269,7 @@
           })
           .then(() => {
             const t1 = performance.now();
-            console.debug(
+            larvitar.logger.debug(
               "Call to renderImage took " + (t1 - t0) + " milliseconds."
             );
             hideSpinner();
@@ -314,7 +318,7 @@
                 if (endLoop) {
                   let tEnd = performance.now();
                   const lastLoop = tEnd - tStart;
-                  console.debug(
+                  larvitar.logger.debug(
                     canvasId + "lastLoop:",
                     lastLoop.toFixed(3),
                     "ms"

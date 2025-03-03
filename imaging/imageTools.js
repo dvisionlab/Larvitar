@@ -13,6 +13,7 @@ import cornerstoneTools from "cornerstone-tools";
 import { each, extend, filter, remove, cloneDeep } from "lodash";
 
 // internal libraries
+import { logger } from "../logger";
 import { DEFAULT_TOOLS } from "./tools/default";
 // import { SeedsTool } from "./tools/custom/seedTool";
 import { ContoursTool } from "./tools/custom/contourTool";
@@ -441,7 +442,7 @@ export const updateDiameterTool = function (
 ) {
   // clear target diameter
   if (!diameterId) {
-    console.warn("no diameterId, return");
+    logger.warn("no diameterId, return");
     return;
   }
 
@@ -552,14 +553,14 @@ export const addToolStateSingleSlice = function (
   const enabledElement = cornerstone.getEnabledElement(element);
 
   if (!enabledElement.image) {
-    console.warn("no image");
+    logger.warn("no image");
     return;
   }
 
   let targetImageId = getImageIdFromSlice(slice, element.id, seriesId);
 
   if (enabledElement.toolStateManager === undefined) {
-    console.warn("State Manager undefined");
+    logger.warn("State Manager undefined");
     return;
   }
   let toolState = enabledElement.toolStateManager.toolState;
@@ -658,7 +659,7 @@ export const updateStackToolState = function (elementId, imageIndex) {
     ? elementId
     : document.getElementById(elementId);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   let enabledElement = cornerstone.getEnabledElement(element);

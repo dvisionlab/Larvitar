@@ -6,7 +6,11 @@ import TAG_DICT from "./dataDictionary.json";
 //now tag are in format "x00000000"
 import { convertBytes } from "dicom-character-set";
 import { DataSet, Element } from "dicom-parser";
+
+// internal libraries
+import { logger } from "../logger";
 import type { MetaDataTypes, ExtendedMetaDataTypes } from "./MetaDataTypes"; //custom type created as tag-type. { "x0000000":string, ...}
+
 /*
  * This module provides the following functions to be exported:
  * parseTag(dataSet, propertyName, element)
@@ -265,7 +269,7 @@ function getDICOMTag(code: string) {
   let newCode = code.charAt(0) + code.slice(1).toUpperCase();
 
   if (!Object.keys(TAG_DICT).includes(newCode)) {
-    console.debug(`Invalid tag key: ${newCode}`);
+    logger.debug(`Invalid tag key: ${newCode}`);
     return null;
   }
   // force type to keyof typeof TAG_DICT after having checked that it is a valid key
@@ -402,7 +406,7 @@ export function parseTag<T>(
             vr: vr
           });
         } catch (error) {
-          console.warn(
+          logger.warn(
             `Invalid Character Set for tag '${tagData}':'${characterSet}' `
           );
           valueOut = "ERROR_INVALID_CHAR_SET";

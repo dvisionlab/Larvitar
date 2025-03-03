@@ -86,12 +86,11 @@ larvitar.resetImageManager();
 larvitar
   .readFiles(demoFiles)
   .then(seriesStack => {
-    console.log(seriesStack);
     // render the first series of the study
     let seriesId = Object.keys(seriesStack)[0];
     let serie = seriesStack[seriesId];
     larvitar.renderImage(serie, "viewer").then(() => {
-      console.log("Image has been rendered");
+      larvitar.logger.debug("Image has been rendered");
     });
     // optionally cache the series
     larvitar.populateImageManager(seriesId, serie);
@@ -100,7 +99,7 @@ larvitar
       .cacheImages(serie, function (resp) {
         if (resp.loading == 100) {
           let cache = larvitar.cornerstone.imageCache;
-          console.log(
+          larvitar.logger.debug(
             "Cache size: ",
             cache.getCacheInfo().cacheSizeInBytes / 1e6,
             "Mb"
@@ -109,14 +108,13 @@ larvitar
       })
       .then(() => {
         setTimeout(function () {
-          console.log("Cache has been loaded. Calling loadMasks.");
+          larvitar.logger.debug("Cache has been loaded. Calling loadMasks.");
           larvitar.addDefaultTools();
           loadMasks();
         }, 3000);
       });
   })
   async function loadMasks() {
-    console.log("loadMasks() called");
     let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
     let properties = {
       // color: "#00ff00",
@@ -268,7 +266,7 @@ larvitar
 
     <script>
       function onOpenCvReady() {
-        console.log("OpenCV Ready", cv);
+        larvitar.logger.debug("OpenCV Ready", cv);
       }
     </script>
     <script
@@ -343,7 +341,6 @@ larvitar
       // Add an input event listener
       startInput.addEventListener("input", function (event) {
         // Update the variable with the input value
-        console.log("Start", event.target.value);
         larvitar.DEFAULT_TOOLS["WSToggle"].configuration.startIndex =
           event.target.value;
       });
@@ -351,7 +348,6 @@ larvitar
       // Add an input event listener
       endInput.addEventListener("input", function (event) {
         // Update the variable with the input value
-        console.log("end", event.target.value);
         larvitar.DEFAULT_TOOLS["WSToggle"].configuration.endIndex =
           event.target.value;
       });
@@ -378,6 +374,10 @@ larvitar
       element.addEventListener("click", rotateLoader);
       larvitar.registerNRRDImageLoader();
       larvitar.initSegmentationModule();
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       showSpinner();
       const cornerstone = larvitar.cornerstone;
       async function createFile(fileName, cb) {
@@ -396,13 +396,13 @@ larvitar
         larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
-            console.log(seriesStack);
+            larvitar.logger.debug(seriesStack);
             // render the first series of the study
             let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               hideSpinner();
-              console.log("Image has been rendered");
+              larvitar.logger.debug("Image has been rendered");
             });
             // optionally cache the series
             larvitar.populateImageManager(seriesId, serie);
@@ -411,7 +411,7 @@ larvitar
               .cacheImages(serie, function (resp) {
                 if (resp.loading == 100) {
                   let cache = larvitar.cornerstone.imageCache;
-                  console.log(
+                  larvitar.logger.debug(
                     "Cache size: ",
                     cache.getCacheInfo().cacheSizeInBytes / 1e6,
                     "Mb"
@@ -419,16 +419,17 @@ larvitar
                 }
               })
               .then(() => {
-                console.log("Cache has been loaded. Calling loadMasks.");
+                larvitar.logger.debug(
+                  "Cache has been loaded. Calling loadMasks."
+                );
                 larvitar.addDefaultTools();
                 loadMasks();
               });
           })
-          .catch(err => console.error(err));
+          .catch(err => larvitar.logger.error(err));
       }
 
       async function loadMasks() {
-        console.log("loadMasks() called");
         let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
         let properties = {
           // color: "#00ff00",

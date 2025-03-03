@@ -58,7 +58,6 @@ larvitar
     const serie = seriesStack[seriesId];
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer").then(() => {
-      console.log("Image has been rendered");
       larvitar.addDefaultTools();
       larvitar.setToolActive("CustomMouseWheelScroll");
     });
@@ -198,6 +197,9 @@ larvitar
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       // create files from the demo folder
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/4d/" + fileName);
@@ -266,6 +268,7 @@ larvitar
           larvitar
             .renderImage(multiFrameSerie, "viewer", frameId)
             .then(() => {
+              larvitar.logger.debug("Image has been rendered");
               hideSpinner();
               frames_number = manager[seriesId].numberOfTemporalPositions;
               larvitar.addDefaultTools();
@@ -306,7 +309,7 @@ larvitar
                 }
               };
             })
-            .catch(err => console.error(err));
+            .catch(err => larvitar.logger.error(err));
         });
       }
 

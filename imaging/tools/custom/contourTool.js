@@ -629,7 +629,7 @@ export class ContoursTool extends BaseAnnotationTool {
   handleSelectedCallback(evt, toolData, handle, interactionType = "mouse") {
     const { element } = evt.detail;
     const toolState = getToolState(element, this.name);
-    console.info(interactionType);
+    logger.info(interactionType);
     // if (handle.hasBoundingBox) {
     //   // Use default move handler.
     //   moveHandleNearImagePoint(evt, this, toolData, handle, interactionType);

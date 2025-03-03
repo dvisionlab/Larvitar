@@ -11,6 +11,7 @@ import { ViewportComplete } from "../../types";
 import { redrawImage, updateImage } from "../../../imageRendering";
 import imageStore from "../../../imageStore";
 const getNewContext = csTools.importInternal("drawing/getNewContext");
+import { logger } from "../../../../logger";
 
 //SHUTTER
 
@@ -93,7 +94,7 @@ export function retrieveDisplayShutter(
       }
       break;
     default:
-      console.warn("Unsupported shutter shape:", shutterShape);
+      logger.warn("Unsupported shutter shape:", shutterShape);
       break;
   }
 

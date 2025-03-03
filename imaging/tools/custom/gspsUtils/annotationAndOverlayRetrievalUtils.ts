@@ -10,6 +10,7 @@ import type {
 import { MetaData } from "../../../types";
 import { Overlay } from "../../types";
 import { convertCIELabToRGBWithRefs } from "./genericDrawingUtils";
+import { logger } from "../../../../logger";
 
 //RETRIEVE ANNOTATIONS
 
@@ -385,7 +386,7 @@ export function retrieveOverlayToolData(
   const shutterOverlayGroup = metadata.x00181623; // Shutter Overlay Group
   // Guard clause for undefined shutterOverlayGroup
   if (!shutterOverlayGroup) {
-    console.warn("Shutter overlay group is undefined.");
+    logger.warn("Shutter overlay group is undefined.");
     return;
   }
 
@@ -417,7 +418,7 @@ export function retrieveOverlayToolData(
     metadata[("x" + shutterOverlayGroup + "1001") as keyof MetaData]; //equal to layerOrder
 
   /*if (shutterShape !== "BITMAP") {
-      console.error("Unsupported shutter shape: ", shutterShape);
+      logger.error("Unsupported shutter shape: ", shutterShape);
       return;
     }*/
   const overlayRenderingOrder = overlayActivationLayer;

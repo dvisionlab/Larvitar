@@ -91,13 +91,13 @@ larvitar
     let serie = seriesStack[seriesId];
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer-base").then(() => {
-      console.log("Image axial has been rendered");
+      larvitar.logger.debug("Image axial has been rendered");
     });
     larvitar.cacheImages(serie, function (resp) {
       if (resp.loading == 100) {
         larvitar.resliceSeries(serie, "coronal").then(data => {
           larvitar.renderImage(data, "viewer-reslice").then(() => {
-            console.log("Image resliced has been rendered");
+            larvitar.logger.debug("Image resliced has been rendered");
           });
           larvitar.addDefaultTools();
           larvitar.setToolActive("Wwwc");
@@ -207,9 +207,12 @@ larvitar
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer-base");
       larvitar.store.addViewport("viewer-reslice");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       let demoFiles = [];
       let counter = 0;
-      console.log(spinnerBase);
       showSpinner(spinnerBase);
       showSpinner(spinnerReslice);
       const getDemoFileNames = function () {
@@ -241,14 +244,14 @@ larvitar
             larvitar.populateImageManager(seriesId, serie);
             larvitar.renderImage(serie, "viewer-base").then(() => {
               hideSpinner(spinnerBase);
-              console.log("Image axial has been rendered");
+              larvitar.logger.debug("Image axial has been rendered");
             });
             larvitar.cacheImages(serie, function (resp) {
               if (resp.loading == 100) {
                 larvitar.resliceSeries(serie, "coronal").then(data => {
                   larvitar.renderImage(data, "viewer-reslice").then(() => {
                     hideSpinner(spinnerReslice);
-                    console.log("Image resliced has been rendered");
+                    larvitar.logger.debug("Image resliced has been rendered");
                   });
                   larvitar.addDefaultTools();
                   larvitar.setToolActive("Wwwc");
@@ -256,7 +259,7 @@ larvitar
               }
             });
           })
-          .catch(err => console.log(err));
+          .catch(err => larvitar.logger.error(err));
       }
 
       let demoFileList = getDemoFileNames();

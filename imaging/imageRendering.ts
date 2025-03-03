@@ -9,6 +9,7 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 import { each, has } from "lodash";
 
 // internal libraries
+import { logger } from "../logger";
 import { getPerformanceMonitor } from "./monitors/performance";
 import { getDataFromFileManager, getFileManager } from "./imageManagers";
 import { csToolsCreateStack } from "./tools/main";
@@ -68,7 +69,7 @@ export const clearImageCache = function (seriesId?: string) {
           try {
             cornerstone.imageCache.removeImageLoadObject(imageId);
           } catch (e) {
-            console.warn("no cached image");
+            logger.warn("no cached image");
           }
         } else {
           let uri =
@@ -78,7 +79,7 @@ export const clearImageCache = function (seriesId?: string) {
       });
 
       store.removeSeriesId(seriesId);
-      console.log("Uncached images for ", seriesId);
+      logger.info("Uncached images for ", seriesId);
     }
   } else {
     cornerstone.imageCache.purgeCache();
@@ -108,8 +109,8 @@ export function loadAndCacheImage(
       cornerstone.loadAndCacheImage(imageId).then(function () {
         setStore(["cached", series.uniqueUID, imageId, true]);
         const t1 = performance.now();
-        console.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
-        console.debug(
+        logger.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
+        logger.debug(
           `Cached image with index ${imageIndex} for ${series.seriesUID}`
         );
         resolve(true);
@@ -161,8 +162,8 @@ export function loadAndCacheImages(
     setStore(["progress", series.seriesUID, cachingPercentage]);
     if (cachingCounter == series.imageIds.length) {
       const t1 = performance.now();
-      console.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
-      console.debug(`Cached images for ${series.seriesUID}`);
+      logger.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
+      logger.debug(`Cached images for ${series.seriesUID}`);
       response.series = series;
     }
   }
@@ -180,7 +181,7 @@ export function loadAndCacheImages(
       //throw new Error(`File ${index} has no Pixel Data`);
     } else {
       updateProgress();
-      console.warn(
+      logger.warn(
         `Stack is not fully loaded, skipping cache for index ${index}`
       );
       callback(response);
@@ -225,12 +226,12 @@ export const renderDICOMPDF = function (
       );
 
       if (!pdfByteArray) {
-        console.error("No pdf byte array found");
+        logger.error("No pdf byte array found");
         return;
       }
 
       if (!element) {
-        console.error("invalid html element: " + elementId);
+        logger.error("invalid html element: " + elementId);
         return;
       }
 
@@ -249,7 +250,7 @@ export const renderDICOMPDF = function (
           '" type="application/pdf" width="100%" height="100%"></object>';
         setStore(["isPDF", id, true]);
         let t1 = performance.now();
-        console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
+        logger.info(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
         image = null;
         fileTag = undefined;
         pdfByteArray = undefined;
@@ -261,7 +262,7 @@ export const renderDICOMPDF = function (
         // render first page // TODO: render all pages?
         renderFileImage(pngFiles[0], elementId).then(() => {
           let t1 = performance.now();
-          console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
+          logger.info(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
           image = null;
           fileTag = undefined;
           pdfByteArray = undefined;
@@ -272,7 +273,7 @@ export const renderDICOMPDF = function (
             if (fileManager) {
               csToolsCreateStack(element, Object.values(fileManager), 0);
             } else {
-              console.error("FileManager is null");
+              logger.error("FileManager is null");
             }
           }
           toggleMouseToolsListeners(id, false);
@@ -305,7 +306,7 @@ export const renderFileImage = function (
     : document.getElementById(elementId as string);
 
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return new Promise((_, reject) =>
       reject("invalid html element: " + elementId)
     );
@@ -326,14 +327,14 @@ export const renderFileImage = function (
     if (imageId) {
       cornerstone.loadImage(imageId).then(function (image) {
         if (!element) {
-          console.error("invalid html element: " + id);
+          logger.error("invalid html element: " + id);
           return;
         }
         cornerstone.displayImage(element, image);
         const viewport = cornerstone.getViewport(element) as Viewport;
 
         if (!viewport) {
-          console.error("invalid viewport");
+          logger.error("invalid viewport");
           return;
         }
         if (viewport.displayedArea) {
@@ -344,7 +345,7 @@ export const renderFileImage = function (
         cornerstone.fitToWindow(element);
 
         const t1 = performance.now();
-        console.log(`Call to renderFileImage took ${t1 - t0} milliseconds.`);
+        logger.info(`Call to renderFileImage took ${t1 - t0} milliseconds.`);
         //@ts-ignore
         image = null;
         //@ts-ignore
@@ -352,7 +353,7 @@ export const renderFileImage = function (
         resolve(true);
       });
     } else {
-      console.warn("imageId not found in fileManager");
+      logger.warn("imageId not found in fileManager");
     }
   });
   return renderPromise;
@@ -375,7 +376,7 @@ export const renderWebImage = function (
     : document.getElementById(elementId as string);
   let renderPromise = new Promise<cornerstone.Image>((resolve, reject) => {
     if (!element) {
-      console.error("invalid html element: " + elementId);
+      logger.error("invalid html element: " + elementId);
       reject("invalid html element: " + elementId);
       return;
     }
@@ -388,7 +389,7 @@ export const renderWebImage = function (
     }
     cornerstone.loadImage(url).then(function (image) {
       if (!element) {
-        console.error("invalid html element: " + elementId);
+        logger.error("invalid html element: " + elementId);
         reject("invalid html element: " + elementId);
         return;
       }
@@ -411,7 +412,7 @@ export const disableViewport = function (elementId: string | HTMLElement) {
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   toggleMouseToolsListeners(element, true);
@@ -432,7 +433,7 @@ export const unloadViewport = function (elementId: string, seriesId: string) {
   disableViewport(elementId);
 
   if (!seriesId) {
-    console.warn(
+    logger.warn(
       "seriesId not provided, use disableViewport if you do not want to uncache images"
     );
   }
@@ -455,7 +456,7 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   cornerstone.resize(element, true); // true flag forces fitToWindow
@@ -484,7 +485,7 @@ export const renderImage = function (
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return new Promise((_, reject) =>
       reject("invalid html element: " + elementId)
     );
@@ -508,7 +509,7 @@ export const renderImage = function (
   );
 
   if (!data.imageId) {
-    console.warn("error during renderImage: imageId has not been loaded yet.");
+    logger.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) => {
       setStore(["pendingSliceId", id, data.imageIndex]);
       reject("error during renderImage: imageId has not been loaded yet.");
@@ -526,7 +527,7 @@ export const renderImage = function (
       // load and display one image (imageId)
       loadImageFunction(data.imageId as string).then(function (image) {
         if (!element) {
-          console.error("invalid html element: " + elementId);
+          logger.error("invalid html element: " + elementId);
           reject("invalid html element: " + elementId);
           return;
         }
@@ -545,7 +546,7 @@ export const renderImage = function (
         const viewport = cornerstone.getViewport(element);
 
         if (!viewport) {
-          console.error("viewport not found");
+          logger.error("viewport not found");
           reject("viewport not found for element: " + elementId);
           return;
         }
@@ -606,7 +607,7 @@ export const renderImage = function (
         const storedViewport = cornerstone.getViewport(element);
 
         if (!storedViewport) {
-          console.error("storedViewport not found");
+          logger.error("storedViewport not found");
           reject("storedViewport not found for element: " + elementId);
           return;
         }
@@ -615,7 +616,7 @@ export const renderImage = function (
         setStore(["ready", element.id, true]);
         setStore(["seriesUID", element.id, data.seriesUID]);
         const t1 = performance.now();
-        console.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
+        logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
         const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
           data.imageId
@@ -654,7 +655,7 @@ export const redrawImage = function (elementId: string): void {
     const cornestoneElement = cornerstone.getEnabledElement(element);
     cornerstone.drawImage(cornestoneElement, true);
   } else {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
   }
 };
 
@@ -728,7 +729,7 @@ export const updateImage = async function (
         const t1 = performance.now();
         if (t0 !== undefined) {
           // check if t0 is defined before using it
-          console.log(
+          logger.info(
             `Call to updateImage for viewport ${id} took ${
               t1 - t0
             } milliseconds.`
@@ -757,7 +758,7 @@ export const updateImage = async function (
       const t1 = performance.now();
       if (t0 !== undefined) {
         // check if t0 is defined before using it
-        console.log(
+        logger.info(
           `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
         );
       }
@@ -789,7 +790,7 @@ export const resetViewports = function (
   each(elementIds, function (elementId: string) {
     const element = document.getElementById(elementId);
     if (!element) {
-      console.error("invalid html element: " + elementId);
+      logger.error("invalid html element: " + elementId);
       return;
     }
 
@@ -865,7 +866,7 @@ export const updateViewportData = function (
 ) {
   let element = document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   const toolsNames = Object.keys(DEFAULT_TOOLS);
@@ -917,11 +918,11 @@ export const updateViewportData = function (
         }
         break;
       default:
-        // console.warn("unhandled tool: " + activeTool);
+        // logger.warn("unhandled tool: " + activeTool);
         break;
     }
   } else {
-    console.warn("unknown tool: " + activeTool);
+    logger.warn("unknown tool: " + activeTool);
   }
 };
 
@@ -1034,7 +1035,7 @@ export const invertImage = function (elementId: string | HTMLElement) {
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   let viewport = cornerstone.getViewport(element);
@@ -1058,7 +1059,7 @@ export const flipImageHorizontal = function (elementId: string | HTMLElement) {
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   let viewport = cornerstone.getViewport(element);
@@ -1082,7 +1083,7 @@ export const flipImageVertical = function (elementId: string | HTMLElement) {
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   let viewport = cornerstone.getViewport(element);
@@ -1106,7 +1107,7 @@ export const rotateImageLeft = function (elementId: string | HTMLElement) {
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   let viewport = cornerstone.getViewport(element);
@@ -1130,7 +1131,7 @@ export const rotateImageRight = function (elementId: string | HTMLElement) {
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   let viewport = cornerstone.getViewport(element);
@@ -1337,9 +1338,7 @@ const getSeriesData = function (
       setStore(["errorLog", ""]);
     }
   } else {
-    console.warn(
-      `ImageId not found in imageIds with index ${data.imageIndex}.`
-    );
+    logger.warn(`ImageId not found in imageIds with index ${data.imageIndex}.`);
   }
 
   return data as SeriesData;
