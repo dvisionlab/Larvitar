@@ -169,6 +169,7 @@ export const getMultiFrameImageId = function (customLoaderName: string) {
  * @param {String} seriesId - SeriesId tag
  */
 export const clearMultiFrameCache = function (seriesId: string) {
+  let t0 = performance.now();
   each(multiframeDatasetCache, function (image, imageId) {
     if (!image) {
       return;
@@ -193,6 +194,8 @@ export const clearMultiFrameCache = function (seriesId: string) {
   if (!seriesId) {
     multiframeDatasetCache = null;
   }
+  let t1 = performance.now();
+  logger.debug(`Call to clearMultiFrameCache took ${t1 - t0} milliseconds.`);
 };
 
 /**

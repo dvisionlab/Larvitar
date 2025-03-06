@@ -21,6 +21,7 @@ import type {
   FileManager
 } from "./types";
 import { getFileCustomImageId } from "./loaders/fileLoader";
+import { logger } from "../logger";
 
 // global variables
 var imageManager: ImageManager = null;
@@ -118,6 +119,7 @@ export const getImageManager = function () {
  * @function resetImageManager
  */
 export const resetImageManager = function () {
+  let t0 = performance.now();
   each(imageManager, function (stack) {
     if ((stack as Series).isMultiframe) {
       if ((stack as Series).dataSet) {
@@ -141,6 +143,10 @@ export const resetImageManager = function () {
   });
   imageManager = null;
   imageTracker = null;
+  let t1 = performance.now();
+  logger.debug(
+    "Call to resetImageManager took " + (t1 - t0) + " milliseconds."
+  );
 };
 
 /**

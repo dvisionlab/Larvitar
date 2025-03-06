@@ -291,7 +291,6 @@ import {
   populateFileManager,
   getDataFromFileManager
 } from "./imaging/imageManagers";
-import { get } from "lodash";
 
 export {
   VERSION,
