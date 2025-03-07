@@ -601,6 +601,7 @@ export const addToolStateSingleSlice = function (
  * @function clearCornerstoneElements
  */
 export const clearCornerstoneElements = function () {
+  const t0 = performance.now();
   var enabledElements = cornerstone.getEnabledElements();
   var inMemElements = cloneDeep(enabledElements); // copy before modifying
   each(inMemElements, el => {
@@ -611,6 +612,10 @@ export const clearCornerstoneElements = function () {
     });
     cornerstone.disable(el.element);
   });
+  const t1 = performance.now();
+  logger.debug(
+    "Call to clearCornerstoneElements took " + (t1 - t0) + " milliseconds."
+  );
 };
 
 /**

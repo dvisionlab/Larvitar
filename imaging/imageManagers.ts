@@ -282,6 +282,7 @@ export const getGSPSManager = function (): GSPSManager {
  * @function resetGSPSManager
  */
 export const resetGSPSManager = function () {
+  const t0 = performance.now();
   if (gspsManager) {
     Object.keys(gspsManager).forEach(key => {
       const instances = gspsManager![key]; // Avoid null warning by asserting non-null
@@ -295,6 +296,8 @@ export const resetGSPSManager = function () {
     });
     gspsManager = null;
   }
+  const t1 = performance.now();
+  logger.debug("Call to resetGSPSManager took " + (t1 - t0) + " milliseconds.");
 };
 
 /**
@@ -350,5 +353,10 @@ export const getDataFromFileManager = function (
  * @function resetFileManager
  */
 export const resetFileManager = function () {
-  fileManager = null;
+  const t0 = performance.now();
+  if (fileManager) {
+    fileManager = null;
+  }
+  const t1 = performance.now();
+  logger.debug("Call to resetFileManager took " + (t1 - t0) + " milliseconds.");
 };

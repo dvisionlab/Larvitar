@@ -61,6 +61,7 @@ import { setPixelShift } from "./loaders/dsaImageLoader";
  * @param {String} seriesId - The id of the serie
  */
 export const clearImageCache = function (seriesId?: string) {
+  const t0 = performance.now();
   if (seriesId) {
     let series = store.get("series");
     if (has(series, seriesId)) {
@@ -84,6 +85,8 @@ export const clearImageCache = function (seriesId?: string) {
   } else {
     cornerstone.imageCache.purgeCache();
   }
+  const t1 = performance.now();
+  logger.debug(`Call to clearImageCache took ${t1 - t0} milliseconds.`);
 };
 
 /**
