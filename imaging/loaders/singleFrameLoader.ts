@@ -7,6 +7,7 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 
 // internal libraries
+import { logger } from "../../logger";
 import type { Image, ImageObject, MetaData, SingleFrameCache } from "../types";
 
 // global module variables
@@ -39,7 +40,7 @@ export const setSingleFrameCache = async function (
     let pixelData = new Uint8Array(array);
     singleFrameCache[imageId] = { pixelData, metadata };
     const t1 = performance.now();
-    console.debug(
+    logger.debug(
       `setSingleFrameCache took ${t1 - t0} milliseconds for image ${imageId}`
     );
     // free memory
@@ -55,7 +56,7 @@ export const setSingleFrameCache = async function (
       imageId: imageId
     };
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     throw error;
   }
 };

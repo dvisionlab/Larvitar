@@ -10,6 +10,7 @@ import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 
 // internal libraries
+import { logger } from "../../logger";
 import { DEFAULT_MOUSE_KEYS } from "./default";
 import { setToolActive } from "./main";
 import { isElement } from "../imageUtils";
@@ -83,13 +84,13 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
         .pop();
 
       if (!key) {
-        console.warn("Key not found in config.keyboard_shortcuts");
+        logger.warn("Key not found in config.keyboard_shortcuts");
         return;
       }
 
       let toolName = config.keyboard_shortcuts[key];
 
-      if (config.debug) console.log("active", toolName);
+      if (config.debug) logger.debug("active", toolName);
 
       const viewports = allViewports.filter(viewport =>
         cornerstoneTools.getToolForElement(viewport, toolName)
@@ -109,7 +110,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
       config.mouse_button_right.shift &&
       evt.keyCode == keyCodes.KEY_SHIFT
     ) {
-      if (config.debug) console.log("active", config.mouse_button_right.shift);
+      if (config.debug) logger.debug("active", config.mouse_button_right.shift);
       const viewports = allViewports.filter(viewport =>
         cornerstoneTools.getToolForElement(
           viewport,
@@ -130,7 +131,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
       config.mouse_button_right.ctrl &&
       evt.keyCode == keyCodes.KEY_CONTROL
     ) {
-      if (config.debug) console.log("active", config.mouse_button_right.ctrl);
+      if (config.debug) logger.debug("active", config.mouse_button_right.ctrl);
       const viewports = allViewports.filter(viewport =>
         cornerstoneTools.getToolForElement(
           viewport,
@@ -155,7 +156,7 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
   // Define behaviour on key up: restore original tool
   function onKeyUp(e: KeyboardEvent) {
     if (config.debug)
-      console.log("active default", config.mouse_button_right.default);
+      logger.debug("active default", config.mouse_button_right.default);
     const viewports = allViewports.filter(viewport =>
       cornerstoneTools.getToolForElement(
         viewport,
@@ -231,7 +232,7 @@ export const toggleMouseToolsListeners = function (
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
 

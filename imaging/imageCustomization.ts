@@ -18,6 +18,7 @@
 import { ByteArray, DataSet, Element } from "dicom-parser";
 
 // internal libraries
+import { logger } from "../logger";
 import { MetaData, Series, tags, customTags, sortedTags } from "./types";
 
 /*
@@ -53,9 +54,9 @@ export const customizeByteArray = function (
 
       let shift = 0;
       // filter custom tags not present in dataset
-      let customTagToBeChanged:any = {};
+      let customTagToBeChanged: any = {};
       for (const [key, value] of Object.entries(customTags)) {
-        if (dataSet.elements[key]){
+        if (dataSet.elements[key]) {
           let customTag = value;
           customTagToBeChanged[key] = customTag;
         }
@@ -140,7 +141,7 @@ export const customizeByteArray = function (
       metadata.patientBirthdate = metadata["x00100030"];
       metadata.seriesDescription = metadata["x0008103e"] as string;
     } else {
-      console.warn(`No dataset found for image ${imageId}`);
+      logger.warn(`No dataset found for image ${imageId}`);
     }
   }
 
@@ -278,7 +279,7 @@ function preProcessByteArray(dataSet: DataSet, metadata: MetaData) {
       }
     }
   } else {
-    console.warn("DataSet is undefined");
+    logger.warn("DataSet is undefined");
   }
 }
 

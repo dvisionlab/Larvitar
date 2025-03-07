@@ -12,6 +12,7 @@ const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
 const getToolState = cornerstoneTools.getToolState;
 
 // internal libraries
+import { logger } from "../../../logger";
 import store, { set as setStore } from "../../imageStore";
 import { DEFAULT_TOOLS } from "../default";
 import { StoreViewport } from "../../types";
@@ -127,12 +128,12 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
 
   toggleScrollMode(element: HTMLElement) {
     if (!element) {
-      console.error("Element is undefined");
+      logger.error("Element is undefined");
       return;
     }
     const toolData = getToolState(element, "stack");
     if (!toolData || !toolData.data || !toolData.data.length) {
-      console.error("No Tool Data");
+      logger.error("No Tool Data");
       return;
     }
     const stackData = toolData.data[0];

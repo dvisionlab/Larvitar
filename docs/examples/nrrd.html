@@ -160,6 +160,10 @@ reader.onload = function () {
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       showSpinner();
       createFile("example.nrrd", function (nrrd_file) {
         let reader = new FileReader();
@@ -168,6 +172,7 @@ reader.onload = function () {
           let volume = larvitar.importNRRDImage(reader.result);
           let serie = larvitar.buildNrrdImage(volume, "1234", {});
           larvitar.renderImage(serie, "viewer");
+          larvitar.logger.debug("Image has been rendered");
           hideSpinner();
           larvitar.addDefaultTools();
           larvitar.setToolActive("Wwwc");

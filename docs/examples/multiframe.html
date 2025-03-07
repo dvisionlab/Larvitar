@@ -65,16 +65,11 @@
   let frameId = 0;
   await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
   const t1 = performance.now();
-  console.log("Time to render First frame: " + (t1 - t0) + "ms");
   larvitar.addDefaultTools();
   larvitar.setToolActive("StackScroll");
 
   // Optionally cache images
-  //await larvitar.loadAndCacheImageStack(multiFrameSerie);
-  // console.log(
-  //   "Stack has been loaded and cached",
-  //   multiFrameSerie.bytes / 1048576
-  // );
+  // await larvitar.loadAndCacheImageStack(multiFrameSerie);
   // clearInterval(statId);
 
   let animation = true;
@@ -249,6 +244,10 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       showSpinner();
       async function renderSerie() {
         const t0 = performance.now();
@@ -264,13 +263,15 @@
         await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
         hideSpinner();
         const t1 = performance.now();
-        console.log("Time to render First frame: " + (t1 - t0) + "ms");
+        larvitar.logger.debug(
+          "Time to render First frame: " + (t1 - t0) + "ms"
+        );
         larvitar.addDefaultTools();
         larvitar.setToolActive("StackScroll");
 
         // optionally cache images
         //await larvitar.loadAndCacheImageStack(multiFrameSerie);
-        // console.log(
+        // larvitar.logger.debug(
         //   "Stack has been loaded and cached",
         //   multiFrameSerie.bytes / 1048576
         // );
@@ -295,7 +296,7 @@
         }, frameRate);
 
         const t2 = performance.now();
-        console.log("Time to start cine loop: " + (t2 - t0) + "ms");
+        larvitar.logger.debug("Time to start cine loop: " + (t2 - t0) + "ms");
 
         // add event listener to the wheel to update the UI
         document

@@ -32,12 +32,9 @@ import {
 } from "../../imageManagers";
 import { redrawImage, resetViewports } from "../../imageRendering";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
-import {
-  ImageParameters,
-  MeasurementMouseEvent,
-  ViewportComplete
-} from "../types";
+import { MeasurementMouseEvent, ViewportComplete } from "../types";
 import { ToolAnnotations } from "./gspsUtils/types";
+import { logger } from "../../../logger";
 const toolColors = csTools.toolColors;
 const setShadow = csTools.importInternal("drawing/setShadow");
 const getNewContext = csTools.importInternal("drawing/getNewContext");
@@ -278,10 +275,10 @@ export default class GspsTool extends BaseTool {
         const checkImageAvailability = setInterval(() => {
           if (activeElement.image !== undefined) {
             clearInterval(checkImageAvailability);
-            console.debug("Image is now available", activeElement.image);
+            logger.debug("Image is now available", activeElement.image);
             resolve(activeElement); // Resolve the promise with the activeElement
           } else {
-            console.debug("Image not yet available, continuing to poll...");
+            logger.debug("Image not yet available, continuing to poll...");
           }
         }, 100); // Poll every 100ms
 
@@ -292,7 +289,7 @@ export default class GspsTool extends BaseTool {
         }, 5000); // 5 seconds timeout
       });
     } catch (error) {
-      console.error("Error processing element:", error);
+      logger.error("Error processing element:", error);
       throw error; // Rethrow the error
     }
   }

@@ -33,6 +33,7 @@ import type {
   NrrdInstance,
   NrrdSeries
 } from "../types";
+import { logger } from "../../logger";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -247,7 +248,7 @@ export const buildNrrdImage = function (
   manager[seriesId] = image as NrrdSeries;
 
   let t1 = performance.now();
-  console.log(`Call to buildNrrdImage took ${t1 - t0} milliseconds.`);
+  logger.info(`Call to buildNrrdImage took ${t1 - t0} milliseconds.`);
   return image;
 };
 
@@ -316,7 +317,7 @@ export const getImageIdFromSlice = function (
   let firstImageId = firstImageIdStr?.split("//").pop();
 
   if (firstImageId == undefined) {
-    console.error("cannot find imageId for orientation: " + orientation);
+    logger.error("cannot find imageId for orientation: " + orientation);
     return "";
   }
 
@@ -346,7 +347,7 @@ export const getSliceNumberFromImageId = function (
   });
 
   if (firstImageIdStr == undefined) {
-    console.error("cannot find imageId for orientation: " + orientation);
+    logger.error("cannot find imageId for orientation: " + orientation);
     return 0;
   }
 
@@ -354,7 +355,7 @@ export const getSliceNumberFromImageId = function (
   let firstImageId = firstImageIdStr.split("//").pop();
 
   if (firstImageId == undefined) {
-    console.error("cannot find imageId for orientation: " + orientation);
+    logger.error("cannot find imageId for orientation: " + orientation);
     return 0;
   }
 
@@ -544,7 +545,7 @@ let createCustomImage = function (
       image.windowWidth = maxVoi - minVoi;
       image.windowCenter = (maxVoi + minVoi) / 2;
     } else {
-      console.error(
+      logger.error(
         "Unable to calculate default window width/center for imageId: " +
           imageId
       );

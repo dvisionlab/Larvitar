@@ -117,11 +117,9 @@ async function loadMasks() {
           navigator.clipboard.writeText(code);
         });
         closeCodeBtn.addEventListener("click", () => {
-          console.log("closed");
           larvitar.setToolActive("Brush");
         });
         closeCodeXBtn.addEventListener("click", () => {
-          console.log("closed");
           larvitar.setToolActive("Brush");
         });
       });
@@ -273,6 +271,10 @@ async function loadMasks() {
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
       larvitar.registerNRRDImageLoader();
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       showSpinner();
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
@@ -294,13 +296,14 @@ async function loadMasks() {
             let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
+              larvitar.logger.debug("Image has been rendered");
               hideSpinner();
               demoFiles = [];
               loadMasks();
               larvitar.addDefaultTools();
             });
           })
-          .catch(err => console.log(err));
+          .catch(err => larvitar.logger.error(err));
       }
 
       let demoFileList = getDemoFileNames();

@@ -9,6 +9,7 @@ import cornerstone from "cornerstone-core";
 // internal libraries
 import { isElement } from "./imageUtils";
 import { Series } from "./types";
+import { logger } from "../logger";
 
 /*
  * This module provides the following functions to be exported:
@@ -63,7 +64,7 @@ export const updateLayer = function (
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.log("not element");
+    logger.warn("not element");
     return;
   }
   let layer = cornerstone.getLayer(element, layerId);
@@ -93,7 +94,7 @@ export const getActiveLayer = function (elementId: string | HTMLElement) {
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.log("not element");
+    logger.warn("not element");
     return;
   }
   return cornerstone.getActiveLayer(element);
@@ -114,7 +115,7 @@ export const setActiveLayer = function (
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.log("not element");
+    logger.warn("not element");
     return;
   }
   cornerstone.setActiveLayer(element, layerId);

@@ -6,6 +6,7 @@
 import cornerstone from "cornerstone-core";
 import { EnabledElementLayer } from "cornerstone-core";
 import { each } from "lodash";
+import { logger } from "../logger";
 
 /*
  * This module provides the following functions to be exported:
@@ -86,7 +87,7 @@ export function fillPixelData(canvas: HTMLCanvasElement, colormapId: string) {
     }
     ctx.putImageData(colorbar, 0, 0);
   } else {
-    console.error("No context found for canvas", canvas);
+    logger.error("No context found for canvas", canvas);
   }
 }
 
@@ -111,7 +112,7 @@ export function applyColorMap(
     let element = document.getElementById(viewportName);
 
     if (!element) {
-      console.error("No element with id:", viewportName);
+      logger.error("No element with id:", viewportName);
       return;
     }
 
@@ -120,7 +121,7 @@ export function applyColorMap(
     try {
       enabledElement = cornerstone.getEnabledElement(element);
     } catch {
-      console.error("No enabledElement with id", viewportName);
+      logger.error("No enabledElement with id", viewportName);
       return;
     }
 

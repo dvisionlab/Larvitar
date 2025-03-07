@@ -58,7 +58,6 @@ larvitar
     let seriesId = Object.keys(seriesStack)[0];
     let serie = seriesStack[seriesId];
     larvitar.renderImage(serie, "viewer").then(() => {
-      console.log("Image has been rendered");
       larvitar.addDefaultTools();
 
       let mouseConfig = {
@@ -198,6 +197,10 @@ larvitar
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       showSpinner();
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
@@ -218,7 +221,7 @@ larvitar
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               hideSpinner();
-              console.log("Image has been rendered");
+              larvitar.logger.debug("Image has been rendered");
               larvitar.addDefaultTools();
 
               let mouseConfig = {
@@ -241,7 +244,7 @@ larvitar
               larvitar.addMouseKeyHandlers(mouseConfig);
             });
           })
-          .catch(err => console.log(err));
+          .catch(err => larvitar.logger.error(err));
       }
 
       let demoFileList = getDemoFileNames();

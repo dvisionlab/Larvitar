@@ -708,11 +708,6 @@ export default class WSToggleTool extends BaseBrushTool {
               markersArray[markersArrayIndex] = 0;
             }
           }
-          /*if(contourArray[markersArrayIndex]===1)
-        {
-          console.log("contour")
-          markersArray[markersArrayIndex] = 1;
-        }*/ //IF PREPROCESS IS USED
         }
         //iteration to set mask markers
         function processIteration(i: number, configuration: WSConfig) {
@@ -771,11 +766,6 @@ export default class WSToggleTool extends BaseBrushTool {
     //// Background pixel (marker value == 0)
     // markersArray[markersArrayIndex] = 0;
     // }
-    /*if(contourArray[markersArrayIndex]===1)
-        {
-          console.log("contour")
-          markersArray[markersArrayIndex] = 1;
-        }*/
     //}
     //}
 

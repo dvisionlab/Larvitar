@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0] - 2025-03-03
+
+🚀 Features Added:
+- Integrated Consola as the logging library for improved browser compatibility.
+- Logs are now colorized, formatted, and prefixed with [larvitar] for consistency.
+- Preserves correct file & line numbers in browser console.
+
 ## [3.0.0] - 2025-02-23
 
 ### ⚠️ Breaking Changes

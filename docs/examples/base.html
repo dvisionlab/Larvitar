@@ -127,7 +127,7 @@ larvitar
     const serie = seriesStack[seriesId];
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer").then(() => {
-      console.log("Image has been rendered");
+      larvitar.logger.debug("Image has been rendered");
       larvitar.addDefaultTools();
     });
   })`;
@@ -494,6 +494,9 @@ larvitar
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
         let data = await response.blob();
@@ -538,7 +541,7 @@ larvitar
             let manager = larvitar.getImageManager();
             let serie = manager[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
+              larvitar.logger.debug("Image has been rendered");
               hideSpinner(); // Hide the spinner when all files are processed
               larvitar.resetViewports(["viewer"]);
               larvitar.addDefaultTools();
@@ -551,7 +554,7 @@ larvitar
               larvitar.cacheImages(seriesStack[seriesId], function (resp) {
                 if (resp.loading == 100) {
                   let cache = larvitar.cornerstone.imageCache;
-                  console.log(
+                  larvitar.logger.debug(
                     "Cache size: ",
                     cache.getCacheInfo().cacheSizeInBytes / 1e6,
                     "Mb"
@@ -581,7 +584,7 @@ larvitar
               }
             }
           })
-          .catch(err => console.error(err));
+          .catch(err => larvitar.logger.error(err));
       }
 
       let demoFileList = getDemoFileNames();
@@ -604,7 +607,7 @@ larvitar
           const newSeriesId = seriesIds[index - 1];
           const serie = stack[newSeriesId];
           larvitar.renderImage(serie, "viewer").then(() => {
-            console.log("Image has been rendered");
+            larvitar.logger.debug("Image has been rendered");
             hideSpinner(); // Hide the spinner when all files are processed
             larvitar.resetViewports(["viewer"]);
           });
@@ -625,7 +628,7 @@ larvitar
           const newSeriesId = seriesIds[index + 1];
           const serie = stack[newSeriesId];
           larvitar.renderImage(serie, "viewer").then(() => {
-            console.log("Image has been rendered");
+            larvitar.logger.debug("Image has been rendered");
             hideSpinner(); // Hide the spinner when all files are processed
             larvitar.resetViewports(["viewer"]);
           });

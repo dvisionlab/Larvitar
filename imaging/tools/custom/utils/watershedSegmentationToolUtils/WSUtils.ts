@@ -182,13 +182,10 @@ export function calculateStats(
 //   gray: cv.Mat,
 //   markersArray: number[]
 // ) {
-//   console.log("Code is executing!");
 //   try {
-//     console.log("Code is trying!");
 //     // Apply morphological operations to fill gaps and smooth boundaries
 //     let kernel = cv.Mat.ones(5, 5, cv.CV_8U);
 //     markers.convertTo(markers, cv.CV_8U);
-//     console.log("Code is still trying!");
 //     cv.morphologyEx(
 //       markers,
 //       markers,
@@ -254,7 +251,7 @@ export function calculateStats(
 
 //     return markersArray;
 //   } catch (error) {
-//     console.error("Error in postProcess:", error);
+//     logger.error("Error in postProcess:", error);
 //     throw error; // Rethrow the error to propagate it further if needed
 //   }
 // }

@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { each } from "lodash";
 
 // internal libraries
+import { logger } from "../logger";
 import { getReslicedMetadata, getReslicedPixeldata } from "./imageUtils";
 import { getImageTracker, getImageManager } from "./imageManagers";
 import store from "./imageStore";
@@ -74,7 +75,7 @@ export function resliceSeries(
       //@ts-ignore deprecated
       manager[seriesData.seriesUID][orientation] = reslicedSeriesId;
       let t1 = performance.now();
-      console.log(`Call to resliceSeries took ${t1 - t0} milliseconds.`);
+      logger.info(`Call to resliceSeries took ${t1 - t0} milliseconds.`);
       resolve(reslicedSeries);
     }
     // reslice the data

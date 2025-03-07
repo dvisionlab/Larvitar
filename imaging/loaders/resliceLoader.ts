@@ -8,6 +8,7 @@ import cornerstone from "cornerstone-core";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 
 // internal libraries
+import { logger } from "../../logger";
 import { getImageFrame } from "./commonLoader";
 import { getImageTracker, getImageManager } from "../imageManagers";
 import type { Image, ImageFrame, MetaData } from "../types";
@@ -189,7 +190,7 @@ let createCustomImage = function (
       image.windowWidth = maxVoi - minVoi;
       image.windowCenter = (maxVoi + minVoi) / 2;
     } else {
-      console.error(
+      logger.error(
         "Unable to calculate default window width/center for imageId: " +
           imageId
       );

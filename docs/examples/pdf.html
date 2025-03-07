@@ -166,6 +166,10 @@ larvitar
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       showSpinner();
       function renderPDF() {
         larvitar.resetImageManager();
@@ -177,12 +181,13 @@ larvitar
             let serie =
               manager["1.2.276.0.7230010.3.1.3.296485376.1.1664404001.305752"];
             larvitar.renderDICOMPDF(serie, "viewer", true).then(() => {
+              larvitar.logger.debug("PDF has been rendered");
               hideSpinner();
               larvitar.addDefaultTools();
               larvitar.setToolActive("Pan"); //sx pan dx zoom
             });
           })
-          .catch(err => console.log(err));
+          .catch(err => larvitar.logger.error(err));
       }
 
       async function createFile(fileName, cb) {

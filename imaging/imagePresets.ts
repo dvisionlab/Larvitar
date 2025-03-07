@@ -8,6 +8,7 @@ import cornerstone from "cornerstone-core";
 import { each, find } from "lodash";
 
 // internal libraries
+import { logger } from "../logger";
 import { set as setStore } from "./imageStore";
 
 /**
@@ -53,7 +54,7 @@ export const setImagePreset = function (
   preset: string | (typeof IMAGE_PRESETS)[0]
 ) {
   if (!Array.isArray(viewportNames)) {
-    console.error(
+    logger.error(
       "Invalid parameter, viewportNames has to be an array of viewport names."
     );
     return;
@@ -62,7 +63,7 @@ export const setImagePreset = function (
     typeof preset === "string" ? find(IMAGE_PRESETS, { name: preset }) : preset;
 
   if (!image_preset) {
-    console.error("Invalid image preset");
+    logger.error("Invalid image preset");
     return;
   }
 
@@ -71,21 +72,21 @@ export const setImagePreset = function (
     let enabledElement;
 
     if (!element) {
-      console.warn("No element with id", viewportName);
+      logger.warn("No element with id", viewportName);
       return;
     }
 
     try {
       enabledElement = cornerstone.getEnabledElement(element);
     } catch {
-      console.warn("No enabledElement with id", viewportName);
+      logger.warn("No enabledElement with id", viewportName);
       return;
     }
 
     let viewport = cornerstone.getViewport(element);
 
     if (!viewport) {
-      console.warn("No viewport with id", viewportName);
+      logger.warn("No viewport with id", viewportName);
       return;
     }
 
@@ -114,7 +115,7 @@ export const setImageCustomPreset = function (
   customValues: { wl: number; ww: number }
 ) {
   if (!Array.isArray(viewportNames)) {
-    console.error(
+    logger.error(
       "Invalid parameter, viewportNames has to be an array of viewport names."
     );
     return;
@@ -124,21 +125,21 @@ export const setImageCustomPreset = function (
     let enabledElement;
 
     if (!element) {
-      console.warn("No element with id", viewportName);
+      logger.warn("No element with id", viewportName);
       return;
     }
 
     try {
       enabledElement = cornerstone.getEnabledElement(element);
     } catch {
-      console.warn("No enabledElement with id", viewportName);
+      logger.warn("No enabledElement with id", viewportName);
       return;
     }
 
     let viewport = cornerstone.getViewport(element);
 
     if (!viewport) {
-      console.warn("No viewport with id", viewportName);
+      logger.warn("No viewport with id", viewportName);
       return;
     }
 

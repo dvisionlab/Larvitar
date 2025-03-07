@@ -19,6 +19,7 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 );
 
 //internal imports
+import { logger } from "../../../logger";
 import { HandlePosition } from "../types";
 
 //interfaces/types
@@ -171,8 +172,8 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    */
   handleClick() {
     this.click += 1;
-    if (this.click === 3){
-      this.click = 0
+    if (this.click === 3) {
+      this.click = 0;
     }
   }
 
@@ -269,12 +270,12 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           index != -1 &&
           toolData.data[index] != undefined &&
           evt.buttons === 1) ||
-        (toolData.data[index] != undefined)
+        toolData.data[index] != undefined
       ) {
         const { clientY } = evt;
 
         if (clientY < this.lastY) {
-            toolData.data[index].handles.offset +=  -1;
+          toolData.data[index].handles.offset += -1;
         } else if (clientY > this.lastY) {
           toolData.data[index].handles.offset += 1;
         }
@@ -324,7 +325,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     this.image = eventData.image;
 
     if (!goodEventData) {
-      console.error(
+      logger.error(
         `required eventData not supplied to tool ${this.name}'s createNewMeasurement`
       );
       return;
@@ -381,7 +382,7 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     const validParameters = hasStartAndEndHandles;
 
     if (!validParameters) {
-      console.warn(
+      logger.warn(
         `invalid parameters supplied to tool ${this.name}'s pointNearTool`
       );
       return false;
@@ -454,9 +455,11 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         this.name
       );
       if (!toolData) {
-        if (this.eventData){
-          const plotDiv = document.getElementById(`plot-${this.eventData.element.id}`);
-          this.clearPlotlyData(plotDiv!)
+        if (this.eventData) {
+          const plotDiv = document.getElementById(
+            `plot-${this.eventData.element.id}`
+          );
+          this.clearPlotlyData(plotDiv!);
         }
         return;
       }
@@ -495,14 +498,11 @@ export default class LengthPlotTool extends BaseAnnotationTool {
 
           start = data.handles.start;
           end = data.handles.end;
-          if (
-            this.measuring === false &&
-            data.active === true
-          ) {
+          if (this.measuring === false && data.active === true) {
             data.handles.fixedoffset = data.handles.offset;
           }
           data.handles.offset =
-            (this.measuring === true && data.handles.end.moving === true)
+            this.measuring === true && data.handles.end.moving === true
               ? data.handles.offset
               : data.handles.fixedoffset;
           //data.handles.end.y = data.handles.start.y;
@@ -642,10 +642,10 @@ export default class LengthPlotTool extends BaseAnnotationTool {
           }
 
           if (!this.eventData) {
-            this.eventData = evt.detail as EventData
-            this.image =  this.eventData.image;
+            this.eventData = evt.detail as EventData;
+            this.image = this.eventData.image;
           }
-          this.setupPlot()
+          this.setupPlot();
         });
       }
     }
@@ -776,14 +776,14 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       plotDiv!.style.display = "block";
       Plotly.react(plotDiv as Plotly.Root, traces as Plotly.Data[], layout);
 
-      this.setupResizeObserver(plotDiv!)
+      this.setupResizeObserver(plotDiv!);
     }
   }
 
   clearPlotlyData(plotDiv: HTMLElement) {
     Plotly.purge(plotDiv as Plotly.Root);
     this.plotlydata = [];
-    this.removeResizeObserver(plotDiv!)
+    this.removeResizeObserver(plotDiv!);
   }
 
   setupResizeObserver(plotDiv: HTMLElement) {
@@ -805,7 +805,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       delete (plotDiv as any).__resizeObserver;
     }
   }
-
 }
 
 /**

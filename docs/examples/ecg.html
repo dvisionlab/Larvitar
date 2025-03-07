@@ -243,6 +243,10 @@ async function renderSerie() {
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       let demoFiles = [];
       showSpinner();
       async function renderSerie() {
@@ -263,7 +267,9 @@ async function renderSerie() {
         await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
         hideSpinner();
         const t1 = performance.now();
-        console.log("Time to render First frame: " + (t1 - t0) + "ms");
+        larvitar.logger.debug(
+          "Time to render First frame: " + (t1 - t0) + "ms"
+        );
         larvitar.addDefaultTools();
         larvitar.setToolActive("StackScroll");
 
@@ -272,7 +278,7 @@ async function renderSerie() {
         let animationId = null;
         let numberOfFrames = multiFrameSerie.numberOfFrames;
         let frameTime = multiFrameSerie.frameTime;
-        console.log("frameTime", frameTime);
+        larvitar.logger.debug("frameTime", frameTime);
         let frameRate = multiFrameSerie.frameTime;
         document.getElementById("frame-rate").innerText =
           "Frame Rate: " + frameRate.toFixed(3) + "ms";
@@ -312,7 +318,7 @@ async function renderSerie() {
         }, frameRate);
 
         const t2 = performance.now();
-        console.log("Time to start cine loop: " + (t2 - t0) + "ms");
+        larvitar.logger.debug("Time to start cine loop: " + (t2 - t0) + "ms");
 
         // add event listener to the wheel to update the UI
         document

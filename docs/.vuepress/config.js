@@ -47,6 +47,7 @@ export default {
             {
               text: "Modules",
               children: [
+                { text: "Logger", link: "/api/modules/logger.md" },
                 { text: "Store", link: "/api/modules/store.md" },
                 {
                   text: "Managers",

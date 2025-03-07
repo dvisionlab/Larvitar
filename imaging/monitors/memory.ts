@@ -3,6 +3,7 @@
  *        monitoring memory usage
  */
 
+import { logger } from "../../logger";
 import { getImageManager, removeDataFromImageManager } from "../imageManagers";
 import { clearImageCache } from "../imageRendering";
 import store from "../imageStore";
@@ -67,9 +68,9 @@ export const checkMemoryAllocation = function (bytes: number) {
     let availableMemory = getAvailableMemory();
     let isEnough = availableMemory - bytes - usedMemory > 0 ? true : false;
     if (!isEnough) {
-      console.log("Total Memory Available is: ", getMB(availableMemory), " MB");
-      console.log("Currently Used Memory is: ", getMB(usedMemory), " MB");
-      console.log(
+      logger.warn("Total Memory Available is: ", getMB(availableMemory), " MB");
+      logger.warn("Currently Used Memory is: ", getMB(usedMemory), " MB");
+      logger.warn(
         "New memory requested allocation is: ",
         getMB(usedMemory + bytes),
         " MB"
@@ -77,7 +78,7 @@ export const checkMemoryAllocation = function (bytes: number) {
     }
     return isEnough;
   } else {
-    console.warn("Check Memory Allocation is not supported");
+    logger.warn("Check Memory Allocation is not supported");
     return true;
   }
 };

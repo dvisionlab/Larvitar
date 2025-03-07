@@ -61,7 +61,6 @@ larvitar
     let seriesId = Object.keys(seriesStack)[0];
     let serie = seriesStack[seriesId];
     larvitar.renderImage(serie, "viewer").then(() => {
-      console.log("Image has been rendered");
     });
     // optionally cache the series
     larvitar.populateImageManager(seriesId, serie);
@@ -188,6 +187,10 @@ larvitar
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       larvitar.registerExternalTool("Test", TestTool);
       showSpinner();
       async function createFile(fileName, cb) {
@@ -211,14 +214,14 @@ larvitar
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               hideSpinner();
-              console.log("Image has been rendered");
+              larvitar.logger.debug("Image has been rendered");
             });
             // optionally cache the series
             larvitar.populateImageManager(seriesId, serie);
             larvitar.cacheImages(serie, function (resp) {
               if (resp.loading == 100) {
                 let cache = larvitar.cornerstone.imageCache;
-                console.log(
+                larvitar.logger.debug(
                   "Cache size: ",
                   cache.getCacheInfo().cacheSizeInBytes / 1e6,
                   "Mb"
@@ -228,7 +231,7 @@ larvitar
             larvitar.addTool("Test");
             larvitar.setToolActive("Test");
           })
-          .catch(err => console.error(err));
+          .catch(err => larvitar.logger.error(err));
       }
 
       let demoFileList = getDemoFileNames();

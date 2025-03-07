@@ -1,7 +1,9 @@
 //external imports
 import * as csTools from "cornerstone-tools";
-
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
+
+// internal imports
+import { logger } from "../../../logger";
 
 // cornerstone tools imports
 const external = csTools.external;
@@ -287,7 +289,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
       this.addMouseMoveEventListener();
     }
     if (!goodEventData) {
-      console.error(
+      logger.error(
         `required eventData not supplied to tool ${this.name}'s createNewMeasurement`
       );
 

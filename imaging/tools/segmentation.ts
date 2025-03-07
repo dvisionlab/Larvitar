@@ -4,13 +4,14 @@
  */
 
 // external libraries
-import cornerstone, { Viewport } from "cornerstone-core";
+import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { cloneDeep, extend, values, sum } from "lodash";
 const segModule = cornerstoneTools.getModule("segmentation");
 const { getters, setters } = segModule;
 
 // internal libraries
+import { logger } from "../../logger";
 import { setToolActive, setToolDisabled } from "./main";
 import { isElement } from "../imageUtils";
 import store from "../imageStore";
@@ -66,7 +67,7 @@ export function hexToRgb(hex: string) {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 
   if (!result) {
-    console.error("Error parsing hex color");
+    logger.error("Error parsing hex color");
     return [0, 0, 0];
   }
 
@@ -110,7 +111,7 @@ function HSVtoRGB([h, s, v]: [number, number, number]) {
       break;
     default:
       (r = v), (g = t), (b = p);
-      console.error("HSVtoRGB: Input color must be [h,s,v] 0-1");
+      logger.error("HSVtoRGB: Input color must be [h,s,v] 0-1");
   }
   return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
@@ -203,7 +204,7 @@ export function addSegmentationMask(
       ? (elementId as HTMLElement)
       : document.getElementById(elementId as string);
     if (!element) {
-      console.error("invalid html element: " + elementId);
+      logger.error("invalid html element: " + elementId);
       return;
     }
 
@@ -226,7 +227,7 @@ export function addSegmentationMask(
     if (currentImageIdIndex !== "error" && currentImageIdIndex >= 0) {
       updateStackToolState(element.id, currentImageIdIndex);
     } else {
-      console.error("Cannot get currentImageIdIndex");
+      logger.error("Cannot get currentImageIdIndex");
     }
 
     resolve();
@@ -254,7 +255,7 @@ export function loadMaskSlice(
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   let volumeId = 0; // TODO for multivolume
@@ -284,7 +285,7 @@ export function setActiveLabelmap(
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   setters.activeLabelmapIndex(element, labelId);
@@ -300,7 +301,7 @@ export function getActiveLabelmapBuffer(elementId: string | HTMLElement) {
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   return getters.activeLabelmapBuffer(element);
@@ -319,7 +320,7 @@ export function setActiveSegment(
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   setters.activeSegmentIndex(element, segmentIndex);
@@ -356,7 +357,7 @@ export function toggleVisibility(
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   let volumeId = 0; // TODO MULTIVOLUME
@@ -498,7 +499,7 @@ export function undoLastStroke(elementId: string | HTMLElement) {
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   let activeLabelMapIndex = segModule.getters.activeLabelmapIndex(element);
@@ -514,7 +515,7 @@ export function redoLastStroke(elementId: string | HTMLElement) {
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return;
   }
   let activeLabelMapIndex = segModule.getters.activeLabelmapIndex(element);
