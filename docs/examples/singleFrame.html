@@ -307,12 +307,10 @@
                 endLoop = frameId == numberOfFrames - 1 ? true : false;
                 const imageId = dicomSerie.imageIds[frameId];
                 const currentFrameId = imageId ? frameId : frameId - 1;
-                larvitar.updateImage(
-                  dicomSerie,
-                  canvasId,
-                  currentFrameId,
-                  true
-                );
+                larvitar.renderImage(dicomSerie, canvasId, {
+                  cached: true,
+                  defaultProps: { sliceNumber: currentFrameId }
+                });
                 frameId =
                   currentFrameId == numberOfFrames - 1 ? 0 : currentFrameId + 1;
                 if (endLoop) {

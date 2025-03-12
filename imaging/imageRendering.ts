@@ -10,7 +10,6 @@ import { each, has } from "lodash";
 
 // internal libraries
 import { logger } from "../logger";
-import { getPerformanceMonitor } from "./monitors/performance";
 import { getDataFromFileManager, getFileManager } from "./imageManagers";
 import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
@@ -41,7 +40,6 @@ import { setPixelShift } from "./loaders/dsaImageLoader";
  * resizeViewport(elementId)
  * renderImage(series, elementId, defaultProps)
  * redrawImage(elementId)
- * updateImage(series, elementId, imageIndex)
  * resetViewports([elementIds])
  * updateViewportData(elementId)
  * toggleMouseHandlers(elementId, disableFlag)
@@ -483,6 +481,7 @@ export const renderImage = function (
   }
 ): Promise<true> {
   const t0 = performance.now();
+
   // get element and enable it
   const element = isElement(elementId)
     ? (elementId as HTMLElement)
@@ -494,22 +493,24 @@ export const renderImage = function (
     );
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-
+  let firstRender = false;
   // check if there is an enabledElement with this id
   // otherwise, we will get an error and we will enable it
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
     cornerstone.enable(element);
+    // set ready to false since we are loading a new image
+    setStore(["ready", id, false]);
+    firstRender = true;
   }
 
-  setStore(["ready", id, false]);
-
   let series = { ...seriesStack };
-  let data = getSeriesData(
+  let data: StoreViewport = getSeriesData(
     series,
     options && options.defaultProps ? options.defaultProps : {}
   );
+  data = { ...data, ...store.get(["viewports", id]) };
 
   if (!data.imageId) {
     logger.warn("error during renderImage: imageId has not been loaded yet.");
@@ -517,6 +518,14 @@ export const renderImage = function (
       setStore(["pendingSliceId", id, data.imageIndex]);
       reject("error during renderImage: imageId has not been loaded yet.");
     });
+  }
+  if (data && data.isDSAEnabled) {
+    data.imageId = series.dsa!.imageIds[data.imageIndex!];
+  }
+  // get the optional custom pixel shift for DSA images
+  if (data.isDSAEnabled && data.pixelShift !== undefined) {
+    logger.debug("set pixelShift: " + data.pixelShift);
+    setPixelShift(data.pixelShift);
   }
 
   const loadImageFunction =
@@ -526,7 +535,11 @@ export const renderImage = function (
 
   const renderPromise = new Promise<true>((resolve, reject) => {
     //check if it is a metadata-only object
-    if (series.instances[data.imageId!].metadata.pixelDataLength != 0) {
+    const pixelDataLengthAllowed = data.isDSAEnabled
+      ? true
+      : data.imageId &&
+        series.instances[data.imageId!].metadata.pixelDataLength != 0;
+    if (pixelDataLengthAllowed === true) {
       // load and display one image (imageId)
       loadImageFunction(data.imageId as string).then(function (image) {
         if (!element) {
@@ -537,6 +550,10 @@ export const renderImage = function (
 
         cornerstone.displayImage(element, image);
 
+        if (options && options.cached) {
+          setStore(["cached", series.uniqueUID, data.imageId as string, true]);
+        }
+
         if (series.layer) {
           // assign the image to its layer and return its id
           series.layer.id = cornerstone.addLayer(
@@ -546,78 +563,105 @@ export const renderImage = function (
           );
         }
 
-        const viewport = cornerstone.getViewport(element);
+        if (firstRender) {
+          cornerstone.fitToWindow(element);
 
-        if (!viewport) {
-          logger.error("viewport not found");
-          reject("viewport not found for element: " + elementId);
-          return;
+          // update viewport data with default properties
+          const viewport = cornerstone.getViewport(element);
+          if (!viewport) {
+            logger.error("viewport not found");
+            reject("viewport not found for element: " + elementId);
+            return;
+          }
+
+          // window width and window level
+          // are stored in specific dicom tags
+          // (x00281050 and x00281051)
+          // if not present check in image object
+          if (data.viewport?.voi?.windowWidth === undefined) {
+            data.viewport.voi.windowWidth = image.windowWidth;
+          }
+          if (data.viewport?.voi?.windowCenter === undefined) {
+            data.viewport.voi.windowCenter = image.windowCenter;
+          }
+          if (data.default?.voi?.windowWidth === undefined) {
+            data.default.voi.windowWidth = data.viewport.voi.windowWidth;
+          }
+          if (data.default?.voi?.windowCenter === undefined) {
+            data.default.voi.windowCenter = data.viewport.voi.windowCenter;
+          }
+
+          if (
+            options &&
+            options.defaultProps &&
+            options &&
+            options.defaultProps.scale !== undefined
+          ) {
+            viewport.scale = options.defaultProps["scale"];
+            cornerstone.setViewport(element, viewport);
+          }
+
+          if (
+            options &&
+            options.defaultProps &&
+            options &&
+            options.defaultProps.tr_x !== undefined &&
+            options &&
+            options.defaultProps.tr_y !== undefined
+          ) {
+            viewport.translation.x = options.defaultProps.tr_x;
+            viewport.translation.y = options.defaultProps.tr_y;
+            cornerstone.setViewport(element, viewport);
+          }
+
+          // color maps
+          if (
+            options &&
+            options.defaultProps &&
+            options &&
+            options.defaultProps.colormap &&
+            image.color == false
+          ) {
+            applyColorMap(options.defaultProps["colormap"]);
+          }
+
+          const storedViewport = cornerstone.getViewport(element);
+
+          if (!storedViewport) {
+            logger.error("storedViewport not found");
+            reject("storedViewport not found for element: " + elementId);
+            return;
+          }
+
+          storeViewportData(
+            image,
+            element.id,
+            storedViewport as Viewport,
+            data
+          );
+
+          setStore(["ready", element.id, true]);
+          setStore(["seriesUID", element.id, data.seriesUID]);
+        } else {
+          setStore(["sliceId", id, data.imageIndex!]);
+          const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
+          if (data.imageIndex == pendingSliceId) {
+            setStore(["pendingSliceId", id, undefined]);
+          }
+          setStore(["minPixelValue", id, image.minPixelValue]);
+          setStore(["maxPixelValue", id, image.maxPixelValue]);
+
+          if (series.is4D) {
+            const timestamp =
+              series.instances[data.imageId!].metadata.contentTime;
+            const timeId =
+              series.instances[data.imageId!].metadata
+                .temporalPositionIdentifier! - 1; // timeId from 0 to N
+            setStore(["timeId", id as string, timeId]);
+            setStore(["timestamp", id as string, timestamp]);
+          }
         }
 
-        // window width and window level
-        // are stored in specific dicom tags
-        // (x00281050 and x00281051)
-        // if not present check in image object
-        if (data.viewport?.voi?.windowWidth === undefined) {
-          data.viewport.voi.windowWidth = image.windowWidth;
-        }
-        if (data.viewport?.voi?.windowCenter === undefined) {
-          data.viewport.voi.windowCenter = image.windowCenter;
-        }
-        if (data.default?.voi?.windowWidth === undefined) {
-          data.default.voi.windowWidth = data.viewport.voi.windowWidth;
-        }
-        if (data.default?.voi?.windowCenter === undefined) {
-          data.default.voi.windowCenter = data.viewport.voi.windowCenter;
-        }
-
-        cornerstone.fitToWindow(element);
-
-        if (
-          options &&
-          options.defaultProps &&
-          options &&
-          options.defaultProps.scale !== undefined
-        ) {
-          viewport.scale = options.defaultProps["scale"];
-          cornerstone.setViewport(element, viewport);
-        }
-
-        if (
-          options &&
-          options.defaultProps &&
-          options &&
-          options.defaultProps.tr_x !== undefined &&
-          options &&
-          options.defaultProps.tr_y !== undefined
-        ) {
-          viewport.translation.x = options.defaultProps.tr_x;
-          viewport.translation.y = options.defaultProps.tr_y;
-          cornerstone.setViewport(element, viewport);
-        }
-
-        // color maps
-        if (
-          options &&
-          options.defaultProps &&
-          options &&
-          options.defaultProps.colormap &&
-          image.color == false
-        ) {
-          applyColorMap(options.defaultProps["colormap"]);
-        }
-
-        const storedViewport = cornerstone.getViewport(element);
-
-        if (!storedViewport) {
-          logger.error("storedViewport not found");
-          reject("storedViewport not found for element: " + elementId);
-          return;
-        }
-
-        storeViewportData(image, element.id, storedViewport as Viewport, data);
-        setStore(["ready", element.id, true]);
-        setStore(["seriesUID", element.id, data.seriesUID]);
         const t1 = performance.now();
         logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
@@ -691,7 +735,7 @@ export const updateImage = async function (
       ? series.dsa!.imageIds[imageIndex]
       : series.imageIds[imageIndex];
 
-  //check if it is a metadata-only object
+  // check if it is a metadata-only object
   if (
     !isDSAEnabled &&
     imageId &&
@@ -721,24 +765,18 @@ export const updateImage = async function (
 
   if (cacheImage) {
     let t0: number | undefined;
-    if (getPerformanceMonitor() === true) {
-      t0 = performance.now();
-    }
 
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
       cornerstone.displayImage(element, image);
 
-      if (getPerformanceMonitor() === true) {
-        const t1 = performance.now();
-        if (t0 !== undefined) {
-          // check if t0 is defined before using it
-          logger.info(
-            `Call to updateImage for viewport ${id} took ${
-              t1 - t0
-            } milliseconds.`
-          );
-        }
+      const t1 = performance.now();
+      if (t0 !== undefined) {
+        // check if t0 is defined before using it
+        logger.debug(
+          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
+        );
       }
+
       setStore(["cached", series.uniqueUID, imageId, true]);
       setStore(["sliceId", id, imageIndex]);
       const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
@@ -750,21 +788,17 @@ export const updateImage = async function (
     });
   } else {
     let t0: number | undefined;
-    if (getPerformanceMonitor() === true) {
-      t0 = performance.now();
-    }
+    t0 = performance.now();
 
     const image = await cornerstone.loadImage(imageId);
     cornerstone.displayImage(element, image);
 
-    if (getPerformanceMonitor() === true) {
-      const t1 = performance.now();
-      if (t0 !== undefined) {
-        // check if t0 is defined before using it
-        logger.info(
-          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
-        );
-      }
+    const t1 = performance.now();
+    if (t0 !== undefined) {
+      // check if t0 is defined before using it
+      logger.debug(
+        `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
+      );
     }
 
     setStore(["sliceId", id, imageIndex]);
@@ -1232,12 +1266,12 @@ const getTemporalSeriesData = function (series: Series): StoreViewport {
  * @function getSeriesData
  * @param {Object} series - The parsed data series
  * @param {Object} defaultProps - Optional default properties
- * @return {Object} data - A data dictionary with parsed tags' values
+ * @return {StoreViewport} data - A data dictionary with parsed tags' values
  */
 const getSeriesData = function (
   series: Series,
   defaultProps: StoreViewportOptions
-) {
+): StoreViewport {
   type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;
   };
@@ -1245,10 +1279,14 @@ const getSeriesData = function (
   const data: RecursivePartial<SeriesData> = {};
   data.seriesUID = series.uniqueUID || series.seriesUID; //case of resliced series
   data.modality = series.modality;
+
   if (series.isMultiframe) {
     data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;
-    data.imageIndex = 0;
+    data.imageIndex =
+      defaultProps?.sliceNumber !== undefined && defaultProps?.sliceNumber >= 0
+        ? defaultProps.sliceNumber
+        : 0;
     data.imageId = series.imageIds[data.imageIndex];
     data.isTimeserie = false;
     data.numberOfFrames = series.numberOfFrames;
@@ -1258,7 +1296,10 @@ const getSeriesData = function (
     // check with real indices
     data.numberOfSlices = series.numberOfImages;
     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
-    data.imageIndex = 0;
+    data.imageIndex =
+      defaultProps?.sliceNumber !== undefined && defaultProps?.sliceNumber >= 0
+        ? defaultProps.sliceNumber
+        : 0;
     data.timeIndex = 0;
     data.imageId = series.imageIds[data.imageIndex];
     data.timestamp = series.instances[data.imageId].metadata[

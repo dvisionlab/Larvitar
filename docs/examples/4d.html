@@ -300,7 +300,9 @@ larvitar
                           ? sliceId - (frames_number - 1)
                           : sliceId + 1;
 
-                      larvitar.updateImage(serie, "viewer", sliceId, false);
+                      larvitar.renderImage(serie, "viewer", {
+                        defaultProps: { sliceNumber: sliceId }
+                      });
                       changeStamps();
                     }, 100);
                   } else {
