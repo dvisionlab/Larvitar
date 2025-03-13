@@ -32,8 +32,7 @@ These functions enable rendering of images from various sources and formats.
   - **PNG & JPEG:** Directly displayed as standard 2D images.
   - **PDF:** Requires conversion to an image format before rendering.
 - `renderWebImage(url, elementId)`: Loads and renders an image from a URL (PNG, JPEG, or other supported formats) into the designated viewport.
-- `renderImage(series, elementId, options)`: Displays an image series in the viewport while applying default rendering properties such as contrast, brightness, and annotations or caching settings.
-- `updateImage(series, elementId, imageIndex)`: Updates the displayed image in a given series, ensuring smooth navigation between slices or frames.
+- `renderImage(series, elementId, options)`: Displays an image series in the viewport while applying default rendering properties such as contrast, brightness, and annotations or caching settings. It also updates the displayed image in a given series, ensuring smooth navigation between slices or frames
 
 ### Viewport Management
 
@@ -59,7 +58,7 @@ Image transformation functions allow real-time modifications to improve visualiz
 
 ## Rendering API `renderImage`
 
-The `renderImage` function is responsible for rendering a DICOM image onto a specified HTML element using the cornerstone.js library. It initializes the rendering environment, loads the image, and applies optional transformations.
+The `renderImage` function is responsible for rendering a DICOM image onto a specified HTML element using the cornerstone.js library. It initializes the rendering environment, loads the image, and applies optional transformations. It supports caching for improved performance.
 
 ### Function Signature
 
@@ -138,75 +137,16 @@ larvitar.renderImage(seriesStack, "viewer", {
 - If the specified HTML element is invalid, the function rejects the promise with an error message.
 - If no image ID is found, the function logs a warning and rejects the promise.
 - If the viewport settings cannot be retrieved, the function logs an error and rejects the promise.
+  
+### Limitations
+- Requires the series to have valid image IDs and metadata.
+- If using DSA, ensures `setPixelShift` is called appropriately.
 
 ### Notes
 
 - This function is optimized to work with both single-frame and multi-frame DICOM images.
 - Uses `cornerstoneDICOMImageLoader` for fetching and handling image data.
 - Implements caching and efficient rendering techniques to improve performance.
-
-## Rendering API `updateImage`
-
-The `updateImage` function updates the cornerstone image within a viewport by rendering a new image at the specified `imageIndex`. It supports caching for improved performance and can handle 4D series updates.
-
-### Function Signature
-
-```typescript
-export const updateImage = function(
-  series: Series,
-  elementId: string | HTMLElement,
-  imageIndex: number,
-  cacheImage: boolean
-): Promise<void>
-```
-
-### Parameters
-| Parameter   | Type                     | Description |
-|------------|--------------------------|-------------|
-| `series`   | `Series`                 | The original series data object. |
-| `elementId` | `string \| HTMLElement` | The HTML element ID or DOM element used for rendering. |
-| `imageIndex` | `number`                 | The index of the image to be rendered. |
-| `cacheImage` | `boolean`                 | A flag to determine if the image should be cached. |
-
-### Returns
-Returns a `Promise<void>` that resolves when the image update completes.
-
-### How It Works
-1. **Retrieves the Element:**
-   - Identifies the target HTML element.
-   - Throws an error if the element is not found.
-
-2. **Determines Image ID:**
-   - If Digital Subtraction Angiography (DSA) is enabled, it selects the appropriate image ID.
-   - Handles metadata-only objects and ensures pixel data is available before updating.
-
-3. **Handles 4D Series Updates:**
-   - Updates `timestamp` and `timeId` if the series is 4D.
-
-4. **Loads and Displays the Image:**
-   - Uses `cornerstone.loadAndCacheImage` if caching is enabled.
-   - Otherwise, directly calls `cornerstone.loadImage`.
-   - Updates viewport state and logs performance timing.
-
-### Example Usage
-```typescript
-updateImage(seriesData, "viewer", 5, true)
-  .then(() => console.log("Image updated successfully."))
-  .catch((error) => console.error("Error updating image:", error));
-```
-
-### Error Handling
-- Throws an error if the target HTML element is not found.
-- Rejects if an invalid `imageIndex` is provided.
-- Logs performance timing when enabled.
-- 
-### Performance Considerations
-- Uses caching when `cacheImage` is set to `true` for better performance.
-- Measures execution time if performance monitoring is enabled.
-
-### Limitations
-- Requires the series to have valid image IDs and metadata.
-- If using DSA, ensures `setPixelShift` is called appropriately.
 
 ## Rendering API `renderDICOMPDF`
 
