@@ -209,6 +209,23 @@ export const renderDICOMPDF = function (
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
 
+  if (!element) {
+    logger.error("invalid html element: " + elementId);
+    return new Promise((_, reject) =>
+      reject("invalid html element: " + elementId)
+    );
+  }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+
+  // check if there is an enabledElement with this id
+  // otherwise, we will get an error and we will enable it
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    toggleMouseToolsListeners(id, false);
+    cornerstone.enable(element);
+  }
+
   let renderPromise = new Promise<true>(async (resolve, reject) => {
     let image: Instance | null = seriesStack.instances[seriesStack.imageIds[0]];
     const SOPUID = image.dataSet?.string("x00080016");
@@ -277,7 +294,7 @@ export const renderDICOMPDF = function (
               logger.error("FileManager is null");
             }
           }
-          toggleMouseToolsListeners(id, false);
+
           resolve(true);
         });
       }
@@ -501,6 +518,7 @@ export const renderImage = function (
     cornerstone.enable(element);
     // set ready to false since we are loading a new image
     setStore(["ready", id, false]);
+    toggleMouseToolsListeners(id, false);
   }
 
   let series = { ...seriesStack };
@@ -517,15 +535,21 @@ export const renderImage = function (
     });
   }
 
+  // this by default is the uniqueId of the rendered stack
+  const storedSeriesUID = store.get(["viewports", id, "seriesUID"]);
+  const isSeriesUIDChanged = storedSeriesUID !== data.seriesUID;
+  logger.debug("isSeriesUIDChanged: " + isSeriesUIDChanged);
+
+  // DSA ALGORITHM OPTIONS
   const dsaEnabled = store.get(["viewports", id, "isDSAEnabled"]);
   const pixelShift = store.get(["viewports", id, "pixelShift"]);
   if (dsaEnabled === true) {
     data.imageId = series.dsa!.imageIds[data.imageIndex!];
-  }
-  // get the optional custom pixel shift for DSA images
-  if (dsaEnabled === true && pixelShift !== undefined) {
-    logger.debug("set pixelShift: " + pixelShift);
-    setPixelShift(pixelShift);
+    // get the optional custom pixel shift for DSA images
+    if (pixelShift !== undefined) {
+      logger.debug("set pixelShift: " + pixelShift);
+      setPixelShift(pixelShift);
+    }
   }
 
   const loadImageFunction =
@@ -607,15 +631,13 @@ export const renderImage = function (
           applyColorMap(options.defaultProps["colormap"]);
         }
 
-        const storedSeriesUID = store.get(["viewports", id, "seriesUID"]);
-        if (storedSeriesUID !== data.seriesUID || series.dsa !== undefined) {
-          logger.debug("seriesUID changed, updating store");
+        if (isSeriesUIDChanged) {
           setStore(["seriesUID", element.id, data.seriesUID]);
           viewport.voi.windowWidth =
             data.default?.voi?.windowWidth || image.windowWidth;
           viewport.voi.windowCenter =
             data.default?.voi?.windowCenter || image.windowCenter;
-          logger.debug("updating cornestone viewport with default values");
+          logger.debug("updating cornerstone viewport with default values");
           cornerstone.setViewport(element, viewport);
         }
 
@@ -628,7 +650,7 @@ export const renderImage = function (
         }
 
         storeViewportData(image, element.id, storedViewport as Viewport, data);
-        //setStore(["ready", element.id, true]);
+        setStore(["ready", element.id, true]);
         const t1 = performance.now();
         logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
@@ -650,9 +672,14 @@ export const renderImage = function (
     }
   });
 
-  csToolsCreateStack(element, series.imageIds, (data.imageIndex as number) - 1);
-  toggleMouseToolsListeners(id, false);
-
+  if (isSeriesUIDChanged) {
+    logger.debug("seriesUID changed, creating stack");
+    csToolsCreateStack(
+      element,
+      series.imageIds,
+      (data.imageIndex as number) - 1
+    );
+  }
   return renderPromise;
 };
 
