@@ -17,7 +17,7 @@ const lineSegDistance = cornerstoneTools.importInternal("util/lineSegDistance");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
 );
-
+const EVENTS = cornerstoneTools.EVENTS;
 //internal imports
 import { logger } from "../../../logger";
 import { HandlePosition } from "../types";
@@ -256,33 +256,21 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    * @param {MouseEvent} evt
    * @returns {void}
    */
-  changeOffset(evt: MouseEvent) {
+  changeOffset(evt: WheelEvent) {
     const toolData: { data: data[] } = getToolState(
       this.currentTarget,
       this.name
     );
+
     if (toolData && this.click === 2) {
-      const index = toolData.data.findIndex(obj => obj.active === true);
+      if (evt.shiftKey) {
+        const { deltaY } = evt; // `deltaY` gives scroll direction
 
-      if (
-        (toolData.data.length != 0 &&
-          index != undefined &&
-          index != -1 &&
-          toolData.data[index] != undefined &&
-          evt.buttons === 1) ||
-        toolData.data[index] != undefined
-      ) {
-        const { clientY } = evt;
+        // Adjust offset based on scroll direction
+        const offsetChange = deltaY > 0 ? 1 : -1;
+        toolData.data[toolData.data.length - 1].handles.offset += offsetChange;
 
-        if (clientY < this.lastY) {
-          toolData.data[index].handles.offset += -1;
-        } else if (clientY > this.lastY) {
-          toolData.data[index].handles.offset += 1;
-        }
-
-        this.lastY = clientY;
-
-        evt.preventDefault();
+        evt.preventDefault(); // Prevent page scrolling
         this.renderToolData(evt);
 
         cornerstone.updateImage(this.eventData!.element);
@@ -299,25 +287,18 @@ export default class LengthPlotTool extends BaseAnnotationTool {
    */
   createNewMeasurement(eventData: EventData) {
     if (this.click !== 0) return;
-
+    this.click = 1;
     this.eventData = eventData;
     clearToolData(eventData.element, this.name);
-    if (this.datahandles) {
-      eventData.element.removeEventListener("mousemove", evt =>
-        this.changeOffset(evt)
-      );
-      eventData.element.removeEventListener("click", this.handleClick);
-    }
+
     if (this.datahandles != null) {
       this.datahandles = null;
       this.abovehandles = null;
       this.belowhandles = null;
       this.theta = null;
     }
-    eventData.element.addEventListener("click", this.handleClick);
-    eventData.element.addEventListener("mousemove", evt =>
-      this.changeOffset(evt)
-    );
+    eventData.element.addEventListener(EVENTS.MOUSE_DOWN, this.handleClick);
+    eventData.element.addEventListener("wheel", this.changeOffset);
 
     this.measuring = true;
     const goodEventData =
@@ -443,12 +424,8 @@ export default class LengthPlotTool extends BaseAnnotationTool {
       const element = this.evt.detail.element;
       this.borderRight = this.evt.detail.image.width;
 
-      const {
-        handleRadius,
-        drawHandlesOnHover,
-        hideHandlesIfMoving,
-        renderDashed
-      } = this.configuration;
+      const { drawHandlesOnHover, hideHandlesIfMoving, renderDashed } =
+        this.configuration;
 
       const toolData: { data: data[] } = getToolState(
         this.currentTarget,
@@ -463,7 +440,6 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         }
         return;
       }
-
       this.context = getNewContext(this.evt.detail.canvasContext.canvas);
 
       const lineDash: boolean = getModule("globalConfiguration").configuration
