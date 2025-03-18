@@ -99,18 +99,27 @@ export const renderImage = function (
 3. **Prepare Image Data**
    - Extracts series metadata and retrieves the appropriate image ID.
    - If the image ID is missing, it logs a warning and rejects the promise.
+   - If `defaultProps` is provided, it applies viewport settings.
 
-4. **Load and Render the Image**
+4. **Check for Series Change**
+   - Determines whether the current series differs from the previously loaded one.
+
+5. **Handle DSA (Digital Subtraction Angiography)**
+   - If the series is DSA, sets the pixel shift using `setPixelShift` to ensure proper rendering.
+   - If the series is DSA extract the imageId from the dsa series stack.
+
+6. **Load and Render the Image**
    - Loads the image using `cornerstone.loadImage` or `cornerstone.loadAndCacheImage`.
+   - If `cached` is true, the image is cached for future use.
    - Displays the image in the specified viewport.
    - Applies default viewport settings, including window width/center.
    - Fits the image to the window and applies transformations (scale, translation, colormap) if specified in `options.defaultProps`.
 
-5. **Store Viewport Data**
+7. **Store Viewport Data**
    - Saves viewport settings to ensure consistency across different renderings.
    - Sets `ready` status in the store to `true`.
 
-6. **Performance Logging and Cleanup**
+8. **Performance Logging and Cleanup**
    - Logs the time taken for rendering.
    - Clears memory references to avoid memory leaks.
 
