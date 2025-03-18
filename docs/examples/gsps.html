@@ -183,6 +183,7 @@ larvitar
         } else {
           larvitar.setToolEnabled("Gsps");
         }
+        larvitar.setToolActive("Wwwc");
         isGspsActive = !isGspsActive;
       }
       toggleGsps.addEventListener("click", toggleButton);
@@ -237,6 +238,7 @@ larvitar
               hideSpinner(); // Hide the spinner when all files are processed
               larvitar.addDefaultTools();
               larvitar.setToolEnabled("Gsps");
+              larvitar.setToolActive("Wwwc");
             });
           })
           .catch(err => larvitar.logger.error(err));
