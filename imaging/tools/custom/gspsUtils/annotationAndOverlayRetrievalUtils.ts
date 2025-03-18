@@ -386,7 +386,6 @@ export function retrieveOverlayToolData(
   const shutterOverlayGroup = metadata.x00181623; // Shutter Overlay Group
   // Guard clause for undefined shutterOverlayGroup
   if (!shutterOverlayGroup) {
-    logger.warn("Shutter overlay group is undefined.");
     return;
   }
 

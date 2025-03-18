@@ -393,40 +393,15 @@ larvitar
 
       async function renderSerie() {
         larvitar.resetImageManager();
-        larvitar
-          .readFiles(demoFiles)
-          .then(seriesStack => {
-            larvitar.logger.debug(seriesStack);
-            // render the first series of the study
-            let seriesId = Object.keys(seriesStack)[0];
-            let serie = seriesStack[seriesId];
-            larvitar.renderImage(serie, "viewer").then(() => {
-              hideSpinner();
-              larvitar.logger.debug("Image has been rendered");
-            });
-            // optionally cache the series
-            larvitar.populateImageManager(seriesId, serie);
-
-            larvitar
-              .cacheImages(serie, function (resp) {
-                if (resp.loading == 100) {
-                  let cache = larvitar.cornerstone.imageCache;
-                  larvitar.logger.debug(
-                    "Cache size: ",
-                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                    "Mb"
-                  );
-                }
-              })
-              .then(() => {
-                larvitar.logger.debug(
-                  "Cache has been loaded. Calling loadMasks."
-                );
-                larvitar.addDefaultTools();
-                loadMasks();
-              });
-          })
-          .catch(err => larvitar.logger.error(err));
+        const seriesStack = await larvitar.readFiles(demoFiles);
+        // render the first series of the study
+        let seriesId = Object.keys(seriesStack)[0];
+        let serie = seriesStack[seriesId];
+        await larvitar.renderImage(serie, "viewer");
+        hideSpinner();
+        larvitar.logger.debug("Image has been rendered");
+        larvitar.addDefaultTools();
+        await loadMasks();
       }
 
       async function loadMasks() {
