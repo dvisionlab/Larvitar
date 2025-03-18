@@ -10,7 +10,6 @@ import { each, has } from "lodash";
 
 // internal libraries
 import { logger } from "../logger";
-import { getPerformanceMonitor } from "./monitors/performance";
 import { getDataFromFileManager, getFileManager } from "./imageManagers";
 import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
@@ -41,7 +40,6 @@ import { setPixelShift } from "./loaders/dsaImageLoader";
  * resizeViewport(elementId)
  * renderImage(series, elementId, defaultProps)
  * redrawImage(elementId)
- * updateImage(series, elementId, imageIndex)
  * resetViewports([elementIds])
  * updateViewportData(elementId)
  * toggleMouseHandlers(elementId, disableFlag)
@@ -211,6 +209,23 @@ export const renderDICOMPDF = function (
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
 
+  if (!element) {
+    logger.error("invalid html element: " + elementId);
+    return new Promise((_, reject) =>
+      reject("invalid html element: " + elementId)
+    );
+  }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+
+  // check if there is an enabledElement with this id
+  // otherwise, we will get an error and we will enable it
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    toggleMouseToolsListeners(id, false);
+    cornerstone.enable(element);
+  }
+
   let renderPromise = new Promise<true>(async (resolve, reject) => {
     let image: Instance | null = seriesStack.instances[seriesStack.imageIds[0]];
     const SOPUID = image.dataSet?.string("x00080016");
@@ -279,7 +294,7 @@ export const renderDICOMPDF = function (
               logger.error("FileManager is null");
             }
           }
-          toggleMouseToolsListeners(id, false);
+
           resolve(true);
         });
       }
@@ -483,6 +498,7 @@ export const renderImage = function (
   }
 ): Promise<true> {
   const t0 = performance.now();
+
   // get element and enable it
   const element = isElement(elementId)
     ? (elementId as HTMLElement)
@@ -494,19 +510,19 @@ export const renderImage = function (
     );
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-
   // check if there is an enabledElement with this id
   // otherwise, we will get an error and we will enable it
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
     cornerstone.enable(element);
+    // set ready to false since we are loading a new image
+    setStore(["ready", id, false]);
+    toggleMouseToolsListeners(id, false);
   }
 
-  setStore(["ready", id, false]);
-
   let series = { ...seriesStack };
-  let data = getSeriesData(
+  let data: StoreViewport = getSeriesData(
     series,
     options && options.defaultProps ? options.defaultProps : {}
   );
@@ -519,6 +535,23 @@ export const renderImage = function (
     });
   }
 
+  // this by default is the uniqueId of the rendered stack
+  const storedSeriesUID = store.get(["viewports", id, "seriesUID"]);
+  const isSeriesUIDChanged = storedSeriesUID !== data.seriesUID;
+  logger.debug("isSeriesUIDChanged: " + isSeriesUIDChanged);
+
+  // DSA ALGORITHM OPTIONS
+  const dsaEnabled = store.get(["viewports", id, "isDSAEnabled"]);
+  const pixelShift = store.get(["viewports", id, "pixelShift"]);
+  if (dsaEnabled === true) {
+    data.imageId = series.dsa!.imageIds[data.imageIndex!];
+    // get the optional custom pixel shift for DSA images
+    if (pixelShift !== undefined) {
+      logger.debug("set pixelShift: " + pixelShift);
+      setPixelShift(pixelShift);
+    }
+  }
+
   const loadImageFunction =
     options && options.cached
       ? cornerstone.loadAndCacheImage
@@ -526,7 +559,11 @@ export const renderImage = function (
 
   const renderPromise = new Promise<true>((resolve, reject) => {
     //check if it is a metadata-only object
-    if (series.instances[data.imageId!].metadata.pixelDataLength != 0) {
+    const pixelDataLengthAllowed = dsaEnabled
+      ? true
+      : data.imageId &&
+        series.instances[data.imageId!].metadata.pixelDataLength != 0;
+    if (pixelDataLengthAllowed === true) {
       // load and display one image (imageId)
       loadImageFunction(data.imageId as string).then(function (image) {
         if (!element) {
@@ -537,6 +574,10 @@ export const renderImage = function (
 
         cornerstone.displayImage(element, image);
 
+        if (options && options.cached) {
+          setStore(["cached", series.uniqueUID, data.imageId as string, true]);
+        }
+
         if (series.layer) {
           // assign the image to its layer and return its id
           series.layer.id = cornerstone.addLayer(
@@ -546,32 +587,15 @@ export const renderImage = function (
           );
         }
 
-        const viewport = cornerstone.getViewport(element);
+        cornerstone.fitToWindow(element);
 
+        // update viewport data with default properties
+        const viewport = cornerstone.getViewport(element);
         if (!viewport) {
           logger.error("viewport not found");
           reject("viewport not found for element: " + elementId);
           return;
         }
-
-        // window width and window level
-        // are stored in specific dicom tags
-        // (x00281050 and x00281051)
-        // if not present check in image object
-        if (data.viewport?.voi?.windowWidth === undefined) {
-          data.viewport.voi.windowWidth = image.windowWidth;
-        }
-        if (data.viewport?.voi?.windowCenter === undefined) {
-          data.viewport.voi.windowCenter = image.windowCenter;
-        }
-        if (data.default?.voi?.windowWidth === undefined) {
-          data.default.voi.windowWidth = data.viewport.voi.windowWidth;
-        }
-        if (data.default?.voi?.windowCenter === undefined) {
-          data.default.voi.windowCenter = data.viewport.voi.windowCenter;
-        }
-
-        cornerstone.fitToWindow(element);
 
         if (
           options &&
@@ -607,6 +631,16 @@ export const renderImage = function (
           applyColorMap(options.defaultProps["colormap"]);
         }
 
+        if (isSeriesUIDChanged) {
+          setStore(["seriesUID", element.id, data.seriesUID]);
+          viewport.voi.windowWidth =
+            data.default?.voi?.windowWidth || image.windowWidth;
+          viewport.voi.windowCenter =
+            data.default?.voi?.windowCenter || image.windowCenter;
+          logger.debug("updating cornerstone viewport with default values");
+          cornerstone.setViewport(element, viewport);
+        }
+
         const storedViewport = cornerstone.getViewport(element);
 
         if (!storedViewport) {
@@ -617,7 +651,6 @@ export const renderImage = function (
 
         storeViewportData(image, element.id, storedViewport as Viewport, data);
         setStore(["ready", element.id, true]);
-        setStore(["seriesUID", element.id, data.seriesUID]);
         const t1 = performance.now();
         logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
@@ -636,13 +669,17 @@ export const renderImage = function (
     } else {
       setStore(["ready", element.id, true]);
       resolve(true);
-      //throw new Error("No pixel data for id: " + data.imageId);
     }
   });
 
-  csToolsCreateStack(element, series.imageIds, (data.imageIndex as number) - 1);
-  toggleMouseToolsListeners(id, false);
-
+  if (isSeriesUIDChanged) {
+    logger.debug("seriesUID changed, creating stack");
+    csToolsCreateStack(
+      element,
+      series.imageIds,
+      (data.imageIndex as number) - 1
+    );
+  }
   return renderPromise;
 };
 
@@ -663,6 +700,7 @@ export const redrawImage = function (elementId: string): void {
 };
 
 /**
+ * !!! DEPRECATED FUNCTION WILL BE REMOVED IN THE FUTURE !!!
  * Update the cornerstone image with new imageIndex
  * @instance
  * @function updateImage
@@ -691,7 +729,7 @@ export const updateImage = async function (
       ? series.dsa!.imageIds[imageIndex]
       : series.imageIds[imageIndex];
 
-  //check if it is a metadata-only object
+  // check if it is a metadata-only object
   if (
     !isDSAEnabled &&
     imageId &&
@@ -721,24 +759,18 @@ export const updateImage = async function (
 
   if (cacheImage) {
     let t0: number | undefined;
-    if (getPerformanceMonitor() === true) {
-      t0 = performance.now();
-    }
 
     cornerstone.loadAndCacheImage(imageId).then(function (image) {
       cornerstone.displayImage(element, image);
 
-      if (getPerformanceMonitor() === true) {
-        const t1 = performance.now();
-        if (t0 !== undefined) {
-          // check if t0 is defined before using it
-          logger.info(
-            `Call to updateImage for viewport ${id} took ${
-              t1 - t0
-            } milliseconds.`
-          );
-        }
+      const t1 = performance.now();
+      if (t0 !== undefined) {
+        // check if t0 is defined before using it
+        logger.debug(
+          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
+        );
       }
+
       setStore(["cached", series.uniqueUID, imageId, true]);
       setStore(["sliceId", id, imageIndex]);
       const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
@@ -750,21 +782,17 @@ export const updateImage = async function (
     });
   } else {
     let t0: number | undefined;
-    if (getPerformanceMonitor() === true) {
-      t0 = performance.now();
-    }
+    t0 = performance.now();
 
     const image = await cornerstone.loadImage(imageId);
     cornerstone.displayImage(element, image);
 
-    if (getPerformanceMonitor() === true) {
-      const t1 = performance.now();
-      if (t0 !== undefined) {
-        // check if t0 is defined before using it
-        logger.info(
-          `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
-        );
-      }
+    const t1 = performance.now();
+    if (t0 !== undefined) {
+      // check if t0 is defined before using it
+      logger.debug(
+        `Call to updateImage for viewport ${id} took ${t1 - t0} milliseconds.`
+      );
     }
 
     setStore(["sliceId", id, imageIndex]);
@@ -808,6 +836,7 @@ export const resetViewports = function (
       viewport.voi.windowWidth = defaultViewport.voi.windowWidth;
       viewport.voi.windowCenter = defaultViewport.voi.windowCenter;
       viewport.invert = defaultViewport.voi.invert;
+
       setStore([
         "contrast",
         elementId,
@@ -944,6 +973,8 @@ export const storeViewportData = function (
   viewport: Viewport,
   data: ReturnType<typeof getSeriesData>
 ) {
+  const t0 = performance.now();
+
   setStore(["dimensions", elementId, data.rows, data.cols]);
   setStore(["spacing", elementId, data.spacing_x, data.spacing_y]);
   setStore(["thickness", elementId, data.thickness]);
@@ -977,7 +1008,6 @@ export const storeViewportData = function (
       let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
       setStore(["maxSliceId", elementId, maxSliceId]);
     }
-
     setStore(["timestamp", elementId, data.timestamp]);
     setStore(["timestamps", elementId, data.timestamps]);
     setStore(["timeIds", elementId, data.timeIds]);
@@ -1025,6 +1055,9 @@ export const storeViewportData = function (
   setStore(["isPDF", elementId, false]);
   setStore(["waveform", elementId, data.waveform]);
   setStore(["dsa", elementId, data.dsa]);
+
+  const t1 = performance.now();
+  logger.debug(`Call to storeViewportData took ${t1 - t0} milliseconds.`);
 };
 
 /**
@@ -1232,12 +1265,12 @@ const getTemporalSeriesData = function (series: Series): StoreViewport {
  * @function getSeriesData
  * @param {Object} series - The parsed data series
  * @param {Object} defaultProps - Optional default properties
- * @return {Object} data - A data dictionary with parsed tags' values
+ * @return {StoreViewport} data - A data dictionary with parsed tags' values
  */
 const getSeriesData = function (
   series: Series,
   defaultProps: StoreViewportOptions
-) {
+): StoreViewport {
   type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;
   };
@@ -1245,10 +1278,14 @@ const getSeriesData = function (
   const data: RecursivePartial<SeriesData> = {};
   data.seriesUID = series.uniqueUID || series.seriesUID; //case of resliced series
   data.modality = series.modality;
+
   if (series.isMultiframe) {
     data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;
-    data.imageIndex = 0;
+    data.imageIndex =
+      defaultProps?.sliceNumber !== undefined && defaultProps?.sliceNumber >= 0
+        ? defaultProps.sliceNumber
+        : 0;
     data.imageId = series.imageIds[data.imageIndex];
     data.isTimeserie = false;
     data.numberOfFrames = series.numberOfFrames;
@@ -1258,7 +1295,10 @@ const getSeriesData = function (
     // check with real indices
     data.numberOfSlices = series.numberOfImages;
     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
-    data.imageIndex = 0;
+    data.imageIndex =
+      defaultProps?.sliceNumber !== undefined && defaultProps?.sliceNumber >= 0
+        ? defaultProps.sliceNumber
+        : 0;
     data.timeIndex = 0;
     data.imageId = series.imageIds[data.imageIndex];
     data.timestamp = series.instances[data.imageId].metadata[
@@ -1305,6 +1345,7 @@ const getSeriesData = function (
     let spacing = instance.metadata.x00280030!;
     data.spacing_x = spacing ? spacing[0] : 1;
     data.spacing_y = spacing ? spacing[1] : 1;
+
     // window center and window width
     data.viewport = {
       voi: {
@@ -1323,11 +1364,11 @@ const getSeriesData = function (
         windowCenter:
           defaultProps && has(defaultProps, "defaultWC")
             ? defaultProps.defaultWC
-            : data.viewport!.voi!.windowCenter,
+            : (instance.metadata.x00281050 as number),
         windowWidth:
           defaultProps && has(defaultProps, "defaultWW")
             ? defaultProps.defaultWW
-            : data.viewport!.voi!.windowWidth
+            : (instance.metadata.x00281051 as number)
       }
     };
 

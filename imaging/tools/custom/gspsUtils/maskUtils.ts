@@ -8,7 +8,7 @@ import {
 import { convertCIELabToRGBWithRefs } from "./genericDrawingUtils";
 import * as csTools from "cornerstone-tools";
 import { ViewportComplete } from "../../types";
-import { redrawImage, updateImage } from "../../../imageRendering";
+import { redrawImage, renderImage } from "../../../imageRendering";
 import imageStore from "../../../imageStore";
 const getNewContext = csTools.importInternal("drawing/getNewContext");
 import { logger } from "../../../../logger";
@@ -113,10 +113,10 @@ export function retrieveDisplayShutter(
  *
  * @returns {void}
  */
-export function applyMask(serie: Series, element: HTMLElement) {
+export function applyMask(serie: Series, element: HTMLElement): void {
   if (serie.isMultiframe) {
     const frameId = imageStore.get(["viewports", "viewer", "sliceId"]);
     imageStore.setDSAEnabled(element.id, true);
-    updateImage(serie, element.id, frameId, false);
+    renderImage(serie, element.id, { defaultProps: { sliceNumber: frameId } });
   }
 }

@@ -9,7 +9,7 @@ import cornerstone, { Image } from "cornerstone-core";
 // internal libraries
 import { logger } from "../../logger";
 import { DSA, Series } from "../types";
-import { updateImage, redrawImage } from "../imageRendering";
+import { renderImage, redrawImage } from "../imageRendering";
 import store from "../imageStore";
 
 /*
@@ -73,7 +73,10 @@ export const applyDSAShift = function (
   cornerstone.imageCache.removeImageLoadObject(imageId);
 
   // update image
-  updateImage(multiFrameSerie, elementId, frameId, true);
+  renderImage(multiFrameSerie, elementId, {
+    cached: true,
+    defaultProps: { sliceNumber: frameId }
+  });
   redrawImage(elementId);
 
   const t1 = performance.now();

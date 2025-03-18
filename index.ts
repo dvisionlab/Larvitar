@@ -19,10 +19,14 @@ function warnDeprecation(originalName: string, aliasName: string) {
 function createAliasWithWarning(
   originalFunction: Function,
   originalName: string,
-  aliasName: string
+  aliasName: string,
+  onlyWarn: boolean = false
 ) {
   return function (...args: any) {
     warnDeprecation(originalName, aliasName);
+    if (onlyWarn) {
+      return;
+    }
     return originalFunction(...args);
   };
 }
@@ -141,7 +145,6 @@ import {
   unloadViewport,
   resizeViewport,
   renderImage,
-  updateImage,
   redrawImage,
   resetViewports,
   updateViewportData,
@@ -383,7 +386,6 @@ export {
   unloadViewport,
   resizeViewport,
   renderImage,
-  updateImage,
   redrawImage,
   resetViewports,
   updateViewportData,
@@ -588,4 +590,11 @@ export const getFileImageId = createAliasWithWarning(
   getDataFromFileManager,
   "getDataFromFileManager",
   "getFileImageId"
+);
+
+export const updateImage = createAliasWithWarning(
+  renderImage,
+  "renderImage",
+  "updateImage",
+  true
 );

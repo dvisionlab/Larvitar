@@ -1,5 +1,19 @@
 # Changelog
 
+
+## [3.2.0] - 2025-03-17
+
+🚀 Key Changes:
+- `updateImage` is now deprecated:
+  - The method `updateImage` should no longer be used and will be removed in future versions.
+
+- `renderImage` is now the single rendering method:
+  - All functionalities previously handled by `updateImage` are now integrated into `renderImage`, which becomes the standard method for image rendering.
+
+**Deprecated Aliases for Backward Compatibility**:
+  - `updateImage → renderImage`
+
+
 ## [3.1.0] - 2025-03-03
 
 🚀 Features Added:

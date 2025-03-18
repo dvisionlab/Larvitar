@@ -374,7 +374,7 @@ larvitar
       }
 
       // Function to handle the full list once it's ready
-      function processFileList(demoFiles) {
+      function processFileList() {
         renderSerie();
       }
 
@@ -492,7 +492,6 @@ larvitar
       larvitar.registerMultiFrameImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();
-      larvitar.store.addViewport("viewer");
 
       // set log level to debug
       larvitar.setLogLevel("debug");
@@ -532,35 +531,24 @@ larvitar
 
       function renderSerie() {
         larvitar.resetImageManager();
+        larvitar.disableViewport("viewer");
+        larvitar.store.addViewport("viewer");
         larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
+            //populate the image manager with the series
+            for (const [uniqueId, data] of Object.entries(seriesStack)) {
+              larvitar.populateImageManager(uniqueId, data);
+            }
             // render the first series of the study
             let seriesId = Object.keys(seriesStack)[0];
-            larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
             let manager = larvitar.getImageManager();
             let serie = manager[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               larvitar.logger.debug("Image has been rendered");
               hideSpinner(); // Hide the spinner when all files are processed
-              larvitar.resetViewports(["viewer"]);
               larvitar.addDefaultTools();
               larvitar.setToolActive("Wwwc");
-            });
-            // optionally cache the series
-
-            Object.keys(seriesStack).forEach(seriesId => {
-              larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
-              larvitar.cacheImages(seriesStack[seriesId], function (resp) {
-                if (resp.loading == 100) {
-                  let cache = larvitar.cornerstone.imageCache;
-                  larvitar.logger.debug(
-                    "Cache size: ",
-                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                    "Mb"
-                  );
-                }
-              });
             });
 
             series = serie;
@@ -609,7 +597,6 @@ larvitar
           larvitar.renderImage(serie, "viewer").then(() => {
             larvitar.logger.debug("Image has been rendered");
             hideSpinner(); // Hide the spinner when all files are processed
-            larvitar.resetViewports(["viewer"]);
           });
         }
       }
@@ -630,7 +617,6 @@ larvitar
           larvitar.renderImage(serie, "viewer").then(() => {
             larvitar.logger.debug("Image has been rendered");
             hideSpinner(); // Hide the spinner when all files are processed
-            larvitar.resetViewports(["viewer"]);
           });
         }
       }
