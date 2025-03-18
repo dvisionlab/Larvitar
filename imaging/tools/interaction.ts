@@ -254,7 +254,7 @@ export const toggleMouseToolsListeners = function (
   }
 
   if (disable) {
-    console.debug("remove mouse tools listeners");
+    logger.debug("remove mouse tools listeners");
     element.removeEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
     element.removeEventListener(
       "cornerstonetoolsstackscroll",
@@ -263,7 +263,7 @@ export const toggleMouseToolsListeners = function (
     return;
   }
 
-  console.debug("add mouse tools listeners");
+  logger.debug("add mouse tools listeners");
   element.addEventListener("cornerstonetoolsmousedrag", mouseMoveHandler);
   element.addEventListener("cornerstonetoolsstackscroll", mouseWheelHandler);
 };
