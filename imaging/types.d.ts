@@ -61,7 +61,7 @@ export type StoreViewport = {
   isPDF: boolean;
   waveform: boolean;
   dsa: boolean;
-  imageIndex?: number; // TODO CAN BE DEPRECATED?
+  imageIndex?: number;
   imageId?: string;
   numberOfSlices?: number;
   numberOfTemporalPositions?: number;

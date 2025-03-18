@@ -64,7 +64,7 @@ let manager = larvitar.getImageManager();
 let multiFrameSerie = manager[seriesId];
 
 let frameId = 0;
-await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+await larvitar.renderImage(multiFrameSerie, "viewer", {defaultProps: { sliceNumber: frameId }});
 
 larvitar.addDefaultTools();
 larvitar.setToolActive("Wwwc");
@@ -212,7 +212,9 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
         let multiFrameSerie = manager[seriesId];
 
         let frameId = 0;
-        await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        await larvitar.renderImage(multiFrameSerie, "viewer", {
+          defaultProps: { sliceNumber: frameId }
+        });
         hideSpinner();
         larvitar.logger.debug("Image has been rendered");
 
@@ -256,17 +258,23 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
             case 49: // 1
               // standard Mode
               larvitar.store.setDSAEnabled(["viewer"], false);
-              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+              larvitar.renderImage(multiFrameSerie, "viewer", {
+                defaultProps: { sliceNumber: frameId }
+              });
               break;
             case 50: // 2
               // DSA Mode
               larvitar.store.setDSAEnabled(["viewer"], true);
-              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+              larvitar.renderImage(multiFrameSerie, "viewer", {
+                defaultProps: { sliceNumber: frameId }
+              });
               break;
             case 51: // 3
               // async function
               larvitar.loadAndCacheDsaImageStack(multiFrameSerie, true);
-              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+              larvitar.renderImage(multiFrameSerie, "viewer", {
+                defaultProps: { sliceNumber: frameId }
+              });
               larvitar.redrawImage("viewer");
               break;
             case 119: // W
@@ -324,12 +332,9 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
                     frameId == multiFrameSerie.numberOfFrames - 1
                       ? 0
                       : frameId + 1;
-                  larvitar.updateImage(
-                    multiFrameSerie,
-                    "viewer",
-                    frameId,
-                    false
-                  );
+                  larvitar.renderImage(multiFrameSerie, "viewer", {
+                    defaultProps: { sliceNumber: frameId }
+                  });
                   document.getElementById("image-time").innerText =
                     "Current Frame: " +
                     parseInt(frameId + 1) +

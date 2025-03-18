@@ -70,7 +70,7 @@ async function renderSerie() {
   }
 
   // Render the first frame
-  await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+  await larvitar.renderImage(multiFrameSerie, "viewer", {defaultProps: { sliceNumber: frameId }});
   larvitar.addDefaultTools();
   larvitar.setToolActive("StackScroll");
 
@@ -88,7 +88,7 @@ async function renderSerie() {
     frameId = endLoop ? 0 : frameId + 1;
 
     let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
-    larvitar.updateImage(series, "viewer", frameId, true);
+    larvitar.renderImage(series, "viewer", {cached: true, defaultProps: { sliceNumber: frameId }});
     larvitar.updateStackToolState("viewer", frameId);
 
     if (updateECG) {
@@ -264,7 +264,9 @@ async function renderSerie() {
         if (multiFrameSerie.waveform) {
           larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
         }
-        await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        await larvitar.renderImage(multiFrameSerie, "viewer", {
+          defaultProps: { sliceNumber: frameId }
+        });
         hideSpinner();
         const t1 = performance.now();
         larvitar.logger.debug(
@@ -296,7 +298,10 @@ async function renderSerie() {
           endLoop = frameId == numberOfFrames - 1 ? true : false;
           let series = larvitar.getDataFromImageManager(seriesId);
           frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-          larvitar.updateImage(series, "viewer", frameId, true);
+          larvitar.renderImage(series, "viewer", {
+            cached: true,
+            defaultProps: { sliceNumber: frameId }
+          });
           larvitar.updateStackToolState("viewer", frameId);
           document.getElementById("image-time").innerText =
             "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames;
@@ -418,19 +423,23 @@ async function renderSerie() {
               animationId = setInterval(function () {
                 let series = larvitar.getDataFromImageManager(seriesId);
                 frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-                larvitar.updateImage(series, "viewer", frameId, false);
+                larvitar.renderImage(series, "viewer", {
+                  defaultProps: { sliceNumber: frameId }
+                });
                 larvitar.updateStackToolState("viewer", frameId);
                 document.getElementById("image-time").innerText =
                   "Current Frame: " +
                   parseInt(frameId + 1) +
                   " of " +
                   numberOfFrames;
-                larvitar.updateECGMarker(
-                  trace_data,
-                  frameId,
-                  numberOfFrames,
-                  "ecg"
-                );
+                if (updateECG) {
+                  larvitar.updateECGMarker(
+                    trace_data,
+                    frameId,
+                    numberOfFrames,
+                    "ecg"
+                  );
+                }
               }, frameRate);
             } else {
               clearInterval(animationId);

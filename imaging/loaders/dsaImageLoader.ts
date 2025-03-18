@@ -63,8 +63,7 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
  * Populate the DSA imageIds for a given seriesId
  * @export
  * @function populateDsaImageIds
- * @param {String} seriesId - SeriesId tag
- * @param {Object} serie - parsed serie object
+ * @param {string} uniqueUID - The unique identifier for the series
  */
 export const populateDsaImageIds = function (uniqueUID: string) {
   let t0 = performance.now();

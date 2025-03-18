@@ -80,7 +80,7 @@
   animationId = setInterval(function () {
     let series = larvitar.getDataFromImageManager(seriesId);
     frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-    larvitar.updateImage(series, "viewer", frameId, true);
+    larvitar.renderImage(series, "viewer", {cached: true, defaultProps: { sliceNumber: frameId }});
   }, frameRate);
 `;
 
@@ -260,7 +260,10 @@
         let multiFrameSerie = manager[seriesId];
 
         let frameId = 0;
-        await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        await larvitar.renderImage(multiFrameSerie, "viewer", {
+          cached: true,
+          defaultProps: { sliceNumber: frameId }
+        });
         hideSpinner();
         const t1 = performance.now();
         larvitar.logger.debug(
@@ -289,7 +292,10 @@
         animationId = setInterval(function () {
           let series = larvitar.getDataFromImageManager(seriesId);
           frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-          larvitar.updateImage(series, "viewer", frameId, true);
+          larvitar.renderImage(multiFrameSerie, "viewer", {
+            cached: true,
+            defaultProps: { sliceNumber: frameId }
+          });
 
           document.getElementById("image-time").innerText =
             "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames;
@@ -327,7 +333,10 @@
               animationId = setInterval(function () {
                 let series = larvitar.getDataFromImageManager(seriesId);
                 frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-                larvitar.updateImage(series, "viewer", frameId, false);
+                larvitar.renderImage(multiFrameSerie, "viewer", {
+                  cached: true,
+                  defaultProps: { sliceNumber: frameId }
+                });
 
                 document.getElementById("image-time").innerText =
                   "Current Frame: " +

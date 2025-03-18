@@ -56,7 +56,7 @@ const initializeCSTools = function (
  * @function csToolsCreateStack
  * @param {HTMLElement} element - The target html element.
  * @param {Array?} imageIds - Stack image ids.
- * @param {String} currentImageId - The current image id.
+ * @param {number?} currentImageIndex - The current image id.
  */
 const csToolsCreateStack = function (
   element: HTMLElement,
