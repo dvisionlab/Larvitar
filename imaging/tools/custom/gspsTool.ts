@@ -257,6 +257,7 @@ export default class GspsTool extends BaseTool {
   }
 
   resetViewportToDefault(element: HTMLElement) {
+    if (!this.gspsViewport && !this.originalViewport) return;
     const isZoomed = this.gspsViewport.scale !== this.originalViewport.scale;
 
     const isContrastModified =
