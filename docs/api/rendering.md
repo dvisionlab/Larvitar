@@ -66,22 +66,50 @@ The `renderImage` function is responsible for rendering a DICOM image onto a spe
 export const renderImage = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
-  options?: {
-    defaultProps?: StoreViewportOptions;
-    cached?: boolean;
-  }
+  options?: RenderProps
 ): Promise<true>
 ```
 
 ### Parameters
 
-| Parameter  | Type                 | Description |
-|------------|----------------------|-------------|
-| `seriesStack` | `Series` | The series stack containing image data. |
-| `elementId` | `string | HTMLElement` | The ID or the actual HTML element where the image will be rendered. |
-| `options` | `object (optional)` | Configuration options for rendering. |
-| `options.defaultProps` | `StoreViewportOptions (optional)` | Default viewport properties. |
-| `options.cached` | `boolean (optional)` | Whether to cache the image during loading. |
+| Parameter     | Type                    | Description                                                         |
+|---------------|-------------------------|---------------------------------------------------------------------|
+| `seriesStack` | `Series`                | The series stack containing image data.                             |
+| `elementId`   | `string or HTMLElement` | The ID or the actual HTML element where the image will be rendered. |
+| `options`     | `RenderProps (optional)`| Optional configuration options for rendering.                       |
+
+#### `RenderProps` Interface
+
+All properties are optional.
+
+| Property              | Type         | Description                                      |
+|-----------------------|--------------|--------------------------------------------------|
+| `cached`              | `boolean`    | Whether to cache the image for future use.       |
+| `imageIndex`          | `number`     | The index of the image to be rendered (0, N-1)   |
+| `scale`               | `number`     | The scale factor for the image.                  |
+| `rotation`            | `number`     | The rotation angle for the image.                |
+| `translation`         | `translation`| The translation vector for the image.            |
+| `voi`                 | `contrast`   | The windowing parameters for the image.          |
+| `colormap`            | `string`     | The colormap to be applied to the image.         |
+| `default.scale`       | `number`     | Default scale factor for the image.              |
+| `default.rotation`    | `number`     | Default rotation angle for the image.            |
+| `default.translation` | `translation`| Default translation vector for the image.        |
+| `default.voi`         | `contrast`   | Default windowing parameters for the image.      |
+
+#### `Contrast` Interface
+
+| Property              | Type         | Description                                |
+|-----------------------|--------------|--------------------------------------------|
+| `windowWidth`         | `number`     | The window width for the image.            |
+| `windowCenter`        | `number`     | The window center for the image.           |
+
+#### `Translation` Interface
+
+| Property     | Type      | Description                       |
+|--------------|-----------|-----------------------------------|
+| `x`          | `number`  | The translation along the x-axis. |
+| `y`          | `number`  | The translation along the y-axis. |
+
 
 ### Returns
 
@@ -95,46 +123,55 @@ export const renderImage = function (
 
 2. **Enable Cornerstone on the Element**
    - If the element is not already enabled, it enables it using `cornerstone.enable`.
+   - Enable mouse listeners for the element using `toggleMouseToolsListeners`.
 
 3. **Prepare Image Data**
-   - Extracts series metadata and retrieves the appropriate image ID.
+   - Extracts series metadata and retrieves the appropriate image ID based on the series stack and optional `renderProps.imageIndex` value.
    - If the image ID is missing, it logs a warning and rejects the promise.
-   - If `defaultProps` is provided, it applies viewport settings.
+   - If `renderProps` is provided, it applies custom viewport settings.
 
 4. **Check for Series Change**
-   - Determines whether the current series differs from the previously loaded one.
+   - Determines whether the current series (`uniqueID`) differs from the previously loaded one.
 
 5. **Handle DSA (Digital Subtraction Angiography)**
    - If the series is DSA, sets the pixel shift using `setPixelShift` to ensure proper rendering.
    - If the series is DSA extract the imageId from the dsa series stack.
 
 6. **Load and Render the Image**
-   - Loads the image using `cornerstone.loadImage` or `cornerstone.loadAndCacheImage`.
-   - If `cached` is true, the image is cached for future use.
+   - Loads the image using `cornerstone.loadImage` or `cornerstone.loadAndCacheImage` depending on the `cached` option. If `cached` is true, the image is cached for future use and imageId is flagged as cached into the store.
    - Displays the image in the specified viewport.
-   - Applies default viewport settings, including window width/center.
-   - Fits the image to the window and applies transformations (scale, translation, colormap) if specified in `options.defaultProps`.
+   - Set optional custom settings such as scale, rotation, translation, colormap, and windowing parameters based on the `renderProps` parameter.
+   - if the series has changed, it resets the viewport to its default state if not specified otherwise in the `renderProps` parameter.
 
 7. **Store Viewport Data**
    - Saves viewport settings to ensure consistency across different renderings.
    - Sets `ready` status in the store to `true`.
 
-8. **Performance Logging and Cleanup**
+8. **Cornerstone Tools Stack Synchronization**
+   - Synchronizes the stack of images in the viewport using `csToolsCreateStack`.
+
+9. **Performance Logging and Cleanup**
    - Logs the time taken for rendering.
    - Clears memory references to avoid memory leaks.
 
 ### Example Usage
 
 ```typescript
-larvitar.renderImage(seriesStack, "viewer", {
-  defaultProps: {
-    scale: 1.5,
-    tr_x: 50,
-    tr_y: 20,
-    colormap: "hotiron"
-  },
-  cached: true
-}).then(() => {
+const options: RenderProps = {
+  cached: true,
+  scale: 1.5,
+  translation: { x: 50, y: 20 },
+  colormap: "hotiron",
+  voi: { windowWidth: 400, windowCenter: 200 },
+  default: {
+    scale: 2,
+    translation: { x: 0, y: 0 },
+  }
+};
+```
+
+```typescript
+larvitar.renderImage(seriesStack, "viewer", options).then(() => {
   console.log("Image successfully rendered.");
 }).catch((error) => {
   console.error("Error rendering image:", error);

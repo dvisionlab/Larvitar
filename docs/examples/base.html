@@ -544,9 +544,25 @@ larvitar
             let seriesId = Object.keys(seriesStack)[0];
             let manager = larvitar.getImageManager();
             let serie = manager[seriesId];
+
+            // const options = {
+            //   imageIndex: 3,
+            //   scale: 5,
+            //   rotation: 40,
+            //   translation: {
+            //     x: 5,
+            //     y: 5
+            //   },
+            //   voi: {
+            //     windowCenter: 40,
+            //     windowWidth: 400
+            //   }
+            // };
+
             larvitar.renderImage(serie, "viewer").then(() => {
               larvitar.logger.debug("Image has been rendered");
               hideSpinner(); // Hide the spinner when all files are processed
+              larvitar.csToolsUpdateImageIds("viewer", serie.imageIds);
               larvitar.addDefaultTools();
               larvitar.setToolActive("Wwwc");
             });
@@ -596,6 +612,7 @@ larvitar
           const serie = stack[newSeriesId];
           larvitar.renderImage(serie, "viewer").then(() => {
             larvitar.logger.debug("Image has been rendered");
+            larvitar.csToolsUpdateImageIds("viewer", serie.imageIds);
             hideSpinner(); // Hide the spinner when all files are processed
           });
         }
@@ -616,6 +633,7 @@ larvitar
           const serie = stack[newSeriesId];
           larvitar.renderImage(serie, "viewer").then(() => {
             larvitar.logger.debug("Image has been rendered");
+            larvitar.csToolsUpdateImageIds("viewer", serie.imageIds);
             hideSpinner(); // Hide the spinner when all files are processed
           });
         }

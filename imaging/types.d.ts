@@ -371,3 +371,22 @@ export type SingleFrameCache = {
   pixelData: TypedArray;
   metadata: MetaData;
 };
+
+type contrast = { windowCenter: number; windowWidth: number };
+type translation = { x: number; y: number };
+
+export type RenderProps = {
+  cached?: boolean;
+  imageIndex?: number;
+  scale?: number;
+  rotation?: number;
+  translation?: translation;
+  voi?: contrast;
+  colormap?: string;
+  default?: {
+    scale?: number;
+    rotation?: number;
+    translation?: translation;
+    voi?: contrast;
+  };
+};

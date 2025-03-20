@@ -182,7 +182,7 @@ export const syncECGFrame = function (
         getDataFromImageManager(seriesId);
       if (series) {
         renderImage(series as Series, canvasId, {
-          defaultProps: { sliceNumber: frameId }
+          imageIndex: frameId
         });
         updateStackToolState(canvasId, frameId);
       }
