@@ -38,7 +38,7 @@ import { setPixelShift } from "./loaders/dsaImageLoader";
  * disableViewport(elementId)
  * unloadViewport(elementId, seriesId)
  * resizeViewport(elementId)
- * renderImage(series, elementId, remderOptions)
+ * renderImage(series, elementId, renderOptions)
  * redrawImage(elementId)
  * resetViewports([elementIds])
  * updateViewportData(elementId)
