@@ -55,33 +55,25 @@ const initializeCSTools = function (
  * Create stack object to sync stack tools
  * @function csToolsCreateStack
  * @param {HTMLElement} element - The target html element.
- * @param {Array?} imageIds - Stack image ids.
+ * @param {Array} imageIds - Stack image ids.
  * @param {number?} currentImageIndex - The current image id.
  */
 const csToolsCreateStack = function (
   element: HTMLElement,
-  imageIds?: string[],
+  imageIds: string[],
   currentImageIndex?: number
 ) {
-  let stack;
-  if (imageIds) {
-    stack = {
-      currentImageIdIndex:
-        currentImageIndex === undefined ? 0 : currentImageIndex,
-      imageIds: imageIds
-    };
-  } else {
-    stack = {
-      currentImageIdIndex: 0,
-      imageIds: "imageLoader://0"
-    };
-    // check if there is an enabledElement with this id
-    // otherwise, we will get an error and we will enable it
-    try {
-      cornerstone.getEnabledElement(element);
-    } catch (e) {
-      cornerstone.enable(element);
-    }
+  const stack = {
+    currentImageIdIndex:
+      currentImageIndex === undefined ? 0 : currentImageIndex,
+    imageIds: imageIds
+  };
+  // check if there is an enabledElement with this id
+  // otherwise, we will get an error and we will enable it
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    cornerstone.enable(element);
   }
   cornerstoneTools.addStackStateManager(element, ["stack"]);
   cornerstoneTools.addToolState(element, "stack", stack);

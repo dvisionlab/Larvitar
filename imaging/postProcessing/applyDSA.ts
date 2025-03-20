@@ -75,7 +75,7 @@ export const applyDSAShift = function (
   // update image
   renderImage(multiFrameSerie, elementId, {
     cached: true,
-    defaultProps: { sliceNumber: frameId }
+    imageIndex: frameId
   });
   redrawImage(elementId);
 
