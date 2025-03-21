@@ -43,31 +43,31 @@ describe("Testing the base.html functionalities", () => {
         const larvitarManager = larvitar.getLarvitarManager();
 
         // Verify the specific study exists
-        const studyInstanceUID =
+        const seriesInstanceUID =
           "1.2.840.113619.2.176.2025.1499492.7391.1171285944.394";
-        expect(larvitarManager).to.have.property(studyInstanceUID);
+        expect(larvitarManager).to.have.property(seriesInstanceUID);
 
         // Verify study data structure
-        const studyData = larvitarManager[studyInstanceUID];
+        const seriesData = larvitarManager[seriesInstanceUID];
 
         // Check image IDs are loaded (should be 24 based on the demo file loading)
-        expect(studyData.imageIds).to.have.length(24);
+        expect(seriesData.imageIds).to.have.length(24);
 
         // Verify all image IDs are properly formatted strings
-        studyData.imageIds.forEach(imageId => {
+        seriesData.imageIds.forEach(imageId => {
           expect(imageId).to.be.a("string");
           expect(imageId).to.include("dicomfile");
         });
 
         // Verify instances object exists and contains all images
-        expect(studyData).to.have.property("instances");
-        expect(Object.keys(studyData.instances)).to.have.length(
-          studyData.imageIds.length
+        expect(seriesData).to.have.property("instances");
+        expect(Object.keys(seriesData.instances)).to.have.length(
+          seriesData.imageIds.length
         );
 
         // Verify manager has current image index tracking
-        expect(studyData).to.have.property("currentImageIdIndex");
-        expect(studyData.currentImageIdIndex).to.be.a("number");
+        expect(seriesData).to.have.property("currentImageIdIndex");
+        expect(seriesData.currentImageIdIndex).to.be.a("number");
       });
   });
   it("should have the correct title", () => {

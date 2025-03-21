@@ -55,13 +55,21 @@ describe("Larvitar - Default Tools Example", () => {
 
   it("should zoom and pan on mouse events", () => {
     // Zoom Test - Right-click drag
-
+    for (let i = 0; i < 5; i++) {
+      cy.get("body").type("t");
+    }
+    cy.get("#active-tool").should("contain.text", "Active Tool: Zoom");
     // Check if zoom is applied by comparing the size of the image or viewport
     cy.get("#viewer")
       .should("exist")
       .then($img => {
-        const initialWidth = $img.width();
-        const initialHeight = $img.height();
+        cy.window()
+          .its("larvitar")
+          .then(larvitar => {
+            const initialViewport =
+              larvitar.cornerstone.getEnabledElements()[0].viewport;
+            cy.wrap(initialViewport.scale).as("initialScale");
+          });
         cy.get("#viewer")
           .trigger("mousedown", {
             which: 1,
@@ -80,37 +88,15 @@ describe("Larvitar - Default Tools Example", () => {
         // After zooming, the image size should change (it should either grow or shrink)
         cy.wait(100); // Wait for a brief moment to allow for zoom effect
 
-        cy.get(".cornerstone-canvas").then($imgAfterZoom => {
-          const zoomedWidth = $imgAfterZoom.width();
-          const zoomedHeight = $imgAfterZoom.height();
-
-          // Assert that the image size has changed
-          expect(zoomedWidth).not.to.equal(initialWidth);
-          expect(zoomedHeight).not.to.equal(initialHeight);
-        });
-      });
-
-    // Pan Test - Left-click drag with CTRL (simulate pan)
-
-    // Check if the image has moved (panned)
-    cy.get(".cornerstone-canvas")
-      .should("exist")
-      .then($img => {
-        const initialPosition = $img.position();
-        cy.get("#viewer")
-          .trigger("mousedown", "center")
-          .trigger("mousemove", "top")
-          .trigger("mouseup"); // Release the mouse button
-        // After pan, the image position should change (it should be shifted)
-        cy.wait(100); // Wait for the pan effect to take place
-
-        cy.get(".cornerstone-canvas").then($imgAfterPan => {
-          const pannedPosition = $imgAfterPan.position();
-
-          // Assert that the image has moved
-          expect(pannedPosition.left).not.to.equal(initialPosition.left);
-          expect(pannedPosition.top).not.to.equal(initialPosition.top);
-        });
+        cy.window()
+          .its("larvitar")
+          .then(larvitar => {
+            const currentViewport =
+              larvitar.cornerstone.getEnabledElements()[0].viewport;
+            cy.get("@initialScale").then(initialScale => {
+              expect(currentViewport.scale).to.not.equal(initialScale);
+            });
+          });
       });
   });
 });

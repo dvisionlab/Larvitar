@@ -9,27 +9,26 @@ describe("Larvitar DICOM PDF Rendering", () => {
       win.allFilesLoaded = false;
 
       // Ensure larvitar exists before modifying it
-      if (win.larvitar && win.larvitar.renderImage) {
-        // Override renderImage using Object.defineProperty
-        const originalRenderImage = win.larvitar.renderImage;
+      if (win.larvitar && win.larvitar.renderDICOMPDF) {
+        // Override renderDICOMPDF using Object.defineProperty
+        const originalrenderDICOMPDF = win.larvitar.renderDICOMPDF;
 
-        Object.defineProperty(win.larvitar, "renderImage", {
+        Object.defineProperty(win.larvitar, "renderDICOMPDF", {
           configurable: true,
           enumerable: true,
-          writable: false, // Keep writable as false to avoid errors
+          writable: false,
           value: function (...args) {
-            return originalRenderImage.apply(this, args).then(result => {
+            return originalrenderDICOMPDF.apply(this, args).then(result => {
               win.allFilesLoaded = true;
               return result;
             });
           }
         });
       }
+      // Wait for files to be loaded
+      cy.window().its("allFilesLoaded").should("eq", true, { timeout: 10000 });
+      cy.get("#spinner").should("not.be.visible");
     });
-
-    // Wait for files to be loaded
-    cy.window().its("allFilesLoaded").should("eq", true, { timeout: 10000 });
-    cy.get("#spinner").should("not.be.visible");
   });
 
   it("should wait for cornerstone elements to be enabled and verify Pan activation", () => {
