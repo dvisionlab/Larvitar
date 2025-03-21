@@ -352,4 +352,29 @@ describe("Testing the base.html functionalities", () => {
     cy.get("button.cancel").click();
     cy.get("#myForm").should("not.be.visible");
   });
+  it("should scroll slices using mouse wheel", () => {
+    cy.window()
+      .its("larvitar")
+      .then(larvitar => {
+        const imageIndex = larvitar.store.get([
+          "viewports",
+          "viewer",
+          "sliceId"
+        ]);
+        cy.wrap(imageIndex).as("initialimageIndex");
+      });
+    cy.get("#viewer").trigger("wheel");
+    cy.window()
+      .its("larvitar")
+      .then(larvitar => {
+        const imageIndex = larvitar.store.get([
+          "viewports",
+          "viewer",
+          "sliceId"
+        ]);
+        cy.get("@initialimageIndex").then(initialimageIndex => {
+          expect(imageIndex).to.not.equal(initialimageIndex);
+        });
+      });
+  });
 });
