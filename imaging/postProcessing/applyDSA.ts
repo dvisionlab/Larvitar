@@ -64,12 +64,16 @@ export const applyDSAShift = function (
   frameId: number,
   inputMaskSubPixelShift: number[]
 ): void {
+  if (multiFrameSerie.dsa === undefined) {
+    logger.error("DSA imageIds not already loaded");
+    return;
+  }
   const t0 = performance.now();
   // set in store the mask subpixel shift
   store.setDSAPixelShift(elementId, inputMaskSubPixelShift);
 
   // uncache image from cornestone cache
-  const imageId = multiFrameSerie.dsa!.imageIds[frameId];
+  const imageId = multiFrameSerie.dsa.imageIds[frameId];
   cornerstone.imageCache.removeImageLoadObject(imageId);
 
   // update image
