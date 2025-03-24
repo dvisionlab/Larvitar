@@ -70,7 +70,7 @@ async function renderSerie() {
   }
 
   // Render the first frame
-  await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+  await larvitar.renderImage(multiFrameSerie, "viewer", { imageIndex: frameId });
   larvitar.addDefaultTools();
   larvitar.setToolActive("StackScroll");
 
@@ -88,7 +88,7 @@ async function renderSerie() {
     frameId = endLoop ? 0 : frameId + 1;
 
     let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
-    larvitar.updateImage(series, "viewer", frameId, true);
+    larvitar.renderImage(series, "viewer", {cached: true, imageIndex: frameId });
     larvitar.updateStackToolState("viewer", frameId);
 
     if (updateECG) {
@@ -158,7 +158,7 @@ async function renderSerie() {
       ></p>
       <p id="fps" style="position: absolute; top: 60px; color: white"></p>
       <p style="position: absolute; top: 80px; color: white">
-        Press "+/-" to change frame rate
+        Press "+/-" to change loop time
       </p>
       <p
         id="loop-time"
@@ -243,6 +243,10 @@ async function renderSerie() {
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       let demoFiles = [];
       showSpinner();
       async function renderSerie() {
@@ -260,10 +264,14 @@ async function renderSerie() {
         if (multiFrameSerie.waveform) {
           larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
         }
-        await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        await larvitar.renderImage(multiFrameSerie, "viewer", {
+          imageIndex: frameId
+        });
         hideSpinner();
         const t1 = performance.now();
-        console.log("Time to render First frame: " + (t1 - t0) + "ms");
+        larvitar.logger.debug(
+          "Time to render First frame: " + (t1 - t0) + "ms"
+        );
         larvitar.addDefaultTools();
         larvitar.setToolActive("StackScroll");
 
@@ -272,7 +280,7 @@ async function renderSerie() {
         let animationId = null;
         let numberOfFrames = multiFrameSerie.numberOfFrames;
         let frameTime = multiFrameSerie.frameTime;
-        console.log("frameTime", frameTime);
+        larvitar.logger.debug("frameTime", frameTime);
         let frameRate = multiFrameSerie.frameTime;
         document.getElementById("frame-rate").innerText =
           "Frame Rate: " + frameRate.toFixed(3) + "ms";
@@ -290,7 +298,10 @@ async function renderSerie() {
           endLoop = frameId == numberOfFrames - 1 ? true : false;
           let series = larvitar.getDataFromImageManager(seriesId);
           frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-          larvitar.updateImage(series, "viewer", frameId, true);
+          larvitar.renderImage(series, "viewer", {
+            cached: true,
+            imageIndex: frameId
+          });
           larvitar.updateStackToolState("viewer", frameId);
           document.getElementById("image-time").innerText =
             "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames;
@@ -312,7 +323,7 @@ async function renderSerie() {
         }, frameRate);
 
         const t2 = performance.now();
-        console.log("Time to start cine loop: " + (t2 - t0) + "ms");
+        larvitar.logger.debug("Time to start cine loop: " + (t2 - t0) + "ms");
 
         // add event listener to the wheel to update the UI
         document
@@ -412,19 +423,23 @@ async function renderSerie() {
               animationId = setInterval(function () {
                 let series = larvitar.getDataFromImageManager(seriesId);
                 frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-                larvitar.updateImage(series, "viewer", frameId, false);
+                larvitar.renderImage(series, "viewer", {
+                  imageIndex: frameId
+                });
                 larvitar.updateStackToolState("viewer", frameId);
                 document.getElementById("image-time").innerText =
                   "Current Frame: " +
                   parseInt(frameId + 1) +
                   " of " +
                   numberOfFrames;
-                larvitar.updateECGMarker(
-                  trace_data,
-                  frameId,
-                  numberOfFrames,
-                  "ecg"
-                );
+                if (updateECG) {
+                  larvitar.updateECGMarker(
+                    trace_data,
+                    frameId,
+                    numberOfFrames,
+                    "ecg"
+                  );
+                }
               }, frameRate);
             } else {
               clearInterval(animationId);

@@ -3,8 +3,6 @@
  *         for default tools
  */
 
-// external libraries
-
 /** @module tools/default */
 
 /* DEFINE DEFAULT TOOLS
@@ -25,7 +23,11 @@
  *
  */
 
+// external libraries
 import { filter, isArray } from "lodash";
+
+// internal libraries
+import { logger } from "../../logger";
 import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
 import WwwcRemoveRegionTool from "./custom/WwwcRemoveRegionTool";
 import PolylineScissorsTool from "./custom/polylineScissorsTool";
@@ -661,7 +663,7 @@ const setDefaultToolsProps = function (newProps: Partial<ToolConfig>[]) {
   if (isArray(newProps)) {
     newProps.forEach(props => {
       if (!props.name) {
-        console.error("newProps must have a name property");
+        logger.error("newProps must have a name property");
         return;
       }
 
@@ -669,11 +671,11 @@ const setDefaultToolsProps = function (newProps: Partial<ToolConfig>[]) {
       if (targetTool) {
         DEFAULT_TOOLS[props.name] = Object.assign(targetTool, props);
       } else {
-        console.error(`${props.name} does not exist`);
+        logger.error(`${props.name} does not exist`);
       }
     });
   } else {
-    console.error("newProps must be an array");
+    logger.error("newProps must be an array");
   }
 };
 
@@ -687,7 +689,7 @@ const setDefaultToolsProps = function (newProps: Partial<ToolConfig>[]) {
 
 const registerExternalTool = function (toolName: string, toolClass: any) {
   if (dvTools[toolName] || DEFAULT_TOOLS[toolName]) {
-    console.debug(`${toolName} already exists, it will be replaced`);
+    logger.debug(`${toolName} already exists, it will be replaced`);
   }
 
   dvTools[toolClass.name] = toolClass;

@@ -63,18 +63,13 @@
   let multiFrameSerie = manager[seriesId];
 
   let frameId = 0;
-  await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+  await larvitar.renderImage(multiFrameSerie, "viewer", {imageIndex: frameId});
   const t1 = performance.now();
-  console.log("Time to render First frame: " + (t1 - t0) + "ms");
   larvitar.addDefaultTools();
   larvitar.setToolActive("StackScroll");
 
   // Optionally cache images
-  //await larvitar.loadAndCacheImageStack(multiFrameSerie);
-  // console.log(
-  //   "Stack has been loaded and cached",
-  //   multiFrameSerie.bytes / 1048576
-  // );
+  // await larvitar.loadAndCacheImageStack(multiFrameSerie);
   // clearInterval(statId);
 
   let animation = true;
@@ -85,7 +80,7 @@
   animationId = setInterval(function () {
     let series = larvitar.getDataFromImageManager(seriesId);
     frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-    larvitar.updateImage(series, "viewer", frameId, true);
+    larvitar.renderImage(series, "viewer", {cached: true, imageIndex: frameId });
   }, frameRate);
 `;
 
@@ -249,6 +244,10 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       showSpinner();
       async function renderSerie() {
         const t0 = performance.now();
@@ -261,16 +260,21 @@
         let multiFrameSerie = manager[seriesId];
 
         let frameId = 0;
-        await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        await larvitar.renderImage(multiFrameSerie, "viewer", {
+          cached: true,
+          imageIndex: frameId
+        });
         hideSpinner();
         const t1 = performance.now();
-        console.log("Time to render First frame: " + (t1 - t0) + "ms");
+        larvitar.logger.debug(
+          "Time to render First frame: " + (t1 - t0) + "ms"
+        );
         larvitar.addDefaultTools();
         larvitar.setToolActive("StackScroll");
 
         // optionally cache images
         //await larvitar.loadAndCacheImageStack(multiFrameSerie);
-        // console.log(
+        // larvitar.logger.debug(
         //   "Stack has been loaded and cached",
         //   multiFrameSerie.bytes / 1048576
         // );
@@ -288,14 +292,17 @@
         animationId = setInterval(function () {
           let series = larvitar.getDataFromImageManager(seriesId);
           frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-          larvitar.updateImage(series, "viewer", frameId, true);
+          larvitar.renderImage(multiFrameSerie, "viewer", {
+            cached: true,
+            imageIndex: frameId
+          });
 
           document.getElementById("image-time").innerText =
             "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames;
         }, frameRate);
 
         const t2 = performance.now();
-        console.log("Time to start cine loop: " + (t2 - t0) + "ms");
+        larvitar.logger.debug("Time to start cine loop: " + (t2 - t0) + "ms");
 
         // add event listener to the wheel to update the UI
         document
@@ -326,7 +333,10 @@
               animationId = setInterval(function () {
                 let series = larvitar.getDataFromImageManager(seriesId);
                 frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-                larvitar.updateImage(series, "viewer", frameId, false);
+                larvitar.renderImage(multiFrameSerie, "viewer", {
+                  cached: true,
+                  imageIndex: frameId
+                });
 
                 document.getElementById("image-time").innerText =
                   "Current Frame: " +

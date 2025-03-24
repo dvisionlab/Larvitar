@@ -21,6 +21,7 @@ import type {
   FileManager
 } from "./types";
 import { getFileCustomImageId } from "./loaders/fileLoader";
+import { logger } from "../logger";
 
 // global variables
 var imageManager: ImageManager = null;
@@ -118,6 +119,7 @@ export const getImageManager = function () {
  * @function resetImageManager
  */
 export const resetImageManager = function () {
+  let t0 = performance.now();
   each(imageManager, function (stack) {
     if ((stack as Series).isMultiframe) {
       if ((stack as Series).dataSet) {
@@ -141,6 +143,10 @@ export const resetImageManager = function () {
   });
   imageManager = null;
   imageTracker = null;
+  let t1 = performance.now();
+  logger.debug(
+    "Call to resetImageManager took " + (t1 - t0) + " milliseconds."
+  );
 };
 
 /**
@@ -276,6 +282,7 @@ export const getGSPSManager = function (): GSPSManager {
  * @function resetGSPSManager
  */
 export const resetGSPSManager = function () {
+  const t0 = performance.now();
   if (gspsManager) {
     Object.keys(gspsManager).forEach(key => {
       const instances = gspsManager![key]; // Avoid null warning by asserting non-null
@@ -289,6 +296,8 @@ export const resetGSPSManager = function () {
     });
     gspsManager = null;
   }
+  const t1 = performance.now();
+  logger.debug("Call to resetGSPSManager took " + (t1 - t0) + " milliseconds.");
 };
 
 /**
@@ -344,5 +353,10 @@ export const getDataFromFileManager = function (
  * @function resetFileManager
  */
 export const resetFileManager = function () {
-  fileManager = null;
+  const t0 = performance.now();
+  if (fileManager) {
+    fileManager = null;
+  }
+  const t1 = performance.now();
+  logger.debug("Call to resetFileManager took " + (t1 - t0) + " milliseconds.");
 };

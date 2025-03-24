@@ -127,7 +127,7 @@ larvitar
     const serie = seriesStack[seriesId];
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer").then(() => {
-      console.log("Image has been rendered");
+      larvitar.logger.debug("Image has been rendered");
       larvitar.addDefaultTools();
     });
   })`;
@@ -374,7 +374,7 @@ larvitar
       }
 
       // Function to handle the full list once it's ready
-      function processFileList(demoFiles) {
+      function processFileList() {
         renderSerie();
       }
 
@@ -492,7 +492,9 @@ larvitar
       larvitar.registerMultiFrameImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();
-      larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
 
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
@@ -529,35 +531,40 @@ larvitar
 
       function renderSerie() {
         larvitar.resetImageManager();
+        larvitar.disableViewport("viewer");
+        larvitar.store.addViewport("viewer");
         larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
+            //populate the image manager with the series
+            for (const [uniqueId, data] of Object.entries(seriesStack)) {
+              larvitar.populateImageManager(uniqueId, data);
+            }
             // render the first series of the study
             let seriesId = Object.keys(seriesStack)[0];
-            larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
             let manager = larvitar.getImageManager();
             let serie = manager[seriesId];
+
+            // const options = {
+            //   imageIndex: 3,
+            //   scale: 5,
+            //   rotation: 40,
+            //   translation: {
+            //     x: 5,
+            //     y: 5
+            //   },
+            //   voi: {
+            //     windowCenter: 40,
+            //     windowWidth: 400
+            //   }
+            // };
+
             larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
+              larvitar.logger.debug("Image has been rendered");
               hideSpinner(); // Hide the spinner when all files are processed
-              larvitar.resetViewports(["viewer"]);
+              larvitar.csToolsUpdateImageIds("viewer", serie.imageIds);
               larvitar.addDefaultTools();
               larvitar.setToolActive("Wwwc");
-            });
-            // optionally cache the series
-
-            Object.keys(seriesStack).forEach(seriesId => {
-              larvitar.populateImageManager(seriesId, seriesStack[seriesId]);
-              larvitar.cacheImages(seriesStack[seriesId], function (resp) {
-                if (resp.loading == 100) {
-                  let cache = larvitar.cornerstone.imageCache;
-                  console.log(
-                    "Cache size: ",
-                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
-                    "Mb"
-                  );
-                }
-              });
             });
 
             series = serie;
@@ -581,7 +588,7 @@ larvitar
               }
             }
           })
-          .catch(err => console.error(err));
+          .catch(err => larvitar.logger.error(err));
       }
 
       let demoFileList = getDemoFileNames();
@@ -604,9 +611,9 @@ larvitar
           const newSeriesId = seriesIds[index - 1];
           const serie = stack[newSeriesId];
           larvitar.renderImage(serie, "viewer").then(() => {
-            console.log("Image has been rendered");
+            larvitar.logger.debug("Image has been rendered");
+            larvitar.csToolsUpdateImageIds("viewer", serie.imageIds);
             hideSpinner(); // Hide the spinner when all files are processed
-            larvitar.resetViewports(["viewer"]);
           });
         }
       }
@@ -625,9 +632,9 @@ larvitar
           const newSeriesId = seriesIds[index + 1];
           const serie = stack[newSeriesId];
           larvitar.renderImage(serie, "viewer").then(() => {
-            console.log("Image has been rendered");
+            larvitar.logger.debug("Image has been rendered");
+            larvitar.csToolsUpdateImageIds("viewer", serie.imageIds);
             hideSpinner(); // Hide the spinner when all files are processed
-            larvitar.resetViewports(["viewer"]);
           });
         }
       }

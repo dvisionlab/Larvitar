@@ -61,7 +61,7 @@ export type StoreViewport = {
   isPDF: boolean;
   waveform: boolean;
   dsa: boolean;
-  imageIndex?: number; // TODO CAN BE DEPRECATED?
+  imageIndex?: number;
   imageId?: string;
   numberOfSlices?: number;
   numberOfTemporalPositions?: number;
@@ -370,4 +370,23 @@ export type NrrdInstance = {
 export type SingleFrameCache = {
   pixelData: TypedArray;
   metadata: MetaData;
+};
+
+type contrast = { windowCenter: number; windowWidth: number };
+type translation = { x: number; y: number };
+
+export type RenderProps = {
+  cached?: boolean;
+  imageIndex?: number;
+  scale?: number;
+  rotation?: number;
+  translation?: translation;
+  voi?: contrast;
+  colormap?: string;
+  default?: {
+    scale?: number;
+    rotation?: number;
+    translation?: translation;
+    voi?: contrast;
+  };
 };

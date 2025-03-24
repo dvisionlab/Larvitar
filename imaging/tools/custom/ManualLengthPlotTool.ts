@@ -19,6 +19,7 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 );
 
 //internal imports
+import { logger } from "../../../logger";
 import { HandlePosition } from "../types";
 
 //interfaces/types
@@ -191,7 +192,7 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
     if (!goodEventData) {
-      console.error(
+      logger.error(
         `required eventData not supplied to tool ${this.name}'s createNewMeasurement`
       );
 
@@ -249,7 +250,7 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
     const validParameters = hasStartAndEndHandles;
 
     if (!validParameters) {
-      console.warn(
+      logger.warn(
         `invalid parameters supplied to tool ${this.name}'s pointNearTool`
       );
 

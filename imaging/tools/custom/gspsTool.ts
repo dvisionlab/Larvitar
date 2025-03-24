@@ -32,12 +32,9 @@ import {
 } from "../../imageManagers";
 import { redrawImage, resetViewports } from "../../imageRendering";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
-import {
-  ImageParameters,
-  MeasurementMouseEvent,
-  ViewportComplete
-} from "../types";
+import { MeasurementMouseEvent, ViewportComplete } from "../types";
 import { ToolAnnotations } from "./gspsUtils/types";
+import { logger } from "../../../logger";
 const toolColors = csTools.toolColors;
 const setShadow = csTools.importInternal("drawing/setShadow");
 const getNewContext = csTools.importInternal("drawing/getNewContext");
@@ -85,6 +82,7 @@ export default class GspsTool extends BaseTool {
     if (activeElement) {
       const image = activeElement.image;
       const viewport = cornerstone.getViewport(element) as Viewport;
+      this.originalViewport = structuredClone(viewport);
 
       const { manager, seriesId } = this.retrieveLarvitarManager(
         image!.imageId
@@ -141,6 +139,7 @@ export default class GspsTool extends BaseTool {
               graphicGroups
             );
             cornerstone.setViewport(element, viewport);
+            this.gspsViewport = structuredClone(viewport);
           } else {
             this.gspsMetadata = undefined;
           }
@@ -258,7 +257,21 @@ export default class GspsTool extends BaseTool {
   }
 
   resetViewportToDefault(element: HTMLElement) {
-    resetViewports([element.id]);
+    if (!this.gspsViewport && !this.originalViewport) return;
+    const isZoomed = this.gspsViewport.scale !== this.originalViewport.scale;
+
+    const isContrastModified =
+      this.gspsViewport.voi.windowCenter !==
+        this.originalViewport.voi.windowCenter ||
+      this.gspsViewport.voi.windowWidth !==
+        this.originalViewport.voi.windowWidth;
+
+    if (isZoomed) {
+      resetViewports([element.id], ["zoom"]);
+    }
+    if (isContrastModified) {
+      resetViewports([element.id], ["contrast"]);
+    }
     const enabledElement = getEnabledElement(element) as any as {
       viewport: ViewportComplete;
     };
@@ -273,27 +286,29 @@ export default class GspsTool extends BaseTool {
     try {
       const activeElement = cornerstone.getEnabledElement(element);
 
-      // Return a promise that resolves when the image becomes available
-      return new Promise((resolve, reject) => {
-        const checkImageAvailability = setInterval(() => {
-          if (activeElement.image !== undefined) {
-            clearInterval(checkImageAvailability);
-            console.debug("Image is now available", activeElement.image);
-            resolve(activeElement); // Resolve the promise with the activeElement
-          } else {
-            console.debug("Image not yet available, continuing to poll...");
-          }
-        }, 100); // Poll every 100ms
+      // If image is already available, resolve immediately
+      if (activeElement.image !== undefined) {
+        return Promise.resolve(activeElement);
+      }
 
-        // Reject the promise if needed, e.g., after a timeout
+      // Otherwise wait for the image to load
+      return new Promise((resolve, reject) => {
+        // When image is rendered
+        element.addEventListener(
+          "cornerstoneimagerendered",
+          () => {
+            resolve(cornerstone.getEnabledElement(element));
+          },
+          { once: true }
+        );
+
         setTimeout(() => {
-          clearInterval(checkImageAvailability);
           reject(new Error("Image did not become available in time"));
-        }, 5000); // 5 seconds timeout
+        }, 5000);
       });
     } catch (error) {
-      console.error("Error processing element:", error);
-      throw error; // Rethrow the error
+      logger.error("Error processing element:", error);
+      throw error;
     }
   }
 

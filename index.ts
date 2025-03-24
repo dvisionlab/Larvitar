@@ -19,10 +19,14 @@ function warnDeprecation(originalName: string, aliasName: string) {
 function createAliasWithWarning(
   originalFunction: Function,
   originalName: string,
-  aliasName: string
+  aliasName: string,
+  onlyWarn: boolean = false
 ) {
   return function (...args: any) {
     warnDeprecation(originalName, aliasName);
+    if (onlyWarn) {
+      return;
+    }
     return originalFunction(...args);
   };
 }
@@ -33,6 +37,9 @@ import { parseDicom } from "dicom-parser";
 import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 const segModule = cornerstoneTools.getModule("segmentation");
+
+import { logger, setLogLevel, getLogLevel } from "./logger";
+console.log(`Logging level set to: ${getLogLevel()}`);
 
 import {
   checkAndClearMemory,
@@ -137,7 +144,6 @@ import {
   unloadViewport,
   resizeViewport,
   renderImage,
-  updateImage,
   redrawImage,
   resetViewports,
   updateViewportData,
@@ -409,7 +415,6 @@ export {
   unloadViewport,
   resizeViewport,
   renderImage,
-  updateImage,
   redrawImage,
   resetViewports,
   updateViewportData,
@@ -536,7 +541,10 @@ export {
   toggleContourMode,
   toggleVisibility,
   getActiveLabelmapBuffer,
-  updateTemporalViewportData
+  updateTemporalViewportData,
+  // Logger
+  logger,
+  setLogLevel
 };
 
 // alias for backward compatibility
@@ -611,4 +619,11 @@ export const getFileImageId = createAliasWithWarning(
   getDataFromFileManager,
   "getDataFromFileManager",
   "getFileImageId"
+);
+
+export const updateImage = createAliasWithWarning(
+  renderImage,
+  "renderImage",
+  "updateImage",
+  true
 );

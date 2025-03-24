@@ -58,7 +58,6 @@ larvitar
     const serie = seriesStack[seriesId];
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer").then(() => {
-      console.log("Image has been rendered");
       larvitar.addDefaultTools();
       larvitar.setToolActive("CustomMouseWheelScroll");
     });
@@ -198,6 +197,9 @@ larvitar
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       // create files from the demo folder
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/4d/" + fileName);
@@ -264,8 +266,9 @@ larvitar
           let multiFrameSerie = manager[seriesId];
           let frameId = 0;
           larvitar
-            .renderImage(multiFrameSerie, "viewer", frameId)
+            .renderImage(multiFrameSerie, "viewer", { imageIndex: frameId })
             .then(() => {
+              larvitar.logger.debug("Image has been rendered");
               hideSpinner();
               frames_number = manager[seriesId].numberOfTemporalPositions;
               larvitar.addDefaultTools();
@@ -297,7 +300,9 @@ larvitar
                           ? sliceId - (frames_number - 1)
                           : sliceId + 1;
 
-                      larvitar.updateImage(serie, "viewer", sliceId, false);
+                      larvitar.renderImage(serie, "viewer", {
+                        imageIndex: sliceId
+                      });
                       changeStamps();
                     }, 100);
                   } else {
@@ -306,7 +311,7 @@ larvitar
                 }
               };
             })
-            .catch(err => console.error(err));
+            .catch(err => larvitar.logger.error(err));
         });
       }
 

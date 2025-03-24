@@ -94,7 +94,6 @@ const seriesStack = await larvitar.readFiles(demoFiles);
 let seriesId = Object.keys(seriesStack)[0];
 let serie = seriesStack[seriesId];
 await larvitar.renderImage(serie, "viewer");
-console.log("Image has been rendered");
 larvitar.addDefaultTools();
 loadMasks();
 
@@ -150,11 +149,9 @@ await larvitar
           navigator.clipboard.writeText(code);
         });
         closeCodeBtn.addEventListener("click", () => {
-          console.log("closed");
           larvitar.setToolActive("Brush");
         });
         closeCodeXBtn.addEventListener("click", () => {
-          console.log("closed");
           larvitar.setToolActive("Brush");
         });
       });
@@ -279,7 +276,7 @@ await larvitar
     </div>
     <script>
       function onOpenCvReady() {
-        console.log("OpenCV Ready", cv);
+        larvitar.logger.debug("OpenCV Ready", cv);
       }
     </script>
     <script>
@@ -374,6 +371,10 @@ await larvitar
       larvitar.store.addViewport("viewer");
       larvitar.registerNRRDImageLoader();
       larvitar.initSegmentationModule();
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       showSpinner();
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
@@ -394,7 +395,7 @@ await larvitar
         let serie = seriesStack[seriesId];
         await larvitar.renderImage(serie, "viewer");
         hideSpinner();
-        console.log("Image has been rendered");
+        larvitar.logger.debug("Image has been rendered");
         larvitar.addDefaultTools();
         loadMasks();
 

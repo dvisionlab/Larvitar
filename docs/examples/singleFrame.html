@@ -174,6 +174,10 @@
       larvitar.store.addViewport("viewer-3");
       larvitar.store.addViewport("viewer-4");
       larvitar.store.addViewport("viewer-5");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       showSpinner();
 
       larvitar.clearSingleFrameCache();
@@ -229,7 +233,7 @@
           });
           let data = await response.arrayBuffer();
           let t1 = performance.now();
-          console.debug(
+          larvitar.logger.debug(
             "Call to wado frame: " +
               frameId +
               " took " +
@@ -242,7 +246,7 @@
             metadata
           );
           const t3 = performance.now();
-          console.debug(
+          larvitar.logger.debug(
             "Call to setSingleFrameCache took " + (t3 - t2) + " milliseconds."
           );
 
@@ -261,11 +265,11 @@
         larvitar
           .renderImage(dicomSerie, canvasId, {
             cached: true,
-            defaultProps: { sliceNumber: 0 }
+            imageIndex: 0
           })
           .then(() => {
             const t1 = performance.now();
-            console.debug(
+            larvitar.logger.debug(
               "Call to renderImage took " + (t1 - t0) + " milliseconds."
             );
             hideSpinner();
@@ -303,18 +307,16 @@
                 endLoop = frameId == numberOfFrames - 1 ? true : false;
                 const imageId = dicomSerie.imageIds[frameId];
                 const currentFrameId = imageId ? frameId : frameId - 1;
-                larvitar.updateImage(
-                  dicomSerie,
-                  canvasId,
-                  currentFrameId,
-                  true
-                );
+                larvitar.renderImage(dicomSerie, canvasId, {
+                  cached: true,
+                  imageIndex: currentFrameId
+                });
                 frameId =
                   currentFrameId == numberOfFrames - 1 ? 0 : currentFrameId + 1;
                 if (endLoop) {
                   let tEnd = performance.now();
                   const lastLoop = tEnd - tStart;
-                  console.debug(
+                  larvitar.logger.debug(
                     canvasId + "lastLoop:",
                     lastLoop.toFixed(3),
                     "ms"

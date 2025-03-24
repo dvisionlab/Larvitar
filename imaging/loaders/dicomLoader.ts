@@ -7,6 +7,7 @@
 import cornerstone from "cornerstone-core";
 
 // internal libraries
+import { logger } from "../../logger";
 import { loadAndCacheImage, loadAndCacheImages } from "../imageRendering";
 import store, { set as setStore } from "../imageStore";
 import type { Series, CachingResponse } from "../types";
@@ -109,14 +110,14 @@ export const loadAndCacheImageStack = async function (
             );
           }
         } else {
-          console.warn(
+          logger.warn(
             imageId + " is a metadata-only image, so it cannot be cached"
           );
         }
       });
 
       const t1 = performance.now();
-      console.log(
+      logger.info(
         `Call to loadAndCacheImageStack took ${t1 - t0} milliseconds.`
       );
       resolve();
@@ -140,7 +141,7 @@ export const loadAndCacheDsaImageStack = async function (
     const t0 = performance.now();
     // add DSA imageIds to store
     if (seriesData.dsa === undefined) {
-      console.warn("DSA image stack is not available");
+      logger.warn("DSA image stack is not available");
       reject();
       return;
     }
@@ -156,13 +157,13 @@ export const loadAndCacheDsaImageStack = async function (
         });
       Promise.all(dsaPromises).then(() => {
         const t1 = performance.now();
-        console.log(
+        logger.info(
           `Call to loadAndCacheDsaImageStack took ${t1 - t0} milliseconds.`
         );
         resolve();
       });
     } else {
-      console.warn("DSA image stack is empty");
+      logger.warn("DSA image stack is empty");
       reject();
     }
   });

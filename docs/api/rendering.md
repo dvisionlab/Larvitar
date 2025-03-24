@@ -32,8 +32,7 @@ These functions enable rendering of images from various sources and formats.
   - **PNG & JPEG:** Directly displayed as standard 2D images.
   - **PDF:** Requires conversion to an image format before rendering.
 - `renderWebImage(url, elementId)`: Loads and renders an image from a URL (PNG, JPEG, or other supported formats) into the designated viewport.
-- `renderImage(series, elementId, options)`: Displays an image series in the viewport while applying default rendering properties such as contrast, brightness, and annotations or caching settings.
-- `updateImage(series, elementId, imageIndex)`: Updates the displayed image in a given series, ensuring smooth navigation between slices or frames.
+- `renderImage(series, elementId, options)`: Displays an image series in the viewport while applying default rendering properties such as contrast, brightness, and annotations or caching settings. It also updates the displayed image in a given series, ensuring smooth navigation between slices or frames
 
 ### Viewport Management
 
@@ -59,7 +58,7 @@ Image transformation functions allow real-time modifications to improve visualiz
 
 ## Rendering API `renderImage`
 
-The `renderImage` function is responsible for rendering a DICOM image onto a specified HTML element using the cornerstone.js library. It initializes the rendering environment, loads the image, and applies optional transformations.
+The `renderImage` function is responsible for rendering a DICOM image onto a specified HTML element using the cornerstone.js library. It initializes the rendering environment, loads the image, and applies optional transformations. It supports caching for improved performance.
 
 ### Function Signature
 
@@ -67,22 +66,50 @@ The `renderImage` function is responsible for rendering a DICOM image onto a spe
 export const renderImage = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
-  options?: {
-    defaultProps?: StoreViewportOptions;
-    cached?: boolean;
-  }
+  options?: RenderProps
 ): Promise<true>
 ```
 
 ### Parameters
 
-| Parameter  | Type                 | Description |
-|------------|----------------------|-------------|
-| `seriesStack` | `Series` | The series stack containing image data. |
-| `elementId` | `string | HTMLElement` | The ID or the actual HTML element where the image will be rendered. |
-| `options` | `object (optional)` | Configuration options for rendering. |
-| `options.defaultProps` | `StoreViewportOptions (optional)` | Default viewport properties. |
-| `options.cached` | `boolean (optional)` | Whether to cache the image during loading. |
+| Parameter     | Type                    | Description                                                         |
+|---------------|-------------------------|---------------------------------------------------------------------|
+| `seriesStack` | `Series`                | The series stack containing image data.                             |
+| `elementId`   | `string or HTMLElement` | The ID or the actual HTML element where the image will be rendered. |
+| `options`     | `RenderProps (optional)`| Optional configuration options for rendering.                       |
+
+#### `RenderProps` Interface
+
+All properties are optional.
+
+| Property              | Type         | Description                                      |
+|-----------------------|--------------|--------------------------------------------------|
+| `cached`              | `boolean`    | Whether to cache the image for future use.       |
+| `imageIndex`          | `number`     | The index of the image to be rendered (0, N-1)   |
+| `scale`               | `number`     | The scale factor for the image.                  |
+| `rotation`            | `number`     | The rotation angle for the image.                |
+| `translation`         | `translation`| The translation vector for the image.            |
+| `voi`                 | `contrast`   | The windowing parameters for the image.          |
+| `colormap`            | `string`     | The colormap to be applied to the image.         |
+| `default.scale`       | `number`     | Default scale factor for the image.              |
+| `default.rotation`    | `number`     | Default rotation angle for the image.            |
+| `default.translation` | `translation`| Default translation vector for the image.        |
+| `default.voi`         | `contrast`   | Default windowing parameters for the image.      |
+
+#### `contrast` Interface
+
+| Property              | Type         | Description                                |
+|-----------------------|--------------|--------------------------------------------|
+| `windowWidth`         | `number`     | The window width for the image.            |
+| `windowCenter`        | `number`     | The window center for the image.           |
+
+#### `translation` Interface
+
+| Property     | Type      | Description                       |
+|--------------|-----------|-----------------------------------|
+| `x`          | `number`  | The translation along the x-axis. |
+| `y`          | `number`  | The translation along the y-axis. |
+
 
 ### Returns
 
@@ -96,37 +123,55 @@ export const renderImage = function (
 
 2. **Enable Cornerstone on the Element**
    - If the element is not already enabled, it enables it using `cornerstone.enable`.
+   - Enable mouse listeners for the element using `toggleMouseToolsListeners`.
 
 3. **Prepare Image Data**
-   - Extracts series metadata and retrieves the appropriate image ID.
+   - Extracts series metadata and retrieves the appropriate image ID based on the series stack and optional `renderProps.imageIndex` value.
    - If the image ID is missing, it logs a warning and rejects the promise.
+   - If `renderProps` is provided, it applies custom viewport settings.
 
-4. **Load and Render the Image**
-   - Loads the image using `cornerstone.loadImage` or `cornerstone.loadAndCacheImage`.
+4. **Check for Series Change**
+   - Determines whether the current series (`uniqueID`) differs from the previously loaded one.
+
+5. **Handle DSA (Digital Subtraction Angiography)**
+   - If the series is DSA, sets the pixel shift using `setPixelShift` to ensure proper rendering.
+   - If the series is DSA extract the imageId from the dsa series stack.
+
+6. **Load and Render the Image**
+   - Loads the image using `cornerstone.loadImage` or `cornerstone.loadAndCacheImage` depending on the `cached` option. If `cached` is true, the image is cached for future use and imageId is flagged as cached into the store.
    - Displays the image in the specified viewport.
-   - Applies default viewport settings, including window width/center.
-   - Fits the image to the window and applies transformations (scale, translation, colormap) if specified in `options.defaultProps`.
+   - Set optional custom settings such as scale, rotation, translation, colormap, and windowing parameters based on the `renderProps` parameter.
+   - if the series has changed, it resets the viewport to its default state if not specified otherwise in the `renderProps` parameter.
 
-5. **Store Viewport Data**
+7. **Store Viewport Data**
    - Saves viewport settings to ensure consistency across different renderings.
    - Sets `ready` status in the store to `true`.
 
-6. **Performance Logging and Cleanup**
+8. **Cornerstone Tools Stack Synchronization**
+   - Synchronizes the stack of images in the viewport using `csToolsCreateStack`.
+
+9. **Performance Logging and Cleanup**
    - Logs the time taken for rendering.
    - Clears memory references to avoid memory leaks.
 
 ### Example Usage
 
 ```typescript
-larvitar.renderImage(seriesStack, "viewer", {
-  defaultProps: {
-    scale: 1.5,
-    tr_x: 50,
-    tr_y: 20,
-    colormap: "hotiron"
-  },
-  cached: true
-}).then(() => {
+const options: RenderProps = {
+  cached: true,
+  scale: 1.5,
+  translation: { x: 50, y: 20 },
+  colormap: "hotiron",
+  voi: { windowWidth: 400, windowCenter: 200 },
+  default: {
+    scale: 2,
+    translation: { x: 0, y: 0 },
+  }
+};
+```
+
+```typescript
+larvitar.renderImage(seriesStack, "viewer", options).then(() => {
   console.log("Image successfully rendered.");
 }).catch((error) => {
   console.error("Error rendering image:", error);
@@ -138,75 +183,16 @@ larvitar.renderImage(seriesStack, "viewer", {
 - If the specified HTML element is invalid, the function rejects the promise with an error message.
 - If no image ID is found, the function logs a warning and rejects the promise.
 - If the viewport settings cannot be retrieved, the function logs an error and rejects the promise.
+  
+### Limitations
+- Requires the series to have valid image IDs and metadata.
+- If using DSA, ensures `setPixelShift` is called appropriately.
 
 ### Notes
 
 - This function is optimized to work with both single-frame and multi-frame DICOM images.
 - Uses `cornerstoneDICOMImageLoader` for fetching and handling image data.
 - Implements caching and efficient rendering techniques to improve performance.
-
-## Rendering API `updateImage`
-
-The `updateImage` function updates the cornerstone image within a viewport by rendering a new image at the specified `imageIndex`. It supports caching for improved performance and can handle 4D series updates.
-
-### Function Signature
-
-```typescript
-export const updateImage = function(
-  series: Series,
-  elementId: string | HTMLElement,
-  imageIndex: number,
-  cacheImage: boolean
-): Promise<void>
-```
-
-### Parameters
-| Parameter   | Type                     | Description |
-|------------|--------------------------|-------------|
-| `series`   | `Series`                 | The original series data object. |
-| `elementId` | `string \| HTMLElement` | The HTML element ID or DOM element used for rendering. |
-| `imageIndex` | `number`                 | The index of the image to be rendered. |
-| `cacheImage` | `boolean`                 | A flag to determine if the image should be cached. |
-
-### Returns
-Returns a `Promise<void>` that resolves when the image update completes.
-
-### How It Works
-1. **Retrieves the Element:**
-   - Identifies the target HTML element.
-   - Throws an error if the element is not found.
-
-2. **Determines Image ID:**
-   - If Digital Subtraction Angiography (DSA) is enabled, it selects the appropriate image ID.
-   - Handles metadata-only objects and ensures pixel data is available before updating.
-
-3. **Handles 4D Series Updates:**
-   - Updates `timestamp` and `timeId` if the series is 4D.
-
-4. **Loads and Displays the Image:**
-   - Uses `cornerstone.loadAndCacheImage` if caching is enabled.
-   - Otherwise, directly calls `cornerstone.loadImage`.
-   - Updates viewport state and logs performance timing.
-
-### Example Usage
-```typescript
-updateImage(seriesData, "viewer", 5, true)
-  .then(() => console.log("Image updated successfully."))
-  .catch((error) => console.error("Error updating image:", error));
-```
-
-### Error Handling
-- Throws an error if the target HTML element is not found.
-- Rejects if an invalid `imageIndex` is provided.
-- Logs performance timing when enabled.
-- 
-### Performance Considerations
-- Uses caching when `cacheImage` is set to `true` for better performance.
-- Measures execution time if performance monitoring is enabled.
-
-### Limitations
-- Requires the series to have valid image IDs and metadata.
-- If using DSA, ensures `setPixelShift` is called appropriately.
 
 ## Rendering API `renderDICOMPDF`
 

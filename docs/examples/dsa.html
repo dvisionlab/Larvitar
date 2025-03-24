@@ -64,8 +64,7 @@ let manager = larvitar.getImageManager();
 let multiFrameSerie = manager[seriesId];
 
 let frameId = 0;
-await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
-console.log("Image has been rendered");
+await larvitar.renderImage(multiFrameSerie, "viewer", { imageIndex: frameId });
 
 larvitar.addDefaultTools();
 larvitar.setToolActive("Wwwc");
@@ -90,7 +89,7 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
       });
     </script>
 
-    <title>Larvitar - Basic rendering example</title>
+    <title>Larvitar - Digital Subtraction example</title>
   </head>
 
   <body class="h-100" style="background-color: #000000">
@@ -130,7 +129,7 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
       <button
         id="showCodeBtn"
         class="open-button"
-        style="position: absolute; top: 140px"
+        style="position: absolute; top: 165px"
       >
         Show Code
       </button>
@@ -197,6 +196,10 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       let demoFiles = [];
       showSpinner();
       async function renderSerie() {
@@ -209,9 +212,11 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
         let multiFrameSerie = manager[seriesId];
 
         let frameId = 0;
-        await larvitar.renderImage(multiFrameSerie, "viewer", frameId);
+        await larvitar.renderImage(multiFrameSerie, "viewer", {
+          imageIndex: frameId
+        });
         hideSpinner();
-        console.log("Image has been rendered");
+        larvitar.logger.debug("Image has been rendered");
 
         larvitar.addDefaultTools();
         larvitar.setToolActive("Wwwc");
@@ -253,17 +258,23 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
             case 49: // 1
               // standard Mode
               larvitar.store.setDSAEnabled(["viewer"], false);
-              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+              larvitar.renderImage(multiFrameSerie, "viewer", {
+                imageIndex: frameId
+              });
               break;
             case 50: // 2
               // DSA Mode
               larvitar.store.setDSAEnabled(["viewer"], true);
-              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+              larvitar.renderImage(multiFrameSerie, "viewer", {
+                imageIndex: frameId
+              });
               break;
             case 51: // 3
               // async function
               larvitar.loadAndCacheDsaImageStack(multiFrameSerie, true);
-              larvitar.updateImage(multiFrameSerie, "viewer", frameId);
+              larvitar.renderImage(multiFrameSerie, "viewer", {
+                imageIndex: frameId
+              });
               larvitar.redrawImage("viewer");
               break;
             case 119: // W
@@ -321,12 +332,9 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
                     frameId == multiFrameSerie.numberOfFrames - 1
                       ? 0
                       : frameId + 1;
-                  larvitar.updateImage(
-                    multiFrameSerie,
-                    "viewer",
-                    frameId,
-                    false
-                  );
+                  larvitar.renderImage(multiFrameSerie, "viewer", {
+                    imageIndex: frameId
+                  });
                   document.getElementById("image-time").innerText =
                     "Current Frame: " +
                     parseInt(frameId + 1) +

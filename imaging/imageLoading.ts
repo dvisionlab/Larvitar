@@ -13,6 +13,7 @@ import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { forEach } from "lodash";
 
 // internal libraries
+import { logger } from "../logger";
 import store from "./imageStore";
 import { getSortedStack, getSortedUIDs } from "./imageUtils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
@@ -91,7 +92,7 @@ export const initializeImageLoader = function (maxConcurrency?: number) {
   cornerstoneDICOMImageLoader.external.cornerstone = cornerstone;
   cornerstoneDICOMImageLoader.external.dicomParser = dicomParser;
   cornerstoneDICOMImageLoader.webWorkerManager.initialize(globalConfig);
-  console.log(
+  logger.info(
     `CornestoneDICOMImageLoader initialized with ${globalConfig.maxWebWorkers} WebWorkers.`
   );
 };

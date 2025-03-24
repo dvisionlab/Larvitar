@@ -7,8 +7,9 @@ import { find } from "lodash";
 import cornerstone, { Image } from "cornerstone-core";
 
 // internal libraries
+import { logger } from "../../logger";
 import { DSA, Series } from "../types";
-import { updateImage, redrawImage } from "../imageRendering";
+import { renderImage, redrawImage } from "../imageRendering";
 import store from "../imageStore";
 
 /*
@@ -63,20 +64,30 @@ export const applyDSAShift = function (
   frameId: number,
   inputMaskSubPixelShift: number[]
 ): void {
+  if (multiFrameSerie.dsa === undefined) {
+    logger.error("DSA imageIds not already loaded");
+    return;
+  }
   const t0 = performance.now();
   // set in store the mask subpixel shift
   store.setDSAPixelShift(elementId, inputMaskSubPixelShift);
 
   // uncache image from cornestone cache
-  const imageId = multiFrameSerie.dsa!.imageIds[frameId];
-  cornerstone.imageCache.removeImageLoadObject(imageId);
-
+  const imageId = multiFrameSerie.dsa.imageIds[frameId];
+  try {
+    cornerstone.imageCache.removeImageLoadObject(imageId);
+  } catch (error) {
+    logger.error(`Error removing image from cache: ${error}`);
+  }
   // update image
-  updateImage(multiFrameSerie, elementId, frameId, true);
+  renderImage(multiFrameSerie, elementId, {
+    cached: true,
+    imageIndex: frameId
+  });
   redrawImage(elementId);
 
   const t1 = performance.now();
-  console.debug(`Call to DSA applyDSAShift took ${t1 - t0} milliseconds.`);
+  logger.debug(`Call to DSA applyDSAShift took ${t1 - t0} milliseconds.`);
 };
 
 /**
@@ -212,7 +223,7 @@ function avgSubMask(
         }
       }
       let t1 = performance.now();
-      console.debug(`Call to DSA avgSubMask took ${t1 - t0} milliseconds.`);
+      logger.debug(`Call to DSA avgSubMask took ${t1 - t0} milliseconds.`);
     }
     // @ts-ignore
     srcImage = null;
@@ -226,8 +237,8 @@ function avgSubMask(
     // @ts-ignore
     srcImage = null;
     let t1 = performance.now();
-    console.debug(`Call to DSA avgSubMask took ${t1 - t0} milliseconds.`);
-    console.warn("Frame not included in the Applicable Frame Range");
+    logger.debug(`Call to DSA avgSubMask took ${t1 - t0} milliseconds.`);
+    logger.warn("Frame not included in the Applicable Frame Range");
     return contrastFrame;
   }
 }
@@ -296,14 +307,14 @@ function tidMask(
     contrastMaskFrame = null;
 
     let t1 = performance.now();
-    console.debug(`Call to DSA tidMask took ${t1 - t0} milliseconds.`);
+    logger.debug(`Call to DSA tidMask took ${t1 - t0} milliseconds.`);
     return resultFramesTid;
   } else {
     // @ts-ignore
     srcImage = null;
 
     let t1 = performance.now();
-    console.debug(`Call to DSA tidMask took ${t1 - t0} milliseconds.`);
+    logger.debug(`Call to DSA tidMask took ${t1 - t0} milliseconds.`);
     return contrastFrame;
   }
 }
@@ -377,14 +388,14 @@ function revTidMask(
     contrastMaskFrame = null;
 
     let t1 = performance.now();
-    console.debug(`Call to DSA revTidMask took ${t1 - t0} milliseconds.`);
+    logger.debug(`Call to DSA revTidMask took ${t1 - t0} milliseconds.`);
     return resultFramesRevTid;
   } else {
     // @ts-ignore
     srcImage = null;
 
     let t1 = performance.now();
-    console.debug(`Call to DSA revTidMask took ${t1 - t0} milliseconds.`);
+    logger.debug(`Call to DSA revTidMask took ${t1 - t0} milliseconds.`);
     return contrastFrame;
   }
 }

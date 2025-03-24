@@ -14,6 +14,7 @@ import { each, map, assign, invert } from "lodash";
 import { unparse } from "papaparse";
 
 // internal libraries
+import { logger } from "../../logger";
 import { setToolEnabled } from "./main";
 import type { ToolState } from "./types";
 import { fileManager } from "../loaders/fileLoader";
@@ -59,7 +60,7 @@ export const loadAnnotations = function (jsonData: ToolState) {
   for (let elementId of enabledElementIds) {
     let element = document.getElementById(elementId);
     if (!element) {
-      console.warn(`Element ${elementId} not found`);
+      logger.warn(`Element ${elementId} not found`);
       continue;
     }
     cornerstone.updateImage(element);

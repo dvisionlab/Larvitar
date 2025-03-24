@@ -78,7 +78,6 @@ larvitar
     let seriesId = Object.keys(seriesStack)[0];
     let serie = seriesStack[seriesId];
     larvitar.renderImage(serie, "viewer").then(() => {
-      console.log("Image has been rendered");
       larvitar.addDefaultTools();
       larvitar.setToolActive("Wwwc");
     });
@@ -218,6 +217,9 @@ larvitar
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       // add a custom color map
       larvitar.addColorMap("custom", "CUSTOM", customColorMap());
 
@@ -241,12 +243,12 @@ larvitar
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               hideSpinner();
-              console.log("Image has been rendered");
+              larvitar.logger.debug("Image has been rendered");
               larvitar.addDefaultTools();
               larvitar.setToolActive("Wwwc");
             });
           })
-          .catch(err => console.log(err));
+          .catch(err => larvitar.logger.error(err));
       }
 
       let demoFileList = getDemoFileNames();

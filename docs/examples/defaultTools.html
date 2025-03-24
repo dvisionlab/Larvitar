@@ -58,7 +58,6 @@ larvitar
     let seriesId = Object.keys(seriesStack)[0];
     let serie = seriesStack[seriesId];
     larvitar.renderImage(serie, "viewer").then(() => {
-      console.log("Image has been rendered");
       larvitar.addDefaultTools();
 
       let mouseConfig = {
@@ -107,8 +106,13 @@ larvitar
     <div class="row h-100">
       <div
         id="viewer"
-        class="col-12 h-100"
+        class="col-8 h-100"
         style="background-color: black"
+      ></div>
+      <div
+        id="plot-viewer"
+        class="col-4"
+        style="background-color: rgb(0, 0, 0)"
       ></div>
       <p style="position: absolute; color: white">
         <b>Left Mouse Button:</b> Press "t" to cycle through tools
@@ -119,14 +123,14 @@ larvitar
       <p style="position: absolute; top: 40px; color: white">
         <b>Right Mouse Button:</b> drag >> Zoom || drag + Ctrl >> Pan
       </p>
+      <p id="info" style="position: absolute; top: 60px; color: white"></p>
       <button
         id="showCodeBtn"
         class="open-button"
-        style="position: absolute; top: 70px"
+        style="position: absolute; top: 90px"
       >
         Show Code
       </button>
-
       <!-- Modal -->
       <div
         class="modal fade"
@@ -198,6 +202,10 @@ larvitar
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       showSpinner();
       async function createFile(fileName, cb) {
         let response = await fetch("./demo/" + fileName);
@@ -218,7 +226,7 @@ larvitar
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
               hideSpinner();
-              console.log("Image has been rendered");
+              larvitar.logger.debug("Image has been rendered");
               larvitar.addDefaultTools();
 
               let mouseConfig = {
@@ -241,7 +249,7 @@ larvitar
               larvitar.addMouseKeyHandlers(mouseConfig);
             });
           })
-          .catch(err => console.log(err));
+          .catch(err => larvitar.logger.error(err));
       }
 
       let demoFileList = getDemoFileNames();
@@ -274,7 +282,8 @@ larvitar
             "FreehandScissors",
             "CircleScissors",
             "CorrectionScissors",
-            "PolylineScissors"
+            "PolylineScissors",
+            "Gsps"
           ];
 
           // Filter out segmentation tools
@@ -288,6 +297,15 @@ larvitar
           larvitar.setToolActive(tool, { mouseButtonMask: 1 });
           document.getElementById("active-tool").innerText =
             "Active Tool: " + tool;
+          const info = document.getElementById("info");
+          if (tool === "LengthPlot") {
+            larvitar.clearSegmentationState();
+            info.style.display = "block";
+            info.innerHTML =
+              "<b>shift+mouse wheel to change lines offset</b><br />";
+          } else {
+            info.style.display = "none";
+          }
         }
       };
     </script>

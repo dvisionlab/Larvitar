@@ -10,7 +10,9 @@ import cornerstoneMath from "cornerstone-math";
 import Hammer from "hammerjs";
 import { each, extend } from "lodash";
 const external = cornerstoneTools.external;
+
 // internal libraries
+import { logger } from "../../logger";
 import { saveAnnotations, loadAnnotations, exportAnnotations } from "./io";
 import {
   DEFAULT_TOOLS,
@@ -53,33 +55,25 @@ const initializeCSTools = function (
  * Create stack object to sync stack tools
  * @function csToolsCreateStack
  * @param {HTMLElement} element - The target html element.
- * @param {Array?} imageIds - Stack image ids.
- * @param {String} currentImageId - The current image id.
+ * @param {Array} imageIds - Stack image ids.
+ * @param {number?} currentImageIndex - The current image id.
  */
 const csToolsCreateStack = function (
   element: HTMLElement,
-  imageIds?: string[],
+  imageIds: string[],
   currentImageIndex?: number
 ) {
-  let stack;
-  if (imageIds) {
-    stack = {
-      currentImageIdIndex:
-        currentImageIndex === undefined ? 0 : currentImageIndex,
-      imageIds: imageIds
-    };
-  } else {
-    stack = {
-      currentImageIdIndex: 0,
-      imageIds: "imageLoader://0"
-    };
-    // check if there is an enabledElement with this id
-    // otherwise, we will get an error and we will enable it
-    try {
-      cornerstone.getEnabledElement(element);
-    } catch (e) {
-      cornerstone.enable(element);
-    }
+  const stack = {
+    currentImageIdIndex:
+      currentImageIndex === undefined ? 0 : currentImageIndex,
+    imageIds: imageIds
+  };
+  // check if there is an enabledElement with this id
+  // otherwise, we will get an error and we will enable it
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    cornerstone.enable(element);
   }
   cornerstoneTools.addStackStateManager(element, ["stack"]);
   cornerstoneTools.addToolState(element, "stack", stack);
@@ -183,7 +177,7 @@ export const addDefaultTools = function (elementId: string) {
   each(DEFAULT_TOOLS, tool => {
     // check if already added
     if (!isToolMissing(tool.name)) {
-      console.log("missing");
+      logger.warn("missing");
       return;
     }
     // check target viewports and call add tool with options
@@ -222,7 +216,7 @@ function tryUpdateImage(element: HTMLElement) {
   try {
     cornerstone.updateImage(element);
   } catch (err) {
-    // console.warn("updateImage: image has not been loaded yet:", element.id);
+    // logger.warn("updateImage: image has not been loaded yet:", element.id);
   }
 }
 
@@ -242,10 +236,10 @@ const setToolActive = function (
 ) {
   if (toolName === "WSToggle") {
     if (typeof cv !== "undefined" && cv !== null) {
-      console.log("OpenCV has been successfully imported.");
+      logger.info("OpenCV has been successfully imported.");
       // You can use OpenCV functions here
     } else {
-      console.error(
+      logger.error(
         'OpenCV has not been imported. Watershed Segmentation Tool will not work. Please import src="https://docs.opencv.org/4.5.4/opencv.js" in your HTML'
       );
     }
@@ -310,7 +304,7 @@ const setToolDisabled = function (
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (!el) {
-        console.warn("setToolDisabled: element not found:", elementId);
+        logger.warn("setToolDisabled: element not found:", elementId);
         return;
       }
       cornerstoneTools.setToolDisabledForElement(el, toolName);
@@ -351,7 +345,7 @@ const setToolEnabled = function (
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (!el) {
-        console.warn("setToolDisabled: element not found:", elementId);
+        logger.warn("setToolDisabled: element not found:", elementId);
         return;
       }
       cornerstoneTools.setToolEnabledForElement(el, toolName);
@@ -387,7 +381,7 @@ const setToolPassive = function (toolName: string, viewports?: string[]) {
     each(viewports, function (elementId) {
       let el = document.getElementById(elementId);
       if (!el) {
-        console.warn("setToolDisabled: element not found:", elementId);
+        logger.warn("setToolDisabled: element not found:", elementId);
         return;
       }
       cornerstoneTools.setToolPassiveForElement(el, toolName);

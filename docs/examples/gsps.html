@@ -66,7 +66,6 @@ larvitar
     const serie = seriesStack[seriesId];
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer").then(() => {
-      console.log("Image has been rendered");
       larvitar.addDefaultTools();
       larvitar.setToolEnabled("Gsps")
     });
@@ -184,6 +183,7 @@ larvitar
         } else {
           larvitar.setToolEnabled("Gsps");
         }
+        larvitar.setToolActive("Wwwc");
         isGspsActive = !isGspsActive;
       }
       toggleGsps.addEventListener("click", toggleButton);
@@ -213,6 +213,9 @@ larvitar
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
       async function createFile(fileName, cb, demoFiles) {
         let response = await fetch("./demo/GSPS/" + fileName);
         let data = await response.blob();
@@ -231,13 +234,14 @@ larvitar
             let manager = larvitar.getImageManager();
             let serie = manager[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
-              console.log("Image has been rendered");
+              larvitar.logger.debug("Image has been rendered");
               hideSpinner(); // Hide the spinner when all files are processed
               larvitar.addDefaultTools();
               larvitar.setToolEnabled("Gsps");
+              larvitar.setToolActive("Wwwc");
             });
           })
-          .catch(err => console.error(err));
+          .catch(err => larvitar.logger.error(err));
       }
 
       function manageGsps() {

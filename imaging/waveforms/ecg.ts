@@ -8,7 +8,7 @@ import Plotly, { Datum } from "plotly.js-dist-min";
 
 // internal libraries
 import { NrrdSeries, Series } from "../types";
-import { updateImage } from "../imageRendering";
+import { renderImage } from "../imageRendering";
 import store from "../imageStore";
 import { getDataFromImageManager } from "../imageManagers";
 import { updateStackToolState } from "../imageTools";
@@ -181,7 +181,9 @@ export const syncECGFrame = function (
       const series: Series | NrrdSeries | null =
         getDataFromImageManager(seriesId);
       if (series) {
-        updateImage(series as Series, canvasId, frameId, false);
+        renderImage(series as Series, canvasId, {
+          imageIndex: frameId
+        });
         updateStackToolState(canvasId, frameId);
       }
     });

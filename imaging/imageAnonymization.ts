@@ -3,6 +3,7 @@
  */
 
 // internal libraries
+import { logger } from "../logger";
 import { Series } from "./types";
 
 /*
@@ -57,7 +58,7 @@ export const anonymize = function (series: Series): Series {
       image.metadata.seriesDescription = image.metadata["x0008103e"] as string;
       image.metadata.anonymized = true;
     } else {
-      console.warn(`No dataset found for image ${imageId}`);
+      logger.warn(`No dataset found for image ${imageId}`);
     }
   }
 

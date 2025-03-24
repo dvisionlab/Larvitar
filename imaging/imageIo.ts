@@ -7,6 +7,7 @@ import cornerstone from "cornerstone-core";
 import { forEach, find } from "lodash";
 
 // internal libraries
+import { logger } from "../logger";
 import {
   getMeanValue,
   getDistanceBetweenSlices,
@@ -152,7 +153,7 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
         }
       });
       let t1 = performance.now();
-      console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
+      logger.info(`Call to buildData took ${t1 - t0} milliseconds.`);
       return data;
     } else {
       store.addSeriesId(series.seriesUID, series.imageIds);
@@ -164,7 +165,7 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
           image_counter += 1;
           if (image_counter == series.imageIds.length) {
             let t1 = performance.now();
-            console.log(`Call to buildData took ${t1 - t0} milliseconds.`);
+            logger.info(`Call to buildData took ${t1 - t0} milliseconds.`);
             return data;
           }
         });
@@ -231,7 +232,7 @@ export const buildDataAsync = function (
         });
       } else {
         let t1 = performance.now();
-        console.log(`Call to buildDataAsync took ${t1 - t0} milliseconds.`);
+        logger.info(`Call to buildDataAsync took ${t1 - t0} milliseconds.`);
         resolve(data);
       }
     }
@@ -273,7 +274,7 @@ export const exportImageToBase64 = function (
     const canvas: HTMLCanvasElement | null = element.querySelector("canvas");
     return canvas ? canvas.toDataURL("image/" + imageType, 1.0) : null;
   } else {
-    console.warn("Canvas not found, invalid elementId");
+    logger.warn("Canvas not found, invalid elementId");
     return null;
   }
 };
@@ -286,10 +287,10 @@ export const exportImageToBase64 = function (
  */
 export const exportImageToBase64OriginalSizes = function (imageId: string) {
   if (typeof cv !== "undefined" && cv !== null) {
-    console.log("OpenCV has been successfully imported.");
+    logger.info("OpenCV has been successfully imported.");
     // You can use OpenCV functions here
   } else {
-    console.error(
+    logger.error(
       'OpenCV has not been imported. ExportImageToBase64OriginalSizes function will not work. Please import src="https://docs.opencv.org/4.5.4/opencv.js" in your HTML'
     );
   }
@@ -330,7 +331,7 @@ export const exportImageToBase64OriginalSizes = function (imageId: string) {
   canvas = null;
 
   let t1 = performance.now();
-  console.log(
+  logger.info(
     `Call to exportImageToBase64OriginalSizes took ${t1 - t0} milliseconds.`
   );
 

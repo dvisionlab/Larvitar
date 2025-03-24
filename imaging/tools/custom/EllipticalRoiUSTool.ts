@@ -38,6 +38,7 @@ const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
 const getModule = cornerstoneTools.getModule;
 
 //internal imports
+import { logger } from "../../../logger";
 import {
   Coords,
   EventData,
@@ -92,7 +93,7 @@ export default class EllipticalRoiTool extends BaseAnnotationTool {
     }
 
     if (!goodEventData) {
-      console.error(
+      logger.error(
         `required eventData not supplied to tool ${this.name}'s createNewMeasurement`
       );
 
@@ -142,7 +143,7 @@ export default class EllipticalRoiTool extends BaseAnnotationTool {
     const validParameters = hasStartAndEndHandles;
 
     if (!validParameters) {
-      console.warn(
+      logger.warn(
         `invalid parameters supplied to tool ${this.name}'s pointNearTool`
       );
     }

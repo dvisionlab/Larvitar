@@ -8,6 +8,7 @@ import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 import { each, range } from "lodash";
 
 // internal libraries
+import { logger } from "../../logger";
 import { getImageFrame } from "./commonLoader";
 import { getImageTracker, getImageManager } from "../imageManagers";
 import { parseDataSet } from "../imageParsing";
@@ -145,7 +146,7 @@ export const buildMultiFrameImage = function (
   store.addSeriesId(uniqueUID, serie.imageIds);
 
   let t1 = performance.now();
-  console.debug(`Call to buildMultiFrameImage took ${t1 - t0} milliseconds.`);
+  logger.debug(`Call to buildMultiFrameImage took ${t1 - t0} milliseconds.`);
 };
 
 /**
@@ -168,6 +169,7 @@ export const getMultiFrameImageId = function (customLoaderName: string) {
  * @param {String} seriesId - SeriesId tag
  */
 export const clearMultiFrameCache = function (seriesId: string) {
+  let t0 = performance.now();
   each(multiframeDatasetCache, function (image, imageId) {
     if (!image) {
       return;
@@ -192,6 +194,8 @@ export const clearMultiFrameCache = function (seriesId: string) {
   if (!seriesId) {
     multiframeDatasetCache = null;
   }
+  let t1 = performance.now();
+  logger.debug(`Call to clearMultiFrameCache took ${t1 - t0} milliseconds.`);
 };
 
 /**
@@ -246,7 +250,7 @@ let createCustomImage = function (
       );
     }
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     throw new Error("No pixel data for id: " + id);
   }
 
