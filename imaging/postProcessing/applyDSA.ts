@@ -74,8 +74,11 @@ export const applyDSAShift = function (
 
   // uncache image from cornestone cache
   const imageId = multiFrameSerie.dsa.imageIds[frameId];
-  cornerstone.imageCache.removeImageLoadObject(imageId);
-
+  try {
+    cornerstone.imageCache.removeImageLoadObject(imageId);
+  } catch (error) {
+    logger.error(`Error removing image from cache: ${error}`);
+  }
   // update image
   renderImage(multiFrameSerie, elementId, {
     cached: true,
