@@ -26,7 +26,6 @@ import { isElement } from "./imageUtils";
 
 /*
  * This module provides the following functions to be exported:
- * csToolsCreateStack(element)
  * addDefaultTools(toolToActivate)
  * clearMeasurements()
  * addContoursTool(rawContours, maskName)

@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.3.0] - 2025-03-21
+
+🚀 Key Changes:
+
+- `renderImage` now accepts an optional `RenderProps` object for more flexible rendering options.
+
+**New Feature:** Added support for advanced rendering options, such as `scale`, `rotation`, `voi`, and `colormap`, directly through the `RenderProps` object.  
+
+**Deprecated parameter removed:** The `defaultProps` parameter has been replaced by the new `RenderProps` object.
 
 ## [3.2.0] - 2025-03-17
 
