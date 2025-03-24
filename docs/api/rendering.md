@@ -96,14 +96,14 @@ All properties are optional.
 | `default.translation` | `translation`| Default translation vector for the image.        |
 | `default.voi`         | `contrast`   | Default windowing parameters for the image.      |
 
-#### `Contrast` Interface
+#### `contrast` Interface
 
 | Property              | Type         | Description                                |
 |-----------------------|--------------|--------------------------------------------|
 | `windowWidth`         | `number`     | The window width for the image.            |
 | `windowCenter`        | `number`     | The window center for the image.           |
 
-#### `Translation` Interface
+#### `translation` Interface
 
 | Property     | Type      | Description                       |
 |--------------|-----------|-----------------------------------|
