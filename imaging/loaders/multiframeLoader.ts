@@ -374,12 +374,16 @@ let createCustomImage = function (
           throw new Error("Unable to get canvas context");
         }
 
-        let imageData = context.createImageData(
+        let imageData: ImageData = context.createImageData(
           imageFrame.columns,
           imageFrame.rows
         );
-
-        cornerstoneDICOMImageLoader.convertColorSpace(imageFrame, imageData);
+        // context.createImageData will always return an ImageData object with 4 components (RGBA)
+        cornerstoneDICOMImageLoader.convertColorSpace(
+          imageFrame, // input image frame
+          imageData.data, // data buffer to be filled
+          true // RGBA FLAG
+        );
 
         imageFrame.imageData = imageData;
         imageFrame.pixelData = imageData.data;
