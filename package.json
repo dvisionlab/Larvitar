@@ -44,6 +44,7 @@
     "cornerstone-wado-image-loader": "^4.13.2",
     "cornerstone-web-image-loader": "^2.1.1",
     "crypto-js": "^4.1.1",
+    "cypress-image-snapshot": "^4.0.1",
     "dicom-character-set": "^1.0.3",
     "dicom-parser": "^1.8.13",
     "hammerjs": "^2.0.8",

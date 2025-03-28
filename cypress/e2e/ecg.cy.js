@@ -161,6 +161,7 @@ describe("Larvitar ECG Rendering", () => {
   });
 
   it("should update the frame rate", () => {
+    cy.wait(500)
     cy.get("#frame-rate").invoke("text")
       .then(initialText => {
         const regex = /Frame Rate: (\d+.\d+)ms/;
@@ -168,9 +169,9 @@ describe("Larvitar ECG Rendering", () => {
 
         const frameRate = match[1];
 
-        cy.get("body").trigger("keydown", { keyCode: 43 });
+        cy.get("body").type("+");
+        cy.wait(500)
         cy.get("#frame-rate").invoke("text").then(newText => {
-          const regex = /Frame Rate: (\d+.\d+)ms/;
           const newMatch = newText.match(regex);
 
           const newFrameRate = newMatch[1];
