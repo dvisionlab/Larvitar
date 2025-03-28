@@ -65,7 +65,7 @@ async function renderSerie() {
   }
 
   // Render the first frame
-  await larvitar.renderImage(multiFrameSerie, "viewer", {defaultProps: { sliceNumber: frameId }});
+  await larvitar.renderImage(multiFrameSerie, "viewer", { imageIndex: frameId });
   larvitar.addDefaultTools();
   larvitar.setToolActive("StackScroll");
 
@@ -83,7 +83,7 @@ async function renderSerie() {
     frameId = endLoop ? 0 : frameId + 1;
 
     let series = larvitar.getSeriesDataFromLarvitarManager(seriesId);
-    larvitar.renderImage(series, "viewer", {cached: true, defaultProps: { sliceNumber: frameId }});
+    larvitar.renderImage(series, "viewer", {cached: true, imageIndex: frameId });
     larvitar.updateStackToolState("viewer", frameId);
 
     if (updateECG) {
@@ -128,51 +128,86 @@ async function renderSerie() {
       copyCodeBtn.addEventListener("click", () => {
         navigator.clipboard.writeText(code);
       });
-    });
-  </script>
+    </script>
 
-  <title>Larvitar - ECG rendering example</title>
-</head>
+    <title>Larvitar - ECG rendering example</title>
+  </head>
 
-<body class="h-100" style="background-color: #000000">
-  <div class="row h-75">
-    <div id="viewer" class="col-12 h-100" style="background-color: black"></div>
-    <p style="position: absolute; color: white">
-      Press "p" to play/pause frame animation
-    </p>
-    <p style="position: absolute; top: 20px; color: white">
-      Press "e" to play/pause ecg animation
-    </p>
-    <p id="frame-rate" style="position: absolute; top: 40px; color: white"></p>
-    <p id="fps" style="position: absolute; top: 60px; color: white"></p>
-    <p style="position: absolute; top: 80px; color: white">
-      Press "+/-" to change frame rate
-    </p>
-    <p id="loop-time" style="position: absolute; top: 100px; color: white"></p>
-    <p id="last-loop" style="position: absolute; top: 120px; color: white"></p>
-    <p id="image-time" style="position: absolute; top: 140px; color: white"></p>
-    <button id="showCodeBtn" class="open-button" style="position: absolute; top: 160px">
-      Show Code
-    </button>
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-75">
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; color: white">
+        Press "p" to play/pause frame animation
+      </p>
+      <p style="position: absolute; top: 20px; color: white">
+        Press "e" to play/pause ecg animation
+      </p>
+      <p
+        id="frame-rate"
+        style="position: absolute; top: 40px; color: white"
+      ></p>
+      <p id="fps" style="position: absolute; top: 60px; color: white"></p>
+      <p style="position: absolute; top: 80px; color: white">
+        Press "+/-" to change loop time
+      </p>
+      <p
+        id="loop-time"
+        style="position: absolute; top: 100px; color: white"
+      ></p>
+      <p
+        id="last-loop"
+        style="position: absolute; top: 120px; color: white"
+      ></p>
+      <p
+        id="image-time"
+        style="position: absolute; top: 140px; color: white"
+      ></p>
+      <button
+        id="showCodeBtn"
+        class="open-button"
+        style="position: absolute; top: 160px"
+      >
+        Show Code
+      </button>
 
-    <!-- Modal -->
-    <div class="modal fade" id="codeModal" tabindex="-1" aria-labelledby="codeModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
-            <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-          </div>
-          <div class="modal-footer">
-            <button id="copyCodeBtn" class="btn btn-success">
-              Copy Code
-            </button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              Close
-            </button>
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -197,99 +232,52 @@ async function renderSerie() {
       spinner.style.display = "none";
     }
 
-    // init all
-    larvitar.initializeImageLoader();
-    larvitar.registerMultiFrameImageLoader();
-    larvitar.initializeCSTools();
-    larvitar.store.initialize();
-    larvitar.store.addViewport("viewer");
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.registerMultiFrameImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
 
-    // set log level to debug
-    larvitar.setLogLevel("debug");
+      // set log level to debug
+      larvitar.setLogLevel("debug");
 
-    let demoFiles = [];
-    showSpinner();
-    async function renderSerie() {
-      const t0 = performance.now();
-      const seriesStack = await larvitar.readFiles(demoFiles);
-      // render the first series of the study
-      let seriesId = Object.keys(seriesStack)[0];
-      let serie = seriesStack[seriesId];
-      larvitar.populateImageManager(seriesId, serie);
-      let manager = larvitar.getImageManager();
-      let multiFrameSerie = manager[seriesId];
+      let demoFiles = [];
+      showSpinner();
+      async function renderSerie() {
+        const t0 = performance.now();
+        const seriesStack = await larvitar.readFiles(demoFiles);
+        // render the first series of the study
+        let seriesId = Object.keys(seriesStack)[0];
+        let serie = seriesStack[seriesId];
+        larvitar.populateImageManager(seriesId, serie);
+        let manager = larvitar.getImageManager();
+        let multiFrameSerie = manager[seriesId];
 
-      let frameId = 0;
-      // check if the series has waveform data
-      if (multiFrameSerie.waveform) {
-        larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
-      }
-      await larvitar.renderImage(multiFrameSerie, "viewer", {
-        defaultProps: { sliceNumber: frameId }
-      });
-      hideSpinner();
-      const t1 = performance.now();
-      larvitar.logger.debug(
-        "Time to render First frame: " + (t1 - t0) + "ms"
-      );
-      larvitar.addDefaultTools();
-      larvitar.setToolActive("StackScroll");
-
-      let updateECG = true;
-      let animation = true;
-      let animationId = null;
-      let numberOfFrames = multiFrameSerie.numberOfFrames;
-      let frameTime = multiFrameSerie.frameTime;
-      larvitar.logger.debug("frameTime", frameTime);
-      let frameRate = multiFrameSerie.frameTime;
-      document.getElementById("frame-rate").innerText =
-        "Frame Rate: " + frameRate.toFixed(3) + "ms";
-      document.getElementById("fps").innerText =
-        "FPS: " + (1000 / frameRate).toFixed(3);
-      document.getElementById("loop-time").innerText =
-        "Loop Time: " + (numberOfFrames * frameRate).toFixed(3) + "ms";
-      document.getElementById("last-loop").innerText = "- ms";
-      document.getElementById("image-time").innerText =
-        "Current Frame: 1 of " + numberOfFrames;
-
-      let tStart = performance.now();
-      let endLoop = false;
-      animationId = setInterval(function () {
-        endLoop = frameId == numberOfFrames - 1 ? true : false;
-        let series = larvitar.getDataFromImageManager(seriesId);
-        frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-        larvitar.renderImage(series, "viewer", {
-          cached: true,
-          defaultProps: { sliceNumber: frameId }
+        let frameId = 0;
+        // check if the series has waveform data
+        if (multiFrameSerie.waveform) {
+          larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
+        }
+        await larvitar.renderImage(multiFrameSerie, "viewer", {
+          imageIndex: frameId
         });
         larvitar.updateStackToolState("viewer", frameId);
         document.getElementById("image-time").innerText =
-          "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames;
-        if (updateECG) {
-          larvitar.updateECGMarker(
-            trace_data,
-            frameId,
-            numberOfFrames,
-            "ecg"
-          );
-        }
-        if (endLoop) {
-          let tEnd = performance.now();
-          const lastLoop = tEnd - tStart;
-          document.getElementById("last-loop").innerText =
-            "Loop Rendering Time: " + lastLoop.toFixed(3) + "ms";
-          tStart = performance.now();
-        }
-      }, frameRate);
 
-      const t2 = performance.now();
-      larvitar.logger.debug("Time to start cine loop: " + (t2 - t0) + "ms");
+          "Current Frame: 1 of " + numberOfFrames;
 
-      // add event listener to the wheel to update the UI
-      document
-        .getElementById("viewer")
-        .addEventListener("wheel", function (event) {
-          frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
+        let tStart = performance.now();
+        let endLoop = false;
+        animationId = setInterval(function () {
+          endLoop = frameId == numberOfFrames - 1 ? true : false;
+          let series = larvitar.getDataFromImageManager(seriesId);
+          frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+          larvitar.renderImage(series, "viewer", {
+            cached: true,
+            imageIndex: frameId
+          });
+          larvitar.updateStackToolState("viewer", frameId);
           document.getElementById("image-time").innerText =
             "Current Frame: " +
             parseInt(frameId + 1) +
@@ -409,15 +397,37 @@ async function renderSerie() {
       };
     }
 
-    async function createFile(fileName, cb) {
-      let response = await fetch("./demo/" + fileName);
-      let data = await response.blob();
-      let file = new File([data], fileName);
-      demoFiles.push(file);
-      cb();
-    }
-    createFile("119265", renderSerie);
-  </script>
-</body>
+          if (e.keyCode == 112) {
+            animation = !animation;
+            if (animation) {
+              frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
+              animationId = setInterval(function () {
+                let series = larvitar.getDataFromImageManager(seriesId);
+                frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+                larvitar.renderImage(series, "viewer", {
+                  imageIndex: frameId
+                });
+                larvitar.updateStackToolState("viewer", frameId);
+                document.getElementById("image-time").innerText =
+                  "Current Frame: " +
+                  parseInt(frameId + 1) +
+                  " of " +
+                  numberOfFrames;
+                if (updateECG) {
+                  larvitar.updateECGMarker(
+                    trace_data,
+                    frameId,
+                    numberOfFrames,
+                    "ecg"
+                  );
+                }
+              }, frameRate);
+            } else {
+              clearInterval(animationId);
+              document.getElementById("image-time").innerText = "";
+            }
+          }
+        };
+      }
 
 </html>

@@ -117,6 +117,6 @@ export function applyMask(serie: Series, element: HTMLElement): void {
   if (serie.isMultiframe) {
     const frameId = imageStore.get(["viewports", "viewer", "sliceId"]);
     imageStore.setDSAEnabled(element.id, true);
-    renderImage(serie, element.id, { defaultProps: { sliceNumber: frameId } });
+    renderImage(serie, element.id, { imageIndex: frameId });
   }
 }

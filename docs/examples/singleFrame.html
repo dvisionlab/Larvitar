@@ -265,7 +265,7 @@
         larvitar
           .renderImage(dicomSerie, canvasId, {
             cached: true,
-            defaultProps: { sliceNumber: 0 }
+            imageIndex: 0
           })
           .then(() => {
             const t1 = performance.now();
@@ -309,7 +309,7 @@
                 const currentFrameId = imageId ? frameId : frameId - 1;
                 larvitar.renderImage(dicomSerie, canvasId, {
                   cached: true,
-                  defaultProps: { sliceNumber: currentFrameId }
+                  imageIndex: currentFrameId
                 });
                 frameId =
                   currentFrameId == numberOfFrames - 1 ? 0 : currentFrameId + 1;

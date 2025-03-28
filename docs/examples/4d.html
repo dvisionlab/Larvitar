@@ -266,7 +266,7 @@ larvitar
           let multiFrameSerie = manager[seriesId];
           let frameId = 0;
           larvitar
-            .renderImage(multiFrameSerie, "viewer", frameId)
+            .renderImage(multiFrameSerie, "viewer", { imageIndex: frameId })
             .then(() => {
               larvitar.logger.debug("Image has been rendered");
               hideSpinner();
@@ -301,7 +301,7 @@ larvitar
                           : sliceId + 1;
 
                       larvitar.renderImage(serie, "viewer", {
-                        defaultProps: { sliceNumber: sliceId }
+                        imageIndex: sliceId
                       });
                       changeStamps();
                     }, 100);

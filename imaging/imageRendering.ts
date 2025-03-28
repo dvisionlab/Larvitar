@@ -18,9 +18,9 @@ import { applyColorMap } from "./imageColormaps";
 import { isElement } from "./imageUtils";
 import {
   Instance,
+  RenderProps,
   Series,
   StoreViewport,
-  StoreViewportOptions,
   Viewport
 } from "./types";
 import { DEFAULT_TOOLS } from "./tools/default";
@@ -38,7 +38,7 @@ import { setPixelShift } from "./loaders/dsaImageLoader";
  * disableViewport(elementId)
  * unloadViewport(elementId, seriesId)
  * resizeViewport(elementId)
- * renderImage(series, elementId, defaultProps)
+ * renderImage(series, elementId, renderOptions)
  * redrawImage(elementId)
  * resetViewports([elementIds])
  * updateViewportData(elementId)
@@ -412,7 +412,7 @@ export const renderWebImage = function (
         return;
       }
       cornerstone.displayImage(element, image);
-      csToolsCreateStack(element);
+      csToolsCreateStack(element, [], 0);
       resolve(image);
     });
   });
@@ -486,16 +486,13 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
  * @function renderImage
  * @param {Object} seriesStack - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {Object | undefined} options - Optional properties
+ * @param {RenderProps | undefined} options - Optional properties
  * @return {Promise} Return a promise which will resolve when image is displayed
  */
 export const renderImage = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
-  options?: {
-    defaultProps?: StoreViewportOptions;
-    cached?: boolean;
-  }
+  options?: RenderProps
 ): Promise<true> {
   const t0 = performance.now();
 
@@ -504,9 +501,9 @@ export const renderImage = function (
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
   if (!element) {
-    logger.error("invalid html element: " + elementId);
+    logger.error(`invalid html element: ${elementId}`);
     return new Promise((_, reject) =>
-      reject("invalid html element: " + elementId)
+      reject(`invalid html element: ${elementId}`)
     );
   }
   const id: string = isElement(elementId) ? element.id : (elementId as string);
@@ -522,10 +519,9 @@ export const renderImage = function (
   }
 
   let series = { ...seriesStack };
-  let data: StoreViewport = getSeriesData(
-    series,
-    options && options.defaultProps ? options.defaultProps : {}
-  );
+  const renderOptions = options ? options : {};
+  let data: StoreViewport = getSeriesData(series, renderOptions);
+  logger.debug(`Rendering imageIndex: ${data.imageIndex}`);
 
   if (!data.imageId) {
     logger.warn("error during renderImage: imageId has not been loaded yet.");
@@ -538,7 +534,11 @@ export const renderImage = function (
   // this by default is the uniqueId of the rendered stack
   const storedSeriesUID = store.get(["viewports", id, "seriesUID"]);
   const isSeriesUIDChanged = storedSeriesUID !== data.seriesUID;
-  logger.debug("isSeriesUIDChanged: " + isSeriesUIDChanged);
+  if (isSeriesUIDChanged) {
+    logger.debug(
+      `SeriesUID changed from ${storedSeriesUID} to ${data.seriesUID}`
+    );
+  }
 
   // DSA ALGORITHM OPTIONS
   const dsaEnabled = store.get(["viewports", id, "isDSAEnabled"]);
@@ -547,7 +547,7 @@ export const renderImage = function (
     data.imageId = series.dsa!.imageIds[data.imageIndex!];
     // get the optional custom pixel shift for DSA images
     if (pixelShift !== undefined) {
-      logger.debug("set pixelShift: " + pixelShift);
+      logger.debug(`set pixelShift: ${pixelShift}`);
       setPixelShift(pixelShift);
     }
   }
@@ -567,26 +567,32 @@ export const renderImage = function (
       // load and display one image (imageId)
       loadImageFunction(data.imageId as string).then(function (image) {
         if (!element) {
-          logger.error("invalid html element: " + elementId);
-          reject("invalid html element: " + elementId);
+          logger.error(`invalid html element: ${elementId}`);
+          reject(`invalid html element: ${elementId}`);
           return;
         }
 
+        // display the image on the element
         cornerstone.displayImage(element, image);
+        logger.debug(`Image has been displayed on the element: ${elementId}`);
 
-        if (options && options.cached) {
+        // if cached is true, set the image as cached in the store
+        if (renderOptions.cached === true) {
           setStore(["cached", series.uniqueUID, data.imageId as string, true]);
+          logger.debug("Image has been cached into store");
         }
 
+        // handle the optional layer
         if (series.layer) {
-          // assign the image to its layer and return its id
           series.layer.id = cornerstone.addLayer(
             element,
             image,
             series.layer.options
           );
+          logger.debug("Layer has been added to the element");
         }
 
+        // fit the image to the window with standard scaling
         cornerstone.fitToWindow(element);
 
         // update viewport data with default properties
@@ -597,59 +603,110 @@ export const renderImage = function (
           return;
         }
 
-        if (
-          options &&
-          options.defaultProps &&
-          options &&
-          options.defaultProps.scale !== undefined
-        ) {
-          viewport.scale = options.defaultProps["scale"];
-          cornerstone.setViewport(element, viewport);
+        // set the optional custom zoom
+        if (renderOptions.scale !== undefined) {
+          // store default scale value if not specified
+          if (data.default?.scale === undefined) {
+            data.default!.scale = viewport.scale;
+          }
+          viewport.scale = renderOptions.scale;
+          logger.debug(
+            `updating cornerstone viewport with custom scale value: ${renderOptions.scale}`
+          );
+        }
+        // set the optional custom translation
+        if (renderOptions.translation !== undefined) {
+          // store default translation value if not specified
+          if (data.default?.translation === undefined) {
+            data.default!.translation = data.default!.translation || {
+              x: 0,
+              y: 0
+            };
+            data.default!.translation.x = viewport.translation.x || 0;
+            data.default!.translation.y = viewport.translation.y || 0;
+          }
+          viewport.translation.x = renderOptions.translation.x;
+          viewport.translation.y = renderOptions.translation.y;
+          logger.debug(
+            `updating cornerstone viewport with custom translation values: ${renderOptions.translation.x}, ${renderOptions.translation.y}`
+          );
+        }
+        // set the optional custom rotation
+        if (renderOptions.rotation !== undefined) {
+          // store default rotation value if not specified
+          if (data.default?.rotation === undefined) {
+            data.default!.rotation = viewport.rotation || 0;
+          }
+          viewport.rotation = renderOptions.rotation;
+          logger.debug(
+            `updating cornerstone viewport with custom rotation value: ${renderOptions.rotation}`
+          );
+        }
+        // set the optional custom contrast
+        if (renderOptions.voi !== undefined) {
+          viewport.voi.windowWidth = renderOptions.voi.windowWidth;
+          viewport.voi.windowCenter = renderOptions.voi.windowCenter;
+          logger.debug(
+            `updating cornerstone viewport with custom contrast values: ${renderOptions.voi.windowWidth}, ${renderOptions.voi.windowCenter}`
+          );
         }
 
-        if (
-          options &&
-          options.defaultProps &&
-          options &&
-          options.defaultProps.tr_x !== undefined &&
-          options &&
-          options.defaultProps.tr_y !== undefined
-        ) {
-          viewport.translation.x = options.defaultProps.tr_x;
-          viewport.translation.y = options.defaultProps.tr_y;
-          cornerstone.setViewport(element, viewport);
-        }
-
-        // color maps
-        if (
-          options &&
-          options.defaultProps &&
-          options &&
-          options.defaultProps.colormap &&
-          image.color == false
-        ) {
-          applyColorMap(options.defaultProps["colormap"]);
-        }
-
+        // if seriesUID has changed update the value into the store
         if (isSeriesUIDChanged) {
           setStore(["seriesUID", element.id, data.seriesUID]);
-          viewport.voi.windowWidth =
-            data.default?.voi?.windowWidth || image.windowWidth;
-          viewport.voi.windowCenter =
-            data.default?.voi?.windowCenter || image.windowCenter;
-          logger.debug("updating cornerstone viewport with default values");
-          cornerstone.setViewport(element, viewport);
+          if (renderOptions.scale === undefined) {
+            viewport.scale = data.default?.scale || viewport.scale;
+            logger.debug(
+              "updating cornerstone viewport with default scale value: ",
+              viewport.scale
+            );
+          }
+          if (renderOptions.translation === undefined) {
+            viewport.translation.x = data.default?.translation.x || 0;
+            viewport.translation.y = data.default?.translation.y || 0;
+            logger.debug(
+              "updating cornerstone viewport with default translation values: ",
+              viewport.translation.x,
+              viewport.translation.y
+            );
+          }
+          if (renderOptions.rotation === undefined) {
+            viewport.rotation = data.default?.rotation;
+            logger.debug(
+              "updating cornerstone viewport with default rotation value: ",
+              viewport.rotation
+            );
+          }
+          // if the seriesUID has changed, update the viewport voi values
+          // with the default values from the series
+          // if the voi is not defined in the renderOptions
+          if (renderOptions.voi === undefined) {
+            viewport.voi.windowWidth =
+              data.default?.voi?.windowWidth || image.windowWidth;
+            viewport.voi.windowCenter =
+              data.default?.voi?.windowCenter || image.windowCenter;
+            logger.debug(
+              "updating cornerstone viewport with default voi values: ",
+              viewport.voi.windowWidth,
+              viewport.voi.windowCenter
+            );
+          }
+        }
+        cornerstone.setViewport(element, viewport);
+
+        // set the optional custom color map
+        if (renderOptions.colormap !== undefined) {
+          applyColorMap(renderOptions.colormap);
+          logger.debug("updating cornerstone viewport with custom colormap");
         }
 
-        const storedViewport = cornerstone.getViewport(element);
+        storeViewportData(image, element.id, viewport as Viewport, data);
 
-        if (!storedViewport) {
-          logger.error("storedViewport not found");
-          reject("storedViewport not found for element: " + elementId);
-          return;
+        if (isSeriesUIDChanged) {
+          logger.debug("seriesUID changed, creating stack");
+          csToolsCreateStack(element, series.imageIds, data.imageIndex);
         }
 
-        storeViewportData(image, element.id, storedViewport as Viewport, data);
         setStore(["ready", element.id, true]);
         const t1 = performance.now();
         logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
@@ -671,15 +728,6 @@ export const renderImage = function (
       resolve(true);
     }
   });
-
-  if (isSeriesUIDChanged) {
-    logger.debug("seriesUID changed, creating stack");
-    csToolsCreateStack(
-      element,
-      series.imageIds,
-      (data.imageIndex as number) - 1
-    );
-  }
   return renderPromise;
 };
 
@@ -1023,12 +1071,16 @@ export const storeViewportData = function (
   setStore([
     "defaultViewport",
     elementId,
-    viewport.scale || 0,
-    viewport.rotation || 0,
-    viewport.translation?.x || 0,
-    viewport.translation?.y || 0,
-    data.default?.voi?.windowWidth,
-    data.default?.voi?.windowCenter,
+    (data.default && data.default.scale) || viewport.scale || 0,
+    (data.default && data.default.rotation) || 0,
+    (data.default && data.default.translation?.x) || 0,
+    (data.default && data.default.translation?.y) || 0,
+    (data.default && data.default?.voi?.windowWidth) ||
+      viewport.voi?.windowWidth ||
+      255,
+    (data.default && data.default?.voi?.windowCenter) ||
+      viewport.voi?.windowCenter ||
+      128,
     viewport.invert === true
   ]);
   setStore(["scale", elementId, viewport.scale || 0]);
@@ -1043,8 +1095,8 @@ export const storeViewportData = function (
   setStore([
     "contrast",
     elementId,
-    viewport.voi?.windowWidth || 0,
-    viewport.voi?.windowCenter || 0
+    viewport.voi?.windowWidth || 255,
+    viewport.voi?.windowCenter || 128
   ]);
   setStore(["isColor", elementId, data.isColor]);
   setStore(["isMultiframe", elementId, data.isMultiframe]);
@@ -1055,6 +1107,10 @@ export const storeViewportData = function (
   setStore(["isPDF", elementId, false]);
   setStore(["waveform", elementId, data.waveform]);
   setStore(["dsa", elementId, data.dsa]);
+
+  logger.debug("---Viewport data stored---");
+  logger.debug(store.get(["viewports", elementId]));
+  logger.debug("--------------------------");
 
   const t1 = performance.now();
   logger.debug(`Call to storeViewportData took ${t1 - t0} milliseconds.`);
@@ -1263,13 +1319,13 @@ const getTemporalSeriesData = function (series: Series): StoreViewport {
  * Get series metadata from default props and series' metadata
  * @instance
  * @function getSeriesData
- * @param {Object} series - The parsed data series
- * @param {Object} defaultProps - Optional default properties
+ * @param {Series} series - The parsed data series
+ * @param {RenderProps} renderOptions - Optional default properties
  * @return {StoreViewport} data - A data dictionary with parsed tags' values
  */
 const getSeriesData = function (
   series: Series,
-  defaultProps: StoreViewportOptions
+  renderOptions: RenderProps
 ): StoreViewport {
   type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;
@@ -1283,8 +1339,8 @@ const getSeriesData = function (
     data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;
     data.imageIndex =
-      defaultProps?.sliceNumber !== undefined && defaultProps?.sliceNumber >= 0
-        ? defaultProps.sliceNumber
+      renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0
+        ? renderOptions.imageIndex
         : 0;
     data.imageId = series.imageIds[data.imageIndex];
     data.isTimeserie = false;
@@ -1292,12 +1348,11 @@ const getSeriesData = function (
   } else if (series.is4D) {
     data.isMultiframe = false;
     data.isTimeserie = true;
-    // check with real indices
     data.numberOfSlices = series.numberOfImages;
     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
     data.imageIndex =
-      defaultProps?.sliceNumber !== undefined && defaultProps?.sliceNumber >= 0
-        ? defaultProps.sliceNumber
+      renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0
+        ? renderOptions.imageIndex
         : 0;
     data.timeIndex = 0;
     data.imageId = series.imageIds[data.imageIndex];
@@ -1317,16 +1372,11 @@ const getSeriesData = function (
   } else {
     data.isMultiframe = false;
     data.isTimeserie = false;
-    const numberOfSlices =
-      defaultProps && defaultProps.numberOfSlices
-        ? defaultProps.numberOfSlices
-        : series.imageIds.length;
-    data.numberOfSlices = numberOfSlices;
+    data.numberOfSlices = series.imageIds.length;
     data.imageIndex =
-      defaultProps?.sliceNumber !== undefined && defaultProps?.sliceNumber >= 0 // slice number between 0 and n-1
-        ? defaultProps.sliceNumber
-        : Math.floor(numberOfSlices / 2);
-
+      renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0 // slice number between 0 and n-1
+        ? renderOptions.imageIndex
+        : Math.floor(series.imageIds.length / 2);
     data.imageId = series.imageIds[data.imageIndex];
   }
   const instance: Instance | null = data.imageId
@@ -1346,31 +1396,50 @@ const getSeriesData = function (
     data.spacing_x = spacing ? spacing[0] : 1;
     data.spacing_y = spacing ? spacing[1] : 1;
 
+    // voi contrast value from metadata or renderOptions
+    const windowCenter =
+      renderOptions.voi !== undefined
+        ? renderOptions.voi.windowCenter
+        : (instance.metadata.x00281050 as number);
+    const windowWidth =
+      renderOptions.voi !== undefined
+        ? renderOptions.voi.windowWidth
+        : (instance.metadata.x00281051 as number);
+
     // window center and window width
     data.viewport = {
       voi: {
-        windowCenter:
-          defaultProps && defaultProps.wc
-            ? defaultProps.wc
-            : (instance.metadata.x00281050 as number),
-        windowWidth:
-          defaultProps && defaultProps.ww
-            ? defaultProps.ww
-            : (instance.metadata.x00281051 as number)
+        windowCenter: windowCenter,
+        windowWidth: windowWidth
       }
     };
-    data.default = {
-      voi: {
-        windowCenter:
-          defaultProps && has(defaultProps, "defaultWC")
-            ? defaultProps.defaultWC
-            : (instance.metadata.x00281050 as number),
-        windowWidth:
-          defaultProps && has(defaultProps, "defaultWW")
-            ? defaultProps.defaultWW
-            : (instance.metadata.x00281051 as number)
-      }
+    // store default values for the viewport voi from the series metadata
+    data.default = {};
+    data.default!.voi = {
+      windowCenter: instance.metadata.x00281050 as number,
+      windowWidth: instance.metadata.x00281051 as number
     };
+    data.default.rotation = 0;
+    data.default.translation = { x: 0, y: 0 };
+
+    if (renderOptions.default !== undefined) {
+      if (renderOptions.default.scale !== undefined) {
+        data.default!.scale = renderOptions.default.scale;
+      }
+      if (renderOptions.default.translation !== undefined) {
+        data.default!.translation!.x = renderOptions.default.translation.x;
+        data.default!.translation!.y = renderOptions.default.translation.y;
+      }
+      if (renderOptions.default.rotation !== undefined) {
+        data.default!.rotation = renderOptions.default.rotation;
+      }
+      if (renderOptions.default.voi !== undefined) {
+        data.default!.voi = {
+          windowCenter: renderOptions.default.voi.windowCenter,
+          windowWidth: renderOptions.default.voi.windowWidth
+        };
+      }
+    }
 
     if (
       (data.rows == null || data.cols == null) &&
