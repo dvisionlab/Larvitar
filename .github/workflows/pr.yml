@@ -56,7 +56,7 @@ jobs:
           path: coverage-ts/typescript-coverage.json
   
       - name: Display coverage summary
-        run: node .github/scripts/ts-coverage-summary.js coverage-ts/typescript-coverage.json
+        run: node .github/scripts/ts-coverage-summary.js typescript-coverage.json
       
       - name: Create or update PR comment with coverage
         uses: peter-evans/create-or-update-comment@v4
