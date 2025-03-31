@@ -7,7 +7,8 @@
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
 import {
-  calculateStats, calculateThresholds
+  calculateStats,
+  calculateThresholds
 } from "./utils/watershedSegmentationToolUtils/WSUtils";
 import { getMaxPixelValue, getMinPixelValue } from "../../imageUtils";
 const external = cornerstoneTools.external;
@@ -36,7 +37,10 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
     };
     super(props, defaultProps);
     // add parameter of threshold min/max in configuration for static
-    if (defaultProps.configuration.staticThreshold && defaultProps.configuration.thresholds) {
+    if (
+      defaultProps.configuration.staticThreshold &&
+      defaultProps.configuration.thresholds
+    ) {
       this.thresholds = defaultProps.configuration.thresholds;
     }
     // define parameter for statistical fine tuning
@@ -49,7 +53,7 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
     this.touchDragCallback = this._paint.bind(this);
   }
 
- /**
+  /**
    * Event handler for MOUSE_UP during the drawing event loop.
    *
    * @protected
@@ -57,17 +61,17 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
    * @param {Object} evt - The event.
    * @returns {void}
    */
- _drawingMouseUpCallback(evt) {
-  const eventData = evt.detail;
-  const element = eventData.element;
+  _drawingMouseUpCallback(evt) {
+    const eventData = evt.detail;
+    const element = eventData.element;
 
-  this._endPainting(evt);
+    this._endPainting(evt);
 
-  this._drawing = false;
-  this._mouseUpRender = true;
-  this._stopListeningForMouseUp(element);
-  this.thresholds = null;
-}
+    this._drawing = false;
+    this._mouseUpRender = true;
+    this._stopListeningForMouseUp(element);
+    this.thresholds = null;
+  }
 
   /**
    * Paints the data to the labelmap.
@@ -99,17 +103,27 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
       if (!this.thresholds && !this.setThresholds) {
         const pixelData = eventData.image.getPixelData();
         pointerArray = getCircle(radius, rows, columns, x, y);
-        this.thresholds = this._calculateThresholdsWithoutMap( eventData.image,pixelData, pointerArray, null, null);
+        this.thresholds = this._calculateThresholdsWithoutMap(
+          eventData.image,
+          pixelData,
+          pointerArray,
+          null,
+          null
+        );
       }
-      const lowerThreshold = this.thresholds ? this.thresholds.lowerThreshold : this.setThresholds.lowerThreshold;
-      const upperThreshold = this.thresholds ? this.thresholds.upperThreshold : this.setThresholds.upperThreshold;
-      const thresholdArray = [lowerThreshold, upperThreshold]
+      const lowerThreshold = this.thresholds
+        ? this.thresholds.lowerThreshold
+        : this.setThresholds.lowerThreshold;
+      const upperThreshold = this.thresholds
+        ? this.thresholds.upperThreshold
+        : this.setThresholds.upperThreshold;
+      const thresholdArray = [lowerThreshold, upperThreshold];
       pointerArray = getCircleWithThreshold(
         eventData.image,
         radius,
         thresholdArray,
         x,
-        y, 
+        y,
         this.thresholds ? true : false
       );
     }
@@ -127,7 +141,7 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
   }
   // TODO add an event to handle this
   increaseSensitivity() {
-     this.xFactor = this.xFactor + 0.2;
+    this.xFactor = this.xFactor + 0.2;
   }
   decreaseSensitivity() {
     this.xFactor = this.xFactor - 0.2;
@@ -140,14 +154,14 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
     maxThreshold
   ) {
     const { mean, stddev } = calculateStats(image, dicomPixelData, circleArray);
-  
+
     minThreshold =
       minThreshold === null ? getMinPixelValue(dicomPixelData) : minThreshold;
     maxThreshold =
       maxThreshold === null ? getMaxPixelValue(dicomPixelData) : maxThreshold;
-  
-    let lowerThreshold = mean - this.xFactor * stddev ;
-    let upperThreshold = mean + this.xFactor * stddev ;
+
+    let lowerThreshold = mean - this.xFactor * stddev;
+    let upperThreshold = mean + this.xFactor * stddev;
     return { minThreshold, maxThreshold, lowerThreshold, upperThreshold };
   }
 }
@@ -182,13 +196,21 @@ function getCircleWithThreshold(
 
   // if no thresholds, set all pixels range
   if (!thresholds) {
-    thresholds = [image.minPixelValue * image.slope + image.intercept, image.maxPixelValue * image.slope + image.intercept];
+    thresholds = [
+      image.minPixelValue * image.slope + image.intercept,
+      image.maxPixelValue * image.slope + image.intercept
+    ];
   }
 
   function isInsideThresholds(v, t) {
     return v >= t[0] && v <= t[1];
   }
-  const tMapped = applyMapping ? [thresholds[0]* image.slope + image.intercept, thresholds[1]* image.slope + image.intercept] : [thresholds[0], thresholds[1]];
+  const tMapped = applyMapping
+    ? [
+        thresholds[0] * image.slope + image.intercept,
+        thresholds[1] * image.slope + image.intercept
+      ]
+    : [thresholds[0], thresholds[1]];
   if (radius === 1) {
     let value = pixelData[y0 * rows + x0];
     let moValue = value * image.slope + image.intercept;
@@ -219,9 +241,9 @@ function getCircleWithThreshold(
       let moValue = value * image.slope + image.intercept;
       if (x * x + y * y < radius * radius) {
         if (isInsideThresholds(moValue, tMapped)) {
-            circleArray[index++] = [x0 + x, y0 + y];
-         }
-      } 
+          circleArray[index++] = [x0 + x, y0 + y];
+        }
+      }
     }
   }
 

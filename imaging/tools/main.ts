@@ -43,9 +43,8 @@ const initializeCSTools = function (
 
   // hack to fix warning on init() - but breaks labelmap 0 auto generation
   // see https://github.com/cornerstonejs/cornerstoneTools/issues/1395
-  cornerstoneTools.getModule(
-    "segmentation"
-  ).configuration.segmentsPerLabelmap = 0;
+  cornerstoneTools.getModule("segmentation").configuration.segmentsPerLabelmap =
+    0;
 
   cornerstoneTools.init(DEFAULT_SETTINGS);
   setToolsStyle(style);
