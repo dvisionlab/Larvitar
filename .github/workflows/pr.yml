@@ -53,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: typescript-coverage
-          path: typescript-coverage.json
+          path: coverage-ts/typescript-coverage.json
   
       - name: Display coverage summary
         run: node .github/scripts/ts-coverage-summary.js coverage-ts/typescript-coverage.json
