@@ -1,32 +1,86 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
+const { JSDOM } = require("jsdom");
 
-const reportPath = path.resolve(process.argv[2] || 'typescript-coverage.json');
-const data = JSON.parse(fs.readFileSync(reportPath, 'utf-8'));
+// Input/output
+const htmlPath = process.argv[2] || "index.html";
+const outputPath = process.argv[3] || "coverage-summary.md";
 
-// Compute total coverage
-let totalCovered = 0;
-let totalLines = 0;
+// Load HTML
+const html = fs.readFileSync(htmlPath, "utf-8");
+const dom = new JSDOM(html);
+const document = dom.window.document;
 
-let summary = '## 🧪 TypeScript Coverage Summary\n\n';
-
-summary += '| File | Coverage |\n';
-summary += '|------|----------|\n';
-
-data.forEach(({ filename, covered, total, percent }) => {
-  totalCovered += covered;
-  totalLines += total;
-  summary += `| ${filename} | ${percent}% |\n`;
-});
-
-const totalPercent = ((totalCovered / totalLines) * 100).toFixed(1);
-summary = `## 🧪 TypeScript Coverage Summary\n\n**Total Coverage**: \`${totalPercent}%\` (${totalCovered}/${totalLines} lines)\n\n` + summary;
-
-fs.writeFileSync('coverage-summary.md', summary);
-
-// Optional: fail if coverage is below threshold
-const minCoverage = 80;
-if (totalPercent < minCoverage) {
-  console.error(`::error::Coverage ${totalPercent}% is below threshold (${minCoverage}%)`);
+const tables = [...document.querySelectorAll("table")];
+if (tables.length < 2) {
+  console.error("❌ Expected at least 2 tables in the coverage HTML.");
   process.exit(1);
 }
+
+const summaryTable = tables[0];
+const fileTable = tables[1];
+
+// --- Extract summary values ---
+const headers = [...summaryTable.querySelectorAll("th")].map((el) =>
+  el.textContent.trim().toLowerCase()
+);
+const values = [...summaryTable.querySelectorAll("td")].map((el) =>
+  el.textContent.trim().replace(/,/g, "")
+);
+
+const summary = {};
+headers.forEach((key, i) => {
+  const value = values[i];
+  if (!value.includes("%")) {
+    summary[key] = parseInt(value, 10);
+  }
+});
+
+const total = summary["total"] || 0;
+const covered = summary["covered"] || 0;
+const uncovered = summary["uncovered"] || 0;
+const percent = total ? ((covered / total) * 100).toFixed(2) : "0.00";
+const emoji = percent >= 90 ? "✅" : percent >= 75 ? "⚠️" : "🚨";
+
+// --- Extract file-level coverage ---
+const fileRows = fileTable.querySelectorAll("tbody tr");
+const fileData = [];
+
+fileRows.forEach((row) => {
+  const cols = row.querySelectorAll("td");
+  if (cols.length >= 5) {
+    const file = cols[0].textContent.trim();
+    const percentVal = parseFloat(cols[1].textContent.trim().replace("%", ""));
+    const fileEmoji = percentVal >= 90 ? "✅" : percentVal >= 75 ? "⚠️" : "🚨";
+
+    fileData.push({
+      file,
+      percent: percentVal,
+      total: parseInt(cols[2].textContent.replace(/,/g, ""), 10),
+      covered: parseInt(cols[3].textContent.replace(/,/g, ""), 10),
+      uncovered: parseInt(cols[4].textContent.replace(/,/g, ""), 10),
+      emoji: fileEmoji,
+    });
+  }
+});
+
+// --- Generate Markdown ---
+let md = `## 🧪 TypeScript Coverage Report
+
+**Total Coverage**: \`${percent}%\` ${emoji}  
+**Total Lines**: \`${total}\`  
+**Covered**: \`${covered}\`  
+**Uncovered**: \`${uncovered}\`
+
+### 📄 File Coverage Details
+| File | Coverage | Total | Covered | Uncovered |
+|------|----------|--------|---------|-----------|
+`;
+
+fileData.forEach((f) => {
+  md += `| \`${f.file}\` | ${f.percent}% ${f.emoji} | ${f.total} | ${f.covered} | ${f.uncovered} |\n`;
+});
+
+// Save it
+fs.writeFileSync(outputPath, md, "utf-8");
+console.log(`✅ Markdown saved to ${outputPath}`);

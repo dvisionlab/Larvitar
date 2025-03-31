@@ -53,10 +53,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: typescript-coverage
-          path: coverage-ts/typescript-coverage.json
+          path: coverage-ts/index.html
   
       - name: Display coverage summary
-        run: node .github/scripts/ts-coverage-summary.js coverage-ts/typescript-coverage.json
+        run: node .github/scripts/ts-coverage-summary.js coverage-ts/index.html
       
       - name: Create or update PR comment with coverage
         uses: peter-evans/create-or-update-comment@v4
