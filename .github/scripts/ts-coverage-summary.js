@@ -1,24 +1,32 @@
 const fs = require('fs');
 const path = require('path');
 
-const coverageFile = path.resolve(process.argv[2] || 'typescript-coverage.json');
-const data = JSON.parse(fs.readFileSync(coverageFile, 'utf-8'));
-const { totals, files } = data;
+const reportPath = path.resolve(process.argv[2] || 'typescript-coverage.json');
+const data = JSON.parse(fs.readFileSync(reportPath, 'utf-8'));
+
+// Compute total coverage
+let totalCovered = 0;
+let totalLines = 0;
 
 let summary = '## 🧪 TypeScript Coverage Summary\n\n';
-summary += `**Total Coverage**: \`${totals.percent}%\` (${totals.covered}/${totals.total} lines)\n\n`;
+
 summary += '| File | Coverage |\n';
 summary += '|------|----------|\n';
 
-for (const file of files) {
-  summary += `| ${file.filename} | ${file.percent}% |\n`;
-}
+data.forEach(({ filename, covered, total, percent }) => {
+  totalCovered += covered;
+  totalLines += total;
+  summary += `| ${filename} | ${percent}% |\n`;
+});
+
+const totalPercent = ((totalCovered / totalLines) * 100).toFixed(1);
+summary = `## 🧪 TypeScript Coverage Summary\n\n**Total Coverage**: \`${totalPercent}%\` (${totalCovered}/${totalLines} lines)\n\n` + summary;
 
 fs.writeFileSync('coverage-summary.md', summary);
 
-// Optional: fail the job if below threshold
+// Optional: fail if coverage is below threshold
 const minCoverage = 80;
-if (totals.percent < minCoverage) {
-  console.error(`::error::Coverage ${totals.percent}% is below threshold (${minCoverage}%)`);
+if (totalPercent < minCoverage) {
+  console.error(`::error::Coverage ${totalPercent}% is below threshold (${minCoverage}%)`);
   process.exit(1);
 }
