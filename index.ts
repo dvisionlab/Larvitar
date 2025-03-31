@@ -187,8 +187,7 @@ import {
   setToolActive,
   setToolDisabled,
   setToolEnabled,
-  setToolPassive,
-  exportAnnotations
+  setToolPassive
 } from "./imaging/tools/main";
 
 import {
@@ -268,8 +267,6 @@ import {
 } from "./imaging/imageColormaps";
 
 import { applyDSAShift } from "./imaging/postProcessing/applyDSA";
-
-import { saveAnnotations, loadAnnotations } from "./imaging/tools/io";
 
 import {
   addMouseKeyHandlers,
@@ -482,16 +479,12 @@ export {
   setToolDisabled,
   setToolEnabled,
   setToolPassive,
-  exportAnnotations,
   // tools/default
   DEFAULT_TOOLS,
   dvTools,
   getDefaultToolsByType,
   setDefaultToolsProps,
   registerExternalTool,
-  // tools/io
-  saveAnnotations,
-  loadAnnotations,
   // tools/interaction
   addMouseKeyHandlers,
   removeMouseKeyHandlers,

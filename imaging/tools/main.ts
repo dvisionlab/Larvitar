@@ -13,7 +13,6 @@ const external = cornerstoneTools.external;
 
 // internal libraries
 import { logger } from "../../logger";
-import { saveAnnotations, loadAnnotations, exportAnnotations } from "./io";
 import {
   DEFAULT_TOOLS,
   DEFAULT_STYLE,
@@ -425,8 +424,5 @@ export {
   setToolActive,
   setToolEnabled,
   setToolDisabled,
-  setToolPassive,
-  saveAnnotations,
-  loadAnnotations,
-  exportAnnotations
+  setToolPassive
 };

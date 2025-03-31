@@ -51,7 +51,6 @@
     "keycode-js": "^3.1.0",
     "lodash": "^4.17.15",
     "pako": "^1.0.10",
-    "papaparse": "^5.3.0",
     "plotly.js-dist-min": "^2.27.1",
     "uuid": "^8.3.2"
   },
