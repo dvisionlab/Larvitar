@@ -140,14 +140,15 @@ let createCustomImage = function (
   let promise: Promise<Image> = new Promise((resolve, _) => {
     const minPixelValue = getMinPixelValue(pixelData);
     const maxPixelValue = getMaxPixelValue(pixelData);
+    const computedWindowWidth = (maxPixelValue - minPixelValue) / 2;
     const image: Partial<Image> = {
       imageId: imageId,
       minPixelValue: minPixelValue,
       maxPixelValue: maxPixelValue,
       slope: srcImage.slope,
       intercept: srcImage.intercept,
-      windowCenter: srcImage.windowCenter,
-      windowWidth: srcImage.windowWidth,
+      windowCenter: srcImage.windowCenter || computedWindowWidth / 2,
+      windowWidth: srcImage.windowWidth || computedWindowWidth,
       getPixelData: () => pixelData,
       rows: srcImage.rows,
       columns: srcImage.columns,
