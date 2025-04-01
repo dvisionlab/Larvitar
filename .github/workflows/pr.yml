@@ -40,3 +40,28 @@ jobs:
       - name: Generate build
         run: |
           yarn run build
+      
+      # Check Prettier
+      - name: Check Prettier
+        run: |
+          yarn run format:check
+      
+      - name: Run tests and generate coverage
+        run: yarn run coverage
+  
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: typescript-coverage
+          path: coverage-ts/index.html
+  
+      - name: Display coverage summary
+        run: node .github/scripts/ts-coverage-summary.js coverage-ts/index.html
+      
+      - name: Create or update PR comment with coverage
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: coverage-summary.md
+          body-includes: "## 🧪 TypeScript Coverage Summary"

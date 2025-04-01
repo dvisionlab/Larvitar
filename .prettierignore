@@ -1,0 +1,9 @@
+node_modules
+dist
+.github
+.vscode
+docs/.vuepress
+docs/api
+docs/examples/demo
+docs/examples/resources
+docs/guide

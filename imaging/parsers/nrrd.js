@@ -446,8 +446,9 @@ function parseData(nrrdBuffer, header, dataByteOffset) {
       });
     data = new arrayType(numbers);
   } else if (header.encoding === "gzip" || header.encoding === "gz") {
-    dataBuffer = pako.inflate(new Uint8Array(nrrdBuffer).slice(dataByteOffset))
-      .buffer;
+    dataBuffer = pako.inflate(
+      new Uint8Array(nrrdBuffer).slice(dataByteOffset)
+    ).buffer;
   } else {
     throw new Error('Only "raw", "ascii" and "gzip" encoding are supported.');
   }

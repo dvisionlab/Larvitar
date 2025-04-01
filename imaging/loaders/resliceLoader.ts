@@ -66,15 +66,15 @@ let createCustomImage = function (
   let pixelSpacing = metadata.x00280030
     ? metadata.x00280030
     : metadata.x00080060 === "US" &&
-      metadata["x00186011"]![0].x0018602e != undefined &&
-      metadata["x00186011"]![0].x0018602c != undefined
-    ? ([
-        metadata["x00186011"]![0].x0018602e * 10, //so that from cm goes to mm
-        metadata["x00186011"]![0].x0018602c * 10
-      ] as [number, number])
-    : metadata.x00181164
-    ? metadata.x00181164
-    : [1, 1];
+        metadata["x00186011"]![0].x0018602e != undefined &&
+        metadata["x00186011"]![0].x0018602c != undefined
+      ? ([
+          metadata["x00186011"]![0].x0018602e * 10, //so that from cm goes to mm
+          metadata["x00186011"]![0].x0018602c * 10
+        ] as [number, number])
+      : metadata.x00181164
+        ? metadata.x00181164
+        : [1, 1];
   let rescaleIntercept = metadata.x00281052;
   let rescaleSlope = metadata.x00281053;
   let windowCenter = metadata.x00281050;

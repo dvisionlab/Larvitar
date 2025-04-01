@@ -6,9 +6,3 @@ declare module "cornerstone-file-image-loader";
 declare module "dicom-character-set";
 declare module "@hyzyla/pdfium/browser/cdn";
 declare module "@hyzyla/pdfium/pdfium.wasm";
-
-declare global {
-  interface Document {
-    documentMode?: any;
-  }
-}
