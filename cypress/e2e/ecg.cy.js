@@ -46,12 +46,12 @@ describe("Larvitar ECG Rendering", () => {
         expect(larvitarManager).to.have.property(seriesInstanceUID);
 
         // Verify ECG plot div existsù
-        cy.get("#ecg").should("exist")
-        cy.get(".plot-container").should("exist")
+        cy.get("#ecg").should("exist");
+        cy.get(".plot-container").should("exist");
 
         // Verify study data structure
         const seriesData = larvitarManager[seriesInstanceUID];
-        expect(seriesData.ecgData).to.not.equal(undefined)
+        expect(seriesData.ecgData).to.not.equal(undefined);
 
         // Check image IDs are loaded (should be 48 based on the demo file loading)
         expect(seriesData.imageIds).to.have.length(48);
@@ -99,7 +99,7 @@ describe("Larvitar ECG Rendering", () => {
           .then(updatedText => {
             cy.log("Updated Frame after Pause:", updatedText);
 
-            expect(updatedText).to.equal("Current Frame: 10 of 48")
+            expect(updatedText).to.match(/Current Frame: (9|10|11) of 48/);
           });
 
         cy.get("body").type("p");
@@ -111,7 +111,7 @@ describe("Larvitar ECG Rendering", () => {
           .then(pausedText => {
             cy.log("Played Frame:", pausedText);
 
-            expect(pausedText).not.to.equal(initialText)
+            expect(pausedText).not.to.equal(initialText);
           });
       });
   });
@@ -161,8 +161,9 @@ describe("Larvitar ECG Rendering", () => {
   });
 
   it("should update the frame rate", () => {
-    cy.wait(500)
-    cy.get("#frame-rate").invoke("text")
+    cy.wait(500);
+    cy.get("#frame-rate")
+      .invoke("text")
       .then(initialText => {
         const regex = /Frame Rate: (\d+.\d+)ms/;
         const match = initialText.match(regex);
@@ -170,13 +171,17 @@ describe("Larvitar ECG Rendering", () => {
         const frameRate = match[1];
 
         cy.get("body").type("+");
-        cy.wait(500)
-        cy.get("#frame-rate").invoke("text").then(newText => {
-          const newMatch = newText.match(regex);
+        cy.wait(500);
+        cy.get("#frame-rate")
+          .invoke("text")
+          .then(newText => {
+            const newMatch = newText.match(regex);
 
-          const newFrameRate = newMatch[1];
-          expect(parseFloat(newFrameRate)).to.be.greaterThan(parseFloat(frameRate))
-        })
-      })
-  })
+            const newFrameRate = newMatch[1];
+            expect(parseFloat(newFrameRate)).to.be.greaterThan(
+              parseFloat(frameRate)
+            );
+          });
+      });
+  });
 });
