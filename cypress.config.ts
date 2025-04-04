@@ -7,14 +7,13 @@ module.exports = defineConfig({
   defaultCommandTimeout: 20000,
   reporter: "cypress-multi-reporters",
   reporterOptions: {
-    reporterEnabled: "spec, json",
-    jsonReporterOptions: {
+    reporterEnabled: "spec, mocha-json-reporter",
+    mochaJsonReporterReporterOptions: {
       output: "cypress-test/test-result.json"
     }
   },
   e2e: {
     setupNodeEvents(on, config) {
-      // implement node event listeners here
       addMatchImageSnapshotPlugin(on, config);
     }
   }
