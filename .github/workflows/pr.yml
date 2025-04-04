@@ -49,9 +49,6 @@ jobs:
       - name: Run Cypress tests
         run: yarn run cypress:run
         
-      - name: Generate Cypress test report
-        run: yarn run cypress:report
-        
       - name: Upload Cypress reports artifact
         uses: actions/upload-artifact@v4
         with:
