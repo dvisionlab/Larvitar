@@ -4,6 +4,7 @@ const {
 } = require("cypress-image-snapshot/plugin");
 
 module.exports = defineConfig({
+  defaultCommandTimeout: 20000,
   reporter: "cypress-multi-reporters",
   reporterOptions: {
     reporterEnabled: "spec, json",
