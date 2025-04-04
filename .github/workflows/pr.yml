@@ -46,8 +46,28 @@ jobs:
         run: |
           yarn run format:check
 
-      - name: Cypress run
+      - name: Run Cypress tests
         run: yarn run cypress:run
+        
+      - name: Generate Cypress test report
+        run: yarn run cypress:report
+        
+      - name: Upload Cypress reports artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-test-reports
+          path: cypress-test/
+          
+      - name: Generate Cypress summary
+        run: node .github/scripts/cypress-summary.js cypress-test/test-result.json
+        
+      - name: Create or update PR comment with Cypress test results
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: cypress-summary.md
+          body-includes: "## 🔍 Cypress Test Results"
 
       - name: Run tests and generate coverage
         run: yarn run coverage
