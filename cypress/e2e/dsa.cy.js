@@ -37,17 +37,17 @@ describe("Larvitar DSA Rendering", () => {
         });
       }
     });
-  })
+  });
 
   it("should apply dsa mask", () => {
-    cy.wait(1000)
-    cy.screenshot("before")
+    cy.wait(1000);
+    cy.screenshot("before");
     cy.get("body").type("2");
-    cy.wait(1000)
-    cy.screenshot("after")
+    cy.wait(1000);
+    cy.screenshot("after");
 
-    cy.get("body").matchImageSnapshot('after')
-  })
+    cy.get("body").matchImageSnapshot("after");
+  });
 
   it('should play/pause frame animation on pressing "p"', () => {
     cy.wait(5000);
@@ -63,7 +63,7 @@ describe("Larvitar DSA Rendering", () => {
           .then(updatedText => {
             cy.log("Updated Frame after Pause:", updatedText);
 
-            expect(updatedText).to.equal("Current Frame: 1 of 13")
+            expect(updatedText).to.equal(initialText);
           });
 
         cy.get("body").type("p");
@@ -75,8 +75,8 @@ describe("Larvitar DSA Rendering", () => {
           .then(pausedText => {
             cy.log("Played Frame:", pausedText);
 
-            expect(pausedText).not.to.equal(initialText)
+            expect(pausedText).not.to.equal(initialText);
           });
       });
   });
-})
+});

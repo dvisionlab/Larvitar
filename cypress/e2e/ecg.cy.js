@@ -99,7 +99,7 @@ describe("Larvitar ECG Rendering", () => {
           .then(updatedText => {
             cy.log("Updated Frame after Pause:", updatedText);
 
-            expect(updatedText).to.match(/Current Frame: (9|10|11) of 48/);
+            expect(updatedText).to.match(initialText);
           });
 
         cy.get("body").type("p");

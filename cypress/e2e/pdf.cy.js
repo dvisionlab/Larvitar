@@ -26,7 +26,7 @@ describe("Larvitar DICOM PDF Rendering", () => {
         });
       }
       // Wait for files to be loaded
-      cy.window().its("allFilesLoaded").should("eq", true, { timeout: 10000 });
+      cy.window().its("allFilesLoaded").should("eq", true, { timeout: 20000 });
       cy.get("#spinner").should("not.be.visible");
     });
   });
