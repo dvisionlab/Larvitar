@@ -56,7 +56,7 @@ jobs:
           path: cypress-test/
           
       - name: Generate Cypress summary
-        run: node .github/scripts/cypress-summary.js cypress-test/test-result.json
+        run: node .github/scripts/cypress-summary.js report/json/report.json
         
       - name: Create or update PR comment with Cypress test results
         uses: peter-evans/create-or-update-comment@v4
