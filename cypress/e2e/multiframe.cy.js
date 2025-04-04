@@ -50,7 +50,7 @@ describe("Larvitar Multiframe Rendering", () => {
       .then(initialText => {
         cy.log("Initial Frame: ", initialText);
         const match = initialText.match(/Current Frame: (\d+) of/);
-        const frameNumber = parseInt(match[1], 10);
+        const frameNumber = parseInt(match[1], 10) + 1;
         cy.get("body").trigger("keydown", { keyCode: 80 });
 
         cy.get("#image-time")
