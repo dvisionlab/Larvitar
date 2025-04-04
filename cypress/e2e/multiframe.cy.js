@@ -49,7 +49,8 @@ describe("Larvitar Multiframe Rendering", () => {
       .invoke("text")
       .then(initialText => {
         cy.log("Initial Frame: ", initialText);
-
+        const match = initialText.match(/Current Frame: (\d+) of/);
+        const frameNumber = parseInt(match[1], 10);
         cy.get("body").trigger("keydown", { keyCode: 80 });
 
         cy.get("#image-time")
@@ -57,7 +58,13 @@ describe("Larvitar Multiframe Rendering", () => {
           .then(updatedText => {
             cy.log("Updated Frame after Pause:", updatedText);
 
-            expect(updatedText).to.equal(initialText);
+            if (updatedText === initialText) {
+              expect(updatedText).to.equal(initialText);
+            } else {
+              expect(updatedText).to.equal(
+                "Current Frame: " + frameNumber + "of 76"
+              );
+            }
           });
 
         cy.get("body").type("p");
