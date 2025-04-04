@@ -10,6 +10,74 @@ import { each } from "lodash";
 
 // internal libraries
 import { addToolStateSingleSlice } from "../../imageTools";
+import { MeasurementMouseEvent } from "../types";
+
+// Types
+interface DiameterToolProps {
+  name?: string;
+  dataArray?: ToolDataItem[];
+  seriesId?: string;
+}
+
+interface ToolDataItem {
+  id: number;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  x3: number;
+  y3: number;
+  x4: number;
+  y4: number;
+  value_max: number;
+  value_min: number;
+  slice: number;
+}
+
+interface ToolHandle {
+  x: number;
+  y: number;
+  index: number | null;
+  drawnIndependently: boolean;
+  allowedOutsideImage: boolean;
+  highlight: boolean;
+  active: boolean;
+  locked?: boolean;
+  hasMoved?: boolean;
+  movesIndependently?: boolean;
+  hasBoundingBox?: boolean;
+  boundingBox?: {
+    width: number;
+    height: number;
+    left: number;
+    top: number;
+  };
+}
+
+interface ToolData {
+  toolType: string;
+  name: string;
+  isCreating: boolean;
+  visible: boolean;
+  active: boolean;
+  invalidated: boolean;
+  handles: {
+    start: ToolHandle;
+    end: ToolHandle;
+    perpendicularStart: ToolHandle;
+    perpendicularEnd: ToolHandle;
+    textBox: ToolHandle;
+  };
+  longestDiameter: string;
+  shortestDiameter: string;
+}
+
+interface MeasurementEvent extends Event {
+  detail: {
+    measurementData: ToolData;
+  };
+  element: HTMLElement;
+}
 
 /**
  * @public
@@ -19,9 +87,12 @@ import { addToolStateSingleSlice } from "../../imageTools";
  * length and width of a region.
  * @extends Tools.Base.BaseAnnotationTool
  */
-
 export class DiameterTool extends BidirectionalTool {
-  constructor(props) {
+  name: string;
+  isBeenModified: boolean;
+  lastData: ToolData | null;
+
+  constructor(props: DiameterToolProps) {
     const defaultProps = {
       name: "Diameter",
       isBeenModified: false,
@@ -31,15 +102,28 @@ export class DiameterTool extends BidirectionalTool {
     super(props, defaultProps);
 
     this.name = "Diameter";
+    this.isBeenModified = false;
+    this.lastData = null;
 
-    this.initializeTool(props.dataArray, "cmprAxial", props.seriesId);
+    if (props.dataArray && props.seriesId) {
+      this.initializeTool(props.dataArray, "cmprAxial", props.seriesId);
+    }
   }
 
-  initializeTool(dataArray, elementId, seriesId) {
+  initializeTool(
+    dataArray: ToolDataItem[],
+    elementId: string,
+    seriesId: string
+  ): void {
     let element = document.getElementById(elementId);
 
+    if (!element) {
+      console.error(`Element with ID ${elementId} not found`);
+      return;
+    }
+
     each(dataArray, singleData => {
-      let data = {
+      let data: ToolData = {
         toolType: "Diameter",
         name: singleData.id.toString(),
         isCreating: true,
@@ -116,25 +200,30 @@ export class DiameterTool extends BidirectionalTool {
     csTools.external.cornerstone.updateImage(element);
   }
 
-  passiveCallback(element) {
+  passiveCallback(element: HTMLElement) {
     element.addEventListener(
       "cornerstonetoolsmeasurementmodified",
-      this.measureOnGoingCallback
+      this.measureOnGoingCallback.bind(this) as EventListener
     );
   }
 
-  measureOnGoingCallback(event) {
+  measureOnGoingCallback(event: MeasurementEvent) {
     if (!this.isBeenModified) {
-      event.target.addEventListener("mouseup", function (evt) {
-        this.__proto__.measureEndCallback(evt);
-      });
+      const self = this;
+      event.target!.addEventListener(
+        "mouseup",
+        self.__proto__.measureEndCallback
+      );
     }
     this.isBeenModified = true;
     this.lastData = event.detail.measurementData;
   }
 
-  measureEndCallback(event) {
-    event.element.removeEventListener("mouseup", this.measureEndCallback);
+  measureEndCallback(event: MeasurementEvent) {
+    event.element.removeEventListener(
+      "mouseup",
+      this.measureEndCallback as EventListener
+    );
     this.isBeenModified = false;
     this.lastData = null;
   }

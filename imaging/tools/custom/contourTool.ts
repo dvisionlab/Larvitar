@@ -5,12 +5,24 @@
  */
 
 // external libraries
-import cornerstone from "cornerstone-core";
+import cornerstone, { Image } from "cornerstone-core";
 import csTools from "cornerstone-tools";
 import { each, map } from "lodash";
 
 // internal libraries
 import { addToolStateSingleSlice } from "../../imageTools";
+import {
+  ContourData,
+  ContourState,
+  Coords,
+  DiameterStateData,
+  EventData,
+  HandlePosition,
+  Handles,
+  HandleTextBox,
+  MeasurementData,
+  MeasurementMouseEvent
+} from "../types";
 
 // cornerstone tools imports
 const external = csTools.external;
@@ -54,7 +66,7 @@ const {
   FreehandHandleData
 } = freehandUtils;
 
-const state = {
+const state: ContourState = {
   // Global
   globalTools: {},
   globalToolChangeHistory: [],
@@ -71,7 +83,8 @@ const state = {
   deleteIfHandleOutsideImage: true,
   preventHandleOutsideImage: false,
   // Cursor
-  svgCursorUrl: null
+  svgCursorUrl: null,
+  isMultiPartToolActive: null
 };
 
 /**
@@ -82,7 +95,9 @@ const state = {
  * @extends Tools.Base.BaseAnnotationTool
  */
 export class ContoursTool extends BaseAnnotationTool {
-  constructor(props = {}) {
+  constructor(
+    props: { contoursParsedData?: ContourData; segmentationName?: string } = {}
+  ) {
     const defaultProps = {
       name: "ContoursTool",
       supportedInteractionTypes: ["Mouse", "Touch"],
@@ -92,7 +107,7 @@ export class ContoursTool extends BaseAnnotationTool {
 
     super(props, defaultProps);
 
-    this.initializeContours(props.contoursParsedData, props.segmentationName);
+    this.initializeContours(props.contoursParsedData!, props.segmentationName!);
 
     this.isMultiPartTool = true;
 
@@ -120,7 +135,7 @@ export class ContoursTool extends BaseAnnotationTool {
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
 
-  initializeContours(contourData, segmentationName) {
+  initializeContours(contourData: ContourData, segmentationName: string) {
     var elements = cornerstone.getEnabledElements();
     each(elements, el => {
       var slices = contourData[el.element.id][segmentationName];
@@ -141,12 +156,17 @@ export class ContoursTool extends BaseAnnotationTool {
           return dataToInject;
         });
 
-        addToolStateSingleSlice(el.element, "ContoursTool", lines, slice);
+        addToolStateSingleSlice(
+          el.element,
+          "ContoursTool",
+          lines as unknown as DiameterStateData,
+          slice as any
+        );
       }
     });
   }
 
-  createNewMeasurement(eventData) {
+  createNewMeasurement(eventData: EventData) {
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
@@ -158,7 +178,7 @@ export class ContoursTool extends BaseAnnotationTool {
       return;
     }
 
-    const measurementData = {
+    const measurementData: MeasurementData = {
       visible: true,
       active: true,
       invalidated: true,
@@ -188,7 +208,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {*} coords coords
    * @returns {Boolean}
    */
-  pointNearTool(element, data, coords) {
+  pointNearTool(element: HTMLElement, data: MeasurementData, coords: Coords) {
     const validParameters = data && data.handles && data.handles.points;
 
     if (!validParameters) {
@@ -218,12 +238,16 @@ export class ContoursTool extends BaseAnnotationTool {
    * closest rendered portion of the annotation. -1 if the distance cannot be
    * calculated.
    */
-  distanceFromPoint(element, data, coords) {
+  distanceFromPoint(
+    element: HTMLElement,
+    data: MeasurementData,
+    coords: Coords
+  ) {
     let distance = Infinity;
 
-    for (let i = 0; i < data.handles.points.length; i++) {
+    for (let i = 0; i < data.handles.points!.length; i++) {
       const distanceI = external.cornerstoneMath.point.distance(
-        data.handles.points[i],
+        data.handles.points![i],
         coords
       );
 
@@ -246,7 +270,11 @@ export class ContoursTool extends BaseAnnotationTool {
    * closest rendered portion of the annotation. -1 if the distance cannot be
    * calculated.
    */
-  distanceFromPointCanvas(element, data, coords) {
+  distanceFromPointCanvas(
+    element: HTMLElement,
+    data: MeasurementData,
+    coords: Coords
+  ) {
     let distance = Infinity;
 
     if (!data) {
@@ -255,7 +283,7 @@ export class ContoursTool extends BaseAnnotationTool {
 
     const canvasCoords = external.cornerstone.pixelToCanvas(element, coords);
 
-    const points = data.handles.points;
+    const points = data.handles.points!;
 
     for (let i = 0; i < points.length; i++) {
       const handleCanvas = external.cornerstone.pixelToCanvas(
@@ -289,7 +317,7 @@ export class ContoursTool extends BaseAnnotationTool {
    *
    * @returns {void}  void
    */
-  updateCachedStats(image, element, data) {
+  updateCachedStats(image: Image, element: HTMLElement, data: MeasurementData) {
     // Define variables for the area and mean/standard deviation
     let meanStdDev, meanStdDevSUV;
 
@@ -299,7 +327,7 @@ export class ContoursTool extends BaseAnnotationTool {
     );
     const modality = seriesModule ? seriesModule.modality : null;
 
-    const points = data.handles.points;
+    const points = data.handles.points!;
     // If the data has been invalidated, and the tool is not currently active,
     // We need to calculate it again.
 
@@ -398,7 +426,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {*} evt
    * @returns {undefined}
    */
-  renderToolData(evt) {
+  renderToolData(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
 
     // If we have no toolState for this element, return immediately as there is nothing to do
@@ -427,7 +455,7 @@ export class ContoursTool extends BaseAnnotationTool {
         continue;
       }
 
-      draw(context, context => {
+      draw(context, (context: HTMLCanvasElement) => {
         let color = toolColors.getColorIfActive(data);
         let fillColor;
 
@@ -461,10 +489,11 @@ export class ContoursTool extends BaseAnnotationTool {
 
         // Draw handles
 
-        const options = {
-          color,
-          fill: fillColor
-        };
+        const options: { color: string; fill: string; handleRadius?: number } =
+          {
+            color,
+            fill: fillColor
+          };
 
         if (config.alwaysShowHandles || (data.active && data.polyBoundingBox)) {
           // Render all handles
@@ -533,7 +562,7 @@ export class ContoursTool extends BaseAnnotationTool {
       });
     }
 
-    function textBoxText(data) {
+    function textBoxText(data: MeasurementData) {
       const { meanStdDev, meanStdDevSUV, area } = data;
       // Define an array to store the rows of text for the textbox
       const textLines = [];
@@ -593,12 +622,12 @@ export class ContoursTool extends BaseAnnotationTool {
       return textLines;
     }
 
-    function textBoxAnchorPoints(handles) {
+    function textBoxAnchorPoints(handles: Handles) {
       return handles;
     }
   }
 
-  addNewMeasurement(evt) {
+  addNewMeasurement(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
 
     this._startDrawing(evt);
@@ -607,12 +636,15 @@ export class ContoursTool extends BaseAnnotationTool {
     preventPropagation(evt);
   }
 
-  preMouseDownCallback(evt) {
+  preMouseDownCallback(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
     const nearby = this._pointNearHandleAllTools(eventData);
 
     if (eventData.event.ctrlKey) {
-      if (nearby !== undefined && nearby.handleNearby.hasBoundingBox) {
+      if (
+        nearby !== undefined &&
+        (nearby.handleNearby as HandleTextBox).hasBoundingBox
+      ) {
         // Ctrl + clicked textBox, do nothing but still consume event.
       } else {
         insertOrDelete.call(this, evt, nearby);
@@ -626,7 +658,12 @@ export class ContoursTool extends BaseAnnotationTool {
     return false;
   }
 
-  handleSelectedCallback(evt, toolData, handle, interactionType = "mouse") {
+  handleSelectedCallback(
+    evt: MeasurementMouseEvent,
+    toolData: any,
+    handle: HandlePosition,
+    interactionType = "mouse"
+  ) {
     const { element } = evt.detail;
     const toolState = getToolState(element, this.name);
     logger.info(interactionType);
@@ -671,7 +708,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} evt - The event.
    * @returns {undefined}
    */
-  _drawingMouseMoveCallback(evt) {
+  _drawingMouseMoveCallback(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
     const { currentPoints, element } = eventData;
     const toolState = getToolState(element, this.name);
@@ -694,11 +731,11 @@ export class ContoursTool extends BaseAnnotationTool {
 
     if (
       handleNearby !== undefined &&
-      !handleNearby.hasBoundingBox &&
-      handleNearby < points.length - 1
+      !(handleNearby as HandleTextBox).hasBoundingBox &&
+      (handleNearby as number) < points.length - 1
     ) {
-      config.mouseLocation.handles.start.x = points[handleNearby].x;
-      config.mouseLocation.handles.start.y = points[handleNearby].y;
+      config.mouseLocation.handles.start.x = points[handleNearby as number].x;
+      config.mouseLocation.handles.start.y = points[handleNearby as number].y;
     }
 
     // Force onImageRendered
@@ -712,7 +749,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} evt - The event.
    * @returns {undefined}
    */
-  _drawingMouseDragCallback(evt) {
+  _drawingMouseDragCallback(evt: MeasurementMouseEvent) {
     if (!this.options.mouseButtonMask.includes(evt.detail.buttons)) {
       return;
     }
@@ -727,11 +764,11 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} evt - The event.
    * @returns {undefined}
    */
-  _drawingTouchDragCallback(evt) {
+  _drawingTouchDragCallback(evt: MeasurementMouseEvent) {
     this._drawingDrag(evt);
   }
 
-  _drawingDrag(evt) {
+  _drawingDrag(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
     const { element } = eventData;
 
@@ -759,7 +796,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} evt - The event.
    * @returns {undefined}
    */
-  _drawingMouseUpCallback(evt) {
+  _drawingMouseUpCallback(evt: MeasurementMouseEvent) {
     const { element } = evt.detail;
 
     if (!this._dragging) {
@@ -791,7 +828,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} evt - The event.
    * @returns {undefined}
    */
-  _drawingMouseDownCallback(evt) {
+  _drawingMouseDownCallback(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
     const { buttons, currentPoints, element } = eventData;
 
@@ -828,7 +865,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} evt - The event.
    * @returns {undefined}
    */
-  _drawingTouchStartCallback(evt) {
+  _drawingTouchStartCallback(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
     const { currentPoints, element } = eventData;
 
@@ -860,7 +897,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} element - The element on which the roi is being drawn.
    * @returns {null}
    */
-  completeDrawing(element) {
+  completeDrawing(element: HTMLElement) {
     if (!this._drawing) {
       return;
     }
@@ -886,7 +923,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} evt - The event.
    * @returns {undefined}
    */
-  _drawingMouseDoubleClickCallback(evt) {
+  _drawingMouseDoubleClickCallback(evt: MeasurementMouseEvent) {
     const { element } = evt.detail;
 
     this.completeDrawing(element);
@@ -901,7 +938,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} evt - The event.
    * @returns {undefined}
    */
-  _drawingDoubleTapClickCallback(evt) {
+  _drawingDoubleTapClickCallback(evt: MeasurementMouseEvent) {
     const { element } = evt.detail;
 
     this.completeDrawing(element);
@@ -916,7 +953,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} evt - The event.
    * @returns {undefined}
    */
-  _editMouseDragCallback(evt) {
+  _editMouseDragCallback(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
     const { element, buttons } = eventData;
 
@@ -965,7 +1002,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} evt - The event.
    * @returns {void}
    */
-  _editTouchDragCallback(evt) {
+  _editTouchDragCallback(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
     const { element } = eventData;
 
@@ -1009,7 +1046,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Array} points - the handles Array of the freehand data
    * @returns {Number} - The index of the previos handle
    */
-  _getPrevHandleIndex(currentHandle, points) {
+  _getPrevHandleIndex(currentHandle: number, points: HandlePosition[]) {
     if (currentHandle === 0) {
       return points.length - 1;
     }
@@ -1024,7 +1061,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} evt - The event.
    * @returns {undefined}
    */
-  _editMouseUpCallback(evt) {
+  _editMouseUpCallback(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
     const { element } = eventData;
     const toolState = getToolState(element, this.name);
@@ -1042,12 +1079,12 @@ export class ContoursTool extends BaseAnnotationTool {
    * If the new location is invalid the handle snaps back to its previous position.
    *
    * @private
-   * @param {Object} eventData - Data object associated with the event.
-   * @param {Object} toolState - The data associated with the freehand tool.
+   * @param {EventData} eventData - Data object associated with the event.
+   * @param {any} toolState - The data associated with the freehand tool.
    * @modifies {toolState}
    * @returns {undefined}
    */
-  _dropHandle(eventData, toolState) {
+  _dropHandle(eventData: EventData, toolState: any) {
     const config = this.configuration;
     const currentTool = config.currentTool;
     const handles = toolState.data[currentTool].handles;
@@ -1084,7 +1121,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} evt - The event.
    * @returns {undefined}
    */
-  _startDrawing(evt) {
+  _startDrawing(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
     const measurementData = this.createNewMeasurement(eventData);
     const { element } = eventData;
@@ -1115,7 +1152,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} eventData - data object associated with an event.
    * @returns {undefined}
    */
-  _addPoint(eventData) {
+  _addPoint(eventData: EventData) {
     const { currentPoints, element } = eventData;
     const toolState = getToolState(element, this.name);
 
@@ -1157,12 +1194,12 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} points - Data object associated with the tool.
    * @returns {undefined}
    */
-  _addPointPencilMode(eventData, points) {
+  _addPointPencilMode(eventData: EventData, points: HandlePosition[]) {
     const config = this.configuration;
     const { element } = eventData;
     const mousePoint = config.mouseLocation.handles.start;
 
-    const handleFurtherThanMinimumSpacing = handle =>
+    const handleFurtherThanMinimumSpacing = (handle: HandlePosition) =>
       this._isDistanceLargerThanSpacing(element, handle, mousePoint);
 
     if (points.every(handleFurtherThanMinimumSpacing)) {
@@ -1178,7 +1215,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} handleNearby - the handle nearest to the mouse cursor.
    * @returns {undefined}
    */
-  _endDrawing(element, handleNearby) {
+  _endDrawing(element: HTMLElement, handleNearby?: boolean) {
     const toolState = getToolState(element, this.name);
     const config = this.configuration;
     const data = toolState.data[config.currentTool];
@@ -1223,7 +1260,11 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {*} coords
    * @returns {Number|Object|Boolean}
    */
-  _pointNearHandle(element, data, coords) {
+  _pointNearHandle(
+    element: HTMLElement,
+    data: MeasurementData,
+    coords: Coords
+  ) {
     if (data.handles === undefined || data.handles.points === undefined) {
       return;
     }
@@ -1258,7 +1299,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} eventData - data object associated with an event.
    * @returns {Object}
    */
-  _pointNearHandleAllTools(eventData) {
+  _pointNearHandleAllTools(eventData: EventData) {
     const { currentPoints, element } = eventData;
     const coords = currentPoints.canvas;
     const toolState = getToolState(element, this.name);
@@ -1291,7 +1332,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} eventData The data assoicated with the event.
    * @returns {undefined}
    */
-  _getMouseLocation(eventData) {
+  _getMouseLocation(eventData: EventData) {
     const { currentPoints, image } = eventData;
     // Set the mouseLocation handle
     const config = this.configuration;
@@ -1309,8 +1350,8 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} eventData The data assoicated with the event.
    * @returns {Boolean}
    */
-  _checkInvalidHandleLocation(data, eventData) {
-    if (data.handles.points.length < 2) {
+  _checkInvalidHandleLocation(data: MeasurementData, eventData: EventData) {
+    if (data.handles.points!.length < 2) {
       return true;
     }
 
@@ -1334,11 +1375,11 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} eventData The data assoicated with the event.
    * @returns {Boolean}
    */
-  _checkHandlesPolygonMode(data, eventData) {
+  _checkHandlesPolygonMode(data: MeasurementData, eventData: EventData) {
     const config = this.configuration;
     const { element } = eventData;
     const mousePoint = config.mouseLocation.handles.start;
-    const points = data.handles.points;
+    const points = data.handles.points!;
     let invalidHandlePlacement = false;
 
     data.canComplete = false;
@@ -1372,7 +1413,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} eventData The data associated with the event.
    * @returns {Boolean}
    */
-  _checkHandlesPencilMode(data, eventData) {
+  _checkHandlesPencilMode(data: MeasurementData, eventData: EventData) {
     const config = this.configuration;
     const mousePoint = config.mouseLocation.handles.start;
     const points = data.handles.points;
@@ -1396,11 +1437,11 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} eventData The data associated with the event.
    * @returns {Boolean}
    */
-  _invalidHandlePencilMode(data, eventData) {
+  _invalidHandlePencilMode(data: MeasurementData, eventData: EventData) {
     const config = this.configuration;
     const { element } = eventData;
     const mousePoint = config.mouseLocation.handles.start;
-    const points = data.handles.points;
+    const points = data.handles.points!;
 
     const mouseAtOriginHandle =
       this._isDistanceSmallerThanCompleteSpacingCanvas(
@@ -1437,7 +1478,11 @@ export class ContoursTool extends BaseAnnotationTool {
    * @returns {boolean}            True if the distance is smaller than the
    *                              allowed canvas spacing.
    */
-  _isDistanceSmallerThanCompleteSpacingCanvas(element, p1, p2) {
+  _isDistanceSmallerThanCompleteSpacingCanvas(
+    element: HTMLElement,
+    p1: Coords,
+    p2: Coords
+  ) {
     const p1Canvas = external.cornerstone.pixelToCanvas(element, p1);
     const p2Canvas = external.cornerstone.pixelToCanvas(element, p2);
 
@@ -1462,13 +1507,13 @@ export class ContoursTool extends BaseAnnotationTool {
    * Returns true if two points are closer than this.configuration.spacing.
    *
    * @private
-   * @param  {Object} element     The element on which the roi is being drawn.
-   * @param  {Object} p1          The first point, in pixel space.
-   * @param  {Object} p2          The second point, in pixel space.
+   * @param  {HTMLElement} element     The element on which the roi is being drawn.
+   * @param  {Coords} p1          The first point, in pixel space.
+   * @param  {Coords} p2          The second point, in pixel space.
    * @returns {boolean}            True if the distance is smaller than the
    *                              allowed canvas spacing.
    */
-  _isDistanceSmallerThanSpacing(element, p1, p2) {
+  _isDistanceSmallerThanSpacing(element: HTMLElement, p1: Coords, p2: Coords) {
     return this._compareDistanceToSpacing(element, p1, p2, "<");
   }
 
@@ -1476,13 +1521,13 @@ export class ContoursTool extends BaseAnnotationTool {
    * Returns true if two points are farther than this.configuration.spacing.
    *
    * @private
-   * @param  {Object} element     The element on which the roi is being drawn.
-   * @param  {Object} p1          The first point, in pixel space.
-   * @param  {Object} p2          The second point, in pixel space.
-   * @returns {boolean}            True if the distance is smaller than the
+   * @param  {HTMLElement} element     The element on which the roi is being drawn.
+   * @param  {Coords} p1          The first point, in pixel space.
+   * @param  {Coords} p2          The second point, in pixel space.
+   * @returns {boolean}           True if the distance is larger than the
    *                              allowed canvas spacing.
    */
-  _isDistanceLargerThanSpacing(element, p1, p2) {
+  _isDistanceLargerThanSpacing(element: HTMLElement, p1: Coords, p2: Coords) {
     return this._compareDistanceToSpacing(element, p1, p2, ">");
   }
 
@@ -1490,18 +1535,18 @@ export class ContoursTool extends BaseAnnotationTool {
    * Compares the distance between two points to this.configuration.spacing.
    *
    * @private
-   * @param  {Object} element     The element on which the roi is being drawn.
-   * @param  {Object} p1          The first point, in pixel space.
-   * @param  {Object} p2          The second point, in pixel space.
+   * @param  {HTMLElement} element     The element on which the roi is being drawn.
+   * @param  {Coords} p1          The first point, in pixel space.
+   * @param  {Coords} p2          The second point, in pixel space.
    * @param  {string} comparison  The comparison to make.
    * @param  {number} spacing     The allowed canvas spacing
    * @returns {boolean}           True if the distance is smaller than the
    *                              allowed canvas spacing.
    */
   _compareDistanceToSpacing(
-    element,
-    p1,
-    p2,
+    element: HTMLElement,
+    p1: Coords,
+    p2: Coords,
     comparison = ">",
     spacing = this.configuration.spacing
   ) {
@@ -1521,11 +1566,11 @@ export class ContoursTool extends BaseAnnotationTool {
    * @modifies {element}
    * @returns {undefined}
    */
-  _activateDraw(element, interactionType = "Mouse") {
+  _activateDraw(element: HTMLElement, interactionType = "Mouse") {
     this._drawing = true;
     this._drawingInteractionType = interactionType;
 
-    state.isMultiPartToolActive = true;
+    (state as any).isMultiPartToolActive = true;
     // hideToolCursor(this.element);
 
     // Polygonal Mode
@@ -1568,9 +1613,9 @@ export class ContoursTool extends BaseAnnotationTool {
    * @modifies {element}
    * @returns {undefined}
    */
-  _deactivateDraw(element) {
+  _deactivateDraw(element: HTMLElement) {
     this._drawing = false;
-    state.isMultiPartToolActive = false;
+    (state as any).isMultiPartToolActive = false;
     this._activeDrawingToolReference = null;
     this._drawingInteractionType = null;
     // setToolCursor(this.element, this.svgCursor);
@@ -1615,11 +1660,11 @@ export class ContoursTool extends BaseAnnotationTool {
    * Adds modify loop event listeners.
    *
    * @private
-   * @param {Object} element - The viewport element to add event listeners to.
+   * @param {HTMLElement} element - The viewport element to add event listeners to.
    * @modifies {element}
    * @returns {undefined}
    */
-  _activateModify(element) {
+  _activateModify(element: HTMLElement) {
     state.isToolLocked = true;
 
     element.addEventListener(EVENTS.MOUSE_UP, this._editMouseUpCallback);
@@ -1636,11 +1681,11 @@ export class ContoursTool extends BaseAnnotationTool {
    * Removes modify loop event listeners.
    *
    * @private
-   * @param {Object} element - The viewport element to add event listeners to.
+   * @param {HTMLElement} element - The viewport element to add event listeners to.
    * @modifies {element}
    * @returns {undefined}
    */
-  _deactivateModify(element) {
+  _deactivateModify(element: HTMLElement) {
     state.isToolLocked = false;
 
     element.removeEventListener(EVENTS.MOUSE_UP, this._editMouseUpCallback);
@@ -1653,19 +1698,19 @@ export class ContoursTool extends BaseAnnotationTool {
     external.cornerstone.updateImage(element);
   }
 
-  passiveCallback(element) {
+  passiveCallback(element: HTMLElement) {
     this._closeToolIfDrawing(element);
   }
 
-  enabledCallback(element) {
+  enabledCallback(element: HTMLElement) {
     this._closeToolIfDrawing(element);
   }
 
-  disabledCallback(element) {
+  disabledCallback(element: HTMLElement) {
     this._closeToolIfDrawing(element);
   }
 
-  _closeToolIfDrawing(element) {
+  _closeToolIfDrawing(element: HTMLElement) {
     if (this._drawing) {
       // Actively drawing but changed mode.
       const config = this.configuration;
@@ -1678,11 +1723,11 @@ export class ContoursTool extends BaseAnnotationTool {
 
   /**
    * Fire MEASUREMENT_MODIFIED event on provided element
-   * @param {any} element which freehand data has been modified
-   * @param {any} measurementData the measurment data
+   * @param {HTMLElement} element which freehand data has been modified
+   * @param {MeasurementData} measurementData the measurment data
    * @returns {void}
    */
-  fireModifiedEvent(element, measurementData) {
+  fireModifiedEvent(element: HTMLElement, measurementData: MeasurementData) {
     const eventType = EVENTS.MEASUREMENT_MODIFIED;
     const eventData = {
       toolName: this.name,
@@ -1693,7 +1738,7 @@ export class ContoursTool extends BaseAnnotationTool {
     triggerEvent(element, eventType, eventData);
   }
 
-  fireCompletedEvent(element, measurementData) {
+  fireCompletedEvent(element: HTMLElement, measurementData: MeasurementData) {
     const eventType = EVENTS.MEASUREMENT_COMPLETED;
     const eventData = {
       toolName: this.name,
@@ -1791,7 +1836,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param {Object} element - The element on which the roi is being drawn.
    * @returns {null}
    */
-  cancelDrawing(element) {
+  cancelDrawing(element: HTMLElement) {
     if (!this._drawing) {
       return;
     }
@@ -1824,7 +1869,7 @@ export class ContoursTool extends BaseAnnotationTool {
    * @param  {Object} evt The event.
    * @returns {null}
    */
-  newImageCallback(evt) {
+  newImageCallback(evt: MeasurementMouseEvent) {
     const config = this.configuration;
 
     if (!(this._drawing && this._activeDrawingToolReference)) {
@@ -1877,7 +1922,7 @@ function defaultFreehandConfiguration() {
   };
 }
 
-function preventPropagation(evt) {
+function preventPropagation(evt: any) {
   evt.stopImmediatePropagation();
   evt.stopPropagation();
   evt.preventDefault();

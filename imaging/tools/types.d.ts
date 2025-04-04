@@ -184,15 +184,15 @@ export type Overlay = {
 type HandleTextBox = {
   active: boolean;
   allowedOutsideImage: boolean;
-  boundingBox: { height: number; left: number; top: number; width: number };
+  boundingBox?: { height: number; left: number; top: number; width: number };
   drawnIndependently: boolean;
   hasBoundingBox: boolean;
   hasMoved: boolean;
   highlight?: boolean;
   index?: number;
   movesIndependently: boolean;
-  x: number;
-  y: number;
+  x?: number;
+  y?: number;
 };
 
 type BaseToolStateData = {
@@ -236,7 +236,33 @@ type BidirectionalStateData = BaseToolStateData & {
   toolName: "Bidirectional";
   toolType: "Bidirectional";
 };
-
+type DiameterStateData = BaseToolStateData & {
+  name?: string;
+  toolType?: string;
+  isCreating?: boolean;
+  pop?: Function;
+  slice?: number;
+  handles: {
+    end: HandlePosition;
+    perpendicularEnd: HandlePosition;
+    perpendicularStart: HandlePosition;
+    start: HandlePosition;
+    textBox: HandleTextBox;
+  };
+  id: string;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  x3: number;
+  y3: number;
+  x4: number;
+  y4: number;
+  value_max: number;
+  value_min: number;
+  longestDiameter?: string;
+  shortestDiameter?: string;
+};
 type EllipticalRoiStateData = BaseToolStateData & {
   cachedStats: {
     area: number;
@@ -319,20 +345,19 @@ export type ToolState = {
 };
 
 export type SegmentationConfig = {
-  arrayType: number;
-  renderOutline: boolean;
-  renderFill: boolean;
-  shouldRenderInactiveLabelmaps: boolean;
-  radius: number;
-  minRadius: number;
-  maxRadius: number;
-  segmentsPerLabelmap: number;
-  fillAlpha: number;
-  fillAlphaInactive: number;
-  outlineAlpha: number;
-  outlineAlphaInactive: number;
-  outlineWidth: number;
-  storeHistory: boolean;
+  renderOutline?: boolean;
+  renderFill?: boolean;
+  shouldRenderInactiveLabelmaps?: boolean;
+  radius?: number;
+  minRadius?: number;
+  maxRadius?: number;
+  segmentsPerLabelmap?: number;
+  fillAlpha?: number;
+  fillAlphaInactive?: number;
+  outlineAlpha?: number;
+  outlineAlphaInactive?: number;
+  outlineWidth?: number;
+  storeHistory?: boolean;
 };
 
 export const enum MaskVisualizations {
@@ -347,7 +372,7 @@ export type MaskProperties = {
   opacity: number;
   visualization: MaskVisualizations;
 };
-
+export type MaskData = { data: number[]; sizes: number[] };
 export type BrushProperties = {
   radius: number; // px
   thresholds: [number, number]; // [min, max] in px
@@ -364,7 +389,7 @@ export type PixelSpacing = {
 };
 export interface MeasurementData {
   polyBoundingBox?: Rectangle;
-  meanStdDev?: number;
+  meanStdDev?: { mean: number; stdDev: number };
   meanStdDevSUV?: { mean: number; stdDev: number };
   area?: number;
   unit?: string;
@@ -375,8 +400,28 @@ export interface MeasurementData {
   handles: Handles;
   length?: number;
   cachedStats?: Stats;
+  canComplete?: boolean;
 }
-
+export interface ContourState {
+  // Global
+  globalTools: Record<string, unknown>;
+  globalToolChangeHistory: unknown[];
+  // Tracking
+  enabledElements: unknown[];
+  tools: unknown[];
+  isToolLocked: boolean;
+  activeMultiPartTool: null | string;
+  mousePositionImage: Record<string, unknown>;
+  // Settings
+  clickProximity: number;
+  touchProximity: number;
+  handleRadius: number;
+  deleteIfHandleOutsideImage: boolean;
+  preventHandleOutsideImage: boolean;
+  // Cursor
+  svgCursorUrl: null | string;
+  isMultiPartToolActive: null | boolean;
+}
 export type Stats = {
   area: number;
   perimeter?: number;
@@ -426,11 +471,13 @@ export interface Handles {
   textBox?: HandleTextBox;
   initialRotation?: number;
   points?: HandlePosition[];
+  invalidHandlePlacement?: boolean;
 }
 
 export interface MeasurementMouseEvent {
   detail: EventData;
   currentTarget: any;
+  type?: string;
 }
 
 export interface Coords {
@@ -442,10 +489,12 @@ export interface EventData {
   currentPoints: {
     image: Coords;
     client: Coords;
+    canvas: Coords;
   };
   startPoints: {
     image: Coords;
     client: Coords;
+    canvas: Coords;
   };
   element: HTMLElement;
   buttons: number;
@@ -459,6 +508,7 @@ export interface EventData {
   image: cornerstone.Image;
   enabledElement?: EnabledElement;
   canvasContext: CanvasRenderingContext2D;
+  direction?: number;
 }
 
 export type PreventEvent = {
@@ -474,4 +524,25 @@ export interface PlotlyData {
   line: {
     color: string;
   };
+}
+export type HandlerFunction = (...args: any[]) => void;
+export type HandlerMap = Record<string, HandlerFunction>;
+interface ContourLine {
+  points: Array<{ x: number; y: number }>;
+}
+
+interface SliceData {
+  lines: ContourLine[];
+}
+
+interface SegmentationData {
+  [sliceIndex: string]: SliceData;
+}
+
+interface ElementContourData {
+  [segmentationName: string]: SegmentationData;
+}
+
+export interface ContourData {
+  [elementId: string]: ElementContourData;
 }
