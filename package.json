@@ -58,8 +58,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.21.8",
-    "cypress": "^14.2.0",
-    "cypress-image-snapshot": "^4.0.1",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@types/cornerstone-core": "^2.3.0",
     "@types/crypto-js": "^4.1.1",
@@ -74,6 +72,9 @@
     "@vuepress/theme-default": "^2.0.0-rc.60",
     "babel-loader": "^9.1.2",
     "clean-webpack-plugin": "^4.0.0",
+    "cypress": "^14.2.0",
+    "cypress-image-snapshot": "^4.0.1",
+    "cypress-multi-reporters": "^2.0.5",
     "eslint": "^9.17.0",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.6.0",

@@ -4,7 +4,7 @@ const {
 } = require("cypress-image-snapshot/plugin");
 
 module.exports = defineConfig({
-  reporter: "cypress-multi-reporter",
+  reporter: "cypress-multi-reporters",
   reporterOptions: {
     reporterEnabled: "spec, json",
     jsonReporterOptions: {
