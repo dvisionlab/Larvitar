@@ -104,7 +104,7 @@ describe("Larvitar ECG Rendering", () => {
               expect(updatedText).to.equal(initialText);
             } else {
               expect(updatedText).to.equal(
-                "Current Frame: " + frameNumber + "of 48"
+                "Current Frame: " + frameNumber + " of 48"
               );
             }
           });

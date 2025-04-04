@@ -62,7 +62,7 @@ describe("Larvitar Multiframe Rendering", () => {
               expect(updatedText).to.equal(initialText);
             } else {
               expect(updatedText).to.equal(
-                "Current Frame: " + frameNumber + "of 76"
+                "Current Frame: " + frameNumber + " of 76"
               );
             }
           });
