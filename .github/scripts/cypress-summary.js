@@ -1,7 +1,7 @@
 const fs = require("fs");
 
 // Input/output
-const reportPath = process.argv[2] || "report/json/report.json";
+const reportPath = process.argv[2] || "report/json/result.json";
 const outputPath = process.argv[3] || "cypress-summary.md";
 
 // Load the Cypress report JSON
