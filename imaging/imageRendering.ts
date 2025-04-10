@@ -702,10 +702,7 @@ export const renderImage = function (
 
         storeViewportData(image, element.id, viewport as Viewport, data);
 
-        if (isSeriesUIDChanged) {
-          logger.debug("seriesUID changed, creating stack");
-          csToolsCreateStack(element, series.imageIds, data.imageIndex);
-        }
+        csToolsCreateStack(element, series.imageIds, data.imageIndex);
 
         setStore(["ready", element.id, true]);
         const t1 = performance.now();
