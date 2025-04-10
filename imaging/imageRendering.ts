@@ -702,8 +702,6 @@ export const renderImage = function (
 
         storeViewportData(image, element.id, viewport as Viewport, data);
 
-        csToolsCreateStack(element, series.imageIds, data.imageIndex);
-
         setStore(["ready", element.id, true]);
         const t1 = performance.now();
         logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
