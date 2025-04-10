@@ -65,7 +65,7 @@ let multiFrameSerie = manager[seriesId];
 
 let frameId = 0;
 await larvitar.renderImage(multiFrameSerie, "viewer", { imageIndex: frameId });
-
+larvitar.csToolsCreateStack(element, serie.imageIds, frameId);
 larvitar.addDefaultTools();
 larvitar.setToolActive("Wwwc");
 await larvitar.loadAndCacheImageStack(multiFrameSerie);
@@ -215,6 +215,8 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
         await larvitar.renderImage(multiFrameSerie, "viewer", {
           imageIndex: frameId
         });
+        const element = document.getElementById("viewer");
+        larvitar.csToolsCreateStack(element, multiFrameSerie.imageIds, frameId);
         hideSpinner();
         larvitar.logger.debug("Image has been rendered");
 

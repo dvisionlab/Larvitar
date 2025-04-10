@@ -73,6 +73,7 @@ larvitar
     serie_2.layer = layer_2;
 
     larvitar.renderImage(serie_1, "viewer").then(() => {
+      larvitar.csToolsCreateStack(element, serie.imageIds, 0);
       larvitar.cacheImages(serie_1, function (resp) {
         if (resp.loading == 100) {
           let cache = larvitar.cornerstone.imageCache;
@@ -84,6 +85,7 @@ larvitar
         }
       });
       larvitar.renderImage(serie_2, "viewer").then(() => {
+        scsToolsCreateStack(element, serie.imageIds, 0);
         larvitar.cacheImages(serie_2, function (resp) {
           if (resp.loading == 100) {
             let cache = larvitar.cornerstone.imageCache;
@@ -257,6 +259,8 @@ larvitar
             serie_2.layer = layer_2;
 
             larvitar.renderImage(serie_1, "viewer").then(() => {
+              const element = document.getElementById("viewer");
+              larvitar.csToolsCreateStack(element, serie.imageIds, 0);
               hideSpinner();
               larvitar.logger.debug("Image 1 has been rendered");
               larvitar.cacheImages(serie_1, function (resp) {
@@ -270,6 +274,8 @@ larvitar
                 }
               });
               larvitar.renderImage(serie_2, "viewer").then(() => {
+                const element = document.getElementById("viewer");
+                larvitar.csToolsCreateStack(element, serie.imageIds, 0);
                 larvitar.logger.debug("Image 2 has been rendered");
                 larvitar.cacheImages(serie_2, function (resp) {
                   if (resp.loading == 100) {

@@ -147,10 +147,7 @@ All properties are optional.
    - Saves viewport settings to ensure consistency across different renderings.
    - Sets `ready` status in the store to `true`.
 
-8. **Cornerstone Tools Stack Synchronization**
-   - Synchronizes the stack of images in the viewport using `csToolsCreateStack`.
-
-9. **Performance Logging and Cleanup**
+8. **Performance Logging and Cleanup**
    - Logs the time taken for rendering.
    - Clears memory references to avoid memory leaks.
 
@@ -193,6 +190,46 @@ larvitar.renderImage(seriesStack, "viewer", options).then(() => {
 - This function is optimized to work with both single-frame and multi-frame DICOM images.
 - Uses `cornerstoneDICOMImageLoader` for fetching and handling image data.
 - Implements caching and efficient rendering techniques to improve performance.
+### Important Notes about csToolsCreateStack
+
+When rendering images (whether for initial rendering, rendering a new series, or re-rendering), you must manually call `csToolsCreateStack` to:
+
+1. Initialize the stackStateManager
+2. Add stack tool state to the cornerstoneTools environment
+3. Enable element interactions for tools
+
+This step is critical for synchronizing the stack of images in the viewports. The function should be called immediately after successful rendering to ensure stack state manager and stack tool state are properly configured.
+
+#### Function Signature
+
+```typescript
+export const csToolsCreateStack = function (
+  element: HTMLElement,
+  imageIds: string[],
+  currentImageIndex?: number
+)
+```
+
+#### Parameters
+
+| Parameter     | Type                    | Description                                                         |
+|---------------|-------------------------|---------------------------------------------------------------------|
+| `element` | `HTMLElement`                | The element where image stack is displayed.                             |
+| `imageIds`   | `string[]` | The IDs of the stack images. |
+| `currentImageIndex`     | `number`| the imageIndex of the currently displayed image      
+            |
+#### Example usage: 
+```typescript
+larvitar.renderImage(seriesStack, "viewer", options)
+  .then(() => {
+    // Initialize tools state manager and enable tools
+    csToolsCreateStack(elementId, seriesStack,imageIndexs);
+    console.log("Image successfully rendered with tools enabled.");
+  })
+  .catch((error) => {
+    console.error("Error rendering image:", error);
+  });
+```
 
 ## Rendering API `renderDICOMPDF`
 

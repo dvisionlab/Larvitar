@@ -71,6 +71,7 @@ async function renderSerie() {
 
   // Render the first frame
   await larvitar.renderImage(multiFrameSerie, "viewer", { imageIndex: frameId });
+  larvitar.csToolsCreateStack(element, serie.imageIds, frameId);
   larvitar.addDefaultTools();
   larvitar.setToolActive("StackScroll");
 
@@ -267,6 +268,8 @@ async function renderSerie() {
         await larvitar.renderImage(multiFrameSerie, "viewer", {
           imageIndex: frameId
         });
+        const element = document.getElementById("viewer");
+        larvitar.csToolsCreateStack(element, serie.imageIds, frameId);
         hideSpinner();
         const t1 = performance.now();
         larvitar.logger.debug(
@@ -302,6 +305,8 @@ async function renderSerie() {
             cached: true,
             imageIndex: frameId
           });
+          const element = document.getElementById("viewer");
+          larvitar.csToolsCreateStack(element, series.imageIds, frameId);
           larvitar.updateStackToolState("viewer", frameId);
           document.getElementById("image-time").innerText =
             "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames;

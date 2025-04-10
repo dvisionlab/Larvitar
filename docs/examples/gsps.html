@@ -66,6 +66,7 @@ larvitar
     const serie = seriesStack[seriesId];
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer").then(() => {
+      larvitar.csToolsCreateStack(element, serie.imageIds, 0);
       larvitar.addDefaultTools();
       larvitar.setToolEnabled("Gsps")
     });
@@ -234,6 +235,8 @@ larvitar
             let manager = larvitar.getImageManager();
             let serie = manager[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
+              const element = document.getElementById("viewer");
+              larvitar.csToolsCreateStack(element, serie.imageIds, 0);
               larvitar.logger.debug("Image has been rendered");
               hideSpinner(); // Hide the spinner when all files are processed
               larvitar.addDefaultTools();

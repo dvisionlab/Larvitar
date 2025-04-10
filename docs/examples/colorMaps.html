@@ -78,6 +78,7 @@ larvitar
     let seriesId = Object.keys(seriesStack)[0];
     let serie = seriesStack[seriesId];
     larvitar.renderImage(serie, "viewer").then(() => {
+      larvitar.csToolsCreateStack(element, serie.imageIds, 0);
       larvitar.addDefaultTools();
       larvitar.setToolActive("Wwwc");
     });
@@ -242,6 +243,8 @@ larvitar
             let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
+              const element = document.getElementById("viewer");
+              larvitar.csToolsCreateStack(element, serie.imageIds, 0);
               hideSpinner();
               larvitar.logger.debug("Image has been rendered");
               larvitar.addDefaultTools();

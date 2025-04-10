@@ -64,6 +64,7 @@
 
   let frameId = 0;
   await larvitar.renderImage(multiFrameSerie, "viewer", {imageIndex: frameId});
+  larvitar.csToolsCreateStack(element, serie.imageIds, frameId); 
   const t1 = performance.now();
   larvitar.addDefaultTools();
   larvitar.setToolActive("StackScroll");
@@ -264,6 +265,8 @@
           cached: true,
           imageIndex: frameId
         });
+        const element = document.getElementById("viewer");
+        larvitar.csToolsCreateStack(element, multiFrameSerie.imageIds, frameId);
         hideSpinner();
         const t1 = performance.now();
         larvitar.logger.debug(

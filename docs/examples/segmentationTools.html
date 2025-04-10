@@ -94,6 +94,7 @@ const seriesStack = await larvitar.readFiles(demoFiles);
 let seriesId = Object.keys(seriesStack)[0];
 let serie = seriesStack[seriesId];
 await larvitar.renderImage(serie, "viewer");
+larvitar.csToolsCreateStack(element, serie.imageIds, 0);
 larvitar.addDefaultTools();
 loadMasks();
 
@@ -394,6 +395,8 @@ await larvitar
         let seriesId = Object.keys(seriesStack)[0];
         let serie = seriesStack[seriesId];
         await larvitar.renderImage(serie, "viewer");
+        const element = document.getElementById("viewer");
+        larvitar.csToolsCreateStack(element, serie.imageIds, 0);
         hideSpinner();
         larvitar.logger.debug("Image has been rendered");
         larvitar.addDefaultTools();

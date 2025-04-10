@@ -59,6 +59,7 @@ reader.onload = function () {
   let volume = larvitar.importNRRDImage(reader.result);
   let serie = larvitar.buildNrrdImage(volume, "1234", {});
   larvitar.renderImage(serie, "viewer");
+  larvitar.csToolsCreateStack(element, serie.imageIds, 0);
   larvitar.addDefaultTools();
   larvitar.setToolActive("Wwwc");
 };
@@ -172,6 +173,8 @@ reader.onload = function () {
           let volume = larvitar.importNRRDImage(reader.result);
           let serie = larvitar.buildNrrdImage(volume, "1234", {});
           larvitar.renderImage(serie, "viewer");
+          const element = document.getElementById("viewer");
+          larvitar.csToolsCreateStack(element, serie.imageIds, 0);
           larvitar.logger.debug("Image has been rendered");
           hideSpinner();
           larvitar.addDefaultTools();

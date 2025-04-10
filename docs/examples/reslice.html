@@ -91,12 +91,14 @@ larvitar
     let serie = seriesStack[seriesId];
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer-base").then(() => {
+      larvitar.csToolsCreateStack(element, serie.imageIds, 0);
       larvitar.logger.debug("Image axial has been rendered");
     });
     larvitar.cacheImages(serie, function (resp) {
       if (resp.loading == 100) {
         larvitar.resliceSeries(serie, "coronal").then(data => {
           larvitar.renderImage(data, "viewer-reslice").then(() => {
+            larvitar.csToolsCreateStack(element, serie.imageIds, 0);
             larvitar.logger.debug("Image resliced has been rendered");
           });
           larvitar.addDefaultTools();
@@ -243,6 +245,8 @@ larvitar
             let serie = seriesStack[seriesId];
             larvitar.populateImageManager(seriesId, serie);
             larvitar.renderImage(serie, "viewer-base").then(() => {
+              const element = document.getElementById("viewer-base");
+              larvitar.csToolsCreateStack(element, serie.imageIds, 0);
               hideSpinner(spinnerBase);
               larvitar.logger.debug("Image axial has been rendered");
             });
@@ -250,6 +254,8 @@ larvitar
               if (resp.loading == 100) {
                 larvitar.resliceSeries(serie, "coronal").then(data => {
                   larvitar.renderImage(data, "viewer-reslice").then(() => {
+                    const element = document.getElementById("viewer-reslice");
+                    larvitar.csToolsCreateStack(element, data.imageIds, 0);
                     hideSpinner(spinnerReslice);
                     larvitar.logger.debug("Image resliced has been rendered");
                   });

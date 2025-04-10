@@ -58,6 +58,7 @@ larvitar
     const serie = seriesStack[seriesId];
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer").then(() => {
+      larvitar.csToolsCreateStack(element, serie.imageIds, frameId);
       larvitar.addDefaultTools();
       larvitar.setToolActive("CustomMouseWheelScroll");
     });
@@ -268,6 +269,12 @@ larvitar
           larvitar
             .renderImage(multiFrameSerie, "viewer", { imageIndex: frameId })
             .then(() => {
+              const element = document.getElementById("viewer");
+              larvitar.csToolsCreateStack(
+                element,
+                multiFrameSerie.imageIds,
+                frameId
+              );
               larvitar.logger.debug("Image has been rendered");
               hideSpinner();
               frames_number = manager[seriesId].numberOfTemporalPositions;
