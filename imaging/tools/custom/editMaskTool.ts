@@ -5,6 +5,7 @@
 
 // external libraries
 import csTools from "cornerstone-tools";
+import { EventData, MaskData, MeasurementMouseEvent } from "../types";
 const external = csTools.external;
 const BaseBrushTool = csTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = csTools.importInternal("util/segmentationUtils");
@@ -21,7 +22,7 @@ const { configuration, setters } = getModule("segmentation");
  * @extends Tools.Base.BaseBrushTool
  */
 export class EditMaskTool extends BaseBrushTool {
-  constructor(props = {}) {
+  constructor(props: { mask?: MaskData; initCallback?: Function } = {}) {
     const defaultProps = {
       name: "EditMask",
       supportedInteractionTypes: ["Mouse"],
@@ -32,13 +33,13 @@ export class EditMaskTool extends BaseBrushTool {
     super(props, defaultProps);
     this.touchDragCallback = this._paint.bind(this);
 
-    this._initializeTool(props.mask, props.initCallback);
+    this._initializeTool(props.mask!, props.initCallback!);
   }
 
-  _initializeTool(mask, callback) {
+  _initializeTool(mask: MaskData, callback: Function) {
     let enabledElement = csTools.external.cornerstone
       .getEnabledElements()
-      .filter(e => e.element.id == "axial")
+      .filter((e: EventData) => e.element.id == "axial")
       .pop();
 
     // TODO improve performances!
@@ -87,7 +88,7 @@ export class EditMaskTool extends BaseBrushTool {
     // }
   }
 
-  activeCallback(element, options) {
+  activeCallback(element: HTMLElement, options: { force: string }) {
     switch (options.force) {
       case "delete":
         this.configuration.alwaysEraseOnClick = true;
@@ -113,7 +114,7 @@ export class EditMaskTool extends BaseBrushTool {
    * @param  {Object} evt The data object associated with the event.
    * @returns {void}
    */
-  _paint(evt) {
+  _paint(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
     const { rows, columns } = eventData.image;
     const { x, y } = eventData.currentPoints.image;
