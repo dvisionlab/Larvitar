@@ -98,10 +98,15 @@ export default function scrollToIndex(
     newImageIdIndex += imageIds.length;
   }
 
-  const startLoadingHandler = loadHandlerManager.getStartLoadHandler(element);
-  const endLoadingHandler = loadHandlerManager.getEndLoadHandler(element);
-  const errorLoadingHandler =
-    loadHandlerManager.getErrorLoadingHandler(element);
+  const startLoadingHandler = loadHandlerManager.getStartLoadHandler(
+    element as HTMLElement
+  );
+  const endLoadingHandler = loadHandlerManager.getEndLoadHandler(
+    element as HTMLElement
+  );
+  const errorLoadingHandler = loadHandlerManager.getErrorLoadingHandler(
+    element as HTMLElement
+  );
 
   function doneCallback(image: cornerstone.Image): void {
     if ((stackData.currentImageIdIndex as number) !== newImageIdIndex) {

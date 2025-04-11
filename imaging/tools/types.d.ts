@@ -345,6 +345,7 @@ export type ToolState = {
 };
 
 export type SegmentationConfig = {
+  arrayType?: number;
   renderOutline?: boolean;
   renderFill?: boolean;
   shouldRenderInactiveLabelmaps?: boolean;

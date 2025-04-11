@@ -323,7 +323,7 @@ export const updateDiameterTool = function (
     name: diameterId
   });
   // insert new one
-  let data: DiameterStateData = {
+  let data: Partial<DiameterStateData> = {
     toolType: "Diameter",
     name: diameterId,
     isCreating: true,
@@ -419,7 +419,7 @@ export const updateDiameterTool = function (
 export const addToolStateSingleSlice = function (
   element: HTMLElement,
   toolName: string,
-  data: DiameterStateData,
+  data: Partial<DiameterStateData>,
   slice: number,
   seriesId?: string
 ) {

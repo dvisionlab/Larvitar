@@ -10,7 +10,7 @@ import { each } from "lodash";
 
 // internal libraries
 import { addToolStateSingleSlice } from "../../imageTools";
-import { MeasurementMouseEvent } from "../types";
+import { DiameterStateData, MeasurementMouseEvent } from "../types";
 
 // Types
 interface DiameterToolProps {
@@ -123,7 +123,7 @@ export class DiameterTool extends BidirectionalTool {
     }
 
     each(dataArray, singleData => {
-      let data: ToolData = {
+      let data: Partial<DiameterStateData> = {
         toolType: "Diameter",
         name: singleData.id.toString(),
         isCreating: true,
@@ -171,7 +171,7 @@ export class DiameterTool extends BidirectionalTool {
           textBox: {
             x: singleData.value_max,
             y: singleData.value_min,
-            index: null,
+            index: undefined,
             drawnIndependently: true,
             allowedOutsideImage: true,
             highlight: false,
