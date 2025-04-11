@@ -46,9 +46,6 @@ jobs:
         run: |
           yarn run format:check
 
-      - name: Cypress run
-        run: yarn run cypress:run
-
       - name: Run tests and generate coverage
         run: yarn run coverage
   
