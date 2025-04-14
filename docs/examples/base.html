@@ -128,7 +128,7 @@ larvitar
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer").then(() => {
       larvitar.logger.debug("Image has been rendered");
-      larvitar.addDefaultTools();
+      larvitar.addDefaultTools("viewer");
     });
   })`;
 
@@ -562,9 +562,7 @@ larvitar
             larvitar.renderImage(serie, "viewer").then(() => {
               larvitar.logger.debug("Image has been rendered");
               hideSpinner(); // Hide the spinner when all files are processed
-              larvitar.csToolsUpdateImageIds("viewer", serie.imageIds);
-              larvitar.addDefaultTools();
-              larvitar.setToolActive("Wwwc");
+              larvitar.addDefaultTools("viewer");
             });
 
             series = serie;
@@ -612,7 +610,7 @@ larvitar
           const serie = stack[newSeriesId];
           larvitar.renderImage(serie, "viewer").then(() => {
             larvitar.logger.debug("Image has been rendered");
-            larvitar.csToolsUpdateImageIds("viewer", serie.imageIds);
+            larvitar.addDefaultTools("viewer");
             hideSpinner(); // Hide the spinner when all files are processed
           });
         }
@@ -633,7 +631,7 @@ larvitar
           const serie = stack[newSeriesId];
           larvitar.renderImage(serie, "viewer").then(() => {
             larvitar.logger.debug("Image has been rendered");
-            larvitar.csToolsUpdateImageIds("viewer", serie.imageIds);
+            larvitar.addDefaultTools("viewer");
             hideSpinner(); // Hide the spinner when all files are processed
           });
         }

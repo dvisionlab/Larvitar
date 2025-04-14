@@ -59,7 +59,7 @@ reader.onload = function () {
   let volume = larvitar.importNRRDImage(reader.result);
   let serie = larvitar.buildNrrdImage(volume, "1234", {});
   larvitar.renderImage(serie, "viewer");
-  larvitar.addDefaultTools();
+  larvitar.addDefaultTools("viewer");
   larvitar.setToolActive("Wwwc");
 };
 `;
@@ -174,7 +174,7 @@ reader.onload = function () {
           larvitar.renderImage(serie, "viewer");
           larvitar.logger.debug("Image has been rendered");
           hideSpinner();
-          larvitar.addDefaultTools();
+          larvitar.addDefaultTools("viewer");
           larvitar.setToolActive("Wwwc");
         };
       });

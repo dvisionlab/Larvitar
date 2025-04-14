@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.4.0] - 2025-04-15
+
+🚀 Key Changes:
+
+- `csToolsCreateStack` and `csToolsSyncStack` now accept `elementId` as target html element or its string id.
+- `addDefaultTools` now accepts `elementId` as target html element or its string id and is no more optional.
+- `csToolsCreateStack` is no longer called during rendering process.
+- `disableViewport` now removes `seriesUID` from the stored viewport.
+
+**New Feature:** `addDefaultTools` now includes `csToolsCreateStack` by default.
+  
+**Deprecated Aliases for Backward Compatibility**:
+  - `csToolsUpdateImageIds → csToolsSyncStack`
+
+
 ## [3.3.0] - 2025-03-21
 
 🚀 Key Changes:

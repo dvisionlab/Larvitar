@@ -4,12 +4,11 @@
  */
 
 // external libraries
-import cornerstone, { EnabledElement } from "cornerstone-core";
+import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import cornerstoneMath from "cornerstone-math";
 import Hammer from "hammerjs";
 import { each, extend } from "lodash";
-const external = cornerstoneTools.external;
 
 // internal libraries
 import { logger } from "../../logger";
@@ -19,8 +18,9 @@ import {
   DEFAULT_SETTINGS,
   dvTools
 } from "./default";
-import { set as setStore } from "../imageStore";
+import store, { set as setStore } from "../imageStore";
 import type { ToolConfig, ToolSettings, ToolStyle } from "./types";
+import { isElement } from "../imageUtils";
 //global variable
 declare var cv: any; //opencv-js
 
@@ -52,45 +52,86 @@ const initializeCSTools = function (
 /**
  * Create stack object to sync stack tools
  * @function csToolsCreateStack
- * @param {HTMLElement} element - The target html element.
+ * @param {string | HTMLElement} elementId - The target html element or its id.
  * @param {Array} imageIds - Stack image ids.
  * @param {number?} currentImageIndex - The current image id.
  */
 const csToolsCreateStack = function (
-  element: HTMLElement,
+  elementId: string | HTMLElement,
   imageIds: string[],
   currentImageIndex?: number
 ) {
+  let element = isElement(elementId)
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
+  if (!element) {
+    logger.error("invalid html element: " + elementId);
+    return;
+  }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    logger.error("csToolsCreateStack: element not enabled:", id);
+    return;
+  }
+
   const stack = {
     currentImageIdIndex:
       currentImageIndex === undefined ? 0 : currentImageIndex,
     imageIds: imageIds
   };
-  // check if there is an enabledElement with this id
-  // otherwise, we will get an error and we will enable it
-  try {
-    cornerstone.getEnabledElement(element);
-  } catch (e) {
-    cornerstone.enable(element);
-  }
+
+  logger.debug(
+    "Stack created for element:",
+    id,
+    "at currentImageIdIndex:",
+    stack.currentImageIdIndex
+  );
+
   cornerstoneTools.addStackStateManager(element, ["stack"]);
   cornerstoneTools.addToolState(element, "stack", stack);
 };
 
 /**
  * Update stack object to sync stack tools
- * @function csToolsUpdateImageIds
- * @param {String} elementId - The target html element id.
+ * @function csToolsSyncStack
+ * @param {string | HTMLElement} elementId - The target html element or its id.
  * @param {Array} imageIds - Stack image ids.
  */
 
-export function csToolsUpdateImageIds(elementId: string, imageIds: string[]) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    const stackState = cornerstoneTools.getToolState(element, "stack");
-    const stackData = stackState.data[0];
-    stackData.imageIds = imageIds;
+export function csToolsSyncStack(
+  elementId: string | HTMLElement,
+  imageIds: string[]
+) {
+  let element = isElement(elementId)
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
+  if (!element) {
+    logger.error("invalid html element: " + elementId);
+    return;
   }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    logger.error("csToolsSyncStack: element not enabled:", id);
+    return;
+  }
+
+  const stackState = cornerstoneTools.getToolState(element, "stack");
+  if (!stackState) {
+    logger.error("csToolsSyncStack: stack state not found:", id);
+    return;
+  }
+  if (stackState.data.length === 0) {
+    logger.error("csToolsSyncStack: stack data not found:", id);
+    return;
+  }
+  // update stack object
+  stackState.data[0].imageIds = imageIds;
 }
 
 /**
@@ -153,29 +194,41 @@ const addTool = function (
  * Add all default tools, as listed in tools/default.js
  * @function addDefaultTools
  */
-export const addDefaultTools = function (elementId: string) {
-  let elements = cornerstone.getEnabledElements();
-  if (elements.length == 0) {
-    let element = document.getElementById(elementId);
-    if (!element) {
-      throw new Error(
-        `Element with id ${elementId} not found. Cannot add default tools.`
-      );
-    }
-    // check if there is an enabledElement with this id
-    // otherwise, we will get an error and we will enable it
-    try {
-      cornerstone.getEnabledElement(element);
-    } catch (e) {
-      cornerstone.enable(element);
-    }
+export const addDefaultTools = function (elementId: string | HTMLElement) {
+  let element = isElement(elementId)
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
+  if (!element) {
+    logger.error("invalid html element: " + elementId);
+    return;
   }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    logger.error("csToolsSyncStack: element not enabled:", id);
+    return;
+  }
+
+  // create the csTools stack object
+  const seriesUID = store.get(["viewports", id, "seriesUID"]);
+  if (!seriesUID) {
+    logger.error("addDefaultTools: seriesUID not found:", id);
+    return;
+  }
+  const stackImageIds = store.get(["series", seriesUID, "imageIds"]);
+  if (!stackImageIds) {
+    logger.error("addDefaultTools: stackImageIds not found:", id);
+    return;
+  }
+  const currentImageIdIndex = store.get(["viewports", id, "sliceId"]) || 0;
+  csToolsCreateStack(element, stackImageIds, currentImageIdIndex);
 
   // for each default tool
   each(DEFAULT_TOOLS, tool => {
     // check if already added
     if (!isToolMissing(tool.name)) {
-      logger.warn("missing");
       return;
     }
     // check target viewports and call add tool with options
@@ -190,6 +243,7 @@ export const addDefaultTools = function (elementId: string) {
 
     // if sync tool, enable
     if (tool.sync) {
+      let elements = cornerstone.getEnabledElements();
       const synchronizer = new cornerstoneTools.Synchronizer(
         "cornerstoneimagerendered",
         cornerstoneTools[tool.sync]

@@ -51,7 +51,7 @@ Zoom: {
 ```typescript
 store.addViewport("viewer");
 initializeCSTools();
-addDefaultTools();
+addDefaultTools("viewer");
 setToolActive("Wwwc"); //explicitly set the active tool. If not, default active is StackScroll
 ```
 
@@ -162,7 +162,7 @@ addDefaultTools(elementId: string): void
 
 | Parameter  | Type   | Description                                                                    |
 | ---------- | ------ | ------------------------------------------------------------------------------ |
-| `toolName` | string | The id of the cornerstone Enabled Element on which the tools will be activated |
+| `elementId` | string | The id of the cornerstone Enabled Element on which the tools will be activated |
 
 #### Returns
 

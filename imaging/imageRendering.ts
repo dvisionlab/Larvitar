@@ -11,7 +11,6 @@ import { each, has } from "lodash";
 // internal libraries
 import { logger } from "../logger";
 import { getDataFromFileManager, getFileManager } from "./imageManagers";
-import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
@@ -226,9 +225,21 @@ export const renderDICOMPDF = function (
     cornerstone.enable(element);
   }
 
+  // this by default is the uniqueId of the rendered stack
+  const storedSeriesUID = store.get(["viewports", id, "seriesUID"]);
+  const seriesUID = seriesStack.uniqueUID || seriesStack.seriesUID;
+  const isSeriesUIDChanged = storedSeriesUID !== seriesUID;
+  if (isSeriesUIDChanged) {
+    logger.debug(`SeriesUID changed from ${storedSeriesUID} to ${seriesUID}`);
+  }
+
   let renderPromise = new Promise<true>(async (resolve, reject) => {
     let image: Instance | null = seriesStack.instances[seriesStack.imageIds[0]];
     const SOPUID = image.dataSet?.string("x00080016");
+
+    if (isSeriesUIDChanged) {
+      setStore(["seriesUID", element.id, seriesUID]);
+    }
 
     // check sopUID in order to detect pdf report array
     if (SOPUID === "1.2.840.10008.5.1.4.1.1.104.1") {
@@ -289,7 +300,7 @@ export const renderDICOMPDF = function (
           if (element) {
             const fileManager = getFileManager();
             if (fileManager) {
-              csToolsCreateStack(element, Object.values(fileManager), 0);
+              store.addSeriesId(seriesUID, Object.values(fileManager));
             } else {
               logger.error("FileManager is null");
             }
@@ -412,7 +423,6 @@ export const renderWebImage = function (
         return;
       }
       cornerstone.displayImage(element, image);
-      csToolsCreateStack(element, [], 0);
       resolve(image);
     });
   });
@@ -421,6 +431,9 @@ export const renderWebImage = function (
 
 /**
  * Unrender an image on a html div using cornerstone
+ * Remove mouse listeners
+ * Remove seriesUID from viewport store
+ * Remove ready flag from viewport store
  * @instance
  * @function disableViewport
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
@@ -436,12 +449,17 @@ export const disableViewport = function (elementId: string | HTMLElement) {
   toggleMouseToolsListeners(element, true);
   cornerstone.disable(element);
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-  setStore(["ready", id, false]);
+  setStore(["seriesUID", id, undefined]); // remove seriesUID from viewport store
+  setStore(["ready", id, false]); // set ready to false in viewport store
 };
 
 /**
  * Unrender an image on a html div using cornerstone
- * Remove image from cornerstone cache and remove from store
+ * Remove mouse listeners
+ * Remove seriesUID from viewport store
+ * Remove ready flag from viewport store
+ * Remove image from cornerstone cache
+ * Delete viewport from store
  * @instance
  * @function unloadViewport
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
@@ -701,12 +719,6 @@ export const renderImage = function (
         }
 
         storeViewportData(image, element.id, viewport as Viewport, data);
-
-        if (isSeriesUIDChanged) {
-          logger.debug("seriesUID changed, creating stack");
-          csToolsCreateStack(element, series.imageIds, data.imageIndex);
-        }
-
         setStore(["ready", element.id, true]);
         const t1 = performance.now();
         logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);

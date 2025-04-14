@@ -20,9 +20,21 @@ Alternatively, developers can load default tools (see [Default and Custom Tools]
 store.initialize();
 addViewport("viewer");
 initializeCSTools(); // Prepares the default Cornerstone tools environment.
-addDefaultTools(); // Adds the default tools, which can also include custom-defined tools.
+addDefaultTools("viewer"); // Adds the default tools, which can also include custom-defined tools.
 setToolActive("WatershedSegmentation"); // Activates the "WatershedSegmentation" custom tool for user interaction.
 ```
+
+## Stack Tools Creation and Synchronization
+The stack tools creation and synchronization process involves creating a stack object and updating it to ensure that all tools are synchronized with the current image stack.
+
+You can create a stack object using the `csToolsCreateStack` function, which takes the target HTML element, image IDs, and the current image index as parameters. This function initializes the stack object and prepares it for synchronization.
+
+You can then use the `csToolsSyncStack` function to update the stack object with new image IDs, ensuring that all tools are synchronized with the current image stack. This is particularly useful when working with multiple images or stacks, as it allows for seamless interaction and manipulation of the images.
+
+If you use the `addDefaultTools` function, the stack tools are automatically created. This means that you don't need to manually call `csToolsCreateStack` or `csToolsSyncStack` unless you want to customize the stack behavior.
+
+When you create the stack tool if you do not have all imageIds available, you can use the `csToolsSyncStack` function to update the stack object with new image IDs. This allows you to add or remove images from the stack dynamically, ensuring that all tools remain synchronized with the current image stack.
+
 
 ### Key Concepts: Tool States
 
@@ -91,14 +103,14 @@ csToolsCreateStack (
 
 `void`
 
-### `csToolsUpdateImageIds`
+### `csToolsSyncStack`
 
 Update stack object to sync stack tools
 
 #### Syntax
 
 ```typescript
-csToolsUpdateImageIds(elementId: string, imageIds: string[])
+csToolsSyncStack(elementId: string, imageIds: string[])
 ```
 
 #### Parameters
