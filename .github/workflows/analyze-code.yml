@@ -16,7 +16,13 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GIT_TOKEN }}
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      
+    
+      - name: Debug Sonar token (DEV ONLY)
+        run: | 
+          echo "Token length: ${#SONAR_TOKEN}"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
       - uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
