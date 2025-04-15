@@ -63,7 +63,7 @@ const resliceTable: {
  * getReslicedPixeldata(imageId, originalData, reslicedData)
  * getDistanceBetweenSlices(seriesData, sliceIndex1, sliceIndex2)
  * isElement(o)
- * getImageMetadata(seriesUID, instanceUID)
+ * getImageMetadata(uniqueUID, instanceUID)
  */
 
 /**
@@ -404,6 +404,7 @@ export const getReslicedMetadata = function (
     });
 
     // set human readable metadata.
+    metadata.uniqueUID = reslicedSeriesId;
     metadata.seriesUID = reslicedSeriesId;
     metadata.rows = metadata.x00280010;
     metadata.cols = metadata.x00280011;
@@ -642,19 +643,19 @@ export const getDistanceBetweenSlices = function (
 /**
  * @instance
  * @function getImageMetadata
- * @param {String} seriesId - The seriesUID
+ * @param {String} uniqueUID - The unique UID of the series
  * @param {String} instanceUID - The SOPInstanceUID
  * @param {number} frameId - Optional FrameId
  * @return {Array} - List of metadata objects: tag, name and value
  */
 export const getImageMetadata = function (
-  seriesId: string,
+  uniqueUID: string,
   instanceUID: string,
   frameId?: number
 ) {
-  const seriesData = getDataFromImageManager(seriesId);
+  const seriesData = getDataFromImageManager(uniqueUID);
   if (seriesData === undefined || seriesData === null) {
-    logger.warn(`Invalid Series ID: ${seriesId}`);
+    logger.warn(`Invalid Series ID: ${uniqueUID}`);
     return [];
   }
 

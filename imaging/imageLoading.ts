@@ -173,7 +173,7 @@ export const registerDsaImageLoader = function () {
  * @function updateLoadedStack
  * @param {Object} seriesData - Cornerstone series object
  * @param {Object} allSeriesStack - Dict containing all series objects
- * @param {String} customId - Optional custom id to overwrite seriesUID as default one
+ * @param {String} customId - Optional custom id to overwrite uniqueUID as default one
  * @param {number} sliceIndex - Optional custom index to overwrite slice index as default one
  */
 export const updateLoadedStack = function (
@@ -296,7 +296,7 @@ export const updateLoadedStack = function (
       allSeriesStack[id].instanceUIDs[iid] = imageId;
     }
 
-    store.addSeriesId(id, allSeriesStack[id].imageIds);
+    store.addImageIds(id, allSeriesStack[id].imageIds);
   } else if (isNewInstance(allSeriesStack[id].instances, iid!)) {
     // generate an imageId for the file and store it
     // in allSeriesStack imageIds array, used by
@@ -340,10 +340,10 @@ export const updateLoadedStack = function (
       } else {
         allSeriesStack[id].instanceUIDs[iid] = imageId;
       }
-      store.addSeriesId(id, allSeriesStack[id].imageIds);
+      store.addImageIds(id, allSeriesStack[id].imageIds);
     } else {
       allSeriesStack[id].instanceUIDs[iid] = imageId;
-      store.addSeriesId(id, allSeriesStack[id].imageIds);
+      store.addImageIds(id, allSeriesStack[id].imageIds);
     }
   }
 };

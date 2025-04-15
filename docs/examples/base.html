@@ -123,9 +123,9 @@ larvitar.store.addViewport("viewer");
 larvitar
   .readFiles(fileList)
   .then(seriesStack => {
-    const seriesId = Object.keys(seriesStack)[0];
-    const serie = seriesStack[seriesId];
-    larvitar.populateImageManager(seriesId, serie);
+    const uniqueUID = Object.keys(seriesStack)[0];
+    const serie = seriesStack[uniqueUID];
+    larvitar.populateImageManager(uniqueUID, serie);
     larvitar.renderImage(serie, "viewer").then(() => {
       larvitar.logger.debug("Image has been rendered");
       larvitar.addDefaultTools("viewer");
@@ -511,17 +511,17 @@ larvitar
         const modal = document.getElementById("metadataModal");
         const tableBody = document.querySelector("#metadataTable tbody");
         const stack = larvitar.getImageManager();
-        const seriesId = larvitar.store.get([
+        const uniqueUID = larvitar.store.get([
           "viewports",
           "viewer",
-          "seriesUID"
+          "uniqueUID"
         ]);
         const sliceId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
-        const imageId = stack[seriesId].imageIds[sliceId];
+        const imageId = stack[uniqueUID].imageIds[sliceId];
         const instanceUid =
-          stack[seriesId].instances[imageId].metadata.instanceUID;
+          stack[uniqueUID].instances[imageId].metadata.instanceUID;
         const metadata = larvitar.getImageMetadata(
-          seriesId,
+          uniqueUID,
           instanceUid,
           sliceId
         );
@@ -541,9 +541,9 @@ larvitar
               larvitar.populateImageManager(uniqueId, data);
             }
             // render the first series of the study
-            let seriesId = Object.keys(seriesStack)[0];
+            let uniqueUID = Object.keys(seriesStack)[0];
             let manager = larvitar.getImageManager();
-            let serie = manager[seriesId];
+            let serie = manager[uniqueUID];
 
             // const options = {
             //   imageIndex: 3,
@@ -598,16 +598,16 @@ larvitar
       function previousImage() {
         const stack = larvitar.getImageManager();
         const seriesIds = Object.keys(stack);
-        const seriesId = larvitar.store.get([
+        const uniqueUID = larvitar.store.get([
           "viewports",
           "viewer",
-          "seriesUID"
+          "uniqueUID"
         ]);
-        const index = seriesIds.indexOf(seriesId);
+        const index = seriesIds.indexOf(uniqueUID);
         if (index > 0) {
           showSpinner();
-          const newSeriesId = seriesIds[index - 1];
-          const serie = stack[newSeriesId];
+          const newUniqueUID = seriesIds[index - 1];
+          const serie = stack[newUniqueUID];
           larvitar.renderImage(serie, "viewer").then(() => {
             larvitar.logger.debug("Image has been rendered");
             larvitar.addDefaultTools("viewer");
@@ -619,16 +619,16 @@ larvitar
       function nextImage() {
         const stack = larvitar.getImageManager();
         const seriesIds = Object.keys(stack);
-        const seriesId = larvitar.store.get([
+        const uniqueUID = larvitar.store.get([
           "viewports",
           "viewer",
-          "seriesUID"
+          "uniqueUID"
         ]);
-        const index = seriesIds.indexOf(seriesId);
+        const index = seriesIds.indexOf(uniqueUID);
         if (index < seriesIds.length - 1) {
           showSpinner();
-          const newSeriesId = seriesIds[index + 1];
-          const serie = stack[newSeriesId];
+          const newUniqueUID = seriesIds[index + 1];
+          const serie = stack[newUniqueUID];
           larvitar.renderImage(serie, "viewer").then(() => {
             larvitar.logger.debug("Image has been rendered");
             larvitar.addDefaultTools("viewer");

@@ -96,14 +96,13 @@ const csToolsCreateStack = function (
 
 /**
  * Update stack object to sync stack tools
- * @function csToolsSyncStack
+ * @function csToolsUpdateStack
  * @param {string | HTMLElement} elementId - The target html element or its id.
- * @param {Array} imageIds - Stack image ids.
+ * @param {Object} stack - The stack object.
  */
-
-export function csToolsSyncStack(
+export function csToolsUpdateStack(
   elementId: string | HTMLElement,
-  imageIds: string[]
+  stack: { imageIds?: string[]; currentImageIdIndex?: number }
 ) {
   let element = isElement(elementId)
     ? (elementId as HTMLElement)
@@ -117,28 +116,53 @@ export function csToolsSyncStack(
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
-    logger.error("csToolsSyncStack: element not enabled:", id);
+    logger.error("csToolsUpdateStack: element not enabled:", id);
     return;
   }
 
   const stackState = cornerstoneTools.getToolState(element, "stack");
   if (!stackState) {
-    logger.error("csToolsSyncStack: stack state not found:", id);
+    logger.error("csToolsUpdateStack: stack state not found:", id);
     return;
   }
   if (stackState.data.length === 0) {
-    logger.error("csToolsSyncStack: stack data not found:", id);
+    logger.error("csToolsUpdateStack: stack data not found:", id);
     return;
   }
-  // update stack object
-  stackState.data[0].imageIds = imageIds;
+  if (stack.imageIds) {
+    // update stack object
+    stackState.data[0].imageIds = stack.imageIds;
+  }
+  if (stack.currentImageIdIndex) {
+    // update stack object
+    stackState.data[0].currentImageIdIndex = stack.currentImageIdIndex;
+  }
 }
 
 /**
- *
- * @param {*} toolName
+ * Check if a tool is missing in the current element
+ * @function isToolMissing
+ * @param {string} toolName - The tool name.
+ * @param {string} targetElementId - The target html element or its id.
+ * @return {boolean} - True if the tool is missing, false otherwise.
  */
-const isToolMissing = function (toolName: string) {
+const isToolMissing = function (
+  toolName: string,
+  targetElementId?: string
+): boolean {
+  if (targetElementId) {
+    let element = document.getElementById(targetElementId);
+    if (!element) {
+      logger.warn("isToolMissing: element not found:", targetElementId);
+      return false;
+    }
+    let added = cornerstoneTools.getToolForElement(element, toolName);
+    if (added === undefined) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   let elements = cornerstone.getEnabledElements();
   let isToolMissing = false;
   // TODO check only target viewports
@@ -169,7 +193,7 @@ const addTool = function (
     : {};
   extend(defaultConfig, customConfig);
 
-  if (isToolMissing(toolName)) {
+  if (isToolMissing(toolName, targetElementId)) {
     const toolClassName: string | undefined =
       "class" in defaultConfig ? defaultConfig.class : undefined;
 
@@ -184,8 +208,10 @@ const addTool = function (
     if (targetElementId) {
       let element = document.getElementById(targetElementId);
       cornerstoneTools.addToolForElement(element, toolClass, defaultConfig);
+      logger.debug(`Tool ${toolName} added to element:`, targetElementId);
     } else {
       cornerstoneTools.addTool(toolClass, defaultConfig);
+      logger.debug(`Tool ${toolName} added to all elements`);
     }
   }
 };
@@ -193,8 +219,14 @@ const addTool = function (
 /**
  * Add all default tools, as listed in tools/default.js
  * @function addDefaultTools
+ * @param {string | HTMLElement} elementId - The target html element or its id.
+ * @param {boolean} wwwcSync - Flag to enable synchronizer for wwwcSynchronizer. @default false
+ * @returns {void} - void
  */
-export const addDefaultTools = function (elementId: string | HTMLElement) {
+export const addDefaultTools = function (
+  elementId: string | HTMLElement,
+  wwwcSync: boolean = false
+): void {
   let element = isElement(elementId)
     ? (elementId as HTMLElement)
     : document.getElementById(elementId as string);
@@ -207,17 +239,17 @@ export const addDefaultTools = function (elementId: string | HTMLElement) {
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
-    logger.error("csToolsSyncStack: element not enabled:", id);
+    logger.error("addDefaultTools: element not enabled:", id);
     return;
   }
 
   // create the csTools stack object
-  const seriesUID = store.get(["viewports", id, "seriesUID"]);
-  if (!seriesUID) {
-    logger.error("addDefaultTools: seriesUID not found:", id);
+  const uniqueUID = store.get(["viewports", id, "uniqueUID"]);
+  if (!uniqueUID) {
+    logger.error("addDefaultTools: uniqueUID not found:", id);
     return;
   }
-  const stackImageIds = store.get(["series", seriesUID, "imageIds"]);
+  const stackImageIds = store.get(["series", uniqueUID, "imageIds"]);
   if (!stackImageIds) {
     logger.error("addDefaultTools: stackImageIds not found:", id);
     return;
@@ -227,22 +259,10 @@ export const addDefaultTools = function (elementId: string | HTMLElement) {
 
   // for each default tool
   each(DEFAULT_TOOLS, tool => {
-    // check if already added
-    if (!isToolMissing(tool.name)) {
-      return;
-    }
-    // check target viewports and call add tool with options
-    if (tool.viewports == "all") {
-      addTool(tool.name, tool.configuration);
-    } else {
-      // call add tool for element for each element
-      each(tool.viewports, targetElementId => {
-        addTool(tool.name, tool.configuration, targetElementId);
-      });
-    }
+    addTool(tool.name, tool.configuration, id);
 
     // if sync tool, enable
-    if (tool.sync) {
+    if (tool.sync && wwwcSync === true) {
       let elements = cornerstone.getEnabledElements();
       const synchronizer = new cornerstoneTools.Synchronizer(
         "cornerstoneimagerendered",
@@ -254,8 +274,10 @@ export const addDefaultTools = function (elementId: string | HTMLElement) {
 
       synchronizer.enabled = true;
     }
+    // set default tool active (wwwc, zoom and wheel)
     if (tool.defaultActive) {
       setToolActive(tool.name, tool.options, [], true);
+      logger.debug(`Tool ${tool.name} set as default active for element:`, id);
     }
   });
 };
