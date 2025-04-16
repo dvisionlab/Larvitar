@@ -178,7 +178,6 @@ import {
 } from "./imaging/imageTools";
 
 import {
-  csToolsCreateStack,
   csToolsUpdateStack,
   initializeCSTools,
   setToolsStyle,
@@ -469,7 +468,6 @@ export {
   updateStackToolState,
   setSegmentationConfig,
   // tools/main
-  csToolsCreateStack,
   csToolsUpdateStack,
   initializeCSTools,
   setToolsStyle,
@@ -596,4 +594,10 @@ export const csToolsUpdateImageIds = createAliasWithWarning(
   csToolsUpdateStack,
   "csToolsUpdateStack",
   "csToolsUpdateImageIds"
+);
+
+export const csToolsCreateStack = createAliasWithWarning(
+  csToolsUpdateStack,
+  "csToolsUpdateStack",
+  "csToolsCreateStack"
 );

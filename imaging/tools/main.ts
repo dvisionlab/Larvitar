@@ -50,51 +50,6 @@ const initializeCSTools = function (
 };
 
 /**
- * Create stack object to sync stack tools
- * @function csToolsCreateStack
- * @param {string | HTMLElement} elementId - The target html element or its id.
- * @param {Array} imageIds - Stack image ids.
- * @param {number?} currentImageIndex - The current image id.
- */
-const csToolsCreateStack = function (
-  elementId: string | HTMLElement,
-  imageIds: string[],
-  currentImageIndex?: number
-) {
-  let element = isElement(elementId)
-    ? (elementId as HTMLElement)
-    : document.getElementById(elementId as string);
-  if (!element) {
-    logger.error("invalid html element: " + elementId);
-    return;
-  }
-  const id: string = isElement(elementId) ? element.id : (elementId as string);
-
-  try {
-    cornerstone.getEnabledElement(element);
-  } catch (e) {
-    logger.error("csToolsCreateStack: element not enabled:", id);
-    return;
-  }
-
-  const stack = {
-    currentImageIdIndex:
-      currentImageIndex === undefined ? 0 : currentImageIndex,
-    imageIds: imageIds
-  };
-
-  logger.debug(
-    "Stack created for element:",
-    id,
-    "at currentImageIdIndex:",
-    stack.currentImageIdIndex
-  );
-
-  cornerstoneTools.addStackStateManager(element, ["stack"]);
-  cornerstoneTools.addToolState(element, "stack", stack);
-};
-
-/**
  * Update stack object to sync stack tools
  * @function csToolsUpdateStack
  * @param {string | HTMLElement} elementId - The target html element or its id.
@@ -122,20 +77,38 @@ export function csToolsUpdateStack(
 
   const stackState = cornerstoneTools.getToolState(element, "stack");
   if (!stackState) {
-    logger.error("csToolsUpdateStack: stack state not found:", id);
-    return;
-  }
-  if (stackState.data.length === 0) {
-    logger.error("csToolsUpdateStack: stack data not found:", id);
-    return;
-  }
-  if (stack.imageIds) {
-    // update stack object
-    stackState.data[0].imageIds = stack.imageIds;
-  }
-  if (stack.currentImageIdIndex) {
-    // update stack object
-    stackState.data[0].currentImageIdIndex = stack.currentImageIdIndex;
+    logger.debug("csToolsUpdateStack: stack not found, creating it:", id);
+    cornerstoneTools.addStackStateManager(element, ["stack"]);
+    const newStack = {
+      currentImageIdIndex: stack.currentImageIdIndex
+        ? stack.currentImageIdIndex
+        : 0,
+      imageIds: stack.imageIds ? stack.imageIds : []
+    };
+    cornerstoneTools.addToolState(element, "stack", newStack);
+    logger.debug(
+      "Stack created for element:",
+      id,
+      "at currentImageIdIndex:",
+      newStack.currentImageIdIndex
+    );
+  } else {
+    if (stackState.data.length === 0) {
+      logger.error("csToolsUpdateStack: stack data not found:", id);
+      return;
+    }
+    if (stack.imageIds) {
+      // update stack object with new imageIds
+      logger.debug("csToolsUpdateStack: stack updated for with new imageIds");
+      stackState.data[0].imageIds = stack.imageIds;
+    }
+    if (stack.currentImageIdIndex) {
+      // update stack object with new currentImageIdIndex
+      logger.debug(
+        "csToolsUpdateStack: stack updated for with new currentImageIdIndex"
+      );
+      stackState.data[0].currentImageIdIndex = stack.currentImageIdIndex;
+    }
   }
 }
 
@@ -255,7 +228,10 @@ export const addDefaultTools = function (
     return;
   }
   const currentImageIdIndex = store.get(["viewports", id, "sliceId"]) || 0;
-  csToolsCreateStack(element, stackImageIds, currentImageIdIndex);
+  csToolsUpdateStack(element, {
+    imageIds: stackImageIds,
+    currentImageIdIndex: currentImageIdIndex
+  });
 
   // for each default tool
   each(DEFAULT_TOOLS, tool => {
@@ -495,7 +471,6 @@ const setToolsStyle = function (style?: ToolStyle) {
 export {
   initializeCSTools,
   setToolsStyle,
-  csToolsCreateStack,
   addTool,
   setToolActive,
   setToolEnabled,
