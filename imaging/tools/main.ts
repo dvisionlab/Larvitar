@@ -4,12 +4,11 @@
  */
 
 // external libraries
-import cornerstone, { EnabledElement } from "cornerstone-core";
+import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import cornerstoneMath from "cornerstone-math";
 import Hammer from "hammerjs";
 import { each, extend } from "lodash";
-const external = cornerstoneTools.external;
 
 // internal libraries
 import { logger } from "../../logger";
@@ -19,8 +18,9 @@ import {
   DEFAULT_SETTINGS,
   dvTools
 } from "./default";
-import { set as setStore } from "../imageStore";
+import store, { set as setStore } from "../imageStore";
 import type { ToolConfig, ToolSettings, ToolStyle } from "./types";
+import { isElement } from "../imageUtils";
 //global variable
 declare var cv: any; //opencv-js
 
@@ -50,54 +50,92 @@ const initializeCSTools = function (
 };
 
 /**
- * Create stack object to sync stack tools
- * @function csToolsCreateStack
- * @param {HTMLElement} element - The target html element.
- * @param {Array} imageIds - Stack image ids.
- * @param {number?} currentImageIndex - The current image id.
+ * Update stack object to sync stack tools
+ * @function csToolsUpdateStack
+ * @param {string | HTMLElement} elementId - The target html element or its id.
+ * @param {Object} stack - The stack object.
  */
-const csToolsCreateStack = function (
-  element: HTMLElement,
-  imageIds: string[],
-  currentImageIndex?: number
+export function csToolsUpdateStack(
+  elementId: string | HTMLElement,
+  stack: { imageIds?: string[]; currentImageIdIndex?: number }
 ) {
-  const stack = {
-    currentImageIdIndex:
-      currentImageIndex === undefined ? 0 : currentImageIndex,
-    imageIds: imageIds
-  };
-  // check if there is an enabledElement with this id
-  // otherwise, we will get an error and we will enable it
+  let element = isElement(elementId)
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
+  if (!element) {
+    logger.error("invalid html element: " + elementId);
+    return;
+  }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+
   try {
     cornerstone.getEnabledElement(element);
   } catch (e) {
-    cornerstone.enable(element);
+    logger.error("csToolsUpdateStack: element not enabled:", id);
+    return;
   }
-  cornerstoneTools.addStackStateManager(element, ["stack"]);
-  cornerstoneTools.addToolState(element, "stack", stack);
-};
 
-/**
- * Update stack object to sync stack tools
- * @function csToolsUpdateImageIds
- * @param {String} elementId - The target html element id.
- * @param {Array} imageIds - Stack image ids.
- */
-
-export function csToolsUpdateImageIds(elementId: string, imageIds: string[]) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    const stackState = cornerstoneTools.getToolState(element, "stack");
-    const stackData = stackState.data[0];
-    stackData.imageIds = imageIds;
+  const stackState = cornerstoneTools.getToolState(element, "stack");
+  if (!stackState) {
+    logger.debug("csToolsUpdateStack: stack not found, creating it:", id);
+    cornerstoneTools.addStackStateManager(element, ["stack"]);
+    const newStack = {
+      currentImageIdIndex: stack.currentImageIdIndex
+        ? stack.currentImageIdIndex
+        : 0,
+      imageIds: stack.imageIds ? stack.imageIds : []
+    };
+    cornerstoneTools.addToolState(element, "stack", newStack);
+    logger.debug(
+      "Stack created for element:",
+      id,
+      "at currentImageIdIndex:",
+      newStack.currentImageIdIndex
+    );
+  } else {
+    if (stackState.data.length === 0) {
+      logger.error("csToolsUpdateStack: stack data not found:", id);
+      return;
+    }
+    if (stack.imageIds) {
+      // update stack object with new imageIds
+      logger.debug("csToolsUpdateStack: stack updated for with new imageIds");
+      stackState.data[0].imageIds = stack.imageIds;
+    }
+    if (stack.currentImageIdIndex) {
+      // update stack object with new currentImageIdIndex
+      logger.debug(
+        "csToolsUpdateStack: stack updated for with new currentImageIdIndex"
+      );
+      stackState.data[0].currentImageIdIndex = stack.currentImageIdIndex;
+    }
   }
 }
 
 /**
- *
- * @param {*} toolName
+ * Check if a tool is missing in the current element
+ * @function isToolMissing
+ * @param {string} toolName - The tool name.
+ * @param {string} targetElementId - The target html element or its id.
+ * @return {boolean} - True if the tool is missing, false otherwise.
  */
-const isToolMissing = function (toolName: string) {
+const isToolMissing = function (
+  toolName: string,
+  targetElementId?: string
+): boolean {
+  if (targetElementId) {
+    let element = document.getElementById(targetElementId);
+    if (!element) {
+      logger.warn("isToolMissing: element not found:", targetElementId);
+      return false;
+    }
+    let added = cornerstoneTools.getToolForElement(element, toolName);
+    if (added === undefined) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   let elements = cornerstone.getEnabledElements();
   let isToolMissing = false;
   // TODO check only target viewports
@@ -128,7 +166,7 @@ const addTool = function (
     : {};
   extend(defaultConfig, customConfig);
 
-  if (isToolMissing(toolName)) {
+  if (isToolMissing(toolName, targetElementId)) {
     const toolClassName: string | undefined =
       "class" in defaultConfig ? defaultConfig.class : undefined;
 
@@ -143,8 +181,10 @@ const addTool = function (
     if (targetElementId) {
       let element = document.getElementById(targetElementId);
       cornerstoneTools.addToolForElement(element, toolClass, defaultConfig);
+      logger.debug(`Tool ${toolName} added to element:`, targetElementId);
     } else {
       cornerstoneTools.addTool(toolClass, defaultConfig);
+      logger.debug(`Tool ${toolName} added to all elements`);
     }
   }
 };
@@ -152,44 +192,54 @@ const addTool = function (
 /**
  * Add all default tools, as listed in tools/default.js
  * @function addDefaultTools
+ * @param {string | HTMLElement} elementId - The target html element or its id.
+ * @param {boolean} wwwcSync - Flag to enable synchronizer for wwwcSynchronizer. @default false
+ * @returns {void} - void
  */
-export const addDefaultTools = function (elementId: string) {
-  let elements = cornerstone.getEnabledElements();
-  if (elements.length == 0) {
-    let element = document.getElementById(elementId);
-    if (!element) {
-      throw new Error(
-        `Element with id ${elementId} not found. Cannot add default tools.`
-      );
-    }
-    // check if there is an enabledElement with this id
-    // otherwise, we will get an error and we will enable it
-    try {
-      cornerstone.getEnabledElement(element);
-    } catch (e) {
-      cornerstone.enable(element);
-    }
+export const addDefaultTools = function (
+  elementId: string | HTMLElement,
+  wwwcSync: boolean = false
+): void {
+  let element = isElement(elementId)
+    ? (elementId as HTMLElement)
+    : document.getElementById(elementId as string);
+  if (!element) {
+    logger.error("invalid html element: " + elementId);
+    return;
   }
+  const id: string = isElement(elementId) ? element.id : (elementId as string);
+
+  try {
+    cornerstone.getEnabledElement(element);
+  } catch (e) {
+    logger.error("addDefaultTools: element not enabled:", id);
+    return;
+  }
+
+  // create the csTools stack object
+  const uniqueUID = store.get(["viewports", id, "uniqueUID"]);
+  if (!uniqueUID) {
+    logger.error("addDefaultTools: uniqueUID not found:", id);
+    return;
+  }
+  const stackImageIds = store.get(["series", uniqueUID, "imageIds"]);
+  if (!stackImageIds) {
+    logger.error("addDefaultTools: stackImageIds not found:", id);
+    return;
+  }
+  const currentImageIdIndex = store.get(["viewports", id, "sliceId"]) || 0;
+  csToolsUpdateStack(element, {
+    imageIds: stackImageIds,
+    currentImageIdIndex: currentImageIdIndex
+  });
 
   // for each default tool
   each(DEFAULT_TOOLS, tool => {
-    // check if already added
-    if (!isToolMissing(tool.name)) {
-      logger.warn("missing");
-      return;
-    }
-    // check target viewports and call add tool with options
-    if (tool.viewports == "all") {
-      addTool(tool.name, tool.configuration);
-    } else {
-      // call add tool for element for each element
-      each(tool.viewports, targetElementId => {
-        addTool(tool.name, tool.configuration, targetElementId);
-      });
-    }
+    addTool(tool.name, tool.configuration, id);
 
     // if sync tool, enable
-    if (tool.sync) {
+    if (tool.sync && wwwcSync === true) {
+      let elements = cornerstone.getEnabledElements();
       const synchronizer = new cornerstoneTools.Synchronizer(
         "cornerstoneimagerendered",
         cornerstoneTools[tool.sync]
@@ -200,8 +250,10 @@ export const addDefaultTools = function (elementId: string) {
 
       synchronizer.enabled = true;
     }
+    // set default tool active (wwwc, zoom and wheel)
     if (tool.defaultActive) {
       setToolActive(tool.name, tool.options, [], true);
+      logger.debug(`Tool ${tool.name} set as default active for element:`, id);
     }
   });
 };
@@ -419,7 +471,6 @@ const setToolsStyle = function (style?: ToolStyle) {
 export {
   initializeCSTools,
   setToolsStyle,
-  csToolsCreateStack,
   addTool,
   setToolActive,
   setToolEnabled,

@@ -109,7 +109,7 @@ larvitar
       .then(() => {
         setTimeout(function () {
           larvitar.logger.debug("Cache has been loaded. Calling loadMasks.");
-          larvitar.addDefaultTools();
+          larvitar.addDefaultTools("viewer");
           loadMasks();
         }, 3000);
       });
@@ -400,7 +400,7 @@ larvitar
         await larvitar.renderImage(serie, "viewer");
         hideSpinner();
         larvitar.logger.debug("Image has been rendered");
-        larvitar.addDefaultTools();
+        larvitar.addDefaultTools("viewer");
         await loadMasks();
       }
 

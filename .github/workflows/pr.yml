@@ -64,4 +64,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
           body-path: coverage-summary.md
-          body-includes: "## 🧪 TypeScript Coverage Summary"
+          body-includes: "## 🧪 TypeScript Coverage Report"

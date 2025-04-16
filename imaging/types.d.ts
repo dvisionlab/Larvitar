@@ -38,7 +38,7 @@ export type StoreViewport = {
   maxSliceId: number;
   sliceId: number;
   pendingSliceId?: number;
-  seriesUID?: string;
+  uniqueUID?: string;
   minTimeId: number;
   maxTimeId: number;
   timeId: number;
@@ -336,6 +336,7 @@ export type NrrdSeries = {
   numberOfImages: number;
   seriesDescription: string;
   seriesUID: string;
+  uniqueUID: string;
   customLoader: string;
   nrrdHeader: NrrdHeader;
   bytes: number;

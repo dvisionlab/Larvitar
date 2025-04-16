@@ -94,7 +94,7 @@ const seriesStack = await larvitar.readFiles(demoFiles);
 let seriesId = Object.keys(seriesStack)[0];
 let serie = seriesStack[seriesId];
 await larvitar.renderImage(serie, "viewer");
-larvitar.addDefaultTools();
+larvitar.addDefaultTools("viewer");
 loadMasks();
 
 // optionally cache the series
@@ -396,7 +396,7 @@ await larvitar
         await larvitar.renderImage(serie, "viewer");
         hideSpinner();
         larvitar.logger.debug("Image has been rendered");
-        larvitar.addDefaultTools();
+        larvitar.addDefaultTools("viewer");
         loadMasks();
 
         // optionally cache the series
