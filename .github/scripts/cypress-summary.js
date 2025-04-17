@@ -19,7 +19,7 @@ const report = loadReport();
 
 // Extract test statistics
 const stats = report.stats || {};
-const suites = report.results || [];
+const suites = report.children || []; // Corrected to access "children" for suites
 
 const totalTests = stats.tests || 0;
 const passedTests = stats.passes || 0;
@@ -38,20 +38,20 @@ const suiteDetails = [];
 
 // Recursively process suites and their tests
 const processSuite = (suite, path = "") => {
-  const currentPath = path ? `${path} > ${suite.title}` : suite.title;
+  const currentPath = path ? `${path} > ${suite.description}` : suite.description;
   
-  if (suite.suites && suite.suites.length > 0) {
-    suite.suites.forEach(childSuite => {
+  if (suite.children && suite.children.length > 0) {
+    suite.children.forEach(childSuite => {
       processSuite(childSuite, currentPath);
     });
   }
-  
-  if (suite.tests && suite.tests.length > 0) {
-    const total = suite.tests.length;
-    const passed = suite.tests.filter(t => t.state === "passed").length;
-    const failed = suite.tests.filter(t => t.state === "failed").length;
-    const pending = suite.tests.filter(t => t.state === "pending").length;
-    const skipped = suite.tests.filter(t => t.state === "skipped").length;
+
+  if (suite.children && suite.children.length > 0) {
+    const total = suite.children.length;
+    const passed = suite.children.filter(t => t.passedExpectations && t.passedExpectations.length > 0).length; // Check for passed expectations
+    const failed = suite.children.filter(t => t.failedExpectations && t.failedExpectations.length > 0).length; // Check for failed expectations
+    const pending = 0; // Assuming pending state isn't available in the provided data
+    const skipped = 0; // Same assumption as pending
     const percentage = ((passed / total) * 100).toFixed(2);
     const emoji = failed > 0 ? "❌" : "✅";
     
@@ -70,7 +70,7 @@ const processSuite = (suite, path = "") => {
 
 // Process all suites
 suites.forEach(suite => {
-  processSuite(suite.suites[0]);
+  processSuite(suite);
 });
 
 // Generate Markdown
@@ -97,26 +97,25 @@ suiteDetails.forEach(suite => {
 const failedTestList = [];
 suites.forEach(mainSuite => {
   const findFailedTests = (suite) => {
-    if (suite.tests) {
-      suite.tests.forEach(test => {
-        if (test.state === "failed") {
+    if (suite.children) {
+      suite.children.forEach(test => {
+        if (test.failedExpectations && test.failedExpectations.length > 0) {
           failedTestList.push({
-            title: test.title,
-            fullTitle: test.fullTitle,
-            error: test.err?.message || "Unknown error",
+            title: test.fullName,
+            error: test.failedExpectations.map(fe => fe.message).join("\n") || "Unknown error",
             duration: test.duration / 1000 // Convert to seconds
           });
         }
       });
     }
     
-    if (suite.suites) {
-      suite.suites.forEach(findFailedTests);
+    if (suite.children) {
+      suite.children.forEach(findFailedTests);
     }
   };
   
-  if (mainSuite.suites && mainSuite.suites[0]) {
-    findFailedTests(mainSuite.suites[0]);
+  if (mainSuite.children && mainSuite.children.length > 0) {
+    findFailedTests(mainSuite);
   }
 });
 
@@ -127,8 +126,6 @@ if (failedTestList.length > 0) {
     md += `
 <details>
 <summary><b>${index + 1}. ${test.title}</b> (${test.duration.toFixed(2)}s)</summary>
-
-**Full Title**: \`${test.fullTitle}\`
 
 **Error**:
 \`\`\`

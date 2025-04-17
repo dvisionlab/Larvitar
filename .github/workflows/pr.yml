@@ -53,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cypress-test-reports
-          path: cypress-test/
+          path: report/json/result.json
           
       - name: Generate Cypress summary
         run: node .github/scripts/cypress-summary.js report/json/result.json
