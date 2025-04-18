@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 
 // Input/output
 const reportPath = process.argv[2] || "report/json/result.json";
@@ -19,15 +20,16 @@ const report = loadReport();
 
 // Extract test statistics
 const stats = report.stats || {};
-const suites = report.children || []; // Corrected to access "children" for suites
+const suites = report.results || report.suites || report.children || [];
 
-const totalTests = stats.tests || 0;
-const passedTests = stats.passes || 0;
-const failedTests = stats.failures || 0;
+// Calculate test counts
+const totalTests = stats.tests || stats.testsRegistered || 0;
+const passedTests = stats.passes || stats.passed || 0;
+const failedTests = stats.failures || stats.failed || 0;
 const pendingTests = stats.pending || 0;
 const skippedTests = stats.skipped || 0;
 const passPercent = totalTests ? ((passedTests / totalTests) * 100).toFixed(2) : "0.00";
-const duration = (stats.duration || 0) / 1000; // Convert ms to seconds
+const duration = (stats.duration || stats.duration || 0) / 1000;
 
 // Status emoji
 const overallEmoji = failedTests === 0 ? "✅" : "❌";
@@ -38,21 +40,26 @@ const suiteDetails = [];
 
 // Recursively process suites and their tests
 const processSuite = (suite, path = "") => {
-  const currentPath = path ? `${path} > ${suite.description}` : suite.description;
+  if (!suite) return;
   
-  if (suite.children && suite.children.length > 0) {
-    suite.children.forEach(childSuite => {
+  const currentPath = path ? `${path} > ${suite.title || suite.description}` : (suite.title || suite.description || "Root");
+  
+
+  const childSuites = suite.suites || suite.children || [];
+  if (childSuites && childSuites.length > 0) {
+    childSuites.forEach(childSuite => {
       processSuite(childSuite, currentPath);
     });
   }
 
-  if (suite.children && suite.children.length > 0) {
-    const total = suite.children.length;
-    const passed = suite.children.filter(t => t.passedExpectations && t.passedExpectations.length > 0).length; // Check for passed expectations
-    const failed = suite.children.filter(t => t.failedExpectations && t.failedExpectations.length > 0).length; // Check for failed expectations
-    const pending = 0; // Assuming pending state isn't available in the provided data
-    const skipped = 0; // Same assumption as pending
-    const percentage = ((passed / total) * 100).toFixed(2);
+  const tests = suite.tests || suite.specs || [];
+  if (tests && tests.length > 0) {
+    const total = tests.length;
+    const passed = tests.filter(t => t.state === 'passed' || t.pass === true).length;
+    const failed = tests.filter(t => t.state === 'failed' || t.fail === true).length;
+    const pending = tests.filter(t => t.state === 'pending' || t.pending === true).length;
+    const skipped = tests.filter(t => t.state === 'skipped' || t.skipped === true).length;
+    const percentage = total ? ((passed / total) * 100).toFixed(2) : "0.00";
     const emoji = failed > 0 ? "❌" : "✅";
     
     suiteDetails.push({
@@ -68,10 +75,26 @@ const processSuite = (suite, path = "") => {
   }
 };
 
-// Process all suites
-suites.forEach(suite => {
-  processSuite(suite);
-});
+if (suites.forEach) {
+  suites.forEach(suite => {
+    processSuite(suite);
+  });
+} else if (suites) {
+  processSuite(suites);
+}
+
+if (suiteDetails.length === 0 && totalTests > 0) {
+  suiteDetails.push({
+    suite: "All Tests",
+    total: totalTests,
+    passed: passedTests,
+    failed: failedTests,
+    pending: pendingTests,
+    skipped: skippedTests,
+    percentage: passPercent,
+    emoji: overallEmoji
+  });
+}
 
 // Generate Markdown
 let md = `## 🔍 Cypress Test Results
@@ -93,31 +116,36 @@ suiteDetails.forEach(suite => {
   md += `| \`${suite.suite}\` | ${suite.emoji} | ${suite.percentage}% | ${suite.total} | ${suite.passed} | ${suite.failed} | ${suite.pending + suite.skipped} |\n`;
 });
 
-// Add failed tests details if any
+// Collect failed tests
 const failedTestList = [];
-suites.forEach(mainSuite => {
-  const findFailedTests = (suite) => {
-    if (suite.children) {
-      suite.children.forEach(test => {
-        if (test.failedExpectations && test.failedExpectations.length > 0) {
-          failedTestList.push({
-            title: test.fullName,
-            error: test.failedExpectations.map(fe => fe.message).join("\n") || "Unknown error",
-            duration: test.duration / 1000 // Convert to seconds
-          });
-        }
-      });
-    }
-    
-    if (suite.children) {
-      suite.children.forEach(findFailedTests);
-    }
-  };
+
+const findFailedTests = (suite) => {
+  if (!suite) return;
   
-  if (mainSuite.children && mainSuite.children.length > 0) {
-    findFailedTests(mainSuite);
+  const tests = suite.tests || suite.specs || [];
+  if (tests && tests.length > 0) {
+    tests.forEach(test => {
+      if (test.state === 'failed' || test.fail === true) {
+        failedTestList.push({
+          title: test.fullTitle || test.fullName || test.title,
+          error: test.err?.message || test.failedExpectations?.map(fe => fe.message).join("\n") || "Unknown error",
+          duration: (test.duration || test.duration || 0) / 1000 // Convert to seconds
+        });
+      }
+    });
   }
-});
+  
+  const childSuites = suite.suites || suite.children || [];
+  if (childSuites && childSuites.length > 0) {
+    childSuites.forEach(findFailedTests);
+  }
+};
+
+if (suites.forEach) {
+  suites.forEach(findFailedTests);
+} else if (suites) {
+  findFailedTests(suites);
+}
 
 if (failedTestList.length > 0) {
   md += `\n### ❌ Failed Tests\n`;
@@ -137,5 +165,16 @@ ${test.error}
 }
 
 // Save the markdown
-fs.writeFileSync(outputPath, md, "utf-8");
-console.log(`✅ Markdown saved to ${outputPath}`);
+try {
+  // Make sure directory exists
+  const dir = path.dirname(outputPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  
+  fs.writeFileSync(outputPath, md, "utf-8");
+  console.log(`✅ Markdown summary saved to ${outputPath}`);
+} catch (error) {
+  console.error(`❌ Failed to save markdown to ${outputPath}: ${error.message}`);
+  process.exit(1);
+}

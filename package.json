@@ -74,6 +74,7 @@
     "clean-webpack-plugin": "^4.0.0",
     "cypress": "^14.2.0",
     "cypress-image-snapshot": "^4.0.1",
+    "cypress-mochawesome-reporter": "^3.8.2",
     "cypress-multi-reporters": "^2.0.5",
     "eslint": "^9.17.0",
     "html-loader": "^4.2.0",

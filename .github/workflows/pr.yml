@@ -46,18 +46,26 @@ jobs:
         run: |
           yarn run format:check
 
+      - name: Install mochawesome-merge
+        run: yarn install --no-save mochawesome-merge
+
       - name: Run Cypress tests
         run: yarn run cypress:run
+        
+      - name: Combine test reports
+        run: node .github/scripts/combine-reports.js
+        
+      - name: Generate Cypress summary
+        run: node .github/scripts/cypress-summary.js report/json/result.json 
         
       - name: Upload Cypress reports artifact
         uses: actions/upload-artifact@v4
         with:
           name: cypress-test-reports
-          path: report/json/result.json
-          
-      - name: Generate Cypress summary
-        run: node .github/scripts/cypress-summary.js report/json/result.json
-        
+          path: |
+            report/json/result.json
+            cypress-summary.md
+
       - name: Create or update PR comment with Cypress test results
         uses: peter-evans/create-or-update-comment@v4
         with:
