@@ -5,6 +5,8 @@
 
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
+import { Coords, MeasurementData, MeasurementMouseEvent, WSEventData } from "../types";
+import PolylineScissorsTool from "./polylineScissorsTool";
 const external = cornerstoneTools.external;
 const draw = cornerstoneTools.importInternal("drawing/draw");
 const drawJoinedLines = cornerstoneTools.importInternal(
@@ -26,17 +28,17 @@ let isDrawing = false;
  * of a freehand region with the first and last point connected. Apply after the `freehandSegmentationMixin`.
  *
  * @override
- * @param {Object} evt The cornerstone render event.
+ * @param {MeasurementMouseEvent} evt The cornerstone render event.
  * @returns {null}
  */
-function renderToolData(evt) {
+function renderToolData(this: PolylineScissorsTool, evt: MeasurementMouseEvent ) {
   const eventData = evt.detail;
   const { element } = eventData;
   const color = getters.brushColor(element, true);
   const context = getNewContext(eventData.canvasContext.canvas);
   const handles = this.handles;
 
-  draw(context, context => {
+  draw(context, (context: CanvasRenderingContext2D) => {
     const isNotTheFirstHandle = handles.points.length > 1;
 
     if (isNotTheFirstHandle) {
@@ -55,12 +57,12 @@ function renderToolData(evt) {
  * Returns a handle of a particular tool if it is close to the mouse cursor
  *
  * @private
- * @param {Object} element - The element on which the roi is being drawn.
- * @param {Object} data      Data object associated with the tool.
- * @param {*} coords
+ * @param {Element} element - The element on which the roi is being drawn.
+ * @param {PolylineScissorsTool} data      Data object associated with the tool.
+ * @param {Coords} coords
  * @returns {Number|Object|Boolean}
  */
-function _pointNearHandle(element, data, coords) {
+function _pointNearHandle(element: Element, data: PolylineScissorsTool, coords: Coords) {
   if (data.handles === undefined || data.handles.points === undefined) {
     return;
   }
@@ -83,10 +85,10 @@ function _pointNearHandle(element, data, coords) {
 
 /**
  * Entry point, manage workflow starting / ending
- * @param {Object} evt
+ * @param {MeasurementMouseEvent} evt
  */
 
-function _checkIfDrawing(evt) {
+function _checkIfDrawing(this: PolylineScissorsTool, evt: MeasurementMouseEvent) {
   const { currentPoints, element } = evt.detail;
   const coords = currentPoints.canvas;
   let data = this;
@@ -105,10 +107,10 @@ function _checkIfDrawing(evt) {
  * Sets the start handle point and claims the eventDispatcher event
  *
  * @private
- * @param {*} evt // mousedown, touchstart, click
+ * @param {MeasurementMouseEvent} evt // mousedown, touchstart, click
  * @returns {void|null}
  */
-function _startOutliningRegion(evt) {
+function _startOutliningRegion(this: PolylineScissorsTool, evt: MeasurementMouseEvent) {
   const element = evt.detail.element;
   const image = evt.detail.currentPoints.image;
   const points = this.handles.points;
@@ -132,7 +134,7 @@ function _startOutliningRegion(evt) {
  * @param {(CornerstoneTools.event#TOUCH_DRAG|CornerstoneTools.event#MOUSE_DRAG|CornerstoneTools.event#MOUSE_MOVE)} evt  Interaction event emitted by an enabledElement
  * @returns {void}
  */
-function _setHandlesAndUpdate(evt) {
+function _setHandlesAndUpdate(this: PolylineScissorsTool, evt: MeasurementMouseEvent) {
   const eventData = evt.detail;
   const element = evt.detail.element;
 
@@ -145,10 +147,10 @@ function _setHandlesAndUpdate(evt) {
  *
  * @private
  * @method _applyStrategy
- * @param {(CornerstoneTools.event#MOUSE_UP|CornerstoneTools.event#TOUCH_END)} evt Interaction event emitted by an enabledElement
+ * @param {MeasurementMouseEvent} evt Interaction event emitted by an enabledElement
  * @returns {void}
  */
-function _applyStrategy(evt) {
+function _applyStrategy(this: PolylineScissorsTool, evt: MeasurementMouseEvent) {
   const points = this.handles.points;
   const { element } = evt.detail;
 
@@ -188,7 +190,7 @@ function _applyStrategy(evt) {
  * @method _resetHandles
  * @returns {undefined}
  */
-function _resetHandles() {
+function _resetHandles(this: PolylineScissorsTool) {
   this.handles = {
     points: []
   };
@@ -202,10 +204,10 @@ function _resetHandles() {
  * Adds a point on mouse click in polygon mode.
  *
  * @private
- * @param {Object} evt - data object associated with an event.
+ * @param {WSEventData} evt - data object associated with an event.
  * @returns {void}
  */
-function _addPoint(evt) {
+function _addPoint(this: PolylineScissorsTool, evt: WSEventData) {
   const points = this.handles.points;
 
   if (points.length) {
