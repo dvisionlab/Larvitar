@@ -5,7 +5,12 @@
 
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
-import { Coords, MeasurementData, MeasurementMouseEvent, WSEventData } from "../types";
+import {
+  Coords,
+  MeasurementData,
+  MeasurementMouseEvent,
+  WSEventData
+} from "../types";
 import PolylineScissorsTool from "./polylineScissorsTool";
 const external = cornerstoneTools.external;
 const draw = cornerstoneTools.importInternal("drawing/draw");
@@ -31,7 +36,10 @@ let isDrawing = false;
  * @param {MeasurementMouseEvent} evt The cornerstone render event.
  * @returns {null}
  */
-function renderToolData(this: PolylineScissorsTool, evt: MeasurementMouseEvent ) {
+function renderToolData(
+  this: PolylineScissorsTool,
+  evt: MeasurementMouseEvent
+) {
   const eventData = evt.detail;
   const { element } = eventData;
   const color = getters.brushColor(element, true);
@@ -62,7 +70,11 @@ function renderToolData(this: PolylineScissorsTool, evt: MeasurementMouseEvent )
  * @param {Coords} coords
  * @returns {Number|Object|Boolean}
  */
-function _pointNearHandle(element: Element, data: PolylineScissorsTool, coords: Coords) {
+function _pointNearHandle(
+  element: Element,
+  data: PolylineScissorsTool,
+  coords: Coords
+) {
   if (data.handles === undefined || data.handles.points === undefined) {
     return;
   }
@@ -88,7 +100,10 @@ function _pointNearHandle(element: Element, data: PolylineScissorsTool, coords: 
  * @param {MeasurementMouseEvent} evt
  */
 
-function _checkIfDrawing(this: PolylineScissorsTool, evt: MeasurementMouseEvent) {
+function _checkIfDrawing(
+  this: PolylineScissorsTool,
+  evt: MeasurementMouseEvent
+) {
   const { currentPoints, element } = evt.detail;
   const coords = currentPoints.canvas;
   let data = this;
@@ -110,7 +125,10 @@ function _checkIfDrawing(this: PolylineScissorsTool, evt: MeasurementMouseEvent)
  * @param {MeasurementMouseEvent} evt // mousedown, touchstart, click
  * @returns {void|null}
  */
-function _startOutliningRegion(this: PolylineScissorsTool, evt: MeasurementMouseEvent) {
+function _startOutliningRegion(
+  this: PolylineScissorsTool,
+  evt: MeasurementMouseEvent
+) {
   const element = evt.detail.element;
   const image = evt.detail.currentPoints.image;
   const points = this.handles.points;
@@ -134,7 +152,10 @@ function _startOutliningRegion(this: PolylineScissorsTool, evt: MeasurementMouse
  * @param {(CornerstoneTools.event#TOUCH_DRAG|CornerstoneTools.event#MOUSE_DRAG|CornerstoneTools.event#MOUSE_MOVE)} evt  Interaction event emitted by an enabledElement
  * @returns {void}
  */
-function _setHandlesAndUpdate(this: PolylineScissorsTool, evt: MeasurementMouseEvent) {
+function _setHandlesAndUpdate(
+  this: PolylineScissorsTool,
+  evt: MeasurementMouseEvent
+) {
   const eventData = evt.detail;
   const element = evt.detail.element;
 
@@ -150,7 +171,10 @@ function _setHandlesAndUpdate(this: PolylineScissorsTool, evt: MeasurementMouseE
  * @param {MeasurementMouseEvent} evt Interaction event emitted by an enabledElement
  * @returns {void}
  */
-function _applyStrategy(this: PolylineScissorsTool, evt: MeasurementMouseEvent) {
+function _applyStrategy(
+  this: PolylineScissorsTool,
+  evt: MeasurementMouseEvent
+) {
   const points = this.handles.points;
   const { element } = evt.detail;
 

@@ -1,6 +1,16 @@
 import cornerstoneTools from "cornerstone-tools";
 import { getMaxPixelValue, getMinPixelValue } from "../../imageUtils";
-import { Coords, EventData, HandlePosition, Handles, MeasurementData, MeasurementMouseEvent, PixelSpacing, Rectangle, ToolConfig } from "../types";
+import {
+  Coords,
+  EventData,
+  HandlePosition,
+  Handles,
+  MeasurementData,
+  MeasurementMouseEvent,
+  PixelSpacing,
+  Rectangle,
+  ToolConfig
+} from "../types";
 import { Image } from "cornerstone-core";
 const external = cornerstoneTools.external;
 const BaseAnnotationTool = cornerstoneTools.importInternal(
@@ -76,7 +86,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
 
   createNewMeasurement(eventData: EventData) {
     const { element } = eventData;
-    const viewport = eventData.viewport
+    const viewport = eventData.viewport;
 
     if (this.element === null) {
       this.originalWW = viewport.voi.windowWidth;
@@ -139,7 +149,12 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     };
   }
 
-  pointNearTool(element: Element, data: MeasurementData, coords: Coords, interactionType: string) {
+  pointNearTool(
+    element: Element,
+    data: MeasurementData,
+    coords: Coords,
+    interactionType: string
+  ) {
     const hasStartAndEndHandles =
       data && data.handles && data.handles.start && data.handles.end;
     const validParameters = hasStartAndEndHandles;
@@ -184,7 +199,11 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     return distanceToPoint < distance;
   }
 
-  updateCachedStats(image: cornerstone.Image, element: Element, data: MeasurementData) {
+  updateCachedStats(
+    image: cornerstone.Image,
+    element: Element,
+    data: MeasurementData
+  ) {
     if (data.computeMeasurements) {
       const seriesModule =
         external.cornerstone.metaData.get(
@@ -210,7 +229,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
   renderToolData(evt: MeasurementMouseEvent) {
     const toolData = getToolState(evt.currentTarget, this.name);
     const index = cornerstoneTools.store.state.tools.findIndex(
-      (      item: { name: string; }) => item.name === "WwwcRemoveRegion"
+      (item: { name: string }) => item.name === "WwwcRemoveRegion"
     );
 
     const mode = cornerstoneTools.store.state.tools[index].mode;
@@ -262,7 +281,9 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
           drawHandlesIfActive: drawHandlesOnHover,
           hideHandlesIfMoving
         };
-        const rectOptions: {color: string, lineDash?: string} = { color: data.active ? color : "black" };
+        const rectOptions: { color: string; lineDash?: string } = {
+          color: data.active ? color : "black"
+        };
 
         if (renderDashed) {
           rectOptions.lineDash = lineDash;
@@ -402,7 +423,10 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
  * @param {HandlePosition} endHandle
  * @returns {{ left: number, top: number, width: number, height: number}}
  */
-function _getRectangleImageCoordinates(startHandle: HandlePosition, endHandle: HandlePosition) {
+function _getRectangleImageCoordinates(
+  startHandle: HandlePosition,
+  endHandle: HandlePosition
+) {
   return {
     left: Math.min(startHandle.x, endHandle.x),
     top: Math.min(startHandle.y, endHandle.y),
@@ -421,7 +445,13 @@ function _getRectangleImageCoordinates(startHandle: HandlePosition, endHandle: H
  * @param {PixelSpacing} pixelSpacing
  * @returns {Object} The Stats object
  */
-function _calculateStats(image: cornerstone.Image, element: Element, handles: Handles, modality: string, pixelSpacing: PixelSpacing) {
+function _calculateStats(
+  image: cornerstone.Image,
+  element: Element,
+  handles: Handles,
+  modality: string,
+  pixelSpacing: PixelSpacing
+) {
   // Retrieve the bounds of the rectangle in image coordinates
   const roiCoordinates = _getRectangleImageCoordinates(
     handles.start!,
@@ -529,7 +559,10 @@ function _calculateRectangleStats(sp: number[], rectangle: Rectangle) {
  * @param {HandlePosition} endHandle
  * @returns {Array.<{x: number, y: number}>}
  */
-function _findTextBoxAnchorPoints(startHandle: HandlePosition, endHandle: HandlePosition) {
+function _findTextBoxAnchorPoints(
+  startHandle: HandlePosition,
+  endHandle: HandlePosition
+) {
   const { left, top, width, height } = _getRectangleImageCoordinates(
     startHandle,
     endHandle
@@ -685,7 +718,11 @@ function _createTextBoxContent(
  * @param {ToolConfig} config The tool's configuration object
  * @returns {void}
  */
-const _applyWWWCRegion = function (eventData: EventData, handles: Handles[], config: ToolConfig) {
+const _applyWWWCRegion = function (
+  eventData: EventData,
+  handles: Handles[],
+  config: ToolConfig
+) {
   const { image, element } = eventData;
   const fullImageLuminance = getLuminance(
     element,
@@ -812,7 +849,11 @@ const calculateMedian = function (values: number[]) {
  * @param {bumber} globalMax starting "max" value
  * @returns {Object} {min: number, max: number, mean: number }
  */
-const _calculateMinMaxMean = function (pixelLuminance: number[], globalMin: number, globalMax: number) {
+const _calculateMinMaxMean = function (
+  pixelLuminance: number[],
+  globalMin: number,
+  globalMax: number
+) {
   const numPixels = pixelLuminance.length;
   let min = globalMax;
   let max = globalMin;

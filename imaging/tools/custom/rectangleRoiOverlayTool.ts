@@ -1,5 +1,14 @@
 import cornerstoneTools from "cornerstone-tools";
-import { Coords, EventData, MeasurementData, MeasurementMouseEvent, Handles, HandlePosition, PixelSpacing, Rectangle } from "../types";
+import {
+  Coords,
+  EventData,
+  MeasurementData,
+  MeasurementMouseEvent,
+  Handles,
+  HandlePosition,
+  PixelSpacing,
+  Rectangle
+} from "../types";
 
 const external = cornerstoneTools.external;
 const BaseAnnotationTool = cornerstoneTools.importInternal(
@@ -110,7 +119,12 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
     };
   }
 
-  pointNearTool(element: Element, data: MeasurementData, coords: Coords, interactionType: string) {
+  pointNearTool(
+    element: Element,
+    data: MeasurementData,
+    coords: Coords,
+    interactionType: string
+  ) {
     const hasStartAndEndHandles =
       data && data.handles && data.handles.start && data.handles.end;
     const validParameters = hasStartAndEndHandles;
@@ -150,7 +164,11 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
     return distanceToPoint < distance;
   }
 
-  updateCachedStats(image: cornerstone.Image, element: Element, data: MeasurementData) {
+  updateCachedStats(
+    image: cornerstone.Image,
+    element: Element,
+    data: MeasurementData
+  ) {
     if (data.computeMeasurements) {
       const seriesModule =
         external.cornerstone.metaData.get(
@@ -310,7 +328,10 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
  * @param {HandlePosition} endHandle
  * @returns {{ left: number, top: number, width: number, height: number}}
  */
-function _getRectangleImageCoordinates(startHandle: HandlePosition, endHandle: HandlePosition) {
+function _getRectangleImageCoordinates(
+  startHandle: HandlePosition,
+  endHandle: HandlePosition
+) {
   return {
     left: Math.min(startHandle.x, endHandle.x),
     top: Math.min(startHandle.y, endHandle.y),
@@ -329,7 +350,13 @@ function _getRectangleImageCoordinates(startHandle: HandlePosition, endHandle: H
  * @param {PixelSpacing} pixelSpacing
  * @returns {Object} The Stats object
  */
-function _calculateStats(image: cornerstone.Image, element: Element, handles: Handles, modality: string, pixelSpacing: PixelSpacing) {
+function _calculateStats(
+  image: cornerstone.Image,
+  element: Element,
+  handles: Handles,
+  modality: string,
+  pixelSpacing: PixelSpacing
+) {
   // Retrieve the bounds of the rectangle in image coordinates
   const roiCoordinates = _getRectangleImageCoordinates(
     handles.start!,
@@ -437,7 +464,10 @@ function _calculateRectangleStats(sp: number[], rectangle: Rectangle) {
  * @param {HandlePosition} endHandle
  * @returns {Array.<{x: number, y: number}>}
  */
-function _findTextBoxAnchorPoints(startHandle: HandlePosition, endHandle: HandlePosition) {
+function _findTextBoxAnchorPoints(
+  startHandle: HandlePosition,
+  endHandle: HandlePosition
+) {
   const { left, top, width, height } = _getRectangleImageCoordinates(
     startHandle,
     endHandle

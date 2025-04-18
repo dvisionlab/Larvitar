@@ -480,12 +480,12 @@ export interface PlotlyData {
 }
 
 export type ThresholdsBrushProp = {
-  name: string,
-  supportedInteractionTypes: string[],
+  name: string;
+  supportedInteractionTypes: string[];
   configuration: {
-    staticThreshold?: number,
-    thresholds?: number[],
-    xFactor?: number,
-  },
-  mixins: string[]
-}
+    staticThreshold?: number;
+    thresholds?: number[];
+    xFactor?: number;
+  };
+  mixins: string[];
+};
