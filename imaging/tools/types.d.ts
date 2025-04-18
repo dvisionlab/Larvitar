@@ -9,6 +9,7 @@ type ToolOptions = {
 } & { [key: string]: unknown };
 
 export type ToolConfig = {
+  minWindowWidth?: number;
   name: string;
   viewports: string | string[];
   configuration: Object;
@@ -363,6 +364,7 @@ export type PixelSpacing = {
   colPixelSpacing: number;
 };
 export interface MeasurementData {
+  computeMeasurements: boolean;
   polyBoundingBox?: Rectangle;
   meanStdDev?: number;
   meanStdDevSUV?: { mean: number; stdDev: number };
@@ -440,6 +442,7 @@ export interface Coords {
 
 export interface EventData {
   currentPoints: {
+    canvas: Coords;
     image: Coords;
     client: Coords;
   };
@@ -475,3 +478,14 @@ export interface PlotlyData {
     color: string;
   };
 }
+
+export type ThresholdsBrushProp = {
+  name: string;
+  supportedInteractionTypes: string[];
+  configuration: {
+    staticThreshold?: number;
+    thresholds?: number[];
+    xFactor?: number;
+  };
+  mixins: string[];
+};
