@@ -9,7 +9,7 @@ type ToolOptions = {
 } & { [key: string]: unknown };
 
 export type ToolConfig = {
-  minWindowWidth: number;
+  minWindowWidth?: number;
   name: string;
   viewports: string | string[];
   configuration: Object;
