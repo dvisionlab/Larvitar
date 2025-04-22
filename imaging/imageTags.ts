@@ -294,7 +294,6 @@ export function parseTag<T>(
   // GET VR
   var tagData = dataSet.elements[propertyName];
   var vr = tagData?.vr;
-  if (propertyName === "x00181310") console.log(vr);
   if (!vr) {
     // use dicom dict to get VR
     var tag = getDICOMTag(propertyName);
@@ -560,10 +559,18 @@ export function parseTag<T>(
     // If it is some other length and we have no string
     valueOut = "no display code for VR " + vr;
   }
-  if (propertyName === "x00181310") console.log(valueOut);
   return valueOut as T;
 }
 
+/**
+ * Processes multiple values from a DataSet for a given property.
+ *
+ * @param dataSet - The data set to extract values from
+ * @param propertyName - The name of the property to extract
+ * @param count - The number of values to extract
+ * @param method - The data type method to use for extraction (default: "uint16")
+ * @returns An array of extracted values, excluding null, NaN, undefined values, empty strings, and invalid strings
+ */
 function processMultiValues(
   dataSet: DataSet,
   propertyName: string,
@@ -579,8 +586,20 @@ function processMultiValues(
   const values = [];
   for (let index = 0; index < count; index++) {
     const value = dataSet[method](propertyName, index);
-    if (value !== null && !Number.isNaN(value) && value !== undefined) {
+    if (
+      value !== null &&
+      value !== undefined &&
+      (typeof value !== "number"
+        ? method === "string"
+          ? value !== "" && typeof value === "string" && value.trim().length > 0
+          : true
+        : !Number.isNaN(value))
+    ) {
       values.push(value);
+    } else {
+      logger.warn(
+        `Invalid value at index ${index} for property "${propertyName}": ${value}`
+      );
     }
   }
   return values;
