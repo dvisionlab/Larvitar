@@ -294,6 +294,7 @@ export function parseTag<T>(
   // GET VR
   var tagData = dataSet.elements[propertyName];
   var vr = tagData?.vr;
+  if (propertyName === "x00181310") console.log(vr);
   if (!vr) {
     // use dicom dict to get VR
     var tag = getDICOMTag(propertyName);
@@ -440,21 +441,20 @@ export function parseTag<T>(
     }
   } else if (vr === "US") {
     if (
-      propertyName === "x00700241" ||
-      propertyName === "x00181624" ||
-      propertyName === "x00700401" ||
-      propertyName === "x00700247" ||
-      propertyName === "x00700251" ||
-      propertyName === "x00700252"
+      [
+        "x00700241",
+        "x00181624",
+        "x00700401",
+        "x00700247",
+        "x00700251",
+        "x00700252"
+      ].includes(propertyName)
     ) {
-      let rgbArray: number[] = [];
-      for (let index = 0; index < 3; index++) {
-        let value = dataSet.uint16(propertyName, index);
-        if (value !== null && !Number.isNaN(value) && value !== undefined) {
-          rgbArray.push(value);
-        }
-      }
-      valueOut = rgbArray;
+      valueOut = processMultiValues(dataSet, propertyName, 3, "uint16");
+    } else if (propertyName === "x00181310") {
+      valueOut = processMultiValues(dataSet, propertyName, 3, "uint16").join(
+        "\\"
+      );
     } else {
       valueOut = dataSet.uint16(propertyName);
     }
@@ -467,13 +467,7 @@ export function parseTag<T>(
   } else if (vr === "SL") {
     if (propertyName === "x00700052" || propertyName === "x00700053") {
       let coordinateArray: number[] = [];
-      for (let index = 0; index < 2; index++) {
-        let value = dataSet.int32(propertyName, index);
-        if (value) {
-          coordinateArray.push(value);
-        }
-      }
-      valueOut = coordinateArray;
+      valueOut = processMultiValues(dataSet, propertyName, 2, "int32");
     } else {
       valueOut = dataSet.int32(propertyName);
     }
@@ -498,28 +492,19 @@ export function parseTag<T>(
       }
       valueOut = rWaveTimeVector;
     } else if (propertyName === "x00700022" && dataSet.uint16("x00700021")) {
-      let pointsCoords = [];
-      for (let index = 0; index < 2 * dataSet.uint16("x00700021")!; index++) {
-        let value = dataSet.float(propertyName, index);
-        if (value) {
-          pointsCoords.push(value);
-        }
-      }
-      valueOut = pointsCoords;
+      valueOut = processMultiValues(
+        dataSet,
+        propertyName,
+        2 * dataSet.uint16("x00700021")!,
+        "float"
+      );
     } else if (
       propertyName === "x00700010" ||
       propertyName === "x00700011" ||
       propertyName === "x00700014" ||
       propertyName === "x00700273"
     ) {
-      let pointsCoords = [];
-      for (let index = 0; index < 2; index++) {
-        let value = dataSet.float(propertyName, index);
-        if (value) {
-          pointsCoords.push(value);
-        }
-      }
-      valueOut = pointsCoords;
+      valueOut = processMultiValues(dataSet, propertyName, 2, "float");
     } else {
       valueOut = dataSet.float(propertyName);
     }
@@ -575,7 +560,30 @@ export function parseTag<T>(
     // If it is some other length and we have no string
     valueOut = "no display code for VR " + vr;
   }
+  if (propertyName === "x00181310") console.log(valueOut);
   return valueOut as T;
+}
+
+function processMultiValues(
+  dataSet: DataSet,
+  propertyName: string,
+  count: number,
+  method:
+    | "uint16"
+    | "uint32"
+    | "string"
+    | "float"
+    | "int16"
+    | "int32" = "uint16"
+) {
+  const values = [];
+  for (let index = 0; index < count; index++) {
+    const value = dataSet[method](propertyName, index);
+    if (value !== null && !Number.isNaN(value) && value !== undefined) {
+      values.push(value);
+    }
+  }
+  return values;
 }
 
 /**
