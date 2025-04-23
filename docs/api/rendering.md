@@ -147,10 +147,7 @@ All properties are optional.
    - Saves viewport settings to ensure consistency across different renderings.
    - Sets `ready` status in the store to `true`.
 
-8. **Cornerstone Tools Stack Synchronization**
-   - Synchronizes the stack of images in the viewport using `csToolsCreateStack`.
-
-9. **Performance Logging and Cleanup**
+8. **Performance Logging and Cleanup**
    - Logs the time taken for rendering.
    - Clears memory references to avoid memory leaks.
 

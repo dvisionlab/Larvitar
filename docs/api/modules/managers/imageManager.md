@@ -57,7 +57,7 @@ updateImageManager(
 | Parameter	      | Type	              | Description                                         | 
 |-----------------|---------------------|-----------------------------------------------------|
 | `imageObject`	  | ImageObject	        | A single DICOM object containing metadata and data. | 
-| `customId`	    | string	(Optional)  | Custom ID to overwrite the default seriesUID.       | 
+| `customId`	    | string	(Optional)  | Custom ID to overwrite the default uniqueUID.       | 
 | `sliceIndex`	  | number	(Optional)  | Index to overwrite default slice ordering.          |    
 
 #### Returns: 

@@ -84,12 +84,12 @@ export default class GspsTool extends BaseTool {
       const viewport = cornerstone.getViewport(element) as Viewport;
       this.originalViewport = structuredClone(viewport);
 
-      const { manager, seriesId } = this.retrieveLarvitarManager(
+      const { manager, uniqueUID } = this.retrieveLarvitarManager(
         image!.imageId
       );
 
       if (manager) {
-        const serie = manager[seriesId];
+        const serie = manager[uniqueUID];
         const currentInstanceUID =
           serie.instances[image!.imageId].metadata.instanceUID!;
         let gspsManager: GSPSManager = getGSPSManager();
@@ -162,10 +162,10 @@ export default class GspsTool extends BaseTool {
     const canvas = eventData.canvasContext.canvas;
     const context = getNewContext(eventData.canvasContext.canvas);
     const viewport = cornerstone.getViewport(element) as Viewport;
-    const { manager, seriesId } = this.retrieveLarvitarManager(image.imageId);
+    const { manager, uniqueUID } = this.retrieveLarvitarManager(image.imageId);
     let instanceUID: string | null = null;
     if (manager) {
-      const serie = manager[seriesId];
+      const serie = manager[uniqueUID];
       instanceUID = serie.instances[image.imageId].metadata
         .instanceUID! as string;
     }
@@ -313,7 +313,7 @@ export default class GspsTool extends BaseTool {
   }
 
   /*
-   Retrieves the Larvitar manager and associated seriesUID for a given imageId,
+   Retrieves the Larvitar manager and associated uniqueUID for a given imageId,
    facilitating DICOM-compliant image tracking and management.
 */
   retrieveLarvitarManager(imageId: string) {
@@ -322,8 +322,8 @@ export default class GspsTool extends BaseTool {
 
     const rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
     const imageTracker = getImageTracker();
-    const seriesId: string = imageTracker[rootImageId];
+    const uniqueUID: string = imageTracker[rootImageId];
     const manager = getImageManager() as ImageManager;
-    return { manager, seriesId };
+    return { manager, uniqueUID };
   }
 }

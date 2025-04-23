@@ -65,7 +65,7 @@
   let frameId = 0;
   await larvitar.renderImage(multiFrameSerie, "viewer", {imageIndex: frameId});
   const t1 = performance.now();
-  larvitar.addDefaultTools();
+  larvitar.addDefaultTools("viewer");
   larvitar.setToolActive("StackScroll");
 
   // Optionally cache images
@@ -269,7 +269,7 @@
         larvitar.logger.debug(
           "Time to render First frame: " + (t1 - t0) + "ms"
         );
-        larvitar.addDefaultTools();
+        larvitar.addDefaultTools("viewer");
         larvitar.setToolActive("StackScroll");
 
         // optionally cache images

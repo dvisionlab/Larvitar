@@ -74,7 +74,7 @@ export const populateImageManager = function (
  * @instance
  * @function updateImageManager
  * @param {Object} imageObject The single dicom object
- * @param {String} customId - Optional custom id to overwrite seriesUID as default one
+ * @param {String} customId - Optional custom id to overwrite uniqueUID as default one
  * @param {number} sliceIndex - Optional custom index to overwrite slice index as default one
  */
 export const updateImageManager = function (
@@ -87,12 +87,12 @@ export const updateImageManager = function (
   }
   let data = { ...imageObject };
   if (data.metadata?.isMultiframe && data.file && data.dataSet) {
-    let seriesId = customId || imageObject.metadata.seriesUID;
+    let uniqueUID = customId || imageObject.metadata.uniqueUID;
     let loadedStack: ReturnType<typeof getImageManager> = {};
     updateLoadedStack(data, loadedStack, customId, sliceIndex);
     buildMultiFrameImage(
-      seriesId as string,
-      loadedStack[seriesId as string] as Series
+      uniqueUID as string,
+      loadedStack[uniqueUID as string] as Series
     );
   } else {
     updateLoadedStack(data, imageManager, customId, sliceIndex);
@@ -128,7 +128,7 @@ export const resetImageManager = function () {
       }
       (stack as Series).dataSet = null;
       (stack as Series).elements = null;
-      clearMultiFrameCache(stack.seriesUID);
+      clearMultiFrameCache(stack.uniqueUID);
     }
     each(stack.instances, function (instance) {
       if (instance.dataSet) {

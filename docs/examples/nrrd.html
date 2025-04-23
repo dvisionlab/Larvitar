@@ -59,7 +59,7 @@ reader.onload = function () {
   let volume = larvitar.importNRRDImage(reader.result);
   let serie = larvitar.buildNrrdImage(volume, "1234", {});
   larvitar.renderImage(serie, "viewer");
-  larvitar.addDefaultTools();
+  larvitar.addDefaultTools("viewer");
   larvitar.setToolActive("Wwwc");
 };
 `;
@@ -171,11 +171,12 @@ reader.onload = function () {
         reader.onload = function () {
           let volume = larvitar.importNRRDImage(reader.result);
           let serie = larvitar.buildNrrdImage(volume, "1234", {});
-          larvitar.renderImage(serie, "viewer");
-          larvitar.logger.debug("Image has been rendered");
-          hideSpinner();
-          larvitar.addDefaultTools();
-          larvitar.setToolActive("Wwwc");
+          larvitar.renderImage(serie, "viewer").then(() => {
+            larvitar.logger.debug("Image has been rendered");
+            hideSpinner();
+            larvitar.addDefaultTools("viewer");
+            larvitar.setToolActive("Wwwc");
+          });
         };
       });
 

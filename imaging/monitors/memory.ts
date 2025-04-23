@@ -30,8 +30,8 @@ var customMemoryLimit: number | null = null;
  * Check memory allocation and clear memory if needed
  * @instance
  * @function checkAndClearMemory
- * @param {Number} - Number of bytes to allocate
- * @param {Array} - Rendered Series ids
+ * @param {Number} bytes - Number of bytes to allocate
+ * @param {Array} renderedSeriesIds - Rendered Series ids
  */
 export const checkAndClearMemory = function (
   bytes: number,
@@ -41,16 +41,16 @@ export const checkAndClearMemory = function (
   if (isEnough === false) {
     const manager = getImageManager();
     // get all key of manager and create a list
-    const seriesIds = Object.keys(manager);
+    const uniqueUIDs = Object.keys(manager);
     // create a list of non rendered series ids
-    const nonRenderedSeriesIds = seriesIds.filter(
-      seriesId => !renderedSeriesIds.includes(seriesId)
+    const nonRenderedUniqueIds = uniqueUIDs.filter(
+      uniqueUID => !renderedSeriesIds.includes(uniqueUID)
     );
     // remove non rendered series from manager
-    nonRenderedSeriesIds.forEach(seriesId => {
-      removeDataFromImageManager(seriesId);
-      clearImageCache(seriesId);
-      store.removeSeriesId(seriesId);
+    nonRenderedUniqueIds.forEach(uniqueUID => {
+      removeDataFromImageManager(uniqueUID);
+      clearImageCache(uniqueUID);
+      store.removeImageIds(uniqueUID);
     });
   }
 };
@@ -59,7 +59,7 @@ export const checkAndClearMemory = function (
  * Check memory allocation and returns false if js Heap size has reached its limit
  * @instance
  * @function checkMemoryAllocation
- * @param {Number} - Number of bytes to allocate
+ * @param {Number} bytes - Number of bytes to allocate
  * @return {Boolean} - Returns a boolean flag to warn the user about memory allocation limit
  */
 export const checkMemoryAllocation = function (bytes: number) {
@@ -89,7 +89,7 @@ export const checkMemoryAllocation = function (bytes: number) {
  * @function getUsedMemory
  * @return {Number} - Returns used JSHeapSize in bytes or NaN if not supported
  */
-export const getUsedMemory = function () {
+export const getUsedMemory = function (): number {
   return checkMemorySupport()
     ? (performance as Performance).memory.usedJSHeapSize
     : NaN;
@@ -101,7 +101,7 @@ export const getUsedMemory = function () {
  * @function getAvailableMemory
  * @return {Number} - Returns available JSHeapSize in bytes or NaN if not supported
  */
-export const getAvailableMemory = function () {
+export const getAvailableMemory = function (): number {
   if (checkMemorySupport()) {
     return customMemoryLimit
       ? customMemoryLimit
@@ -115,7 +115,7 @@ export const getAvailableMemory = function () {
  * Check performance.memory browser support and returns available Js Heap Size in Mb
  * @instance
  * @function setAvailableMemory
- * @param {Number} - Number of GB to set as maximum custom memory limit
+ * @param {Number} value - Number of GB to set as maximum custom memory limit
  */
 export const setAvailableMemory = function (value: number) {
   customMemoryLimit = value * 1024 * 1024 * 1024;
@@ -131,7 +131,7 @@ export const setAvailableMemory = function (value: number) {
  * @function checkMemorySupport
  * @return {Boolean} - Returns memory object or false if not supported
  */
-const checkMemorySupport = function () {
+const checkMemorySupport = function (): boolean {
   return (performance as Performance).memory
     ? (performance as Performance).memory
     : false;
@@ -144,6 +144,6 @@ const checkMemorySupport = function () {
  * @param {Number} bytes - Memory in bytes
  * @return {Number} - Memory in MB
  */
-const getMB = function (bytes: number) {
+const getMB = function (bytes: number): number {
   return bytes / 1048576;
 };

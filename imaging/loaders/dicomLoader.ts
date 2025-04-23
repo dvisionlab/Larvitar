@@ -71,12 +71,12 @@ export const loadAndCacheImageStack = async function (
 ): Promise<void> {
   return new Promise(async (resolve, _) => {
     const t0 = performance.now();
-    store.addSeriesId(seriesData.seriesUID, seriesData.imageIds);
+    store.addImageIds(seriesData.uniqueUID, seriesData.imageIds);
     let imageIds = seriesData.imageIds;
     // add DSA imageIds to store
     if (seriesData.dsa !== undefined) {
-      const dsaSeriesUID = seriesData.seriesUID + "-DSA";
-      store.addSeriesId(dsaSeriesUID, seriesData.dsa.imageIds);
+      const dsaUniqueUID = seriesData.uniqueUID + "-DSA";
+      store.addImageIds(dsaUniqueUID, seriesData.dsa.imageIds);
     }
     // load and cache image stack
 
