@@ -65,31 +65,49 @@ jobs:
           path: |
             report/json/result.json
             cypress-summary.md
+            
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: "## 🔍 Cypress Test Results"
 
-      - name: Create or update PR comment with Cypress test results
+      - name: Create or update comment
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
           body-path: cypress-summary.md
-          body-includes: "## 🔍 Cypress Test Results"
+          edit-mode: replace
 
       - name: Run tests and generate coverage
         run: yarn run coverage
-  
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: typescript-coverage
           path: coverage-ts/index.html
-  
+
       - name: Display coverage summary
         run: node .github/scripts/ts-coverage-summary.js coverage-ts/index.html
-      
+
+      - name: Find Coverage Comment
+        uses: peter-evans/find-comment@v2
+        id: find-coverage-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: "## 🧪 TypeScript Coverage Summary"
+          
       - name: Create or update PR comment with coverage
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-coverage-comment.outputs.comment-id }}
           body-path: coverage-summary.md
-          body-includes: "## 🧪 TypeScript Coverage Summary"
+          edit-mode: replace
