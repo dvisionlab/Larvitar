@@ -156,7 +156,7 @@ export const buildData = function (series: Series, useSeriesData: boolean) {
       logger.info(`Call to buildData took ${t1 - t0} milliseconds.`);
       return data;
     } else {
-      store.addSeriesId(series.seriesUID, series.imageIds);
+      store.addImageIds(series.uniqueUID, series.imageIds);
       let image_counter = 0;
       forEach(series.imageIds, function (imageId: string) {
         getCachedPixelData(imageId).then((sliceData: number[]) => {
@@ -217,7 +217,7 @@ export const buildDataAsync = function (
     let offsetData = 0;
 
     let imageIds = getSortedStack(series as Series, ["imagePosition"], true);
-    store.addSeriesId(series.seriesUID, series.imageIds);
+    store.addImageIds(series.uniqueUID, series.imageIds);
 
     function runFillPixelData(data: TypedArray) {
       let imageId = imageIds.shift();
