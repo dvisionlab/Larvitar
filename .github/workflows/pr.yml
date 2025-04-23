@@ -101,8 +101,8 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
-          body-includes: "## 🧪 TypeScript Coverage Summary"
-          
+          body-includes: "## 🧪 TypeScript Coverage Report"
+
       - name: Create or update PR comment with coverage
         uses: peter-evans/create-or-update-comment@v4
         with:
