@@ -45,23 +45,70 @@ jobs:
       - name: Check Prettier
         run: |
           yarn run format:check
-      
+
+      - name: Install mochawesome-merge
+        run: yarn install --no-save mochawesome-merge
+
+      - name: Run Cypress tests
+        run: yarn run cypress:run
+        
+      - name: Combine test reports
+        run: node .github/scripts/combine-reports.js
+        
+      - name: Generate Cypress summary
+        run: node .github/scripts/cypress-summary.js report/json/result.json 
+        
+      - name: Upload Cypress reports artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-test-reports
+          path: |
+            report/json/result.json
+            cypress-summary.md
+            
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: "## 🔍 Cypress Test Results"
+
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          body-path: cypress-summary.md
+          edit-mode: replace
+
       - name: Run tests and generate coverage
         run: yarn run coverage
-  
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: typescript-coverage
           path: coverage-ts/index.html
-  
+
       - name: Display coverage summary
         run: node .github/scripts/ts-coverage-summary.js coverage-ts/index.html
-      
+
+      - name: Find Coverage Comment
+        uses: peter-evans/find-comment@v2
+        id: find-coverage-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: "## 🧪 TypeScript Coverage Report"
+
       - name: Create or update PR comment with coverage
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-coverage-comment.outputs.comment-id }}
           body-path: coverage-summary.md
-          body-includes: "## 🧪 TypeScript Coverage Report"
+          edit-mode: replace
+
