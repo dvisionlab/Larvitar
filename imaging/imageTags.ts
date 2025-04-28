@@ -451,7 +451,7 @@ export function parseTag<T>(
     ) {
       valueOut = processMultiValues(dataSet, propertyName, 3, "uint16");
     } else if (propertyName === "x00181310") {
-      valueOut = processMultiValues(dataSet, propertyName, 3, "uint16").join(
+      valueOut = processMultiValues(dataSet, propertyName, 4, "uint16").join(
         "\\"
       );
     } else {
