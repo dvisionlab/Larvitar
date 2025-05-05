@@ -5,7 +5,6 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
-import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { each, has } from "lodash";
 
@@ -27,8 +26,6 @@ import { DEFAULT_TOOLS } from "./tools/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
 import { setPixelShift } from "./loaders/dsaImageLoader";
-
-const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
 
 /*
  * This module provides the following functions to be exported:
@@ -492,42 +489,38 @@ export const unloadViewport = function (elementId: string) {
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  */
 export const resizeViewport = function (elementId: string | HTMLElement) {
-  let element = isElement(elementId)
-    ? (elementId as HTMLElement)
-    : document.getElementById(elementId as string);
+  let id = isElement(elementId)
+    ? (elementId as HTMLElement).id
+    : (elementId as string);
+
+  let element = document.getElementById(id);
   if (!element) {
     logger.error("invalid html element: " + elementId);
     return;
   }
 
-  const viewport = cornerstone.getViewport(element) as Viewport;
-  if (!viewport) {
-    logger.error("Unable to get viewport");
-    return;
-  }
-
-  const updatedViewport = { ...viewport };
-
-  const image = cornerstone.getImage(element);
-  if (!image) {
-    logger.error("No image loaded in viewport");
-    return;
-  }
-
-  const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+  const colPixelSpacing = store.get(["viewports", id, "spacing_x"]);
+  const rowPixelSpacing = store.get(["viewports", id, "spacing_y"]);
 
   if (rowPixelSpacing !== colPixelSpacing) {
-    // Proper way to apply aspect ratio correction in Cornerstone
-    // Don't modify the scale directly as that affects zoom level
-    updatedViewport.displayedArea = updatedViewport.displayedArea || {
+    const viewport = cornerstone.getViewport(element) as Viewport;
+    if (!viewport) {
+      logger.error("Unable to get viewport");
+      return;
+    }
+    const width = store.get(["viewports", id, "cols"]);
+    const height = store.get(["viewports", id, "rows"]);
+
+    viewport.displayedArea = viewport.displayedArea || {
       tlhc: { x: 0, y: 0 },
-      brhc: { x: image.width, y: image.height }
+      brhc: { x: width, y: height }
     };
-    updatedViewport.displayedArea.rowPixelSpacing = 1;
-    updatedViewport.displayedArea.columnPixelSpacing = 1;
-    // Apply corrected viewport
-    cornerstone.setViewport(element, updatedViewport);
-    console.log(
+    viewport.displayedArea.rowPixelSpacing = 1;
+    viewport.displayedArea.columnPixelSpacing = 1;
+
+    cornerstone.setViewport(element, viewport);
+
+    logger.info(
       `Anisotropic pixel spacing with aspect ratio: ${rowPixelSpacing / colPixelSpacing} - viewport updated`
     );
   } else {
