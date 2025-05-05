@@ -5,6 +5,7 @@
 
 // external libraries
 import cornerstone from "cornerstone-core";
+import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { each, has } from "lodash";
 
@@ -26,6 +27,8 @@ import { DEFAULT_TOOLS } from "./tools/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
 import { setPixelShift } from "./loaders/dsaImageLoader";
+
+const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
 
 /*
  * This module provides the following functions to be exported:
@@ -493,7 +496,40 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
     logger.error("invalid html element: " + elementId);
     return;
   }
-  cornerstone.resize(element, true); // true flag forces fitToWindow
+
+  const viewport = cornerstone.getViewport(element) as Viewport;
+  if (!viewport) {
+    logger.error("Unable to get viewport");
+    return;
+  }
+
+  const updatedViewport = { ...viewport };
+
+  const image = cornerstone.getImage(element);
+  if (!image) {
+    logger.error("No image loaded in viewport");
+    return;
+  }
+
+  const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+
+  if (rowPixelSpacing !== colPixelSpacing) {
+    // Proper way to apply aspect ratio correction in Cornerstone
+    // Don't modify the scale directly as that affects zoom level
+    updatedViewport.displayedArea = updatedViewport.displayedArea || {
+      tlhc: { x: 0, y: 0 },
+      brhc: { x: image.width, y: image.height }
+    };
+    updatedViewport.displayedArea.rowPixelSpacing = 1;
+    updatedViewport.displayedArea.columnPixelSpacing = 1;
+    // Apply corrected viewport
+    cornerstone.setViewport(element, updatedViewport);
+    console.log(
+      `Anisotropic pixel spacing with aspect ratio: ${rowPixelSpacing / colPixelSpacing} - viewport updated`
+    );
+  } else {
+    cornerstone.resize(element, true); // true flag forces fitToWindow
+  }
 };
 
 /**
