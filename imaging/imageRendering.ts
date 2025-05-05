@@ -453,6 +453,9 @@ export const disableViewport = function (elementId: string | HTMLElement) {
   cornerstone.disable(element);
   const id: string = isElement(elementId) ? element.id : (elementId as string);
   setStore(["uniqueUID", id, undefined]); // remove uniqueUID from viewport store
+  if (store.get(["viewports", id, "pixelShift"])) {
+    store.setDSAPixelShift(id, [0, 0]); // reset stored dsa pixel shift
+  }
   setStore(["ready", id, false]); // set ready to false in viewport store
 };
 
