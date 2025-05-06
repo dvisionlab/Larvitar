@@ -209,6 +209,7 @@ export interface Viewport extends cornerstone.Viewport {
     };
     columnPixelSpacing: number;
     rowPixelSpacing: number;
+    presentationSizeMode: string;
   };
   overlayColor?: boolean | string;
 }

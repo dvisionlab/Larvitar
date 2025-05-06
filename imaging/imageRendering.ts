@@ -513,10 +513,11 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
 
     viewport.displayedArea = viewport.displayedArea || {
       tlhc: { x: 0, y: 0 },
-      brhc: { x: width, y: height }
+      brhc: { x: width, y: height },
+      presentationSizeMode: "SCALE TO FIT",
+      rowPixelSpacing: 1,
+      columnPixelSpacing: 1
     };
-    viewport.displayedArea.rowPixelSpacing = 1;
-    viewport.displayedArea.columnPixelSpacing = 1;
 
     cornerstone.setViewport(element, viewport);
 
