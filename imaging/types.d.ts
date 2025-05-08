@@ -199,10 +199,17 @@ export interface Layer extends cornerstone.EnabledElementLayer {
 export interface Viewport extends cornerstone.Viewport {
   newImageIdIndex: number;
   displayedArea: {
+    tlhc: {
+      x: number;
+      y: number;
+    };
     brhc: {
       x: number;
       y: number;
     };
+    columnPixelSpacing: number;
+    rowPixelSpacing: number;
+    presentationSizeMode: string;
   };
   overlayColor?: boolean | string;
 }

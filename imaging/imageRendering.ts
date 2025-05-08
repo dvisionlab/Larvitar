@@ -450,6 +450,9 @@ export const disableViewport = function (elementId: string | HTMLElement) {
   cornerstone.disable(element);
   const id: string = isElement(elementId) ? element.id : (elementId as string);
   setStore(["uniqueUID", id, undefined]); // remove uniqueUID from viewport store
+  if (store.get(["viewports", id, "pixelShift"])) {
+    store.setDSAPixelShift(id, [0, 0]); // reset stored dsa pixel shift
+  }
   setStore(["ready", id, false]); // set ready to false in viewport store
 };
 
@@ -486,14 +489,49 @@ export const unloadViewport = function (elementId: string) {
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  */
 export const resizeViewport = function (elementId: string | HTMLElement) {
-  let element = isElement(elementId)
-    ? (elementId as HTMLElement)
-    : document.getElementById(elementId as string);
+  let id = isElement(elementId)
+    ? (elementId as HTMLElement).id
+    : (elementId as string);
+
+  let element = document.getElementById(id);
   if (!element) {
     logger.error("invalid html element: " + elementId);
     return;
   }
-  cornerstone.resize(element, true); // true flag forces fitToWindow
+
+  const colPixelSpacing = store.get(["viewports", id, "spacing_x"]);
+  const rowPixelSpacing = store.get(["viewports", id, "spacing_y"]);
+
+  if (rowPixelSpacing !== colPixelSpacing) {
+    const viewport = cornerstone.getViewport(element) as Viewport;
+    if (!viewport) {
+      logger.error("Unable to get viewport");
+      return;
+    }
+    const width = store.get(["viewports", id, "cols"]);
+    const height = store.get(["viewports", id, "rows"]);
+
+    if (width === undefined || height === undefined) {
+      logger.error("Viewport dimensions are undefined");
+      return;
+    }
+
+    viewport.displayedArea = viewport.displayedArea || {
+      tlhc: { x: 0, y: 0 },
+      brhc: { x: width, y: height },
+      presentationSizeMode: "SCALE TO FIT",
+      rowPixelSpacing: 1,
+      columnPixelSpacing: 1
+    };
+
+    cornerstone.setViewport(element, viewport);
+
+    logger.info(
+      `Anisotropic pixel spacing with aspect ratio: ${rowPixelSpacing / colPixelSpacing} - viewport updated`
+    );
+  } else {
+    cornerstone.resize(element, true); // true flag forces fitToWindow
+  }
 };
 
 /**
