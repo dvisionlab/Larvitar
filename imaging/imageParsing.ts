@@ -97,12 +97,20 @@ export const readFile = function (entry: File) {
 export const convertQidoMetadata = function (data: any): MetaData {
   const metadata: MetaData = Object.keys(data).reduce(
     (accumulator: any, key) => {
-      let value = data[key].Value ? data[key].Value[0] : undefined;
+      let value;
+
+      if (Array.isArray(data[key].Value)) {
+        value =
+          data[key].Value.length > 1 ? data[key].Value : data[key].Value[0];
+      } else {
+        value = undefined;
+      }
+
       // check if value is an object with key "Alphabetic"
       if (value && value.Alphabetic) {
         value = value.Alphabetic;
       }
-      // check if value is an array and fill with values
+      // check if value is a sequence and fill with values
       if (data[key].vr === "SQ") {
         value = parseSequence(value);
       }
@@ -529,30 +537,53 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
 const parseSequence = function (sequence: any): any {
   if (!sequence || typeof sequence !== "object") return sequence;
 
-  // Ensure sequence is processed as an array
-  if (!Array.isArray(sequence)) {
-    sequence = [sequence];
-  }
+  const sequenceArray = Array.isArray(sequence) ? sequence : [sequence];
 
-  return sequence.map(
-    (item: {
-      [x: string]: {
-        vr: string;
-        Value: any;
-      };
-    }) =>
-      Object.keys(item).reduce((acc: { [key: string]: any }, key) => {
-        const value = item[key]?.Value ? item[key].Value[0] : undefined;
+  return sequenceArray.map(item => {
+    if (!item || typeof item !== "object") return item;
 
+    return Object.keys(item).reduce(
+      (
+        acc: {
+          [key: string]: {
+            vr: string;
+            Value: any;
+          };
+        },
+        key
+      ) => {
+        const element = item[key];
+
+        // Handle undefined/null elements
+        if (!element) {
+          acc[key.toLowerCase()] = element;
+          return acc;
+        }
+
+        // Extract the value
+        let value;
+        if (Array.isArray(element.Value)) {
+          value = element.Value.length > 1 ? element.Value : element.Value[0];
+        } else {
+          value = element.Value;
+        }
+
+        // Handle sequence (SQ) value type with recursion
+        if (element.vr === "SQ") {
+          acc[key.toLowerCase()] = parseSequence(value);
+          return acc;
+        }
+
+        // Handle special case for "Alphabetic" representation
         if (value && typeof value === "object" && "Alphabetic" in value) {
           acc[key.toLowerCase()] = value.Alphabetic;
-        } else if (item[key]?.vr === "SQ") {
-          acc[key.toLowerCase()] = parseSequence(item[key].Value); // Recursively parse nested SQ
         } else {
           acc[key.toLowerCase()] = value;
         }
 
         return acc;
-      }, {})
-  );
+      },
+      {}
+    );
+  });
 };
