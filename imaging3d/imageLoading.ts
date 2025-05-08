@@ -206,7 +206,7 @@ export const updateLoadedStack = async function (
   // if the parsed file is a new series instance, keep it
 
   if (isMultiframe) {
-    allSeriesStack[id].bytes += seriesData.file.size;
+    allSeriesStack[id].bytes += seriesData.file ? seriesData.file.size : 0;
     allSeriesStack[id].dataSet = seriesData.dataSet;
     allSeriesStack[id].metadata = seriesData.metadata;
     let imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(
@@ -235,7 +235,7 @@ export const updateLoadedStack = async function (
         (allSeriesStack[id].numberOfImages || 0) + 1;
     }
 
-    allSeriesStack[id].bytes += seriesData.file.size;
+    allSeriesStack[id].bytes += seriesData.file ? seriesData.file.size : 0;
     // store needed instance tags
     allSeriesStack[id].instances[imageId] = {
       metadata: seriesData.metadata,
@@ -258,10 +258,10 @@ export const updateLoadedStack = async function (
       } else {
         allSeriesStack[id].instanceUIDs[iid] = imageId;
       }
-      store.addSeriesId(id, allSeriesStack[id].imageIds);
+      store.addImageIds(id, allSeriesStack[id].imageIds);
     } else {
       allSeriesStack[id].instanceUIDs[iid] = imageId;
-      store.addSeriesId(id, allSeriesStack[id].imageIds);
+      store.addImageIds(id, allSeriesStack[id].imageIds);
     }
   }
 };

@@ -6,7 +6,7 @@
 // external libraries
 import * as cornerstone from "@cornerstonejs/core";
 import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
-import { each, has, reject } from "lodash";
+import { each, has } from "lodash";
 
 // internal libraries
 //import { getPerformanceMonitor } from "./monitors/performance";
@@ -24,11 +24,13 @@ import {
   //Image,
   Instance,
   MetaData,
+  RenderProps,
   Series,
   StoreViewport,
   StoreViewportOptions,
   Viewport
 } from "../imaging/types";
+import { logger } from "../logger";
 // import { DEFAULT_TOOLS } from "./tools/default";
 // import { initializeFileImageLoader } from "./imageLoading";
 // import { generateFiles } from "./parsers/pdf";
@@ -51,9 +53,10 @@ import {
 export const renderImage = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
-  defaultProps: StoreViewportOptions
+  options?: RenderProps
 ): Promise<{ success: boolean; renderingEngine: cornerstone.RenderingEngine }> {
   const t0 = performance.now();
+
   // get element and enable it
   const element = isElement(elementId)
     ? (elementId as HTMLDivElement)
@@ -77,15 +80,15 @@ export const renderImage = function (
   renderingEngine.enableElement(viewportInput);
   const viewport = renderingEngine.getViewport(viewportInput.viewportId);
 
-  let serie = { ...seriesStack };
-
+  let series = { ...seriesStack };
+  const renderOptions = options ? options : {};
   setStore(["ready", id, false]);
-  console.log(serie);
-  let data = getSeriesData(serie, defaultProps);
+  console.log(series);
+  let data: StoreViewport = getSeriesData(series, renderOptions);
   console.log("data", data);
 
   if (!data.imageId) {
-    console.warn("error during renderImage: imageId has not been loaded yet.");
+    logger.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) => {
       setStore(["pendingSliceId", id, data.imageIndex]);
       reject("error during renderImage: imageId has not been loaded yet.");
@@ -97,7 +100,7 @@ export const renderImage = function (
     renderingEngine: cornerstone.RenderingEngine;
   }>((resolve, reject) => {
     // @ts-ignore IViewport does not have a setStack method
-    viewport.setStack(serie.imageIds, 5);
+    viewport.setStack(series.imageIds, 5);
     viewport.render();
     // TODO FIT TO WINDOW ?
     // TODO VOI
@@ -118,7 +121,7 @@ export const renderImage = function (
     // TODO modificare lo store
     // storeViewportData(image, element.id, storedViewport as Viewport, data);
     setStore(["ready", element.id, true]);
-    setStore(["seriesUID", element.id, data.seriesUID]);
+    //setStore(["seriesUID", element.id, data.seriesUID]);
     const t1 = performance.now();
     console.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
@@ -127,7 +130,7 @@ export const renderImage = function (
     // ).url;
     // cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
     // @ts-ignore
-    serie = null;
+    series = null;
     // @ts-ignore
     data = null;
     resolve({ success: true, renderingEngine });
@@ -142,7 +145,7 @@ export const renderMpr = function (
   axialElementId: string | HTMLElement,
   coronalElementId: string | HTMLElement,
   sagittalElementId: string | HTMLElement,
-  defaultProps: StoreViewportOptions
+  options?: RenderProps
 ) {
   const t0 = performance.now();
   // get Axial Element and enable it
@@ -190,12 +193,14 @@ export const renderMpr = function (
   const renderingEngine = new cornerstone.RenderingEngine("mpr");
   const volumeId = `cornerstoneStreamingImageVolume:  volume-mpr`;
 
-  let serie = { ...seriesStack };
+  let series = { ...seriesStack };
+  const renderOptions = options ? options : {};
 
   setStore(["ready", axialId, false]);
   setStore(["ready", coronalId, false]);
   setStore(["ready", sagittalId, false]);
-  let data = getSeriesData(serie, defaultProps);
+  let data: StoreViewport = getSeriesData(series, renderOptions);
+  console.log("data", data);
 
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
@@ -207,8 +212,8 @@ export const renderMpr = function (
     });
   }
 
-  serie.imageIds.forEach(imageId => {
-    const dataSet = serie.instances[imageId].dataSet;
+  series.imageIds.forEach(imageId => {
+    const dataSet = series.instances[imageId].dataSet;
     if (!dataSet) {
       console.error("no dataset found for imageId: " + imageId);
       return;
@@ -219,12 +224,12 @@ export const renderMpr = function (
 
   const renderPromise = new Promise<cornerstone.RenderingEngine>(
     async (resolve, reject) => {
-      loadAndCacheMetadata(serie.imageIds);
+      loadAndCacheMetadata(series.imageIds);
 
       const volume = await cornerstone.volumeLoader.createAndCacheVolume(
         volumeId,
         {
-          imageIds: serie.imageIds.map(id => id)
+          imageIds: series.imageIds.map(id => id)
         }
       );
 
@@ -293,7 +298,7 @@ export const renderMpr = function (
       // @ts-ignore
 
       // @ts-ignore
-      serie = null;
+      series = null;
       // @ts-ignore
       data = null;
 
@@ -1161,34 +1166,40 @@ export const renderMpr = function (
  * @instance
  * @function getSeriesData
  * @param {Object} series - The parsed data series
- * @param {Object} defaultProps - Optional default properties
- * @return {Object} data - A data dictionary with parsed tags' values
+ * @param {RenderProps} renderOptions - Optional default properties
+ * @return {StoreViewport} data - A data dictionary with parsed tags' values
  */
 const getSeriesData = function (
   series: Series,
-  defaultProps: StoreViewportOptions
-) {
+  renderOptions: RenderProps
+): StoreViewport {
   type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;
   };
   type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
-  data.seriesUID = series.uniqueUID || series.seriesUID; //case of resliced series
+  data.uniqueUID = series.uniqueUID || series.seriesUID; //case of resliced series
   data.modality = series.modality;
+
   if (series.isMultiframe) {
     data.isMultiframe = true;
     data.numberOfSlices = series.imageIds.length;
-    data.imageIndex = 0;
+    data.imageIndex =
+      renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0
+        ? renderOptions.imageIndex
+        : 0;
     data.imageId = series.imageIds[data.imageIndex];
     data.isTimeserie = false;
     data.numberOfFrames = series.numberOfFrames;
   } else if (series.is4D) {
     data.isMultiframe = false;
     data.isTimeserie = true;
-    // check with real indices
     data.numberOfSlices = series.numberOfImages;
     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
-    data.imageIndex = 0;
+    data.imageIndex =
+      renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0
+        ? renderOptions.imageIndex
+        : 0;
     data.timeIndex = 0;
     data.imageId = series.imageIds[data.imageIndex];
     data.timestamp = series.instances[data.imageId].metadata[
@@ -1207,16 +1218,11 @@ const getSeriesData = function (
   } else {
     data.isMultiframe = false;
     data.isTimeserie = false;
-    const numberOfSlices =
-      defaultProps && defaultProps.numberOfSlices
-        ? defaultProps.numberOfSlices
-        : series.imageIds.length;
-    data.numberOfSlices = numberOfSlices;
+    data.numberOfSlices = series.imageIds.length;
     data.imageIndex =
-      defaultProps?.sliceNumber !== undefined && defaultProps?.sliceNumber >= 0 // slice number between 0 and n-1
-        ? defaultProps.sliceNumber
-        : Math.floor(numberOfSlices / 2);
-
+      renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0 // slice number between 0 and n-1
+        ? renderOptions.imageIndex
+        : Math.floor(series.imageIds.length / 2);
     data.imageId = series.imageIds[data.imageIndex];
   }
   const instance: Instance | null = data.imageId
@@ -1227,48 +1233,59 @@ const getSeriesData = function (
   data.isPDF = series.isPDF;
   data.waveform = series.waveform;
   data.dsa = series.dsa ? true : false;
+  if (instance) {
+    data.rows = instance.metadata.x00280010!;
+    data.cols = instance.metadata.x00280011!;
+    data.thickness = instance.metadata.x00180050 as number;
 
-  let metadata: MetaData | undefined = undefined;
-
-  if (series.isMultiframe) {
-    metadata = series.metadata;
-  } else {
-    metadata = instance ? instance.metadata : undefined;
-  }
-
-  if (metadata) {
-    data.rows = metadata.x00280010!;
-    data.cols = metadata.x00280011!;
-    data.thickness = metadata.x00180050 as number;
-
-    let spacing = metadata.x00280030!;
+    let spacing = instance.metadata.x00280030!;
     data.spacing_x = spacing ? spacing[0] : 1;
     data.spacing_y = spacing ? spacing[1] : 1;
+
+    // voi contrast value from metadata or renderOptions
+    const windowCenter =
+      renderOptions.voi !== undefined
+        ? renderOptions.voi.windowCenter
+        : (instance.metadata.x00281050 as number);
+    const windowWidth =
+      renderOptions.voi !== undefined
+        ? renderOptions.voi.windowWidth
+        : (instance.metadata.x00281051 as number);
+
     // window center and window width
     data.viewport = {
       voi: {
-        windowCenter:
-          defaultProps && defaultProps.wc
-            ? defaultProps.wc
-            : (metadata.x00281050 as number),
-        windowWidth:
-          defaultProps && defaultProps.ww
-            ? defaultProps.ww
-            : (metadata.x00281051 as number)
+        windowCenter: windowCenter,
+        windowWidth: windowWidth
       }
     };
-    data.default = {
-      voi: {
-        windowCenter:
-          defaultProps && has(defaultProps, "defaultWC")
-            ? defaultProps.defaultWC
-            : data.viewport!.voi!.windowCenter,
-        windowWidth:
-          defaultProps && has(defaultProps, "defaultWW")
-            ? defaultProps.defaultWW
-            : data.viewport!.voi!.windowWidth
-      }
+    // store default values for the viewport voi from the series metadata
+    data.default = {};
+    data.default!.voi = {
+      windowCenter: instance.metadata.x00281050 as number,
+      windowWidth: instance.metadata.x00281051 as number
     };
+    data.default.rotation = 0;
+    data.default.translation = { x: 0, y: 0 };
+
+    if (renderOptions.default !== undefined) {
+      if (renderOptions.default.scale !== undefined) {
+        data.default!.scale = renderOptions.default.scale;
+      }
+      if (renderOptions.default.translation !== undefined) {
+        data.default!.translation!.x = renderOptions.default.translation.x;
+        data.default!.translation!.y = renderOptions.default.translation.y;
+      }
+      if (renderOptions.default.rotation !== undefined) {
+        data.default!.rotation = renderOptions.default.rotation;
+      }
+      if (renderOptions.default.voi !== undefined) {
+        data.default!.voi = {
+          windowCenter: renderOptions.default.voi.windowCenter,
+          windowWidth: renderOptions.default.voi.windowWidth
+        };
+      }
+    }
 
     if (
       (data.rows == null || data.cols == null) &&
@@ -1280,9 +1297,7 @@ const getSeriesData = function (
       setStore(["errorLog", ""]);
     }
   } else {
-    console.warn(
-      `No metadata found for imageId: ${data.imageId} in series: ${series.seriesUID}`
-    );
+    logger.warn(`ImageId not found in imageIds with index ${data.imageIndex}.`);
   }
 
   return data as SeriesData;

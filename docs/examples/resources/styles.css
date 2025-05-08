@@ -9,6 +9,7 @@ body {
   border: none;
   width: 8rem;
   border-radius: 5%;
+  z-index: 1000; /* Ensure it's on top */
 }
 
 .open-button:hover {
