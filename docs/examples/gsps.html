@@ -66,7 +66,7 @@ larvitar
     const serie = seriesStack[seriesId];
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer").then(() => {
-      larvitar.addDefaultTools();
+      larvitar.addDefaultTools("viewer");
       larvitar.setToolEnabled("Gsps")
     });
   })
@@ -236,7 +236,7 @@ larvitar
             larvitar.renderImage(serie, "viewer").then(() => {
               larvitar.logger.debug("Image has been rendered");
               hideSpinner(); // Hide the spinner when all files are processed
-              larvitar.addDefaultTools();
+              larvitar.addDefaultTools("viewer");
               larvitar.setToolEnabled("Gsps");
               larvitar.setToolActive("Wwwc");
             });

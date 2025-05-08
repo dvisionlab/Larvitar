@@ -21,7 +21,7 @@ type Store = {
   errorLog: string;
   leftActiveTool?: string;
   rightActiveTool?: string;
-  series: { [seriesUID: string]: StoreSeries };
+  series: { [uniqueUID: string]: StoreSeries };
   viewports: { [key: string]: StoreViewport };
   // fallback for any other field
   [key: string]: any;
@@ -66,7 +66,7 @@ type SetPayload =
     ]
   | ["cached", string, string, boolean]
   | ["timestamp", string, number | undefined]
-  | ["seriesUID" | "modality", string, string | undefined]
+  | ["uniqueUID" | "modality", string, string | undefined]
   | ["pendingSliceId", string, number | undefined]
   | ["timestamps" | "timeIds" | "pixelShift", string, number[]]
   | [
@@ -93,7 +93,7 @@ let STORE: Store;
 // Data listeners
 let storeListener: ((data: Store) => {}) | undefined = undefined;
 const seriesListeners = {} as {
-  [seriesId: string]: (data: StoreSeries) => {};
+  [uniqueUID: string]: (data: StoreSeries) => {};
 };
 const viewportsListeners = {} as {
   [elementId: string]: (data: StoreViewport) => {};
@@ -181,9 +181,9 @@ const triggerViewportListener = (elementId: string) => {
   }
 };
 
-const triggerSeriesListener = (seriesId: string) => {
-  if (seriesListeners[seriesId] && STORE?.series[seriesId]) {
-    seriesListeners[seriesId](STORE.series[seriesId]);
+const triggerSeriesListener = (uniqueUID: string) => {
+  if (seriesListeners[uniqueUID] && STORE?.series[uniqueUID]) {
+    seriesListeners[uniqueUID](STORE.series[uniqueUID]);
   }
 };
 
@@ -218,7 +218,7 @@ const setValue = (store: Store, data: SetPayload) => {
       triggerSeriesListener(k);
       break;
 
-    case "seriesUID":
+    case "uniqueUID":
       if (!viewport) {
         return;
       }
@@ -426,24 +426,24 @@ export default {
     delete STORE!.viewports[name];
   },
   // add/remove series instances ids
-  addSeriesId: (seriesId: string, imageIds: string[]) => {
+  addImageIds: (uniqueUID: string, imageIds: string[]) => {
     validateStore();
-    if (!STORE!.series[seriesId]) {
-      STORE!.series[seriesId] = {} as StoreSeries;
+    if (!STORE!.series[uniqueUID]) {
+      STORE!.series[uniqueUID] = {} as StoreSeries;
     }
-    STORE!.series[seriesId].imageIds = imageIds;
+    STORE!.series[uniqueUID].imageIds = imageIds;
     // for each imageId create a cached[imageId] = false
-    STORE!.series[seriesId].cached = {};
+    STORE!.series[uniqueUID].cached = {};
     imageIds.forEach(imageId => {
-      STORE!.series[seriesId].cached[imageId] = false;
+      STORE!.series[uniqueUID].cached[imageId] = false;
     });
-    triggerSeriesListener(seriesId);
+    triggerSeriesListener(uniqueUID);
   },
-  removeSeriesId: (seriesId: string) => {
+  removeImageIds: (uniqueUID: string) => {
     validateStore();
-    delete STORE!.series[seriesId];
+    delete STORE!.series[uniqueUID];
   },
-  resetSeriesIds: () => {
+  resetImageIds: () => {
     validateStore();
     STORE!.series = {};
   },
@@ -491,12 +491,12 @@ export default {
   },
   // watch single series
   addSeriesListener: (
-    seriesId: string,
+    uniqueUID: string,
     listener: (data: StoreSeries) => {}
   ) => {
-    seriesListeners[seriesId] = listener;
+    seriesListeners[uniqueUID] = listener;
   },
-  removeSeriesListener: (seriesId: string) => {
-    delete seriesListeners[seriesId];
+  removeSeriesListener: (uniqueUID: string) => {
+    delete seriesListeners[uniqueUID];
   }
 };

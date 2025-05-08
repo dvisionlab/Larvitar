@@ -44,6 +44,7 @@ export default {
             { text: "Loading", link: "/api/loading.md" },
             { text: "Rendering", link: "/api/rendering.md" },
             { text: "Interacting", link: "/api/interacting.md" },
+            { text: "Testing", link: "/api/testing.md" },
             {
               text: "Modules",
               children: [
@@ -185,6 +186,10 @@ export default {
                       link: "/api/modules/visualizations/gspsTool.md"
                     }
                   ]
+                },
+                { 
+                    text: "Testing",  
+                    link: "/api/modules/tests/cypress.md" 
                 }
               ] 
             }

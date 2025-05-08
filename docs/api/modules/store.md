@@ -41,7 +41,7 @@ The store is defined by the [Store type](https://github.com/dvisionlab/Larvitar/
 | `errorLog	`       | `string`	                                | Error log for debugging.                                  |
 | `leftActiveTool`  | `string (optional)`	                    | Active tool for the left mouse button.                    |
 | `rightActiveTool` | `string (optional)`	                    | Active tool for the right mouse button.                   |
-| `series`	        | `{ [seriesUID: string]: StoreSeries }`    | Object mapping `seriesUID` to series-specific data.       |
+| `series`	        | `{ [uniqueUID: string]: StoreSeries }`    | Object mapping `uniqueUID` to series-specific data.       |
 | `viewports`	    | `{ [key: string]: StoreViewport }`	    | Object mapping viewport IDs to viewport-specific data.    |
 
 The `StoreSeries` type includes the following key properties:
@@ -57,7 +57,7 @@ The `StoreViewport` [type](https://github.com/dvisionlab/Larvitar/blob/master/im
 |-------------------------------|--------------- |---------------------------------------------------------------------------|
 | `loading` 	                 | `number`	    | Caching progress of the series from 0% to 100 %, initialized to null.     |
 | `ready`                       | `boolean`	    | True when the viewport is ready and imageId has been rendered.            |
-| `seriesUID`                   | `string?`	    | Unique identifier for the series.                                         |
+| `uniqueUID`                   | `string?`	    | Unique identifier for the series.                                         |
 | `modality`                    | `string`	    | Modality of the image (e.g., "CT").                                       |
 | `isColor`                     | `boolean`	    | True if the image is in color.                                            |
 | `isMultiframe`                | `boolean`	    | True if the image is multiframe.                                          |
@@ -139,25 +139,25 @@ store.deleteViewport(elementId);
 
 The store tracks series data, including image identifiers, caching status, and loading progress. 
 
-To add a series to the store, use the `addSeriesId` function with the series UID and imageIds:
+To add a set of imageIds to the store, use the `addImageIds` function with the uniqueUID and imageIds:
 
 ```typescript
 import { store } from 'larvitar';
-store.addSeriesId(seriesUID, imageIds);
+store.addImageIds(uniqueUID, imageIds);
 ```
 
-To remove a series from the store, use the `removeSeriesId` function with the series UID:
+To remove set of imageIds from the store, use the `removeImageIds` function with the uniqueUID:
 
 ```typescript
 import { store } from 'larvitar';
-store.removeSeriesId(seriesUID);
+store.removeImageIds(uniqueUID);
 ```
 
-To remove all series from the store, use the `resetSeriesIds` function:
+To remove all imageIds from the store, use the `resetImageIds` function:
 
 ```typescript
 import { store } from 'larvitar';
-store.resetSeriesIds();
+store.resetImageIds();
 ```
 
 ### Useful functions

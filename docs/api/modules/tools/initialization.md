@@ -20,9 +20,19 @@ Alternatively, developers can load default tools (see [Default and Custom Tools]
 store.initialize();
 addViewport("viewer");
 initializeCSTools(); // Prepares the default Cornerstone tools environment.
-addDefaultTools(); // Adds the default tools, which can also include custom-defined tools.
+addDefaultTools("viewer"); // Adds the default tools, which can also include custom-defined tools.
 setToolActive("WatershedSegmentation"); // Activates the "WatershedSegmentation" custom tool for user interaction.
 ```
+
+## Stack Tools Creation and Synchronization
+The stack tools creation and synchronization process involves creating a stack object and updating it to ensure that all tools are synchronized with the current image stack.
+
+You can create or update a stack object using the `csToolsUpdateStack` function, which takes the target HTML element, image IDs, and the current image index as parameters. This function initializes and updates the stack object and prepares it for synchronization.
+
+If you use the `addDefaultTools` function, the stack tools are automatically created. This means that you need to manually call `csToolsUpdateStack` only if you want to customize the stack behavior.
+
+You can use the `csToolsUpdateStack` function to update the stack object with new image IDs. This allows you to add or remove images from the stack dynamically, ensuring that all tools remain synchronized with the current image stack.
+
 
 ### Key Concepts: Tool States
 
@@ -65,48 +75,30 @@ initializeCSTools({ showSVGCursors: false }, { color: "0000FF" });
 
 `void`
 
-### `csToolsCreateStack`
 
-Create stack object to sync stack tools
+### `csToolsUpdateStack`
 
-#### Syntax
-
-```typescript
-csToolsCreateStack (
-  element: HTMLElement,
-  imageIds?: string[],
-  currentImageIndex?: number
-)
-```
-
-#### Parameters
-
-| Parameter           | Type        | Description              |
-| ------------------- | ----------- | ------------------------ |
-| `element`           | HTMLElement | The target html element. |
-| `imageIds`          | string[]    | Stack image ids.         |
-| `currentImageIndex` | number      | The current image id.    |
-
-#### Returns
-
-`void`
-
-### `csToolsUpdateImageIds`
-
-Update stack object to sync stack tools
+Create or update stack object to sync stack tools
 
 #### Syntax
 
 ```typescript
-csToolsUpdateImageIds(elementId: string, imageIds: string[])
+csToolsUpdateStack(elementId: string, { imageIds?: string[], currentImageIndex?: number })
 ```
 
 #### Parameters
 
-| Parameter   | Type     | Description                 |
-| ----------- | -------- | --------------------------- |
-| `elementId` | string   | The target html element id. |
-| `imageIds`  | string[] | Stack image ids.            |
+| Parameter            | Type      | Description                 |
+| -------------------- | --------- | --------------------------- |
+| `elementId`          | string    | The target html element id. |
+| `stack`              | StackType | Stack definition            |
+
+#### StackType Definition
+
+| Parameter            | Type     | Description                       |
+| -------------------- | -------- | --------------------------------- |
+| `imageIds`           | string[] | Stack image ids, optional         |
+| `currentImageIndex`  | number   | Current image id index, optional  |
 
 #### Returns
 

@@ -38,6 +38,15 @@ Interaction tools enhance the user's ability to navigate and manipulate medical 
 
 These tools ensure users can efficiently explore the image and focus on specific details.
 
+### Stack Tools
+In order to work with image stacks, Larvitar provides stack tool state functionality to populate and sync the imageids of a stack. This is useful for applications that require the manipulation of multiple images, such as:
+- **Image Series:** Viewing multiple slices of a 3D volume.
+- **Time Series:** Analyzing changes in images over time.
+- **Multi-modality Imaging:** Combining images from different modalities (e.g., CT, MRI) for comprehensive analysis.
+- **Multi-frame Images:** Handling images with multiple frames, such as ultrasound or video data.
+
+See [Stack Tools Creation and Synchronization](./modules/tools/initialization.html#stack-tools-creation-and-synchronization) for more details.
+
 ### Custom Tools
 
 Larvitar allows developers to create custom tools tailored to their specific imaging workflows. These tools can be:
