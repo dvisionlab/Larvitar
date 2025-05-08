@@ -511,6 +511,11 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
     const width = store.get(["viewports", id, "cols"]);
     const height = store.get(["viewports", id, "rows"]);
 
+    if (width === undefined || height === undefined) {
+      logger.error("Viewport dimensions are undefined");
+      return;
+    }
+
     viewport.displayedArea = viewport.displayedArea || {
       tlhc: { x: 0, y: 0 },
       brhc: { x: width, y: height },
