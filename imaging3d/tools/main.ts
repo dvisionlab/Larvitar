@@ -4,7 +4,7 @@
  */
 
 // external libraries
-import * as cornerstone from "@cornerstonejs/core";
+import { RenderingEngine } from "@cornerstonejs/core";
 import * as cornerstoneTools from "@cornerstonejs/tools";
 
 // internal libraries
@@ -19,7 +19,7 @@ import * as cornerstoneTools from "@cornerstonejs/tools";
  */
 export const addDefaultTools = function (
   elementId: string,
-  renderingEngine: cornerstone.RenderingEngine
+  renderingEngine: RenderingEngine
 ) {
   // cursors not showing up is a known issue: https://github.com/cornerstonejs/cornerstone3D/issues/1428
   const element = renderingEngine.getViewport(elementId).element;
@@ -29,7 +29,7 @@ export const addDefaultTools = function (
 
   cornerstoneTools.addTool(cornerstoneTools.WindowLevelTool);
   cornerstoneTools.addTool(cornerstoneTools.PanTool);
-  cornerstoneTools.addTool(cornerstoneTools.StackScrollMouseWheelTool);
+  cornerstoneTools.addTool(cornerstoneTools.StackScrollTool);
   cornerstoneTools.addTool(cornerstoneTools.ZoomTool);
 
   const toolGroupId = "default";
@@ -42,7 +42,7 @@ export const addDefaultTools = function (
     toolGroup.addTool(cornerstoneTools.WindowLevelTool.toolName);
     toolGroup.addTool(cornerstoneTools.PanTool.toolName);
     toolGroup.addTool(cornerstoneTools.ZoomTool.toolName);
-    toolGroup.addTool(cornerstoneTools.StackScrollMouseWheelTool.toolName, {
+    toolGroup.addTool(cornerstoneTools.StackScrollTool.toolName, {
       loop: false
     });
 
@@ -70,9 +70,7 @@ export const addDefaultTools = function (
       ]
     });
 
-    toolGroup.setToolActive(
-      cornerstoneTools.StackScrollMouseWheelTool.toolName
-    );
+    toolGroup.setToolActive(cornerstoneTools.StackScrollTool.toolName);
   } else {
     console.error("Failed to create tool group");
   }
@@ -86,7 +84,7 @@ export const addDefaultTools = function (
  */
 export const addDefaultTools3D = function (
   elementIds: string[],
-  renderingEngine: cornerstone.RenderingEngine
+  renderingEngine: RenderingEngine
 ) {
   elementIds.forEach(viewportId => {
     const element = renderingEngine.getViewport(viewportId).element;

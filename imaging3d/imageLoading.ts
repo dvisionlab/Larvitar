@@ -6,11 +6,15 @@
 // external libraries
 import dcmjs from "dcmjs";
 import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
-import * as StreamingImageVolumeLoader from "@cornerstonejs/streaming-image-volume-loader";
-import * as cornerstone from "@cornerstonejs/core";
-import dicomParser from "dicom-parser";
+import {
+  cornerstoneStreamingImageVolumeLoader,
+  cornerstoneStreamingDynamicImageVolumeLoader,
+  volumeLoader,
+  Types
+} from "@cornerstonejs/core";
+// @ts-ignore
+import { calibratedPixelSpacingMetadataProvider } from "@cornerstonejs/core/utilities";
 import { forEach } from "lodash";
-import { calibratedPixelSpacingMetadataProvider } from "@cornerstonejs/core/dist/esm/utilities";
 
 // internal libraries
 import store from "../imaging/imageStore";
@@ -34,29 +38,7 @@ import {
 
 import { getSortedStack, getSortedUIDs } from "../imaging/imageUtils";
 
-/**
- * Global standard configuration
- * @inner
- * @var {Object} globalConfig
- * @property {Number} maxWebWorkers - number of maximum web workers
- * @property {String} webWorkerPath - path to default DICOM web worker
- * @property {} - see https://github.com/cornerstonejs/cornerstoneDICOMImageLoader/blob/master/docs/WebWorkers.md
- */
 const MAX_CONCURRENCY = 32;
-const globalConfig = {
-  maxWebWorkers: Math.max(
-    Math.min(navigator.hardwareConcurrency - 1, MAX_CONCURRENCY),
-    1
-  ),
-  startWebWorkersOnDemand: true,
-  taskConfiguration: {
-    decodeTask: {
-      loadCodecsOnStartup: true,
-      initializeCodecsOnStartup: false,
-      strict: true
-    }
-  }
-};
 
 /*
  * This module provides the following functions to be exported:
@@ -76,31 +58,33 @@ export const initializeImageLoader = function (maxConcurrency?: number) {
       Math.min(navigator.hardwareConcurrency - 1, MAX_CONCURRENCY),
       1
     );
-    globalConfig.maxWebWorkers = maxWebWorkers;
+    cornerstoneDICOMImageLoader.init({
+      maxWebWorkers: maxWebWorkers
+    });
+    console.log(
+      `CornestoneDICOMImageLoader initialized with ${maxWebWorkers} WebWorkers.`
+    );
+  } else {
+    // Default to half of the available hardware cores
+    cornerstoneDICOMImageLoader.init();
+    console.log(
+      `CornestoneDICOMImageLoader initialized with default WebWorkers.`
+    );
   }
-  cornerstoneDICOMImageLoader.external.cornerstone = cornerstone;
-  cornerstoneDICOMImageLoader.external.dicomParser = dicomParser;
-
-  cornerstoneDICOMImageLoader.webWorkerManager.initialize(globalConfig);
-
-  console.log(
-    `CornestoneDICOMImageLoader initialized with ${globalConfig.maxWebWorkers} WebWorkers.`
-  );
 };
 
 export const registerStreamingImageVolume = function () {
-  cornerstone.setUseSharedArrayBuffer(false);
   // Initialise Volume Rendering
-  cornerstone.volumeLoader.registerUnknownVolumeLoader(
-    StreamingImageVolumeLoader.cornerstoneStreamingImageVolumeLoader as unknown as cornerstone.Types.VolumeLoaderFn
+  volumeLoader.registerUnknownVolumeLoader(
+    cornerstoneStreamingImageVolumeLoader as unknown as Types.VolumeLoaderFn
   );
-  cornerstone.volumeLoader.registerVolumeLoader(
+  volumeLoader.registerVolumeLoader(
     "cornerstoneStreamingImageVolume",
-    StreamingImageVolumeLoader.cornerstoneStreamingImageVolumeLoader as unknown as cornerstone.Types.VolumeLoaderFn
+    cornerstoneStreamingImageVolumeLoader as unknown as Types.VolumeLoaderFn
   );
-  cornerstone.volumeLoader.registerVolumeLoader(
+  volumeLoader.registerVolumeLoader(
     "cornerstoneStreamingDynamicImageVolume",
-    StreamingImageVolumeLoader.cornerstoneStreamingDynamicImageVolumeLoader as unknown as cornerstone.Types.VolumeLoaderFn
+    cornerstoneStreamingDynamicImageVolumeLoader as unknown as Types.VolumeLoaderFn
   );
 };
 

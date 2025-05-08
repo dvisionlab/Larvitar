@@ -273,7 +273,7 @@ import {
 } from "./imaging/tools/interaction";
 
 // Cornestone 3D
-import * as _cornerstone from "@cornerstonejs/core";
+import * as _cornerstone from "@cornerstonejs/core"; // Imports the main entry point
 import * as _cornerstoneTools from "@cornerstonejs/tools";
 import { default as _cornerstoneDICOMImageLoader } from "@cornerstonejs/dicom-image-loader";
 import { initializeImageLoader as _initializeImageLoader } from "./imaging3d/imageLoading";

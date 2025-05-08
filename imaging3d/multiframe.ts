@@ -5,7 +5,7 @@
 
 // external libraries
 import { metaData } from "@cornerstonejs/core";
-import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
+import * as cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
 
 /**
  * @instance
