@@ -97,12 +97,20 @@ export const readFile = function (entry: File) {
 export const convertQidoMetadata = function (data: any): MetaData {
   const metadata: MetaData = Object.keys(data).reduce(
     (accumulator: any, key) => {
-      let value = data[key].Value ? data[key].Value[0] : undefined;
+      let value;
+
+      if (Array.isArray(data[key].Value)) {
+        value =
+          data[key].Value.length > 1 ? data[key].Value : data[key].Value[0];
+      } else {
+        value = undefined;
+      }
+
       // check if value is an object with key "Alphabetic"
       if (value && value.Alphabetic) {
         value = value.Alphabetic;
       }
-      // check if value is an array and fill with values
+      // check if value is a sequence and fill with values
       if (data[key].vr === "SQ") {
         value = parseSequence(value);
       }
@@ -542,7 +550,14 @@ const parseSequence = function (sequence: any): any {
       };
     }) =>
       Object.keys(item).reduce((acc: { [key: string]: any }, key) => {
-        const value = item[key]?.Value ? item[key].Value[0] : undefined;
+        let value;
+
+        if (Array.isArray(item[key]?.Value)) {
+          value =
+            item[key].Value.length > 1 ? item[key].Value : item[key].Value[0];
+        } else {
+          value = undefined;
+        }
 
         if (value && typeof value === "object" && "Alphabetic" in value) {
           acc[key.toLowerCase()] = value.Alphabetic;
