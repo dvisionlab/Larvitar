@@ -45,7 +45,7 @@ jobs:
       - name: Check Prettier
         run: |
           yarn run format:check
-      
+
       - name: Run tests and generate coverage
         run: yarn run coverage
   
