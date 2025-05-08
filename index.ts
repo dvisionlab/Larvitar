@@ -177,8 +177,7 @@ import {
 } from "./imaging/imageTools";
 
 import {
-  csToolsCreateStack,
-  csToolsUpdateImageIds,
+  csToolsUpdateStack,
   initializeCSTools,
   setToolsStyle,
   addDefaultTools,
@@ -186,8 +185,7 @@ import {
   setToolActive,
   setToolDisabled,
   setToolEnabled,
-  setToolPassive,
-  exportAnnotations
+  setToolPassive
 } from "./imaging/tools/main";
 
 import {
@@ -267,8 +265,6 @@ import {
 } from "./imaging/imageColormaps";
 
 import { applyDSAShift } from "./imaging/postProcessing/applyDSA";
-
-import { saveAnnotations, loadAnnotations } from "./imaging/tools/io";
 
 import {
   addMouseKeyHandlers,
@@ -501,8 +497,7 @@ export {
   updateStackToolState,
   setSegmentationConfig,
   // tools/main
-  csToolsCreateStack,
-  csToolsUpdateImageIds,
+  csToolsUpdateStack,
   initializeCSTools,
   setToolsStyle,
   addDefaultTools,
@@ -511,16 +506,12 @@ export {
   setToolDisabled,
   setToolEnabled,
   setToolPassive,
-  exportAnnotations,
   // tools/default
   DEFAULT_TOOLS,
   dvTools,
   getDefaultToolsByType,
   setDefaultToolsProps,
   registerExternalTool,
-  // tools/io
-  saveAnnotations,
-  loadAnnotations,
   // tools/interaction
   addMouseKeyHandlers,
   removeMouseKeyHandlers,
@@ -626,4 +617,16 @@ export const updateImage = createAliasWithWarning(
   "renderImage",
   "updateImage",
   true
+);
+
+export const csToolsUpdateImageIds = createAliasWithWarning(
+  csToolsUpdateStack,
+  "csToolsUpdateStack",
+  "csToolsUpdateImageIds"
+);
+
+export const csToolsCreateStack = createAliasWithWarning(
+  csToolsUpdateStack,
+  "csToolsUpdateStack",
+  "csToolsCreateStack"
 );

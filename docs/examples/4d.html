@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
@@ -58,7 +58,7 @@ larvitar
     const serie = seriesStack[seriesId];
     larvitar.populateImageManager(seriesId, serie);
     larvitar.renderImage(serie, "viewer").then(() => {
-      larvitar.addDefaultTools();
+      larvitar.addDefaultTools("viewer");
       larvitar.setToolActive("CustomMouseWheelScroll");
     });
   })`;
@@ -271,7 +271,7 @@ larvitar
               larvitar.logger.debug("Image has been rendered");
               hideSpinner();
               frames_number = manager[seriesId].numberOfTemporalPositions;
-              larvitar.addDefaultTools();
+              larvitar.addDefaultTools("viewer");
               larvitar.setToolActive("CustomMouseWheelScroll");
               // add information on UI regarding timeId, timestamp and sliceId
               changeStamps();

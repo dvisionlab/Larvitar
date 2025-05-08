@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
@@ -66,7 +66,7 @@ let multiFrameSerie = manager[seriesId];
 let frameId = 0;
 await larvitar.renderImage(multiFrameSerie, "viewer", { imageIndex: frameId });
 
-larvitar.addDefaultTools();
+larvitar.addDefaultTools("viewer");
 larvitar.setToolActive("Wwwc");
 await larvitar.loadAndCacheImageStack(multiFrameSerie);
 await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
@@ -218,7 +218,7 @@ await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);
         hideSpinner();
         larvitar.logger.debug("Image has been rendered");
 
-        larvitar.addDefaultTools();
+        larvitar.addDefaultTools("viewer");
         larvitar.setToolActive("Wwwc");
         await larvitar.loadAndCacheImageStack(multiFrameSerie);
         await larvitar.loadAndCacheDsaImageStack(multiFrameSerie);

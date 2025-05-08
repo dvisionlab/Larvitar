@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
@@ -64,7 +64,7 @@ larvitar
     larvitar.renderImage(serie, "viewer").then(() => {
       demoFiles = [];
       loadMasks();
-      larvitar.addDefaultTools();
+      larvitar.addDefaultTools("viewer");
     });
   })
 
@@ -300,7 +300,7 @@ async function loadMasks() {
               hideSpinner();
               demoFiles = [];
               loadMasks();
-              larvitar.addDefaultTools();
+              larvitar.addDefaultTools("viewer");
             });
           })
           .catch(err => larvitar.logger.error(err));

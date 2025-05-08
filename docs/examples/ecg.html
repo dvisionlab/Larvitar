@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
@@ -71,7 +71,7 @@ async function renderSerie() {
 
   // Render the first frame
   await larvitar.renderImage(multiFrameSerie, "viewer", { imageIndex: frameId });
-  larvitar.addDefaultTools();
+  larvitar.addDefaultTools("viewer");
   larvitar.setToolActive("StackScroll");
 
   let updateECG = true;
@@ -272,7 +272,7 @@ async function renderSerie() {
         larvitar.logger.debug(
           "Time to render First frame: " + (t1 - t0) + "ms"
         );
-        larvitar.addDefaultTools();
+        larvitar.addDefaultTools("viewer");
         larvitar.setToolActive("StackScroll");
 
         let updateECG = true;

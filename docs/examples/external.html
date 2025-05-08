@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
@@ -215,6 +215,9 @@ larvitar
             larvitar.renderImage(serie, "viewer").then(() => {
               hideSpinner();
               larvitar.logger.debug("Image has been rendered");
+              larvitar.addDefaultTools("viewer");
+              larvitar.addTool("Test");
+              larvitar.setToolActive("Test");
             });
             // optionally cache the series
             larvitar.populateImageManager(seriesId, serie);
@@ -228,8 +231,6 @@ larvitar
                 );
               }
             });
-            larvitar.addTool("Test");
-            larvitar.setToolActive("Test");
           })
           .catch(err => larvitar.logger.error(err));
       }

@@ -440,21 +440,20 @@ export function parseTag<T>(
     }
   } else if (vr === "US") {
     if (
-      propertyName === "x00700241" ||
-      propertyName === "x00181624" ||
-      propertyName === "x00700401" ||
-      propertyName === "x00700247" ||
-      propertyName === "x00700251" ||
-      propertyName === "x00700252"
+      [
+        "x00700241",
+        "x00181624",
+        "x00700401",
+        "x00700247",
+        "x00700251",
+        "x00700252"
+      ].includes(propertyName)
     ) {
-      let rgbArray: number[] = [];
-      for (let index = 0; index < 3; index++) {
-        let value = dataSet.uint16(propertyName, index);
-        if (value !== null && !Number.isNaN(value) && value !== undefined) {
-          rgbArray.push(value);
-        }
-      }
-      valueOut = rgbArray;
+      valueOut = processMultiValues(dataSet, propertyName, 3, "uint16");
+    } else if (propertyName === "x00181310") {
+      valueOut = processMultiValues(dataSet, propertyName, 4, "uint16").join(
+        "\\"
+      );
     } else {
       valueOut = dataSet.uint16(propertyName);
     }
@@ -467,13 +466,7 @@ export function parseTag<T>(
   } else if (vr === "SL") {
     if (propertyName === "x00700052" || propertyName === "x00700053") {
       let coordinateArray: number[] = [];
-      for (let index = 0; index < 2; index++) {
-        let value = dataSet.int32(propertyName, index);
-        if (value) {
-          coordinateArray.push(value);
-        }
-      }
-      valueOut = coordinateArray;
+      valueOut = processMultiValues(dataSet, propertyName, 2, "int32");
     } else {
       valueOut = dataSet.int32(propertyName);
     }
@@ -498,28 +491,19 @@ export function parseTag<T>(
       }
       valueOut = rWaveTimeVector;
     } else if (propertyName === "x00700022" && dataSet.uint16("x00700021")) {
-      let pointsCoords = [];
-      for (let index = 0; index < 2 * dataSet.uint16("x00700021")!; index++) {
-        let value = dataSet.float(propertyName, index);
-        if (value) {
-          pointsCoords.push(value);
-        }
-      }
-      valueOut = pointsCoords;
+      valueOut = processMultiValues(
+        dataSet,
+        propertyName,
+        2 * dataSet.uint16("x00700021")!,
+        "float"
+      );
     } else if (
       propertyName === "x00700010" ||
       propertyName === "x00700011" ||
       propertyName === "x00700014" ||
       propertyName === "x00700273"
     ) {
-      let pointsCoords = [];
-      for (let index = 0; index < 2; index++) {
-        let value = dataSet.float(propertyName, index);
-        if (value) {
-          pointsCoords.push(value);
-        }
-      }
-      valueOut = pointsCoords;
+      valueOut = processMultiValues(dataSet, propertyName, 2, "float");
     } else {
       valueOut = dataSet.float(propertyName);
     }
@@ -576,6 +560,49 @@ export function parseTag<T>(
     valueOut = "no display code for VR " + vr;
   }
   return valueOut as T;
+}
+
+/**
+ * Processes multiple values from a DataSet for a given property.
+ *
+ * @param dataSet - The data set to extract values from
+ * @param propertyName - The name of the property to extract
+ * @param count - The number of values to extract
+ * @param method - The data type method to use for extraction (default: "uint16")
+ * @returns An array of extracted values, excluding null, NaN, undefined values, empty strings, and invalid strings
+ */
+function processMultiValues(
+  dataSet: DataSet,
+  propertyName: string,
+  count: number,
+  method:
+    | "uint16"
+    | "uint32"
+    | "string"
+    | "float"
+    | "int16"
+    | "int32" = "uint16"
+) {
+  const values = [];
+  for (let index = 0; index < count; index++) {
+    const value = dataSet[method](propertyName, index);
+    if (
+      value !== null &&
+      value !== undefined &&
+      (typeof value !== "number"
+        ? method === "string"
+          ? value !== "" && typeof value === "string" && value.trim().length > 0
+          : true
+        : !Number.isNaN(value))
+    ) {
+      values.push(value);
+    } else {
+      logger.warn(
+        `Invalid value at index ${index} for property "${propertyName}": ${value}`
+      );
+    }
+  }
+  return values;
 }
 
 /**

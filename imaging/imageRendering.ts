@@ -11,7 +11,6 @@ import { each, has } from "lodash";
 // internal libraries
 import { logger } from "../logger";
 import { getDataFromFileManager, getFileManager } from "./imageManagers";
-import { csToolsCreateStack } from "./tools/main";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
@@ -56,14 +55,14 @@ import { setPixelShift } from "./loaders/dsaImageLoader";
  * If seriesId is passed as argument only imageIds of the series are purged from internal cache
  * @instance
  * @function clearImageCache
- * @param {String} seriesId - The id of the serie
+ * @param {String} uniqueUID - The uniqueUID of the series
  */
-export const clearImageCache = function (seriesId?: string) {
+export const clearImageCache = function (uniqueUID?: string) {
   const t0 = performance.now();
-  if (seriesId) {
+  if (uniqueUID) {
     let series = store.get("series");
-    if (has(series, seriesId)) {
-      each(series[seriesId].imageIds, function (imageId: string) {
+    if (has(series, uniqueUID)) {
+      each(series[uniqueUID].imageIds, function (imageId: string) {
         if (cornerstone.imageCache.cachedImages.length > 0) {
           try {
             cornerstone.imageCache.removeImageLoadObject(imageId);
@@ -77,8 +76,8 @@ export const clearImageCache = function (seriesId?: string) {
         }
       });
 
-      store.removeSeriesId(seriesId);
-      logger.info("Uncached images for ", seriesId);
+      store.removeImageIds(uniqueUID);
+      logger.info("Uncached images for ", uniqueUID);
     }
   } else {
     cornerstone.imageCache.purgeCache();
@@ -101,7 +100,7 @@ export function loadAndCacheImage(
 ): Promise<true> {
   const t0 = performance.now();
   // add serie's imageIds into store
-  store.addSeriesId(series.seriesUID, series.imageIds);
+  store.addImageIds(series.uniqueUID, series.imageIds);
   const imageId: string | undefined = series.imageIds[imageIndex];
 
   const cachePromise = new Promise<true>((resolve, reject) => {
@@ -112,7 +111,7 @@ export function loadAndCacheImage(
         const t1 = performance.now();
         logger.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
         logger.debug(
-          `Cached image with index ${imageIndex} for ${series.seriesUID}`
+          `Cached image with index ${imageIndex} for ${series.uniqueUID}`
         );
         resolve(true);
       });
@@ -144,15 +143,15 @@ export function loadAndCacheImages(
   const t0 = performance.now();
   let cachingCounter = 0;
   const response = {
-    seriesId: series.seriesUID,
+    seriesId: series.uniqueUID,
     loading: 0,
     series: {} as Series
   };
   callback(response);
   // add serie's imageIds into store
-  store.addSeriesId(series.seriesUID, series.imageIds);
+  store.addImageIds(series.uniqueUID, series.imageIds);
   // add serie's caching progress into store
-  setStore(["progress", series.seriesUID, 0]);
+  setStore(["progress", series.uniqueUID, 0]);
 
   function updateProgress() {
     cachingCounter += 1;
@@ -160,11 +159,11 @@ export function loadAndCacheImages(
       (cachingCounter / series.imageIds.length) * 100
     );
     response.loading = cachingPercentage;
-    setStore(["progress", series.seriesUID, cachingPercentage]);
+    setStore(["progress", series.uniqueUID, cachingPercentage]);
     if (cachingCounter == series.imageIds.length) {
       const t1 = performance.now();
       logger.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
-      logger.debug(`Cached images for ${series.seriesUID}`);
+      logger.debug(`Cached images for ${series.uniqueUID}`);
       response.series = series;
     }
   }
@@ -226,9 +225,21 @@ export const renderDICOMPDF = function (
     cornerstone.enable(element);
   }
 
+  // this by default is the uniqueId of the rendered stack
+  const storedUniqueUID = store.get(["viewports", id, "uniqueUID"]);
+  const uniqueUID = seriesStack.uniqueUID || seriesStack.seriesUID;
+  const isUniqueUIDChanged = storedUniqueUID !== uniqueUID;
+  if (isUniqueUIDChanged) {
+    logger.debug(`UniqueUID changed from ${storedUniqueUID} to ${uniqueUID}`);
+  }
+
   let renderPromise = new Promise<true>(async (resolve, reject) => {
     let image: Instance | null = seriesStack.instances[seriesStack.imageIds[0]];
     const SOPUID = image.dataSet?.string("x00080016");
+
+    if (isUniqueUIDChanged) {
+      setStore(["uniqueUID", element.id, uniqueUID]);
+    }
 
     // check sopUID in order to detect pdf report array
     if (SOPUID === "1.2.840.10008.5.1.4.1.1.104.1") {
@@ -289,7 +300,7 @@ export const renderDICOMPDF = function (
           if (element) {
             const fileManager = getFileManager();
             if (fileManager) {
-              csToolsCreateStack(element, Object.values(fileManager), 0);
+              store.addImageIds(uniqueUID, Object.values(fileManager));
             } else {
               logger.error("FileManager is null");
             }
@@ -412,7 +423,6 @@ export const renderWebImage = function (
         return;
       }
       cornerstone.displayImage(element, image);
-      csToolsCreateStack(element, [], 0);
       resolve(image);
     });
   });
@@ -421,6 +431,9 @@ export const renderWebImage = function (
 
 /**
  * Unrender an image on a html div using cornerstone
+ * Remove mouse listeners
+ * Remove uniqueUID from viewport store
+ * Remove ready flag from viewport store
  * @instance
  * @function disableViewport
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
@@ -436,28 +449,34 @@ export const disableViewport = function (elementId: string | HTMLElement) {
   toggleMouseToolsListeners(element, true);
   cornerstone.disable(element);
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-  setStore(["ready", id, false]);
+  setStore(["uniqueUID", id, undefined]); // remove uniqueUID from viewport store
+  if (store.get(["viewports", id, "pixelShift"])) {
+    store.setDSAPixelShift(id, [0, 0]); // reset stored dsa pixel shift
+  }
+  setStore(["ready", id, false]); // set ready to false in viewport store
 };
 
 /**
  * Unrender an image on a html div using cornerstone
- * Remove image from cornerstone cache and remove from store
+ * Remove mouse listeners
+ * Remove uniqueUID from viewport store
+ * Remove ready flag from viewport store
+ * Remove image from cornerstone cache
+ * Delete viewport from store
  * @instance
  * @function unloadViewport
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {String} seriesId - The id of the serie
  */
-export const unloadViewport = function (elementId: string, seriesId: string) {
-  disableViewport(elementId);
-
-  if (!seriesId) {
-    logger.warn(
-      "seriesId not provided, use disableViewport if you do not want to uncache images"
-    );
+export const unloadViewport = function (elementId: string) {
+  const uniqueUID = store.get(["viewports", elementId, "uniqueUID"]);
+  if (!uniqueUID) {
+    logger.error("no uniqueUID found in store");
+    return;
   }
+  disableViewport(elementId);
   // remove images from cornerstone cache
-  if (seriesId && has(store.get("series"), seriesId)) {
-    clearImageCache(seriesId);
+  if (has(store.get("series"), uniqueUID)) {
+    clearImageCache(uniqueUID);
   }
   store.deleteViewport(elementId);
 };
@@ -470,14 +489,49 @@ export const unloadViewport = function (elementId: string, seriesId: string) {
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  */
 export const resizeViewport = function (elementId: string | HTMLElement) {
-  let element = isElement(elementId)
-    ? (elementId as HTMLElement)
-    : document.getElementById(elementId as string);
+  let id = isElement(elementId)
+    ? (elementId as HTMLElement).id
+    : (elementId as string);
+
+  let element = document.getElementById(id);
   if (!element) {
     logger.error("invalid html element: " + elementId);
     return;
   }
-  cornerstone.resize(element, true); // true flag forces fitToWindow
+
+  const colPixelSpacing = store.get(["viewports", id, "spacing_x"]);
+  const rowPixelSpacing = store.get(["viewports", id, "spacing_y"]);
+
+  if (rowPixelSpacing !== colPixelSpacing) {
+    const viewport = cornerstone.getViewport(element) as Viewport;
+    if (!viewport) {
+      logger.error("Unable to get viewport");
+      return;
+    }
+    const width = store.get(["viewports", id, "cols"]);
+    const height = store.get(["viewports", id, "rows"]);
+
+    if (width === undefined || height === undefined) {
+      logger.error("Viewport dimensions are undefined");
+      return;
+    }
+
+    viewport.displayedArea = viewport.displayedArea || {
+      tlhc: { x: 0, y: 0 },
+      brhc: { x: width, y: height },
+      presentationSizeMode: "SCALE TO FIT",
+      rowPixelSpacing: 1,
+      columnPixelSpacing: 1
+    };
+
+    cornerstone.setViewport(element, viewport);
+
+    logger.info(
+      `Anisotropic pixel spacing with aspect ratio: ${rowPixelSpacing / colPixelSpacing} - viewport updated`
+    );
+  } else {
+    cornerstone.resize(element, true); // true flag forces fitToWindow
+  }
 };
 
 /**
@@ -532,11 +586,11 @@ export const renderImage = function (
   }
 
   // this by default is the uniqueId of the rendered stack
-  const storedSeriesUID = store.get(["viewports", id, "seriesUID"]);
-  const isSeriesUIDChanged = storedSeriesUID !== data.seriesUID;
-  if (isSeriesUIDChanged) {
+  const storedUniqueUID = store.get(["viewports", id, "uniqueUID"]);
+  const isUniqueUIDChanged = storedUniqueUID !== data.uniqueUID;
+  if (isUniqueUIDChanged) {
     logger.debug(
-      `SeriesUID changed from ${storedSeriesUID} to ${data.seriesUID}`
+      `uniqueUID changed from ${storedUniqueUID} to ${data.uniqueUID}`
     );
   }
 
@@ -651,9 +705,9 @@ export const renderImage = function (
           );
         }
 
-        // if seriesUID has changed update the value into the store
-        if (isSeriesUIDChanged) {
-          setStore(["seriesUID", element.id, data.seriesUID]);
+        // if uniqueUID has changed update the value into the store
+        if (isUniqueUIDChanged) {
+          setStore(["uniqueUID", element.id, data.uniqueUID]);
           if (renderOptions.scale === undefined) {
             viewport.scale = data.default?.scale || viewport.scale;
             logger.debug(
@@ -677,7 +731,7 @@ export const renderImage = function (
               viewport.rotation
             );
           }
-          // if the seriesUID has changed, update the viewport voi values
+          // if the uniqueUID has changed, update the viewport voi values
           // with the default values from the series
           // if the voi is not defined in the renderOptions
           if (renderOptions.voi === undefined) {
@@ -701,12 +755,6 @@ export const renderImage = function (
         }
 
         storeViewportData(image, element.id, viewport as Viewport, data);
-
-        if (isSeriesUIDChanged) {
-          logger.debug("seriesUID changed, creating stack");
-          csToolsCreateStack(element, series.imageIds, data.imageIndex);
-        }
-
         setStore(["ready", element.id, true]);
         const t1 = performance.now();
         logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
@@ -1332,7 +1380,7 @@ const getSeriesData = function (
   };
   type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
-  data.seriesUID = series.uniqueUID || series.seriesUID; //case of resliced series
+  data.uniqueUID = series.uniqueUID || series.seriesUID; //case of resliced series
   data.modality = series.modality;
 
   if (series.isMultiframe) {

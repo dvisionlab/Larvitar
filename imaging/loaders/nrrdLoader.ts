@@ -19,6 +19,7 @@ import {
 
 import { getImageFrame } from "./commonLoader";
 import { getImageTracker, getImageManager } from "../imageManagers";
+import store from "../imageStore";
 
 import type {
   Image,
@@ -74,6 +75,7 @@ export const buildNrrdImage = function (
   image.numberOfImages = 0;
   image.seriesDescription = "";
   image.seriesUID = seriesId;
+  image.uniqueUID = seriesId;
 
   let header: Partial<NrrdHeader> = {};
   header.volume = {} as Volume;
@@ -273,13 +275,14 @@ export const getNrrdImageId = function (customLoaderName: string) {
  * @return {Object} custom image object
  */
 export const loadNrrdImage: ImageLoader = function (imageId: string) {
-  let manager = getImageManager() as ImageManager;
-  let imageTracker = getImageTracker() as ImageTracker;
+  const manager = getImageManager() as ImageManager;
+  const imageTracker = getImageTracker() as ImageTracker;
   if (!manager || !imageTracker) {
     throw new Error("Image manager or image tracker not initialized");
   }
-  let seriesId = imageTracker[imageId];
-  let instance = manager[seriesId].instances[imageId];
+  const uniqueUID = imageTracker[imageId];
+  const instance = manager[uniqueUID].instances[imageId];
+  store.addImageIds(uniqueUID, manager[uniqueUID].imageIds);
   //@ts-ignore TODO-ts: fix this why is different typed array?
   return createCustomImage(imageId, instance.metadata, instance.pixelData);
 };
@@ -421,15 +424,15 @@ let createCustomImage = function (
   let pixelSpacing = metadata.x00280030
     ? metadata.x00280030
     : metadata.x00080060 === "US" &&
-      metadata["x00186011"]![0].x0018602e != undefined &&
-      metadata["x00186011"]![0].x0018602c != undefined
-    ? ([
-        metadata["x00186011"]![0].x0018602e * 10, //so that from cm goes to mm
-        metadata["x00186011"]![0].x0018602c * 10
-      ] as [number, number])
-    : metadata.x00181164
-    ? metadata.x00181164
-    : [1, 1];
+        metadata["x00186011"]![0].x0018602e != undefined &&
+        metadata["x00186011"]![0].x0018602c != undefined
+      ? ([
+          metadata["x00186011"]![0].x0018602e * 10, //so that from cm goes to mm
+          metadata["x00186011"]![0].x0018602c * 10
+        ] as [number, number])
+      : metadata.x00181164
+        ? metadata.x00181164
+        : [1, 1];
   let rescaleIntercept = metadata.x00281052;
   let rescaleSlope = metadata.x00281053;
   let windowCenter = metadata.x00281050;

@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.4.0] - 2025-04-15
+
+🚀 Key Changes:
+
+- `csToolsCreateStack` has been replaced and included in `csToolsUpdateStack` for better clarity and consistency.
+- `csToolsUpdateStack` now accept `elementId` as target html element or its string id.
+- `addDefaultTools` now accepts `elementId` as target html element or its string id and is no more optional.
+- `csToolsCreateStack` is no longer called during rendering process.
+- `disableViewport` now removes `uniqueUID` from the stored viewport.
+- `unloadViewport` now does not require anymore the `seriesUID` parameter.
+- `resetSeriesIds` in store has been renamed to `resetImageIds`.
+- `addSeriesId` in store has been renamed to `addImageIds`.
+- `removeSeriesId` in store has been renamed to `removeImageIds`.
+
+**New Feature:** `addDefaultTools` now includes `csToolsUpdateStack` by default.
+  
+**Deprecated Aliases for Backward Compatibility**:
+  - `csToolsUpdateImageIds → csToolsUpdateStack`
+  - `csToolsCreateStack → csToolsUpdateStack`
+  
+
+
 ## [3.3.0] - 2025-03-21
 
 🚀 Key Changes:

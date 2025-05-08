@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
@@ -78,7 +78,7 @@ larvitar
     let seriesId = Object.keys(seriesStack)[0];
     let serie = seriesStack[seriesId];
     larvitar.renderImage(serie, "viewer").then(() => {
-      larvitar.addDefaultTools();
+      larvitar.addDefaultTools("viewer");
       larvitar.setToolActive("Wwwc");
     });
   })
@@ -244,7 +244,7 @@ larvitar
             larvitar.renderImage(serie, "viewer").then(() => {
               hideSpinner();
               larvitar.logger.debug("Image has been rendered");
-              larvitar.addDefaultTools();
+              larvitar.addDefaultTools("viewer");
               larvitar.setToolActive("Wwwc");
             });
           })

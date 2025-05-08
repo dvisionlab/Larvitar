@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="h-100 overflow-hidden">
   <head>
     <meta charset="UTF-8" />
@@ -99,7 +99,7 @@ larvitar
           larvitar.renderImage(data, "viewer-reslice").then(() => {
             larvitar.logger.debug("Image resliced has been rendered");
           });
-          larvitar.addDefaultTools();
+          larvitar.addDefaultTools("viewer");
           larvitar.setToolActive("Wwwc");
         });
       }
@@ -245,6 +245,8 @@ larvitar
             larvitar.renderImage(serie, "viewer-base").then(() => {
               hideSpinner(spinnerBase);
               larvitar.logger.debug("Image axial has been rendered");
+              larvitar.addDefaultTools("viewer-base");
+              larvitar.setToolActive("Wwwc");
             });
             larvitar.cacheImages(serie, function (resp) {
               if (resp.loading == 100) {
@@ -252,9 +254,9 @@ larvitar
                   larvitar.renderImage(data, "viewer-reslice").then(() => {
                     hideSpinner(spinnerReslice);
                     larvitar.logger.debug("Image resliced has been rendered");
+                    larvitar.addDefaultTools("viewer-reslice");
+                    larvitar.setToolActive("Wwwc");
                   });
-                  larvitar.addDefaultTools();
-                  larvitar.setToolActive("Wwwc");
                 });
               }
             });

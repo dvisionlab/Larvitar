@@ -38,7 +38,7 @@ export type StoreViewport = {
   maxSliceId: number;
   sliceId: number;
   pendingSliceId?: number;
-  seriesUID?: string;
+  uniqueUID?: string;
   minTimeId: number;
   maxTimeId: number;
   timeId: number;
@@ -199,10 +199,17 @@ export interface Layer extends cornerstone.EnabledElementLayer {
 export interface Viewport extends cornerstone.Viewport {
   newImageIdIndex: number;
   displayedArea: {
+    tlhc: {
+      x: number;
+      y: number;
+    };
     brhc: {
       x: number;
       y: number;
     };
+    columnPixelSpacing: number;
+    rowPixelSpacing: number;
+    presentationSizeMode: string;
   };
   overlayColor?: boolean | string;
 }
@@ -336,6 +343,7 @@ export type NrrdSeries = {
   numberOfImages: number;
   seriesDescription: string;
   seriesUID: string;
+  uniqueUID: string;
   customLoader: string;
   nrrdHeader: NrrdHeader;
   bytes: number;

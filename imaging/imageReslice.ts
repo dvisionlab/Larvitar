@@ -66,14 +66,14 @@ export function resliceSeries(
         ) as Uint16Array;
         imageTracker[imageId] = reslicedSeriesId;
       });
-      store.addSeriesId(reslicedSeriesId, reslicedSeries.imageIds);
+      store.addImageIds(reslicedSeriesId, reslicedSeries.imageIds);
       reslicedSeries.numberOfImages = reslicedSeries.imageIds.length;
       reslicedSeries.seriesUID = reslicedSeriesId;
       reslicedSeries.seriesDescription = seriesData.seriesDescription;
       reslicedSeries.orientation = orientation;
       manager[reslicedSeriesId] = reslicedSeries;
       //@ts-ignore deprecated
-      manager[seriesData.seriesUID][orientation] = reslicedSeriesId;
+      manager[seriesData.uniqueUID][orientation] = reslicedSeriesId;
       let t1 = performance.now();
       logger.info(`Call to resliceSeries took ${t1 - t0} milliseconds.`);
       resolve(reslicedSeries);

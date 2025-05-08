@@ -31,7 +31,7 @@ let multiframeDatasetCache: { [key: string]: Series | null } | null = null;
 /*
  * This module provides the following functions to be exported:
  * loadMultiFrameImage(elementId)
- * buildMultiFrameImage(seriesId, serie)
+ * buildMultiFrameImage(uniqueUID, serie)
  * getMultiFrameImageId(customLoaderName)
  * clearMultiFrameCache()
  */
@@ -50,7 +50,7 @@ export const loadMultiFrameImage: ImageLoader = function (
 
   let rootImageId = parsedImageId.scheme + ":" + parsedImageId.url;
   let imageTracker = getImageTracker();
-  let seriesId = imageTracker[rootImageId];
+  let uniqueUID = imageTracker[rootImageId];
   let manager = getImageManager() as ImageManager;
   if (multiframeDatasetCache === null) {
     multiframeDatasetCache = {};
@@ -59,9 +59,9 @@ export const loadMultiFrameImage: ImageLoader = function (
   if (multiframeDatasetCache[rootImageId]) {
     multiframeDatasetCache[rootImageId] = multiframeDatasetCache[rootImageId];
   } else if (manager) {
-    multiframeDatasetCache[rootImageId] = manager[seriesId] as Series;
+    multiframeDatasetCache[rootImageId] = manager[uniqueUID] as Series;
   } else {
-    throw new Error("No multiframe dataset found for seriesId: " + seriesId);
+    throw new Error("No multiframe dataset found for uniqueUID: " + uniqueUID);
   }
 
   let metadata =
@@ -73,7 +73,7 @@ export const loadMultiFrameImage: ImageLoader = function (
  * Build the multiframe layout in the Image Manager
  * @export
  * @function buildMultiFrameImage
- * @param {String} seriesId - SeriesId tag
+ * @param {String} uniqueUID - the uniqueUID of the series
  * @param {Object} serie - parsed serie object
  */
 export const buildMultiFrameImage = function (
@@ -92,7 +92,7 @@ export const buildMultiFrameImage = function (
   let imageId = getMultiFrameImageId("multiFrameLoader");
   imageTracker[imageId] = uniqueUID;
 
-  // check if manager exists for this seriesId
+  // check if manager exists for this uniqueUID
   if (!manager[uniqueUID]) {
     manager[uniqueUID] = serie;
     manager[uniqueUID].imageIds = [];
@@ -143,7 +143,7 @@ export const buildMultiFrameImage = function (
     populateDsaImageIds(uniqueUID);
   }
 
-  store.addSeriesId(uniqueUID, serie.imageIds);
+  store.addImageIds(uniqueUID, serie.imageIds);
 
   let t1 = performance.now();
   logger.debug(`Call to buildMultiFrameImage took ${t1 - t0} milliseconds.`);
@@ -166,15 +166,15 @@ export const getMultiFrameImageId = function (customLoaderName: string) {
  * Clear the multiframe cache
  * @instance
  * @function clearMultiFrameCache
- * @param {String} seriesId - SeriesId tag
+ * @param {String} uniqueUID - the uniqueUID of the series
  */
-export const clearMultiFrameCache = function (seriesId: string) {
+export const clearMultiFrameCache = function (uniqueUID: string) {
   let t0 = performance.now();
   each(multiframeDatasetCache, function (image, imageId) {
     if (!image) {
       return;
     }
-    if (seriesId == image.seriesUID || !seriesId) {
+    if (uniqueUID == image.uniqueUID || !uniqueUID) {
       if (image.dataSet) {
         // @ts-ignore: modify external type ?
         image.dataSet.byteArray = null;
@@ -191,7 +191,7 @@ export const clearMultiFrameCache = function (seriesId: string) {
       delete multiframeDatasetCache![imageId];
     }
   });
-  if (!seriesId) {
+  if (!uniqueUID) {
     multiframeDatasetCache = null;
   }
   let t1 = performance.now();
@@ -295,16 +295,16 @@ let createCustomImage = function (
       let pixelSpacing = metadata.x00280030
         ? metadata.x00280030
         : metadata.x00080060 === "US" &&
-          metadata["x00186011"] != undefined &&
-          metadata["x00186011"][0].x0018602e != undefined &&
-          metadata["x00186011"][0].x0018602c != undefined
-        ? ([
-            metadata["x00186011"][0].x0018602e * 10, //so that from cm goes to mm
-            metadata["x00186011"][0].x0018602c * 10
-          ] as [number, number])
-        : metadata.x00181164
-        ? metadata.x00181164
-        : [1, 1];
+            metadata["x00186011"] != undefined &&
+            metadata["x00186011"][0].x0018602e != undefined &&
+            metadata["x00186011"][0].x0018602c != undefined
+          ? ([
+              metadata["x00186011"][0].x0018602e * 10, //so that from cm goes to mm
+              metadata["x00186011"][0].x0018602c * 10
+            ] as [number, number])
+          : metadata.x00181164
+            ? metadata.x00181164
+            : [1, 1];
       let rescaleIntercept = metadata.x00281052;
       let rescaleSlope = metadata.x00281053;
       let windowCenter = metadata.x00281050;
@@ -374,12 +374,16 @@ let createCustomImage = function (
           throw new Error("Unable to get canvas context");
         }
 
-        let imageData = context.createImageData(
+        let imageData: ImageData = context.createImageData(
           imageFrame.columns,
           imageFrame.rows
         );
-
-        cornerstoneDICOMImageLoader.convertColorSpace(imageFrame, imageData);
+        // context.createImageData will always return an ImageData object with 4 components (RGBA)
+        cornerstoneDICOMImageLoader.convertColorSpace(
+          imageFrame, // input image frame
+          imageData.data, // data buffer to be filled
+          true // RGBA FLAG
+        );
 
         imageFrame.imageData = imageData;
         imageFrame.pixelData = imageData.data;

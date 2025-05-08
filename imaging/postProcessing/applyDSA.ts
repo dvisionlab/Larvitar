@@ -108,8 +108,8 @@ function avgSubMask(
   // Mask Frame Numbers Attribute (might be an array) Required if AVGSUB
   const frameIndexNumber: number[] =
     typeof metadataInfo.x00286110 === "number"
-      ? [metadataInfo.x00286110!]
-      : metadataInfo.x00286110!;
+      ? [metadataInfo.x00286110! - 1]
+      : metadataInfo.x00286110!.map(num => num - 1);
 
   // get cached images from cornerstone cache
   const cachedImages = cornerstone.imageCache.cachedImages;
