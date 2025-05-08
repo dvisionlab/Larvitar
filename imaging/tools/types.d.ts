@@ -390,7 +390,7 @@ export type PixelSpacing = {
   colPixelSpacing: number;
 };
 export interface MeasurementData {
-  computeMeasurements: boolean;
+  computeMeasurements?: boolean;
   polyBoundingBox?: Rectangle;
   meanStdDev?: { mean: number; stdDev: number };
   meanStdDevSUV?: { mean: number; stdDev: number };
@@ -562,4 +562,3 @@ export type ThresholdsBrushProp = {
   };
   mixins: string[];
 };
-
