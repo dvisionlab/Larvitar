@@ -1,20 +1,30 @@
 import cornerstoneTools from "cornerstone-tools";
-import { getMaxPixelValue, getMinPixelValue } from "../../imageUtils";
+import {
+  Coords,
+  EventData,
+  MeasurementData,
+  MeasurementMouseEvent,
+  Handles,
+  HandlePosition,
+  PixelSpacing,
+  Rectangle
+} from "../types";
+
 const external = cornerstoneTools.external;
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
 );
-const EVENTS = cornerstoneTools.EVENTS;
+
 // State
 const getToolState = cornerstoneTools.getToolState;
 const toolStyle = cornerstoneTools.toolStyle;
 const toolColors = cornerstoneTools.toolColors;
+
 // Drawing
 const getNewContext = cornerstoneTools.importInternal("drawing/getNewContext");
 const draw = cornerstoneTools.importInternal("drawing/draw");
 const drawHandles = cornerstoneTools.importInternal("drawing/drawHandles");
 const drawRect = cornerstoneTools.importInternal("drawing/drawRect");
-const fillBox = cornerstoneTools.importInternal("drawing/fillBox");
 const drawLinkedTextBox = cornerstoneTools.importInternal(
   "drawing/drawLinkedTextBox"
 );
@@ -33,30 +43,27 @@ const { rectangleRoiCursor } = cornerstoneTools.importInternal("tools/cursors");
 const getLogger = cornerstoneTools.importInternal("util/getLogger");
 const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
 const getModule = cornerstoneTools.getModule;
-const clip = cornerstoneTools.importInternal("util/clip");
-const getLuminance = cornerstoneTools.importInternal("util/getLuminance");
+
 const logger = getLogger("tools:annotation:RectangleRoiTool");
 
 /**
  * @public
- * @class WwwcRemoveRegionTool
- * @memberof Tools
- *
- * @classdesc Tool for setting wwwc based on a rectangular region.
- * @extends Tools.Base.BaseTool
+ * @class RectangleRoiTool
+ * @memberof Tools.Annotation
+ * @classdesc Tool for drawing rectangular regions of interest, and measuring
+ * the statistics of the enclosed pixels.
+ * @extends Tools.Base.BaseAnnotationTool
  */
-
-export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
+export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
   constructor(props = {}) {
     const defaultProps = {
-      name: "WwwcRemoveRegionTool",
+      name: "RectangleRoiOverlay",
       supportedInteractionTypes: ["Mouse", "Touch"],
       configuration: {
         drawHandles: true,
         drawHandlesOnHover: false,
         hideHandlesIfMoving: false,
-        renderDashed: false,
-        minWindowWidth: 10
+        renderDashed: false
         // showMinMax: false,
         // showHounsfieldUnits: true,
       },
@@ -64,24 +71,11 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     };
 
     super(props, defaultProps);
-    this.dataHandles = [];
-    this.element = null;
-    this._drawingMouseUpCallback = this._applyStrategy.bind(this);
-    this._editMouseUpCallback = this._applyStrategy.bind(this);
 
-    this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 10);
+    this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
 
-  createNewMeasurement(eventData) {
-    const { element } = eventData;
-
-    if (this.element === null) {
-      this.originalWW = viewport.voi.windowWidth;
-      this.originalWC = viewport.voi.windowCenter;
-    } else if (this.element !== element) {
-      this.element = null;
-    }
-
+  createNewMeasurement(eventData: EventData) {
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
@@ -92,18 +86,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
 
       return;
     }
-    if (this.dataHandles) {
-      element.removeEventListener(
-        EVENTS.MOUSE_UP,
-        this._drawingMouseUpCallback
-      );
-      element.removeEventListener(
-        EVENTS.TOUCH_END,
-        this._drawingMouseUpCallback
-      );
-    }
-    element.addEventListener(EVENTS.MOUSE_UP, this._drawingMouseUpCallback);
-    element.addEventListener(EVENTS.TOUCH_END, this._drawingMouseUpCallback);
+
     return {
       computeMeasurements: this.options.computeMeasurements,
       visible: true,
@@ -136,7 +119,12 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     };
   }
 
-  pointNearTool(element, data, coords, interactionType) {
+  pointNearTool(
+    element: Element,
+    data: MeasurementData,
+    coords: Coords,
+    interactionType: string
+  ) {
     const hasStartAndEndHandles =
       data && data.handles && data.handles.start && data.handles.end;
     const validParameters = hasStartAndEndHandles;
@@ -147,21 +135,16 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
       );
     }
 
-    if (
-      !validParameters ||
-      data.visible === false ||
-      this.mode === "passive" ||
-      this.mode === "disabled"
-    ) {
+    if (!validParameters || data.visible === false) {
       return false;
     }
 
     const distance = interactionType === "mouse" ? 15 : 25;
-    const startCanvas = external.cornerstone.pixelToCanvas(
+    const startCanvas: Coords = external.cornerstone.pixelToCanvas(
       element,
       data.handles.start
     );
-    const endCanvas = external.cornerstone.pixelToCanvas(
+    const endCanvas: Coords = external.cornerstone.pixelToCanvas(
       element,
       data.handles.end
     );
@@ -181,7 +164,11 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     return distanceToPoint < distance;
   }
 
-  updateCachedStats(image, element, data) {
+  updateCachedStats(
+    image: cornerstone.Image,
+    element: Element,
+    data: MeasurementData
+  ) {
     if (data.computeMeasurements) {
       const seriesModule =
         external.cornerstone.metaData.get(
@@ -201,17 +188,13 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
 
       data.cachedStats = stats;
     }
+
     data.invalidated = false;
   }
 
-  renderToolData(evt) {
+  renderToolData(evt: MeasurementMouseEvent) {
     const toolData = getToolState(evt.currentTarget, this.name);
-    const index = cornerstoneTools.store.state.tools.findIndex(
-      item => item.name === "WwwcRemoveRegion"
-    );
 
-    const mode = cornerstoneTools.store.state.tools[index].mode;
-    this.mode = mode;
     if (!toolData) {
       return;
     }
@@ -219,13 +202,13 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     const eventData = evt.detail;
     const { image, element } = eventData;
     const lineWidth = toolStyle.getToolWidth();
+    const lineDash = getModule("globalConfiguration").configuration.lineDash;
     const {
       handleRadius,
       drawHandlesOnHover,
       hideHandlesIfMoving,
       renderDashed
     } = this.configuration;
-    const lineDash = getModule("globalConfiguration").configuration.lineDash;
     const context = getNewContext(eventData.canvasContext.canvas);
     const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
 
@@ -238,7 +221,7 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     const modality = seriesModule.modality;
     const hasPixelSpacing = rowPixelSpacing && colPixelSpacing;
 
-    draw(context, context => {
+    draw(context, (context: CanvasRenderingContext2D) => {
       // If we have tool data for this element - iterate over each set and draw it
       for (let i = 0; i < toolData.data.length; i++) {
         const data = toolData.data[i];
@@ -249,41 +232,26 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
 
         // Configure
         const color = toolColors.getColorIfActive(data);
-        if (mode === "passive" || mode === "disabled") {
-          data.active = false;
-        }
-        setShadow(context, this.configuration);
         const handleOptions = {
-          color: data.active ? color : "black",
-          handleRadius: data.active ? 6 : 1,
+          color,
+          handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
           hideHandlesIfMoving
         };
-        const rectOptions = { color: data.active ? color : "black" };
+
+        setShadow(context, this.configuration);
+
+        const rectOptions: {
+          color: string;
+          lineDash?: boolean;
+          lineWidth?: number;
+        } = { color };
 
         if (renderDashed) {
           rectOptions.lineDash = lineDash;
         }
 
-        // Draw the rectangle
-        // drawFillRect
-        // must be converted in canvas coords
-        const startCanvas = external.cornerstone.pixelToCanvas(
-          element,
-          data.handles.start
-        );
-        const endCanvas = external.cornerstone.pixelToCanvas(
-          element,
-          data.handles.end
-        );
-
-        const rect = {
-          left: Math.min(startCanvas.x, endCanvas.x),
-          top: Math.min(startCanvas.y, endCanvas.y),
-          width: Math.abs(startCanvas.x - endCanvas.x),
-          height: Math.abs(startCanvas.y - endCanvas.y)
-        };
-        fillBox(context, rect, "black");
+        // Draw
         drawRect(
           context,
           element,
@@ -293,9 +261,11 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
           "pixel",
           data.handles.initialRotation
         );
+
         if (this.configuration.drawHandles) {
           drawHandles(context, eventData, data.handles, handleOptions);
         }
+
         if (data.computeMeasurements) {
           // Update textbox stats
           if (data.invalidated === true) {
@@ -316,8 +286,8 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
             Object.assign(data.handles.textBox, defaultCoords);
           }
 
-          const textBoxAnchorPoints = handles =>
-            _findTextBoxAnchorPoints(handles.start, handles.end);
+          const textBoxAnchorPoints = (handles: Handles) =>
+            _findTextBoxAnchorPoints(handles.start!, handles.end!);
           const textBoxContent = _createTextBoxContent(
             context,
             image.color,
@@ -347,47 +317,6 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
         }
       }
     });
-    this._applyStrategy(evt);
-  }
-
-  _withinHandleBoxes(startCanvas, endCanvas) {
-    let within = false;
-    this.dataHandles.forEach(handle => {
-      if (
-        startCanvas.x > handle.handles.start.x &&
-        startCanvas.y < handle.handles.start.y &&
-        endCanvas.x < handle.handles.end.x &&
-        endCanvas.y > handle.handles.end.y
-      ) {
-        within = true;
-        return within;
-      }
-    });
-    return within;
-  }
-  /**
-   * Event handler for MOUSE_UP/TOUCH_END during handle drag event loop.
-   *
-   * @private
-   * @method _applyStrategy
-   * @param {(CornerstoneTools.event#MOUSE_UP|CornerstoneTools.event#TOUCH_END)} evt Interaction event emitted by an enabledElement
-   * @returns {void}
-   */
-  _applyStrategy(evt) {
-    const toolData = getToolState(evt.currentTarget, this.name);
-    if (!toolData) {
-      return;
-    }
-    if (this.mode === "passive" || this.mode === "disabled") {
-      return;
-    }
-    const rectangles = toolData ? toolData.data : [];
-    if (Array.isArray(rectangles)) {
-      const allHandles = rectangles.map(item => item.handles);
-      this.dataHandles = allHandles;
-      const eventData = evt.detail;
-      _applyWWWCRegion(eventData, allHandles, this.configuration);
-    }
   }
 }
 
@@ -395,11 +324,14 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
  * TODO: This is the same method (+ GetPixels) for the other ROIs
  * TODO: The pixel filtering is the unique bit
  *
- * @param {*} startHandle
- * @param {*} endHandle
+ * @param {HandlePosition} startHandle
+ * @param {HandlePosition} endHandle
  * @returns {{ left: number, top: number, width: number, height: number}}
  */
-function _getRectangleImageCoordinates(startHandle, endHandle) {
+function _getRectangleImageCoordinates(
+  startHandle: HandlePosition,
+  endHandle: HandlePosition
+) {
   return {
     left: Math.min(startHandle.x, endHandle.x),
     top: Math.min(startHandle.y, endHandle.y),
@@ -411,18 +343,24 @@ function _getRectangleImageCoordinates(startHandle, endHandle) {
 /**
  *
  *
- * @param {*} image
- * @param {*} element
- * @param {*} handles
- * @param {*} modality
- * @param {*} pixelSpacing
+ * @param {cornerstone.Image} image
+ * @param {Element} element
+ * @param {Handles} handles
+ * @param {string} modality
+ * @param {PixelSpacing} pixelSpacing
  * @returns {Object} The Stats object
  */
-function _calculateStats(image, element, handles, modality, pixelSpacing) {
+function _calculateStats(
+  image: cornerstone.Image,
+  element: Element,
+  handles: Handles,
+  modality: string,
+  pixelSpacing: PixelSpacing
+) {
   // Retrieve the bounds of the rectangle in image coordinates
   const roiCoordinates = _getRectangleImageCoordinates(
-    handles.start,
-    handles.end
+    handles.start!,
+    handles.end!
   );
 
   // Retrieve the array of pixels that the rectangle bounds cover
@@ -472,11 +410,11 @@ function _calculateStats(image, element, handles, modality, pixelSpacing) {
 /**
  *
  *
- * @param {*} sp
- * @param {*} rectangle
+ * @param {number[]} sp
+ * @param {Rectangle} rectangle
  * @returns {{ count, number, mean: number,  variance: number,  stdDev: number,  min: number,  max: number }}
  */
-function _calculateRectangleStats(sp, rectangle) {
+function _calculateRectangleStats(sp: number[], rectangle: Rectangle) {
   let sum = 0;
   let sumSquared = 0;
   let count = 0;
@@ -488,8 +426,8 @@ function _calculateRectangleStats(sp, rectangle) {
     for (let x = rectangle.left; x < rectangle.left + rectangle.width; x++) {
       sum += sp[index];
       sumSquared += sp[index] * sp[index];
-      min = Math.min(min, sp[index]);
-      max = Math.max(max, sp[index]);
+      min = Math.min(min!, sp[index]);
+      max = Math.max(max!, sp[index]);
       count++; // TODO: Wouldn't this just be sp.length?
       index++;
     }
@@ -522,11 +460,14 @@ function _calculateRectangleStats(sp, rectangle) {
 /**
  *
  *
- * @param {*} startHandle
- * @param {*} endHandle
+ * @param {HandlePosition} startHandle
+ * @param {HandlePosition} endHandle
  * @returns {Array.<{x: number, y: number}>}
  */
-function _findTextBoxAnchorPoints(startHandle, endHandle) {
+function _findTextBoxAnchorPoints(
+  startHandle: HandlePosition,
+  endHandle: HandlePosition
+) {
   const { left, top, width, height } = _getRectangleImageCoordinates(
     startHandle,
     endHandle
@@ -559,11 +500,11 @@ function _findTextBoxAnchorPoints(startHandle, endHandle) {
 /**
  *
  *
- * @param {*} area
- * @param {*} hasPixelSpacing
+ * @param {number} area
+ * @param {boolean} hasPixelSpacing
  * @returns {string} The formatted label for showing area
  */
-function _formatArea(area, hasPixelSpacing) {
+function _formatArea(area: number, hasPixelSpacing: boolean) {
   // This uses Char code 178 for a superscript 2
   const suffix = hasPixelSpacing
     ? ` mm${String.fromCharCode(178)}`
@@ -572,7 +513,7 @@ function _formatArea(area, hasPixelSpacing) {
   return `Area: ${numbersWithCommas(area.toFixed(2))}${suffix}`;
 }
 
-function _getUnit(modality, showHounsfieldUnits) {
+function _getUnit(modality: string, showHounsfieldUnits: boolean) {
   return modality === "CT" && showHounsfieldUnits !== false ? "HU" : "";
 }
 
@@ -580,21 +521,35 @@ function _getUnit(modality, showHounsfieldUnits) {
  * TODO: This is identical to EllipticalROI's same fn
  * TODO: We may want to make this a utility for ROIs with these values?
  *
- * @param {*} context
- * @param {*} isColorImage
- * @param {*} { area, mean, stdDev, min, max, meanStdDevSUV }
- * @param {*} modality
- * @param {*} hasPixelSpacing
- * @param {*} [options={}]
+ * @param {CanvasRenderingContext2D} context
+ * @param {boolean} isColorImage
+ * @param {Object} { area?: number, mean?: number, stdDev?: number, min?: number, max?: number, meanStdDevSUV?: { mean: number; stdDev: number } }
+ * @param {string} modality
+ * @param {boolean} hasPixelSpacing
+ * @param {Object} { showMinMax?: boolean; showHounsfieldUnits?: boolean }
  * @returns {string[]}
  */
 function _createTextBoxContent(
-  context,
-  isColorImage,
-  { area = 0, mean = 0, stdDev = 0, min = 0, max = 0, meanStdDevSUV = 0 } = {},
-  modality,
-  hasPixelSpacing,
-  options = {}
+  context: CanvasRenderingContext2D,
+  isColorImage: boolean,
+  {
+    area = 0,
+    mean = 0,
+    stdDev = 0,
+    min = 0,
+    max = 0,
+    meanStdDevSUV = { mean: 0, stdDev: 0 }
+  }: {
+    area?: number;
+    mean?: number;
+    stdDev?: number;
+    min?: number;
+    max?: number;
+    meanStdDevSUV?: { mean: number; stdDev: number };
+  } = {},
+  modality: string,
+  hasPixelSpacing: boolean,
+  options: { showMinMax?: boolean; showHounsfieldUnits?: boolean } = {}
 ) {
   const showMinMax = options.showMinMax || false;
   const textLines = [];
@@ -603,7 +558,7 @@ function _createTextBoxContent(
 
   if (!isColorImage) {
     const hasStandardUptakeValues = meanStdDevSUV && meanStdDevSUV.mean !== 0;
-    const unit = _getUnit(modality, options.showHounsfieldUnits);
+    const unit = _getUnit(modality, options.showHounsfieldUnits!);
 
     let meanString = `Mean: ${numbersWithCommas(mean.toFixed(2))} ${unit}`;
     const stdDevString = `Std Dev: ${numbersWithCommas(
@@ -656,170 +611,3 @@ function _createTextBoxContent(
 
   return textLines;
 }
-
-/**
- * Calculates the minimum and maximum value in the given pixel array
- * and updates the viewport of the element in the event.
- *
- * @private
- * @method _applyWWWCRegion
- * @param {Object} eventData an obect with the element and the image coming from the event
- * @param {Array} handles array of the objects of image handles
- * @param {Object} config The tool's configuration object
- * @returns {void}
- */
-const _applyWWWCRegion = function (eventData, handles, config) {
-  const { image, element } = eventData;
-  const fullImageLuminance = getLuminance(
-    element,
-    0,
-    0,
-    image.width,
-    image.height
-  );
-  let extentsLuminance = fullImageLuminance;
-  handles.forEach(handle => {
-    /*
-    if (_isEmptyObject(handle.start) || _isEmptyObject(handles.end)) {
-      return;
-    }
-    */
-    const { start: startPoint, end: endPoint } = handle;
-    // Get the rectangular region defined by the handles
-    let left = Math.min(startPoint.x, endPoint.x);
-    let top = Math.min(startPoint.y, endPoint.y);
-    let width = Math.abs(startPoint.x - endPoint.x);
-    let height = Math.abs(startPoint.y - endPoint.y);
-    // Bound the rectangle so we don't get undefined pixels
-    left = clip(left, 0, image.width);
-    top = clip(top, 0, image.height);
-    width = Math.floor(Math.min(width, Math.abs(image.width - left)));
-    height = Math.floor(Math.min(height, Math.abs(image.height - top)));
-    // Get the pixel data in the rectangular region
-    // get luminance of the whole image
-    const x = Math.round(left);
-    const y = Math.round(top);
-    let row, column, spIndex;
-    for (row = 0; row < height; row++) {
-      for (column = 0; column < width; column++) {
-        spIndex = (row + y) * image.columns + (column + x);
-        extentsLuminance[spIndex] = null;
-      }
-    }
-  });
-  // remove the luminance of the selected area
-  let normalizedImageLuminance = [...extentsLuminance];
-  normalizedImageLuminance = normalizedImageLuminance.filter(
-    item => item !== null
-  );
-  // calculate maxminmean in the area
-
-  // Adjust the viewport window width and center based on the calculated values
-  const viewport = eventData.viewport;
-
-  if (config.minWindowWidth === undefined) {
-    config.minWindowWidth = 10;
-  }
-
-  const { windowWidth, windowCenter } = calculateWindowParameters(
-    normalizedImageLuminance
-  );
-
-  /*
-    const minMaxMean = _calculateMinMaxMean(
-    normalizedImageLuminance,
-    image.minPixelValue,
-    image.maxPixelValue
-  );
-  viewport.voi.windowWidth = Math.max(
-    Math.abs(minMaxMean.max - minMaxMean.min),
-    config.minWindowWidth
-  );
-  viewport.voi.windowCenter = minMaxMean.mean;*/
-
-  // Unset any existing VOI LUT
-  viewport.voi.windowWidth = windowWidth;
-  viewport.voi.windowCenter = windowCenter;
-  viewport.voiLUT = undefined;
-  external.cornerstone.setViewport(element, viewport);
-  external.cornerstone.updateImage(element);
-};
-
-const calculateWindowParameters = function (pixelValues) {
-  // Sort pixel values in ascending order
-  const sortedValues = pixelValues.slice().sort((a, b) => a - b);
-
-  // Calculate the median
-  const median = sortedValues[Math.floor(sortedValues.length / 2)];
-
-  // Calculate the median absolute deviation (MAD)
-  const mad = calculateMAD(sortedValues, median);
-
-  // Set a threshold for outliers (e.g., 3 times the MAD)
-  const outlierThreshold = 22 * mad;
-
-  // Filter out outliers based on the threshold
-  const filteredValues = sortedValues.filter(
-    value => Math.abs(value - median) <= outlierThreshold
-  );
-  // Calculate window width and window center based on filtered values
-  const windowWidth =
-    getMaxPixelValue(filteredValues) - getMinPixelValue(filteredValues);
-  const windowCenter =
-    (getMaxPixelValue(filteredValues) + getMinPixelValue(filteredValues)) / 2;
-  return { windowWidth, windowCenter };
-};
-
-const calculateMAD = function (values, median) {
-  const deviations = values.map(value => Math.abs(value - median));
-  const medianDeviation = calculateMedian(deviations);
-  return medianDeviation;
-};
-
-const calculateMedian = function (values) {
-  const sortedValues = values.slice().sort((a, b) => a - b);
-  const middleIndex = Math.floor(sortedValues.length / 2);
-  if (sortedValues.length % 2 === 0) {
-    return (sortedValues[middleIndex - 1] + sortedValues[middleIndex]) / 2;
-  } else {
-    return sortedValues[middleIndex];
-  }
-};
-/**
- * Calculates the minimum, maximum, and mean value in the given pixel array
- *
- * @private
- * @method _calculateMinMaxMean
- * @param {number[]} pixelLuminance array of pixel luminance values
- * @param {number} globalMin starting "min" value
- * @param {bumber} globalMax starting "max" value
- * @returns {Object} {min: number, max: number, mean: number }
- */
-const _calculateMinMaxMean = function (pixelLuminance, globalMin, globalMax) {
-  const numPixels = pixelLuminance.length;
-  let min = globalMax;
-  let max = globalMin;
-  let sum = 0;
-
-  if (numPixels < 2) {
-    return {
-      min,
-      max,
-      mean: (globalMin + globalMax) / 2
-    };
-  }
-
-  for (let index = 0; index < numPixels; index++) {
-    const spv = pixelLuminance[index];
-
-    min = Math.min(min, spv);
-    max = Math.max(max, spv);
-    sum += spv;
-  }
-
-  return {
-    min,
-    max,
-    mean: sum / numPixels
-  };
-};
