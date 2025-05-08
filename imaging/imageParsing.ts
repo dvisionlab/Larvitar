@@ -542,37 +542,48 @@ const parseSequence = function (sequence: any): any {
   return sequenceArray.map(item => {
     if (!item || typeof item !== "object") return item;
 
-    return Object.keys(item).reduce((acc: { [key: string]: any }, key) => {
-      const element = item[key];
+    return Object.keys(item).reduce(
+      (
+        acc: {
+          [key: string]: {
+            vr: string;
+            Value: any;
+          };
+        },
+        key
+      ) => {
+        const element = item[key];
 
-      // Handle undefined/null elements
-      if (!element) {
-        acc[key.toLowerCase()] = element;
+        // Handle undefined/null elements
+        if (!element) {
+          acc[key.toLowerCase()] = element;
+          return acc;
+        }
+
+        // Extract the value
+        let value;
+        if (Array.isArray(element.Value)) {
+          value = element.Value.length > 1 ? element.Value : element.Value[0];
+        } else {
+          value = element.Value;
+        }
+
+        // Handle sequence (SQ) value type with recursion
+        if (element.vr === "SQ") {
+          acc[key.toLowerCase()] = parseSequence(value);
+          return acc;
+        }
+
+        // Handle special case for "Alphabetic" representation
+        if (value && typeof value === "object" && "Alphabetic" in value) {
+          acc[key.toLowerCase()] = value.Alphabetic;
+        } else {
+          acc[key.toLowerCase()] = value;
+        }
+
         return acc;
-      }
-
-      // Extract the value
-      let value;
-      if (Array.isArray(element.Value)) {
-        value = element.Value.length > 1 ? element.Value : element.Value[0];
-      } else {
-        value = element.Value;
-      }
-
-      // Handle sequence (SQ) value type with recursion
-      if (element.vr === "SQ") {
-        acc[key.toLowerCase()] = parseSequence(value);
-        return acc;
-      }
-
-      // Handle special case for "Alphabetic" representation
-      if (value && typeof value === "object" && "Alphabetic" in value) {
-        acc[key.toLowerCase()] = value.Alphabetic;
-      } else {
-        acc[key.toLowerCase()] = value;
-      }
-
-      return acc;
-    }, {});
+      },
+      {}
+    );
   });
 };
