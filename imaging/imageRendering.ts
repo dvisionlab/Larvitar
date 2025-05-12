@@ -62,7 +62,11 @@ export const clearImageCache = function (uniqueUID?: string) {
   if (uniqueUID) {
     let series = store.get("series");
     if (has(series, uniqueUID)) {
-      each(series[uniqueUID].imageIds, function (imageId: string) {
+      const dsaImageIds = series[uniqueUID]?.dsa?.imageIds || [];
+      const regularImageIds = series[uniqueUID]?.imageIds || [];
+
+      const allImageIds = [...dsaImageIds, ...regularImageIds];
+      each(allImageIds, function (imageId: string) {
         if (cornerstone.imageCache.cachedImages.length > 0) {
           try {
             cornerstone.imageCache.removeImageLoadObject(imageId);
