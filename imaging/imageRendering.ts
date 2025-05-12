@@ -596,14 +596,13 @@ export const renderImage = function (
 
   // DSA ALGORITHM OPTIONS
   const dsaEnabled = store.get(["viewports", id, "isDSAEnabled"]);
-  const pixelShift = store.get(["viewports", id, "pixelShift"]);
+  let pixelShift = store.get(["viewports", id, "pixelShift"]);
   if (dsaEnabled === true) {
     data.imageId = series.dsa!.imageIds[data.imageIndex!];
-    // get the optional custom pixel shift for DSA images
-    if (pixelShift !== undefined) {
-      logger.debug(`set pixelShift: ${pixelShift}`);
-      setPixelShift(pixelShift);
-    }
+    pixelShift = pixelShift ?? [0, 0];
+    store.setDSAPixelShift(id, pixelShift);
+    logger.debug(`set pixelShift: ${pixelShift}`);
+    setPixelShift(pixelShift);
   }
 
   const loadImageFunction =
