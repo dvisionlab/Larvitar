@@ -137,6 +137,8 @@ import {
 
 import {
   clearImageCache,
+  clearStandardImageCache,
+  clearDSAImageCache,
   loadAndCacheImages,
   renderFileImage,
   renderDICOMPDF,
@@ -374,6 +376,8 @@ export {
   convertQidoMetadata,
   // imageRendering
   clearImageCache,
+  clearStandardImageCache,
+  clearDSAImageCache,
   loadAndCacheImages,
   renderFileImage,
   renderDICOMPDF,

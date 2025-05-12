@@ -60,30 +60,73 @@ import { setPixelShift } from "./loaders/dsaImageLoader";
 export const clearImageCache = function (uniqueUID?: string) {
   const t0 = performance.now();
   if (uniqueUID) {
-    let series = store.get("series");
-    if (has(series, uniqueUID)) {
-      each(series[uniqueUID].imageIds, function (imageId: string) {
-        if (cornerstone.imageCache.cachedImages.length > 0) {
-          try {
-            cornerstone.imageCache.removeImageLoadObject(imageId);
-          } catch (e) {
-            logger.warn("no cached image");
-          }
-        } else {
-          let uri =
-            cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
-          cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
-        }
-      });
-
-      store.removeImageIds(uniqueUID);
-      logger.info("Uncached images for ", uniqueUID);
-    }
+    clearStandardImageCache(uniqueUID);
+    clearDSAImageCache(uniqueUID);
   } else {
     cornerstone.imageCache.purgeCache();
   }
   const t1 = performance.now();
   logger.debug(`Call to clearImageCache took ${t1 - t0} milliseconds.`);
+};
+
+/**
+ * Purge the cornestone internal cache for standard series
+ * @instance
+ * @function clearStandardImageCache
+ * @param {String} uniqueUID - The uniqueUID of the series
+ */
+export const clearStandardImageCache = function (uniqueUID: string) {
+  const series = store.get("series");
+  const imageIds = series?.[uniqueUID]?.imageIds || [];
+
+  if (imageIds.length === 0) return;
+
+  logger.info(`Clearing image cache for ${uniqueUID}`);
+  for (const imageId of imageIds) {
+    clearCornerstoneImageCache(imageId);
+  }
+
+  store.removeImageIds(uniqueUID);
+};
+
+/**
+ * Purge the cornestone internal cache for DSA series
+ * @instance
+ * @function clearDSAImageCache
+ * @param {String} uniqueUID - The uniqueUID of the series
+ */
+export const clearDSAImageCache = function (uniqueUID: string) {
+  const dsaUID = `${uniqueUID}-DSA`;
+  const series = store.get("series");
+  const dsaImageIds = series?.[dsaUID]?.imageIds || [];
+
+  if (dsaImageIds.length === 0) return;
+
+  logger.info(`Clearing DSA image cache for ${dsaUID}`);
+  for (const imageId of dsaImageIds) {
+    clearCornerstoneImageCache(imageId);
+  }
+
+  store.removeImageIds(dsaUID);
+};
+
+/**
+ * Purge the cornestone internal cache for image
+ * @instance
+ * @function clearCornerstoneImageCache
+ * @param {String} imageId - The imageId of the image
+ */
+const clearCornerstoneImageCache = function (imageId: string) {
+  try {
+    if (cornerstone.imageCache.cachedImages.length > 0) {
+      cornerstone.imageCache.removeImageLoadObject(imageId);
+    } else {
+      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+    }
+  } catch (e) {
+    logger.warn(`Failed to clear cache for imageId: ${imageId}`, e);
+  }
 };
 
 /**
