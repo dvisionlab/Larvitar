@@ -32,7 +32,7 @@ type SetPayload = ["errorLog" | "leftActiveTool" | "rightActiveTool", string] | 
     ("progress" | "loading" | "minPixelValue" | "maxPixelValue" | "minSliceId" | "maxSliceId" | "minTimeId" | "maxTimeId" | "rotation" | "scale" | "sliceId" | "timeId" | "thickness" | "numberOfFrames" | "numberOfTemporalPositions"),
     string,
     number
-] | ["cached", string, string, boolean] | ["timestamp", string, number | undefined] | ["uniqueUID" | "modality", string, string | undefined] | ["pendingSliceId", string, number | undefined] | ["timestamps" | "timeIds" | "pixelShift", string, number[]] | [
+] | ["cached", string, string, boolean] | ["timestamp", string, number | undefined] | ["uniqueUID" | "modality", string, string | undefined] | ["pendingSliceId", string, number | undefined] | ["timestamps" | "timeIds", string, number[]] | ["pixelShift", string, number[] | undefined] | [
     "contrast" | "dimensions" | "spacing" | "translation",
     string,
     number,
@@ -61,7 +61,7 @@ declare const _default: {
     setMaxSliceId: (elementId: string, imageIndex: number) => void;
     setTimeId: (elementId: string, timeIndex: number) => void;
     setDSAEnabled: (elementId: string, enabled: boolean) => void;
-    setDSAPixelShift: (elementId: string, pixelShift: number[]) => void;
+    setDSAPixelShift: (elementId: string, pixelShift?: number[]) => void;
     resetActiveTools(): void;
     get: (props: string | string[] | undefined) => any;
     addStoreListener: (listener: (data: Store) => {}) => (data: Store) => {};

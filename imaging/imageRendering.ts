@@ -492,13 +492,11 @@ export const disableViewport = function (elementId: string | HTMLElement) {
   toggleMouseToolsListeners(element, true);
   cornerstone.disable(element);
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-  logger.debug("isDSA:", store.get(["viewports", id, "pixelShift"]));
-  if (store.get(["viewports", id, "pixelShift"])) {
-    console.log("reset pixel shift here");
-    const defaultPixelShift = [0.0, 0.0];
-    store.setDSAPixelShift(id, defaultPixelShift); // reset stored dsa pixel shift
-    setPixelShift(defaultPixelShift);
-  }
+
+  const defaultPixelShift = undefined;
+  store.setDSAPixelShift(id, defaultPixelShift); // reset stored dsa pixel shift
+  setPixelShift(defaultPixelShift);
+
   setStore(["uniqueUID", id, undefined]); // remove uniqueUID from viewport store
   setStore(["ready", id, false]); // set ready to false in viewport store
 };
