@@ -81,7 +81,7 @@ export const clearStandardImageCache = function (uniqueUID: string) {
 
   if (imageIds.length === 0) return;
 
-  logger.info(`Clearing image cache for ${uniqueUID}`);
+  logger.debug(`Clearing image cache for ${uniqueUID}`);
   for (const imageId of imageIds) {
     clearCornerstoneImageCache(imageId);
   }
@@ -102,7 +102,7 @@ export const clearDSAImageCache = function (uniqueUID: string) {
 
   if (dsaImageIds.length === 0) return;
 
-  logger.info(`Clearing DSA image cache for ${dsaUID}`);
+  logger.debug(`Clearing DSA image cache for ${dsaUID}`);
   for (const imageId of dsaImageIds) {
     clearCornerstoneImageCache(imageId);
   }
@@ -492,12 +492,14 @@ export const disableViewport = function (elementId: string | HTMLElement) {
   toggleMouseToolsListeners(element, true);
   cornerstone.disable(element);
   const id: string = isElement(elementId) ? element.id : (elementId as string);
-  setStore(["uniqueUID", id, undefined]); // remove uniqueUID from viewport store
+  logger.debug("isDSA:", store.get(["viewports", id, "pixelShift"]));
   if (store.get(["viewports", id, "pixelShift"])) {
+    console.log("reset pixel shift here");
     const defaultPixelShift = [0.0, 0.0];
     store.setDSAPixelShift(id, defaultPixelShift); // reset stored dsa pixel shift
     setPixelShift(defaultPixelShift);
   }
+  setStore(["uniqueUID", id, undefined]); // remove uniqueUID from viewport store
   setStore(["ready", id, false]); // set ready to false in viewport store
 };
 
