@@ -17,17 +17,32 @@ import type { DSA, Image, ImageManager, Series } from "../types";
 import { getMaxPixelValue, getMinPixelValue } from "../imageUtils";
 import { applyDSA } from "../postProcessing/applyDSA";
 import { logger } from "../../logger";
+import store from "../imageStore";
 
 // global module variables
 let customImageLoaderCounter: number = 0;
-let PIXEL_SHIFT: number[] | undefined = undefined;
+const defaultPixelShift = undefined;
+let PIXEL_SHIFT: number[] | undefined = defaultPixelShift;
 
 /*
  * This module provides the following functions to be exported:
+ * resetPixelShift(id)
  * loadDsaImage(imageId)
  * setPixelShift(pixelShift)
  * populateDsaImageIds(seriesId)
  */
+
+/**
+ * Reset pixel shift to undefined
+ * @export
+ * @function loadDsaImage
+ * @param {String} elementId - elementId tag
+ * @returns {Function} Custom Image Creation Function
+ */
+export const resetPixelShift = function (elementId: string) {
+  store.setDSAPixelShift(elementId, defaultPixelShift);
+  setPixelShift(defaultPixelShift);
+};
 
 /**
  * Custom DSA Image Loader Function

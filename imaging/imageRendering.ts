@@ -25,7 +25,7 @@ import {
 import { DEFAULT_TOOLS } from "./tools/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
-import { setPixelShift } from "./loaders/dsaImageLoader";
+import { resetPixelShift, setPixelShift } from "./loaders/dsaImageLoader";
 
 /*
  * This module provides the following functions to be exported:
@@ -493,9 +493,7 @@ export const disableViewport = function (elementId: string | HTMLElement) {
   cornerstone.disable(element);
   const id: string = isElement(elementId) ? element.id : (elementId as string);
 
-  const defaultPixelShift = undefined;
-  store.setDSAPixelShift(id, defaultPixelShift); // reset stored dsa pixel shift
-  setPixelShift(defaultPixelShift);
+  resetPixelShift(id);
 
   setStore(["uniqueUID", id, undefined]); // remove uniqueUID from viewport store
   setStore(["ready", id, false]); // set ready to false in viewport store
