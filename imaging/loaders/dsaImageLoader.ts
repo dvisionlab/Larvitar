@@ -47,12 +47,15 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
     let multiFrameSerie = manager[seriesId] as Series;
     const imageIds: string[] = multiFrameSerie.dsa!.imageIds;
     const index: number = imageIds.indexOf(imageId);
+
     const pixelData = applyDSA(multiFrameSerie, index, PIXEL_SHIFT);
     const srcImage: Image = find(cornerstone.imageCache.cachedImages, {
       imageId: multiFrameSerie.imageIds[index]
     }).image;
 
-    logger.debug(`Load DSA Image with custom loader for imageId: ${imageId}`);
+    logger.debug(
+      `Load DSA Image with custom loader for imageId: ${imageId} and pixel shift:${PIXEL_SHIFT} `
+    );
     return createCustomImage(imageId, srcImage, pixelData);
   } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
