@@ -494,7 +494,9 @@ export const disableViewport = function (elementId: string | HTMLElement) {
   const id: string = isElement(elementId) ? element.id : (elementId as string);
   setStore(["uniqueUID", id, undefined]); // remove uniqueUID from viewport store
   if (store.get(["viewports", id, "pixelShift"])) {
-    store.setDSAPixelShift(id, [0, 0]); // reset stored dsa pixel shift
+    const defaultPixelShift = [0.0, 0.0];
+    store.setDSAPixelShift(id, defaultPixelShift); // reset stored dsa pixel shift
+    setPixelShift(defaultPixelShift);
   }
   setStore(["ready", id, false]); // set ready to false in viewport store
 };
