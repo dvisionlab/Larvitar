@@ -37,7 +37,7 @@ let PIXEL_SHIFT: number[] | undefined = defaultPixelShift;
  * @export
  * @function loadDsaImage
  * @param {String} elementId - elementId tag
- * @returns {Function} Custom Image Creation Function
+ * @returns {void}
  */
 export const resetPixelShift = function (elementId: string) {
   store.setDSAPixelShift(elementId, defaultPixelShift);
