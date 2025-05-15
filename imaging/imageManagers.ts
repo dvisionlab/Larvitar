@@ -157,11 +157,14 @@ export const resetImageManager = function () {
  */
 export const removeDataFromImageManager = function (uniqueUID: string) {
   if (imageManager && imageManager[uniqueUID]) {
-    if ((imageManager[uniqueUID] as Series).isMultiframe) {
-      //@ts-ignore for memory leak
-      (imageManager[uniqueUID] as Series).dataSet.byteArray = null;
+    if (imageManager[uniqueUID].isMultiframe) {
+      if (imageManager[uniqueUID].dataSet) {
+        //@ts-ignore for memory leak
+        imageManager[uniqueUID].dataSet.byteArray = null;
+      }
       (imageManager[uniqueUID] as Series).dataSet = null;
       (imageManager[uniqueUID] as Series).elements = null;
+
       clearMultiFrameCache(uniqueUID);
     }
     each(imageManager[uniqueUID].instances, function (instance) {

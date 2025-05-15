@@ -559,11 +559,15 @@ larvitar
             //   }
             // };
 
-            larvitar.renderImage(serie, "viewer").then(() => {
-              larvitar.logger.debug("Image has been rendered");
-              hideSpinner(); // Hide the spinner when all files are processed
-              larvitar.addDefaultTools("viewer");
-            });
+            larvitar
+              .renderImage(serie, "viewer", {
+                voi: { windowCenter: 0, windowWidth: 0 }
+              })
+              .then(() => {
+                larvitar.logger.debug("Image has been rendered");
+                hideSpinner(); // Hide the spinner when all files are processed
+                larvitar.addDefaultTools("viewer");
+              });
 
             series = serie;
             const keys = Object.keys(
