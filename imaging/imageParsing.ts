@@ -553,10 +553,10 @@ const parseSequence = function (sequence: any): any {
         key
       ) => {
         const element = item[key];
-
+        const newKey = `x${key.toLowerCase()}`;
         // Handle undefined/null elements
         if (!element) {
-          acc[key.toLowerCase()] = element;
+          acc[newKey] = element;
           return acc;
         }
 
@@ -570,15 +570,15 @@ const parseSequence = function (sequence: any): any {
 
         // Handle sequence (SQ) value type with recursion
         if (element.vr === "SQ") {
-          acc[key.toLowerCase()] = parseSequence(value);
+          acc[newKey] = parseSequence(value);
           return acc;
         }
 
         // Handle special case for "Alphabetic" representation
         if (value && typeof value === "object" && "Alphabetic" in value) {
-          acc[key.toLowerCase()] = value.Alphabetic;
+          acc[newKey] = value.Alphabetic;
         } else {
-          acc[key.toLowerCase()] = value;
+          acc[newKey] = value;
         }
 
         return acc;
