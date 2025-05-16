@@ -1,15 +1,16 @@
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
+import { HandlerFunction, HandlerMap } from "../../../types";
 
 // global variables
 const external = cornerstoneTools.external;
 const _DEFAULT_LOAD_HANDLER = "DEFAULT";
 
-const defaultStartLoadHandler = {};
-const defaultEndLoadHandler = {};
-const defaultErrorLoadingHandler = {};
+const defaultStartLoadHandler: HandlerMap = {};
+const defaultEndLoadHandler: HandlerMap = {};
+const defaultErrorLoadingHandler: HandlerMap = {};
 
-function _getUUIDFromElement(element) {
+function _getUUIDFromElement(element?: HTMLElement): string {
   if (!element) {
     return _DEFAULT_LOAD_HANDLER;
   }
@@ -22,7 +23,10 @@ function _getUUIDFromElement(element) {
   return uuid;
 }
 
-function setStartLoadHandler(handler, element = undefined) {
+function setStartLoadHandler(
+  handler: HandlerFunction,
+  element?: HTMLElement
+): void {
   if (!handler) {
     throw new Error("The Handler function must be defined");
   }
@@ -31,7 +35,7 @@ function setStartLoadHandler(handler, element = undefined) {
   defaultStartLoadHandler[uuid] = handler;
 }
 
-function getStartLoadHandler(element) {
+function getStartLoadHandler(element?: HTMLElement): HandlerFunction {
   const uuid = _getUUIDFromElement(element);
 
   return (
@@ -40,7 +44,10 @@ function getStartLoadHandler(element) {
   );
 }
 
-function setEndLoadHandler(handler, element = undefined) {
+function setEndLoadHandler(
+  handler: HandlerFunction,
+  element?: HTMLElement
+): void {
   if (!handler) {
     throw new Error("The Handler function must be defined");
   }
@@ -49,7 +56,7 @@ function setEndLoadHandler(handler, element = undefined) {
   defaultEndLoadHandler[uuid] = handler;
 }
 
-function getEndLoadHandler(element) {
+function getEndLoadHandler(element?: HTMLElement): HandlerFunction {
   const uuid = _getUUIDFromElement(element);
 
   return (
@@ -57,7 +64,10 @@ function getEndLoadHandler(element) {
   );
 }
 
-function setErrorLoadingHandler(handler, element = undefined) {
+function setErrorLoadingHandler(
+  handler: HandlerFunction,
+  element?: HTMLElement
+): void {
   if (!handler) {
     throw new Error("The Handler function must be defined");
   }
@@ -66,7 +76,7 @@ function setErrorLoadingHandler(handler, element = undefined) {
   defaultErrorLoadingHandler[uuid] = handler;
 }
 
-function getErrorLoadingHandler(element) {
+function getErrorLoadingHandler(element?: HTMLElement): HandlerFunction {
   const uuid = _getUUIDFromElement(element);
 
   return (
@@ -75,7 +85,7 @@ function getErrorLoadingHandler(element) {
   );
 }
 
-function removeHandlers(element) {
+function removeHandlers(element: HTMLElement): void {
   const uuid = _getUUIDFromElement(element);
 
   delete defaultStartLoadHandler[uuid];
