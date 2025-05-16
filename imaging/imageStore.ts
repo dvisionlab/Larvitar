@@ -68,7 +68,8 @@ type SetPayload =
   | ["timestamp", string, number | undefined]
   | ["uniqueUID" | "modality", string, string | undefined]
   | ["pendingSliceId", string, number | undefined]
-  | ["timestamps" | "timeIds" | "pixelShift", string, number[]]
+  | ["timestamps" | "timeIds", string, number[]]
+  | ["pixelShift", string, number[] | undefined]
   | [
       "contrast" | "dimensions" | "spacing" | "translation",
       string,
@@ -273,7 +274,7 @@ const setValue = (store: Store, data: SetPayload) => {
       if (!viewport) {
         return;
       }
-      viewport[field] = (v as [[number]])[0];
+      viewport[field] = v ? (v as [[number]])[0] : v;
       triggerViewportListener(k);
       break;
 
@@ -463,7 +464,7 @@ export default {
   setDSAEnabled: (elementId: string, enabled: boolean) => {
     set(["isDSAEnabled", elementId, enabled]);
   },
-  setDSAPixelShift: (elementId: string, pixelShift: number[]) => {
+  setDSAPixelShift: (elementId: string, pixelShift?: number[]) => {
     set(["pixelShift", elementId, pixelShift]);
   },
   resetActiveTools() {
