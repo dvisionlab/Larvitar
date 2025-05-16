@@ -509,12 +509,12 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
       : 0;
 
     metadataReadable.biplane = {};
-    metadataReadable.biplane!.tag = tag;
-    metadataReadable.biplane!.referencedSOPInstanceUID =
-      referencedSOPInstanceUID!;
-    metadataReadable.biplane!.positionerPrimaryAngle =
+    metadataReadable.biplane.tag = tag;
+    metadataReadable.biplane.referencedSOPInstanceUID =
+      referencedSOPInstanceUID;
+    metadataReadable.biplane.positionerPrimaryAngle =
       (positionerPrimaryAngle as number) >= 0 ? "LAO" : "RAO";
-    metadataReadable.biplane!.positionerSecondaryAngle =
+    metadataReadable.biplane.positionerSecondaryAngle =
       (positionerSecondaryAngle as number) >= 0 ? "CRA" : "CAU";
   }
 

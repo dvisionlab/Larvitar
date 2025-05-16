@@ -181,7 +181,7 @@ export function retrieveTextObjectDetails(
               italic: textObject.x00700231[0].x00700250
             }
           : null
-      } as unknown as MergedDetails,
+      } as MergedDetails,
       toolAnnotations
     );
   }
@@ -393,8 +393,9 @@ export function retrieveOverlayToolData(
   const rows = metadata[("x" + shutterOverlayGroup + "0010") as keyof MetaData];
   const cols = metadata[("x" + shutterOverlayGroup + "0011") as keyof MetaData];
   const type = metadata[("x" + shutterOverlayGroup + "0040") as keyof MetaData];
-  const origin =
-    metadata[("x" + shutterOverlayGroup + "0050") as keyof MetaData];
+  const origin = metadata[
+    ("x" + shutterOverlayGroup + "0050") as keyof MetaData
+  ] as number[];
   const bitsAllocated =
     metadata[("x" + shutterOverlayGroup + "0100") as keyof MetaData];
   const bitPosition =
@@ -446,8 +447,8 @@ export function retrieveOverlayToolData(
       ? `rgba(${presentationGSValue}, ${presentationGSValue}, ${presentationGSValue}, 1)`
       : `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`, // Example fill style, adjust as needed
     visible: true, // Example visibility flag, adjust as needed
-    x: origin ? (origin as number[])[1] - 1 : 0, // Adjust x based on origin
-    y: origin ? (origin as number[])[0] - 1 : 0, // Adjust y based on origin,
+    x: origin ? origin[1] - 1 : 0, // Adjust x based on origin
+    y: origin ? origin[0] - 1 : 0, // Adjust y based on origin,
     bitsAllocated,
     bitPosition,
     subtype
