@@ -181,7 +181,7 @@ export function retrieveTextObjectDetails(
               italic: textObject.x00700231[0].x00700250
             }
           : null
-      } as unknown as TextDetails,
+      } as MergedDetails,
       toolAnnotations
     );
   }
@@ -236,7 +236,7 @@ export function retrieveGraphicObjectDetails(
             shadowOpacity: graphicObject.x00700232[0].x00700258
           }
         : null
-    } as GraphicDetails,
+    } as MergedDetails,
     toolAnnotations
   );
 }
@@ -306,7 +306,7 @@ export function retrieveCompoundObjectDetails(
     }
   }
   setToolAnnotationsAndOverlays(
-    compoundDetails as CompoundDetails,
+    compoundDetails as MergedDetails,
     toolAnnotations
   );
 }
@@ -393,8 +393,9 @@ export function retrieveOverlayToolData(
   const rows = metadata[("x" + shutterOverlayGroup + "0010") as keyof MetaData];
   const cols = metadata[("x" + shutterOverlayGroup + "0011") as keyof MetaData];
   const type = metadata[("x" + shutterOverlayGroup + "0040") as keyof MetaData];
-  const origin =
-    metadata[("x" + shutterOverlayGroup + "0050") as keyof MetaData];
+  const origin = metadata[
+    ("x" + shutterOverlayGroup + "0050") as keyof MetaData
+  ] as number[];
   const bitsAllocated =
     metadata[("x" + shutterOverlayGroup + "0100") as keyof MetaData];
   const bitPosition =
@@ -429,7 +430,7 @@ export function retrieveOverlayToolData(
     ? convertCIELabToRGBWithRefs(overlayCIELabColor)
     : [0, 0, 0];
 
-  const overlay: Overlay = {
+  const overlay = {
     isOverlay: true,
     renderingOrder: overlayRenderingOrder,
     canBeRendered: overlayActivationLayer ? true : false,
@@ -452,5 +453,6 @@ export function retrieveOverlayToolData(
     bitPosition,
     subtype
   };
-  if (overlay) setToolAnnotationsAndOverlays(overlay, toolAnnotations);
+  if (overlay)
+    setToolAnnotationsAndOverlays(overlay as MergedDetails, toolAnnotations);
 }

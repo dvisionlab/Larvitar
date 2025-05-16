@@ -3,6 +3,7 @@ import { DataSet } from "dicom-parser";
 import { MetaDataTypes } from "./MetaDataTypes";
 import { MetaDataReadable } from "./MetaDataReadable";
 import { Element } from "dicom-parser";
+import { Overlay } from "./tools/types";
 // TODO-ts: differentiate each single metadata @szanchi
 /*export type MetadataValue =
   | string
@@ -29,7 +30,7 @@ export type sortedTags = {
   shiftTotal: number;
 };
 
-export type pdfType = { getPage: function; numPages: number };
+export type pdfType = { getPage: Function; numPages: number };
 
 export type StoreViewport = {
   loading: number | null;
@@ -138,10 +139,10 @@ export type StagedProtocol = {
 };
 
 export type BiPlane = {
-  tag: string;
-  referencedSOPInstanceUID: string;
-  positionerPrimaryAngle: string; // LAO >= 0, RAO < 0
-  positionerSecondaryAngle: string; // CRA >= 0, CAU < 0
+  tag?: string;
+  referencedSOPInstanceUID?: string;
+  positionerPrimaryAngle?: string; // LAO >= 0, RAO < 0
+  positionerSecondaryAngle?: string; // CRA >= 0, CAU < 0
 };
 
 export type DSA = {
@@ -226,7 +227,7 @@ export type Contours = {
 
 export type Header = {
   volume: Volume;
-  [imageId: string]: Instance.metadata;
+  [imageId: string]: MetaData | Volume;
 };
 
 export type Volume = {
@@ -298,7 +299,7 @@ export interface CustomDataSet extends DataSet {
 
 type Orientation = "axial" | "coronal" | "sagittal";
 
-type TypedArray =
+export type TypedArray =
   | Float64Array
   | Uint8Array
   | Uint8ClampedArray
@@ -308,21 +309,6 @@ type TypedArray =
   | Int32Array
   | Uint32Array
   | Float32Array;
-
-type StoreViewport = typeof DEFAULT_VIEWPORT;
-
-type StoreViewportOptions = {
-  numberOfSlices?: number;
-  sliceNumber?: number;
-  wc?: number;
-  ww?: number;
-  defaultWC?: number;
-  defaultWW?: number;
-  scale?: number;
-  colormap?: string;
-  tr_x?: number;
-  tr_y?: number;
-};
 
 export type NrrdInputVolume = {
   header: {

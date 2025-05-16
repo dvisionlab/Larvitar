@@ -1,3 +1,5 @@
+import { BiPlane } from "./types";
+
 //human readable dictionary
 export type MetaDataReadable = {
   anonymized?: boolean;

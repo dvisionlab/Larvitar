@@ -7,7 +7,7 @@
 import { get as _get, cloneDeep as _cloneDeep } from "lodash";
 
 // internal libraries
-import type { StoreViewport } from "./types.d";
+import type { StoreViewport } from "./types";
 
 type StoreSeries = {
   imageIds: string[];
