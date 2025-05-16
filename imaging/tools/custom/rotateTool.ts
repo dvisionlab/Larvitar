@@ -70,8 +70,8 @@ function defaultStrategy(this: RotateTool, evt: MeasurementMouseEvent) {
 
   const { scale, translation } = viewport;
   const centerPoints = {
-    x: rect.left + width / 2 + translation.x * scale,
-    y: rect.top + height / 2 + translation.y * scale
+    x: rect.left + width / 2 + translation!.x * scale,
+    y: rect.top + height / 2 + translation!.y * scale
   };
 
   const angleInfo = angleBetweenPoints(

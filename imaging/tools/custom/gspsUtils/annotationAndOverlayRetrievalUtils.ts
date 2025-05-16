@@ -181,7 +181,7 @@ export function retrieveTextObjectDetails(
               italic: textObject.x00700231[0].x00700250
             }
           : null
-      } as unknown as TextDetails,
+      } as unknown as MergedDetails,
       toolAnnotations
     );
   }
@@ -236,7 +236,7 @@ export function retrieveGraphicObjectDetails(
             shadowOpacity: graphicObject.x00700232[0].x00700258
           }
         : null
-    } as GraphicDetails,
+    } as MergedDetails,
     toolAnnotations
   );
 }
@@ -306,7 +306,7 @@ export function retrieveCompoundObjectDetails(
     }
   }
   setToolAnnotationsAndOverlays(
-    compoundDetails as CompoundDetails,
+    compoundDetails as MergedDetails,
     toolAnnotations
   );
 }
@@ -429,7 +429,7 @@ export function retrieveOverlayToolData(
     ? convertCIELabToRGBWithRefs(overlayCIELabColor)
     : [0, 0, 0];
 
-  const overlay: Overlay = {
+  const overlay = {
     isOverlay: true,
     renderingOrder: overlayRenderingOrder,
     canBeRendered: overlayActivationLayer ? true : false,
@@ -446,11 +446,12 @@ export function retrieveOverlayToolData(
       ? `rgba(${presentationGSValue}, ${presentationGSValue}, ${presentationGSValue}, 1)`
       : `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`, // Example fill style, adjust as needed
     visible: true, // Example visibility flag, adjust as needed
-    x: origin ? origin[1] - 1 : 0, // Adjust x based on origin
-    y: origin ? origin[0] - 1 : 0, // Adjust y based on origin,
+    x: origin ? (origin as number[])[1] - 1 : 0, // Adjust x based on origin
+    y: origin ? (origin as number[])[0] - 1 : 0, // Adjust y based on origin,
     bitsAllocated,
     bitPosition,
     subtype
   };
-  if (overlay) setToolAnnotationsAndOverlays(overlay, toolAnnotations);
+  if (overlay)
+    setToolAnnotationsAndOverlays(overlay as MergedDetails, toolAnnotations);
 }
