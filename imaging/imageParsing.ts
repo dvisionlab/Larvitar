@@ -337,12 +337,13 @@ const parseFile = function (file: File) {
             let pdfObject: Partial<ImageObject> = {
               // data needed for rendering
               file: file,
-              dataSet: dataSet
+              dataSet: dataSet,
+              instanceUID: metadataReadables.instanceUID
             };
             pdfObject.metadata = metadata;
             pdfObject.metadata.uniqueUID = metadataReadables.uniqueUID;
             pdfObject.metadata.seriesUID = metadataReadables.seriesUID;
-            pdfObject.instanceUID = metadataReadables.instanceUID;
+            pdfObject.metadata.instanceUID = metadataReadables.instanceUID;
             pdfObject.metadata.studyUID = metadataReadables.studyUID;
             pdfObject.metadata.accessionNumber =
               metadataReadables.accessionNumber;
