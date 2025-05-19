@@ -1,3 +1,5 @@
+import { HandlePosition, Overlay } from "../../types";
+
 export type AnnotationDetails = {
   description?: string;
   annotationID?: string;

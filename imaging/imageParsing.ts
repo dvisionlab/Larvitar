@@ -507,6 +507,7 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
     const positionerSecondaryAngle = metadata["x00181511"]
       ? metadata["x00181511"]
       : 0;
+
     metadataReadable.biplane = {};
     metadataReadable.biplane.tag = tag;
     metadataReadable.biplane.referencedSOPInstanceUID =
