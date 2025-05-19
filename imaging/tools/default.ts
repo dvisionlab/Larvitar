@@ -25,6 +25,8 @@
 
 // external libraries
 import { filter, isArray } from "lodash";
+import { Enums as csToolsEnums } from "@cornerstonejs/tools";
+const MouseBindings = csToolsEnums.MouseBindings;
 
 // internal libraries
 import { logger } from "../../logger";
@@ -51,6 +53,282 @@ import type {
 } from "./types";
 import RotateTool from "./custom/rotateTool";
 import GspsTool from "./custom/gspsTool";
+
+const DEFAULT_TOOLS_3D: {
+  [key: string]: ToolConfig;
+} = {
+  ScaleOverlay: {
+    name: "ScaleOverlay",
+    viewports: "all",
+    configuration: {
+      minorTickLength: 25,
+      majorTickLength: 50
+    },
+    options: {
+      mouseButtonMask: 1
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "ScaleOverlayTool",
+    description: "Add scale overlay",
+    shortcut: "ctrl-m",
+    type: "overlay"
+  },
+  OrientationMarker: {
+    name: "OrientationMarker",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "OrientationMarkerTool",
+    description: "Add orientation markers",
+    shortcut: "ctrl-m",
+    type: "overlay"
+  },
+  WindowLevel: {
+    name: "WindowLevel",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"],
+      // @ts-ignore
+      bindings: [
+        {
+          mouseButton: MouseBindings.Primary,
+        },
+      ],
+    },
+    cleanable: false,
+    defaultActive: true,
+    class: "WindowLevelTool",
+    // sync: "wwwcSynchronizer",
+    description: "Change image contrast",
+    shortcut: "ctrl-m",
+    type: "utils"
+  },
+  WindowLevelRegion: {
+    name: "WindowLevelRegion",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "WindowLevelRegionTool",
+    // sync: "wwwcSynchronizer",
+    description: "Change image contrast based on selected region",
+    shortcut: "ctrl-m",
+    type: "utils"
+  },
+  StackScroll: {
+    name: "StackScroll",
+    viewports: "all",
+    configuration: {
+      loop: false, // default false
+      allowSkipping: true // default true
+    },
+    options: {
+      mouseButtonMask: 1,
+      deltaY: 0, // default 0
+      bindings: [
+        {
+          mouseButton: MouseBindings.Wheel,
+        },
+      ],
+    },
+    cleanable: false,
+    defaultActive: true,
+    class: "StackScrollTool"
+  },
+  Pan: {
+    name: "Pan",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: false,
+    defaultActive: false,
+    class: "PanTool",
+    description: "Move image xy",
+    shortcut: "ctrl-p",
+    type: "utils"
+  },
+  Zoom: {
+    name: "Zoom",
+    viewports: "all",
+    configuration: {
+      invert: false,
+      preventZoomOutsideImage: false,
+      minScale: 0.01,
+      maxScale: 25.0
+    },
+    options: {
+      mouseButtonMask: 2,
+      supportedInteractionTypes: ["Mouse", "Touch"],
+      defaultStrategy: "default", // can be 'default', 'translate' or 'zoomToCenter'
+      bindings: [
+        {
+          mouseButton: MouseBindings.Secondary,
+        },
+      ],
+    },
+    cleanable: false,
+    class: "ZoomTool",
+    defaultActive: true,
+    description: "Zoom image at mouse position",
+    shortcut: "ctrl-z",
+    type: "utils"
+  },
+  DragProbe: {
+    name: "DragProbe",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: false,
+    class: "DragProbeTool",
+    description: "Probe image at mouse position",
+    shortcut: "ctrl-p",
+    type: "utils"
+  },
+  PlanarRotate: {
+    name: "PlanarRotate",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: false,
+    class: "PlanarRotateTool",
+    description: "Rotate image"
+  },
+  Length: {
+    name: "Length",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: true,
+    class: "LengthTool"
+  },
+  Angle: {
+    name: "Angle",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: true,
+    class: "AngleTool"
+  },
+  Bidirectional: {
+    name: "Bidirectional",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "BidirectionalTool"
+  },
+  EllipticalROI: {
+    name: "EllipticalROI",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "EllipticalROITool",
+    description: "Draw an ellipse",
+    shortcut: "ctrl-f",
+    type: "annotation"
+  },
+  RectangleROI: {
+    name: "RectangleROI",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    defaultActive: false,
+    class: "RectangleROITool",
+    description: "Draw a rectangle",
+    shortcut: "ctrl-a",
+    type: "annotation"
+  },
+  PlanarFreehandROI: {
+    name: "PlanarFreehandROI",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "PlanarFreehandROITool",
+    description: "Draw a polyline / freehand form",
+    shortcut: "ctrl-s",
+    type: "annotation"
+  },
+  Probe: {
+    name: "Probe",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "ProbeTool"
+  },
+  ArrowAnnotate: {
+    name: "ArrowAnnotate",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "ArrowAnnotateTool",
+    description: "Draw an arrow",
+    shortcut: "ctrl-d",
+    type: "annotation"
+  },
+  Label: { // ex text marker
+    name: "Label",
+    viewports: "all",
+    configuration: {
+      markers: Object.keys(new Array(100).fill(0)),
+      current: "0",
+      ascending: true,
+      loop: true
+    },
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "LabelTool"
+  },
+  Eraser: {
+    name: "Eraser",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    class: "EraserTool"
+  },
+  Brush: {
+    name: "Brush",
+    viewports: "all",
+    configuration: {},
+    options: { mouseButtonMask: 1 },
+    cleanable: true,
+    class: "BrushTool",
+    description: "A simple brush",
+    shortcut: "ctrl-q",
+    type: "segmentation"
+  },
+  // TODO segmentation tools
+}
 
 /**
  * These tools are added with `addDefaultTools()`
@@ -705,6 +983,7 @@ const registerExternalTool = function (toolName: string, toolClass: any) {
 
 export {
   DEFAULT_TOOLS,
+  DEFAULT_TOOLS_3D,
   DEFAULT_STYLE,
   DEFAULT_SETTINGS,
   DEFAULT_MOUSE_KEYS,
