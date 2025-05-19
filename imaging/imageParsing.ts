@@ -334,15 +334,17 @@ const parseFile = function (file: File) {
           let pixelDataElement = dataSet.elements.x7fe00010;
           let SOPUID = metadata["x00080016"];
           if (SOPUID == "1.2.840.10008.5.1.4.1.1.104.1") {
+            const instanceUID = metadataReadables.instanceUID;
             let pdfObject: Partial<ImageObject> = {
               // data needed for rendering
               file: file,
-              dataSet: dataSet
+              dataSet: dataSet,
+              instanceUID
             };
             pdfObject.metadata = metadata;
             pdfObject.metadata.uniqueUID = metadataReadables.uniqueUID;
             pdfObject.metadata.seriesUID = metadataReadables.seriesUID;
-            pdfObject.instanceUID = metadataReadables.instanceUID;
+            pdfObject.metadata.instanceUID = instanceUID;
             pdfObject.metadata.studyUID = metadataReadables.studyUID;
             pdfObject.metadata.accessionNumber =
               metadataReadables.accessionNumber;
