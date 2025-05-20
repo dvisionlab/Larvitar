@@ -8,7 +8,7 @@ import { forEach, each, has, pick } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
-import { logger } from "../logger";
+import { logger } from "../common/logger";
 import { randomId } from "./imageUtils";
 import { getNestedObject, parseTag } from "./imageTags";
 import { updateLoadedStack } from "./imageLoading";

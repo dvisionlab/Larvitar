@@ -18,7 +18,7 @@
 import { ByteArray, DataSet, Element } from "dicom-parser";
 
 // internal libraries
-import { logger } from "../logger";
+import { logger } from "../common/logger";
 import { MetaData, Series, tags, customTags, sortedTags } from "./types";
 
 /*

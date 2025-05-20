@@ -172,7 +172,7 @@
       larvitar._cornerstone.init();
       larvitar._initializeImageLoader();
       larvitar._registerStreamingImageVolume();
-      larvitar._cornerstoneTools.init();
+      larvitar._initializeCSTools();
       // initialize store and add viewports
       larvitar.store.initialize();
       larvitar.store.addViewport(viewportId1);
@@ -201,7 +201,7 @@
             larvitar._renderMpr(serie, ...viewportIds).then(renderingEngine => {
               console.log("Volume rendered", renderingEngine);
               // add and enable wwwc, pan, zoom, and stack tools
-              larvitar._addDefaultTools3D(viewportIds, renderingEngine);
+              larvitar._addDefaultTools(viewportIds, renderingEngine, "mpr");
               hideSpinner();
             });
           })

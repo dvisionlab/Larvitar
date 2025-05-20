@@ -3,7 +3,7 @@ import * as csTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 
 // internal imports
-import { logger } from "../../../logger";
+import { logger } from "../../../common/logger";
 
 // cornerstone tools imports
 const external = csTools.external;
@@ -136,10 +136,10 @@ export interface MeasurementMouseEvent {
   stopPropagation?: Function;
   preventDefault?: Function;
 }
-import type { HandleTextBox } from "../types";
+import type { HandleTextBox } from "../../../common/types";
 
 import { Image, Viewport } from "../../types";
-import { HandlePosition, Rectangle, Stats } from "../types";
+import { HandlePosition, Rectangle, Stats } from "../../../common/types";
 /**
  * @public
  * @class FreehandRoiTool

@@ -8,7 +8,7 @@ import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 import { each, range } from "lodash";
 
 // internal libraries
-import { logger } from "../../logger";
+import { logger } from "../../common/logger";
 import { getImageFrame } from "./commonLoader";
 import { getImageTracker, getImageManager } from "../imageManagers";
 import { parseDataSet } from "../imageParsing";

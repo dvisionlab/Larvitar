@@ -8,7 +8,7 @@ import cornerstone from "cornerstone-core";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 
 // internal libraries
-import { logger } from "../../logger";
+import { logger } from "../../common/logger";
 import { getImageFrame } from "./commonLoader";
 import { getImageTracker, getImageManager } from "../imageManagers";
 import type { Image, ImageFrame, MetaData } from "../types";

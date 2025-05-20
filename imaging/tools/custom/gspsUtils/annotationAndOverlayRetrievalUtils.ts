@@ -8,9 +8,9 @@ import type {
   MergedDetails
 } from "./types";
 import { MetaData } from "../../../types";
-import { Overlay } from "../../types";
+import { Overlay } from "../../../../common/types";
 import { convertCIELabToRGBWithRefs } from "./genericDrawingUtils";
-import { logger } from "../../../../logger";
+import { logger } from "../../../../common/logger";
 
 //RETRIEVE ANNOTATIONS
 

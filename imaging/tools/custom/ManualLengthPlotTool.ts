@@ -19,8 +19,8 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 );
 
 //internal imports
-import { logger } from "../../../logger";
-import { HandlePosition } from "../types";
+import { logger } from "../../../common/logger";
+import { HandlePosition } from "../../../common/types";
 
 //interfaces/types
 type PixelSpacing = {

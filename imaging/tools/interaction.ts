@@ -10,13 +10,13 @@ import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 
 // internal libraries
-import { logger } from "../../logger";
-import { DEFAULT_MOUSE_KEYS } from "./default";
+import { logger } from "../../common/logger";
+import { DEFAULT_MOUSE_KEYS } from "../../common/default";
 import { setToolActive } from "./main";
 import { isElement } from "../imageUtils";
 import store, { set as setStore } from "../imageStore";
 import { updateViewportData } from "../imageRendering";
-import type { ToolMouseKeys } from "./types";
+import type { ToolMouseKeys } from "../../common/types";
 
 /**
  * TOOLS INTERACTIONS TODOS:

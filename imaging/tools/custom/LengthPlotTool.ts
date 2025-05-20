@@ -19,8 +19,8 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 );
 const EVENTS = cornerstoneTools.EVENTS;
 //internal imports
-import { logger } from "../../../logger";
-import { HandlePosition } from "../types";
+import { logger } from "../../../common/logger";
+import { HandlePosition } from "../../../common/types";
 
 //interfaces/types
 

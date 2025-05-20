@@ -11,7 +11,7 @@ const segModule = cornerstoneTools.getModule("segmentation");
 const { getters, setters } = segModule;
 
 // internal libraries
-import { logger } from "../../logger";
+import { logger } from "../../common/logger";
 import { setToolActive, setToolDisabled } from "./main";
 import { isElement } from "../imageUtils";
 import store from "../imageStore";
@@ -24,7 +24,7 @@ import {
   MaskProperties,
   MaskVisualizations,
   SegmentationConfig
-} from "./types.d";
+} from "../../common/types";
 import type { TypedArray } from "../types";
 // override function
 setters.labelmap3DForElement = setLabelmap3DForElement;

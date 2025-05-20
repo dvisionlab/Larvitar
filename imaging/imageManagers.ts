@@ -21,7 +21,7 @@ import type {
   FileManager
 } from "./types";
 import { getFileCustomImageId } from "./loaders/fileLoader";
-import { logger } from "../logger";
+import { logger } from "../common/logger";
 
 // global variables
 var imageManager: ImageManager = null;

@@ -33,7 +33,7 @@ import type {
 } from "./types";
 import { getTagValue } from "./imageTags";
 import { MetaDataTypes } from "./MetaDataTypes";
-import { logger } from "../logger";
+import { logger } from "../common/logger";
 
 // global module variables
 // variables used to manage the reslice functionality

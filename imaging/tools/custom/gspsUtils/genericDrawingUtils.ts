@@ -2,7 +2,7 @@ import type { TextDetails } from "./types";
 import { rotateCoords } from "./genericMathUtils";
 import * as csTools from "cornerstone-tools";
 import cornerstone, { Image, PixelCoordinate } from "cornerstone-core";
-import { Coords, ViewportComplete } from "../../types";
+import { Coords, ViewportComplete } from "../../../../common/types";
 const drawArrow = csTools.importInternal("drawing/drawArrow");
 const drawLine = csTools.importInternal("drawing/drawLine");
 

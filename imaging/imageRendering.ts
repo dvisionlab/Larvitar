@@ -9,7 +9,7 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 import { each, has } from "lodash";
 
 // internal libraries
-import { logger } from "../logger";
+import { logger } from "../common/logger";
 import { getDataFromFileManager, getFileManager } from "./imageManagers";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
@@ -22,7 +22,7 @@ import {
   StoreViewport,
   Viewport
 } from "./types";
-import { DEFAULT_TOOLS } from "./tools/default";
+import { DEFAULT_TOOLS } from "../common/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
 import { setPixelShift } from "./loaders/dsaImageLoader";

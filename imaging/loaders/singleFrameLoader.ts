@@ -7,7 +7,7 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 
 // internal libraries
-import { logger } from "../../logger";
+import { logger } from "../../common/logger";
 import type { Image, ImageObject, MetaData, SingleFrameCache } from "../types";
 
 // global module variables

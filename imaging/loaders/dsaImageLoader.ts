@@ -16,7 +16,7 @@ import {
 import type { DSA, Image, ImageManager, Series } from "../types";
 import { getMaxPixelValue, getMinPixelValue } from "../imageUtils";
 import { applyDSA } from "../postProcessing/applyDSA";
-import { logger } from "../../logger";
+import { logger } from "../../common/logger";
 
 // global module variables
 let customImageLoaderCounter: number = 0;

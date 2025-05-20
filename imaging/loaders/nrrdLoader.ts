@@ -34,7 +34,7 @@ import type {
   NrrdInstance,
   NrrdSeries
 } from "../types";
-import { logger } from "../../logger";
+import { logger } from "../../common/logger";
 
 // global module variables
 let customImageLoaderCounter = 0;

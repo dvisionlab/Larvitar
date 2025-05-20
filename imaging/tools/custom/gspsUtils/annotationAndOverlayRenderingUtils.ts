@@ -27,8 +27,8 @@ import {
 } from "./genericDrawingUtils";
 import * as csTools from "cornerstone-tools";
 import cornerstone, { Image, PixelCoordinate } from "cornerstone-core";
-import { Coords, ViewportComplete } from "../../types";
-import { logger } from "../../../../logger";
+import { Coords, ViewportComplete } from "../../../../common/types";
+import { logger } from "../../../../common/logger";
 const drawArrow = csTools.importInternal("drawing/drawArrow");
 const drawLine = csTools.importInternal("drawing/drawLine");
 const drawLink = csTools.importInternal("drawing/drawLink");

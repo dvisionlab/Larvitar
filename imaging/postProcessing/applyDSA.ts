@@ -7,7 +7,7 @@ import { find } from "lodash";
 import cornerstone, { Image } from "cornerstone-core";
 
 // internal libraries
-import { logger } from "../../logger";
+import { logger } from "../../common/logger";
 import { DSA, Series } from "../types";
 import { renderImage, redrawImage } from "../imageRendering";
 import store from "../imageStore";

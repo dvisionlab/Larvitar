@@ -12,9 +12,9 @@ const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
 const getToolState = cornerstoneTools.getToolState;
 
 // internal libraries
-import { logger } from "../../../logger";
+import { logger } from "../../../common/logger";
 import store, { set as setStore } from "../../imageStore";
-import { DEFAULT_TOOLS } from "../default";
+import { DEFAULT_TOOLS } from "../../../common/default";
 import { StoreViewport } from "../../types";
 import scrollToIndex from "./utils/customMouseWheelScrollToolUtils/customMouseWheelUtils";
 import { getImageManager, getImageTracker } from "../../imageManagers";

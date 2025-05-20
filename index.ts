@@ -38,7 +38,7 @@ import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 const segModule = cornerstoneTools.getModule("segmentation");
 
-import { logger, setLogLevel, getLogLevel } from "./logger";
+import { logger, setLogLevel, getLogLevel } from "./common/logger";
 console.log(`Logging level set to: ${getLogLevel()}`);
 
 import {
@@ -194,7 +194,7 @@ import {
   getDefaultToolsByType,
   setDefaultToolsProps,
   registerExternalTool
-} from "./imaging/tools/default";
+} from "./common/default";
 
 import {
   initSegmentationModule,
@@ -285,8 +285,7 @@ import { renderImage as _renderImage } from "./imaging3d/imageRendering";
 import { renderMpr as _renderMpr } from "./imaging3d/imageRendering";
 import { prefetchMetadataInformation as _prefetchMetadataInformation } from "./imaging3d/multiframe";
 import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imaging3d/multiframe";
-import { addDefaultTools as _addDefaultTools } from "./imaging3d/tools/main";
-import { addDefaultTools3D as _addDefaultTools3D } from "./imaging3d/tools/main";
+import { addDefaultTools as _addDefaultTools, initializeCSTools as _initializeCSTools } from "./imaging3d/tools/main";
 import {
   updateImageManager,
   populateImageManager,
@@ -310,6 +309,7 @@ export {
   _cornerstone,
   _cornerstoneDICOMImageLoader,
   _cornerstoneTools,
+  _initializeCSTools,
   _initializeImageLoader,
   _readFiles,
   _renderImage,
@@ -320,7 +320,6 @@ export {
   _prefetchMetadataInformation,
   _convertMultiframeImageIds,
   _addDefaultTools,
-  _addDefaultTools3D,
   VERSION,
   // global cornerstone variables
   cornerstone,

@@ -32,9 +32,9 @@ import {
 } from "../../imageManagers";
 import { redrawImage, resetViewports } from "../../imageRendering";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
-import { MeasurementMouseEvent, ViewportComplete } from "../types";
+import { MeasurementMouseEvent, ViewportComplete } from "../../../common/types";
 import { ToolAnnotations } from "./gspsUtils/types";
-import { logger } from "../../../logger";
+import { logger } from "../../../common/logger";
 const toolColors = csTools.toolColors;
 const setShadow = csTools.importInternal("drawing/setShadow");
 const getNewContext = csTools.importInternal("drawing/getNewContext");
