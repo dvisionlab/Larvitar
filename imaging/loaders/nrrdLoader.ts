@@ -34,7 +34,7 @@ import type {
   NrrdInstance,
   NrrdSeries
 } from "../types";
-import { logger } from "../../logger";
+import { logger } from "../../common/logger";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -86,27 +86,27 @@ export const buildNrrdImage = function (
 
   let spacing_x = Math.sqrt(
     volume.header["space directions"][index + 0][0] *
-      volume.header["space directions"][index + 0][0] +
-      volume.header["space directions"][index + 0][1] *
-        volume.header["space directions"][index + 0][1] +
-      volume.header["space directions"][index + 0][2] *
-        volume.header["space directions"][index + 0][2]
+    volume.header["space directions"][index + 0][0] +
+    volume.header["space directions"][index + 0][1] *
+    volume.header["space directions"][index + 0][1] +
+    volume.header["space directions"][index + 0][2] *
+    volume.header["space directions"][index + 0][2]
   );
   let spacing_y = Math.sqrt(
     volume.header["space directions"][index + 1][0] *
-      volume.header["space directions"][index + 1][0] +
-      volume.header["space directions"][index + 1][1] *
-        volume.header["space directions"][index + 1][1] +
-      volume.header["space directions"][index + 1][2] *
-        volume.header["space directions"][index + 1][2]
+    volume.header["space directions"][index + 1][0] +
+    volume.header["space directions"][index + 1][1] *
+    volume.header["space directions"][index + 1][1] +
+    volume.header["space directions"][index + 1][2] *
+    volume.header["space directions"][index + 1][2]
   );
   let spacing_z = Math.sqrt(
     volume.header["space directions"][index + 2][0] *
-      volume.header["space directions"][index + 2][0] +
-      volume.header["space directions"][index + 2][1] *
-        volume.header["space directions"][index + 2][1] +
-      volume.header["space directions"][index + 2][2] *
-        volume.header["space directions"][index + 2][2]
+    volume.header["space directions"][index + 2][0] +
+    volume.header["space directions"][index + 2][1] *
+    volume.header["space directions"][index + 2][1] +
+    volume.header["space directions"][index + 2][2] *
+    volume.header["space directions"][index + 2][2]
   );
   header.volume.rows = volume.header.sizes[index + 1];
   header.volume.cols = volume.header.sizes[index + 0];
@@ -424,12 +424,12 @@ let createCustomImage = function (
   let pixelSpacing = metadata.x00280030
     ? metadata.x00280030
     : metadata.x00080060 === "US" &&
-        metadata["x00186011"]![0].x0018602e != undefined &&
-        metadata["x00186011"]![0].x0018602c != undefined
+      metadata["x00186011"]![0].x0018602e != undefined &&
+      metadata["x00186011"]![0].x0018602c != undefined
       ? ([
-          metadata["x00186011"]![0].x0018602e * 10, //so that from cm goes to mm
-          metadata["x00186011"]![0].x0018602c * 10
-        ] as [number, number])
+        metadata["x00186011"]![0].x0018602e * 10, //so that from cm goes to mm
+        metadata["x00186011"]![0].x0018602c * 10
+      ] as [number, number])
       : metadata.x00181164
         ? metadata.x00181164
         : [1, 1];
@@ -550,7 +550,7 @@ let createCustomImage = function (
     } else {
       logger.error(
         "Unable to calculate default window width/center for imageId: " +
-          imageId
+        imageId
       );
     }
   }

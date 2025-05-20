@@ -7,7 +7,7 @@ import { find } from "lodash";
 import cornerstone, { Image } from "cornerstone-core";
 
 // internal libraries
-import { logger } from "../../logger";
+import { logger } from "../../common/logger";
 import { DSA, Series } from "../types";
 import { renderImage, redrawImage } from "../imageRendering";
 import store from "../imageStore";
@@ -36,7 +36,7 @@ export function applyDSA(
 
   // switch on DSA MaskOperation
   switch (
-    dsaMetadata.x00286101 // DSA MaskOperation
+  dsaMetadata.x00286101 // DSA MaskOperation
   ) {
     case "AVG_SUB":
       return avgSubMask(dsaMetadata, imageIds, index, inputMaskSubPixelShift);
@@ -185,7 +185,7 @@ function avgSubMask(
             rowOffset * srcImage.columns + j >= contrastFrame.length ||
             rowOffset * srcImage.columns + j < 0 ||
             rowOffset * srcImage.columns + colOffset + j >=
-              contrastFrame.length ||
+            contrastFrame.length ||
             rowOffset * srcImage.columns + colOffset + j < 0
           ) {
             resultFramesAvg[j] = contrastFrame[j];
@@ -210,7 +210,7 @@ function avgSubMask(
             rowOffset * srcImage.columns + j >= contrastFrame.length ||
             rowOffset * srcImage.columns + j < 0 ||
             rowOffset * srcImage.columns + colOffset + j >=
-              contrastFrame.length ||
+            contrastFrame.length ||
             rowOffset * srcImage.columns + colOffset + j < 0
           ) {
             resultFramesAvg[j] = contrastFrame[j];
@@ -368,7 +368,7 @@ function revTidMask(
     let maskimage: Image = find(cachedImages, {
       imageId:
         imageIds[
-          frameRangeRevTid[0] - RevTidOffset - index - frameRangeRevTid[0]
+        frameRangeRevTid[0] - RevTidOffset - index - frameRangeRevTid[0]
         ]
     }).image;
     let contrastMaskFrame: number[] = maskimage.getPixelData();

@@ -30,7 +30,7 @@ import {
   StoreViewportOptions,
   Viewport
 } from "../imaging/types";
-import { logger } from "../logger";
+import { logger } from "../common/logger";
 // import { DEFAULT_TOOLS } from "./tools/default";
 // import { initializeFileImageLoader } from "./imageLoading";
 // import { generateFiles } from "./parsers/pdf";

@@ -2,7 +2,7 @@
 import cornerstoneTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { ImageManager, Series, Viewport } from "../../types";
-import { EventData, Overlay } from "../types";
+import { EventData, Overlay } from "../../../common/types";
 const external = cornerstoneTools.external;
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
 import { getImageTracker, getImageManager } from "../../imageManagers";

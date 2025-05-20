@@ -18,7 +18,7 @@
 import { ByteArray, DataSet, Element } from "dicom-parser";
 
 // internal libraries
-import { logger } from "../logger";
+import { logger } from "../common/logger";
 import { MetaData, Series, tags, customTags, sortedTags } from "./types";
 
 /*
@@ -260,7 +260,7 @@ function preProcessByteArray(dataSet: DataSet, metadata: MetaData) {
                   let subElement = element.items[i].dataSet!.elements[subKey]; //nested tags, check how they work
                   if (
                     dataSet.byteArray[
-                      subElement.dataOffset + subElement.length - 1
+                    subElement.dataOffset + subElement.length - 1
                     ] === 0 &&
                     vrsToBeProcessed.includes(subElement.vr!)
                   ) {

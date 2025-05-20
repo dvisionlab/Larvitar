@@ -7,7 +7,7 @@ import cornerstone from "cornerstone-core";
 import { forEach, find } from "lodash";
 
 // internal libraries
-import { logger } from "../logger";
+import { logger } from "../common/logger";
 import {
   getMeanValue,
   getDistanceBetweenSlices,
