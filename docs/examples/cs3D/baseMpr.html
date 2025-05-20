@@ -75,15 +75,20 @@
 
   <body class="h-100" style="background-color: #000000">
     <div class="row h-100">
-      <div id="axial" class="col-4 h-100" style="background-color: black"></div>
+      <div id="axial" class="col-3 h-100" style="background-color: black"></div>
       <div
         id="coronal"
-        class="col-4 h-100"
+        class="col-3 h-100"
         style="background-color: black"
       ></div>
       <div
         id="sagittal"
-        class="col-4 h-100"
+        class="col-3 h-100"
+        style="background-color: black"
+      ></div>
+      <div
+        id="acquisition"
+        class="col-3 h-100"
         style="background-color: black"
       ></div>
       <button
@@ -166,7 +171,8 @@
       const viewportId1 = "axial";
       const viewportId2 = "sagittal";
       const viewportId3 = "coronal";
-      const viewportIds = [viewportId1, viewportId2, viewportId3];
+      const viewportId4 = "acquisition";
+      const viewportIds = [viewportId1, viewportId2, viewportId3, viewportId4];
 
       // init all
       larvitar._cornerstone.init();
@@ -178,6 +184,7 @@
       larvitar.store.addViewport(viewportId1);
       larvitar.store.addViewport(viewportId2);
       larvitar.store.addViewport(viewportId3);
+      larvitar.store.addViewport(viewportId4);
 
       showSpinner();
 
@@ -198,7 +205,25 @@
           .then(async seriesStack => {
             const seriesId = _.keys(seriesStack)[0];
             const serie = seriesStack[seriesId];
-            larvitar._renderMpr(serie, ...viewportIds).then(renderingEngine => {
+            const viewportInputs = [
+              {
+                viewportId: "axial",
+                orientation: "axial"
+              },
+              {
+                viewportId: "coronal",
+                orientation: "coronal"
+              },
+              {
+                viewportId: "sagittal",
+                orientation: "sagittal"
+              },
+              {
+                viewportId: "acquisition",
+                orientation: "acquisition"
+              }
+            ];
+            larvitar._renderMpr(serie, viewportInputs).then(renderingEngine => {
               console.log("Volume rendered", renderingEngine);
               // add and enable wwwc, pan, zoom, and stack tools
               larvitar._addDefaultTools3D(viewportIds, renderingEngine);

@@ -6,7 +6,7 @@
 // external libraries
 import * as cornerstone from "@cornerstonejs/core";
 import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
-import { each, has } from "lodash";
+import { each } from "lodash";
 
 // internal libraries
 //import { getPerformanceMonitor } from "./monitors/performance";
@@ -27,9 +27,11 @@ import {
   RenderProps,
   Series,
   StoreViewport,
-  StoreViewportOptions,
   Viewport
 } from "../imaging/types";
+
+import { MprViewport } from "./types";
+
 import { logger } from "../logger";
 // import { DEFAULT_TOOLS } from "./tools/default";
 // import { initializeFileImageLoader } from "./imageLoading";
@@ -141,54 +143,24 @@ export const renderImage = function (
 
 export const renderMpr = function (
   seriesStack: Series,
-  // TODO change to array o viewports or objects to understand the orientation
-  axialElementId: string | HTMLElement,
-  coronalElementId: string | HTMLElement,
-  sagittalElementId: string | HTMLElement,
+  mprViewports: MprViewport[],
   options?: RenderProps
 ) {
   const t0 = performance.now();
-  // get Axial Element and enable it
-  const axialElement = isElement(axialElementId)
-    ? (axialElementId as HTMLDivElement)
-    : (document.getElementById(axialElementId as string) as HTMLDivElement);
-  if (!axialElement) {
-    console.error("invalid html element: " + axialElementId);
-    return new Promise((_, reject) =>
-      reject("invalid html element: " + axialElementId)
-    );
-  }
-  const axialId: string = isElement(axialElementId)
-    ? axialElement.id
-    : (axialElementId as string);
 
-  // get Coronal Element and enable it
-  const coronalElement = isElement(coronalElementId)
-    ? (coronalElementId as HTMLDivElement)
-    : (document.getElementById(coronalElementId as string) as HTMLDivElement);
-  if (!coronalElement) {
-    console.error("invalid html element: " + coronalElementId);
-    return new Promise((_, reject) =>
-      reject("invalid html element: " + coronalElementId)
-    );
-  }
-  const coronalId: string = isElement(coronalElementId)
-    ? coronalElement.id
-    : (coronalElementId as string);
-
-  // get Sagittal Element and enable it
-  const sagittalElement = isElement(sagittalElementId)
-    ? (sagittalElementId as HTMLDivElement)
-    : (document.getElementById(sagittalElementId as string) as HTMLDivElement);
-  if (!sagittalElement) {
-    console.error("invalid html element: " + sagittalElementId);
-    return new Promise((_, reject) =>
-      reject("invalid html element: " + sagittalElementId)
-    );
-  }
-  const sagittalId: string = isElement(sagittalElementId)
-    ? sagittalElement.id
-    : (sagittalElementId as string);
+  // for each viewportId of mprViewports check that the element is available
+  each(mprViewports, function (viewport: MprViewport) {
+    const element = document.getElementById(viewport.viewportId);
+    if (!element) {
+      logger.error("invalid html element: " + viewport.viewportId);
+      return new Promise((_, reject) =>
+        reject("invalid html element: " + viewport.viewportId)
+      );
+    } else {
+      // set in store that the image is loading on this viewport
+      setStore(["ready", viewport.viewportId, false]);
+    }
+  });
 
   const renderingEngine = new cornerstone.RenderingEngine("mpr");
   const volumeId = `cornerstoneStreamingImageVolume:  volume-mpr`;
@@ -196,18 +168,15 @@ export const renderMpr = function (
   let series = { ...seriesStack };
   const renderOptions = options ? options : {};
 
-  setStore(["ready", axialId, false]);
-  setStore(["ready", coronalId, false]);
-  setStore(["ready", sagittalId, false]);
   let data: StoreViewport = getSeriesData(series, renderOptions);
   console.log("data", data);
 
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) => {
-      setStore(["pendingSliceId", axialId, data.imageIndex]);
-      setStore(["pendingSliceId", coronalId, data.imageIndex]);
-      setStore(["pendingSliceId", sagittalId, data.imageIndex]);
+      each(mprViewports, function (viewport: MprViewport) {
+        setStore(["pendingSliceId", viewport.viewportId, data.imageIndex]);
+      });
       reject("error during renderImage: imageId has not been loaded yet.");
     });
   }
@@ -233,34 +202,23 @@ export const renderMpr = function (
         }
       );
 
-      const viewportInput = [
-        {
-          viewportId: axialId,
-          element: axialElement,
-          type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-          defaultOptions: {
-            orientation: cornerstone.Enums.OrientationAxis.AXIAL
-          }
-        },
-        {
-          viewportId: coronalId,
-          element: coronalElement,
-          type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-          defaultOptions: {
-            orientation: cornerstone.Enums.OrientationAxis.CORONAL
-          }
-        },
-        {
-          viewportId: sagittalId,
-          element: sagittalElement,
-          type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-          defaultOptions: {
-            orientation: cornerstone.Enums.OrientationAxis.SAGITTAL
-          }
-        }
-      ];
+      let viewportInputs: cornerstone.Types.PublicViewportInput[] = [];
 
-      renderingEngine.setViewports(viewportInput);
+      each(mprViewports, function (viewport: MprViewport) {
+        const viewportInput: cornerstone.Types.PublicViewportInput = {
+          viewportId: viewport.viewportId,
+          element: document.getElementById(
+            viewport.viewportId
+          ) as HTMLDivElement,
+          type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
+          defaultOptions: {
+            orientation: viewport.orientation
+          }
+        };
+        viewportInputs.push(viewportInput);
+      });
+
+      renderingEngine.setViewports(viewportInputs);
       await volume.load();
 
       const t1 = performance.now();
@@ -273,10 +231,10 @@ export const renderMpr = function (
             volumeId
           }
         ],
-        [axialId, coronalId, sagittalId]
+        viewportInputs.map(v => v.viewportId)
       );
       // Render the image
-      renderingEngine.renderViewports([axialId, coronalId, sagittalId]);
+      renderingEngine.renderViewports(viewportInputs.map(v => v.viewportId));
 
       // TODO FIT TO WINDOW ?
       // TODO VOI
@@ -284,9 +242,9 @@ export const renderMpr = function (
 
       // TODO modificare lo store
       // storeViewportData(image, element.id, storedViewport as Viewport, data);
-      setStore(["ready", axialId, true]);
-      setStore(["ready", coronalId, true]);
-      setStore(["ready", sagittalId, true]);
+      each(mprViewports, function (viewport: MprViewport) {
+        setStore(["ready", viewport.viewportId, true]);
+      });
 
       const t2 = performance.now();
       console.log("Time to render volume: " + (t2 - t1) + " milliseconds.");
