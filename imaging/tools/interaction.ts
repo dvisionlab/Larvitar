@@ -70,9 +70,9 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
     // keyboard shortcuts (activate on left mouse button)
     let codes = config.keyboard_shortcuts
       ? Object.keys(config.keyboard_shortcuts).map(
-        // @ts-ignore
-        key => keyCodes[key]
-      )
+          // @ts-ignore
+          key => keyCodes[key]
+        )
       : [];
 
     if (codes.includes(evt.keyCode) && evt.altKey) {

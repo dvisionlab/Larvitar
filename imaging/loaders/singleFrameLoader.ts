@@ -177,13 +177,13 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
     let pixelSpacing = metadata.x00280030
       ? metadata.x00280030
       : metadata.x00080060 === "US" &&
-        metadata["x00186011"] != undefined &&
-        metadata["x00186011"][0].x0018602e != undefined &&
-        metadata["x00186011"][0].x0018602c != undefined
+          metadata["x00186011"] != undefined &&
+          metadata["x00186011"][0].x0018602e != undefined &&
+          metadata["x00186011"][0].x0018602c != undefined
         ? [
-          metadata["x00186011"][0].x0018602e * 10, //so that from cm goes to mm
-          metadata["x00186011"][0].x0018602c * 10
-        ]
+            metadata["x00186011"][0].x0018602e * 10, //so that from cm goes to mm
+            metadata["x00186011"][0].x0018602c * 10
+          ]
         : metadata.x00181164
           ? metadata.x00181164
           : [1, 1];

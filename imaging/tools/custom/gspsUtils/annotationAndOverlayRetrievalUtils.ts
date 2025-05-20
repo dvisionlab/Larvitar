@@ -165,21 +165,21 @@ export function retrieveTextObjectDetails(
         trackingUID: textObject.x00620021,
         textStyleSequence: textObject.x00700231
           ? {
-            fontName: textObject.x00700231[0].x00700227,
-            fontNameType: textObject.x00700231[0].x00700228,
-            cssFontName: textObject.x00700231[0].x00700229,
-            textColorCIELabValue: textObject.x00700231[0].x00700241,
-            horizontalAlignment: textObject.x00700231[0].x00700242,
-            verticalAlignment: textObject.x00700231[0].x00700243,
-            shadowStyle: textObject.x00700231[0].x00700244,
-            shadowOffsetX: textObject.x00700231[0].x00700245,
-            shadowOffsetY: textObject.x00700231[0].x00700246,
-            shadowColorCIELabValue: textObject.x00700231[0].x00700247,
-            shadowOpacity: textObject.x00700231[0].x00700258,
-            underlined: textObject.x00700231[0].x00700248,
-            bold: textObject.x00700231[0].x00700249,
-            italic: textObject.x00700231[0].x00700250
-          }
+              fontName: textObject.x00700231[0].x00700227,
+              fontNameType: textObject.x00700231[0].x00700228,
+              cssFontName: textObject.x00700231[0].x00700229,
+              textColorCIELabValue: textObject.x00700231[0].x00700241,
+              horizontalAlignment: textObject.x00700231[0].x00700242,
+              verticalAlignment: textObject.x00700231[0].x00700243,
+              shadowStyle: textObject.x00700231[0].x00700244,
+              shadowOffsetX: textObject.x00700231[0].x00700245,
+              shadowOffsetY: textObject.x00700231[0].x00700246,
+              shadowColorCIELabValue: textObject.x00700231[0].x00700247,
+              shadowOpacity: textObject.x00700231[0].x00700258,
+              underlined: textObject.x00700231[0].x00700248,
+              bold: textObject.x00700231[0].x00700249,
+              italic: textObject.x00700231[0].x00700250
+            }
           : null
       } as MergedDetails,
       toolAnnotations
@@ -222,19 +222,19 @@ export function retrieveGraphicObjectDetails(
       trackingUID: graphicObject.x00620021,
       lineStyleSequence: graphicObject.x00700232
         ? {
-          patternOnColorCIELabValue: graphicObject.x00700232[0].x00700251,
-          patternOffColorCIELabValue: graphicObject.x00700232[0].x00700252,
-          patternOnOpacity: graphicObject.x00700232[0].x00700284,
-          patternOffOpacity: graphicObject.x00700232[0].x00700285,
-          lineThickness: graphicObject.x00700232[0].x00700253,
-          lineDashingStyle: graphicObject.x00700232[0].x00700254,
-          linePattern: graphicObject.x00700232[0].x00700255,
-          shadowStyle: graphicObject.x00700232[0].x00700244,
-          shadowOffsetX: graphicObject.x00700232[0].x00700245,
-          shadowOffsetY: graphicObject.x00700232[0].x00700246,
-          shadowColorCIELabValue: graphicObject.x00700232[0].x00700247,
-          shadowOpacity: graphicObject.x00700232[0].x00700258
-        }
+            patternOnColorCIELabValue: graphicObject.x00700232[0].x00700251,
+            patternOffColorCIELabValue: graphicObject.x00700232[0].x00700252,
+            patternOnOpacity: graphicObject.x00700232[0].x00700284,
+            patternOffOpacity: graphicObject.x00700232[0].x00700285,
+            lineThickness: graphicObject.x00700232[0].x00700253,
+            lineDashingStyle: graphicObject.x00700232[0].x00700254,
+            linePattern: graphicObject.x00700232[0].x00700255,
+            shadowStyle: graphicObject.x00700232[0].x00700244,
+            shadowOffsetX: graphicObject.x00700232[0].x00700245,
+            shadowOffsetY: graphicObject.x00700232[0].x00700246,
+            shadowColorCIELabValue: graphicObject.x00700232[0].x00700247,
+            shadowOpacity: graphicObject.x00700232[0].x00700258
+          }
         : null
     } as MergedDetails,
     toolAnnotations
@@ -281,19 +281,19 @@ export function retrieveCompoundObjectDetails(
     showTick: compoundObject.x00700278,
     lineStyleSequence: compoundObject.x00700232
       ? {
-        patternOnColorCIELabValue: compoundObject.x00700232[0].x00700251,
-        patternOffColorCIELabValue: compoundObject.x00700232[0].x00700252,
-        patternOnOpacity: compoundObject.x00700232[0].x00700284,
-        patternOffOpacity: compoundObject.x00700232[0].x00700285,
-        lineThickness: compoundObject.x00700232[0].x00700253,
-        lineDashingStyle: compoundObject.x00700232[0].x00700254,
-        linePattern: compoundObject.x00700232[0].x00700255,
-        shadowStyle: compoundObject.x00700232[0].x00700244,
-        shadowOffsetX: compoundObject.x00700232[0].x00700245,
-        shadowOffsetY: compoundObject.x00700232[0].x00700246,
-        shadowColorCIELabValue: compoundObject.x00700232[0].x00700247,
-        shadowOpacity: compoundObject.x00700232[0].x00700258
-      }
+          patternOnColorCIELabValue: compoundObject.x00700232[0].x00700251,
+          patternOffColorCIELabValue: compoundObject.x00700232[0].x00700252,
+          patternOnOpacity: compoundObject.x00700232[0].x00700284,
+          patternOffOpacity: compoundObject.x00700232[0].x00700285,
+          lineThickness: compoundObject.x00700232[0].x00700253,
+          lineDashingStyle: compoundObject.x00700232[0].x00700254,
+          linePattern: compoundObject.x00700232[0].x00700255,
+          shadowStyle: compoundObject.x00700232[0].x00700244,
+          shadowOffsetX: compoundObject.x00700232[0].x00700245,
+          shadowOffsetY: compoundObject.x00700232[0].x00700246,
+          shadowColorCIELabValue: compoundObject.x00700232[0].x00700247,
+          shadowOpacity: compoundObject.x00700232[0].x00700258
+        }
       : null
   };
   if (compoundObject.x00700287?.length) {
