@@ -256,20 +256,20 @@ export default class WSToggleTool extends BaseBrushTool {
     const isMultiImage = this.configuration.multiImage;
     isMultiImage
       ? this._processMultiImage(
-        processType!,
-        labelmap2D,
-        labelmap3D,
-        evt,
-        image,
-        circleArray
-      )
+          processType!,
+          labelmap2D,
+          labelmap3D,
+          evt,
+          image,
+          circleArray
+        )
       : this._processSingleImage(
-        processType!,
-        labelmap2D,
-        evt,
-        image,
-        circleArray
-      );
+          processType!,
+          labelmap2D,
+          evt,
+          image,
+          circleArray
+        );
   }
 
   /**

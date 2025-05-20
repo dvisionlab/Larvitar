@@ -262,9 +262,9 @@ export default class GspsTool extends BaseTool {
 
     const isContrastModified =
       this.gspsViewport.voi.windowCenter !==
-      this.originalViewport.voi.windowCenter ||
+        this.originalViewport.voi.windowCenter ||
       this.gspsViewport.voi.windowWidth !==
-      this.originalViewport.voi.windowWidth;
+        this.originalViewport.voi.windowWidth;
 
     if (isZoomed) {
       resetViewports([element.id], ["zoom"]);

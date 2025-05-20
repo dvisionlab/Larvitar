@@ -249,7 +249,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
 
         const endFrame =
           (this.configuration.fixedSlice + 1) *
-          this.configuration.framesNumber -
+            this.configuration.framesNumber -
           1;
 
         // Calculate the potential new index without considering looping

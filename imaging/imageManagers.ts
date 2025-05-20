@@ -251,12 +251,12 @@ export const populateGSPSManager = function (
         if (instanceUID) {
           gspsManager[instanceUID]
             ? gspsManager[instanceUID]!.push({
-              seriesId: prUniqueUID,
-              imageId: imageId
-            })
+                seriesId: prUniqueUID,
+                imageId: imageId
+              })
             : (gspsManager[instanceUID] = [
-              { seriesId: prUniqueUID, imageId: imageId }
-            ]);
+                { seriesId: prUniqueUID, imageId: imageId }
+              ]);
         }
       });
     }

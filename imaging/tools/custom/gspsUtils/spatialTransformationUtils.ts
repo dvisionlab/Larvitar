@@ -2,7 +2,10 @@
 
 import cornerstone from "cornerstone-core";
 import { MetaData } from "../../../types";
-import { DisplayAreaVisualizations, ViewportComplete } from "../../../../common/types";
+import {
+  DisplayAreaVisualizations,
+  ViewportComplete
+} from "../../../../common/types";
 
 /**
  * Applies spatial transformations like rotation and flipping to the viewport

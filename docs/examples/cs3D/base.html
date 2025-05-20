@@ -1,180 +1,203 @@
 <!doctype html>
 <html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
-  <meta charset="UTF-8" />
-
-  <!-- Include the Larvitar script -->
-  <script>
-    // Check the host and set the script source dynamically
-    const script = document.createElement("script");
-    if (window.location.host === "larvitar.dvisionlab.com") {
-      document.write(
-        '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
-      );
-    } else {
-      document.write('<script src="../../../dist/larvitar.js"><\/script>');
-    }
-    // Append the script to the document
-    document.head.appendChild(script);
-  </script>
-
-  <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
-
-  <!-- Include the CSS file -->
-  <link rel="stylesheet" href="../resources/styles.css" />
-
-  <!-- custom styles for the example -->
-  <style></style>
-
-  <!-- Add the Bootstrap JS and Prism JS for code modal -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-
-  <!-- Code to be displayed as source example code -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const showCodeBtn = document.getElementById("showCodeBtn");
-      const codeSnippet = document.getElementById("codeSnippet");
-      const copyCodeBtn = document.getElementById("copyCodeBtn");
-
-      // TODO Code snippet to be displayed and updated for the example
-      const code = ``;
-
-      // Show the modal and populate code snippet
-      showCodeBtn.addEventListener("click", () => {
-        codeSnippet.textContent = code;
-        Prism.highlightElement(codeSnippet); // Highlight the code
-        const codeModal = new bootstrap.Modal(
-          document.getElementById("codeModal")
+    <!-- Include the Larvitar script -->
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
         );
-        codeModal.show();
+      } else {
+        document.write('<script src="../../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="../resources/styles.css" />
+
+    <!-- custom styles for the example -->
+    <style></style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        // TODO Code snippet to be displayed and updated for the example
+        const code = ``;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
       });
+    </script>
 
-      // Copy the code to clipboard
-      copyCodeBtn.addEventListener("click", () => {
-        navigator.clipboard.writeText(code);
-      });
-    });
-  </script>
+    <title>Larvitar CS3D - Basic rendering example</title>
+  </head>
 
-  <title>Larvitar CS3D - Basic rendering example</title>
-</head>
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div id="viewer" class="col-12 h-100" style="background-color: black">
+        <button
+          id="showCodeBtn"
+          class="open-button"
+          style="position: absolute; top: 10px"
+        >
+          Show Code
+        </button>
 
-<body class="h-100" style="background-color: #000000">
-  <div class="row h-100">
-    <div id="viewer" class="col-12 h-100" style="background-color: black">
-      <button id="showCodeBtn" class="open-button" style="position: absolute; top: 10px">
-        Show Code
-      </button>
-
-      <!-- Modal -->
-      <div class="modal fade" id="codeModal" tabindex="-1" aria-labelledby="codeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-            </div>
-            <div class="modal-footer">
-              <button id="copyCodeBtn" class="btn btn-success">
-                Copy Code
-              </button>
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                Close
-              </button>
+        <!-- Modal -->
+        <div
+          class="modal fade"
+          id="codeModal"
+          tabindex="-1"
+          aria-labelledby="codeModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+              </div>
+              <div class="modal-footer">
+                <button id="copyCodeBtn" class="btn btn-success">
+                  Copy Code
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Spinner icon -->
+        <div id="spinner"></div>
       </div>
-
-      <!-- Spinner icon -->
-      <div id="spinner"></div>
     </div>
-  </div>
 
-  <script>
-    const spinner = document.getElementById("spinner");
+    <script>
+      const spinner = document.getElementById("spinner");
 
-    // Show spinner
-    function showSpinner() {
-      spinner.style.display = "block";
-    }
-
-    // Hide spinner
-    function hideSpinner() {
-      spinner.style.display = "none";
-    }
-
-    let demoFiles = [];
-    let counter = 0;
-    let series;
-
-    const getDemoFileNames = function () {
-      let demoFileList = [];
-      for (let i = 1; i < 25; i++) {
-        let filename = "anon" + i;
-        demoFileList.push(filename);
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
       }
-      return demoFileList;
-    };
 
-    // init all
-    larvitar._cornerstone.init();
-    larvitar._initializeCSTools();
-    larvitar._initializeImageLoader();
-    // initialize store and add viewport
-    larvitar.store.initialize();
-    larvitar.store.addViewport("viewer");
-
-    showSpinner();
-
-    async function createFile(fileName, cb) {
-      let response = await fetch("../demo/" + fileName);
-      let data = await response.blob();
-      let file = new File([data], fileName);
-      demoFiles.push(file);
-      counter++;
-      if (counter == 24) {
-        cb();
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
       }
-    }
 
-    async function renderSerie() {
-      larvitar
-        ._readFiles(demoFiles)
-        .then(async seriesStack => {
-          //populate the image manager with the series
-          for (const [uniqueId, data] of Object.entries(seriesStack)) {
-            larvitar.populateImageManager(uniqueId, data);
-          }
-          // render the first series of the study
-          let uniqueUID = Object.keys(seriesStack)[0];
-          let manager = larvitar.getImageManager();
-          let serie = manager[uniqueUID];
-          larvitar
-            ._renderImage(serie, "viewer")
-            .then(async ({ success, renderingEngine }) => {
-              console.log("Image has been rendered");
-              // add and enable wwwc, pan, zoom, and stack tools
-              larvitar._addDefaultTools(["viewer"], renderingEngine, '2d');
-              hideSpinner();
-            });
-        })
-        .catch(err => console.error(err));
-    }
+      let demoFiles = [];
+      let counter = 0;
+      let series;
 
-    let demoFileList = getDemoFileNames();
-    _.each(demoFileList, function (demoFile) {
-      createFile(demoFile, renderSerie);
-    });
-  </script>
-</body>
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
 
+      // init all
+      larvitar._cornerstone.init();
+      larvitar._initializeCSTools();
+      larvitar._initializeImageLoader();
+      // initialize store and add viewport
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+
+      showSpinner();
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("../demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 24) {
+          cb();
+        }
+      }
+
+      async function renderSerie() {
+        larvitar
+          ._readFiles(demoFiles)
+          .then(async seriesStack => {
+            //populate the image manager with the series
+            for (const [uniqueId, data] of Object.entries(seriesStack)) {
+              larvitar.populateImageManager(uniqueId, data);
+            }
+            // render the first series of the study
+            let uniqueUID = Object.keys(seriesStack)[0];
+            let manager = larvitar.getImageManager();
+            let serie = manager[uniqueUID];
+            larvitar
+              ._renderImage(serie, "viewer")
+              .then(async ({ success, renderingEngine }) => {
+                console.log("Image has been rendered");
+                // add and enable wwwc, pan, zoom, and stack tools
+                larvitar._addDefaultTools(["viewer"], renderingEngine, "2d");
+                hideSpinner();
+              });
+          })
+          .catch(err => console.error(err));
+      }
+
+      let demoFileList = getDemoFileNames();
+      _.each(demoFileList, function (demoFile) {
+        createFile(demoFile, renderSerie);
+      });
+    </script>
+  </body>
 </html>
