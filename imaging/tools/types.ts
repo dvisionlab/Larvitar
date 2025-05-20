@@ -1,4 +1,5 @@
 import { EnabledElement } from "cornerstone-core";
+import { Image, Viewport } from "../types";
 
 type ToolOptions = {
   mouseButtonMask?: number | number[];
@@ -87,7 +88,7 @@ export type WSMouseEvent = {
   detail: WSEventData;
 };
 
-interface WSEventData {
+export interface WSEventData {
   currentPoints: {
     image: { x: number; y: number };
   };
@@ -121,7 +122,7 @@ export type labelmaps2DType = {
   pixelData: number[];
   segmentsOnLabelmap: number[];
 };
-type HandlePosition = {
+export type HandlePosition = {
   active?: boolean;
   allowedOutsideImage?: boolean;
   drawnIndependently?: boolean;
@@ -137,7 +138,7 @@ type HandlePosition = {
 };
 export interface ViewportComplete extends Viewport {
   initialRotation: number;
-  displayedArea: Area;
+  displayedArea: any;
   scale: number;
   rotation: number;
   vflip: boolean;
@@ -172,7 +173,6 @@ export type Overlay = {
   x?: number;
   y?: number;
   visible: boolean;
-  type: string;
   fillStyle: string;
   renderingOrder?: number;
   canBeRendered?: boolean;
@@ -181,7 +181,7 @@ export type Overlay = {
   subtype?: string;
 };
 
-type HandleTextBox = {
+export type HandleTextBox = {
   active: boolean;
   allowedOutsideImage: boolean;
   boundingBox: { height: number; left: number; top: number; width: number };
@@ -408,11 +408,6 @@ export type MeasurementConfig = {
   fill?: boolean;
 };
 
-export type PixelSpacing = {
-  colPixelSpacing: number;
-  rowPixelSpacing: number;
-};
-
 export type Rectangle = {
   left: number;
   top: number;
@@ -450,7 +445,7 @@ export interface EventData {
   element: HTMLElement;
   buttons: number;
   shiftKey: boolean;
-  viewport: Viewport;
+  viewport: ViewportComplete;
   event: {
     altKey: boolean;
     shiftKey: boolean;

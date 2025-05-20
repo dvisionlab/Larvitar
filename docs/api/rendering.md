@@ -323,6 +323,9 @@ This function does not return any value.
    - Disables the cornerstone library on the specified viewport element.
 4. **Updates store**
    - Sets the `ready` status in the store to `false`.
+   - Sets the `uniqueUID` value in the store to `undefined`.
+5. **resets DSA pixelShift**
+   - Regarding the DSA algorithm, resets the `pixelShift` value, both as constant and in the store, to `undefined`.
 
 ### Example Usage
 ```typescript

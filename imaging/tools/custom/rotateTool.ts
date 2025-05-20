@@ -69,9 +69,11 @@ function defaultStrategy(this: RotateTool, evt: MeasurementMouseEvent) {
   const { clientWidth: width, clientHeight: height } = element;
 
   const { scale, translation } = viewport;
+  const translationX = translation?.x ?? 0;
+  const translationY = translation?.y ?? 0;
   const centerPoints = {
-    x: rect.left + width / 2 + translation.x * scale,
-    y: rect.top + height / 2 + translation.y * scale
+    x: rect.left + width / 2 + translationX * scale,
+    y: rect.top + height / 2 + translationY * scale
   };
 
   const angleInfo = angleBetweenPoints(

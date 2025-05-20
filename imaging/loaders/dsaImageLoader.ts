@@ -17,17 +17,32 @@ import type { DSA, Image, ImageManager, Series } from "../types";
 import { getMaxPixelValue, getMinPixelValue } from "../imageUtils";
 import { applyDSA } from "../postProcessing/applyDSA";
 import { logger } from "../../logger";
+import store from "../imageStore";
 
 // global module variables
 let customImageLoaderCounter: number = 0;
-let PIXEL_SHIFT: number[] | undefined = undefined;
+const defaultPixelShift = undefined;
+let PIXEL_SHIFT: number[] | undefined = defaultPixelShift;
 
 /*
  * This module provides the following functions to be exported:
+ * resetPixelShift(id)
  * loadDsaImage(imageId)
  * setPixelShift(pixelShift)
  * populateDsaImageIds(seriesId)
  */
+
+/**
+ * Reset pixel shift to undefined
+ * @export
+ * @function loadDsaImage
+ * @param {String} elementId - elementId tag
+ * @returns {void}
+ */
+export const resetPixelShift = function (elementId: string) {
+  store.setDSAPixelShift(elementId, defaultPixelShift);
+  setPixelShift(defaultPixelShift);
+};
 
 /**
  * Custom DSA Image Loader Function
@@ -47,12 +62,15 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
     let multiFrameSerie = manager[seriesId] as Series;
     const imageIds: string[] = multiFrameSerie.dsa!.imageIds;
     const index: number = imageIds.indexOf(imageId);
+
     const pixelData = applyDSA(multiFrameSerie, index, PIXEL_SHIFT);
     const srcImage: Image = find(cornerstone.imageCache.cachedImages, {
       imageId: multiFrameSerie.imageIds[index]
     }).image;
 
-    logger.debug(`Load DSA Image with custom loader for imageId: ${imageId}`);
+    logger.debug(
+      `Load DSA Image with custom loader for imageId: ${imageId} and pixel shift:${PIXEL_SHIFT} `
+    );
     return createCustomImage(imageId, srcImage, pixelData);
   } else {
     throw new Error("No multiframe dataset found for seriesId: " + seriesId);
