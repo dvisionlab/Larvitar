@@ -330,6 +330,95 @@ const DEFAULT_TOOLS_3D: {
   // TODO segmentation tools
 }
 
+const DEFAULT_TOOLS_MPR: {
+  [key: string]: ToolConfig;
+} = {
+  Crosshairs: {
+    name: "Crosshairs",
+    viewports: "all",
+    configuration: {
+      // TODO 
+    },
+    options: {
+      bindings: [{ mouseButton: MouseBindings.Primary }]
+    },
+    cleanable: false,
+    defaultActive: true,
+    class: "CrosshairsTool",
+    description: "Crosshairs",
+    shortcut: "",
+    type: "utils"
+  },
+  StackScroll: {
+    name: "StackScroll",
+    viewports: "all",
+    configuration: {
+      loop: false, // default false
+      allowSkipping: true // default true
+    },
+    options: {
+      mouseButtonMask: 1,
+      deltaY: 0, // default 0
+      bindings: [
+        {
+          mouseButton: MouseBindings.Wheel,
+        },
+      ],
+    },
+    cleanable: false,
+    defaultActive: true,
+    class: "StackScrollTool"
+  },
+  WindowLevel: {
+    name: "WindowLevel",
+    viewports: "all",
+    configuration: {},
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"],
+      // @ts-ignore
+      bindings: [
+        {
+          mouseButton: MouseBindings.Primary,
+        },
+      ],
+    },
+    cleanable: false,
+    defaultActive: true,
+    class: "WindowLevelTool",
+    // sync: "wwwcSynchronizer",
+    description: "Change image contrast",
+    shortcut: "ctrl-m",
+    type: "utils"
+  },
+  Zoom: {
+    name: "Zoom",
+    viewports: "all",
+    configuration: {
+      invert: false,
+      preventZoomOutsideImage: false,
+      minScale: 0.01,
+      maxScale: 25.0
+    },
+    options: {
+      mouseButtonMask: 2,
+      supportedInteractionTypes: ["Mouse", "Touch"],
+      defaultStrategy: "default", // can be 'default', 'translate' or 'zoomToCenter'
+      bindings: [
+        {
+          mouseButton: MouseBindings.Secondary,
+        },
+      ],
+    },
+    cleanable: false,
+    class: "ZoomTool",
+    defaultActive: true,
+    description: "Zoom image at mouse position",
+    shortcut: "ctrl-z",
+    type: "utils"
+  },
+};
+
 /**
  * These tools are added with `addDefaultTools()`
  */
@@ -984,6 +1073,7 @@ const registerExternalTool = function (toolName: string, toolClass: any) {
 export {
   DEFAULT_TOOLS,
   DEFAULT_TOOLS_3D,
+  DEFAULT_TOOLS_MPR,
   DEFAULT_STYLE,
   DEFAULT_SETTINGS,
   DEFAULT_MOUSE_KEYS,

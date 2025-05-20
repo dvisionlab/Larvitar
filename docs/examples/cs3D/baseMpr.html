@@ -1,54 +1,93 @@
 <!doctype html>
 <html class="h-100 overflow-hidden">
-  <head>
-    <meta charset="UTF-8" />
 
-    <!-- Include the Larvitar script -->
-    <script>
-      // Check the host and set the script source dynamically
-      const script = document.createElement("script");
-      if (window.location.host === "larvitar.dvisionlab.com") {
-        document.write(
-          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+<head>
+  <meta charset="UTF-8" />
+
+  <!-- Include the Larvitar script -->
+  <script>
+    // Check the host and set the script source dynamically
+    const script = document.createElement("script");
+    if (window.location.host === "larvitar.dvisionlab.com") {
+      document.write(
+        '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+      );
+    } else {
+      document.write('<script src="../../../dist/larvitar.js"><\/script>');
+    }
+    // Append the script to the document
+    document.head.appendChild(script);
+  </script>
+
+  <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+
+  <!-- Include the CSS file -->
+  <link rel="stylesheet" href="../resources/styles.css" />
+
+  <!-- custom styles for the example -->
+  <style>
+    .open-button {
+      left: 20px;
+    }
+  </style>
+
+  <!-- Add the Bootstrap JS and Prism JS for code modal -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+  <!-- Code to be displayed as source example code -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const showCodeBtn = document.getElementById("showCodeBtn");
+      const codeSnippet = document.getElementById("codeSnippet");
+      const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+      // TODO Code snippet to be displayed and updated for the example
+      const code = ``;
+
+      // Show the modal and populate code snippet
+      showCodeBtn.addEventListener("click", () => {
+        codeSnippet.textContent = code;
+        Prism.highlightElement(codeSnippet); // Highlight the code
+        const codeModal = new bootstrap.Modal(
+          document.getElementById("codeModal")
         );
       } else {
         document.write('<script src="../../../dist/larvitar.js"><\/script>');
       }
       // Append the script to the document
       document.head.appendChild(script);
-    </script>
+  </script>
 
-    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
-    />
+  <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
 
-    <!-- Include the CSS file -->
-    <link rel="stylesheet" href="../resources/styles.css" />
+  <!-- Include the CSS file -->
+  <link rel="stylesheet" href="../resources/styles.css" />
 
-    <!-- custom styles for the example -->
-    <style>
-      .open-button {
-        left: 20px;
-      }
-      /* Mask overlay */
-      .dragover {
-        opacity: 0.3;
-      }
-    </style>
+  <!-- custom styles for the example -->
+  <style>
+    .open-button {
+      left: 20px;
+    }
 
-    <!-- Add the Bootstrap JS and Prism JS for code modal -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    /* Mask overlay */
+    .dragover {
+      opacity: 0.3;
+    }
+  </style>
 
-    <!-- Code to be displayed as source example code -->
-    <script>
+  <!-- Add the Bootstrap JS and Prism JS for code modal -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+  <!-- Code to be displayed as source example code -->
+  <script>
       document.addEventListener("DOMContentLoaded", () => {
         const showCodeBtn = document.getElementById("showCodeBtn");
         const codeSnippet = document.getElementById("codeSnippet");
@@ -72,256 +111,269 @@
           navigator.clipboard.writeText(code);
         });
       });
-    </script>
 
-    <title>Larvitar CS3D - Basic MPR rendering example</title>
-  </head>
+      // Copy the code to clipboard
+      copyCodeBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(code);
+      });
+    });
+  </script>
 
-  <body class="h-100" style="background-color: #000000">
-    <div id="viewer" class="row h-100">
-      <div id="axial" class="col-3 h-100" style="background-color: black"></div>
-      <div
-        id="coronal"
-        class="col-3 h-100"
-        style="background-color: black"
-      ></div>
-      <div
-        id="sagittal"
-        class="col-3 h-100"
-        style="background-color: black"
-      ></div>
-      <div
-        id="acquisition"
-        class="col-3 h-100"
-        style="background-color: black"
-      ></div>
-      <button
-        id="showCodeBtn"
-        class="open-button"
-        style="position: absolute; top: 10px"
-      >
-        Show Code
-      </button>
+<body class="h-100" style="background-color: #000000">
+  <div id="viewer" class="row h-100">
+    <div id="axial" class="col-3 h-100" style="background-color: black"></div>
+    <div id="coronal" class="col-3 h-100" style="background-color: black"></div>
+    <div id="sagittal" class="col-3 h-100" style="background-color: black"></div>
+    <div id="acquisition" class="col-3 h-100" style="background-color: black"></div>
+    <button id="showCodeBtn" class="open-button" style="position: absolute; top: 10px">
+      Show Code
+    </button>
 
-      <!-- Modal -->
-      <div
-        class="modal fade"
-        id="codeModal"
-        tabindex="-1"
-        aria-labelledby="codeModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="modal-body">
-              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-            </div>
-            <div class="modal-footer">
-              <button id="copyCodeBtn" class="btn btn-success">
-                Copy Code
-              </button>
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
+    <body class="h-100" style="background-color: #000000">
+      <div class="row h-100">
+        <div id="axial" class="col-4 h-100" style="background-color: black"></div>
+        <div id="coronal" class="col-4 h-100" style="background-color: black"></div>
+        <div id="sagittal" class="col-4 h-100" style="background-color: black"></div>
+        <button id="showCodeBtn" class="open-button" style="position: absolute; top: 10px">
+          Show Code
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="codeModal" tabindex="-1" aria-labelledby="codeModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+              </div>
+              <div class="modal-footer">
+                <button id="copyCodeBtn" class="btn btn-success">
+                  Copy Code
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Spinner icon -->
-      <div id="spinner"></div>
-    </div>
+        <script>
+          const dropCanvas = document.getElementById("viewer");
+          const spinner = document.getElementById("spinner");
 
-    <script>
-      const dropCanvas = document.getElementById("viewer");
-      const spinner = document.getElementById("spinner");
+          // Prevent default behavior for drag-and-drop events
+          ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+            dropCanvas.addEventListener(eventName, e => e.preventDefault());
+          });
 
-      // Prevent default behavior for drag-and-drop events
-      ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
-        dropCanvas.addEventListener(eventName, e => e.preventDefault());
-      });
+          // Add dragover and dragleave event listeners to style the canvas
+          dropCanvas.addEventListener("dragover", () => {
+            dropCanvas.classList.add("dragover");
+          });
 
-      // Add dragover and dragleave event listeners to style the canvas
-      dropCanvas.addEventListener("dragover", () => {
-        dropCanvas.classList.add("dragover");
-      });
+          dropCanvas.addEventListener("dragleave", () => {
+            dropCanvas.classList.remove("dragover");
+          });
 
-      dropCanvas.addEventListener("dragleave", () => {
-        dropCanvas.classList.remove("dragover");
-      });
+          dropCanvas.addEventListener("drop", e => {
+            demoFiles = [];
+            totalFiles = 0;
+            processedFiles = 0;
+            showSpinner(); // Show the spinner
+            dropCanvas.classList.remove("dragover");
+            const items = e.dataTransfer.items;
+            if (items) {
+              for (let i = 0; i < items.length; i++) {
+                const item = items[i].webkitGetAsEntry();
+                if (item) {
+                  traverseFileTree(item);
+                }
+              }
+            }
+          });
 
-      dropCanvas.addEventListener("drop", e => {
-        demoFiles = [];
-        totalFiles = 0;
-        processedFiles = 0;
-        showSpinner(); // Show the spinner
-        dropCanvas.classList.remove("dragover");
-        const items = e.dataTransfer.items;
-        if (items) {
-          for (let i = 0; i < items.length; i++) {
-            const item = items[i].webkitGetAsEntry();
-            if (item) {
-              traverseFileTree(item);
+          // Function to traverse files in folders
+          function traverseFileTree(item) {
+            if (item.isFile & (item.name.startsWith(".") == false)) {
+              totalFiles++;
+              item.file(file => {
+                handleFile(file);
+              });
+            } else if (item.isDirectory) {
+              const dirReader = item.createReader();
+              readAllEntries(dirReader);
             }
           }
-        }
-      });
 
-      // Function to traverse files in folders
-      function traverseFileTree(item) {
-        if (item.isFile & (item.name.startsWith(".") == false)) {
-          totalFiles++;
-          item.file(file => {
-            handleFile(file);
-          });
-        } else if (item.isDirectory) {
-          const dirReader = item.createReader();
-          readAllEntries(dirReader);
-        }
-      }
-
-      // Helper function to read all entries in a directory (to handle the 100-item limit)
-      function readAllEntries(dirReader, path) {
-        dirReader.readEntries(entries => {
-          if (entries.length > 0) {
-            entries.forEach(entry => {
-              traverseFileTree(entry); // Recursively read entries
-            });
-            // Continue reading entries if there might be more
-            readAllEntries(dirReader);
-          }
-        });
-      }
-
-      // Function to handle individual files
-      function handleFile(file) {
-        demoFiles.push(file);
-        processedFiles++;
-        if (processedFiles === totalFiles) {
-          processFileList(demoFiles); // Call the function when all files are processed
-        }
-      }
-
-      // Function to handle the full list once it's ready
-      function processFileList() {
-        renderSerie();
-      }
-
-      // Show spinner
-      function showSpinner() {
-        spinner.style.display = "block";
-      }
-
-      // Hide spinner
-      function hideSpinner() {
-        spinner.style.display = "none";
-      }
-
-      let demoFiles = [];
-      let counter = 0;
-      let series;
-
-      const getDemoFileNames = function () {
-        let demoFileList = [];
-        for (let i = 1; i < 33; i++) {
-          i = i.toString().padStart(2, "0");
-          let filename = i;
-          demoFileList.push(filename);
-        }
-        return demoFileList;
-      };
-
-      const viewportId1 = "axial";
-      const viewportId2 = "sagittal";
-      const viewportId3 = "coronal";
-      const viewportId4 = "acquisition";
-      const viewportIds = [viewportId1, viewportId2, viewportId3, viewportId4];
-
-      // init all
-      larvitar._cornerstone.init();
-      larvitar._initializeImageLoader();
-      larvitar._registerStreamingImageVolume();
-      larvitar._cornerstoneTools.init();
-      // initialize store and add viewports
-      larvitar.store.initialize();
-      larvitar.store.addViewport(viewportId1);
-      larvitar.store.addViewport(viewportId2);
-      larvitar.store.addViewport(viewportId3);
-      larvitar.store.addViewport(viewportId4);
-
-      showSpinner();
-
-      async function createFile(fileName, cb) {
-        let response = await fetch("../demo/3d/" + fileName);
-        let data = await response.blob();
-        let file = new File([data], fileName);
-        demoFiles.push(file);
-        counter++;
-        if (counter == 32) {
-          cb();
-        }
-      }
-
-      async function renderSerie() {
-        larvitar.resetImageManager();
-        larvitar.disableViewport("axial");
-        larvitar.disableViewport("sagittal");
-        larvitar.disableViewport("coronal");
-        larvitar.disableViewport("acquisition");
-        larvitar.store.addViewport("axial");
-        larvitar.store.addViewport("sagittal");
-        larvitar.store.addViewport("coronal");
-        larvitar.store.addViewport("acquisition");
-        larvitar
-          ._readFiles(demoFiles) // need to port the updateLoadedStack function
-          .then(async seriesStack => {
-            const seriesId = _.keys(seriesStack)[0];
-            const serie = seriesStack[seriesId];
-            const viewportInputs = [
-              {
-                viewportId: "axial",
-                orientation: "axial"
-              },
-              {
-                viewportId: "coronal",
-                orientation: "coronal"
-              },
-              {
-                viewportId: "sagittal",
-                orientation: "sagittal"
-              },
-              {
-                viewportId: "acquisition",
-                orientation: "acquisition"
+          // Helper function to read all entries in a directory (to handle the 100-item limit)
+          function readAllEntries(dirReader, path) {
+            dirReader.readEntries(entries => {
+              if (entries.length > 0) {
+                entries.forEach(entry => {
+                  traverseFileTree(entry); // Recursively read entries
+                });
+                // Continue reading entries if there might be more
+                readAllEntries(dirReader);
               }
-            ];
-            larvitar._renderMpr(serie, viewportInputs).then(renderingEngine => {
-              console.log("Volume rendered", renderingEngine);
-              // add and enable wwwc, pan, zoom, and stack tools
-              larvitar._addDefaultTools3D(viewportIds, renderingEngine);
-              hideSpinner();
             });
-          })
-          .catch(err => console.error(err));
-      }
+          }
 
-      let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
-        createFile(demoFile, renderSerie);
-      });
+          // Function to handle individual files
+          function handleFile(file) {
+            demoFiles.push(file);
+            processedFiles++;
+            if (processedFiles === totalFiles) {
+              processFileList(demoFiles); // Call the function when all files are processed
+            }
+          }
+
+          // Function to handle the full list once it's ready
+          function processFileList() {
+            renderSerie();
+          }
+
+          // Show spinner
+          function showSpinner() {
+            spinner.style.display = "block";
+          }
+          return demoFileList;
+    };
+
+          const viewportId1 = "axial";
+          const viewportId2 = "sagittal";
+          const viewportId3 = "coronal";
+          const viewportIds = [viewportId1, viewportId2, viewportId3];
+
+          // init all
+          larvitar._cornerstone.init();
+          larvitar._initializeImageLoader();
+          larvitar._registerStreamingImageVolume();
+          larvitar._initializeCSTools();
+          // initialize store and add viewports
+          larvitar.store.initialize();
+          larvitar.store.addViewport(viewportId1);
+          larvitar.store.addViewport(viewportId2);
+          larvitar.store.addViewport(viewportId3);
+
+          showSpinner();
+
+          async function createFile(fileName, cb) {
+            let response = await fetch("../demo/3d/" + fileName);
+            let data = await response.blob();
+            let file = new File([data], fileName);
+            demoFiles.push(file);
+            counter++;
+            if (counter == 32) {
+              cb();
+            }
+          }
+
+          async function renderSerie() {
+            larvitar
+              ._readFiles(demoFiles) // need to port the updateLoadedStack function
+              .then(async seriesStack => {
+                const seriesId = _.keys(seriesStack)[0];
+                const serie = seriesStack[seriesId];
+                larvitar._renderMpr(serie, ...viewportIds).then(renderingEngine => {
+                  console.log("Volume rendered", renderingEngine);
+                  // add and enable wwwc, pan, zoom, and stack tools
+                  larvitar._addDefaultTools(viewportIds, renderingEngine, 'mpr');
+                  hideSpinner();
+                });
+              })
+              .catch(err => console.error(err));
+          }
+
+          let demoFileList = getDemoFileNames();
+          _.each(demoFileList, function (demoFile) {
+            createFile(demoFile, renderSerie);
+          });
+        </script>
+    </body>
+
+    const viewportId1 = "axial";
+    const viewportId2 = "sagittal";
+    const viewportId3 = "coronal";
+    const viewportId4 = "acquisition";
+    const viewportIds = [viewportId1, viewportId2, viewportId3, viewportId4];
+
+    // init all
+    larvitar._cornerstone.init();
+    larvitar._initializeImageLoader();
+    larvitar._registerStreamingImageVolume();
+    larvitar._cornerstoneTools.init();
+    // initialize store and add viewports
+    larvitar.store.initialize();
+    larvitar.store.addViewport(viewportId1);
+    larvitar.store.addViewport(viewportId2);
+    larvitar.store.addViewport(viewportId3);
+    larvitar.store.addViewport(viewportId4);
+
+    showSpinner();
+
+    async function createFile(fileName, cb) {
+    let response = await fetch("../demo/3d/" + fileName);
+    let data = await response.blob();
+    let file = new File([data], fileName);
+    demoFiles.push(file);
+    counter++;
+    if (counter == 32) {
+    cb();
+    }
+    }
+
+    async function renderSerie() {
+    larvitar.resetImageManager();
+    larvitar.disableViewport("axial");
+    larvitar.disableViewport("sagittal");
+    larvitar.disableViewport("coronal");
+    larvitar.disableViewport("acquisition");
+    larvitar.store.addViewport("axial");
+    larvitar.store.addViewport("sagittal");
+    larvitar.store.addViewport("coronal");
+    larvitar.store.addViewport("acquisition");
+    larvitar
+    ._readFiles(demoFiles) // need to port the updateLoadedStack function
+    .then(async seriesStack => {
+    const seriesId = _.keys(seriesStack)[0];
+    const serie = seriesStack[seriesId];
+    const viewportInputs = [
+    {
+    viewportId: "axial",
+    orientation: "axial"
+    },
+    {
+    viewportId: "coronal",
+    orientation: "coronal"
+    },
+    {
+    viewportId: "sagittal",
+    orientation: "sagittal"
+    },
+    {
+    viewportId: "acquisition",
+    orientation: "acquisition"
+    }
+    ];
+    larvitar._renderMpr(serie, viewportInputs).then(renderingEngine => {
+    console.log("Volume rendered", renderingEngine);
+    // add and enable wwwc, pan, zoom, and stack tools
+    larvitar._addDefaultTools3D(viewportIds, renderingEngine);
+    hideSpinner();
+    });
+    })
+    .catch(err => console.error(err));
+    }
+
+    let demoFileList = getDemoFileNames();
+    _.each(demoFileList, function (demoFile) {
+    createFile(demoFile, renderSerie);
+    });
     </script>
-  </body>
+</body>
+
 </html>

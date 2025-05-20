@@ -12,6 +12,7 @@ import { each, extend } from "lodash";
 import { logger } from "../../common/logger";
 import {
   DEFAULT_TOOLS_3D,
+  DEFAULT_TOOLS_MPR,
   DEFAULT_STYLE,
   DEFAULT_SETTINGS,
   dvTools
@@ -29,7 +30,7 @@ import type { RenderingEngine } from "@cornerstonejs/core";
  * @param {ToolStyle} style - the style object (see tools/default.js)
  * @example larvitar.initializeCSTools({showSVGCursors:false}, {color: "0000FF"});
  */
-const initializeCSTools = async function (
+export const initializeCSTools = async function (
   settings?: ToolSettings,
   style?: ToolStyle
 ) {
@@ -68,16 +69,22 @@ const addTool = function (
   toolName: string,
   customConfig: Partial<ToolConfig>
 ) {
+
+  const allToolsList = {
+    ...DEFAULT_TOOLS_3D,
+    ...DEFAULT_TOOLS_MPR,
+  }
+
+  console.log("allToolsList", allToolsList);
+
   // extend defaults with user custom props
-  let defaultConfig: ToolConfig | {} = DEFAULT_TOOLS_3D[toolName]
-    ? DEFAULT_TOOLS_3D[toolName]
+  let defaultConfig: ToolConfig | {} = allToolsList[toolName]
+    ? allToolsList[toolName]
     : {};
   extend(defaultConfig, customConfig);
 
   const toolClassName: string | undefined =
     "class" in defaultConfig ? defaultConfig.class : undefined;
-
-  // TODO how to pass config ? 
 
   if (!toolClassName) {
     throw new Error(
@@ -99,35 +106,41 @@ const addTool = function (
  * @param renderingEngine - the rendering engine where the tools will be added
  */
 export const addDefaultTools = function (
-  elementId: string,
-  renderingEngine: RenderingEngine
+  elementIds: string[],
+  renderingEngine: RenderingEngine,
+  type: string = "2d" // "mpr" or "2d"
 ) {
+  elementIds.forEach(elementId => {
+    const element = renderingEngine.getViewport(elementId).element;
+    try {
+      cornerstone.getEnabledElement(element);
+    } catch (e) {
+      logger.error("addDefaultTools: element not enabled:", elementId);
+      return; // TODO handle this case
+    }
 
-  const element = renderingEngine.getViewport(elementId).element;
-  try {
-    cornerstone.getEnabledElement(element);
-  } catch (e) {
-    logger.error("addDefaultTools: element not enabled:", elementId);
-    return;
-  }
+    element.oncontextmenu = (e: Event) => e.preventDefault();
+    const viewport = renderingEngine.getViewport(elementId);
+    cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
+  });
 
-  element.oncontextmenu = (e: Event) => e.preventDefault();
-  const viewport = renderingEngine.getViewport(elementId);
-  cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
-
-  const toolGroupId = "default";
+  const toolGroupId = "default"; // TODO as param with default value
   const toolGroup =
     cornerstoneTools.ToolGroupManager.createToolGroup(toolGroupId);
 
   if (!toolGroup) {
-    logger.error("addDefaultTools: tool group not created:", elementId);
+    logger.error("addDefaultTools: tool group not created");
     return;
   }
 
-  toolGroup.addViewport(elementId, renderingEngine.id);
+  elementIds.forEach(viewportId => {
+    toolGroup.addViewport(viewportId, renderingEngine.id);
+  });
+
+  const toolsList = type === "2d" ? DEFAULT_TOOLS_3D : DEFAULT_TOOLS_MPR;
 
   // for each default tool
-  each(DEFAULT_TOOLS_3D, tool => {
+  each(toolsList, tool => {
     addTool(tool.name, tool.configuration);
     toolGroup.addTool(tool.name, tool.configuration);
     logger.debug(`Tool ${tool.name} added to group:`, toolGroupId);
@@ -138,7 +151,7 @@ export const addDefaultTools = function (
     }
 
     // set default tools active 
-    // TODO handle options (mouseButtonMask, etc)
+    // TODO handle options (mouseButtonMask, etc) and other modes (eg passive)
     if (tool.defaultActive) {
       console.log("setToolActive", tool.name, tool.options);
       setToolActive(tool.name, tool.options, undefined, true);
@@ -146,40 +159,6 @@ export const addDefaultTools = function (
     }
   });
 };
-
-/**
- * @function addDefaultTools3D
- * @desc Adds default tools to the rendering engine (crosshairs)
- * @param elementIds - the ids of the elements where the tools will be added
- * @param renderingEngine - the rendering engine where the tools will be added
- */
-export const addDefaultTools3D = function (
-  elementIds: string[],
-  renderingEngine: RenderingEngine
-) {
-  elementIds.forEach(viewportId => {
-    const element = renderingEngine.getViewport(viewportId).element;
-    element.oncontextmenu = e => e.preventDefault();
-  });
-
-  cornerstoneTools.addTool(cornerstoneTools.CrosshairsTool);
-
-  const toolGroupId = "default3D";
-  const toolGroup =
-    cornerstoneTools.ToolGroupManager.createToolGroup(toolGroupId);
-  if (toolGroup) {
-    elementIds.forEach(viewportId => {
-      toolGroup.addViewport(viewportId, renderingEngine.id);
-    });
-    toolGroup.addTool(cornerstoneTools.CrosshairsTool.toolName);
-    toolGroup.setToolActive(cornerstoneTools.CrosshairsTool.toolName, {
-      bindings: [{ mouseButton: cornerstoneTools.Enums.MouseBindings.Primary }]
-    });
-  } else {
-    console.error("Failed to create tool group");
-  }
-};
-
 
 /**
  * Set Tool "active" on all elements (ie, rendered and manipulable) & refresh cornerstone elements
