@@ -99,5 +99,11 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   //"include": ["./imaging/", "./decs.d.ts"]
-  "include": ["./imaging/", "./imaging3d/", "./decs.d.ts"]
+  "include": [
+    "./imaging/",
+    "./imaging3d/",
+    "./decs.d.ts",
+    "common/default.ts",
+    "common/types.d.ts"
+  ]
 }

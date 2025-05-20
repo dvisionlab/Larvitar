@@ -13,8 +13,8 @@ import cornerstoneTools from "cornerstone-tools";
 import { each, extend, filter, remove, cloneDeep } from "lodash";
 
 // internal libraries
-import { logger } from "../logger";
-import { DEFAULT_TOOLS } from "./tools/default";
+import { logger } from "../common/logger";
+import { DEFAULT_TOOLS } from "../common/default";
 // import { SeedsTool } from "./tools/custom/seedTool";
 import { ContoursTool } from "./tools/custom/contourTool";
 import { EditMaskTool } from "./tools/custom/editMaskTool";

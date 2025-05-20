@@ -19,8 +19,8 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 );
 
 //internal imports
-import { logger } from "../../../logger";
-import { HandlePosition } from "../types";
+import { logger } from "../../../common/logger";
+import { HandlePosition } from "../../../common/types";
 
 //interfaces/types
 type PixelSpacing = {
@@ -104,12 +104,12 @@ export default class ManualLengthPlotTool extends BaseAnnotationTool {
     digits: number;
     handleRadius?: number;
   } = {
-    drawHandles: true,
-    drawHandlesOnHover: false,
-    hideHandlesIfMoving: false,
-    renderDashed: false,
-    digits: 2
-  };
+      drawHandles: true,
+      drawHandlesOnHover: false,
+      hideHandlesIfMoving: false,
+      renderDashed: false,
+      digits: 2
+    };
   constructor(props = {}) {
     const defaultProps = {
       name: "HorizontalTool",

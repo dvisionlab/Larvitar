@@ -7,11 +7,11 @@ import {
 } from "./genericDrawingUtils";
 import { convertCIELabToRGBWithRefs } from "./genericDrawingUtils";
 import * as csTools from "cornerstone-tools";
-import { ViewportComplete } from "../../types";
+import { ViewportComplete } from "../../../../common/types";
 import { redrawImage, renderImage } from "../../../imageRendering";
 import imageStore from "../../../imageStore";
 const getNewContext = csTools.importInternal("drawing/getNewContext");
-import { logger } from "../../../../logger";
+import { logger } from "../../../../common/logger";
 
 //SHUTTER
 

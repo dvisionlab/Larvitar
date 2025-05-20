@@ -13,7 +13,7 @@ import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { forEach } from "lodash";
 
 // internal libraries
-import { logger } from "../logger";
+import { logger } from "../common/logger";
 import store from "./imageStore";
 import { getSortedStack, getSortedUIDs } from "./imageUtils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";

@@ -32,7 +32,7 @@ const getPixelSpacing = cornerstoneTools.importInternal("util/getPixelSpacing");
 const getModule = cornerstoneTools.getModule;
 
 //internal imports
-import { logger } from "../../../logger";
+import { logger } from "../../../common/logger";
 import {
   Coords,
   EventData,
@@ -44,7 +44,7 @@ import {
   PixelSpacing,
   Rectangle,
   Stats
-} from "../types";
+} from "../../../common/types";
 import { ImageManager, Series, StoreViewport } from "../../types";
 import store from "../../imageStore";
 import { getImageTracker, getImageManager } from "../../imageManagers";

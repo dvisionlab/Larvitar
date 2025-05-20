@@ -22,14 +22,14 @@ const drawLinkedTextBox = cornerstoneTools.importInternal(
 );
 
 //internal imports
-import { logger } from "../../../logger";
+import { logger } from "../../../common/logger";
 import {
   MeasurementData,
   Handles,
   MeasurementMouseEvent,
   Coords,
   EventData
-} from "../types";
+} from "../../../common/types";
 
 import { ImageManager, Series, StoreViewport } from "../../types";
 import store from "../../imageStore";

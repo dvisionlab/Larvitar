@@ -18,7 +18,7 @@ const segmentationModule = cornerstoneTools.getModule("segmentation");
 const getToolState = cornerstoneTools.getToolState;
 
 // internal libraries
-import { DEFAULT_TOOLS } from "../default";
+import { DEFAULT_TOOLS } from "../../../common/default";
 import store from "../../imageStore";
 import {
   mapToRange,
@@ -34,7 +34,7 @@ import {
   CachedImage,
   LabelMapType,
   pixelData3D
-} from "../types";
+} from "../../../common/types";
 import { Series } from "../../types";
 
 //global variable
@@ -256,20 +256,20 @@ export default class WSToggleTool extends BaseBrushTool {
     const isMultiImage = this.configuration.multiImage;
     isMultiImage
       ? this._processMultiImage(
-          processType!,
-          labelmap2D,
-          labelmap3D,
-          evt,
-          image,
-          circleArray
-        )
+        processType!,
+        labelmap2D,
+        labelmap3D,
+        evt,
+        image,
+        circleArray
+      )
       : this._processSingleImage(
-          processType!,
-          labelmap2D,
-          evt,
-          image,
-          circleArray
-        );
+        processType!,
+        labelmap2D,
+        evt,
+        image,
+        circleArray
+      );
   }
 
   /**

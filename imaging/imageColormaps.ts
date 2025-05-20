@@ -6,7 +6,7 @@
 import cornerstone from "cornerstone-core";
 import { EnabledElementLayer } from "cornerstone-core";
 import { each } from "lodash";
-import { logger } from "../logger";
+import { logger } from "../common/logger";
 
 /*
  * This module provides the following functions to be exported:

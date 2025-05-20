@@ -9,7 +9,7 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 import { each, has } from "lodash";
 
 // internal libraries
-import { logger } from "../logger";
+import { logger } from "../common/logger";
 import { getDataFromFileManager, getFileManager } from "./imageManagers";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
@@ -22,7 +22,7 @@ import {
   StoreViewport,
   Viewport
 } from "./types";
-import { DEFAULT_TOOLS } from "./tools/default";
+import { DEFAULT_TOOLS } from "../common/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
 import { resetPixelShift, setPixelShift } from "./loaders/dsaImageLoader";
@@ -659,7 +659,7 @@ export const renderImage = function (
     const pixelDataLengthAllowed = dsaEnabled
       ? true
       : data.imageId &&
-        series.instances[data.imageId!].metadata.pixelDataLength != 0;
+      series.instances[data.imageId!].metadata.pixelDataLength != 0;
     if (pixelDataLengthAllowed === true) {
       // load and display one image (imageId)
       loadImageFunction(data.imageId as string).then(function (image) {
@@ -1167,11 +1167,11 @@ export const storeViewportData = function (
     (data.default && data.default.translation?.x) || 0,
     (data.default && data.default.translation?.y) || 0,
     (data.default && data.default?.voi?.windowWidth) ||
-      viewport.voi?.windowWidth ||
-      255,
+    viewport.voi?.windowWidth ||
+    255,
     (data.default && data.default?.voi?.windowCenter) ||
-      viewport.voi?.windowCenter ||
-      128,
+    viewport.voi?.windowCenter ||
+    128,
     viewport.invert === true
   ]);
   setStore(["scale", elementId, viewport.scale || 0]);
