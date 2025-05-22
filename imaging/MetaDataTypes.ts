@@ -4,7 +4,38 @@
 export type ExtendedMetaDataTypes = MetaDataTypes & {
   [key: string]: unknown;
 };
-
+export const arrayTags = [
+  "x00181164", // [number, number]
+  "x00181620", // number[]
+  "x00181624", // [number, number, number]
+  "x00200032", // [number, number] | [number, number, number] | number[]
+  "x00200037", // [number, number, number, number, number, number]
+  "x00280030", // [number, number]
+  "x00281050", // number | number[]
+  "x00281051", // number | number[]
+  "x00281052", // number | number[]
+  "x00281053", // number | number[]
+  "x00283002", // [number, number, number]
+  "x00283006", // number[]
+  "x00286102", // number[]
+  "x00286114", // number[]
+  "x00180050", // number | number[]
+  "x00186060", // number[]
+  "x00700010", // [number, number]
+  "x00700011", // [number, number]
+  "x00700014", // [number, number]
+  "x00700022", // number[]
+  "x00700052", // [number, number]
+  "x00700053", // [number, number]
+  "x00700101", // [number, number]
+  "x00700102", // [number, number]
+  "x00700241", // [number, number, number]
+  "x00700247", // [number, number, number]
+  "x00700251", // [number, number, number]
+  "x00700252", // [number, number, number]
+  "x00700273", // [number, number]
+  "x00700401" // [number, number, number]
+];
 export type MetaDataTypes = {
   x20000010?: number;
   x2000001e?: MetaDataTypes[];
