@@ -104,10 +104,9 @@ export const convertQidoMetadata = function (data: any): MetaData {
       let value;
       const newKey = `x${key.toLowerCase()}`;
       if (Array.isArray(data[key].Value)) {
-        value =
-          data[key].Value.length > 1 || arrayTags.includes(newKey)
-            ? data[key].Value
-            : data[key].Value[0];
+        const isMultiple =
+          data[key].Value.length > 1 || arrayTags.includes(newKey);
+        value = isMultiple ? data[key].Value : data[key].Value[0];
       } else {
         value = undefined;
       }
@@ -572,10 +571,9 @@ const parseSequence = function (sequence: any): any {
         // Extract the value
         let value;
         if (Array.isArray(element.Value)) {
-          value =
-            element.Value.length > 1 || arrayTags.includes(newKey)
-              ? element.Value
-              : element.Value[0];
+          const isMultiple =
+            element.Value.length > 1 || arrayTags.includes(newKey);
+          value = isMultiple ? element.Value : element.Value[0];
         } else {
           value = element.Value;
         }
