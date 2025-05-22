@@ -6,7 +6,7 @@
     "medical",
     "cornerstone"
   ],
-  "version": "4.0.0-alpha.0",
+  "version": "4.0.0-alpha.1",
   "description": "typescript library for parsing, loading, rendering and interacting with DICOM images",
   "repository": {
     "url": "https://github.com/dvisionlab/Larvitar.git",
@@ -23,7 +23,7 @@
     "format": "prettier --write \"imaging/**/*.{js,ts,json,css,md}\" \"docs/examples/**/*.html\"",
     "format:check": "prettier --check \"imaging/**/*.{js,ts,json,css,md}\" \"docs/examples/**/*.html\"",
     "postinstall": "patch-package",
-    "build": "webpack --config ./bundler/webpack.prod.js",
+    "build": "webpack --config ./bundler/webpack.prod.debug.js",
     "dev": "webpack --progress --config ./bundler/webpack.dev.js",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
