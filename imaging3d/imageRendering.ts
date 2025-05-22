@@ -163,7 +163,6 @@ export const renderMpr = function (
   });
 
   const renderingEngine = new cornerstone.RenderingEngine("mpr");
-  const volumeId = `cornerstoneStreamingImageVolume:  volume-mpr`;
 
   let series = { ...seriesStack };
   const renderOptions = options ? options : {};
@@ -188,8 +187,11 @@ export const renderMpr = function (
       return;
     }
     const metadata = convertMetadata(dataSet);
+    console.log(`Tranfer Syntax: ${metadata["00020010"].Value[0]}`);
     cornerstoneDICOMImageLoader.wadors.metaDataManager.add(imageId, metadata);
   });
+
+  const volumeId = data.uniqueUID!;
 
   const renderPromise = new Promise<cornerstone.RenderingEngine>(
     async (resolve, reject) => {
@@ -201,6 +203,7 @@ export const renderMpr = function (
           imageIds: series.imageIds.map(id => id)
         }
       );
+      console.log("volume", volume);
 
       let viewportInputs: cornerstone.Types.PublicViewportInput[] = [];
 
@@ -219,7 +222,7 @@ export const renderMpr = function (
       });
 
       renderingEngine.setViewports(viewportInputs);
-      await volume.load();
+      volume.load();
 
       const t1 = performance.now();
       console.log("Time to load volume: " + (t1 - t0) + " milliseconds.");

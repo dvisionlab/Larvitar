@@ -36,6 +36,10 @@
       .open-button {
         left: 20px;
       }
+      /* Mask overlay */
+      .dragover {
+        opacity: 0.3;
+      }
     </style>
 
     <!-- Add the Bootstrap JS and Prism JS for code modal -->
@@ -74,7 +78,7 @@
   </head>
 
   <body class="h-100" style="background-color: #000000">
-    <div class="row h-100">
+    <div id="viewer" class="row h-100">
       <div id="axial" class="col-3 h-100" style="background-color: black"></div>
       <div
         id="coronal"
@@ -142,7 +146,79 @@
     </div>
 
     <script>
+      const dropCanvas = document.getElementById("viewer");
       const spinner = document.getElementById("spinner");
+
+      // Prevent default behavior for drag-and-drop events
+      ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+        dropCanvas.addEventListener(eventName, e => e.preventDefault());
+      });
+
+      // Add dragover and dragleave event listeners to style the canvas
+      dropCanvas.addEventListener("dragover", () => {
+        dropCanvas.classList.add("dragover");
+      });
+
+      dropCanvas.addEventListener("dragleave", () => {
+        dropCanvas.classList.remove("dragover");
+      });
+
+      dropCanvas.addEventListener("drop", e => {
+        demoFiles = [];
+        totalFiles = 0;
+        processedFiles = 0;
+        showSpinner(); // Show the spinner
+        dropCanvas.classList.remove("dragover");
+        const items = e.dataTransfer.items;
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i].webkitGetAsEntry();
+            if (item) {
+              traverseFileTree(item);
+            }
+          }
+        }
+      });
+
+      // Function to traverse files in folders
+      function traverseFileTree(item) {
+        if (item.isFile & (item.name.startsWith(".") == false)) {
+          totalFiles++;
+          item.file(file => {
+            handleFile(file);
+          });
+        } else if (item.isDirectory) {
+          const dirReader = item.createReader();
+          readAllEntries(dirReader);
+        }
+      }
+
+      // Helper function to read all entries in a directory (to handle the 100-item limit)
+      function readAllEntries(dirReader, path) {
+        dirReader.readEntries(entries => {
+          if (entries.length > 0) {
+            entries.forEach(entry => {
+              traverseFileTree(entry); // Recursively read entries
+            });
+            // Continue reading entries if there might be more
+            readAllEntries(dirReader);
+          }
+        });
+      }
+
+      // Function to handle individual files
+      function handleFile(file) {
+        demoFiles.push(file);
+        processedFiles++;
+        if (processedFiles === totalFiles) {
+          processFileList(demoFiles); // Call the function when all files are processed
+        }
+      }
+
+      // Function to handle the full list once it's ready
+      function processFileList() {
+        renderSerie();
+      }
 
       // Show spinner
       function showSpinner() {
@@ -200,6 +276,15 @@
       }
 
       async function renderSerie() {
+        larvitar.resetImageManager();
+        larvitar.disableViewport("axial");
+        larvitar.disableViewport("sagittal");
+        larvitar.disableViewport("coronal");
+        larvitar.disableViewport("acquisition");
+        larvitar.store.addViewport("axial");
+        larvitar.store.addViewport("sagittal");
+        larvitar.store.addViewport("coronal");
+        larvitar.store.addViewport("acquisition");
         larvitar
           ._readFiles(demoFiles) // need to port the updateLoadedStack function
           .then(async seriesStack => {
