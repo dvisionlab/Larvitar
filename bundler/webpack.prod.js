@@ -18,6 +18,6 @@ module.exports = merge(commonConfiguration, {
   plugins: [new CleanWebpackPlugin(), new LodashModuleReplacementPlugin()],
   optimization: {
     minimize: true,
-    usedExports: true // Enable tree shaking
+    usedExports: false // Disable tree shaking
   }
 });

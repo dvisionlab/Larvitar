@@ -11,12 +11,13 @@ module.exports = merge(commonConfiguration, {
     path: path.resolve(__dirname, "../dist"),
     filename: "larvitar.js",
     library: "larvitar",
+    libraryTarget: "umd",
     clean: true
   },
   mode: "production",
   plugins: [new CleanWebpackPlugin(), new LodashModuleReplacementPlugin()],
   optimization: {
     minimize: false, // Disable minification for easier debugging
-    usedExports: false // Disable tree shaking,
+    usedExports: false // Disable tree shaking
   }
 });
