@@ -689,17 +689,18 @@ export const renderImage = function (
           logger.debug("Layer has been added to the element");
         }
 
-        // fit the image to the window with standard scaling
-        cornerstone.fitToWindow(element);
-
         // update viewport data with default properties
-        const viewport = cornerstone.getViewport(element);
-        if (!viewport) {
+        const viewportValue = cornerstone.getViewport(element);
+        if (!viewportValue) {
           logger.error("viewport not found");
           reject("viewport not found for element: " + elementId);
           return;
         }
-
+        const viewport = JSON.parse(JSON.stringify(viewportValue));
+        // fit the image to the window with standard scaling
+        if (!renderOptions) {
+          cornerstone.fitToWindow(element);
+        }
         // set the optional custom zoom
         if (renderOptions.scale !== undefined) {
           // store default scale value if not specified
