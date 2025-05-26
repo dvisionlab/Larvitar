@@ -89,8 +89,8 @@ export default class WwwcRemoveRegionTool extends BaseAnnotationTool {
     const viewport = eventData.viewport;
 
     if (this.element === null) {
-      this.originalWW = viewport.voi.windowWidth;
-      this.originalWC = viewport.voi.windowCenter;
+      this.originalWW = viewport.voi!.windowWidth;
+      this.originalWC = viewport.voi!.windowCenter;
     } else if (this.element !== element) {
       this.element = null;
     }
@@ -792,8 +792,8 @@ const _applyWWWCRegion = function (
   viewport.voi.windowCenter = minMaxMean.mean;*/
 
   // Unset any existing VOI LUT
-  viewport.voi.windowWidth = windowWidth;
-  viewport.voi.windowCenter = windowCenter;
+  viewport.voi!.windowWidth = windowWidth;
+  viewport.voi!.windowCenter = windowCenter;
   viewport.voiLUT = undefined;
   external.cornerstone.setViewport(element, viewport);
   external.cornerstone.updateImage(element);

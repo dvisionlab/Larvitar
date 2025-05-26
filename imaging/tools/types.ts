@@ -196,7 +196,7 @@ export type HandleTextBox = {
   y?: number;
 };
 
-type BaseToolStateData = {
+export type BaseToolStateData = {
   active: boolean;
   color: string;
   invalidated: boolean;
@@ -237,7 +237,7 @@ type BidirectionalStateData = BaseToolStateData & {
   toolName: "Bidirectional";
   toolType: "Bidirectional";
 };
-type DiameterStateData = BaseToolStateData & {
+export type DiameterStateData = BaseToolStateData & {
   name?: string;
   toolType?: string;
   isCreating?: boolean;
@@ -488,7 +488,6 @@ export interface EventData {
     canvas: Coords;
     image: Coords;
     client: Coords;
-    canvas: Coords;
   };
   startPoints: {
     image: Coords;
