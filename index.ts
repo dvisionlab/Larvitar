@@ -38,7 +38,7 @@ import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 const segModule = cornerstoneTools.getModule("segmentation");
 
-import { logger, setLogLevel, getLogLevel } from "./common/logger";
+import { logger, setLogLevel, getLogLevel } from "./logger";
 console.log(`Logging level set to: ${getLogLevel()}`);
 
 import {
@@ -196,7 +196,7 @@ import {
   getDefaultToolsByType,
   setDefaultToolsProps,
   registerExternalTool
-} from "./common/default";
+} from "./imaging/tools/default";
 
 import {
   initSegmentationModule,

@@ -98,12 +98,5 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  //"include": ["./imaging/", "./decs.d.ts"]
-  "include": [
-    "./imaging/",
-    "./imaging3d/",
-    "./decs.d.ts",
-    "imaging/tools/default.ts",
-    "imaging/tools/types.d.ts"
-  ]
+  "include": ["./imaging/", "./imaging3d/", "./decs.d.ts"]
 }
