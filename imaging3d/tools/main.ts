@@ -65,7 +65,7 @@ const isToolMissing = function (
  * @param {*} targetElementId
  * @example larvitar.addTool("ScaleOverlay", {configuration:{minorTickLength: 10, majorTickLength: 25}}, "viewer")
  */
-const addTool = function (
+export const addTool = function (
   toolName: string,
   customConfig: Partial<ToolConfig>
 ) {
@@ -168,7 +168,7 @@ export const addDefaultTools = function (
  * @param {Array} viewports - The hmtl element id to be used for tool initialization.
  * @param {Boolean} doNotSetInStore - Flag to avoid setting in store (useful on tools initialization eg in addDefaultTools). NOTE: This is just a hack, we must rework tools/ui sync.
  */
-const setToolActive = function (
+export const setToolActive = function (
   toolName: string,
   options?: Partial<ToolConfig["options"]>,
   groupId: string = "default",
