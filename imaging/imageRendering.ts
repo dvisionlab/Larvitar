@@ -697,10 +697,12 @@ export const renderImage = function (
           return;
         }
         const viewport = JSON.parse(JSON.stringify(viewportValue));
-        // fit the image to the window with standard scaling
-        if (!renderOptions) {
+
+        if (!renderOptions.translation && !renderOptions.scale) {
+          // fit the image to the window with standard scaling
           cornerstone.fitToWindow(element);
         }
+
         // set the optional custom zoom
         if (renderOptions.scale !== undefined) {
           // store default scale value if not specified
