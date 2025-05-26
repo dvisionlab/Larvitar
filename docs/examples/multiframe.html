@@ -63,7 +63,11 @@
   let multiFrameSerie = manager[seriesId];
 
   let frameId = 0;
-  await larvitar.renderImage(multiFrameSerie, "viewer", {imageIndex: frameId});
+  await larvitar.renderImage(multiFrameSerie, "viewer", {
+            imageIndex: frameId, 
+            scale: viewport.scale,
+            translation: viewport.translation
+          });
   const t1 = performance.now();
   larvitar.addDefaultTools("viewer");
   larvitar.setToolActive("StackScroll");
@@ -80,7 +84,12 @@
   animationId = setInterval(function () {
     let series = larvitar.getDataFromImageManager(seriesId);
     frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
-    larvitar.renderImage(series, "viewer", {cached: true, imageIndex: frameId });
+    larvitar.renderImage(series, "viewer", {
+            cached: true, 
+            imageIndex: frameId,
+            scale: viewport.scale,
+            translation: viewport.translation 
+          });
   }, frameRate);
 `;
 
@@ -340,7 +349,9 @@
                 frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
                 larvitar.renderImage(multiFrameSerie, "viewer", {
                   cached: true,
-                  imageIndex: frameId
+                  imageIndex: frameId,
+                  scale: viewport.scale,
+                  translation: viewport.translation
                 });
 
                 document.getElementById("image-time").innerText =
