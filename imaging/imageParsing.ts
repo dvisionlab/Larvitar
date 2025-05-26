@@ -15,7 +15,11 @@ import { updateLoadedStack } from "./imageLoading";
 import { checkMemoryAllocation } from "./monitors/memory";
 import { ImageObject, Instance, MetaData, NrrdSeries, Series } from "./types";
 import { getImageManager } from "./imageManagers";
-import type { MetaDataTypes, ExtendedMetaDataTypes } from "./MetaDataTypes";
+import {
+  type MetaDataTypes,
+  type ExtendedMetaDataTypes,
+  arrayTags
+} from "./MetaDataTypes";
 import { MetaDataReadable } from "./MetaDataReadable";
 
 // global module variables
@@ -98,10 +102,11 @@ export const convertQidoMetadata = function (data: any): MetaData {
   const metadata: MetaData = Object.keys(data).reduce(
     (accumulator: any, key) => {
       let value;
-
+      const newKey = `x${key.toLowerCase()}`;
       if (Array.isArray(data[key].Value)) {
-        value =
-          data[key].Value.length > 1 ? data[key].Value : data[key].Value[0];
+        const isMultiple =
+          data[key].Value.length > 1 || arrayTags.includes(newKey);
+        value = isMultiple ? data[key].Value : data[key].Value[0];
       } else {
         value = undefined;
       }
@@ -114,7 +119,7 @@ export const convertQidoMetadata = function (data: any): MetaData {
       if (data[key].vr === "SQ") {
         value = parseSequence(value);
       }
-      const newKey = `x${key.toLowerCase()}`;
+
       accumulator[newKey] = value;
       return accumulator;
     },
@@ -566,7 +571,9 @@ const parseSequence = function (sequence: any): any {
         // Extract the value
         let value;
         if (Array.isArray(element.Value)) {
-          value = element.Value.length > 1 ? element.Value : element.Value[0];
+          const isMultiple =
+            element.Value.length > 1 || arrayTags.includes(newKey);
+          value = isMultiple ? element.Value : element.Value[0];
         } else {
           value = element.Value;
         }
