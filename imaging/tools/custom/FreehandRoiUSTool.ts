@@ -446,9 +446,9 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
         const startPoint = measurementArray.data[k].handles.points![i];
         const endPoint =
           measurementArray.data[k].handles.points![
-          i === measurementArray.data[k].handles.points!.length - 1
-            ? 0
-            : i + 1
+            i === measurementArray.data[k].handles.points!.length - 1
+              ? 0
+              : i + 1
           ];
         if (
           lineSegDistance(this.element, startPoint, endPoint, coords) <
@@ -1691,7 +1691,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     const config = this.configuration;
     const data =
       toolState.data != undefined &&
-        toolState.data[config!.currentTool] != undefined
+      toolState.data[config!.currentTool] != undefined
         ? toolState.data[config!.currentTool]
         : this.data;
 

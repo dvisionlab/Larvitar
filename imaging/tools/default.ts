@@ -98,9 +98,9 @@ const DEFAULT_TOOLS_3D: {
       // @ts-ignore
       bindings: [
         {
-          mouseButton: MouseBindings.Primary,
-        },
-      ],
+          mouseButton: MouseBindings.Primary
+        }
+      ]
     },
     cleanable: false,
     defaultActive: true,
@@ -138,9 +138,9 @@ const DEFAULT_TOOLS_3D: {
       deltaY: 0, // default 0
       bindings: [
         {
-          mouseButton: MouseBindings.Wheel,
-        },
-      ],
+          mouseButton: MouseBindings.Wheel
+        }
+      ]
     },
     cleanable: false,
     defaultActive: true,
@@ -176,9 +176,9 @@ const DEFAULT_TOOLS_3D: {
       defaultStrategy: "default", // can be 'default', 'translate' or 'zoomToCenter'
       bindings: [
         {
-          mouseButton: MouseBindings.Secondary,
-        },
-      ],
+          mouseButton: MouseBindings.Secondary
+        }
+      ]
     },
     cleanable: false,
     class: "ZoomTool",
@@ -296,7 +296,8 @@ const DEFAULT_TOOLS_3D: {
     shortcut: "ctrl-d",
     type: "annotation"
   },
-  Label: { // ex text marker
+  Label: {
+    // ex text marker
     name: "Label",
     viewports: "all",
     configuration: {
@@ -326,9 +327,9 @@ const DEFAULT_TOOLS_3D: {
     description: "A simple brush",
     shortcut: "ctrl-q",
     type: "segmentation"
-  },
+  }
   // TODO segmentation tools
-}
+};
 
 const DEFAULT_TOOLS_MPR: {
   [key: string]: ToolConfig;
@@ -337,7 +338,7 @@ const DEFAULT_TOOLS_MPR: {
     name: "Crosshairs",
     viewports: "all",
     configuration: {
-      // TODO 
+      // TODO
     },
     options: {
       bindings: [{ mouseButton: MouseBindings.Primary }]
@@ -361,9 +362,9 @@ const DEFAULT_TOOLS_MPR: {
       deltaY: 0, // default 0
       bindings: [
         {
-          mouseButton: MouseBindings.Wheel,
-        },
-      ],
+          mouseButton: MouseBindings.Wheel
+        }
+      ]
     },
     cleanable: false,
     defaultActive: true,
@@ -379,9 +380,9 @@ const DEFAULT_TOOLS_MPR: {
       // @ts-ignore
       bindings: [
         {
-          mouseButton: MouseBindings.Primary,
-        },
-      ],
+          mouseButton: MouseBindings.Primary
+        }
+      ]
     },
     cleanable: false,
     defaultActive: true,
@@ -406,9 +407,9 @@ const DEFAULT_TOOLS_MPR: {
       defaultStrategy: "default", // can be 'default', 'translate' or 'zoomToCenter'
       bindings: [
         {
-          mouseButton: MouseBindings.Secondary,
-        },
-      ],
+          mouseButton: MouseBindings.Secondary
+        }
+      ]
     },
     cleanable: false,
     class: "ZoomTool",
@@ -416,7 +417,7 @@ const DEFAULT_TOOLS_MPR: {
     description: "Zoom image at mouse position",
     shortcut: "ctrl-z",
     type: "utils"
-  },
+  }
 };
 
 /**

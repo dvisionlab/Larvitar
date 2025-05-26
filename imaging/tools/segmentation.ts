@@ -412,10 +412,10 @@ export function setMaskProps(props: MaskProperties) {
       getters.isSegmentVisible(htmlelement, segmentValue, labelIndex)
         ? null
         : setters.toggleSegmentVisibility(
-          htmlelement,
-          segmentValue,
-          labelIndex
-        );
+            htmlelement,
+            segmentValue,
+            labelIndex
+          );
       newColor[3] = Math.round(props.opacity * 255);
       setters.colorForSegmentIndexOfColorLUT(lutIndex, segmentValue, newColor);
       break;
@@ -425,10 +425,10 @@ export function setMaskProps(props: MaskProperties) {
       getters.isSegmentVisible(htmlelement, segmentValue, labelIndex)
         ? null
         : setters.toggleSegmentVisibility(
-          htmlelement,
-          segmentValue,
-          labelIndex
-        );
+            htmlelement,
+            segmentValue,
+            labelIndex
+          );
       newColor[3] = 0;
       setters.colorForSegmentIndexOfColorLUT(lutIndex, segmentValue, newColor);
       break;

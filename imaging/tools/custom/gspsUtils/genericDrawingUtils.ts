@@ -53,7 +53,7 @@ export function applyCircularShutter(
 
   const canvasRadius = Math.sqrt(
     Math.pow(point.x - canvasPoints.x, 2) +
-    Math.pow(point.y - canvasPoints.y, 2)
+      Math.pow(point.y - canvasPoints.y, 2)
   );
 
   // Create the circular cutout
