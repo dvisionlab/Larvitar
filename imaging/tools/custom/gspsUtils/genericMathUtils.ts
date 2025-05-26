@@ -1,5 +1,5 @@
 import { MetaData } from "../../../types";
-import type { ViewportComplete, Coords } from "../../../../common/types";
+import type { ViewportComplete, Coords } from "../../types";
 import cornerstone, {
   Image,
   PixelCoordinate,

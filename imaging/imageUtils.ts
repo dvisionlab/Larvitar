@@ -33,7 +33,7 @@ import type {
 } from "./types";
 import { getTagValue } from "./imageTags";
 import { MetaDataTypes } from "./MetaDataTypes";
-import { logger } from "../common/logger";
+import { logger } from "../logger";
 
 // global module variables
 // variables used to manage the reslice functionality
@@ -413,12 +413,12 @@ export const getReslicedMetadata = function (
     metadata.pixelSpacing = metadata.x00280030
       ? metadata.x00280030
       : metadata.x00080060 === "US" &&
-          metadata["x00186011"]![0].x0018602e != undefined &&
-          metadata["x00186011"]![0].x0018602c != undefined
+        metadata["x00186011"]![0].x0018602e != undefined &&
+        metadata["x00186011"]![0].x0018602c != undefined
         ? ([
-            metadata["x00186011"]![0].x0018602e * 10, //so that from cm goes to mm
-            metadata["x00186011"]![0].x0018602c * 10
-          ] as [number, number])
+          metadata["x00186011"]![0].x0018602e * 10, //so that from cm goes to mm
+          metadata["x00186011"]![0].x0018602c * 10
+        ] as [number, number])
         : metadata.x00280030;
     metadata.instanceUID = metadata.x00080018;
     metadata.minPixelValue = metadata.x00280106;
@@ -1115,8 +1115,8 @@ export const isElement = function (o: any) {
   return typeof HTMLElement === "object"
     ? o instanceof HTMLElement //DOM2
     : o &&
-        typeof o === "object" &&
-        o !== null &&
-        o.nodeType === 1 &&
-        typeof o.nodeName === "string";
+    typeof o === "object" &&
+    o !== null &&
+    o.nodeType === 1 &&
+    typeof o.nodeName === "string";
 };

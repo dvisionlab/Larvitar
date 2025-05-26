@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { each } from "lodash";
 
 // internal libraries
-import { logger } from "../common/logger";
+import { logger } from "../logger";
 import { getReslicedMetadata, getReslicedPixeldata } from "./imageUtils";
 import { getImageTracker, getImageManager } from "./imageManagers";
 import store from "./imageStore";

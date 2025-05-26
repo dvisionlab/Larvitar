@@ -19,8 +19,8 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
 );
 const EVENTS = cornerstoneTools.EVENTS;
 //internal imports
-import { logger } from "../../../common/logger";
-import { HandlePosition } from "../../../common/types";
+import { logger } from "../../../logger";
+import { HandlePosition } from "../types";
 
 //interfaces/types
 
@@ -120,13 +120,13 @@ export default class LengthPlotTool extends BaseAnnotationTool {
     handleRadius?: number;
     offset: number;
   } = {
-    drawHandles: true,
-    drawHandlesOnHover: false,
-    hideHandlesIfMoving: false,
-    renderDashed: false,
-    digits: 2,
-    offset: 0
-  };
+      drawHandles: true,
+      drawHandlesOnHover: false,
+      hideHandlesIfMoving: false,
+      renderDashed: false,
+      digits: 2,
+      offset: 0
+    };
   constructor(props = {}) {
     const defaultProps = {
       name: "LengthPlot",
@@ -197,8 +197,8 @@ export default class LengthPlotTool extends BaseAnnotationTool {
 
     this.measuring =
       this.datahandles?.end.x === this.datahandles?.start.x &&
-      this.datahandles?.end.y === this.datahandles?.start.y &&
-      this.click === 1
+        this.datahandles?.end.y === this.datahandles?.start.y &&
+        this.click === 1
         ? true
         : false;
 
@@ -221,8 +221,8 @@ export default class LengthPlotTool extends BaseAnnotationTool {
         pointsCoords.forEach(point => {
           const distance = Math.sqrt(
             (point.x - handles.start.x) * (point.x - handles.start.x) +
-              (this.image.height - (point.y - this.image.height)) *
-                (this.image.height - (point.y - this.image.height))
+            (this.image.height - (point.y - this.image.height)) *
+            (this.image.height - (point.y - this.image.height))
           );
           points.push(distance);
         });

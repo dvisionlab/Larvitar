@@ -3,7 +3,7 @@
  *        monitoring memory usage
  */
 
-import { logger } from "../../common/logger";
+import { logger } from "../../logger";
 import { getImageManager, removeDataFromImageManager } from "../imageManagers";
 import { clearImageCache } from "../imageRendering";
 import store from "../imageStore";

@@ -8,7 +8,7 @@ import { convertBytes } from "dicom-character-set";
 import { DataSet, Element } from "dicom-parser";
 
 // internal libraries
-import { logger } from "../common/logger";
+import { logger } from "../logger";
 import type { MetaDataTypes, ExtendedMetaDataTypes } from "./MetaDataTypes"; //custom type created as tag-type. { "x0000000":string, ...}
 
 /*

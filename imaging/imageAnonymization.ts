@@ -3,7 +3,7 @@
  */
 
 // internal libraries
-import { logger } from "../common/logger";
+import { logger } from "../logger";
 import { Series } from "./types";
 
 /*

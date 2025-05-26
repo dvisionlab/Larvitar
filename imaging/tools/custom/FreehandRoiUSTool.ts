@@ -3,7 +3,7 @@ import * as csTools from "cornerstone-tools";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 
 // internal imports
-import { logger } from "../../../common/logger";
+import { logger } from "../../../logger";
 
 // cornerstone tools imports
 const external = csTools.external;
@@ -136,10 +136,10 @@ export interface MeasurementMouseEvent {
   stopPropagation?: Function;
   preventDefault?: Function;
 }
-import type { HandleTextBox } from "../../../common/types";
+import type { HandleTextBox } from "../types";
 
 import { Image, Viewport } from "../../types";
-import { HandlePosition, Rectangle, Stats } from "../../../common/types";
+import { HandlePosition, Rectangle, Stats } from "../types";
 /**
  * @public
  * @class FreehandRoiTool
@@ -446,9 +446,9 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
         const startPoint = measurementArray.data[k].handles.points![i];
         const endPoint =
           measurementArray.data[k].handles.points![
-            i === measurementArray.data[k].handles.points!.length - 1
-              ? 0
-              : i + 1
+          i === measurementArray.data[k].handles.points!.length - 1
+            ? 0
+            : i + 1
           ];
         if (
           lineSegDistance(this.element, startPoint, endPoint, coords) <
@@ -1691,7 +1691,7 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
     const config = this.configuration;
     const data =
       toolState.data != undefined &&
-      toolState.data[config!.currentTool] != undefined
+        toolState.data[config!.currentTool] != undefined
         ? toolState.data[config!.currentTool]
         : this.data;
 

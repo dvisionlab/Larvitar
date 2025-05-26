@@ -10,13 +10,13 @@ import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 
 // internal libraries
-import { logger } from "../../common/logger";
-import { DEFAULT_MOUSE_KEYS } from "../../common/default";
+import { logger } from "../../logger";
+import { DEFAULT_MOUSE_KEYS } from "./default";
 import { setToolActive } from "./main";
 import { isElement } from "../imageUtils";
 import store, { set as setStore } from "../imageStore";
 import { updateViewportData } from "../imageRendering";
-import type { ToolMouseKeys } from "../../common/types";
+import type { ToolMouseKeys } from "./types";
 
 /**
  * TOOLS INTERACTIONS TODOS:
@@ -70,9 +70,9 @@ export function addMouseKeyHandlers(config: ToolMouseKeys) {
     // keyboard shortcuts (activate on left mouse button)
     let codes = config.keyboard_shortcuts
       ? Object.keys(config.keyboard_shortcuts).map(
-          // @ts-ignore
-          key => keyCodes[key]
-        )
+        // @ts-ignore
+        key => keyCodes[key]
+      )
       : [];
 
     if (codes.includes(evt.keyCode) && evt.altKey) {

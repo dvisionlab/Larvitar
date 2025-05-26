@@ -1,5 +1,5 @@
 import cornerstoneTools from "cornerstone-tools";
-import { Coords, MeasurementMouseEvent } from "../../../common/types";
+import { Coords, MeasurementMouseEvent } from "../types";
 const external = cornerstoneTools.external;
 const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
 const { rotateCursor } = cornerstoneTools.importInternal("tools/cursors");

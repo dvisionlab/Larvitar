@@ -7,7 +7,7 @@
 import cornerstone from "cornerstone-core";
 
 // internal libraries
-import { logger } from "../../common/logger";
+import { logger } from "../../logger";
 import { loadAndCacheImage, loadAndCacheImages } from "../imageRendering";
 import store, { set as setStore } from "../imageStore";
 import type { Series, CachingResponse } from "../types";

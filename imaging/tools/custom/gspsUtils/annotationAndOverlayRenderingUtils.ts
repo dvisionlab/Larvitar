@@ -27,8 +27,8 @@ import {
 } from "./genericDrawingUtils";
 import * as csTools from "cornerstone-tools";
 import cornerstone, { Image, PixelCoordinate } from "cornerstone-core";
-import { Coords, ViewportComplete } from "../../../../common/types";
-import { logger } from "../../../../common/logger";
+import { Coords, ViewportComplete } from "../../types";
+import { logger } from "../../../../logger";
 const drawArrow = csTools.importInternal("drawing/drawArrow");
 const drawLine = csTools.importInternal("drawing/drawLine");
 const drawLink = csTools.importInternal("drawing/drawLink");
@@ -205,7 +205,7 @@ export function renderGraphicAnnotation(
       context.beginPath();
       const radius = Math.sqrt(
         Math.pow(canvasCenter.x - canvasPoint.x, 2) +
-          Math.pow(canvasCenter.y - canvasPoint.y, 2)
+        Math.pow(canvasCenter.y - canvasPoint.y, 2)
       );
       context.arc(canvasCenter.x, canvasCenter.y, radius, 0, 2 * Math.PI);
 
@@ -522,9 +522,9 @@ export function renderCompoundAnnotation(
         // Rotate around the rotation point if defined
         const rotationCenter = compoundObject.rotationPoint
           ? {
-              x: compoundObject.rotationPoint[0],
-              y: compoundObject.rotationPoint[1]
-            }
+            x: compoundObject.rotationPoint[0],
+            y: compoundObject.rotationPoint[1]
+          }
           : midpoint;
         [startHandle, endHandle] = applyRotationAndTranslation(
           [startHandle, endHandle],
@@ -565,9 +565,9 @@ export function renderCompoundAnnotation(
             // Rotate around the rotation point if defined
             const rotationCenter = compoundObject.rotationPoint
               ? {
-                  x: compoundObject.rotationPoint[0],
-                  y: compoundObject.rotationPoint[1]
-                }
+                x: compoundObject.rotationPoint[0],
+                y: compoundObject.rotationPoint[1]
+              }
               : midpoint;
             [startHandle, endHandle] = applyRotationAndTranslation(
               [startHandle, endHandle],
@@ -605,9 +605,9 @@ export function renderCompoundAnnotation(
         // Rotate around the rotation point if defined
         const rotationCenter = compoundObject.rotationPoint
           ? {
-              x: compoundObject.rotationPoint[0],
-              y: compoundObject.rotationPoint[1]
-            }
+            x: compoundObject.rotationPoint[0],
+            y: compoundObject.rotationPoint[1]
+          }
           : midpoint;
         [startHandle, endHandle] = applyRotationAndTranslation(
           [startHandle, endHandle],
@@ -708,9 +708,9 @@ export function renderCompoundAnnotation(
         // Rotate around the rotation point if defined
         const rotationCenter = compoundObject.rotationPoint
           ? {
-              x: compoundObject.rotationPoint[0],
-              y: compoundObject.rotationPoint[1]
-            }
+            x: compoundObject.rotationPoint[0],
+            y: compoundObject.rotationPoint[1]
+          }
           : midpoint;
         [startHandle, endHandle] = applyRotationAndTranslation(
           [startHandle, endHandle],
@@ -765,9 +765,9 @@ export function renderCompoundAnnotation(
         // Rotate around the rotation point if defined
         const rotationCenter = compoundObject.rotationPoint
           ? {
-              x: compoundObject.rotationPoint[0],
-              y: compoundObject.rotationPoint[1]
-            }
+            x: compoundObject.rotationPoint[0],
+            y: compoundObject.rotationPoint[1]
+          }
           : midpoint;
         [startHandle, endHandle] = applyRotationAndTranslation(
           [startHandle, endHandle],
@@ -832,9 +832,9 @@ export function renderCompoundAnnotation(
         // Rotate around the rotation point if defined
         const rotationCenter = compoundObject.rotationPoint
           ? {
-              x: compoundObject.rotationPoint[0],
-              y: compoundObject.rotationPoint[1]
-            }
+            x: compoundObject.rotationPoint[0],
+            y: compoundObject.rotationPoint[1]
+          }
           : midpoint;
         [startHandle, endHandle] = applyRotationAndTranslation(
           [startHandle, endHandle],

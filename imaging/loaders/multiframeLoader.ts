@@ -8,7 +8,7 @@ import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 import { each, range } from "lodash";
 
 // internal libraries
-import { logger } from "../../common/logger";
+import { logger } from "../../logger";
 import { getImageFrame } from "./commonLoader";
 import { getImageTracker, getImageManager } from "../imageManagers";
 import { parseDataSet } from "../imageParsing";
@@ -295,13 +295,13 @@ let createCustomImage = function (
       let pixelSpacing = metadata.x00280030
         ? metadata.x00280030
         : metadata.x00080060 === "US" &&
-            metadata["x00186011"] != undefined &&
-            metadata["x00186011"][0].x0018602e != undefined &&
-            metadata["x00186011"][0].x0018602c != undefined
+          metadata["x00186011"] != undefined &&
+          metadata["x00186011"][0].x0018602e != undefined &&
+          metadata["x00186011"][0].x0018602c != undefined
           ? ([
-              metadata["x00186011"][0].x0018602e * 10, //so that from cm goes to mm
-              metadata["x00186011"][0].x0018602c * 10
-            ] as [number, number])
+            metadata["x00186011"][0].x0018602e * 10, //so that from cm goes to mm
+            metadata["x00186011"][0].x0018602c * 10
+          ] as [number, number])
           : metadata.x00181164
             ? metadata.x00181164
             : [1, 1];

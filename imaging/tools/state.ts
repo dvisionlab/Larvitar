@@ -7,7 +7,7 @@
 import cornerstoneTools from "cornerstone-tools";
 import { each } from "lodash";
 
-import type { ToolState } from "../../common/types";
+import type { ToolState } from "./types";
 
 /**
  *

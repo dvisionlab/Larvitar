@@ -12,9 +12,9 @@ const BaseTool = cornerstoneTools.importInternal("base/BaseTool");
 const getToolState = cornerstoneTools.getToolState;
 
 // internal libraries
-import { logger } from "../../../common/logger";
+import { logger } from "../../../logger";
 import store, { set as setStore } from "../../imageStore";
-import { DEFAULT_TOOLS } from "../../../common/default";
+import { DEFAULT_TOOLS } from "../default";
 import { StoreViewport } from "../../types";
 import scrollToIndex from "./utils/customMouseWheelScrollToolUtils/customMouseWheelUtils";
 import { getImageManager, getImageTracker } from "../../imageManagers";
@@ -249,7 +249,7 @@ export default class CustomMouseWheelScrollTool extends BaseTool {
 
         const endFrame =
           (this.configuration.fixedSlice + 1) *
-            this.configuration.framesNumber -
+          this.configuration.framesNumber -
           1;
 
         // Calculate the potential new index without considering looping

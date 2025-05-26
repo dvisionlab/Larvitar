@@ -8,7 +8,7 @@ import cornerstone from "cornerstone-core";
 import { each, find } from "lodash";
 
 // internal libraries
-import { logger } from "../common/logger";
+import { logger } from "../logger";
 import { set as setStore } from "./imageStore";
 
 /**

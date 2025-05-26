@@ -9,18 +9,18 @@ import * as cornerstoneTools from "@cornerstonejs/tools";
 import { each, extend } from "lodash";
 
 // internal libraries
-import { logger } from "../../common/logger";
+import { logger } from "../../logger";
 import {
   DEFAULT_TOOLS_3D,
   DEFAULT_TOOLS_MPR,
   DEFAULT_STYLE,
   DEFAULT_SETTINGS,
   dvTools
-} from "../../common/default";
+} from "../../imaging/tools/default";
 import store, { set as setStore } from "../../imaging/imageStore";
 
 // types
-import type { ToolConfig, ToolSettings, ToolStyle } from "../../common/types";
+import type { ToolConfig, ToolSettings, ToolStyle } from "../../imaging/tools/types";
 import type { RenderingEngine } from "@cornerstonejs/core";
 
 /**

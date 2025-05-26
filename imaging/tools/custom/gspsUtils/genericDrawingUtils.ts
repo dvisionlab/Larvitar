@@ -2,7 +2,7 @@ import type { TextDetails } from "./types";
 import { rotateCoords } from "./genericMathUtils";
 import * as csTools from "cornerstone-tools";
 import cornerstone, { Image, PixelCoordinate } from "cornerstone-core";
-import { Coords, ViewportComplete } from "../../../../common/types";
+import { Coords, ViewportComplete } from "../../types";
 const drawArrow = csTools.importInternal("drawing/drawArrow");
 const drawLine = csTools.importInternal("drawing/drawLine");
 
@@ -53,7 +53,7 @@ export function applyCircularShutter(
 
   const canvasRadius = Math.sqrt(
     Math.pow(point.x - canvasPoints.x, 2) +
-      Math.pow(point.y - canvasPoints.y, 2)
+    Math.pow(point.y - canvasPoints.y, 2)
   );
 
   // Create the circular cutout

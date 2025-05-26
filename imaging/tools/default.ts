@@ -29,30 +29,30 @@ import { Enums as csToolsEnums } from "@cornerstonejs/tools";
 const MouseBindings = csToolsEnums.MouseBindings;
 
 // internal libraries
-import { logger } from "./logger";
-import ThresholdsBrushTool from "../imaging/tools/custom/thresholdsBrushTool";
-import WwwcRemoveRegionTool from "../imaging/tools/custom/WwwcRemoveRegionTool";
-import PolylineScissorsTool from "../imaging/tools/custom/polylineScissorsTool";
-import RectangleRoiOverlayTool from "../imaging/tools/custom/rectangleRoiOverlayTool";
-import EllipticalRoiOverlayTool from "../imaging/tools/custom/ellipticalRoiOverlayTool";
-import BorderMagnifyTool from "../imaging/tools/custom/BorderMagnifyTool";
-import CustomMouseWheelScrollTool from "../imaging/tools/custom/customMouseWheelScrollTool";
-import WSToggleTool from "../imaging/tools/custom/watershedSegmentationTool";
-import LengthPlotTool from "../imaging/tools/custom/LengthPlotTool";
-import LengthTool from "../imaging/tools/custom/LengthUSTool";
-import RectangleRoiTool from "../imaging/tools/custom/RectangleRoiUSTool";
-import EllipticalRoiTool from "../imaging/tools/custom/EllipticalRoiUSTool";
-import FreehandRoiTool from "../imaging/tools/custom/FreehandRoiUSTool";
-import ManualLengthPlotTool from "../imaging/tools/custom/ManualLengthPlotTool";
-import OverlayTool from "../imaging/tools/custom/OverlayTool";
+import { logger } from "../../logger";
+import ThresholdsBrushTool from "./custom/thresholdsBrushTool";
+import WwwcRemoveRegionTool from "./custom/WwwcRemoveRegionTool";
+import PolylineScissorsTool from "./custom/polylineScissorsTool";
+import RectangleRoiOverlayTool from "./custom/rectangleRoiOverlayTool";
+import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
+import BorderMagnifyTool from "./custom/BorderMagnifyTool";
+import CustomMouseWheelScrollTool from "./custom/customMouseWheelScrollTool";
+import WSToggleTool from "./custom/watershedSegmentationTool";
+import LengthPlotTool from "./custom/LengthPlotTool";
+import LengthTool from "./custom/LengthUSTool";
+import RectangleRoiTool from "./custom/RectangleRoiUSTool";
+import EllipticalRoiTool from "./custom/EllipticalRoiUSTool";
+import FreehandRoiTool from "./custom/FreehandRoiUSTool";
+import ManualLengthPlotTool from "./custom/ManualLengthPlotTool";
+import OverlayTool from "./custom/OverlayTool";
 import type {
   ToolConfig,
   ToolMouseKeys,
   ToolSettings,
   ToolStyle
 } from "./types";
-import RotateTool from "../imaging/tools/custom/rotateTool";
-import GspsTool from "../imaging/tools/custom/gspsTool";
+import RotateTool from "./custom/rotateTool";
+import GspsTool from "./custom/gspsTool";
 
 const DEFAULT_TOOLS_3D: {
   [key: string]: ToolConfig;

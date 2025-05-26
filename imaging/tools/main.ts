@@ -11,15 +11,15 @@ import Hammer from "hammerjs";
 import { each, extend } from "lodash";
 
 // internal libraries
-import { logger } from "../../common/logger";
+import { logger } from "../../logger";
 import {
   DEFAULT_TOOLS,
   DEFAULT_STYLE,
   DEFAULT_SETTINGS,
   dvTools
-} from "../../common/default";
+} from "./default";
 import store, { set as setStore } from "../imageStore";
-import type { ToolConfig, ToolSettings, ToolStyle } from "../../common/types";
+import type { ToolConfig, ToolSettings, ToolStyle } from "./types";
 import { isElement } from "../imageUtils";
 //global variable
 declare var cv: any; //opencv-js

@@ -103,7 +103,7 @@
     "./imaging/",
     "./imaging3d/",
     "./decs.d.ts",
-    "common/default.ts",
-    "common/types.d.ts"
+    "imaging/tools/default.ts",
+    "imaging/tools/types.d.ts"
   ]
 }

@@ -9,7 +9,7 @@ import cornerstone from "cornerstone-core";
 // internal libraries
 import { isElement } from "./imageUtils";
 import { Series } from "./types";
-import { logger } from "../common/logger";
+import { logger } from "../logger";
 
 /*
  * This module provides the following functions to be exported:

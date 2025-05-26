@@ -5,7 +5,7 @@ import { MetaData } from "../../../types";
 import {
   DisplayAreaVisualizations,
   ViewportComplete
-} from "../../../../common/types";
+} from "../../types";
 
 /**
  * Applies spatial transformations like rotation and flipping to the viewport
