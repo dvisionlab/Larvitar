@@ -27,7 +27,7 @@ export const parseContours = function (
   contoursData: { [key: string]: Uint8Array }, // TODO-ts: check if this is correct @mronzoni
   pointBatchSize: number,
   segmentationName: string,
-  viewports: Array<string>
+  viewports?: Array<string>
 ) {
   let contours: Contours = {};
   each(viewports, viewport => {

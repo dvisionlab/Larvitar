@@ -1,4 +1,14 @@
 import cornerstoneTools from "cornerstone-tools";
+import {
+  Coords,
+  EventData,
+  MeasurementData,
+  MeasurementMouseEvent,
+  Handles,
+  HandlePosition,
+  PixelSpacing,
+  Rectangle
+} from "../types";
 
 const external = cornerstoneTools.external;
 const BaseAnnotationTool = cornerstoneTools.importInternal(
@@ -65,7 +75,7 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
 
-  createNewMeasurement(eventData) {
+  createNewMeasurement(eventData: EventData) {
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
@@ -109,7 +119,12 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
     };
   }
 
-  pointNearTool(element, data, coords, interactionType) {
+  pointNearTool(
+    element: Element,
+    data: MeasurementData,
+    coords: Coords,
+    interactionType: string
+  ) {
     const hasStartAndEndHandles =
       data && data.handles && data.handles.start && data.handles.end;
     const validParameters = hasStartAndEndHandles;
@@ -125,11 +140,11 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
     }
 
     const distance = interactionType === "mouse" ? 15 : 25;
-    const startCanvas = external.cornerstone.pixelToCanvas(
+    const startCanvas: Coords = external.cornerstone.pixelToCanvas(
       element,
       data.handles.start
     );
-    const endCanvas = external.cornerstone.pixelToCanvas(
+    const endCanvas: Coords = external.cornerstone.pixelToCanvas(
       element,
       data.handles.end
     );
@@ -149,7 +164,11 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
     return distanceToPoint < distance;
   }
 
-  updateCachedStats(image, element, data) {
+  updateCachedStats(
+    image: cornerstone.Image,
+    element: Element,
+    data: MeasurementData
+  ) {
     if (data.computeMeasurements) {
       const seriesModule =
         external.cornerstone.metaData.get(
@@ -173,7 +192,7 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
     data.invalidated = false;
   }
 
-  renderToolData(evt) {
+  renderToolData(evt: MeasurementMouseEvent) {
     const toolData = getToolState(evt.currentTarget, this.name);
 
     if (!toolData) {
@@ -202,7 +221,7 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
     const modality = seriesModule.modality;
     const hasPixelSpacing = rowPixelSpacing && colPixelSpacing;
 
-    draw(context, context => {
+    draw(context, (context: CanvasRenderingContext2D) => {
       // If we have tool data for this element - iterate over each set and draw it
       for (let i = 0; i < toolData.data.length; i++) {
         const data = toolData.data[i];
@@ -222,7 +241,11 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
 
         setShadow(context, this.configuration);
 
-        const rectOptions = { color };
+        const rectOptions: {
+          color: string;
+          lineDash?: boolean;
+          lineWidth?: number;
+        } = { color };
 
         if (renderDashed) {
           rectOptions.lineDash = lineDash;
@@ -263,8 +286,8 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
             Object.assign(data.handles.textBox, defaultCoords);
           }
 
-          const textBoxAnchorPoints = handles =>
-            _findTextBoxAnchorPoints(handles.start, handles.end);
+          const textBoxAnchorPoints = (handles: Handles) =>
+            _findTextBoxAnchorPoints(handles.start!, handles.end!);
           const textBoxContent = _createTextBoxContent(
             context,
             image.color,
@@ -301,11 +324,14 @@ export default class RectangleRoiOverlayTool extends BaseAnnotationTool {
  * TODO: This is the same method (+ GetPixels) for the other ROIs
  * TODO: The pixel filtering is the unique bit
  *
- * @param {*} startHandle
- * @param {*} endHandle
+ * @param {HandlePosition} startHandle
+ * @param {HandlePosition} endHandle
  * @returns {{ left: number, top: number, width: number, height: number}}
  */
-function _getRectangleImageCoordinates(startHandle, endHandle) {
+function _getRectangleImageCoordinates(
+  startHandle: HandlePosition,
+  endHandle: HandlePosition
+) {
   return {
     left: Math.min(startHandle.x, endHandle.x),
     top: Math.min(startHandle.y, endHandle.y),
@@ -317,18 +343,24 @@ function _getRectangleImageCoordinates(startHandle, endHandle) {
 /**
  *
  *
- * @param {*} image
- * @param {*} element
- * @param {*} handles
- * @param {*} modality
- * @param {*} pixelSpacing
+ * @param {cornerstone.Image} image
+ * @param {Element} element
+ * @param {Handles} handles
+ * @param {string} modality
+ * @param {PixelSpacing} pixelSpacing
  * @returns {Object} The Stats object
  */
-function _calculateStats(image, element, handles, modality, pixelSpacing) {
+function _calculateStats(
+  image: cornerstone.Image,
+  element: Element,
+  handles: Handles,
+  modality: string,
+  pixelSpacing: PixelSpacing
+) {
   // Retrieve the bounds of the rectangle in image coordinates
   const roiCoordinates = _getRectangleImageCoordinates(
-    handles.start,
-    handles.end
+    handles.start!,
+    handles.end!
   );
 
   // Retrieve the array of pixels that the rectangle bounds cover
@@ -378,11 +410,11 @@ function _calculateStats(image, element, handles, modality, pixelSpacing) {
 /**
  *
  *
- * @param {*} sp
- * @param {*} rectangle
+ * @param {number[]} sp
+ * @param {Rectangle} rectangle
  * @returns {{ count, number, mean: number,  variance: number,  stdDev: number,  min: number,  max: number }}
  */
-function _calculateRectangleStats(sp, rectangle) {
+function _calculateRectangleStats(sp: number[], rectangle: Rectangle) {
   let sum = 0;
   let sumSquared = 0;
   let count = 0;
@@ -394,8 +426,8 @@ function _calculateRectangleStats(sp, rectangle) {
     for (let x = rectangle.left; x < rectangle.left + rectangle.width; x++) {
       sum += sp[index];
       sumSquared += sp[index] * sp[index];
-      min = Math.min(min, sp[index]);
-      max = Math.max(max, sp[index]);
+      min = Math.min(min!, sp[index]);
+      max = Math.max(max!, sp[index]);
       count++; // TODO: Wouldn't this just be sp.length?
       index++;
     }
@@ -428,11 +460,14 @@ function _calculateRectangleStats(sp, rectangle) {
 /**
  *
  *
- * @param {*} startHandle
- * @param {*} endHandle
+ * @param {HandlePosition} startHandle
+ * @param {HandlePosition} endHandle
  * @returns {Array.<{x: number, y: number}>}
  */
-function _findTextBoxAnchorPoints(startHandle, endHandle) {
+function _findTextBoxAnchorPoints(
+  startHandle: HandlePosition,
+  endHandle: HandlePosition
+) {
   const { left, top, width, height } = _getRectangleImageCoordinates(
     startHandle,
     endHandle
@@ -465,11 +500,11 @@ function _findTextBoxAnchorPoints(startHandle, endHandle) {
 /**
  *
  *
- * @param {*} area
- * @param {*} hasPixelSpacing
+ * @param {number} area
+ * @param {boolean} hasPixelSpacing
  * @returns {string} The formatted label for showing area
  */
-function _formatArea(area, hasPixelSpacing) {
+function _formatArea(area: number, hasPixelSpacing: boolean) {
   // This uses Char code 178 for a superscript 2
   const suffix = hasPixelSpacing
     ? ` mm${String.fromCharCode(178)}`
@@ -478,7 +513,7 @@ function _formatArea(area, hasPixelSpacing) {
   return `Area: ${numbersWithCommas(area.toFixed(2))}${suffix}`;
 }
 
-function _getUnit(modality, showHounsfieldUnits) {
+function _getUnit(modality: string, showHounsfieldUnits: boolean) {
   return modality === "CT" && showHounsfieldUnits !== false ? "HU" : "";
 }
 
@@ -486,21 +521,35 @@ function _getUnit(modality, showHounsfieldUnits) {
  * TODO: This is identical to EllipticalROI's same fn
  * TODO: We may want to make this a utility for ROIs with these values?
  *
- * @param {*} context
- * @param {*} isColorImage
- * @param {*} { area, mean, stdDev, min, max, meanStdDevSUV }
- * @param {*} modality
- * @param {*} hasPixelSpacing
- * @param {*} [options={}]
+ * @param {CanvasRenderingContext2D} context
+ * @param {boolean} isColorImage
+ * @param {Object} { area?: number, mean?: number, stdDev?: number, min?: number, max?: number, meanStdDevSUV?: { mean: number; stdDev: number } }
+ * @param {string} modality
+ * @param {boolean} hasPixelSpacing
+ * @param {Object} { showMinMax?: boolean; showHounsfieldUnits?: boolean }
  * @returns {string[]}
  */
 function _createTextBoxContent(
-  context,
-  isColorImage,
-  { area = 0, mean = 0, stdDev = 0, min = 0, max = 0, meanStdDevSUV = 0 } = {},
-  modality,
-  hasPixelSpacing,
-  options = {}
+  context: CanvasRenderingContext2D,
+  isColorImage: boolean,
+  {
+    area = 0,
+    mean = 0,
+    stdDev = 0,
+    min = 0,
+    max = 0,
+    meanStdDevSUV = { mean: 0, stdDev: 0 }
+  }: {
+    area?: number;
+    mean?: number;
+    stdDev?: number;
+    min?: number;
+    max?: number;
+    meanStdDevSUV?: { mean: number; stdDev: number };
+  } = {},
+  modality: string,
+  hasPixelSpacing: boolean,
+  options: { showMinMax?: boolean; showHounsfieldUnits?: boolean } = {}
 ) {
   const showMinMax = options.showMinMax || false;
   const textLines = [];
@@ -509,7 +558,7 @@ function _createTextBoxContent(
 
   if (!isColorImage) {
     const hasStandardUptakeValues = meanStdDevSUV && meanStdDevSUV.mean !== 0;
-    const unit = _getUnit(modality, options.showHounsfieldUnits);
+    const unit = _getUnit(modality, options.showHounsfieldUnits!);
 
     let meanString = `Mean: ${numbersWithCommas(mean.toFixed(2))} ${unit}`;
     const stdDevString = `Std Dev: ${numbersWithCommas(
