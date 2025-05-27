@@ -542,39 +542,57 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
     return;
   }
 
-  const colPixelSpacing = store.get(["viewports", id, "spacing_x"]);
-  const rowPixelSpacing = store.get(["viewports", id, "spacing_y"]);
-
-  if (rowPixelSpacing !== colPixelSpacing) {
+  if (isAnisotropic(id)) {
     const viewport = cornerstone.getViewport(element) as Viewport;
     if (!viewport) {
       logger.error("Unable to get viewport");
       return;
     }
-    const width = store.get(["viewports", id, "cols"]);
-    const height = store.get(["viewports", id, "rows"]);
-
-    if (width === undefined || height === undefined) {
-      logger.error("Viewport dimensions are undefined");
-      return;
-    }
-
-    viewport.displayedArea = viewport.displayedArea || {
-      tlhc: { x: 0, y: 0 },
-      brhc: { x: width, y: height },
-      presentationSizeMode: "SCALE TO FIT",
-      rowPixelSpacing: 1,
-      columnPixelSpacing: 1
-    };
-
+    viewport.displayedArea = resizeAnisotropicViewport(id, viewport)!;
     cornerstone.setViewport(element, viewport);
-
-    logger.info(
-      `Anisotropic pixel spacing with aspect ratio: ${rowPixelSpacing / colPixelSpacing} - viewport updated`
-    );
   } else {
     cornerstone.resize(element, true); // true flag forces fitToWindow
   }
+};
+
+/**
+ * Check if the displayed image is anisotropic (row pixel spacing !== col pixel spacing)
+ * @instance
+ * @function isAnisotropic
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const isAnisotropic = function (elementId: string) {
+  const colPixelSpacing = store.get(["viewports", elementId, "spacing_x"]);
+  const rowPixelSpacing = store.get(["viewports", elementId, "spacing_y"]);
+
+  return rowPixelSpacing !== colPixelSpacing;
+};
+
+/**
+ * Resize Anisotropic Viewport through displayedArea properties
+ * @instance
+ * @function resizeAnisotropicViewport
+ * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ */
+export const resizeAnisotropicViewport = function (
+  id: string,
+  viewport: Viewport
+) {
+  const width = store.get(["viewports", id, "cols"]);
+  const height = store.get(["viewports", id, "rows"]);
+
+  if (width === undefined || height === undefined) {
+    logger.error("Viewport dimensions are undefined");
+    return;
+  }
+
+  return {
+    tlhc: viewport.displayedArea?.tlhc || { x: 0, y: 0 },
+    brhc: viewport.displayedArea?.brhc || { x: width, y: height },
+    presentationSizeMode: "SCALE TO FIT",
+    rowPixelSpacing: 1,
+    columnPixelSpacing: 1
+  };
 };
 
 /**
@@ -690,7 +708,7 @@ export const renderImage = function (
         }
 
         // update viewport data with default properties
-        const viewport = cornerstone.getViewport(element);
+        const viewport = cornerstone.getViewport(element) as Viewport;
         if (!viewport) {
           logger.error("viewport not found");
           reject("viewport not found for element: " + elementId);
@@ -709,7 +727,7 @@ export const renderImage = function (
         if (renderOptions.scale !== undefined) {
           // store default scale value if not specified
           if (data.default?.scale === undefined) {
-            data.default!.scale = viewport.scale;
+            data.default!.scale = viewport.scale!;
           }
           viewport.scale = renderOptions.scale;
           logger.debug(
@@ -724,11 +742,11 @@ export const renderImage = function (
               x: 0,
               y: 0
             };
-            data.default!.translation.x = viewport.translation.x || 0;
-            data.default!.translation.y = viewport.translation.y || 0;
+            data.default!.translation.x = viewport.translation!.x || 0;
+            data.default!.translation.y = viewport.translation!.y || 0;
           }
-          viewport.translation.x = renderOptions.translation.x;
-          viewport.translation.y = renderOptions.translation.y;
+          viewport.translation!.x = renderOptions.translation.x;
+          viewport.translation!.y = renderOptions.translation.y;
           logger.debug(
             `updating cornerstone viewport with custom translation values: ${renderOptions.translation.x}, ${renderOptions.translation.y}`
           );
@@ -746,13 +764,15 @@ export const renderImage = function (
         }
         // set the optional custom contrast
         if (renderOptions.voi !== undefined) {
-          viewport.voi.windowWidth = renderOptions.voi.windowWidth;
-          viewport.voi.windowCenter = renderOptions.voi.windowCenter;
+          viewport.voi!.windowWidth = renderOptions.voi.windowWidth;
+          viewport.voi!.windowCenter = renderOptions.voi.windowCenter;
           logger.debug(
             `updating cornerstone viewport with custom contrast values: ${renderOptions.voi.windowWidth}, ${renderOptions.voi.windowCenter}`
           );
         }
-
+        if (isAnisotropic(id)) {
+          viewport.displayedArea = resizeAnisotropicViewport(id, viewport)!;
+        }
         // if uniqueUID has changed update the value into the store
         if (isUniqueUIDChanged) {
           setStore(["uniqueUID", element.id, data.uniqueUID]);
@@ -764,12 +784,12 @@ export const renderImage = function (
             );
           }
           if (renderOptions.translation === undefined) {
-            viewport.translation.x = data.default?.translation.x || 0;
-            viewport.translation.y = data.default?.translation.y || 0;
+            viewport.translation!.x = data.default?.translation.x || 0;
+            viewport.translation!.y = data.default?.translation.y || 0;
             logger.debug(
               "updating cornerstone viewport with default translation values: ",
-              viewport.translation.x,
-              viewport.translation.y
+              viewport.translation!.x,
+              viewport.translation!.y
             );
           }
           if (renderOptions.rotation === undefined) {
@@ -783,14 +803,14 @@ export const renderImage = function (
           // with the default values from the series
           // if the voi is not defined in the renderOptions
           if (renderOptions.voi === undefined) {
-            viewport.voi.windowWidth =
+            viewport.voi!.windowWidth =
               data.default?.voi?.windowWidth || image.windowWidth;
-            viewport.voi.windowCenter =
+            viewport.voi!.windowCenter =
               data.default?.voi?.windowCenter || image.windowCenter;
             logger.debug(
               "updating cornerstone viewport with default voi values: ",
-              viewport.voi.windowWidth,
-              viewport.voi.windowCenter
+              viewport.voi!.windowWidth,
+              viewport.voi!.windowCenter
             );
           }
         }
