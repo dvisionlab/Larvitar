@@ -702,7 +702,7 @@ export const renderImage = function (
           renderOptions.scale !== undefined
         ) {
           // fit the image to the window with standard scaling
-          cornerstone.fitToWindow(element);
+          resizeViewport(id);
         }
 
         // set the optional custom zoom
