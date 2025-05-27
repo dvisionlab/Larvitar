@@ -286,7 +286,7 @@
         larvitar.store.addViewport("coronal");
         larvitar.store.addViewport("acquisition");
         larvitar
-          ._readFiles(demoFiles) // need to port the updateLoadedStack function
+          .readFiles(demoFiles) // you can use old readFiles or new _readFiles
           .then(async seriesStack => {
             const seriesId = _.keys(seriesStack)[0];
             const serie = seriesStack[seriesId];

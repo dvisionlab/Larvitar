@@ -180,6 +180,20 @@ export const renderMpr = function (
     });
   }
 
+  // check if fileManager has been populated during parsing
+  // otherwise fill it with file objects
+  each(Object.keys(series.instances), function (imageId) {
+    const index = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+    const cachedFile =
+      cornerstoneDICOMImageLoader.wadouri.fileManager.get(index);
+    if (cachedFile === undefined) {
+      cornerstoneDICOMImageLoader.wadouri.fileManager.add(
+        series.instances[imageId].file
+      );
+      logger.debug(`Caching into imageLoader: ${imageId}`);
+    }
+  });
+
   series.imageIds.forEach(imageId => {
     const dataSet = series.instances[imageId].dataSet;
     if (!dataSet) {
