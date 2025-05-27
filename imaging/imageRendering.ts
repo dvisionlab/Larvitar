@@ -690,15 +690,17 @@ export const renderImage = function (
         }
 
         // update viewport data with default properties
-        const viewportValue = cornerstone.getViewport(element);
-        if (!viewportValue) {
+        const viewport = cornerstone.getViewport(element);
+        if (!viewport) {
           logger.error("viewport not found");
           reject("viewport not found for element: " + elementId);
           return;
         }
-        const viewport = JSON.parse(JSON.stringify(viewportValue));
 
-        if (!renderOptions.translation && !renderOptions.scale) {
+        if (
+          renderOptions.translation !== undefined &&
+          renderOptions.scale !== undefined
+        ) {
           // fit the image to the window with standard scaling
           cornerstone.fitToWindow(element);
         }
