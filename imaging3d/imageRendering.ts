@@ -168,7 +168,6 @@ export const renderMpr = function (
   const renderOptions = options ? options : {};
 
   let data: StoreViewport = getSeriesData(series, renderOptions);
-  console.log("data", data);
 
   if (!data.imageId) {
     console.warn("error during renderImage: imageId has not been loaded yet.");
@@ -201,7 +200,7 @@ export const renderMpr = function (
       return;
     }
     const metadata = convertMetadata(dataSet);
-    console.log(`Tranfer Syntax: ${metadata["00020010"].Value[0]}`);
+    logger.debug(`Tranfer Syntax: ${metadata["00020010"].Value[0]}`);
     cornerstoneDICOMImageLoader.wadors.metaDataManager.add(imageId, metadata);
   });
 
@@ -217,7 +216,6 @@ export const renderMpr = function (
           imageIds: series.imageIds.map(id => id)
         }
       );
-      console.log("volume", volume);
 
       let viewportInputs: cornerstone.Types.PublicViewportInput[] = [];
 
@@ -239,7 +237,7 @@ export const renderMpr = function (
       volume.load();
 
       const t1 = performance.now();
-      console.log("Time to load volume: " + (t1 - t0) + " milliseconds.");
+      logger.debug(`Time to load volume: ${t1 - t0} milliseconds`);
 
       cornerstone.setVolumesForViewports(
         renderingEngine,
@@ -264,8 +262,7 @@ export const renderMpr = function (
       });
 
       const t2 = performance.now();
-      console.log("Time to render volume: " + (t2 - t1) + " milliseconds.");
-
+      logger.debug(`Time to render volume: ${t2 - t1} milliseconds`);
       // const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
       //   data.imageId
       // ).url;

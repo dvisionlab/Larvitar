@@ -16,7 +16,8 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
-    "imaging/**/*.d.ts"
+    "imaging/**/*.d.ts",
+    "imaging3d/**/*.d.ts"
   ],
   "scripts": {
     "coverage": "typescript-coverage-report",
