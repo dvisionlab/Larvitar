@@ -212,9 +212,14 @@ export const getSopInstanceUIDFromImageManager = function (
     return null;
   }
   let series = imageManager[uniqueUID];
-  return Object.keys(series.instanceUIDs).find(
+  const instanceUID = Object.keys(series.instanceUIDs).find(
     key => series.instanceUIDs[key] === imageId
   );
+  if (instanceUID) {
+    return instanceUID;
+  }
+  const instance = series.instances[imageId];
+  return instance.instanceId;
 };
 
 /**
