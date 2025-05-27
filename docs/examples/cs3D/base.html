@@ -151,7 +151,7 @@
 
       // init all
       larvitar._cornerstone.init();
-      larvitar._cornerstoneTools.init();
+      larvitar._initializeCSTools();
       larvitar._initializeImageLoader();
       // initialize store and add viewport
       larvitar.store.initialize();
@@ -187,7 +187,7 @@
               .then(async ({ success, renderingEngine }) => {
                 console.log("Image has been rendered");
                 // add and enable wwwc, pan, zoom, and stack tools
-                larvitar._addDefaultTools("viewer", renderingEngine);
+                larvitar._addDefaultTools(["viewer"], renderingEngine, "2d");
                 hideSpinner();
               });
           })
