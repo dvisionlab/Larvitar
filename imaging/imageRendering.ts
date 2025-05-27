@@ -698,8 +698,8 @@ export const renderImage = function (
         }
 
         if (
-          renderOptions.translation !== undefined &&
-          renderOptions.scale !== undefined
+          renderOptions.translation === undefined &&
+          renderOptions.scale === undefined
         ) {
           // fit the image to the window with standard scaling
           cornerstone.fitToWindow(element);
