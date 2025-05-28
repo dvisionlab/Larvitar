@@ -548,7 +548,7 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
       logger.error("Unable to get viewport");
       return;
     }
-    viewport.displayedArea = resizeAnisotropicViewport(id, viewport)!;
+    viewport.displayedArea = getAnisotropicDisplayedArea(id, viewport)!;
     cornerstone.setViewport(element, viewport);
   } else {
     cornerstone.resize(element, true); // true flag forces fitToWindow
@@ -569,12 +569,12 @@ export const isAnisotropic = function (elementId: string) {
 };
 
 /**
- * Resize Anisotropic Viewport through displayedArea properties
+ * Retrieves Anisotropic Viewport displayedArea properties
  * @instance
- * @function resizeAnisotropicViewport
+ * @function getAnisotropicDisplayedArea
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
  */
-export const resizeAnisotropicViewport = function (
+export const getAnisotropicDisplayedArea = function (
   id: string,
   viewport: Viewport
 ) {
@@ -771,7 +771,7 @@ export const renderImage = function (
           );
         }
         if (isAnisotropic(id)) {
-          viewport.displayedArea = resizeAnisotropicViewport(id, viewport)!;
+          viewport.displayedArea = getAnisotropicDisplayedArea(id, viewport)!;
         }
         // if uniqueUID has changed update the value into the store
         if (isUniqueUIDChanged) {
