@@ -20,7 +20,11 @@ import {
 import store, { set as setStore } from "../../imaging/imageStore";
 
 // types
-import type { ToolConfig, ToolSettings, ToolStyle } from "../../imaging/tools/types";
+import type {
+  ToolConfig,
+  ToolSettings,
+  ToolStyle
+} from "../../imaging/tools/types";
 import type { RenderingEngine } from "@cornerstonejs/core";
 
 /**
@@ -34,12 +38,10 @@ export const initializeCSTools = async function (
   settings?: ToolSettings,
   style?: ToolStyle
 ) {
-  // TODO proper config 
+  // TODO proper config
   await cornerstoneTools.init();
   logger.warn("initializeCSTools is not implemented yet");
-
 };
-
 
 /**
  * Check if a tool is missing in the current element
@@ -52,8 +54,7 @@ const isToolMissing = function (
   toolName: string,
   targetElementId?: string
 ): boolean {
-
-  // TODO 
+  // TODO
   logger.warn("isToolMissing is not implemented yet");
 
   return false;
@@ -69,11 +70,10 @@ export const addTool = function (
   toolName: string,
   customConfig: Partial<ToolConfig>
 ) {
-
   const allToolsList = {
     ...DEFAULT_TOOLS_3D,
-    ...DEFAULT_TOOLS_MPR,
-  }
+    ...DEFAULT_TOOLS_MPR
+  };
 
   console.log("allToolsList", allToolsList);
 
@@ -92,11 +92,11 @@ export const addTool = function (
     );
   }
 
-  const toolClass = cornerstoneTools[toolClassName as keyof typeof cornerstoneTools];
+  const toolClass =
+    cornerstoneTools[toolClassName as keyof typeof cornerstoneTools];
 
   cornerstoneTools.addTool(toolClass);
   logger.debug(`Tool ${toolName} added`);
-
 };
 
 /**
@@ -150,7 +150,7 @@ export const addDefaultTools = function (
       // TODO manage synchronizers
     }
 
-    // set default tools active 
+    // set default tools active
     // TODO handle options (mouseButtonMask, etc) and other modes (eg passive)
     if (tool.defaultActive) {
       console.log("setToolActive", tool.name, tool.options);
@@ -174,7 +174,6 @@ export const setToolActive = function (
   groupId: string = "default",
   doNotSetInStore?: boolean
 ) {
-
   let defaultOpt = { ...DEFAULT_TOOLS_3D[toolName]?.options }; // deep copy obj because otherwise cornerstone tools will modify it
   extend(defaultOpt, options);
 
@@ -185,7 +184,7 @@ export const setToolActive = function (
     return;
   }
 
-  // @ts-ignore 
+  // @ts-ignore
   toolGroup.setToolActive(toolName, options);
   logger.debug(`Tool ${toolName} set active in group:`, groupId);
 
@@ -223,7 +222,7 @@ export const setToolPassive = function (
   }
   toolGroup.setToolPassive(toolName);
   logger.debug(`Tool ${toolName} set enabled in group:`, groupId);
-}
+};
 
 export const setToolEnabled = function (
   toolName: string,
@@ -237,7 +236,7 @@ export const setToolEnabled = function (
   }
   toolGroup.setToolEnabled(toolName);
   logger.debug(`Tool ${toolName} set enabled in group:`, groupId);
-}
+};
 
 export const setToolDisabled = function (
   toolName: string,
@@ -251,7 +250,7 @@ export const setToolDisabled = function (
   }
   toolGroup.setToolDisabled(toolName);
   logger.debug(`Tool ${toolName} set enabled in group:`, groupId);
-}
+};
 
 // TODO a function to create groups (es createToolGroup(groupId, viewportIds[]))
 
