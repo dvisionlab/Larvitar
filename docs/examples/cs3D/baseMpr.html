@@ -36,6 +36,7 @@
       .open-button {
         left: 20px;
       }
+
       /* Mask overlay */
       .dragover {
         opacity: 0.3;
@@ -286,7 +287,7 @@
         larvitar.store.addViewport("coronal");
         larvitar.store.addViewport("acquisition");
         larvitar
-          .readFiles(demoFiles) // you can use old readFiles or new _readFiles
+          .readFiles(demoFiles) // need to port the updateLoadedStack function
           .then(async seriesStack => {
             const seriesId = _.keys(seriesStack)[0];
             const serie = seriesStack[seriesId];
@@ -311,7 +312,7 @@
             larvitar._renderMpr(serie, viewportInputs).then(renderingEngine => {
               console.log("Volume rendered", renderingEngine);
               // add and enable wwwc, pan, zoom, and stack tools
-              larvitar._addDefaultTools3D(viewportIds, renderingEngine);
+              larvitar._addDefaultTools(viewportIds, renderingEngine, "mpr");
               hideSpinner();
             });
           })

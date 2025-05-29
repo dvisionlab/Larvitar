@@ -287,8 +287,15 @@ import { renderImage as _renderImage } from "./imaging3d/imageRendering";
 import { renderMpr as _renderMpr } from "./imaging3d/imageRendering";
 import { prefetchMetadataInformation as _prefetchMetadataInformation } from "./imaging3d/multiframe";
 import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imaging3d/multiframe";
-import { addDefaultTools as _addDefaultTools } from "./imaging3d/tools/main";
-import { addDefaultTools3D as _addDefaultTools3D } from "./imaging3d/tools/main";
+import {
+  addDefaultTools as _addDefaultTools,
+  initializeCSTools as _initializeCSTools,
+  addTool as _addTool,
+  setToolActive as _setToolActive,
+  setToolPassive as _setToolPassive,
+  setToolEnabled as _setToolEnabled,
+  setToolDisabled as _setToolDisabled
+} from "./imaging3d/tools/main";
 import {
   updateImageManager,
   populateImageManager,
@@ -312,6 +319,7 @@ export {
   _cornerstone,
   _cornerstoneDICOMImageLoader,
   _cornerstoneTools,
+  _initializeCSTools,
   _initializeImageLoader,
   _readFiles,
   _renderImage,
@@ -322,7 +330,11 @@ export {
   _prefetchMetadataInformation,
   _convertMultiframeImageIds,
   _addDefaultTools,
-  _addDefaultTools3D,
+  _addTool,
+  _setToolActive,
+  _setToolPassive,
+  _setToolEnabled,
+  _setToolDisabled,
   VERSION,
   // global cornerstone variables
   cornerstone,

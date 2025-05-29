@@ -263,12 +263,13 @@ export const renderMpr = function (
 
       const t2 = performance.now();
       logger.debug(`Time to render volume: ${t2 - t1} milliseconds`);
-      // const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
-      //   data.imageId
-      // ).url;
-      // cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
-      // @ts-ignore
 
+      // remove the imageId from the cache
+      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+        data.imageId
+      ).url;
+      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      // @ts-ignore
       // @ts-ignore
       series = null;
       // @ts-ignore
