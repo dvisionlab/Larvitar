@@ -287,7 +287,15 @@ import { renderImage as _renderImage } from "./imaging3d/imageRendering";
 import { renderMpr as _renderMpr } from "./imaging3d/imageRendering";
 import { prefetchMetadataInformation as _prefetchMetadataInformation } from "./imaging3d/multiframe";
 import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imaging3d/multiframe";
-import { addDefaultTools as _addDefaultTools, initializeCSTools as _initializeCSTools, addTool as _addTool, setToolActive as _setToolActive } from "./imaging3d/tools/main";
+import {
+  addDefaultTools as _addDefaultTools,
+  initializeCSTools as _initializeCSTools,
+  addTool as _addTool,
+  setToolActive as _setToolActive,
+  setToolPassive as _setToolPassive,
+  setToolEnabled as _setToolEnabled,
+  setToolDisabled as _setToolDisabled
+} from "./imaging3d/tools/main";
 import {
   updateImageManager,
   populateImageManager,
@@ -324,6 +332,9 @@ export {
   _addDefaultTools,
   _addTool,
   _setToolActive,
+  _setToolPassive,
+  _setToolEnabled,
+  _setToolDisabled,
   VERSION,
   // global cornerstone variables
   cornerstone,

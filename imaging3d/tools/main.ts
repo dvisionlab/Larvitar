@@ -187,6 +187,7 @@ export const setToolActive = function (
 
   // @ts-ignore 
   toolGroup.setToolActive(toolName, options);
+  logger.debug(`Tool ${toolName} set active in group:`, groupId);
 
   // TODO check this
   // set active tool in larvitar store
@@ -209,3 +210,49 @@ export const setToolActive = function (
     }
   }
 };
+
+export const setToolPassive = function (
+  toolName: string,
+  groupId: string = "default",
+  resetCursor = true // TODO manage this
+) {
+  const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(groupId);
+  if (!toolGroup) {
+    logger.error("setToolPassive: tool group not found:", groupId);
+    return;
+  }
+  toolGroup.setToolPassive(toolName);
+  logger.debug(`Tool ${toolName} set enabled in group:`, groupId);
+}
+
+export const setToolEnabled = function (
+  toolName: string,
+  groupId: string = "default",
+  resetCursor = true // TODO manage this
+) {
+  const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(groupId);
+  if (!toolGroup) {
+    logger.error("setToolEnabled: tool group not found:", groupId);
+    return;
+  }
+  toolGroup.setToolEnabled(toolName);
+  logger.debug(`Tool ${toolName} set enabled in group:`, groupId);
+}
+
+export const setToolDisabled = function (
+  toolName: string,
+  groupId: string = "default",
+  resetCursor = true // TODO manage this
+) {
+  const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(groupId);
+  if (!toolGroup) {
+    logger.error("setToolDisabled: tool group not found:", groupId);
+    return;
+  }
+  toolGroup.setToolDisabled(toolName);
+  logger.debug(`Tool ${toolName} set enabled in group:`, groupId);
+}
+
+// TODO a function to create groups (es createToolGroup(groupId, viewportIds[]))
+
+// TODO a function to sync viewports wwwl and/or other things...
