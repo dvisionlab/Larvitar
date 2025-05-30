@@ -26,6 +26,8 @@ import type {
   ToolStyle
 } from "../../imaging/tools/types";
 import type { RenderingEngine } from "@cornerstonejs/core";
+import { viewport } from "@cornerstonejs/tools/dist/esm/utilities";
+import { ViewportInput } from "@cornerstonejs/core/dist/esm/types";
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
@@ -68,7 +70,8 @@ const isToolMissing = function (
  */
 export const addTool = function (
   toolName: string,
-  customConfig: Partial<ToolConfig>
+  customConfig: Partial<ToolConfig>,
+  groupId?: string
 ) {
   const allToolsList = {
     ...DEFAULT_TOOLS_3D,
@@ -96,6 +99,17 @@ export const addTool = function (
     cornerstoneTools[toolClassName as keyof typeof cornerstoneTools];
 
   cornerstoneTools.addTool(toolClass);
+
+  if (groupId) {
+    const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(groupId);
+    if (!toolGroup) {
+      logger.error(`Tool group ${groupId} not found. Tool ${toolName} not added.`);
+      return;
+    }
+    toolGroup.addTool(toolName, customConfig);
+    logger.debug(`Tool ${toolName} added to group:`, groupId);
+  }
+
   logger.debug(`Tool ${toolName} added`);
 };
 
@@ -161,12 +175,11 @@ export const addDefaultTools = function (
 };
 
 /**
- * Set Tool "active" on all elements (ie, rendered and manipulable) & refresh cornerstone elements
- * @function setToolActive
- * @param {String} toolName - The tool name.
- * @param {Object} options - The custom options. @default from tools/default.js
- * @param {Array} viewports - The hmtl element id to be used for tool initialization.
- * @param {Boolean} doNotSetInStore - Flag to avoid setting in store (useful on tools initialization eg in addDefaultTools). NOTE: This is just a hack, we must rework tools/ui sync.
+ * Set Tool "active" on all elements (ie, rendered and manipulable)
+ * @param toolName - The tool name.
+ * @param options - The tool options (mouseButtonMask, etc). If not provided, the default options will be used.
+ * @param groupId - The tool group id. @default "default"
+ * @param doNotSetInStore - Flag to not set the active tool in the store. @default false
  */
 export const setToolActive = function (
   toolName: string,
@@ -252,6 +265,94 @@ export const setToolDisabled = function (
   logger.debug(`Tool ${toolName} set enabled in group:`, groupId);
 };
 
+/**
+ * @function syncViewportsCamera
+ * @desc  Synchronizes the camera position of two (volume) viewports 
+ * @param targetViewportId - the id of the target viewport where the camera will be synced 
+ * @param sourceViewportId - the id of the source viewport from where the camera position will be taken
+ */
+export const syncViewportsCamera = function (
+  targetViewportId: string,
+  sourceViewportId: string
+) {
+  const renderingEngines = cornerstone.getRenderingEngines(); // TODO pass rendering engine as param ?
+  if (!renderingEngines || renderingEngines.length === 0) {
+    logger.error("syncViewportsCamera: no rendering engine found");
+    return;
+  }
+
+  let cameraSync = cornerstoneTools.SynchronizerManager.getSynchronizer('default');
+  if (!cameraSync) {
+    cameraSync = cornerstoneTools.synchronizers.createCameraPositionSynchronizer('default'); // TODO group by uniqueUID?
+  } else if (cameraSync) {
+    // cameraSync.getSourceViewports().forEach((viewportId) => {
+    //   cameraSync!.removeSource(viewportId);
+    // });
+    cornerstoneTools.SynchronizerManager.destroySynchronizer('default');
+    cameraSync = cornerstoneTools.synchronizers.createCameraPositionSynchronizer('default');
+  }
+
+  cameraSync.addSource({
+    renderingEngineId: renderingEngines[0].id,
+    viewportId: sourceViewportId,
+  });
+
+  cameraSync.addTarget({
+    renderingEngineId: renderingEngines[0].id,
+    viewportId: targetViewportId,
+  });
+
+
+  const targetElement = cornerstone.getEnabledElementByViewportId(targetViewportId);
+  targetElement.viewport.render();
+
+  const sourceElement = cornerstone.getEnabledElementByViewportId(sourceViewportId);
+  sourceElement.viewport.render();
+
+  logger.debug(
+    `Camera sync added from ${sourceViewportId} to ${targetViewportId}`
+  );
+
+  // FIXME: how to force a refresh of the viewport?
+}
+
+export const createToolGroup = function (
+  groupId: string = "default",
+  viewports: string[] = [],
+  tools: string[] = [],
+) {
+  const renderingEngines = cornerstone.getRenderingEngines(); // TODO pass rendering engine as param ?
+  if (!renderingEngines || renderingEngines.length === 0) {
+    logger.error("syncViewportsCamera: no rendering engine found");
+    return;
+  }
+
+  const toolGroup = cornerstoneTools.ToolGroupManager.createToolGroup(groupId);
+
+  if (!toolGroup) {
+    logger.error("createToolGroup: tool group not created");
+    return;
+  }
+
+  viewports.forEach(vp => {
+    // needed ? 
+    // const element = renderingEngine.getViewport(vps.viewportId).element;
+    // element.oncontextmenu = (e) => e.preventDefault();
+    // const viewport = renderingEngine.getViewport(element.id);
+    // csTools.utilities.stackPrefetch.enable(viewport.element);
+
+    if (vp === "MPR") {
+      return
+    }
+
+    toolGroup.addViewport(vp, renderingEngines[0].id);
+  });
+
+  return toolGroup;
+}
+
 // TODO a function to create groups (es createToolGroup(groupId, viewportIds[]))
 
-// TODO a function to sync viewports wwwl and/or other things...
+// TODO function to enable/disable MIP-AIP-MinIP
+
+// TODO function to control slab

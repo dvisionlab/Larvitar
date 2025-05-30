@@ -294,7 +294,9 @@ import {
   setToolActive as _setToolActive,
   setToolPassive as _setToolPassive,
   setToolEnabled as _setToolEnabled,
-  setToolDisabled as _setToolDisabled
+  setToolDisabled as _setToolDisabled,
+  syncViewportsCamera as _syncViewportsCamera,
+  createToolGroup as _createToolGroup
 } from "./imaging3d/tools/main";
 import {
   updateImageManager,
@@ -335,6 +337,8 @@ export {
   _setToolPassive,
   _setToolEnabled,
   _setToolDisabled,
+  _syncViewportsCamera,
+  _createToolGroup,
   VERSION,
   // global cornerstone variables
   cornerstone,
