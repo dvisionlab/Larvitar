@@ -299,6 +299,7 @@ import {
   createToolGroup as _createToolGroup,
   setSlab as _setSlab,
 } from "./imaging3d/tools/main";
+import _CustomWWWLTool from "./imaging3d/tools/custom/exampleCustomTool";
 import {
   updateImageManager,
   populateImageManager,
@@ -341,6 +342,7 @@ export {
   _syncViewportsCamera,
   _createToolGroup,
   _setSlab,
+  _CustomWWWLTool,
   VERSION,
   // global cornerstone variables
   cornerstone,

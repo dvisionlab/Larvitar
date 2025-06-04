@@ -95,8 +95,7 @@ export const addTool = function (
     );
   }
 
-  const toolClass =
-    cornerstoneTools[toolClassName as keyof typeof cornerstoneTools];
+  const toolClass = dvTools[toolClassName] || cornerstoneTools[toolClassName as keyof typeof cornerstoneTools];
 
   cornerstoneTools.addTool(toolClass);
 

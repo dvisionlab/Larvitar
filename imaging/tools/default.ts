@@ -1051,17 +1051,20 @@ const setDefaultToolsProps = function (newProps: Partial<ToolConfig>[]) {
  * Register a custom tool
  * @param {String} toolName - The name of the tool
  * @param {Object} toolClass - The tool class
+ * @param {String} toolVersion - The version of the tool, can be "MPR", "3D" (to be used with cs3D) or "" (default - cs legacy)
  * NOTE: toolName must be unique
  * NOTE: toolClass must be a valid cornerstone tool
  */
 
-const registerExternalTool = function (toolName: string, toolClass: any) {
+const registerExternalTool = function (toolName: string, toolClass: any, toolVersion: "MPR" | "3D" | "" = "") {
   if (dvTools[toolName] || DEFAULT_TOOLS[toolName]) {
     logger.debug(`${toolName} already exists, it will be replaced`);
   }
 
+  const targetTools = toolVersion === "MPR" ? DEFAULT_TOOLS_MPR : toolVersion === "3D" ? DEFAULT_TOOLS_3D : DEFAULT_TOOLS;
+
   dvTools[toolClass.name] = toolClass;
-  DEFAULT_TOOLS[toolName] = {
+  targetTools[toolName] = {
     name: toolName,
     class: toolClass.name,
     viewports: "all",
