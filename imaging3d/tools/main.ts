@@ -416,4 +416,24 @@ export const setSlab = function (
   viewport.render();
 };
 
-// TODO register extarnal tools
+/**
+ * Set the window width and level for a given viewport
+ * @param ww - window width
+ * @param wl - window level
+ * @param viewportId - The id of the viewport where the window width and level will be set.
+ */
+export const setWWWL = function (
+  ww: number,
+  wl: number,
+  viewportId: string
+) {
+  const viewport =
+    cornerstone.getEnabledElementByViewportId(viewportId).viewport;
+  if (!viewport || viewport instanceof cornerstone.StackViewport) {
+    logger.error("setWWWL: viewport not found");
+    return;
+  }
+
+  viewport.setProperties({ voiRange: { lower: wl - ww / 2, upper: wl + ww / 2 } });
+  viewport.render();
+}
