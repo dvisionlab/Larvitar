@@ -7,6 +7,7 @@
 import * as cornerstone from "@cornerstonejs/core";
 import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
 import { each } from "lodash";
+import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
 //import { getPerformanceMonitor } from "./monitors/performance";
@@ -204,7 +205,7 @@ export const renderMpr = function (
     cornerstoneDICOMImageLoader.wadors.metaDataManager.add(imageId, metadata);
   });
 
-  const volumeId = data.uniqueUID!;
+  const volumeId = uuidv4();
 
   const renderPromise = new Promise<cornerstone.RenderingEngine>(
     async (resolve, reject) => {
@@ -265,10 +266,13 @@ export const renderMpr = function (
       logger.debug(`Time to render volume: ${t2 - t1} milliseconds`);
 
       // remove the imageId from the cache
-      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
-        data.imageId
-      ).url;
-      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      each(Object.keys(series.instances), function (imageId) {
+        const index =
+          cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+        cornerstoneDICOMImageLoader.wadouri.fileManager.remove(index);
+        logger.debug(`Removing from imageLoader: ${imageId}`);
+      });
+      //cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
       // @ts-ignore
       // @ts-ignore
       series = null;
