@@ -40,9 +40,9 @@ export const initializeCSTools = async function (
   settings?: ToolSettings,
   style?: ToolStyle
 ) {
-  // TODO proper config
+  // TODO proper config (eg style, settings, etc)
   await cornerstoneTools.init();
-  logger.warn("initializeCSTools is not implemented yet");
+  logger.warn("initializeCSTools is not fully implemented yet");
 };
 
 /**
@@ -268,37 +268,42 @@ export const setToolDisabled = function (
 /**
  * @function syncViewportsCamera
  * @desc  Synchronizes the camera position of two (volume) viewports 
+ * @param id - unique id for the synchronizer @default "default"
  * @param targetViewportId - the id of the target viewport where the camera will be synced 
  * @param sourceViewportId - the id of the source viewport from where the camera position will be taken
  */
 export const syncViewportsCamera = function (
+  id: string = "default", // unique id for the synchronizer 
   targetViewportId: string,
   sourceViewportId: string
 ) {
-  const renderingEngines = cornerstone.getRenderingEngines(); // TODO pass rendering engine as param ?
-  if (!renderingEngines || renderingEngines.length === 0) {
-    logger.error("syncViewportsCamera: no rendering engine found");
-    return;
-  }
 
   let cameraSync = cornerstoneTools.SynchronizerManager.getSynchronizer('default');
   if (!cameraSync) {
-    cameraSync = cornerstoneTools.synchronizers.createCameraPositionSynchronizer('default'); // TODO group by uniqueUID?
+    cameraSync = cornerstoneTools.synchronizers.createCameraPositionSynchronizer(id);
   } else if (cameraSync) {
     // cameraSync.getSourceViewports().forEach((viewportId) => {
     //   cameraSync!.removeSource(viewportId);
     // });
     cornerstoneTools.SynchronizerManager.destroySynchronizer('default');
-    cameraSync = cornerstoneTools.synchronizers.createCameraPositionSynchronizer('default');
+    cameraSync = cornerstoneTools.synchronizers.createCameraPositionSynchronizer(id);
   }
 
-  cameraSync.addSource({
-    renderingEngineId: renderingEngines[0].id,
+  const targetRenderingEngineId = cornerstone.getEnabledElementByViewportId(targetViewportId)?.renderingEngineId;
+  const sourceRenderingEngineId = cornerstone.getEnabledElementByViewportId(sourceViewportId)?.renderingEngineId;
+
+  if (!targetRenderingEngineId || !sourceRenderingEngineId) {
+    logger.error("syncViewportsCamera: no rendering engine found for one of the viewports");
+    return;
+  }
+
+  cameraSync.add({
+    renderingEngineId: sourceRenderingEngineId,
     viewportId: sourceViewportId,
   });
 
-  cameraSync.addTarget({
-    renderingEngineId: renderingEngines[0].id,
+  cameraSync.add({
+    renderingEngineId: targetRenderingEngineId,
     viewportId: targetViewportId,
   });
 
@@ -319,7 +324,7 @@ export const syncViewportsCamera = function (
 export const createToolGroup = function (
   groupId: string = "default",
   viewports: string[] = [],
-  tools: string[] = [],
+  tools: any[] = [], // TODO type this properly
 ) {
   const renderingEngines = cornerstone.getRenderingEngines(); // TODO pass rendering engine as param ?
   if (!renderingEngines || renderingEngines.length === 0) {
@@ -335,24 +340,35 @@ export const createToolGroup = function (
   }
 
   viewports.forEach(vp => {
-    // needed ? 
-    // const element = renderingEngine.getViewport(vps.viewportId).element;
-    // element.oncontextmenu = (e) => e.preventDefault();
-    // const viewport = renderingEngine.getViewport(element.id);
-    // csTools.utilities.stackPrefetch.enable(viewport.element);
-
-    if (vp === "MPR") {
-      return
-    }
-
     toolGroup.addViewport(vp, renderingEngines[0].id);
+  });
+
+  tools.forEach(tool => {
+    addTool(tool.name, tool.configuration, groupId);
+    logger.debug(`Tool ${tool.name} added to group:`, groupId);
   });
 
   return toolGroup;
 }
 
-// TODO a function to create groups (es createToolGroup(groupId, viewportIds[]))
-
 // TODO function to enable/disable MIP-AIP-MinIP
+export const setSlab = function (
+  slabThickness: number,
+  slabMode: cornerstone.Enums.BlendModes,
+  viewportId: string
+) {
+  logger.warn("setSlab is not fully implemented yet");
+
+  const viewport = cornerstone.getEnabledElementByViewportId(viewportId).viewport
+  if (!viewport || viewport instanceof cornerstone.StackViewport) {
+    logger.error("setSlab: viewport not found");
+    return;
+  }
+
+  viewport.setBlendMode(slabMode);
+  viewport.setProperties({ slabThickness });
+  viewport.render();
+
+}
 
 // TODO function to control slab
