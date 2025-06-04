@@ -95,14 +95,18 @@ export const addTool = function (
     );
   }
 
-  const toolClass = dvTools[toolClassName] || cornerstoneTools[toolClassName as keyof typeof cornerstoneTools];
+  const toolClass =
+    dvTools[toolClassName] ||
+    cornerstoneTools[toolClassName as keyof typeof cornerstoneTools];
 
   cornerstoneTools.addTool(toolClass);
 
   if (groupId) {
     const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(groupId);
     if (!toolGroup) {
-      logger.error(`Tool group ${groupId} not found. Tool ${toolName} not added.`);
+      logger.error(
+        `Tool group ${groupId} not found. Tool ${toolName} not added.`
+      );
       return;
     }
     toolGroup.addTool(toolName, customConfig);
@@ -266,46 +270,57 @@ export const setToolDisabled = function (
 
 /**
  * @function syncViewportsCamera
- * @desc  Synchronizes the camera position of two (volume) viewports 
+ * @desc  Synchronizes the camera position of two (volume) viewports
  * @param id - unique id for the synchronizer @default "default"
- * @param targetViewportId - the id of the target viewport where the camera will be synced 
+ * @param targetViewportId - the id of the target viewport where the camera will be synced
  * @param sourceViewportId - the id of the source viewport from where the camera position will be taken
  */
 export const syncViewportsCamera = function (
-  id: string = "default", // unique id for the synchronizer 
+  id: string = "default", // unique id for the synchronizer
   targetViewportId: string,
   sourceViewportId: string
 ) {
-
   let cameraSync = cornerstoneTools.SynchronizerManager.getSynchronizer(id);
   if (!cameraSync) {
-    cameraSync = cornerstoneTools.synchronizers.createCameraPositionSynchronizer(id);
+    cameraSync =
+      cornerstoneTools.synchronizers.createCameraPositionSynchronizer(id);
   } else if (cameraSync) {
     // cameraSync.getSourceViewports().forEach((viewportId) => {
     //   cameraSync!.removeSource(viewportId);
     // });
     cornerstoneTools.SynchronizerManager.destroySynchronizer(id);
-    cameraSync = cornerstoneTools.synchronizers.createCameraPositionSynchronizer(id);
+    cameraSync =
+      cornerstoneTools.synchronizers.createCameraPositionSynchronizer(id);
   }
 
-  const targetRenderingEngineId = cornerstone.getEnabledElementByViewportId(targetViewportId)?.renderingEngineId;
-  const sourceRenderingEngineId = cornerstone.getEnabledElementByViewportId(sourceViewportId)?.renderingEngineId;
+  const targetRenderingEngineId =
+    cornerstone.getEnabledElementByViewportId(
+      targetViewportId
+    )?.renderingEngineId;
+  const sourceRenderingEngineId =
+    cornerstone.getEnabledElementByViewportId(
+      sourceViewportId
+    )?.renderingEngineId;
 
   if (!targetRenderingEngineId || !sourceRenderingEngineId) {
-    logger.error("syncViewportsCamera: no rendering engine found for one of the viewports");
+    logger.error(
+      "syncViewportsCamera: no rendering engine found for one of the viewports"
+    );
     return;
   }
 
   // get plane and position from the source viewport and set to target viewport
-  // TODO why the sync does not work first time ? 
-  const sourceViewport = cornerstone.getEnabledElementByViewportId(sourceViewportId)?.viewport;
+  // TODO why the sync does not work first time ?
+  const sourceViewport =
+    cornerstone.getEnabledElementByViewportId(sourceViewportId)?.viewport;
   if (!sourceViewport) {
     logger.error("syncViewportsCamera: source viewport not found");
     return;
   }
   const sourceViewRef = sourceViewport.getViewReference();
 
-  const targetViewport = cornerstone.getEnabledElementByViewportId(targetViewportId)?.viewport;
+  const targetViewport =
+    cornerstone.getEnabledElementByViewportId(targetViewportId)?.viewport;
   if (!targetViewport) {
     logger.error("syncViewportsCamera: target viewport not found");
     return;
@@ -314,19 +329,20 @@ export const syncViewportsCamera = function (
 
   cameraSync.add({
     renderingEngineId: sourceRenderingEngineId,
-    viewportId: sourceViewportId,
+    viewportId: sourceViewportId
   });
 
   cameraSync.add({
     renderingEngineId: targetRenderingEngineId,
-    viewportId: targetViewportId,
+    viewportId: targetViewportId
   });
 
-
-  const targetElement = cornerstone.getEnabledElementByViewportId(targetViewportId);
+  const targetElement =
+    cornerstone.getEnabledElementByViewportId(targetViewportId);
   targetElement.viewport.render();
 
-  const sourceElement = cornerstone.getEnabledElementByViewportId(sourceViewportId);
+  const sourceElement =
+    cornerstone.getEnabledElementByViewportId(sourceViewportId);
   sourceElement.viewport.render();
 
   logger.debug(
@@ -334,20 +350,20 @@ export const syncViewportsCamera = function (
   );
 
   // FIXME: how to force a refresh of the viewport?
-}
+};
 
 /**
  * Create a tool group and add the specified viewports and tools to it.
  * @function createToolGroup
  * @param groupId - The id of the tool group to create. @default "default"
- * @param viewports 
- * @param tools 
+ * @param viewports
+ * @param tools
  * @returns toolGroup - The created tool group.
  */
 export const createToolGroup = function (
   groupId: string = "default",
   viewports: string[] = [],
-  tools: any[] = [], // TODO type this properly
+  tools: any[] = [] // TODO type this properly
 ) {
   const toolGroup = cornerstoneTools.ToolGroupManager.createToolGroup(groupId);
 
@@ -357,9 +373,12 @@ export const createToolGroup = function (
   }
 
   viewports.forEach(vp => {
-    const renderingEngineId = cornerstone.getEnabledElementByViewportId(vp)?.renderingEngineId;
+    const renderingEngineId =
+      cornerstone.getEnabledElementByViewportId(vp)?.renderingEngineId;
     if (!renderingEngineId) {
-      logger.error(`createToolGroup: rendering engine not found for viewport ${vp}`);
+      logger.error(
+        `createToolGroup: rendering engine not found for viewport ${vp}`
+      );
       return;
     }
     toolGroup.addViewport(vp, renderingEngineId);
@@ -371,8 +390,7 @@ export const createToolGroup = function (
   });
 
   return toolGroup;
-}
-
+};
 
 /**
  * Set slab thickness and mode for a given viewport
@@ -386,7 +404,8 @@ export const setSlab = function (
   slabMode: cornerstone.Enums.BlendModes,
   viewportId: string
 ) {
-  const viewport = cornerstone.getEnabledElementByViewportId(viewportId).viewport
+  const viewport =
+    cornerstone.getEnabledElementByViewportId(viewportId).viewport;
   if (!viewport || viewport instanceof cornerstone.StackViewport) {
     logger.error("setSlab: viewport not found");
     return;
@@ -395,6 +414,6 @@ export const setSlab = function (
   viewport.setBlendMode(slabMode);
   viewport.setProperties({ slabThickness });
   viewport.render();
-}
+};
 
 // TODO register extarnal tools

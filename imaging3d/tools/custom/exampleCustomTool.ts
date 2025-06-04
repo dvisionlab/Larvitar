@@ -1,17 +1,17 @@
-import { BaseTool } from '@cornerstonejs/tools';
+import { BaseTool } from "@cornerstonejs/tools";
 import {
   getEnabledElement,
   VolumeViewport,
   cache,
-  utilities,
-} from '@cornerstonejs/core';
-import * as EventTypes from '@cornerstonejs/tools/dist/esm/types/EventTypes';
-import { VOIRange } from '@cornerstonejs/core/dist/esm/types';
+  utilities
+} from "@cornerstonejs/core";
+import * as EventTypes from "@cornerstonejs/tools/dist/esm/types/EventTypes";
+import { VOIRange } from "@cornerstonejs/core/dist/esm/types";
 
 // Todo: should move to configuration
 const DEFAULT_MULTIPLIER = 4;
 const DEFAULT_IMAGE_DYNAMIC_RANGE = 1024;
-const PT = 'PT';
+const PT = "PT";
 
 /**
  * WindowLevel tool manipulates the windowLevel applied to a viewport. It
@@ -20,11 +20,11 @@ const PT = 'PT';
  *
  */
 class CustomWWWLTool extends BaseTool {
-  static toolName: string = 'CustomWWWLTool';
+  static toolName: string = "CustomWWWLTool";
   constructor(
     toolProps = {},
     defaultToolProps = {
-      supportedInteractionTypes: ['Mouse', 'Touch'],
+      supportedInteractionTypes: ["Mouse", "Touch"]
     }
   ) {
     super(toolProps, defaultToolProps);
@@ -38,7 +38,7 @@ class CustomWWWLTool extends BaseTool {
     const { element, deltaPoints } = evt.detail;
     const enabledElement = getEnabledElement(element);
     if (!enabledElement) {
-      throw new Error('Enabled element not found');
+      throw new Error("Enabled element not found");
     }
     const { viewport } = enabledElement;
 
@@ -54,12 +54,13 @@ class CustomWWWLTool extends BaseTool {
     if (viewport instanceof VolumeViewport) {
       volumeId = viewport.getVolumeId();
 
-      viewportsContainingVolumeUID = utilities.getViewportsWithVolumeId(volumeId);
+      viewportsContainingVolumeUID =
+        utilities.getViewportsWithVolumeId(volumeId);
       // @ts-ignore
       ({ lower, upper } = properties.voiRange);
       const volume = cache.getVolume(volumeId);
       if (!volume) {
-        throw new Error('Volume not found ' + volumeId);
+        throw new Error("Volume not found " + volumeId);
       }
       modality = volume.metadata.Modality;
       isPreScaled = volume.scaling! && Object.keys(volume.scaling).length > 0;
@@ -68,9 +69,10 @@ class CustomWWWLTool extends BaseTool {
       ({ lower, upper } = properties.voiRange);
       const { preScale = { scaled: false } } = viewport.getImageData?.() || {};
       // @ts-ignore
-      isPreScaled = preScale.scaled && preScale.scalingParameters?.suvbw !== undefined;
+      isPreScaled =
+        preScale.scaled && preScale.scalingParameters?.suvbw !== undefined;
     } else {
-      throw new Error('Viewport is not a valid type');
+      throw new Error("Viewport is not a valid type");
     }
 
     // If modality is PT an the viewport is pre-scaled (SUV),
@@ -86,7 +88,7 @@ class CustomWWWLTool extends BaseTool {
         clientHeight: element.clientHeight,
         isPreScaled,
         viewport,
-        volumeId,
+        volumeId
       });
     } else {
       newRange = this.getNewRange({
@@ -94,7 +96,7 @@ class CustomWWWLTool extends BaseTool {
         deltaPointsCanvas: deltaPoints.canvas,
         volumeId,
         lower,
-        upper,
+        upper
       });
     }
 
@@ -104,13 +106,13 @@ class CustomWWWLTool extends BaseTool {
     }
 
     viewport.setProperties({
-      voiRange: newRange,
+      voiRange: newRange
     });
 
     viewport.render();
 
     if (viewport instanceof VolumeViewport) {
-      viewportsContainingVolumeUID!.forEach((vp) => {
+      viewportsContainingVolumeUID!.forEach(vp => {
         if (viewport !== vp) {
           vp.render();
         }
@@ -120,7 +122,15 @@ class CustomWWWLTool extends BaseTool {
   }
 
   // @ts-ignore
-  getPTScaledNewRange({ deltaPointsCanvas, lower, upper, clientHeight, viewport, volumeId, isPreScaled }) {
+  getPTScaledNewRange({
+    deltaPointsCanvas,
+    lower,
+    upper,
+    clientHeight,
+    viewport,
+    volumeId,
+    isPreScaled
+  }) {
     let multiplier = DEFAULT_MULTIPLIER;
 
     if (isPreScaled) {
@@ -298,5 +308,5 @@ class CustomWWWLTool extends BaseTool {
   }
 }
 
-CustomWWWLTool.toolName = 'CustomWWWLTool';
+CustomWWWLTool.toolName = "CustomWWWLTool";
 export default CustomWWWLTool;

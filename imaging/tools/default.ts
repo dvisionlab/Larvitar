@@ -1056,12 +1056,21 @@ const setDefaultToolsProps = function (newProps: Partial<ToolConfig>[]) {
  * NOTE: toolClass must be a valid cornerstone tool
  */
 
-const registerExternalTool = function (toolName: string, toolClass: any, toolVersion: "MPR" | "3D" | "" = "") {
+const registerExternalTool = function (
+  toolName: string,
+  toolClass: any,
+  toolVersion: "MPR" | "3D" | "" = ""
+) {
   if (dvTools[toolName] || DEFAULT_TOOLS[toolName]) {
     logger.debug(`${toolName} already exists, it will be replaced`);
   }
 
-  const targetTools = toolVersion === "MPR" ? DEFAULT_TOOLS_MPR : toolVersion === "3D" ? DEFAULT_TOOLS_3D : DEFAULT_TOOLS;
+  const targetTools =
+    toolVersion === "MPR"
+      ? DEFAULT_TOOLS_MPR
+      : toolVersion === "3D"
+        ? DEFAULT_TOOLS_3D
+        : DEFAULT_TOOLS;
 
   dvTools[toolClass.name] = toolClass;
   targetTools[toolName] = {
