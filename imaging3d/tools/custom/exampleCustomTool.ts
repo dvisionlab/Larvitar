@@ -123,12 +123,19 @@ class CustomWWWLTool extends BaseTool {
 
   // @ts-ignore
   getPTScaledNewRange({
+    // @ts-ignore
     deltaPointsCanvas,
+    // @ts-ignore
     lower,
+    // @ts-ignore
     upper,
+    // @ts-ignore
     clientHeight,
+    // @ts-ignore
     viewport,
+    // @ts-ignore
     volumeId,
+    // @ts-ignore
     isPreScaled
   }) {
     let multiplier = DEFAULT_MULTIPLIER;
