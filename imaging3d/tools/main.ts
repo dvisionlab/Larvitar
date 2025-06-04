@@ -278,14 +278,14 @@ export const syncViewportsCamera = function (
   sourceViewportId: string
 ) {
 
-  let cameraSync = cornerstoneTools.SynchronizerManager.getSynchronizer('default');
+  let cameraSync = cornerstoneTools.SynchronizerManager.getSynchronizer(id);
   if (!cameraSync) {
     cameraSync = cornerstoneTools.synchronizers.createCameraPositionSynchronizer(id);
   } else if (cameraSync) {
     // cameraSync.getSourceViewports().forEach((viewportId) => {
     //   cameraSync!.removeSource(viewportId);
     // });
-    cornerstoneTools.SynchronizerManager.destroySynchronizer('default');
+    cornerstoneTools.SynchronizerManager.destroySynchronizer(id);
     cameraSync = cornerstoneTools.synchronizers.createCameraPositionSynchronizer(id);
   }
 
@@ -296,6 +296,22 @@ export const syncViewportsCamera = function (
     logger.error("syncViewportsCamera: no rendering engine found for one of the viewports");
     return;
   }
+
+  // get plane and position from the source viewport and set to target viewport
+  // TODO why the sync does not work first time ? 
+  const sourceViewport = cornerstone.getEnabledElementByViewportId(sourceViewportId)?.viewport;
+  if (!sourceViewport) {
+    logger.error("syncViewportsCamera: source viewport not found");
+    return;
+  }
+  const sourceViewRef = sourceViewport.getViewReference();
+
+  const targetViewport = cornerstone.getEnabledElementByViewportId(targetViewportId)?.viewport;
+  if (!targetViewport) {
+    logger.error("syncViewportsCamera: target viewport not found");
+    return;
+  }
+  targetViewport.setViewReference(sourceViewRef);
 
   cameraSync.add({
     renderingEngineId: sourceRenderingEngineId,
@@ -321,17 +337,19 @@ export const syncViewportsCamera = function (
   // FIXME: how to force a refresh of the viewport?
 }
 
+/**
+ * Create a tool group and add the specified viewports and tools to it.
+ * @function createToolGroup
+ * @param groupId - The id of the tool group to create. @default "default"
+ * @param viewports 
+ * @param tools 
+ * @returns toolGroup - The created tool group.
+ */
 export const createToolGroup = function (
   groupId: string = "default",
   viewports: string[] = [],
   tools: any[] = [], // TODO type this properly
 ) {
-  const renderingEngines = cornerstone.getRenderingEngines(); // TODO pass rendering engine as param ?
-  if (!renderingEngines || renderingEngines.length === 0) {
-    logger.error("syncViewportsCamera: no rendering engine found");
-    return;
-  }
-
   const toolGroup = cornerstoneTools.ToolGroupManager.createToolGroup(groupId);
 
   if (!toolGroup) {
@@ -340,7 +358,12 @@ export const createToolGroup = function (
   }
 
   viewports.forEach(vp => {
-    toolGroup.addViewport(vp, renderingEngines[0].id);
+    const renderingEngineId = cornerstone.getEnabledElementByViewportId(vp)?.renderingEngineId;
+    if (!renderingEngineId) {
+      logger.error(`createToolGroup: rendering engine not found for viewport ${vp}`);
+      return;
+    }
+    toolGroup.addViewport(vp, renderingEngineId);
   });
 
   tools.forEach(tool => {
@@ -351,14 +374,19 @@ export const createToolGroup = function (
   return toolGroup;
 }
 
-// TODO function to enable/disable MIP-AIP-MinIP
+
+/**
+ * Set slab thickness and mode for a given viewport
+ * @function setSlab
+ * @param slabThickness - The thickness of the slab [in mm].
+ * @param slabMode - The blend mode to use for the slab.
+ * @param viewportId - The id of the viewport where the slab will be set.
+ */
 export const setSlab = function (
   slabThickness: number,
   slabMode: cornerstone.Enums.BlendModes,
   viewportId: string
 ) {
-  logger.warn("setSlab is not fully implemented yet");
-
   const viewport = cornerstone.getEnabledElementByViewportId(viewportId).viewport
   if (!viewport || viewport instanceof cornerstone.StackViewport) {
     logger.error("setSlab: viewport not found");
@@ -368,7 +396,6 @@ export const setSlab = function (
   viewport.setBlendMode(slabMode);
   viewport.setProperties({ slabThickness });
   viewport.render();
-
 }
 
-// TODO function to control slab
+// TODO register extarnal tools
