@@ -806,7 +806,7 @@ export const renderImage = function (
         setStore(["ready", element.id, true]);
         const t1 = performance.now();
         logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
-        if (!renderOptions.cached) {
+        if (renderOptions.cached === false) {
           const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
             data.imageId
           ).url;
