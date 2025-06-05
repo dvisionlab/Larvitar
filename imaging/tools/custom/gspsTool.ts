@@ -272,9 +272,8 @@ export default class GspsTool extends BaseTool {
     if (isContrastModified) {
       resetViewports([element.id], ["contrast"]);
     }
-    const enabledElement = getEnabledElement(element) as any as {
-      viewport: ViewportComplete;
-    };
+    const enabledElement = getEnabledElement(element);
+    //@ts-ignore
     enabledElement.viewport!.displayedArea = undefined;
   }
 

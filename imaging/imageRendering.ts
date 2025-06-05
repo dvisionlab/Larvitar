@@ -412,8 +412,8 @@ export const renderFileImage = function (
           return;
         }
         if (viewport.displayedArea) {
-          viewport.displayedArea.brhc.x = image.width;
-          viewport.displayedArea.brhc.y = image.height;
+          viewport.displayedArea.brhc!.x = image.width;
+          viewport.displayedArea.brhc!.y = image.height;
         }
         cornerstone.setViewport(element, viewport);
         cornerstone.fitToWindow(element);
@@ -602,7 +602,7 @@ export const getAnisotropicDisplayedArea = function (
     presentationSizeMode: "SCALE TO FIT",
     rowPixelSpacing: 1,
     columnPixelSpacing: 1
-  };
+  } as unknown as DisplayedArea;
 };
 
 /**

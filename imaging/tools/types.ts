@@ -138,7 +138,7 @@ export type HandlePosition = {
 };
 export interface ViewportComplete extends Viewport {
   initialRotation: number;
-  displayedArea?: DisplayedArea;
+  displayedArea: DisplayedArea;
   scale: number;
   rotation: number;
   vflip: boolean;
