@@ -92,6 +92,6 @@
     "vuepress": "^2.0.0-rc.18",
     "webpack": "^5.76.3",
     "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "^4.13.1"
+    "webpack-dev-server": "^5.2.1"
   }
 }
