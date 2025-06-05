@@ -16,6 +16,7 @@ import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
 import { isElement } from "./imageUtils";
 import {
+  DisplayedArea,
   Instance,
   RenderProps,
   Series,
@@ -26,6 +27,7 @@ import { DEFAULT_TOOLS } from "./tools/default";
 import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
 import { resetPixelShift, setPixelShift } from "./loaders/dsaImageLoader";
+import { ViewportComplete } from "./tools/types";
 
 /*
  * This module provides the following functions to be exported:
@@ -403,7 +405,7 @@ export const renderFileImage = function (
           return;
         }
         cornerstone.displayImage(element, image);
-        const viewport = cornerstone.getViewport(element) as Viewport;
+        const viewport = cornerstone.getViewport(element) as ViewportComplete;
 
         if (!viewport) {
           logger.error("invalid viewport");
@@ -543,7 +545,7 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
   }
 
   if (isAnisotropic(id)) {
-    const viewport = cornerstone.getViewport(element) as Viewport;
+    const viewport = cornerstone.getViewport(element) as ViewportComplete;
     if (!viewport) {
       logger.error("Unable to get viewport");
       return;
@@ -560,10 +562,16 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
  * @instance
  * @function isAnisotropic
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @returns {Boolean}
  */
 export const isAnisotropic = function (elementId: string) {
   const colPixelSpacing = store.get(["viewports", elementId, "spacing_x"]);
   const rowPixelSpacing = store.get(["viewports", elementId, "spacing_y"]);
+
+  if (colPixelSpacing === undefined || rowPixelSpacing === undefined) {
+    logger.warn("colPixelSpacing or rowPixelSpacing is undefined");
+    return false;
+  }
 
   return rowPixelSpacing !== colPixelSpacing;
 };
@@ -573,10 +581,12 @@ export const isAnisotropic = function (elementId: string) {
  * @instance
  * @function getAnisotropicDisplayedArea
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {ViewportComplete} viewport - The viewport
+ * @returns {DisplayedArea}
  */
 export const getAnisotropicDisplayedArea = function (
   id: string,
-  viewport: Viewport
+  viewport: ViewportComplete
 ) {
   const width = store.get(["viewports", id, "cols"]);
   const height = store.get(["viewports", id, "rows"]);
@@ -708,7 +718,7 @@ export const renderImage = function (
         }
 
         // update viewport data with default properties
-        const viewport = cornerstone.getViewport(element) as Viewport;
+        const viewport = cornerstone.getViewport(element) as ViewportComplete;
         if (!viewport) {
           logger.error("viewport not found");
           reject("viewport not found for element: " + elementId);
