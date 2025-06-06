@@ -249,7 +249,7 @@
       const viewportId2 = "sagittal";
       const viewportId3 = "coronal";
       const viewportId4 = "acquisition";
-      const viewportIds = [viewportId1, viewportId2, viewportId3, viewportId4];
+      const mprViewportIds = [viewportId1, viewportId2, viewportId3];
 
       // init all
       larvitar._cornerstone.init();
@@ -309,10 +309,17 @@
                 orientation: "acquisition"
               }
             ];
+
             larvitar._renderMpr(serie, viewportInputs).then(renderingEngine => {
               console.log("Volume rendered", renderingEngine);
               // add and enable wwwc, pan, zoom, and stack tools
-              larvitar._addDefaultTools(viewportIds, renderingEngine, "mpr");
+              larvitar._addDefaultTools(mprViewportIds, renderingEngine, "MPR");
+              larvitar._addDefaultTools(
+                [viewportId4],
+                renderingEngine,
+                "3D",
+                "acquisition"
+              );
               hideSpinner();
             });
           })
