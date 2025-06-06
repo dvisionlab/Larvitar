@@ -168,7 +168,7 @@
               .then(async ({ success, renderingEngine }) => {
                 console.log("Image has been rendered");
                 // add and enable wwwc, pan, zoom, and stack tools
-                larvitar._addDefaultTools("viewer", renderingEngine);
+                larvitar._addDefaultTools(["viewer"], renderingEngine);
                 hideSpinner();
               });
           })
