@@ -1,0 +1,337 @@
+<!doctype html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Include the Larvitar script -->
+    <script src="../../../dist/larvitar.js"></script>
+
+    <title>Larvitar CS3D - Adv MPR rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="container-fluid h-100" style="display: flex; height: 100vh">
+      <div class="d-flex flex-column" style="flex: 1">
+        <div
+          id="axial"
+          style="background-color: black; width: 100%; height: 33.33%"
+        ></div>
+        <div
+          id="coronal"
+          style="background-color: black; width: 100%; height: 33.33%"
+        ></div>
+        <div
+          id="sagittal"
+          style="background-color: black; width: 100%; height: 33.33%"
+        ></div>
+      </div>
+      <div
+        style="
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+      >
+        <div
+          id="main"
+          style="background-color: black; width: 90%; height: 90%"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      let demoFiles = [];
+      let counter = 0;
+      let series;
+
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 33; i++) {
+          i = i.toString().padStart(2, "0");
+          let filename = i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+
+      const viewportInputs = [
+        {
+          viewportId: "axial",
+          orientation: "axial"
+        },
+        {
+          viewportId: "coronal",
+          orientation: "coronal"
+        },
+        {
+          viewportId: "sagittal",
+          orientation: "sagittal"
+        },
+        {
+          viewportId: "main",
+          orientation: "axial"
+        }
+      ];
+
+      // init all
+      larvitar._cornerstone.init();
+      larvitar._initializeImageLoader();
+      larvitar._registerStreamingImageVolume();
+      larvitar._initializeCSTools();
+      console.log(larvitar._CustomLengthTool);
+      larvitar.registerExternalTool(
+        "CustomLength",
+        larvitar._CustomLengthTool,
+        "MPR"
+      ); // this api is the old one, just with a parameter to specify the tool version ("mpr" or "3d")
+      // initialize store and add viewports
+      larvitar.store.initialize();
+      viewportInputs.forEach(vps => {
+        larvitar.store.addViewport(vps.viewportId);
+      });
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("../demo/3d/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 32) {
+          cb();
+        }
+      }
+
+      const Enums = larvitar._cornerstoneTools.Enums;
+      const BlendModes = larvitar._cornerstone.Enums.BlendModes;
+      console.log("blend modes", BlendModes);
+
+      const toolsMpr = [
+        {
+          name: "Crosshairs",
+          configuration: {
+            getReferenceLineColor: vpId => {
+              switch (vpId) {
+                case "axial":
+                  return "rgb(255,0,0)";
+                case "sagittal":
+                  return "rgb(0,255,0)";
+                case "coronal":
+                  return "rgb(255,255,0)";
+              }
+            },
+            // getReferenceLineSlabThicknessControlsOn: () => false,
+            shadow: true,
+            viewportIndicators: true,
+            viewportIndicatorsConfig: {
+              radius: 5,
+              x: null,
+              y: null
+            },
+            autoPan: {
+              enabled: true,
+              panSize: 10
+            },
+            handleRadius: 5,
+            enableHDPIHandles: false,
+            referenceLinesCenterGapRadius: 20,
+            filterActorUIDsToSetSlabThickness: []
+            // slabThicknessBlendMode: Enums.BlendModes.MAXIMUM_INTENSITY_BLEND,
+          },
+          options: {
+            bindings: [{ mouseButton: Enums.MouseBindings.Primary }]
+          }
+        },
+        {
+          name: "StackScroll",
+          options: {
+            bindings: [{ mouseButton: Enums.MouseBindings.Wheel }]
+          }
+        },
+        {
+          name: "WindowLevel",
+          configuration: {},
+          options: {
+            bindings: [{ mouseButton: Enums.MouseBindings.Primary }]
+          }
+        },
+        {
+          name: "Zoom",
+          configuration: {},
+          options: {
+            bindings: [{ mouseButton: Enums.MouseBindings.Secondary }]
+          }
+        }
+      ];
+
+      // const toolsMain = [{
+      //   name: "StackScroll",
+      //   options: {
+      //     bindings: [
+      //       { mouseButton: Enums.MouseBindings.Wheel }, // scroll on wheel
+      //       // { mouseButton: Enums.MouseBindings.Primary } // scroll on drag
+      //     ],
+      //   },
+      // },
+      // {
+      //   name: "WindowLevel",
+      //   configuration: {},
+      //   options: {
+      //     bindings: [{ mouseButton: Enums.MouseBindings.Primary }],
+      //   },
+      // },
+      // {
+      //   name: "Zoom",
+      //   configuration: {},
+      //   options: {
+      //     bindings: [{ mouseButton: Enums.MouseBindings.Secondary },],
+      //   },
+      // }]
+
+      const toolsMain = [
+        {
+          name: "CustomLength",
+          configuration: {},
+          options: {
+            bindings: [{ mouseButton: Enums.MouseBindings.Primary }]
+          }
+        }
+      ];
+
+      async function renderSerie() {
+        larvitar
+          ._readFiles(demoFiles) // need to port the updateLoadedStack function
+          .then(async seriesStack => {
+            const seriesId = _.keys(seriesStack)[0];
+            const serie = seriesStack[seriesId];
+
+            larvitar._renderMpr(serie, viewportInputs).then(renderingEngine => {
+              console.log("Volume rendered", renderingEngine);
+
+              // create MPR tools group
+              const toolGroupMpr = larvitar._createToolGroup(
+                "mprTools",
+                ["axial", "coronal", "sagittal"],
+                toolsMpr
+              );
+              const toolGroupMain = larvitar._createToolGroup(
+                "mainTools",
+                ["main"],
+                toolsMain
+              );
+
+              // set tool active on the two groups
+              larvitar._setToolActive(
+                toolsMpr[0].name,
+                toolsMpr[0].options,
+                toolGroupMpr.id
+              );
+              larvitar._setToolActive(
+                toolsMain[0].name,
+                toolsMain[0].options,
+                toolGroupMain.id
+              );
+
+              // sync mpr view with axial view
+              const syncId = "uniqueSyncId"; // unique id for the sync
+              larvitar._syncViewportsCamera(syncId, "main", "axial");
+
+              let slabThickness = 0;
+
+              // switch to interact
+              document.addEventListener("keydown", e => {
+                switch (e.key) {
+                  case "z":
+                    larvitar._setToolPassive(toolsMpr[0].name);
+                    larvitar._setToolActive(
+                      toolsMpr[2].name,
+                      toolsMpr[2].options
+                    );
+                    break;
+                  case "x":
+                    larvitar._setToolPassive(toolsMpr[2].name);
+                    larvitar._setToolActive(
+                      toolsMpr[0].name,
+                      toolsMpr[0].options
+                    );
+                  case "a":
+                    larvitar._syncViewportsCamera(syncId, "main", "axial");
+                    break;
+                  case "s":
+                    larvitar._syncViewportsCamera(syncId, "main", "sagittal");
+                    break;
+                  case "c":
+                    larvitar._syncViewportsCamera(syncId, "main", "coronal");
+                    break;
+                  case "1":
+                    larvitar._setSlab(
+                      slabThickness++,
+                      BlendModes.COMPOSITE,
+                      "main"
+                    );
+                    break;
+                  case "2":
+                    larvitar._setSlab(
+                      slabThickness--,
+                      BlendModes.COMPOSITE,
+                      "main"
+                    );
+                    break;
+                  case "3":
+                    larvitar._setSlab(
+                      slabThickness++,
+                      BlendModes.MAXIMUM_INTENSITY_BLEND,
+                      "main"
+                    );
+                    break;
+                  case "4":
+                    larvitar._setSlab(
+                      slabThickness--,
+                      BlendModes.MAXIMUM_INTENSITY_BLEND,
+                      "main"
+                    );
+                    break;
+                  case "5":
+                    larvitar._setSlab(
+                      slabThickness++,
+                      BlendModes.MINIMUM_INTENSITY_BLEND,
+                      "main"
+                    );
+                    break;
+                  case "6":
+                    larvitar._setSlab(
+                      slabThickness--,
+                      BlendModes.MINIMUM_INTENSITY_BLEND,
+                      "main"
+                    );
+                    break;
+                  case "7":
+                    larvitar._setSlab(
+                      slabThickness++,
+                      BlendModes.AVERAGE_INTENSITY_BLEND,
+                      "main"
+                    );
+                    break;
+                  case "8":
+                    larvitar._setSlab(
+                      slabThickness--,
+                      BlendModes.AVERAGE_INTENSITY_BLEND,
+                      "main"
+                    );
+                    break;
+                  default:
+                    console.log("case not found", e.key);
+                }
+              });
+            });
+          })
+          .catch(err => console.error(err));
+      }
+
+      let demoFileList = getDemoFileNames();
+      _.each(demoFileList, function (demoFile) {
+        createFile(demoFile, renderSerie);
+      });
+    </script>
+  </body>
+</html>
