@@ -302,6 +302,7 @@ import {
 } from "./imaging3d/tools/main";
 import _CustomWWWLTool from "./imaging3d/tools/custom/exampleCustomTool";
 import _CustomLengthTool from "./imaging3d/tools/custom/customLengthTool";
+import _CustomEllipticalROITool from "./imaging3d/tools/custom/customEllipticalROITool";
 import {
   updateImageManager,
   populateImageManager,
@@ -346,6 +347,7 @@ export {
   _setSlab,
   _CustomWWWLTool,
   _CustomLengthTool,
+  _CustomEllipticalROITool,
   VERSION,
   // global cornerstone variables
   cornerstone,

@@ -130,8 +130,8 @@
       });
 
       larvitar.registerExternalTool(
-        "CustomLength",
-        larvitar._CustomLengthTool,
+        "CustomEllipticalROI",
+        larvitar._CustomEllipticalROITool,
         "3D",
         cursor,
         cursorOptions
@@ -241,7 +241,7 @@
 
       const toolsMain = [
         {
-          name: "CustomLength",
+          name: "CustomEllipticalROI",
           configuration: {},
           options: {
             bindings: [{ mouseButton: Enums.MouseBindings.Primary }]
