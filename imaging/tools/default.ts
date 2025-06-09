@@ -963,6 +963,20 @@ const dvTools: {
 };
 
 /**
+ * D/Vision Lab 3D custom tools
+ */
+const dvTools3D: {
+  [key: string]: any;
+} = {};
+
+/**
+ * D/Vision Lab MPR custom tools
+ */
+const dvToolsMPR: {
+  [key: string]: any;
+} = {};
+
+/**
  * Tools default style
  * Available font families :
  * Work Sans, Roboto, OpenSans, HelveticaNeue-Light,
@@ -1072,7 +1086,15 @@ const registerExternalTool = function (
         ? DEFAULT_TOOLS_3D
         : DEFAULT_TOOLS;
 
-  dvTools[toolClass.name] = toolClass;
+  const customTools =
+    toolVersion === "MPR"
+      ? dvToolsMPR
+      : toolVersion === "3D"
+        ? dvTools3D
+        : dvTools;
+
+  customTools[toolClass.name] = toolClass;
+
   targetTools[toolName] = {
     name: toolName,
     class: toolClass.name,
@@ -1091,6 +1113,8 @@ export {
   DEFAULT_SETTINGS,
   DEFAULT_MOUSE_KEYS,
   dvTools,
+  dvTools3D,
+  dvToolsMPR,
   getDefaultToolsByType,
   setDefaultToolsProps,
   registerExternalTool

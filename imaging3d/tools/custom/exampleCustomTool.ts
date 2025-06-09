@@ -3,10 +3,10 @@ import {
   getEnabledElement,
   VolumeViewport,
   cache,
-  utilities
+  utilities,
+  Viewport
 } from "@cornerstonejs/core";
 import * as EventTypes from "@cornerstonejs/tools/dist/esm/types/EventTypes";
-import { VOIRange } from "@cornerstonejs/core/dist/esm/types";
 
 // Todo: should move to configuration
 const DEFAULT_MULTIPLIER = 4;
@@ -121,8 +121,23 @@ class CustomWWWLTool extends BaseTool {
     }
   }
 
-  // @ts-ignore
-  getPTScaledNewRange({ deltaPointsCanvas, lower, upper, clientHeight, viewport, volumeId, isPreScaled }) {
+  getPTScaledNewRange({
+    deltaPointsCanvas,
+    lower,
+    upper,
+    clientHeight,
+    viewport,
+    volumeId,
+    isPreScaled
+  }: {
+    deltaPointsCanvas: number[];
+    lower: number;
+    upper: number;
+    clientHeight: number;
+    viewport: Viewport;
+    volumeId?: string;
+    isPreScaled: boolean;
+  }) {
     let multiplier = DEFAULT_MULTIPLIER;
 
     if (isPreScaled) {
