@@ -195,7 +195,8 @@ import {
   dvTools,
   getDefaultToolsByType,
   setDefaultToolsProps,
-  registerExternalTool
+  registerExternalTool,
+  registerCursor
 } from "./imaging/tools/default";
 
 import {
@@ -538,6 +539,7 @@ export {
   getDefaultToolsByType,
   setDefaultToolsProps,
   registerExternalTool,
+  registerCursor,
   // tools/interaction
   addMouseKeyHandlers,
   removeMouseKeyHandlers,

@@ -55,6 +55,22 @@ import type {
 } from "./types";
 import RotateTool from "./custom/rotateTool";
 import GspsTool from "./custom/gspsTool";
+import { SVGCursorDescriptor } from "@cornerstonejs/tools/dist/esm/types";
+const BASE_CURSOR: SVGCursorDescriptor = {
+  iconContent: "",
+  iconSize: 16,
+  viewBox: {
+    x: 16,
+    y: 16
+  },
+  mousePoint: {
+    x: 8,
+    y: 8
+  },
+  mousePointerGroupString: `
+
+  `
+};
 
 const DEFAULT_TOOLS_3D: {
   [key: string]: ToolConfig;
@@ -1104,8 +1120,29 @@ const registerExternalTool = function (
     options: { mouseButtonMask: 1 },
     defaultActive: false
   };
-  //@ts-ignore
-  cornerstoneTools.cursors.registerCursor(toolName, toolCursor, cursorOptions);
+
+  registerCursor(toolName, toolCursor, cursorOptions);
+};
+
+function extend(
+  base: SVGCursorDescriptor,
+  values: Record<string, unknown> & { name?: string }
+): SVGCursorDescriptor {
+  return Object.assign(Object.create(base), {
+    ...values,
+    name: values.name || base.name
+  });
+}
+
+export const registerCursor = function (
+  toolName: string,
+  iconContent: string,
+  viewBox: CursorOptions
+) {
+  cornerstoneTools.cursors.CursorSVG[toolName] = extend(BASE_CURSOR, {
+    iconContent,
+    viewBox
+  });
 };
 
 export {
