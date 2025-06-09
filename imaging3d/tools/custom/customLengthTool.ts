@@ -13,6 +13,7 @@ import {
 import { IEnabledElement, Point3 } from "@cornerstonejs/core/dist/esm/types";
 import { Handles } from "@cornerstonejs/tools/dist/esm/types/AnnotationTypes";
 import { annotation } from "@cornerstonejs/tools";
+import { viewport } from "@cornerstonejs/tools/dist/esm/utilities";
 const {
   getAnnotations,
   addAnnotation,
@@ -100,6 +101,8 @@ class CustomLengthTool extends AnnotationTool {
 
   public isDrawing: boolean = false;
   public isHandleOutsideImage: boolean = false;
+  public isMoving: boolean = false;
+  public isResizing: boolean = false;
 
   constructor(
     toolProps: PublicToolProps = {},
@@ -131,20 +134,52 @@ class CustomLengthTool extends AnnotationTool {
       { trailing: true }
     );
   }
+  _getViewportsInfo = () => {
+    const viewports = cornerstoneTools.ToolGroupManager.getToolGroup(
+      this.toolGroupId
+    )?.viewportsInfo;
+    return viewports;
+  };
   onSetToolActive() {
-    const measurementIconContent = `
-  <path d="m14 4v10h-10v4h10v10h4v-10h10v-4h-10v-10z" fill="{{color}}" />
-`;
-
-    cornerstoneTools.cursors.registerCursor(
-      CustomLengthTool.name,
-      measurementIconContent,
-      {
-        x: 32,
-        y: 32
-      }
+    const elementIds = this._getViewportsInfo()?.map(
+      viewport => viewport.viewportId
     );
+
+    elementIds?.forEach(id => {
+      const element = document.getElementById(id);
+      if (!element) return;
+
+      element.addEventListener(
+        Events.MOUSE_MOVE,
+        this._mouseMoveCallback as EventListener
+      );
+      element.addEventListener(
+        Events.MOUSE_DRAG,
+        this._mouseMoveCallback as EventListener
+      );
+    });
   }
+
+  onSetToolPassive() {
+    const elementIds = this._getViewportsInfo()?.map(
+      viewport => viewport.viewportId
+    );
+
+    elementIds?.forEach(id => {
+      const element = document.getElementById(id);
+      if (!element) return;
+
+      element.removeEventListener(
+        Events.MOUSE_MOVE,
+        this._mouseMoveCallback as EventListener
+      );
+      element.removeEventListener(
+        Events.MOUSE_DRAG,
+        this._mouseMoveCallback as EventListener
+      );
+    });
+  }
+
   static hydrate = (
     viewportId: string,
     points: Types.Point3[],
@@ -241,6 +276,14 @@ class CustomLengthTool extends AnnotationTool {
   ): LengthAnnotation => {
     const eventDetail = evt.detail;
     const { currentPoints, element } = eventDetail;
+    element.addEventListener(
+      Events.MOUSE_MOVE,
+      this._mouseMoveCallback as EventListener
+    );
+    element.addEventListener(
+      Events.MOUSE_DRAG,
+      this._mouseMoveCallback as EventListener
+    );
     const worldPos = currentPoints.world;
     const enabledElement = getEnabledElement(element);
     const { viewport } = enabledElement!;
@@ -362,6 +405,117 @@ class CustomLengthTool extends AnnotationTool {
     return false;
   };
 
+  _mouseMoveCallback = (evt: EventTypes.InteractionEventType): void => {
+    if (evt.detail.currentPoints && evt.detail.element) {
+      const coords = evt.detail.currentPoints.canvas;
+      const element = evt.detail.element;
+
+      const currentState = this.getCurrentOperationState();
+
+      const nearHandle = this.isNearHandle(element, coords);
+      const nearMeas = this.isNearMeasurement(element, coords);
+      this.setCursor(currentState, element, nearHandle, nearMeas);
+    }
+  };
+  getCurrentOperationState(): "READY" | "DRAWING" | "MODIFYING" | "MOVING" {
+    if (this.isDrawing) return "DRAWING";
+    const modifying = this.editData?.handleIndex;
+    if (modifying) return "MODIFYING";
+    const moving = this.editData;
+    if (moving) return "MOVING";
+    return "READY";
+  }
+
+  setCursor(
+    state: "READY" | "DRAWING" | "MODIFYING" | "MOVING",
+    element: HTMLDivElement,
+    nearHandle: boolean,
+    nearMeas: boolean
+  ) {
+    let cursor: any;
+    switch (state) {
+      case "READY":
+        cursor = this.toolName;
+        if (nearMeas) cursor = "move";
+        if (nearHandle) cursor = "resize";
+        break;
+
+      case "DRAWING":
+        cursor = this.toolName;
+        break;
+
+      case "MODIFYING":
+        cursor = "resize";
+        break;
+
+      case "MOVING":
+        cursor = "move";
+        break;
+    }
+    cornerstoneTools.cursors.setCursorForElement(element, cursor);
+  }
+
+  isNearHandle = (element: HTMLDivElement, coords: Types.Point2): boolean => {
+    const annotations = getAnnotations(this.getToolName(), element);
+    if (!annotations?.length) return false;
+
+    const enabledElement = getEnabledElement(element);
+    const { viewport } = enabledElement!;
+
+    for (const annotation of annotations) {
+      const lengthAnnotation = annotation as LengthAnnotation;
+
+      if (
+        !isAnnotationVisible(lengthAnnotation.annotationUID!) ||
+        isAnnotationLocked(lengthAnnotation.annotationUID!)
+      ) {
+        continue;
+      }
+
+      const { data } = lengthAnnotation;
+      const points = data.handles.points;
+
+      for (let i = 0; i < points.length; i++) {
+        const canvasPoint = viewport.worldToCanvas(points[i]);
+        const distance = Math.sqrt(
+          Math.pow(canvasPoint[0] - coords[0], 2) +
+            Math.pow(canvasPoint[1] - coords[1], 2)
+        );
+
+        if (distance <= 6) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+
+  isNearMeasurement = (
+    element: HTMLDivElement,
+    coords: Types.Point2
+  ): boolean => {
+    const annotations = getAnnotations(this.getToolName(), element);
+    if (!annotations?.length) return false;
+
+    for (const annotation of annotations) {
+      const lengthAnnotation = annotation as LengthAnnotation;
+
+      if (
+        !isAnnotationVisible(lengthAnnotation.annotationUID!) ||
+        isAnnotationLocked(lengthAnnotation.annotationUID!)
+      ) {
+        continue;
+      }
+
+      if (this.isPointNearTool(element, lengthAnnotation, coords, 6)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   toolSelectedCallback = (
     evt: EventTypes.InteractionEventType,
     annotation: LengthAnnotation
@@ -381,7 +535,7 @@ class CustomLengthTool extends AnnotationTool {
       viewportIdsToRender,
       movingTextBox: false
     };
-
+    this.isMoving = true;
     this._activateModify(element);
 
     hideElementCursor(element);
@@ -423,6 +577,7 @@ class CustomLengthTool extends AnnotationTool {
       handleIndex,
       movingTextBox
     };
+    this.isResizing = true;
     this._activateModify(element);
 
     hideElementCursor(element);
@@ -468,10 +623,11 @@ class CustomLengthTool extends AnnotationTool {
 
     this.editData = null;
     this.isDrawing = false;
+    this.isMoving = false;
+    this.isResizing = false;
   };
 
   _dragCallback = (evt: EventTypes.InteractionEventType): void => {
-    this.isDrawing = true;
     const eventDetail = evt.detail;
     const { element } = eventDetail;
 
@@ -539,6 +695,7 @@ class CustomLengthTool extends AnnotationTool {
 
       annotation.invalidated = true;
     } else {
+      this.isDrawing = this.isResizing ? false : true;
       // Move mode - after double click, and mouse move to draw
       const { currentPoints } = eventDetail;
       const worldPos = currentPoints.world;

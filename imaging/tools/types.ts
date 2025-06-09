@@ -24,7 +24,12 @@ export type ToolConfig = {
   currentMode?: string;
   offset?: number;
 };
-
+export type CursorOptions = {
+  iconSize: number;
+  mousePoint: Coords;
+  mousePointerGroupString: string;
+  viewBox: Coords;
+};
 export type ToolStyle = {
   width: number;
   color: string; // "#00FF00"

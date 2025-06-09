@@ -26,6 +26,7 @@
 // external libraries
 import { filter, isArray } from "lodash";
 import { Enums as csToolsEnums } from "@cornerstonejs/tools";
+import * as cornerstoneTools from "@cornerstonejs/tools";
 const MouseBindings = csToolsEnums.MouseBindings;
 
 // internal libraries
@@ -46,6 +47,7 @@ import FreehandRoiTool from "./custom/FreehandRoiUSTool";
 import ManualLengthPlotTool from "./custom/ManualLengthPlotTool";
 import OverlayTool from "./custom/OverlayTool";
 import type {
+  CursorOptions,
   ToolConfig,
   ToolMouseKeys,
   ToolSettings,
@@ -1073,7 +1075,9 @@ const setDefaultToolsProps = function (newProps: Partial<ToolConfig>[]) {
 const registerExternalTool = function (
   toolName: string,
   toolClass: any,
-  toolVersion: "MPR" | "3D" | "" = ""
+  toolVersion: "MPR" | "3D" | "" = "",
+  toolCursor: string,
+  cursorOptions: CursorOptions
 ) {
   if (dvTools[toolName] || DEFAULT_TOOLS[toolName]) {
     logger.debug(`${toolName} already exists, it will be replaced`);
@@ -1100,6 +1104,8 @@ const registerExternalTool = function (
     options: { mouseButtonMask: 1 },
     defaultActive: false
   };
+  //@ts-ignore
+  cornerstoneTools.cursors.registerCursor(toolName, toolCursor, cursorOptions);
 };
 
 export {
