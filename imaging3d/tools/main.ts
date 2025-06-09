@@ -13,9 +13,11 @@ import { logger } from "../../logger";
 import {
   DEFAULT_TOOLS_3D,
   DEFAULT_TOOLS_MPR,
-  DEFAULT_STYLE,
-  DEFAULT_SETTINGS,
-  dvTools
+  //DEFAULT_STYLE,
+  //DEFAULT_SETTINGS,
+  dvTools,
+  dvTools3D,
+  dvToolsMPR
 } from "../../imaging/tools/default";
 import store, { set as setStore } from "../../imaging/imageStore";
 
@@ -63,20 +65,31 @@ const isToolMissing = function (
 };
 
 /**
- * Add a cornerstone tool (grab it from original library or dvision custom tools)
- * @param {*} toolName
- * @param {*} targetElementId
+ * Add a cornerstone 3D tool (grab it from original library or dvision custom 3D or MPR tools)
+ * @param {String} toolName
+ * @param {Partial<ToolConfig>} customConfig
+ * @param {String} type The type of tool to add (3D or MPR)
+ * @param {String} groupId The cornerstone3D Tool GroupID
  * @example larvitar.addTool("ScaleOverlay", {configuration:{minorTickLength: 10, majorTickLength: 25}}, "viewer")
  */
 export const addTool = function (
   toolName: string,
   customConfig: Partial<ToolConfig>,
+  type?: string,
   groupId?: string
 ) {
-  const allToolsList = {
-    ...DEFAULT_TOOLS_3D,
-    ...DEFAULT_TOOLS_MPR
-  };
+  let allToolsList;
+
+  if (type === "3D") {
+    allToolsList = DEFAULT_TOOLS_3D;
+  } else if (type === "MPR") {
+    allToolsList = DEFAULT_TOOLS_MPR;
+  } else {
+    allToolsList = {
+      ...DEFAULT_TOOLS_3D,
+      ...DEFAULT_TOOLS_MPR
+    };
+  }
 
   console.log("allToolsList", allToolsList);
 
@@ -95,8 +108,17 @@ export const addTool = function (
     );
   }
 
+  let customTool;
+
+  if (type === "3D") {
+    customTool = dvTools3D[toolClassName];
+  } else if (type === "MPR") {
+    customTool = dvToolsMPR[toolClassName];
+  } else {
+    customTool = dvTools3D[toolClassName] || dvToolsMPR[toolClassName];
+  }
   const toolClass =
-    dvTools[toolClassName] ||
+    customTool ||
     cornerstoneTools[toolClassName as keyof typeof cornerstoneTools];
 
   cornerstoneTools.addTool(toolClass);
@@ -119,13 +141,16 @@ export const addTool = function (
 /**
  * @function addDefaultTools
  * @desc Adds default tools to the rendering engine (wwwl, pan, zoom, stackScroll)
- * @param elementId - the id of the element where the tools will be added
- * @param renderingEngine - the rendering engine where the tools will be added
+ * @param {String[]} elementIds - the ids of the elements where the tools will be added
+ * @param {RenderingEngine} renderingEngine - the rendering engine where the tools will be added
+ * @param {String} type The type of tool to add (3D or MPR)
+ * @param {String} groupId The cornerstone3D Tool GroupID
  */
 export const addDefaultTools = function (
   elementIds: string[],
   renderingEngine: RenderingEngine,
-  type: string = "2d" // "mpr" or "2d"
+  type: string = "3D", // "MPR" or "3D"
+  toolGroupId: string = "default"
 ) {
   elementIds.forEach(elementId => {
     const element = renderingEngine.getViewport(elementId).element;
@@ -141,7 +166,6 @@ export const addDefaultTools = function (
     cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
   });
 
-  const toolGroupId = "default"; // TODO as param with default value
   const toolGroup =
     cornerstoneTools.ToolGroupManager.createToolGroup(toolGroupId);
 
@@ -154,11 +178,11 @@ export const addDefaultTools = function (
     toolGroup.addViewport(viewportId, renderingEngine.id);
   });
 
-  const toolsList = type === "2d" ? DEFAULT_TOOLS_3D : DEFAULT_TOOLS_MPR;
+  const toolsList = type === "3D" ? DEFAULT_TOOLS_3D : DEFAULT_TOOLS_MPR;
 
   // for each default tool
   each(toolsList, tool => {
-    addTool(tool.name, tool.configuration);
+    addTool(tool.name, tool.configuration, type);
     toolGroup.addTool(tool.name, tool.configuration);
     logger.debug(`Tool ${tool.name} added to group:`, toolGroupId);
 
@@ -171,7 +195,7 @@ export const addDefaultTools = function (
     // TODO handle options (mouseButtonMask, etc) and other modes (eg passive)
     if (tool.defaultActive) {
       console.log("setToolActive", tool.name, tool.options);
-      setToolActive(tool.name, tool.options, undefined, true);
+      setToolActive(tool.name, tool.options, toolGroupId, true);
       logger.debug(`Tool ${tool.name} set as default active`);
     }
   });
@@ -358,12 +382,14 @@ export const syncViewportsCamera = function (
  * @param groupId - The id of the tool group to create. @default "default"
  * @param viewports
  * @param tools
+ * @param type - MPR or 3D
  * @returns toolGroup - The created tool group.
  */
 export const createToolGroup = function (
   groupId: string = "default",
   viewports: string[] = [],
-  tools: any[] = [] // TODO type this properly
+  tools: any[] = [], // TODO type this properly
+  type?: string
 ) {
   const toolGroup = cornerstoneTools.ToolGroupManager.createToolGroup(groupId);
 
@@ -385,7 +411,7 @@ export const createToolGroup = function (
   });
 
   tools.forEach(tool => {
-    addTool(tool.name, tool.configuration, groupId);
+    addTool(tool.name, tool.configuration, type, groupId);
     logger.debug(`Tool ${tool.name} added to group:`, groupId);
   });
 
@@ -422,11 +448,7 @@ export const setSlab = function (
  * @param wl - window level
  * @param viewportId - The id of the viewport where the window width and level will be set.
  */
-export const setWWWL = function (
-  ww: number,
-  wl: number,
-  viewportId: string
-) {
+export const setWWWL = function (ww: number, wl: number, viewportId: string) {
   const viewport =
     cornerstone.getEnabledElementByViewportId(viewportId).viewport;
   if (!viewport || viewport instanceof cornerstone.StackViewport) {
@@ -434,6 +456,8 @@ export const setWWWL = function (
     return;
   }
 
-  viewport.setProperties({ voiRange: { lower: wl - ww / 2, upper: wl + ww / 2 } });
+  viewport.setProperties({
+    voiRange: { lower: wl - ww / 2, upper: wl + ww / 2 }
+  });
   viewport.render();
-}
+};
