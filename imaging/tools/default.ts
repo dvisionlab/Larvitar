@@ -1085,8 +1085,13 @@ const registerExternalTool = function (
       : toolVersion === "3D"
         ? DEFAULT_TOOLS_3D
         : DEFAULT_TOOLS;
-
-  dvTools[toolClass.name] = toolClass;
+  const customTools =
+    toolVersion === "MPR"
+      ? dvToolsMPR
+      : toolVersion === "3D"
+        ? dvTools3D
+        : dvTools;
+  customTools[toolClass.name] = toolClass;
   targetTools[toolName] = {
     name: toolName,
     class: toolClass.name,

@@ -83,7 +83,7 @@
       larvitar.registerExternalTool(
         "CustomLength",
         larvitar._CustomLengthTool,
-        "MPR"
+        "3D"
       ); // this api is the old one, just with a parameter to specify the tool version ("mpr" or "3d")
       // initialize store and add viewports
       larvitar.store.initialize();
@@ -212,12 +212,14 @@
               const toolGroupMpr = larvitar._createToolGroup(
                 "mprTools",
                 ["axial", "coronal", "sagittal"],
-                toolsMpr
+                toolsMpr,
+                "MPR"
               );
               const toolGroupMain = larvitar._createToolGroup(
                 "mainTools",
                 ["main"],
-                toolsMain
+                toolsMain,
+                "3D"
               );
 
               // set tool active on the two groups
