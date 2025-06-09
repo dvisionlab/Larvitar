@@ -131,7 +131,20 @@ class CustomLengthTool extends AnnotationTool {
       { trailing: true }
     );
   }
+  onSetToolActive() {
+    const measurementIconContent = `
+  <path d="m14 4v10h-10v4h10v10h4v-10h10v-4h-10v-10z" fill="{{color}}" />
+`;
 
+    cornerstoneTools.cursors.registerCursor(
+      CustomLengthTool.name,
+      measurementIconContent,
+      {
+        x: 32,
+        y: 32
+      }
+    );
+  }
   static hydrate = (
     viewportId: string,
     points: Types.Point3[],
@@ -874,21 +887,19 @@ class CustomLengthTool extends AnnotationTool {
         activeHandleCanvasCoords = [canvasCoordinates[activeHandleIndex]];
       }
 
-      if (activeHandleCanvasCoords) {
-        const handleGroupUID = "0";
+      const handleGroupUID = "0";
 
-        drawHandlesSvg(
-          svgDrawingHelper,
-          annotationUID!,
-          handleGroupUID,
-          canvasCoordinates,
-          {
-            color,
-            lineDash,
-            lineWidth
-          }
-        );
-      }
+      drawHandlesSvg(
+        svgDrawingHelper,
+        annotationUID!,
+        handleGroupUID,
+        canvasCoordinates,
+        {
+          color,
+          lineDash,
+          lineWidth
+        }
+      );
 
       const dataId = `${annotationUID}-line`;
       const lineUID = "1";
@@ -1099,5 +1110,6 @@ function _determineCorners(canvasPoints: Array<Types.Point2>) {
     return a[1] < b[1] ? -1 : 1;
   }
 }
+
 CustomLengthTool.toolName = "CustomLength";
 export default CustomLengthTool;
