@@ -262,7 +262,7 @@
       larvitar.store.addViewport(viewportId2);
       larvitar.store.addViewport(viewportId3);
       larvitar.store.addViewport(viewportId4);
-
+      const Enums = larvitar._cornerstoneTools.Enums;
       showSpinner();
 
       async function createFile(fileName, cb) {
@@ -309,6 +309,102 @@
                 orientation: "acquisition"
               }
             ];
+            const toolsMpr = [
+              {
+                name: "StackScroll",
+                options: {
+                  bindings: [{ mouseButton: Enums.MouseBindings.Wheel }]
+                }
+              },
+              {
+                name: "WindowLevel",
+                configuration: {},
+                options: {
+                  bindings: [{ mouseButton: Enums.MouseBindings.Primary }]
+                }
+              },
+              {
+                name: "Zoom",
+                configuration: {},
+                options: {
+                  bindings: [{ mouseButton: Enums.MouseBindings.Secondary }]
+                }
+              }
+            ];
+
+            // const toolsMain = [{
+            //   name: "StackScroll",
+            //   options: {
+            //     bindings: [
+            //       { mouseButton: Enums.MouseBindings.Wheel }, // scroll on wheel
+            //       // { mouseButton: Enums.MouseBindings.Primary } // scroll on drag
+            //     ],
+            //   },
+            // },
+            // {
+            //   name: "WindowLevel",
+            //   configuration: {},
+            //   options: {
+            //     bindings: [{ mouseButton: Enums.MouseBindings.Primary }],
+            //   },
+            // },
+            // {
+            //   name: "Zoom",
+            //   configuration: {},
+            //   options: {
+            //     bindings: [{ mouseButton: Enums.MouseBindings.Secondary },],
+            //   },
+            // }]
+
+            const toolGroupMpr = larvitar._createToolGroup(
+              "mprTools",
+              ["axial", "coronal", "sagittal"],
+              toolsMpr,
+              "MPR"
+            );
+
+            larvitar._addTool(
+              "Crosshairs",
+              {
+                getReferenceLineColor: vpId => {
+                  switch (vpId) {
+                    case "axial":
+                      return "rgb(255,0,0)";
+                    case "sagittal":
+                      return "rgb(0,255,0)";
+                    case "coronal":
+                      return "rgb(255,255,0)";
+                  }
+                },
+                // getReferenceLineSlabThicknessControlsOn: () => false,
+                shadow: true,
+                viewportIndicators: true,
+                viewportIndicatorsConfig: {
+                  radius: 5,
+                  x: null,
+                  y: null
+                },
+                autoPan: {
+                  enabled: true,
+                  panSize: 10
+                },
+                handleRadius: 5,
+                enableHDPIHandles: false,
+                referenceLinesCenterGapRadius: 20,
+                filterActorUIDsToSetSlabThickness: []
+                // slabThicknessBlendMode: Enums.BlendModes.MAXIMUM_INTENSITY_BLEND,
+              },
+              "mprTools",
+              "MPR"
+            );
+            // set tool active on the two groups
+            larvitar._setToolActive(
+              "Crosshairs",
+              {
+                bindings: [{ mouseButton: Enums.MouseBindings.Primary }]
+              },
+              toolGroupMpr.id
+            );
 
             larvitar._renderMpr(serie, viewportInputs).then(renderingEngine => {
               console.log("Volume rendered", renderingEngine);
