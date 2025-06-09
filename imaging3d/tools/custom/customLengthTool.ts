@@ -13,7 +13,7 @@ import {
 import { IEnabledElement, Point3 } from "@cornerstonejs/core/dist/esm/types";
 import { Handles } from "@cornerstonejs/tools/dist/esm/types/AnnotationTypes";
 import { annotation } from "@cornerstonejs/tools";
-import { viewport } from "@cornerstonejs/tools/dist/esm/utilities";
+
 const {
   getAnnotations,
   addAnnotation,
@@ -127,7 +127,7 @@ class CustomLengthTool extends AnnotationTool {
     }
   ) {
     super(toolProps, defaultToolProps);
-
+    this._mouseMoveCallback = this._mouseMoveCallback.bind(this);
     this._throttledCalculateCachedStats = throttle(
       this._calculateCachedStats,
       100,
