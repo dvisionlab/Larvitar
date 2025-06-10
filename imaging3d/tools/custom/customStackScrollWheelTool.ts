@@ -31,7 +31,6 @@ class CustomStackScrollWheelTool extends BaseTool {
   }
 
   mouseWheelCallback(evt: EventTypes.MouseWheelEventType) {
-    console.log("mouseWheelCallback");
     this._scroll(evt);
   }
 
