@@ -715,7 +715,8 @@ class CustomAngleTool extends AnnotationTool {
 
   // Replace the existing _dragCallback method with this modified version
   _dragCallback = (evt: EventTypes.InteractionEventType): void => {
-    this.isDrawing = true;
+    this.isDrawing = !this.isResizing && !this.isMoving ? true : false;
+
     const eventDetail = evt.detail;
     const { element } = eventDetail;
 

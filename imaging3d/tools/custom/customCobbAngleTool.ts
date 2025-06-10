@@ -159,6 +159,148 @@ class CustomCobbAngleTool extends AnnotationTool {
       { trailing: true }
     );
   }
+
+  private _getConstrainedDeltaForAnnotation = (
+    newPositions: number[][],
+    viewport: any,
+    data: any
+  ): number[] => {
+    const image = this.getTargetImageData(this.getTargetId(viewport)!);
+    if (!image) {
+      const points = data.handles!.points;
+      return newPositions.length > 0
+        ? [
+            newPositions[0][0] - points![0][0],
+            newPositions[0][1] - points![0][1],
+            newPositions[0][2] - points![0][2]
+          ]
+        : [0, 0, 0];
+    }
+
+    const { imageData, dimensions } = image;
+    const points = data.handles!.points;
+    const requestedDelta =
+      newPositions.length > 0
+        ? [
+            newPositions[0][0] - points![0][0],
+            newPositions[0][1] - points![0][1],
+            newPositions[0][2] - points![0][2]
+          ]
+        : [0, 0, 0];
+
+    let constrainedDelta = [...requestedDelta];
+
+    for (let i = 0; i < newPositions.length; i++) {
+      const currentWorldPos = points![i];
+      const newWorldPos = newPositions[i] as Point3;
+      const newIndexPos = transformWorldToIndex(imageData, newWorldPos);
+
+      // Constrain the new index position to image bounds
+      const constrainedIndexPos: Types.Point3 = [
+        Math.max(0, Math.min(dimensions[0] - 1, newIndexPos[0])),
+        Math.max(0, Math.min(dimensions[1] - 1, newIndexPos[1])),
+        Math.max(0, Math.min(dimensions[2] - 1, newIndexPos[2]))
+      ];
+
+      const constrainedWorldPos = cornerstone.utilities.transformIndexToWorld(
+        imageData,
+        constrainedIndexPos
+      );
+
+      // Calculate the actual allowed delta for this point
+      const actualDelta = [
+        constrainedWorldPos[0] - currentWorldPos[0],
+        constrainedWorldPos[1] - currentWorldPos[1],
+        constrainedWorldPos[2] - currentWorldPos[2]
+      ];
+
+      // Use the most restrictive delta across all points
+      for (let axis = 0; axis < 3; axis++) {
+        if (Math.abs(actualDelta[axis]) < Math.abs(constrainedDelta[axis])) {
+          constrainedDelta[axis] = actualDelta[axis];
+        }
+      }
+    }
+
+    return constrainedDelta;
+  };
+
+  private _constrainPointToImageBounds = (
+    worldPos: Types.Point3,
+    viewport: any
+  ): Types.Point3 => {
+    const image = this.getTargetImageData(this.getTargetId(viewport)!);
+    if (!image) {
+      return worldPos;
+    }
+
+    const { imageData, dimensions } = image;
+    const indexPos = transformWorldToIndex(imageData, worldPos);
+
+    // Constrain to image bounds
+    const constrainedIndex: Types.Point3 = [
+      Math.max(0, Math.min(dimensions[0] - 1, indexPos[0])),
+      Math.max(0, Math.min(dimensions[1] - 1, indexPos[1])),
+      Math.max(0, Math.min(dimensions[2] - 1, indexPos[2]))
+    ];
+
+    // Convert back to world coordinates
+    const constrainedWorld = cornerstone.utilities.transformIndexToWorld(
+      imageData,
+      constrainedIndex
+    );
+
+    return constrainedWorld;
+  };
+
+  // Modified _mouseDownCallback method
+  _mouseDownCallback = (
+    evt: EventTypes.MouseUpEventType | EventTypes.MouseClickEventType
+  ) => {
+    const { annotation, handleIndex } = this.editData!;
+    const eventDetail = evt.detail;
+    const { element, currentPoints } = eventDetail;
+    const worldPos = currentPoints.world;
+    const { data } = annotation;
+
+    const enabledElement = getEnabledElement(element);
+    const { viewport } = enabledElement!;
+    const constrainedWorldPos = this._constrainPointToImageBounds(
+      worldPos,
+      viewport
+    );
+
+    if (handleIndex === 1) {
+      // This is the mouse down for the second point of the first segment.
+      // The mouse up takes care of adding the first point of the second segment.
+      data.handles!.points![1] = constrainedWorldPos;
+      this.editData!.hasMoved =
+        data.handles!.points![1][0] !== data.handles!.points![0][0] ||
+        data.handles!.points![1][1] !== data.handles!.points![0][0];
+      return;
+    }
+
+    if (handleIndex === 3) {
+      // This is the mouse down for the second point of the second segment (i.e. the last point)
+      data.handles!.points![3] = constrainedWorldPos;
+      this.editData!.hasMoved =
+        data.handles!.points![3][0] !== data.handles!.points![2][0] ||
+        data.handles!.points![3][1] !== data.handles!.points![2][0];
+
+      this.angleStartedNotYetCompleted = false;
+      return;
+    }
+
+    // This is the first mouse down of the first point of the second line segment.
+    // It is as if we have not moved yet because Cobb Angle has two, disjoint sections, each with its own move.
+    this.editData!.hasMoved = false;
+    hideElementCursor(element);
+
+    // Add the last segment points for the subsequent drag/mouse move.
+    data.handles!.points![2] = data.handles!.points![3] = constrainedWorldPos;
+    this.editData!.handleIndex = data.handles!.points!.length - 1;
+  };
+
   _getViewportsInfo = () => {
     const viewports = cornerstoneTools.ToolGroupManager.getToolGroup(
       this.toolGroupId
@@ -210,8 +352,12 @@ class CustomCobbAngleTool extends AnnotationTool {
 
       const currentState = this.getCurrentOperationState();
 
-      const nearHandle = this.isNearHandle(element, coords);
-      const nearMeas = this.isNearMeasurement(element, coords);
+      const nearHandle = this.isDrawing
+        ? false
+        : this.isNearHandle(element, coords);
+      const nearMeas = this.isDrawing
+        ? false
+        : this.isNearMeasurement(element, coords);
       this.setCursor(currentState, element, nearHandle, nearMeas);
     }
   };
@@ -309,14 +455,8 @@ class CustomCobbAngleTool extends AnnotationTool {
     }
     cornerstoneTools.cursors.setCursorForElement(element, cursor);
   }
-  /**
-   * Based on the current position of the mouse and the current imageId to create
-   * a Length Annotation and stores it in the annotationManager
-   *
-   * @param evt -  EventTypes.NormalizedMouseEventType
-   * @returns The annotation object.
-   *
-   */
+
+  // Modified addNewAnnotation method - only the part that creates initial annotation
   addNewAnnotation = (evt: EventTypes.MouseDownActivateEventType): any => {
     if (this.angleStartedNotYetCompleted) {
       return;
@@ -329,6 +469,11 @@ class CustomCobbAngleTool extends AnnotationTool {
     const enabledElement = getEnabledElement(element);
     const { viewport, renderingEngine } = enabledElement!;
 
+    const constrainedWorldPos = this._constrainPointToImageBounds(
+      worldPos,
+      viewport
+    );
+
     hideElementCursor(element);
     this.isDrawing = true;
 
@@ -337,7 +482,7 @@ class CustomCobbAngleTool extends AnnotationTool {
 
     const referencedImageId = this.getReferencedImageId(
       viewport,
-      worldPos,
+      constrainedWorldPos,
       viewPlaneNormal!,
       viewUp
     );
@@ -353,11 +498,14 @@ class CustomCobbAngleTool extends AnnotationTool {
         viewUp: <Types.Point3>[...viewUp!],
         FrameOfReferenceUID,
         referencedImageId,
-        ...viewport.getViewReference({ points: [worldPos] })
+        ...viewport.getViewReference({ points: [constrainedWorldPos] })
       },
       data: {
         handles: {
-          points: [<Types.Point3>[...worldPos], <Types.Point3>[...worldPos]],
+          points: [
+            <Types.Point3>[...constrainedWorldPos],
+            <Types.Point3>[...constrainedWorldPos]
+          ],
           activeHandleIndex: null,
           textBox: {
             hasMoved: false,
@@ -578,56 +726,10 @@ class CustomCobbAngleTool extends AnnotationTool {
     this.isMoving = false;
   };
 
-  /**
-   * Handles the mouse down for all points that follow the very first mouse down.
-   * The very first mouse down is handled by addAnnotation.
-   * This method ensures that the state of the tool is correct for the drawing of the second line segment.
-   * In particular it ensures that the second segment can be created via a mouse down and drag.
-   */
-  _mouseDownCallback = (
-    evt: EventTypes.MouseUpEventType | EventTypes.MouseClickEventType
-  ) => {
-    const { annotation, handleIndex } = this.editData!;
-    const eventDetail = evt.detail;
-    const { element, currentPoints } = eventDetail;
-    const worldPos = currentPoints.world;
-    const { data } = annotation;
-
-    if (handleIndex === 1) {
-      // This is the mouse down for the second point of the first segment.
-      // The mouse up takes care of adding the first point of the second segment.
-      data.handles!.points![1] = worldPos;
-      this.editData!.hasMoved =
-        data.handles!.points![1][0] !== data.handles!.points![0][0] ||
-        data.handles!.points![1][1] !== data.handles!.points![0][0];
-      return;
-    }
-
-    if (handleIndex === 3) {
-      // This is the mouse down for the second point of the second segment (i.e. the last point)
-      data.handles!.points![3] = worldPos;
-      this.editData!.hasMoved =
-        data.handles!.points![3][0] !== data.handles!.points![2][0] ||
-        data.handles!.points![3][1] !== data.handles!.points![2][0];
-
-      this.angleStartedNotYetCompleted = false;
-      return;
-    }
-
-    // This is the first mouse down of the first point of the second line segment.
-    // It is as if we have not moved yet because Cobb Angle has two, disjoint sections, each with its own move.
-    this.editData!.hasMoved = false;
-    hideElementCursor(element);
-
-    // Add the last segment points for the subsequent drag/mouse move.
-    data.handles!.points![2] = data.handles!.points![3] = worldPos;
-    this.editData!.handleIndex = data.handles!.points!.length - 1;
-  };
-
   _dragCallback = (
     evt: EventTypes.MouseDragEventType | EventTypes.MouseMoveEventType
   ) => {
-    this.isDrawing = true;
+    this.isDrawing = !this.isResizing && !this.isMoving ? true : false;
     const eventDetail = evt.detail;
     const { element } = eventDetail;
 
@@ -643,6 +745,8 @@ class CustomCobbAngleTool extends AnnotationTool {
     this.createMemo(element, annotation, { newAnnotation });
 
     const { data } = annotation;
+    const enabledElement = getEnabledElement(element);
+    const { viewport } = enabledElement!;
 
     if (movingTextBox) {
       // Drag mode - moving text box
@@ -652,9 +756,20 @@ class CustomCobbAngleTool extends AnnotationTool {
       const { textBox } = data.handles!;
       const { worldPosition } = textBox!;
 
-      worldPosition![0] += worldPosDelta[0];
-      worldPosition![1] += worldPosDelta[1];
-      worldPosition![2] += worldPosDelta[2];
+      const newTextBoxPos: Types.Point3 = [
+        worldPosition![0] + worldPosDelta[0],
+        worldPosition![1] + worldPosDelta[1],
+        worldPosition![2] + worldPosDelta[2]
+      ];
+
+      const constrainedTextBoxPos = this._constrainPointToImageBounds(
+        newTextBoxPos,
+        viewport
+      );
+
+      worldPosition![0] = constrainedTextBoxPos[0];
+      worldPosition![1] = constrainedTextBoxPos[1];
+      worldPosition![2] = constrainedTextBoxPos[2];
 
       textBox!.hasMoved = true;
     } else if (
@@ -669,17 +784,41 @@ class CustomCobbAngleTool extends AnnotationTool {
       // separate the logic for moving handles to move them separately
       if (isNearFirstLine) {
         const firstLinePoints = [points![0], points![1]];
+        const newPositions = firstLinePoints.map(point => [
+          point[0] + worldPosDelta[0],
+          point[1] + worldPosDelta[1],
+          point[2] + worldPosDelta[2]
+        ]);
+
+        const constrainedDelta = this._getConstrainedDeltaForAnnotation(
+          newPositions,
+          viewport,
+          data
+        );
+
         firstLinePoints.forEach(point => {
-          point[0] += worldPosDelta[0];
-          point[1] += worldPosDelta[1];
-          point[2] += worldPosDelta[2];
+          point[0] += constrainedDelta[0];
+          point[1] += constrainedDelta[1];
+          point[2] += constrainedDelta[2];
         });
       } else if (isNearSecondLine) {
         const secondLinePoints = [points![2], points![3]];
+        const newPositions = secondLinePoints.map(point => [
+          point[0] + worldPosDelta[0],
+          point[1] + worldPosDelta[1],
+          point[2] + worldPosDelta[2]
+        ]);
+
+        const constrainedDelta = this._getConstrainedDeltaForAnnotation(
+          newPositions,
+          viewport,
+          data
+        );
+
         secondLinePoints.forEach(point => {
-          point[0] += worldPosDelta[0];
-          point[1] += worldPosDelta[1];
-          point[2] += worldPosDelta[2];
+          point[0] += constrainedDelta[0];
+          point[1] += constrainedDelta[1];
+          point[2] += constrainedDelta[2];
         });
       }
 
@@ -689,13 +828,16 @@ class CustomCobbAngleTool extends AnnotationTool {
       const { currentPoints } = eventDetail;
       const worldPos = currentPoints.world;
 
-      data.handles!.points![handleIndex!] = [...worldPos];
+      const constrainedWorldPos = this._constrainPointToImageBounds(
+        worldPos,
+        viewport
+      );
+      data.handles!.points![handleIndex!] = [...constrainedWorldPos];
       annotation.invalidated = true;
     }
 
     this.editData!.hasMoved = true;
 
-    const enabledElement = getEnabledElement(element);
     const { renderingEngine } = enabledElement!;
 
     triggerAnnotationRenderForViewportIds(viewportIdsToRender);
