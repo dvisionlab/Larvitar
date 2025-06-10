@@ -159,6 +159,50 @@ class CustomCobbAngleTool extends AnnotationTool {
       { trailing: true }
     );
   }
+  _getViewportsInfo = () => {
+    const viewports = cornerstoneTools.ToolGroupManager.getToolGroup(
+      this.toolGroupId
+    )?.viewportsInfo;
+    return viewports;
+  };
+  onSetToolEnabled() {
+    const elementIds = this._getViewportsInfo()?.map(
+      viewport => viewport.viewportId
+    );
+
+    elementIds?.forEach(id => {
+      const element = document.getElementById(id);
+      if (!element) return;
+
+      element.removeEventListener(
+        Events.MOUSE_MOVE,
+        this._mouseMoveCallback as EventListener
+      );
+      element.removeEventListener(
+        Events.MOUSE_DRAG,
+        this._mouseMoveCallback as EventListener
+      );
+    });
+  }
+  onSetToolActive() {
+    const elementIds = this._getViewportsInfo()?.map(
+      viewport => viewport.viewportId
+    );
+
+    elementIds?.forEach(id => {
+      const element = document.getElementById(id);
+      if (!element) return;
+
+      element.addEventListener(
+        Events.MOUSE_MOVE,
+        this._mouseMoveCallback as EventListener
+      );
+      element.addEventListener(
+        Events.MOUSE_DRAG,
+        this._mouseMoveCallback as EventListener
+      );
+    });
+  }
   _mouseMoveCallback = (evt: EventTypes.InteractionEventType): void => {
     if (evt.detail.currentPoints && evt.detail.element) {
       const coords = evt.detail.currentPoints.canvas;

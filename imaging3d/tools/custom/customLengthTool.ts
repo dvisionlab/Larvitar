@@ -160,7 +160,7 @@ class CustomLengthTool extends AnnotationTool {
     });
   }
 
-  onSetToolPassive() {
+  onSetToolEnabled() {
     const elementIds = this._getViewportsInfo()?.map(
       viewport => viewport.viewportId
     );
