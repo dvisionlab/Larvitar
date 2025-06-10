@@ -305,6 +305,8 @@ import _CustomLengthTool from "./imaging3d/tools/custom/customLengthTool";
 import _CustomEllipticalROITool from "./imaging3d/tools/custom/customEllipticalROITool";
 import _CustomRectangleROITool from "./imaging3d/tools/custom/customRectangleROITool";
 import _CustomAngleTool from "./imaging3d/tools/custom/customAngleTool";
+import _CustomCobbAngleTool from "./imaging3d/tools/custom/customCobbAngleTool";
+
 import {
   updateImageManager,
   populateImageManager,
@@ -351,6 +353,7 @@ export {
   _CustomLengthTool,
   _CustomEllipticalROITool,
   _CustomAngleTool,
+  _CustomCobbAngleTool,
   _CustomRectangleROITool,
   VERSION,
   // global cornerstone variables
