@@ -3,10 +3,11 @@ import {
   getEnabledElement,
   VolumeViewport,
   cache,
-  utilities
+  utilities,
+  StackViewport
 } from "@cornerstonejs/core";
 import * as EventTypes from "@cornerstonejs/tools/dist/esm/types/EventTypes";
-import { VOIRange } from "@cornerstonejs/core/dist/esm/types";
+import { Point2 } from "@cornerstonejs/core/dist/esm/types";
 
 // Todo: should move to configuration
 const DEFAULT_MULTIPLIER = 4;
@@ -80,7 +81,7 @@ class CustomWWWLTool extends BaseTool {
     // the x direction. For other modalities, use the canvas delta in both
     // directions, and if the viewport is a volumeViewport, the multiplier
     // is calculate using the volume min and max.
-    if (modality === PT && isPreScaled) {
+    if (modality === PT && isPreScaled && volumeId) {
       newRange = this.getPTScaledNewRange({
         deltaPointsCanvas: deltaPoints.canvas,
         lower,
@@ -122,7 +123,23 @@ class CustomWWWLTool extends BaseTool {
   }
 
   // @ts-ignore
-  getPTScaledNewRange({ deltaPointsCanvas, lower, upper, clientHeight, viewport, volumeId, isPreScaled }) {
+  getPTScaledNewRange({
+    deltaPointsCanvas,
+    lower,
+    upper,
+    clientHeight,
+    viewport,
+    volumeId,
+    isPreScaled
+  }: {
+    deltaPointsCanvas: Point2;
+    lower: number;
+    upper: number;
+    clientHeight: number;
+    viewport: VolumeViewport | StackViewport;
+    volumeId: string;
+    isPreScaled: boolean;
+  }) {
     let multiplier = DEFAULT_MULTIPLIER;
 
     if (isPreScaled) {

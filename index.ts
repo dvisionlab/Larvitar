@@ -300,12 +300,14 @@ import {
   createToolGroup as _createToolGroup,
   setSlab as _setSlab
 } from "./imaging3d/tools/main";
-import _CustomWWWLTool from "./imaging3d/tools/custom/exampleCustomTool";
+import _CustomWWWLTool from "./imaging3d/tools/custom/customWWWLTool";
 import _CustomLengthTool from "./imaging3d/tools/custom/customLengthTool";
 import _CustomEllipticalROITool from "./imaging3d/tools/custom/customEllipticalROITool";
 import _CustomRectangleROITool from "./imaging3d/tools/custom/customRectangleROITool";
 import _CustomAngleTool from "./imaging3d/tools/custom/customAngleTool";
 import _CustomCobbAngleTool from "./imaging3d/tools/custom/customCobbAngleTool";
+import _CustomStackScrollWheelTool from "./imaging3d/tools/custom/customStackScrollWheelTool";
+import _CustomStackScrollDragTool from "./imaging3d/tools/custom/customStackScrollDragTool";
 
 import {
   updateImageManager,
@@ -354,6 +356,8 @@ export {
   _CustomEllipticalROITool,
   _CustomAngleTool,
   _CustomCobbAngleTool,
+  _CustomStackScrollWheelTool,
+  _CustomStackScrollDragTool,
   _CustomRectangleROITool,
   VERSION,
   // global cornerstone variables
