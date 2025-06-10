@@ -30,10 +30,8 @@ const { isAnnotationVisible } = annotation.visibility;
 const { isAnnotationLocked } = annotation.locking;
 const AnnotationTool = cornerstoneTools.AnnotationTool;
 const getEnabledElement = cornerstone.getEnabledElement;
-const getEnabledElementByViewportId = cornerstone.getEnabledElementByViewportId;
 const drawLineSvg = cornerstoneTools.drawing.drawLine;
 const drawTextBoxSvg = cornerstoneTools.drawing.drawTextBox;
-const drawPathSvg = cornerstoneTools.drawing.drawPath;
 const enums = cornerstoneTools.Enums;
 const Events = enums.Events;
 const ChangeTypes = enums.ChangeTypes;
@@ -139,7 +137,8 @@ class CustomCobbAngleTool extends AnnotationTool {
   } | null = null;
   isDrawing: boolean = false;
   isHandleOutsideImage: boolean = false;
-
+  isResizing: boolean = false;
+  isMoving: boolean = false;
   constructor(
     toolProps: PublicToolProps = {},
     defaultToolProps: ToolProps = {
@@ -160,7 +159,112 @@ class CustomCobbAngleTool extends AnnotationTool {
       { trailing: true }
     );
   }
+  _mouseMoveCallback = (evt: EventTypes.InteractionEventType): void => {
+    if (evt.detail.currentPoints && evt.detail.element) {
+      const coords = evt.detail.currentPoints.canvas;
+      const element = evt.detail.element;
 
+      const currentState = this.getCurrentOperationState();
+
+      const nearHandle = this.isNearHandle(element, coords);
+      const nearMeas = this.isNearMeasurement(element, coords);
+      this.setCursor(currentState, element, nearHandle, nearMeas);
+    }
+  };
+  isNearHandle = (element: HTMLDivElement, coords: Types.Point2): boolean => {
+    const annotations = getAnnotations(this.getToolName(), element);
+    if (!annotations?.length) return false;
+
+    const enabledElement = getEnabledElement(element);
+    const { viewport } = enabledElement!;
+
+    for (const annotation of annotations) {
+      const lengthAnnotation = annotation as CobbAngleAnnotation;
+
+      if (
+        !isAnnotationVisible(lengthAnnotation.annotationUID!) ||
+        isAnnotationLocked(lengthAnnotation.annotationUID!)
+      ) {
+        continue;
+      }
+
+      const { data } = lengthAnnotation;
+      const points = data.handles.points;
+
+      for (let i = 0; i < points.length; i++) {
+        const canvasPoint = viewport.worldToCanvas(points[i]);
+        const distance = Math.sqrt(
+          Math.pow(canvasPoint[0] - coords[0], 2) +
+            Math.pow(canvasPoint[1] - coords[1], 2)
+        );
+
+        if (distance <= 6) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+  isNearMeasurement = (
+    element: HTMLDivElement,
+    coords: Types.Point2
+  ): boolean => {
+    const annotations = getAnnotations(this.getToolName(), element);
+    if (!annotations?.length) return false;
+
+    for (const annotation of annotations) {
+      const lengthAnnotation = annotation as CobbAngleAnnotation;
+
+      if (
+        !isAnnotationVisible(lengthAnnotation.annotationUID!) ||
+        isAnnotationLocked(lengthAnnotation.annotationUID!)
+      ) {
+        continue;
+      }
+
+      if (this.isPointNearTool(element, lengthAnnotation, coords, 6)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+  getCurrentOperationState(): "READY" | "DRAWING" | "MODIFYING" | "MOVING" {
+    if (this.isDrawing) return "DRAWING";
+    if (this.isResizing) return "MODIFYING";
+    if (this.isMoving) return "MOVING";
+    return "READY";
+  }
+
+  setCursor(
+    state: "READY" | "DRAWING" | "MODIFYING" | "MOVING",
+    element: HTMLDivElement,
+    nearHandle: boolean,
+    nearMeas: boolean
+  ) {
+    let cursor: any;
+    switch (state) {
+      case "READY":
+        cursor = this.toolName;
+        if (nearMeas) cursor = "move";
+        if (nearHandle) cursor = "resize";
+        break;
+
+      case "DRAWING":
+        cursor = this.toolName;
+        break;
+
+      case "MODIFYING":
+        cursor = "resize";
+        break;
+
+      case "MOVING":
+        cursor = "move";
+        break;
+    }
+    cornerstoneTools.cursors.setCursorForElement(element, cursor);
+  }
   /**
    * Based on the current position of the mouse and the current imageId to create
    * a Length Annotation and stores it in the annotationManager
@@ -320,7 +424,7 @@ class CustomCobbAngleTool extends AnnotationTool {
       isNearFirstLine,
       isNearSecondLine
     };
-
+    this.isMoving = true;
     this._activateModify(element);
 
     hideElementCursor(element);
@@ -363,6 +467,7 @@ class CustomCobbAngleTool extends AnnotationTool {
       handleIndex,
       movingTextBox
     };
+    this.isResizing = true;
     this._activateModify(element);
 
     hideElementCursor(element);
@@ -425,6 +530,8 @@ class CustomCobbAngleTool extends AnnotationTool {
 
     this.editData = null;
     this.isDrawing = false;
+    this.isResizing = false;
+    this.isMoving = false;
   };
 
   /**
@@ -859,7 +966,7 @@ class CustomCobbAngleTool extends AnnotationTool {
         continue;
       }
 
-      if (activeHandleCanvasCoords) {
+      if (canvasCoordinates.length) {
         const handleGroupUID = "0";
 
         drawHandlesSvg(
