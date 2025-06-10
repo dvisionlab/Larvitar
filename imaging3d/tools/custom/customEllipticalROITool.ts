@@ -902,6 +902,8 @@ class CustomEllipticalROITool extends AnnotationTool {
 
     this.editData = null;
     this.isDrawing = false;
+    this.isMoving = false;
+    this.isResizing = false;
 
     if (
       this.isHandleOutsideImage &&
@@ -1243,8 +1245,6 @@ class CustomEllipticalROITool extends AnnotationTool {
   };
 
   _deactivateModify = (element: any) => {
-    this.isResizing = false;
-    this.isMoving = false;
     state.isInteractingWithTool = false;
 
     element.removeEventListener(Events.MOUSE_UP, this._endCallback);
