@@ -419,10 +419,8 @@ class CustomLengthTool extends AnnotationTool {
   };
   getCurrentOperationState(): "READY" | "DRAWING" | "MODIFYING" | "MOVING" {
     if (this.isDrawing) return "DRAWING";
-    const modifying = this.editData?.handleIndex;
-    if (modifying) return "MODIFYING";
-    const moving = this.editData;
-    if (moving) return "MOVING";
+    if (this.isResizing) return "MODIFYING";
+    if (this.isMoving) return "MOVING";
     return "READY";
   }
 

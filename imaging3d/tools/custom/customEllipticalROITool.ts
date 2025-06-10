@@ -151,10 +151,12 @@ class CustomEllipticalROITool extends AnnotationTool {
     originalHandleCanvas?: Array<number>;
     newAnnotation?: boolean;
     hasMoved?: boolean;
+    isTopLeftHandle?: boolean;
   } | null = null;
   isDrawing: boolean = false;
   isHandleOutsideImage = false;
-
+  public isMoving: boolean = false;
+  public isResizing: boolean = false;
   constructor(
     toolProps: PublicToolProps = {},
     defaultToolProps: ToolProps = {
@@ -187,6 +189,7 @@ class CustomEllipticalROITool extends AnnotationTool {
     )?.viewportsInfo;
     return viewports;
   };
+
   onSetToolActive() {
     const elementIds = this._getViewportsInfo()?.map(
       viewport => viewport.viewportId
@@ -204,6 +207,10 @@ class CustomEllipticalROITool extends AnnotationTool {
         Events.MOUSE_DRAG,
         this._mouseMoveCallback as EventListener
       );
+      element.addEventListener(
+        Events.MOUSE_DOWN,
+        this._handleMouseClick as EventListener
+      );
     });
   }
 
@@ -216,9 +223,30 @@ class CustomEllipticalROITool extends AnnotationTool {
 
       const nearHandle = this.isNearHandle(element, coords);
       const nearMeas = this.isNearMeasurement(element, coords);
+      console.log(currentState, element, nearHandle, nearMeas);
       this.setCursor(currentState, element, nearHandle, nearMeas);
     }
   };
+
+  _handleMouseClick = (evt: any): void => {
+    const coords = evt.detail.currentPoints.canvas;
+    const element = evt.detail.element;
+    if (this.isNearHandle(element, coords)) {
+      const { annotation, handle } = this.getClickedCornerHandle(
+        element,
+        coords
+      );
+      if (annotation && handle) {
+        const mockEvent = {
+          detail: { element },
+          preventDefault: () => {}
+        } as EventTypes.InteractionEventType;
+        this.isResizing = true;
+        this.handleSelectedCallback(mockEvent, annotation, handle);
+      }
+    }
+  };
+
   isNearHandle = (element: HTMLDivElement, coords: Types.Point2): boolean => {
     const annotations = getAnnotations(this.getToolName(), element);
     if (!annotations?.length) return false;
@@ -239,11 +267,23 @@ class CustomEllipticalROITool extends AnnotationTool {
       const { data } = lengthAnnotation;
       const points = data.handles!.points;
 
-      for (let i = 0; i < points!.length; i++) {
-        const canvasPoint = viewport.worldToCanvas(points![i]);
+      const canvasCoordinates = points!.map(p => viewport.worldToCanvas(p)) as [
+        Types.Point2,
+        Types.Point2,
+        Types.Point2,
+        Types.Point2
+      ];
+
+      const [bottom, top, left, right] = canvasCoordinates;
+      const topLeft = <Types.Point2>[left[0], top[1]];
+      const bottomRight = <Types.Point2>[right[0], bottom[1]];
+
+      const handlePositions = [topLeft, bottomRight];
+
+      for (const handlePos of handlePositions) {
         const distance = Math.sqrt(
-          Math.pow(canvasPoint[0] - coords[0], 2) +
-            Math.pow(canvasPoint[1] - coords[1], 2)
+          Math.pow(handlePos[0] - coords[0], 2) +
+            Math.pow(handlePos[1] - coords[1], 2)
         );
 
         if (distance <= 6) {
@@ -253,6 +293,66 @@ class CustomEllipticalROITool extends AnnotationTool {
     }
 
     return false;
+  };
+
+  getClickedCornerHandle = (
+    element: HTMLDivElement,
+    coords: Types.Point2
+  ): {
+    annotation: EllipticalROIAnnotation | null;
+    handle: ToolHandle | null;
+  } => {
+    const annotations = getAnnotations(this.getToolName(), element);
+    if (!annotations?.length) return { annotation: null, handle: null };
+
+    const enabledElement = getEnabledElement(element);
+    const { viewport } = enabledElement!;
+
+    for (const annotation of annotations) {
+      const lengthAnnotation = annotation as EllipticalROIAnnotation;
+
+      if (
+        !isAnnotationVisible(lengthAnnotation.annotationUID!) ||
+        isAnnotationLocked(lengthAnnotation.annotationUID!)
+      ) {
+        continue;
+      }
+
+      const { data } = lengthAnnotation;
+      const points = data.handles!.points;
+
+      const canvasCoordinates = points!.map(p => viewport.worldToCanvas(p)) as [
+        Types.Point2,
+        Types.Point2,
+        Types.Point2,
+        Types.Point2
+      ];
+
+      const [bottom, top, left, right] = canvasCoordinates;
+      const topLeft = <Types.Point2>[left[0], top[1]];
+      const bottomRight = <Types.Point2>[right[0], bottom[1]];
+
+      // Check top-left handle
+      const distToTopLeft = Math.sqrt(
+        Math.pow(topLeft[0] - coords[0], 2) +
+          Math.pow(topLeft[1] - coords[1], 2)
+      );
+
+      if (distToTopLeft <= 6) {
+        return { annotation: lengthAnnotation, handle: points[2] };
+      }
+
+      const distToBottomRight = Math.sqrt(
+        Math.pow(bottomRight[0] - coords[0], 2) +
+          Math.pow(bottomRight[1] - coords[1], 2)
+      );
+
+      if (distToBottomRight <= 6) {
+        return { annotation: lengthAnnotation, handle: points[3] };
+      }
+    }
+
+    return { annotation: null, handle: null };
   };
 
   isNearMeasurement = (
@@ -281,10 +381,8 @@ class CustomEllipticalROITool extends AnnotationTool {
   };
   getCurrentOperationState(): "READY" | "DRAWING" | "MODIFYING" | "MOVING" {
     if (this.isDrawing) return "DRAWING";
-    const modifying = this.editData?.handleIndex;
-    if (modifying) return "MODIFYING";
-    const moving = this.editData;
-    if (moving) return "MOVING";
+    if (this.isResizing) return "MODIFYING";
+    if (this.isMoving) return "MOVING";
     return "READY";
   }
 
@@ -573,7 +671,7 @@ class CustomEllipticalROITool extends AnnotationTool {
     };
 
     hideElementCursor(element);
-
+    this.isMoving = true;
     this._activateModify(element);
 
     const enabledElement = getEnabledElement(element);
@@ -682,6 +780,10 @@ class CustomEllipticalROITool extends AnnotationTool {
     annotation: EllipticalROIAnnotation,
     handle: ToolHandle
   ): void => {
+    if (!this.isResizing) {
+      this.toolSelectedCallback(evt, annotation);
+      return;
+    }
     const eventDetail = evt.detail;
     const { element } = eventDetail;
     const { data } = annotation;
@@ -690,6 +792,7 @@ class CustomEllipticalROITool extends AnnotationTool {
 
     let movingTextBox = false;
     let handleIndex;
+    let isTopLeftHandle = false; // Add this to track which corner
 
     let centerCanvas;
     let centerWorld;
@@ -703,12 +806,36 @@ class CustomEllipticalROITool extends AnnotationTool {
       const { points } = data.handles;
       const { viewport } = getEnabledElement(element)!;
       const { worldToCanvas, canvasToWorld } = viewport;
-
       handleIndex = points.findIndex(p => p === handle);
 
       const pointsCanvas = points.map(worldToCanvas);
+      const [bottom, top, left, right] = pointsCanvas;
 
-      originalHandleCanvas = pointsCanvas[handleIndex];
+      // Calculate corner handles
+      const topLeft = <Types.Point2>[left[0], top[1]];
+      const bottomRight = <Types.Point2>[right[0], bottom[1]];
+
+      // Determine which corner handle was clicked
+      const handlePoint = handle as Types.Point3;
+      const handleCanvas = worldToCanvas(handlePoint);
+
+      const distToTopLeft = Math.sqrt(
+        Math.pow(handleCanvas[0] - topLeft[0], 2) +
+          Math.pow(handleCanvas[1] - topLeft[1], 2)
+      );
+
+      const distToBottomRight = Math.sqrt(
+        Math.pow(handleCanvas[0] - bottomRight[0], 2) +
+          Math.pow(handleCanvas[1] - bottomRight[1], 2)
+      );
+
+      if (distToTopLeft <= distToBottomRight) {
+        originalHandleCanvas = topLeft;
+        isTopLeftHandle = true;
+      } else {
+        originalHandleCanvas = bottomRight;
+        isTopLeftHandle = false;
+      }
 
       canvasWidth = Math.abs(pointsCanvas[2][0] - pointsCanvas[3][0]);
       canvasHeight = Math.abs(pointsCanvas[0][1] - pointsCanvas[1][1]);
@@ -735,7 +862,8 @@ class CustomEllipticalROITool extends AnnotationTool {
       canvasHeight,
       centerWorld,
       originalHandleCanvas,
-      movingTextBox
+      movingTextBox,
+      isTopLeftHandle
     };
     this._activateModify(element);
 
@@ -880,8 +1008,6 @@ class CustomEllipticalROITool extends AnnotationTool {
   };
 
   _dragModifyCallback = (evt: EventTypes.InteractionEventType): void => {
-    console.log("_dragModifyCallback");
-    this.isDrawing = true;
     const eventDetail = evt.detail;
     const { element } = eventDetail;
 
@@ -978,88 +1104,111 @@ class CustomEllipticalROITool extends AnnotationTool {
     const { element } = eventDetail;
     const { viewport } = getEnabledElement(element)!;
     const { canvasToWorld, worldToCanvas } = viewport;
+    const { annotation, isTopLeftHandle } = this.editData!;
 
-    const {
-      annotation,
-      canvasWidth,
-      canvasHeight,
-      handleIndex,
-      centerWorld,
-      originalHandleCanvas
-    } = this.editData!;
-    const centerCanvas = viewport.worldToCanvas(centerWorld as Types.Point3);
     const { data } = annotation;
     const { points } = data.handles!;
-
-    // Move current point in that direction.
-    // Move other points in opposite direction.
 
     const { currentPoints } = eventDetail;
     const currentCanvasPoints = currentPoints.canvas;
 
-    if (handleIndex === 0 || handleIndex === 1) {
-      // Dragging top or bottom point
-      const dYCanvas = Math.abs(currentCanvasPoints[1] - centerCanvas[1]);
-      const canvasBottom = <Types.Point2>[
-        centerCanvas[0],
-        centerCanvas[1] - dYCanvas
-      ];
-      const canvasTop = <Types.Point2>[
-        centerCanvas[0],
-        centerCanvas[1] + dYCanvas
-      ];
+    // Get current ellipse bounds
+    const pointsCanvas = points!.map(worldToCanvas);
+    const [bottom, top, left, right] = pointsCanvas;
 
-      points![0] = canvasToWorld(canvasBottom);
-      points![1] = canvasToWorld(canvasTop);
+    const currentTopLeft = <Types.Point2>[left[0], top[1]];
+    const currentBottomRight = <Types.Point2>[right[0], bottom[1]];
 
-      const dXCanvas = currentCanvasPoints[0] - originalHandleCanvas![0];
-      const newHalfCanvasWidth = canvasWidth! / 2 + dXCanvas;
-      const canvasLeft = <Types.Point2>[
-        centerCanvas[0] - newHalfCanvasWidth,
-        centerCanvas[1]
-      ];
-      const canvasRight = <Types.Point2>[
-        centerCanvas[0] + newHalfCanvasWidth,
-        centerCanvas[1]
-      ];
+    let newTopLeft: Types.Point2;
+    let newBottomRight: Types.Point2;
 
-      points![2] = canvasToWorld(canvasLeft);
-      points![3] = canvasToWorld(canvasRight);
+    if (isTopLeftHandle) {
+      // Dragging top-left handle
+      let newTopLeftWorld = canvasToWorld(currentCanvasPoints);
+      newTopLeftWorld = this._constrainPointToImageBounds(
+        newTopLeftWorld,
+        viewport
+      );
+      newTopLeft = worldToCanvas(newTopLeftWorld);
+      newBottomRight = currentBottomRight;
     } else {
-      // Dragging left or right point
-      const dXCanvas = Math.abs(currentCanvasPoints[0] - centerCanvas[0]);
-      const canvasLeft = <Types.Point2>[
-        centerCanvas[0] - dXCanvas,
-        centerCanvas[1]
-      ];
-      const canvasRight = <Types.Point2>[
-        centerCanvas[0] + dXCanvas,
-        centerCanvas[1]
-      ];
-
-      points![2] = canvasToWorld(canvasLeft);
-      points![3] = canvasToWorld(canvasRight);
-
-      const dYCanvas = currentCanvasPoints[1] - originalHandleCanvas![1];
-      const newHalfCanvasHeight = canvasHeight! / 2 + dYCanvas;
-      const canvasBottom = <Types.Point2>[
-        centerCanvas[0],
-        centerCanvas[1] - newHalfCanvasHeight
-      ];
-      const canvasTop = <Types.Point2>[
-        centerCanvas[0],
-        centerCanvas[1] + newHalfCanvasHeight
-      ];
-
-      points![0] = canvasToWorld(canvasBottom);
-      points![1] = canvasToWorld(canvasTop);
+      // Dragging bottom-right handle
+      let newBottomRightWorld = canvasToWorld(currentCanvasPoints);
+      newBottomRightWorld = this._constrainPointToImageBounds(
+        newBottomRightWorld,
+        viewport
+      );
+      newBottomRight = worldToCanvas(newBottomRightWorld);
+      newTopLeft = currentTopLeft;
     }
+
+    // Ensure minimum size and proper ordering
+    if (newTopLeft[0] >= newBottomRight[0] - 10) {
+      if (isTopLeftHandle) {
+        newTopLeft[0] = newBottomRight[0] - 10;
+      } else {
+        newBottomRight[0] = newTopLeft[0] + 10;
+      }
+    }
+    if (newTopLeft[1] >= newBottomRight[1] - 10) {
+      if (isTopLeftHandle) {
+        newTopLeft[1] = newBottomRight[1] - 10;
+      } else {
+        newBottomRight[1] = newTopLeft[1] + 10;
+      }
+    }
+
+    // Calculate new ellipse parameters from corner positions
+    const newCenterCanvas: Types.Point2 = [
+      (newTopLeft[0] + newBottomRight[0]) / 2,
+      (newTopLeft[1] + newBottomRight[1]) / 2
+    ];
+
+    const halfWidth = Math.abs(newBottomRight[0] - newTopLeft[0]) / 2;
+    const halfHeight = Math.abs(newBottomRight[1] - newTopLeft[1]) / 2;
+
+    // Calculate new ellipse points
+    const newBottomCanvas: Types.Point2 = [
+      newCenterCanvas[0],
+      newCenterCanvas[1] + halfHeight
+    ];
+    const newTopCanvas: Types.Point2 = [
+      newCenterCanvas[0],
+      newCenterCanvas[1] - halfHeight
+    ];
+    const newLeftCanvas: Types.Point2 = [
+      newCenterCanvas[0] - halfWidth,
+      newCenterCanvas[1]
+    ];
+    const newRightCanvas: Types.Point2 = [
+      newCenterCanvas[0] + halfWidth,
+      newCenterCanvas[1]
+    ];
+
+    // Convert back to world coordinates and constrain each point
+    points![0] = this._constrainPointToImageBounds(
+      canvasToWorld(newBottomCanvas),
+      viewport
+    );
+    points![1] = this._constrainPointToImageBounds(
+      canvasToWorld(newTopCanvas),
+      viewport
+    );
+    points![2] = this._constrainPointToImageBounds(
+      canvasToWorld(newLeftCanvas),
+      viewport
+    );
+    points![3] = this._constrainPointToImageBounds(
+      canvasToWorld(newRightCanvas),
+      viewport
+    );
   };
 
   cancel = (element: HTMLDivElement) => {
     // If it is mid-draw or mid-modify
-    if (this.isDrawing) {
+    if (this.isDrawing || this.isMoving || this.isResizing) {
       this.isDrawing = false;
+
       this._deactivateDraw(element);
       this._deactivateModify(element);
       resetElementCursor(element);
@@ -1094,6 +1243,8 @@ class CustomEllipticalROITool extends AnnotationTool {
   };
 
   _deactivateModify = (element: any) => {
+    this.isResizing = false;
+    this.isMoving = false;
     state.isInteractingWithTool = false;
 
     element.removeEventListener(Events.MOUSE_UP, this._endCallback);
