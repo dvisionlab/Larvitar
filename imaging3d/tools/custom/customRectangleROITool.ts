@@ -161,6 +161,323 @@ class CustomRectangleROITool extends AnnotationTool {
       { trailing: true }
     );
   }
+
+  private _getConstrainedDeltaForAnnotation = (
+    newPositions: number[][],
+    viewport: any,
+    data: any
+  ): number[] => {
+    const image = this.getTargetImageData(this.getTargetId(viewport)!);
+    if (!image) {
+      const points = data.handles!.points;
+      return newPositions.length > 0
+        ? [
+            newPositions[0][0] - points![0][0],
+            newPositions[0][1] - points![0][1],
+            newPositions[0][2] - points![0][2]
+          ]
+        : [0, 0, 0];
+    }
+
+    const { imageData, dimensions } = image;
+    const points = data.handles!.points;
+
+    const requestedDelta =
+      newPositions.length > 0
+        ? [
+            newPositions[0][0] - points![0][0],
+            newPositions[0][1] - points![0][1],
+            newPositions[0][2] - points![0][2]
+          ]
+        : [0, 0, 0];
+
+    let constrainedDelta = [...requestedDelta];
+
+    for (let i = 0; i < newPositions.length; i++) {
+      const currentWorldPos = points![i];
+      const newWorldPos = newPositions[i] as Point3;
+
+      const newIndexPos = transformWorldToIndex(imageData, newWorldPos);
+
+      // Constrain the new index position to image bounds
+      const constrainedIndexPos: Types.Point3 = [
+        Math.max(0, Math.min(dimensions[0] - 1, newIndexPos[0])),
+        Math.max(0, Math.min(dimensions[1] - 1, newIndexPos[1])),
+        Math.max(0, Math.min(dimensions[2] - 1, newIndexPos[2]))
+      ];
+
+      const constrainedWorldPos = utilities.transformIndexToWorld(
+        imageData,
+        constrainedIndexPos
+      );
+
+      // Calculate the actual allowed delta for this point
+      const actualDelta = [
+        constrainedWorldPos[0] - currentWorldPos[0],
+        constrainedWorldPos[1] - currentWorldPos[1],
+        constrainedWorldPos[2] - currentWorldPos[2]
+      ];
+
+      // Use the most restrictive delta across all points
+      for (let axis = 0; axis < 3; axis++) {
+        if (Math.abs(actualDelta[axis]) < Math.abs(constrainedDelta[axis])) {
+          constrainedDelta[axis] = actualDelta[axis];
+        }
+      }
+    }
+
+    return constrainedDelta;
+  };
+
+  private _constrainPointToImageBounds = (
+    worldPos: Types.Point3,
+    viewport: any
+  ): Types.Point3 => {
+    const image = this.getTargetImageData(this.getTargetId(viewport)!);
+    if (!image) {
+      return worldPos;
+    }
+
+    const { imageData, dimensions } = image;
+    const indexPos = transformWorldToIndex(imageData, worldPos);
+
+    // Constrain to image bounds
+    const constrainedIndex: Types.Point3 = [
+      Math.max(0, Math.min(dimensions[0] - 1, indexPos[0])),
+      Math.max(0, Math.min(dimensions[1] - 1, indexPos[1])),
+      Math.max(0, Math.min(dimensions[2] - 1, indexPos[2]))
+    ];
+
+    // Convert back to world coordinates
+    const constrainedWorld = utilities.transformIndexToWorld(
+      imageData,
+      constrainedIndex
+    );
+    return constrainedWorld;
+  };
+
+  // Modified _dragCallback method
+  _dragCallback = (evt: EventTypes.InteractionEventType): void => {
+    this.isDrawing = true;
+
+    const eventDetail = evt.detail;
+    const { element } = eventDetail;
+
+    const {
+      annotation,
+      viewportIdsToRender,
+      handleIndex,
+      movingTextBox,
+      newAnnotation
+    } = this.editData!;
+
+    this.createMemo(element, annotation, { newAnnotation });
+    const { data } = annotation;
+    const enabledElement = getEnabledElement(element);
+    const viewport = enabledElement!.viewport;
+
+    if (movingTextBox) {
+      // Drag mode - Move the text boxes world position
+      const { deltaPoints } = eventDetail as EventTypes.MouseDragEventDetail;
+      const worldPosDelta = deltaPoints.world;
+
+      const { textBox } = data.handles!;
+      const { worldPosition } = textBox!;
+
+      worldPosition![0] += worldPosDelta[0];
+      worldPosition![1] += worldPosDelta[1];
+      worldPosition![2] += worldPosDelta[2];
+
+      textBox!.hasMoved = true;
+    } else if (handleIndex === undefined) {
+      // Drag mode - Moving tool, so move all points by the world points delta
+      const { deltaPoints } = eventDetail as EventTypes.MouseDragEventDetail;
+      const worldPosDelta = deltaPoints.world;
+
+      const { points } = data.handles!;
+
+      // Calculate new positions for all points
+      const newPositions = points!.map((point: Point3) => [
+        point[0] + worldPosDelta[0],
+        point[1] + worldPosDelta[1],
+        point[2] + worldPosDelta[2]
+      ]);
+
+      // Get constrained delta
+      const constrainedDelta = this._getConstrainedDeltaForAnnotation(
+        newPositions,
+        viewport,
+        data
+      );
+
+      // Apply constrained delta to all points
+      points!.forEach((point: Point3) => {
+        point[0] += constrainedDelta[0];
+        point[1] += constrainedDelta[1];
+        point[2] += constrainedDelta[2];
+      });
+
+      annotation.invalidated = true;
+    } else {
+      // Moving handle - constrain the handle position
+      const { currentPoints } = eventDetail;
+      const { worldToCanvas, canvasToWorld } = viewport;
+      let worldPos = currentPoints.world;
+
+      // Constrain the handle position to image bounds
+      worldPos = this._constrainPointToImageBounds(worldPos, viewport);
+
+      const { points } = data.handles!;
+
+      // Move this handle
+      points![handleIndex] = [...worldPos];
+
+      let bottomLeftCanvas;
+      let bottomRightCanvas;
+      let topLeftCanvas;
+      let topRightCanvas;
+
+      let bottomLeftWorld;
+      let bottomRightWorld;
+      let topLeftWorld;
+      let topRightWorld;
+
+      switch (handleIndex) {
+        case 0:
+        case 3:
+          // Moving bottomLeft or topRight
+          bottomLeftCanvas = worldToCanvas(points![0]);
+          topRightCanvas = worldToCanvas(points![3]);
+
+          bottomRightCanvas = [topRightCanvas[0], bottomLeftCanvas[1]];
+          topLeftCanvas = [bottomLeftCanvas[0], topRightCanvas[1]];
+
+          bottomRightWorld = canvasToWorld(bottomRightCanvas as Point2);
+          topLeftWorld = canvasToWorld(topLeftCanvas as Point2);
+
+          // Constrain the calculated points
+          points![1] = this._constrainPointToImageBounds(
+            bottomRightWorld,
+            viewport
+          );
+          points![2] = this._constrainPointToImageBounds(
+            topLeftWorld,
+            viewport
+          );
+          break;
+
+        case 1:
+        case 2:
+          // Moving bottomRight or topLeft
+          bottomRightCanvas = worldToCanvas(points![1]);
+          topLeftCanvas = worldToCanvas(points![2]);
+
+          bottomLeftCanvas = <Types.Point2>[
+            topLeftCanvas[0],
+            bottomRightCanvas[1]
+          ];
+          topRightCanvas = <Types.Point2>[
+            bottomRightCanvas[0],
+            topLeftCanvas[1]
+          ];
+
+          bottomLeftWorld = canvasToWorld(bottomLeftCanvas);
+          topRightWorld = canvasToWorld(topRightCanvas);
+
+          // Constrain the calculated points
+          points![0] = this._constrainPointToImageBounds(
+            bottomLeftWorld,
+            viewport
+          );
+          points![3] = this._constrainPointToImageBounds(
+            topRightWorld,
+            viewport
+          );
+          break;
+      }
+      annotation.invalidated = true;
+    }
+
+    this.editData!.hasMoved = true;
+
+    triggerAnnotationRenderForViewportIds(viewportIdsToRender);
+
+    if (annotation.invalidated) {
+      triggerAnnotationModified(
+        annotation,
+        element,
+        ChangeTypes.HandlesUpdated
+      );
+    }
+  };
+
+  // Modified addNewAnnotation method
+  addNewAnnotation = (
+    evt: EventTypes.InteractionEventType
+  ): RectangleROIAnnotation => {
+    const eventDetail = evt.detail;
+    const { currentPoints, element } = eventDetail;
+    let worldPos = currentPoints.world;
+
+    const enabledElement = getEnabledElement(element);
+    const { viewport } = enabledElement!;
+
+    // Constrain the initial position to image bounds
+    worldPos = this._constrainPointToImageBounds(worldPos, viewport);
+
+    this.isDrawing = true;
+
+    const annotation = (<typeof AnnotationTool>(
+      this.constructor
+    )).createAnnotationForViewport<RectangleROIAnnotation>(viewport, {
+      data: {
+        handles: {
+          points: [
+            <Types.Point3>[...worldPos],
+            <Types.Point3>[...worldPos],
+            <Types.Point3>[...worldPos],
+            <Types.Point3>[...worldPos]
+          ],
+          textBox: {
+            hasMoved: false,
+            worldPosition: <Types.Point3>[0, 0, 0],
+            worldBoundingBox: {
+              topLeft: <Types.Point3>[0, 0, 0],
+              topRight: <Types.Point3>[0, 0, 0],
+              bottomLeft: <Types.Point3>[0, 0, 0],
+              bottomRight: <Types.Point3>[0, 0, 0]
+            }
+          }
+        },
+        cachedStats: {}
+      }
+    });
+
+    addAnnotation(annotation, element);
+
+    const viewportIdsToRender = getViewportIdsWithToolToRender(
+      element,
+      this.getToolName()
+    );
+
+    this.editData = {
+      annotation,
+      viewportIdsToRender,
+      handleIndex: 3,
+      movingTextBox: false,
+      newAnnotation: true,
+      hasMoved: false
+    };
+    this._activateDraw(element);
+
+    hideElementCursor(element);
+
+    evt.preventDefault();
+
+    triggerAnnotationRenderForViewportIds(viewportIdsToRender);
+
+    return annotation;
+  };
   _getViewportsInfo = () => {
     const viewports = cornerstoneTools.ToolGroupManager.getToolGroup(
       this.toolGroupId
@@ -196,7 +513,6 @@ class CustomRectangleROITool extends AnnotationTool {
 
       const nearHandle = this.isNearHandle(element, coords);
       const nearMeas = this.isNearMeasurement(element, coords);
-      console.log(currentState, element, nearHandle, nearMeas);
       this.setCursor(currentState, element, nearHandle, nearMeas);
     }
   };
@@ -294,77 +610,6 @@ class CustomRectangleROITool extends AnnotationTool {
     }
     cornerstoneTools.cursors.setCursorForElement(element, cursor);
   }
-  /**
-   * Based on the current position of the mouse and the current imageId to create
-   * a RectangleROI Annotation and stores it in the annotationManager
-   *
-   * @param evt -  EventTypes.NormalizedMouseEventType
-   * @returns The annotation object.
-   *
-   */
-  addNewAnnotation = (
-    evt: EventTypes.InteractionEventType
-  ): RectangleROIAnnotation => {
-    const eventDetail = evt.detail;
-    const { currentPoints, element } = eventDetail;
-    const worldPos = currentPoints.world;
-
-    const enabledElement = getEnabledElement(element);
-    const { viewport } = enabledElement!;
-
-    this.isDrawing = true;
-
-    const annotation = (<typeof AnnotationTool>(
-      this.constructor
-    )).createAnnotationForViewport<RectangleROIAnnotation>(viewport, {
-      data: {
-        handles: {
-          points: [
-            <Types.Point3>[...worldPos],
-            <Types.Point3>[...worldPos],
-            <Types.Point3>[...worldPos],
-            <Types.Point3>[...worldPos]
-          ],
-          textBox: {
-            hasMoved: false,
-            worldPosition: <Types.Point3>[0, 0, 0],
-            worldBoundingBox: {
-              topLeft: <Types.Point3>[0, 0, 0],
-              topRight: <Types.Point3>[0, 0, 0],
-              bottomLeft: <Types.Point3>[0, 0, 0],
-              bottomRight: <Types.Point3>[0, 0, 0]
-            }
-          }
-        },
-        cachedStats: {}
-      }
-    });
-
-    addAnnotation(annotation, element);
-
-    const viewportIdsToRender = getViewportIdsWithToolToRender(
-      element,
-      this.getToolName()
-    );
-
-    this.editData = {
-      annotation,
-      viewportIdsToRender,
-      handleIndex: 3,
-      movingTextBox: false,
-      newAnnotation: true,
-      hasMoved: false
-    };
-    this._activateDraw(element);
-
-    hideElementCursor(element);
-
-    evt.preventDefault();
-
-    triggerAnnotationRenderForViewportIds(viewportIdsToRender);
-
-    return annotation;
-  };
 
   /**
    * It returns if the canvas point is near the provided annotation in the provided
@@ -522,128 +767,6 @@ class CustomRectangleROITool extends AnnotationTool {
 
     if (newAnnotation) {
       triggerAnnotationCompleted(annotation);
-    }
-  };
-
-  _dragCallback = (evt: EventTypes.InteractionEventType): void => {
-    this.isDrawing = true;
-
-    const eventDetail = evt.detail;
-    const { element } = eventDetail;
-
-    const {
-      annotation,
-      viewportIdsToRender,
-      handleIndex,
-      movingTextBox,
-      newAnnotation
-    } = this.editData!;
-
-    this.createMemo(element, annotation, { newAnnotation });
-    const { data } = annotation;
-
-    if (movingTextBox) {
-      // Drag mode - Move the text boxes world position
-      const { deltaPoints } = eventDetail as EventTypes.MouseDragEventDetail;
-      const worldPosDelta = deltaPoints.world;
-
-      const { textBox } = data.handles!;
-      const { worldPosition } = textBox!;
-
-      worldPosition![0] += worldPosDelta[0];
-      worldPosition![1] += worldPosDelta[1];
-      worldPosition![2] += worldPosDelta[2];
-
-      textBox!.hasMoved = true;
-    } else if (handleIndex === undefined) {
-      // Drag mode - Moving tool, so move all points by the world points delta
-      const { deltaPoints } = eventDetail as EventTypes.MouseDragEventDetail;
-      const worldPosDelta = deltaPoints.world;
-
-      const { points } = data.handles!;
-
-      points!.forEach((point: Point3) => {
-        point[0] += worldPosDelta[0];
-        point[1] += worldPosDelta[1];
-        point[2] += worldPosDelta[2];
-      });
-      annotation.invalidated = true;
-    } else {
-      // Moving handle.
-      const { currentPoints } = eventDetail;
-      const enabledElement = getEnabledElement(element);
-      const { worldToCanvas, canvasToWorld } = enabledElement!.viewport;
-      const worldPos = currentPoints.world;
-
-      const { points } = data.handles!;
-
-      // Move this handle.
-      points![handleIndex] = [...worldPos];
-
-      let bottomLeftCanvas;
-      let bottomRightCanvas;
-      let topLeftCanvas;
-      let topRightCanvas;
-
-      let bottomLeftWorld;
-      let bottomRightWorld;
-      let topLeftWorld;
-      let topRightWorld;
-
-      switch (handleIndex) {
-        case 0:
-        case 3:
-          // Moving bottomLeft or topRight
-
-          bottomLeftCanvas = worldToCanvas(points![0]);
-          topRightCanvas = worldToCanvas(points![3]);
-
-          bottomRightCanvas = [topRightCanvas[0], bottomLeftCanvas[1]];
-          topLeftCanvas = [bottomLeftCanvas[0], topRightCanvas[1]];
-
-          bottomRightWorld = canvasToWorld(bottomRightCanvas as Point2);
-          topLeftWorld = canvasToWorld(topLeftCanvas as Point2);
-
-          points![1] = bottomRightWorld;
-          points![2] = topLeftWorld;
-
-          break;
-        case 1:
-        case 2:
-          // Moving bottomRight or topLeft
-          bottomRightCanvas = worldToCanvas(points![1]);
-          topLeftCanvas = worldToCanvas(points![2]);
-
-          bottomLeftCanvas = <Types.Point2>[
-            topLeftCanvas[0],
-            bottomRightCanvas[1]
-          ];
-          topRightCanvas = <Types.Point2>[
-            bottomRightCanvas[0],
-            topLeftCanvas[1]
-          ];
-
-          bottomLeftWorld = canvasToWorld(bottomLeftCanvas);
-          topRightWorld = canvasToWorld(topRightCanvas);
-
-          points![0] = bottomLeftWorld;
-          points![3] = topRightWorld;
-
-          break;
-      }
-      annotation.invalidated = true;
-    }
-
-    this.editData!.hasMoved = true;
-
-    triggerAnnotationRenderForViewportIds(viewportIdsToRender);
-
-    if (annotation.invalidated) {
-      triggerAnnotationModified(
-        annotation,
-        element,
-        ChangeTypes.HandlesUpdated
-      );
     }
   };
 
@@ -880,14 +1003,14 @@ class CustomRectangleROITool extends AnnotationTool {
         activeHandleCanvasCoords = [canvasCoordinates[activeHandleIndex]];
       }
 
-      if (activeHandleCanvasCoords) {
+      if (canvasCoordinates.length) {
         const handleGroupUID = "0";
 
         drawHandlesSvg(
           svgDrawingHelper,
           annotationUID!,
           handleGroupUID,
-          activeHandleCanvasCoords,
+          canvasCoordinates,
           {
             color
           }
