@@ -11,6 +11,7 @@ import { each, extend } from "lodash";
 // internal libraries
 import { logger } from "../../logger";
 import {
+  DEFAULT_STYLE_3D,
   DEFAULT_TOOLS_3D,
   DEFAULT_TOOLS_MPR,
   //DEFAULT_STYLE,
@@ -30,6 +31,7 @@ import type {
 import type { RenderingEngine } from "@cornerstonejs/core";
 import { viewport } from "@cornerstonejs/tools/dist/esm/utilities";
 import { ViewportInput } from "@cornerstonejs/core/dist/esm/types";
+import { utilities } from "@cornerstonejs/core";
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
@@ -42,11 +44,17 @@ export const initializeCSTools = async function (
   settings?: ToolSettings,
   style?: ToolStyle
 ) {
+  setToolsStyle(style);
   // TODO proper config (eg style, settings, etc)
   await cornerstoneTools.init();
   logger.warn("initializeCSTools is not fully implemented yet");
 };
 
+const setToolsStyle = function (style?: ToolStyle) {
+  cornerstoneTools.annotation.config.style.setDefaultToolStyles(
+    utilities.deepMerge(DEFAULT_STYLE_3D, style)
+  );
+};
 /**
  * Check if a tool is missing in the current element
  * @function isToolMissing

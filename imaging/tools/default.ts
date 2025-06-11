@@ -26,6 +26,7 @@
 // external libraries
 import { filter, isArray } from "lodash";
 import { Enums as csToolsEnums } from "@cornerstonejs/tools";
+import * as cornerstoneTools from "@cornerstonejs/tools";
 const MouseBindings = csToolsEnums.MouseBindings;
 
 // internal libraries
@@ -46,6 +47,7 @@ import FreehandRoiTool from "./custom/FreehandRoiUSTool";
 import ManualLengthPlotTool from "./custom/ManualLengthPlotTool";
 import OverlayTool from "./custom/OverlayTool";
 import type {
+  CursorOptions,
   ToolConfig,
   ToolMouseKeys,
   ToolSettings,
@@ -53,6 +55,22 @@ import type {
 } from "./types";
 import RotateTool from "./custom/rotateTool";
 import GspsTool from "./custom/gspsTool";
+import { SVGCursorDescriptor } from "@cornerstonejs/tools/dist/esm/types";
+const BASE_CURSOR: SVGCursorDescriptor = {
+  iconContent: "",
+  iconSize: 16,
+  viewBox: {
+    x: 16,
+    y: 16
+  },
+  mousePoint: {
+    x: 8,
+    y: 8
+  },
+  mousePointerGroupString: `
+
+  `
+};
 
 const DEFAULT_TOOLS_3D: {
   [key: string]: ToolConfig;
@@ -992,7 +1010,30 @@ const DEFAULT_STYLE: ToolStyle = {
   fontSize: 18,
   backgroundColor: "rgba(1, 1, 1, 0.7)"
 };
-
+const DEFAULT_STYLE_3D = {
+  global: {
+    angleArcLineDash: "",
+    color: "#02FAE5",
+    colorHighlighted: "#00FF00",
+    colorLocked: "#02FAE5",
+    colorSelected: "#02FAE5",
+    lineDash: "",
+    lineWidth: "1",
+    markerSize: "10",
+    shadow: true,
+    textBoxBackground: "",
+    textBoxColor: "#02FAE5",
+    textBoxColorHighlighted: "#00FF00",
+    textBoxColorLocked: "#02FAE5",
+    textBoxColorSelected: "#02FAE5",
+    textBoxFontFamily: "Helvetica Neue, Helvetica, Arial, sans-serif",
+    textBoxFontSize: "14px",
+    textBoxLinkLineDash: "2,3",
+    textBoxLinkLineWidth: "1",
+    textBoxShadow: true,
+    textBoxVisibility: true
+  }
+};
 /**
  * Tools default settings
  */
@@ -1073,7 +1114,9 @@ const setDefaultToolsProps = function (newProps: Partial<ToolConfig>[]) {
 const registerExternalTool = function (
   toolName: string,
   toolClass: any,
-  toolVersion: "MPR" | "3D" | "" = ""
+  toolVersion: "MPR" | "3D" | "" = "",
+  toolCursor: string,
+  cursorOptions: CursorOptions
 ) {
   if (dvTools[toolName] || DEFAULT_TOOLS[toolName]) {
     logger.debug(`${toolName} already exists, it will be replaced`);
@@ -1085,16 +1128,13 @@ const registerExternalTool = function (
       : toolVersion === "3D"
         ? DEFAULT_TOOLS_3D
         : DEFAULT_TOOLS;
-
   const customTools =
     toolVersion === "MPR"
       ? dvToolsMPR
       : toolVersion === "3D"
         ? dvTools3D
         : dvTools;
-
   customTools[toolClass.name] = toolClass;
-
   targetTools[toolName] = {
     name: toolName,
     class: toolClass.name,
@@ -1103,6 +1143,29 @@ const registerExternalTool = function (
     options: { mouseButtonMask: 1 },
     defaultActive: false
   };
+
+  registerCursor(toolName, toolCursor, cursorOptions);
+};
+
+function extend(
+  base: SVGCursorDescriptor,
+  values: Record<string, unknown> & { name?: string }
+): SVGCursorDescriptor {
+  return Object.assign(Object.create(base), {
+    ...values,
+    name: values.name || base.name
+  });
+}
+
+export const registerCursor = function (
+  toolName: string,
+  iconContent: string,
+  viewBox: CursorOptions
+) {
+  cornerstoneTools.cursors.CursorSVG[toolName] = extend(BASE_CURSOR, {
+    iconContent,
+    viewBox
+  });
 };
 
 export {
@@ -1110,6 +1173,7 @@ export {
   DEFAULT_TOOLS_3D,
   DEFAULT_TOOLS_MPR,
   DEFAULT_STYLE,
+  DEFAULT_STYLE_3D,
   DEFAULT_SETTINGS,
   DEFAULT_MOUSE_KEYS,
   dvTools,
