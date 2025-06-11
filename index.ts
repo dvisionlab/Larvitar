@@ -294,8 +294,12 @@ import {
   setToolActive as _setToolActive,
   setToolPassive as _setToolPassive,
   setToolEnabled as _setToolEnabled,
-  setToolDisabled as _setToolDisabled
+  setToolDisabled as _setToolDisabled,
+  syncViewportsCamera as _syncViewportsCamera,
+  createToolGroup as _createToolGroup,
+  setSlab as _setSlab,
 } from "./imaging3d/tools/main";
+import _CustomWWWLTool from "./imaging3d/tools/custom/exampleCustomTool";
 import {
   updateImageManager,
   populateImageManager,
@@ -335,6 +339,10 @@ export {
   _setToolPassive,
   _setToolEnabled,
   _setToolDisabled,
+  _syncViewportsCamera,
+  _createToolGroup,
+  _setSlab,
+  _CustomWWWLTool,
   VERSION,
   // global cornerstone variables
   cornerstone,

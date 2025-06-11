@@ -13,9 +13,11 @@ import { logger } from "../../logger";
 import {
   DEFAULT_TOOLS_3D,
   DEFAULT_TOOLS_MPR,
-  DEFAULT_STYLE,
-  DEFAULT_SETTINGS,
-  dvTools
+  //DEFAULT_STYLE,
+  //DEFAULT_SETTINGS,
+  dvTools,
+  dvTools3D,
+  dvToolsMPR
 } from "../../imaging/tools/default";
 import store, { set as setStore } from "../../imaging/imageStore";
 
@@ -26,6 +28,8 @@ import type {
   ToolStyle
 } from "../../imaging/tools/types";
 import type { RenderingEngine } from "@cornerstonejs/core";
+import { viewport } from "@cornerstonejs/tools/dist/esm/utilities";
+import { ViewportInput } from "@cornerstonejs/core/dist/esm/types";
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
@@ -38,9 +42,9 @@ export const initializeCSTools = async function (
   settings?: ToolSettings,
   style?: ToolStyle
 ) {
-  // TODO proper config
+  // TODO proper config (eg style, settings, etc)
   await cornerstoneTools.init();
-  logger.warn("initializeCSTools is not implemented yet");
+  logger.warn("initializeCSTools is not fully implemented yet");
 };
 
 /**
@@ -61,19 +65,31 @@ const isToolMissing = function (
 };
 
 /**
- * Add a cornerstone tool (grab it from original library or dvision custom tools)
- * @param {*} toolName
- * @param {*} targetElementId
+ * Add a cornerstone 3D tool (grab it from original library or dvision custom 3D or MPR tools)
+ * @param {String} toolName
+ * @param {Partial<ToolConfig>} customConfig
+ * @param {String} type The type of tool to add (3D or MPR)
+ * @param {String} groupId The cornerstone3D Tool GroupID
  * @example larvitar.addTool("ScaleOverlay", {configuration:{minorTickLength: 10, majorTickLength: 25}}, "viewer")
  */
 export const addTool = function (
   toolName: string,
-  customConfig: Partial<ToolConfig>
+  customConfig: Partial<ToolConfig>,
+  type?: string,
+  groupId?: string
 ) {
-  const allToolsList = {
-    ...DEFAULT_TOOLS_3D,
-    ...DEFAULT_TOOLS_MPR
-  };
+  let allToolsList;
+
+  if (type === "3D") {
+    allToolsList = DEFAULT_TOOLS_3D;
+  } else if (type === "MPR") {
+    allToolsList = DEFAULT_TOOLS_MPR;
+  } else {
+    allToolsList = {
+      ...DEFAULT_TOOLS_3D,
+      ...DEFAULT_TOOLS_MPR
+    };
+  }
 
   console.log("allToolsList", allToolsList);
 
@@ -92,23 +108,49 @@ export const addTool = function (
     );
   }
 
+  let customTool;
+
+  if (type === "3D") {
+    customTool = dvTools3D[toolClassName];
+  } else if (type === "MPR") {
+    customTool = dvToolsMPR[toolClassName];
+  } else {
+    customTool = dvTools3D[toolClassName] || dvToolsMPR[toolClassName];
+  }
   const toolClass =
+    customTool ||
     cornerstoneTools[toolClassName as keyof typeof cornerstoneTools];
 
   cornerstoneTools.addTool(toolClass);
+
+  if (groupId) {
+    const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(groupId);
+    if (!toolGroup) {
+      logger.error(
+        `Tool group ${groupId} not found. Tool ${toolName} not added.`
+      );
+      return;
+    }
+    toolGroup.addTool(toolName, customConfig);
+    logger.debug(`Tool ${toolName} added to group:`, groupId);
+  }
+
   logger.debug(`Tool ${toolName} added`);
 };
 
 /**
  * @function addDefaultTools
  * @desc Adds default tools to the rendering engine (wwwl, pan, zoom, stackScroll)
- * @param elementId - the id of the element where the tools will be added
- * @param renderingEngine - the rendering engine where the tools will be added
+ * @param {String[]} elementIds - the ids of the elements where the tools will be added
+ * @param {RenderingEngine} renderingEngine - the rendering engine where the tools will be added
+ * @param {String} type The type of tool to add (3D or MPR)
+ * @param {String} groupId The cornerstone3D Tool GroupID
  */
 export const addDefaultTools = function (
   elementIds: string[],
   renderingEngine: RenderingEngine,
-  type: string = "2d" // "mpr" or "2d"
+  type: string = "3D", // "MPR" or "3D"
+  toolGroupId: string = "default"
 ) {
   elementIds.forEach(elementId => {
     const element = renderingEngine.getViewport(elementId).element;
@@ -124,7 +166,6 @@ export const addDefaultTools = function (
     cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
   });
 
-  const toolGroupId = "default"; // TODO as param with default value
   const toolGroup =
     cornerstoneTools.ToolGroupManager.createToolGroup(toolGroupId);
 
@@ -137,11 +178,11 @@ export const addDefaultTools = function (
     toolGroup.addViewport(viewportId, renderingEngine.id);
   });
 
-  const toolsList = type === "2d" ? DEFAULT_TOOLS_3D : DEFAULT_TOOLS_MPR;
+  const toolsList = type === "3D" ? DEFAULT_TOOLS_3D : DEFAULT_TOOLS_MPR;
 
   // for each default tool
   each(toolsList, tool => {
-    addTool(tool.name, tool.configuration);
+    addTool(tool.name, tool.configuration, type);
     toolGroup.addTool(tool.name, tool.configuration);
     logger.debug(`Tool ${tool.name} added to group:`, toolGroupId);
 
@@ -154,19 +195,18 @@ export const addDefaultTools = function (
     // TODO handle options (mouseButtonMask, etc) and other modes (eg passive)
     if (tool.defaultActive) {
       console.log("setToolActive", tool.name, tool.options);
-      setToolActive(tool.name, tool.options, undefined, true);
+      setToolActive(tool.name, tool.options, toolGroupId, true);
       logger.debug(`Tool ${tool.name} set as default active`);
     }
   });
 };
 
 /**
- * Set Tool "active" on all elements (ie, rendered and manipulable) & refresh cornerstone elements
- * @function setToolActive
- * @param {String} toolName - The tool name.
- * @param {Object} options - The custom options. @default from tools/default.js
- * @param {Array} viewports - The hmtl element id to be used for tool initialization.
- * @param {Boolean} doNotSetInStore - Flag to avoid setting in store (useful on tools initialization eg in addDefaultTools). NOTE: This is just a hack, we must rework tools/ui sync.
+ * Set Tool "active" on all elements (ie, rendered and manipulable)
+ * @param toolName - The tool name.
+ * @param options - The tool options (mouseButtonMask, etc). If not provided, the default options will be used.
+ * @param groupId - The tool group id. @default "default"
+ * @param doNotSetInStore - Flag to not set the active tool in the store. @default false
  */
 export const setToolActive = function (
   toolName: string,
@@ -252,6 +292,172 @@ export const setToolDisabled = function (
   logger.debug(`Tool ${toolName} set enabled in group:`, groupId);
 };
 
-// TODO a function to create groups (es createToolGroup(groupId, viewportIds[]))
+/**
+ * @function syncViewportsCamera
+ * @desc  Synchronizes the camera position of two (volume) viewports
+ * @param id - unique id for the synchronizer @default "default"
+ * @param targetViewportId - the id of the target viewport where the camera will be synced
+ * @param sourceViewportId - the id of the source viewport from where the camera position will be taken
+ */
+export const syncViewportsCamera = function (
+  id: string = "default", // unique id for the synchronizer
+  targetViewportId: string,
+  sourceViewportId: string
+) {
+  let cameraSync = cornerstoneTools.SynchronizerManager.getSynchronizer(id);
+  if (!cameraSync) {
+    cameraSync =
+      cornerstoneTools.synchronizers.createCameraPositionSynchronizer(id);
+  } else if (cameraSync) {
+    // cameraSync.getSourceViewports().forEach((viewportId) => {
+    //   cameraSync!.removeSource(viewportId);
+    // });
+    cornerstoneTools.SynchronizerManager.destroySynchronizer(id);
+    cameraSync =
+      cornerstoneTools.synchronizers.createCameraPositionSynchronizer(id);
+  }
 
-// TODO a function to sync viewports wwwl and/or other things...
+  const targetRenderingEngineId =
+    cornerstone.getEnabledElementByViewportId(
+      targetViewportId
+    )?.renderingEngineId;
+  const sourceRenderingEngineId =
+    cornerstone.getEnabledElementByViewportId(
+      sourceViewportId
+    )?.renderingEngineId;
+
+  if (!targetRenderingEngineId || !sourceRenderingEngineId) {
+    logger.error(
+      "syncViewportsCamera: no rendering engine found for one of the viewports"
+    );
+    return;
+  }
+
+  // get plane and position from the source viewport and set to target viewport
+  // TODO why the sync does not work first time ?
+  const sourceViewport =
+    cornerstone.getEnabledElementByViewportId(sourceViewportId)?.viewport;
+  if (!sourceViewport) {
+    logger.error("syncViewportsCamera: source viewport not found");
+    return;
+  }
+  const sourceViewRef = sourceViewport.getViewReference();
+
+  const targetViewport =
+    cornerstone.getEnabledElementByViewportId(targetViewportId)?.viewport;
+  if (!targetViewport) {
+    logger.error("syncViewportsCamera: target viewport not found");
+    return;
+  }
+  targetViewport.setViewReference(sourceViewRef);
+
+  cameraSync.add({
+    renderingEngineId: sourceRenderingEngineId,
+    viewportId: sourceViewportId
+  });
+
+  cameraSync.add({
+    renderingEngineId: targetRenderingEngineId,
+    viewportId: targetViewportId
+  });
+
+  const targetElement =
+    cornerstone.getEnabledElementByViewportId(targetViewportId);
+  targetElement.viewport.render();
+
+  const sourceElement =
+    cornerstone.getEnabledElementByViewportId(sourceViewportId);
+  sourceElement.viewport.render();
+
+  logger.debug(
+    `Camera sync added from ${sourceViewportId} to ${targetViewportId}`
+  );
+
+  // FIXME: how to force a refresh of the viewport?
+};
+
+/**
+ * Create a tool group and add the specified viewports and tools to it.
+ * @function createToolGroup
+ * @param groupId - The id of the tool group to create. @default "default"
+ * @param viewports
+ * @param tools
+ * @param type - MPR or 3D
+ * @returns toolGroup - The created tool group.
+ */
+export const createToolGroup = function (
+  groupId: string = "default",
+  viewports: string[] = [],
+  tools: any[] = [], // TODO type this properly
+  type?: string
+) {
+  const toolGroup = cornerstoneTools.ToolGroupManager.createToolGroup(groupId);
+
+  if (!toolGroup) {
+    logger.error("createToolGroup: tool group not created");
+    return;
+  }
+
+  viewports.forEach(vp => {
+    const renderingEngineId =
+      cornerstone.getEnabledElementByViewportId(vp)?.renderingEngineId;
+    if (!renderingEngineId) {
+      logger.error(
+        `createToolGroup: rendering engine not found for viewport ${vp}`
+      );
+      return;
+    }
+    toolGroup.addViewport(vp, renderingEngineId);
+  });
+
+  tools.forEach(tool => {
+    addTool(tool.name, tool.configuration, type, groupId);
+    logger.debug(`Tool ${tool.name} added to group:`, groupId);
+  });
+
+  return toolGroup;
+};
+
+/**
+ * Set slab thickness and mode for a given viewport
+ * @function setSlab
+ * @param slabThickness - The thickness of the slab [in mm].
+ * @param slabMode - The blend mode to use for the slab.
+ * @param viewportId - The id of the viewport where the slab will be set.
+ */
+export const setSlab = function (
+  slabThickness: number,
+  slabMode: cornerstone.Enums.BlendModes,
+  viewportId: string
+) {
+  const viewport =
+    cornerstone.getEnabledElementByViewportId(viewportId).viewport;
+  if (!viewport || viewport instanceof cornerstone.StackViewport) {
+    logger.error("setSlab: viewport not found");
+    return;
+  }
+
+  viewport.setBlendMode(slabMode);
+  viewport.setProperties({ slabThickness });
+  viewport.render();
+};
+
+/**
+ * Set the window width and level for a given viewport
+ * @param ww - window width
+ * @param wl - window level
+ * @param viewportId - The id of the viewport where the window width and level will be set.
+ */
+export const setWWWL = function (ww: number, wl: number, viewportId: string) {
+  const viewport =
+    cornerstone.getEnabledElementByViewportId(viewportId).viewport;
+  if (!viewport || viewport instanceof cornerstone.StackViewport) {
+    logger.error("setWWWL: viewport not found");
+    return;
+  }
+
+  viewport.setProperties({
+    voiRange: { lower: wl - ww / 2, upper: wl + ww / 2 }
+  });
+  viewport.render();
+};

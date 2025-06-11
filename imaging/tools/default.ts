@@ -963,6 +963,20 @@ const dvTools: {
 };
 
 /**
+ * D/Vision Lab 3D custom tools
+ */
+const dvTools3D: {
+  [key: string]: any;
+} = {};
+
+/**
+ * D/Vision Lab MPR custom tools
+ */
+const dvToolsMPR: {
+  [key: string]: any;
+} = {};
+
+/**
  * Tools default style
  * Available font families :
  * Work Sans, Roboto, OpenSans, HelveticaNeue-Light,
@@ -1051,17 +1065,37 @@ const setDefaultToolsProps = function (newProps: Partial<ToolConfig>[]) {
  * Register a custom tool
  * @param {String} toolName - The name of the tool
  * @param {Object} toolClass - The tool class
+ * @param {String} toolVersion - The version of the tool, can be "MPR", "3D" (to be used with cs3D) or "" (default - cs legacy)
  * NOTE: toolName must be unique
  * NOTE: toolClass must be a valid cornerstone tool
  */
 
-const registerExternalTool = function (toolName: string, toolClass: any) {
+const registerExternalTool = function (
+  toolName: string,
+  toolClass: any,
+  toolVersion: "MPR" | "3D" | "" = ""
+) {
   if (dvTools[toolName] || DEFAULT_TOOLS[toolName]) {
     logger.debug(`${toolName} already exists, it will be replaced`);
   }
 
-  dvTools[toolClass.name] = toolClass;
-  DEFAULT_TOOLS[toolName] = {
+  const targetTools =
+    toolVersion === "MPR"
+      ? DEFAULT_TOOLS_MPR
+      : toolVersion === "3D"
+        ? DEFAULT_TOOLS_3D
+        : DEFAULT_TOOLS;
+
+  const customTools =
+    toolVersion === "MPR"
+      ? dvToolsMPR
+      : toolVersion === "3D"
+        ? dvTools3D
+        : dvTools;
+
+  customTools[toolClass.name] = toolClass;
+
+  targetTools[toolName] = {
     name: toolName,
     class: toolClass.name,
     viewports: "all",
@@ -1079,6 +1113,8 @@ export {
   DEFAULT_SETTINGS,
   DEFAULT_MOUSE_KEYS,
   dvTools,
+  dvTools3D,
+  dvToolsMPR,
   getDefaultToolsByType,
   setDefaultToolsProps,
   registerExternalTool
