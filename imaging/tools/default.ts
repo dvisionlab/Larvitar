@@ -1110,7 +1110,6 @@ const setDefaultToolsProps = function (newProps: Partial<ToolConfig>[]) {
  * NOTE: toolName must be unique
  * NOTE: toolClass must be a valid cornerstone tool
  */
-
 const registerExternalTool = function (
   toolName: string,
   toolClass: any,
@@ -1147,25 +1146,39 @@ const registerExternalTool = function (
   registerCursor(toolName, toolCursor, cursorOptions);
 };
 
-function extend(
-  base: SVGCursorDescriptor,
-  values: Record<string, unknown> & { name?: string }
-): SVGCursorDescriptor {
-  return Object.assign(Object.create(base), {
-    ...values,
-    name: values.name || base.name
-  });
-}
-
+/**
+ * Register a custom tool cursor
+ * @param {String} toolName - The name of the tool
+ * @param {string} iconContent - The tool class
+ * @param {CursorOptions} cursorOptions - tthe  cursor options 
+  ex. 
+      const iconContent = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
+            <image href="data:image/svg+xml;base64,${measurementBase64}" width="30" height="30" style="filter: invert(100%);"/>
+          </svg>
+        `; 
+      const cursorOptions = {
+        iconSize: 30,
+        mousePoint: { x: 15, y: 15 },
+        mousePointerGroupString: ``,
+        viewBox: {
+          x: 0,
+          y: 0
+        }
+      };
+ */
 export const registerCursor = function (
   toolName: string,
   iconContent: string,
-  viewBox: CursorOptions
+  cursorOptions: CursorOptions
 ) {
-  cornerstoneTools.cursors.CursorSVG[toolName] = extend(BASE_CURSOR, {
+  const descriptor = Object.assign(Object.create(BASE_CURSOR), {
     iconContent,
-    viewBox
+    cursorOptions,
+    name: toolName
   });
+
+  cornerstoneTools.cursors.CursorSVG[toolName] = descriptor;
 };
 
 export {

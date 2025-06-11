@@ -291,6 +291,7 @@ import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imagi
 import {
   addDefaultTools as _addDefaultTools,
   initializeCSTools as _initializeCSTools,
+  setToolsStyle as _setToolsStyle,
   addTool as _addTool,
   setToolActive as _setToolActive,
   setToolPassive as _setToolPassive,

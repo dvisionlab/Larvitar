@@ -50,7 +50,12 @@ export const initializeCSTools = async function (
   logger.warn("initializeCSTools is not fully implemented yet");
 };
 
-const setToolsStyle = function (style?: ToolStyle) {
+/**
+ * Set cornerstone tools custom configuration (extend default configuration)
+ * @function setToolsStyle
+ * @param {Object} style - the style object (see tools/defaults.js)
+ */
+export const setToolsStyle = function (style?: ToolStyle) {
   cornerstoneTools.annotation.config.style.setDefaultToolStyles(
     utilities.deepMerge(DEFAULT_STYLE_3D, style)
   );
