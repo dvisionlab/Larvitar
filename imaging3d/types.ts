@@ -2,7 +2,12 @@
 
 // Core enums & types
 import { Enums } from "@cornerstonejs/core";
-export type { Types, VolumeViewport, StackViewport } from "@cornerstonejs/core";
+export type {
+  Types,
+  VolumeViewport,
+  StackViewport,
+  BaseVolumeViewport
+} from "@cornerstonejs/core";
 export type {
   IEnabledElement,
   Point2,
