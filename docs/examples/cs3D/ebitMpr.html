@@ -130,8 +130,8 @@
       });
 
       larvitar.registerExternalTool(
-        "CustomStackScrollWheel",
-        larvitar._CustomStackScrollWheelTool,
+        "CustomLength",
+        larvitar._CustomLengthTool,
         "3D",
         cursor,
         cursorOptions
@@ -241,10 +241,10 @@
 
       const toolsMain = [
         {
-          name: "CustomStackScrollWheel",
+          name: "CustomLength",
           configuration: {},
           options: {
-            bindings: [{ mouseButton: Enums.MouseBindings.Wheel }]
+            bindings: [{ mouseButton: Enums.MouseBindings.Primary }]
           }
         }
       ];

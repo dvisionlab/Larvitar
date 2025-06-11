@@ -1010,7 +1010,30 @@ const DEFAULT_STYLE: ToolStyle = {
   fontSize: 18,
   backgroundColor: "rgba(1, 1, 1, 0.7)"
 };
-
+const DEFAULT_STYLE_3D = {
+  global: {
+    angleArcLineDash: "",
+    color: "#02FAE5",
+    colorHighlighted: "#00FF00",
+    colorLocked: "#02FAE5",
+    colorSelected: "#02FAE5",
+    lineDash: "",
+    lineWidth: "1",
+    markerSize: "10",
+    shadow: true,
+    textBoxBackground: "",
+    textBoxColor: "#02FAE5",
+    textBoxColorHighlighted: "#00FF00",
+    textBoxColorLocked: "#02FAE5",
+    textBoxColorSelected: "#02FAE5",
+    textBoxFontFamily: "Helvetica Neue, Helvetica, Arial, sans-serif",
+    textBoxFontSize: "14px",
+    textBoxLinkLineDash: "2,3",
+    textBoxLinkLineWidth: "1",
+    textBoxShadow: true,
+    textBoxVisibility: true
+  }
+};
 /**
  * Tools default settings
  */
@@ -1150,6 +1173,7 @@ export {
   DEFAULT_TOOLS_3D,
   DEFAULT_TOOLS_MPR,
   DEFAULT_STYLE,
+  DEFAULT_STYLE_3D,
   DEFAULT_SETTINGS,
   DEFAULT_MOUSE_KEYS,
   dvTools,

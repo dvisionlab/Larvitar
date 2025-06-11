@@ -991,12 +991,10 @@ class CustomLengthTool extends AnnotationTool {
       const { points, activeHandleIndex } = data.handles;
 
       styleSpecifier.annotationUID = annotationUID;
-
       const { color, lineWidth, lineDash, shadow } = this.getAnnotationStyle({
         annotation,
         styleSpecifier
       });
-
       const canvasCoordinates = points.map((p: any) =>
         viewport.worldToCanvas(p)
       );
