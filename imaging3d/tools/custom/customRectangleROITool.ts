@@ -44,7 +44,7 @@ const getWorldWidthAndHeightFromCorners =
   cornerstoneTools.utilities.planar.getWorldWidthAndHeightFromCorners;
 
 const BasicStatsCalculator =
-  cornerstoneTools.utilities.math.BasicStatsCalculator;
+  cornerstoneTools.utilities.math.BasicStatsCalculator.BasicStatsCalculator;
 const drawHandlesSvg = cornerstoneTools.drawing.drawHandles;
 const drawLinkedTextBoxSvg = cornerstoneTools.drawing.drawLinkedTextBox;
 const drawRectSvg = cornerstoneTools.drawing.drawRectByCoordinates;
@@ -1126,7 +1126,18 @@ class CustomRectangleROITool extends AnnotationTool {
       height: Math.abs(point0[1] - point1[1])
     };
   };
+  private _calculatePerimeter = (
+    worldPos1: Types.Point3,
+    worldPos2: Types.Point3,
+    scale: number
+  ): number => {
+    const worldWidth = Math.abs(worldPos2[0] - worldPos1[0]);
+    const worldHeight = Math.abs(worldPos2[1] - worldPos1[1]);
 
+    const perimeterWorld = 2 * (worldWidth + worldHeight);
+
+    return perimeterWorld / scale;
+  };
   /**
    * _calculateCachedStats - For each volume in the frame of reference that a
    * tool instance in particular viewport defines as its target volume, find the
@@ -1222,6 +1233,10 @@ class CustomRectangleROITool extends AnnotationTool {
 
         const area = Math.abs(worldWidth * worldHeight) / (scale * scale);
 
+        // Calculate perimeter with the same units as area
+        const perimeter = this._calculatePerimeter(worldPos1, worldPos2, scale);
+        const perimeterUnit = areaUnit.replace("²", ""); // Remove square for perimeter unit
+
         const pixelUnitsOptions = {
           isPreScaled: isViewportPreScaled(viewport, targetId),
 
@@ -1249,11 +1264,12 @@ class CustomRectangleROITool extends AnnotationTool {
             }
           );
         }
-        const stats =
-          this.configuration.statsCalculator.BasicStatsCalculator.getStatistics();
+
+        const stats = this.configuration.statsCalculator.getStatistics();
         cachedStats![targetId] = {
           Modality: metadata.Modality,
           area,
+          perimeter,
           mean: stats.mean?.value,
           stdDev: stats.stdDev?.value,
           max: stats.max?.value,
@@ -1261,6 +1277,7 @@ class CustomRectangleROITool extends AnnotationTool {
           statsArray: stats.array,
           pointsInShape: pointsInShape,
           areaUnit,
+          perimeterUnit,
           modalityUnit
         };
       } else {
@@ -1274,7 +1291,6 @@ class CustomRectangleROITool extends AnnotationTool {
     const invalidated = annotation.invalidated;
     annotation.invalidated = false;
 
-    // Dispatching annotation modified only if it was invalidated
     if (invalidated) {
       triggerAnnotationModified(annotation, element, ChangeTypes.StatsUpdated);
     }
@@ -1362,8 +1378,17 @@ function defaultGetTextLines(
   targetId: string
 ): string[] | undefined {
   const cachedVolumeStats = data.cachedStats[targetId];
-  const { area, mean, max, stdDev, areaUnit, modalityUnit, min } =
-    cachedVolumeStats;
+  const {
+    area,
+    perimeter,
+    mean,
+    max,
+    min,
+    stdDev,
+    areaUnit,
+    perimeterUnit,
+    modalityUnit
+  } = cachedVolumeStats;
 
   if (mean === undefined || mean === null) {
     return;
@@ -1371,24 +1396,36 @@ function defaultGetTextLines(
 
   const textLines: string[] = [];
 
+  // Area
   if (isNumber(area)) {
     textLines.push(`Area: ${utilities.roundNumber(area)} ${areaUnit}`);
   }
-  if (isNumber(mean)) {
-    textLines.push(`Mean: ${utilities.roundNumber(mean)} ${modalityUnit}`);
+
+  // Perimeter
+  if (isNumber(perimeter)) {
+    textLines.push(
+      `Perimeter: ${utilities.roundNumber(perimeter)} ${perimeterUnit}`
+    );
   }
+  if (isNumber(min)) {
+    textLines.push(`Min: ${utilities.roundNumber(min)} ${modalityUnit}`);
+  }
+
   if (isNumber(max)) {
     textLines.push(`Max: ${utilities.roundNumber(max)} ${modalityUnit}`);
   }
-  if (isNumber(min)) {
-    textLines.push(`Max: ${utilities.roundNumber(min)} ${modalityUnit}`);
+
+  if (isNumber(mean)) {
+    textLines.push(`Mean: ${utilities.roundNumber(mean)} ${modalityUnit}`);
   }
+
   if (isNumber(stdDev)) {
     textLines.push(`Std Dev: ${utilities.roundNumber(stdDev)} ${modalityUnit}`);
   }
 
   return textLines;
 }
+
 function isNumber(n: number[] | number): boolean {
   if (Array.isArray(n)) {
     return isNumber(n[0]);

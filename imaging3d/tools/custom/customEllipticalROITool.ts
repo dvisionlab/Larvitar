@@ -47,7 +47,7 @@ const throttle = cornerstoneTools.utilities.throttle;
 const { getCanvasEllipseCorners, pointInEllipse } =
   cornerstoneTools.utilities.math.ellipse;
 const BasicStatsCalculator =
-  cornerstoneTools.utilities.math.BasicStatsCalculator;
+  cornerstoneTools.utilities.math.BasicStatsCalculator.BasicStatsCalculator;
 const drawHandlesSvg = cornerstoneTools.drawing.drawHandles;
 const drawLinkedTextBoxSvg = cornerstoneTools.drawing.drawLinkedTextBox;
 const drawCircle = cornerstoneTools.drawing.drawCircle;
@@ -241,7 +241,6 @@ class CustomEllipticalROITool extends AnnotationTool {
 
       const nearHandle = this.isNearHandle(element, coords);
       const nearMeas = this.isNearMeasurement(element, coords);
-      console.log(currentState, element, nearHandle, nearMeas);
       this.setCursor(currentState, element, nearHandle, nearMeas);
     }
   };
@@ -1648,7 +1647,12 @@ class CustomEllipticalROITool extends AnnotationTool {
         Math.abs(Math.PI * (worldWidth / 2) * (worldHeight / 2)) /
         scale /
         scale;
-
+      const a = worldWidth / 2;
+      const b = worldHeight / 2;
+      // Ramanujan approximation for ellipse perimeter
+      const perimeter =
+        Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
+      const perimeterUnit = areaUnit.replace("²", ""); // Remove square for perimeter unit
       const pixelUnitsOptions = {
         isPreScaled: isViewportPreScaled(viewport!, targetId),
 
@@ -1678,11 +1682,12 @@ class CustomEllipticalROITool extends AnnotationTool {
           }
         );
       }
-      const stats =
-        this.configuration.statsCalculator.BasicStatsCalculator.getStatistics();
+      const stats = this.configuration.statsCalculator.getStatistics();
       cachedStats![targetId] = {
         Modality: metadata.Modality,
         area,
+        perimeter,
+        perimeterUnit,
         mean: stats.mean?.value,
         max: stats.max?.value,
         min: stats.min?.value,
@@ -1760,8 +1765,18 @@ class CustomEllipticalROITool extends AnnotationTool {
 
 function defaultGetTextLines(data: any, targetId: string): string[] {
   const cachedVolumeStats = data.cachedStats[targetId];
-  const { area, mean, stdDev, max, isEmptyArea, areaUnit, modalityUnit, min } =
-    cachedVolumeStats;
+  const {
+    area,
+    perimeter,
+    perimeterUnit,
+    mean,
+    stdDev,
+    max,
+    isEmptyArea,
+    areaUnit,
+    modalityUnit,
+    min
+  } = cachedVolumeStats;
 
   const textLines: string[] = [];
 
@@ -1770,6 +1785,11 @@ function defaultGetTextLines(data: any, targetId: string): string[] {
       ? `Area: Oblique not supported`
       : `Area: ${utilities.roundNumber(area)} ${areaUnit}`;
     textLines.push(areaLine);
+  }
+  if (isNumber(perimeter)) {
+    textLines.push(
+      `Perimeter: ${utilities.roundNumber(perimeter)} ${perimeterUnit}`
+    );
   }
 
   if (isNumber(mean)) {
