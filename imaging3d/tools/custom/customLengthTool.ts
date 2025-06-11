@@ -882,10 +882,10 @@ class CustomLengthTool extends AnnotationTool {
       Events.MOUSE_UP,
       this._endCallback as EventListener
     );
-    element.addEventListener(
-      Events.MOUSE_DRAG,
-      this._dragCallback as EventListener
-    );
+    //element.addEventListener(
+    //  Events.MOUSE_DRAG,
+    //  this._dragCallback as EventListener
+    //);
     element.addEventListener(
       Events.MOUSE_MOVE,
       this._dragCallback as EventListener
@@ -916,10 +916,10 @@ class CustomLengthTool extends AnnotationTool {
       Events.MOUSE_UP,
       this._endCallback as EventListener
     );
-    element.removeEventListener(
-      Events.MOUSE_DRAG,
-      this._dragCallback as EventListener
-    );
+    //element.removeEventListener(
+    //  Events.MOUSE_DRAG,
+    //  this._dragCallback as EventListener
+    //);
     element.removeEventListener(
       Events.MOUSE_MOVE,
       this._dragCallback as EventListener

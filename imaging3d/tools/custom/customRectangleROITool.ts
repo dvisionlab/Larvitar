@@ -821,7 +821,7 @@ class CustomRectangleROITool extends AnnotationTool {
     state.isInteractingWithTool = true;
 
     element.addEventListener(Events.MOUSE_UP, this._endCallback);
-    element.addEventListener(Events.MOUSE_DRAG, this._dragCallback);
+    //element.addEventListener(Events.MOUSE_DRAG, this._dragCallback);
     element.addEventListener(Events.MOUSE_MOVE, this._dragCallback);
     element.addEventListener(Events.MOUSE_CLICK, this._endCallback);
 
@@ -837,7 +837,7 @@ class CustomRectangleROITool extends AnnotationTool {
     state.isInteractingWithTool = false;
 
     element.removeEventListener(Events.MOUSE_UP, this._endCallback);
-    element.removeEventListener(Events.MOUSE_DRAG, this._dragCallback);
+    //element.removeEventListener(Events.MOUSE_DRAG, this._dragCallback);
     element.removeEventListener(Events.MOUSE_MOVE, this._dragCallback);
     element.removeEventListener(Events.MOUSE_CLICK, this._endCallback);
 
