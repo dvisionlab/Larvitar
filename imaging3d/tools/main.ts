@@ -88,8 +88,8 @@ const isToolMissing = function (
 export const addTool = function (
   toolName: string,
   customConfig: Partial<ToolConfig>,
-  type?: string,
-  groupId?: string
+  groupId: string = "default",
+  type?: string
 ) {
   let allToolsList;
 
@@ -103,8 +103,6 @@ export const addTool = function (
       ...DEFAULT_TOOLS_MPR
     };
   }
-
-  console.log("allToolsList", allToolsList);
 
   // extend defaults with user custom props
   let defaultConfig: ToolConfig | {} = allToolsList[toolName]

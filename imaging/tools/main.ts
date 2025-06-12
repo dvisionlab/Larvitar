@@ -154,75 +154,43 @@ const isToolMissing = function (
 };
 
 /**
- * Add a cornerstone 3D tool (grab it from original library or dvision custom 3D or MPR tools)
- * @param {String} toolName
- * @param {Partial<ToolConfig>} customConfig
- * @param {String} type The type of tool to add (3D or MPR)
- * @param {String} groupId The cornerstone3D Tool GroupID
+ * Add a cornerstone tool (grab it from original library or dvision custom tools)
+ * @param {*} toolName
+ * @param {*} targetElementId
  * @example larvitar.addTool("ScaleOverlay", {configuration:{minorTickLength: 10, majorTickLength: 25}}, "viewer")
  */
 const addTool = function (
   toolName: string,
   customConfig: Partial<ToolConfig>,
-  groupId: string = "default",
-  type?: string
+  targetElementId?: string
 ) {
-  let allToolsList;
-
-  if (type === "3D") {
-    allToolsList = DEFAULT_TOOLS_3D;
-  } else if (type === "MPR") {
-    allToolsList = DEFAULT_TOOLS_MPR;
-  } else {
-    allToolsList = {
-      ...DEFAULT_TOOLS_3D,
-      ...DEFAULT_TOOLS_MPR
-    };
-  }
-
   // extend defaults with user custom props
-  let defaultConfig: ToolConfig | {} = allToolsList[toolName]
-    ? allToolsList[toolName]
+  let defaultConfig: ToolConfig | {} = DEFAULT_TOOLS[toolName]
+    ? DEFAULT_TOOLS[toolName]
     : {};
   extend(defaultConfig, customConfig);
 
-  const toolClassName: string | undefined =
-    "class" in defaultConfig ? defaultConfig.class : undefined;
+  if (isToolMissing(toolName, targetElementId)) {
+    const toolClassName: string | undefined =
+      "class" in defaultConfig ? defaultConfig.class : undefined;
 
-  if (!toolClassName) {
-    throw new Error(
-      `Tool ${toolName} class not found. Please check tools/default or pass a valid tool class name in the configuration object.`
-    );
-  }
-
-  let customTool;
-
-  if (type === "3D") {
-    customTool = dvTools3D[toolClassName];
-  } else if (type === "MPR") {
-    customTool = dvToolsMPR[toolClassName];
-  } else {
-    customTool = dvTools3D[toolClassName] || dvToolsMPR[toolClassName];
-  }
-  const toolClass =
-    customTool ||
-    cornerstoneTools[toolClassName as keyof typeof cornerstoneTools];
-
-  cornerstoneTools.addTool(toolClass);
-
-  if (groupId) {
-    const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(groupId);
-    if (!toolGroup) {
-      logger.error(
-        `Tool group ${groupId} not found. Tool ${toolName} not added.`
+    if (!toolClassName) {
+      throw new Error(
+        `Tool ${toolName} class not found. Please check tools/default or pass a valid tool class name in the configuration object.`
       );
-      return;
     }
-    toolGroup.addTool(toolName, customConfig);
-    logger.debug(`Tool ${toolName} added to group:`, groupId);
-  }
 
-  logger.debug(`Tool ${toolName} added`);
+    const toolClass = dvTools[toolClassName] || cornerstoneTools[toolClassName];
+
+    if (targetElementId) {
+      let element = document.getElementById(targetElementId);
+      cornerstoneTools.addToolForElement(element, toolClass, defaultConfig);
+      logger.debug(`Tool ${toolName} added to element:`, targetElementId);
+    } else {
+      cornerstoneTools.addTool(toolClass, defaultConfig);
+      logger.debug(`Tool ${toolName} added to all elements`);
+    }
+  }
 };
 
 /**
