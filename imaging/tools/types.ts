@@ -34,7 +34,12 @@ export type ToolStyle = {
   fontSize: number;
   backgroundColor: string; // "rgba(1,1,1,0.7)"
 };
-
+export type CursorOptions = {
+  iconSize: number;
+  mousePoint: Coords;
+  mousePointerGroupString: string;
+  viewBox: Coords;
+};
 export type ToolSettings = {
   mouseEnabled: boolean;
   touchEnabled: boolean;

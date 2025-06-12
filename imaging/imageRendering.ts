@@ -689,15 +689,20 @@ export const renderImage = function (
           logger.debug("Layer has been added to the element");
         }
 
-        // fit the image to the window with standard scaling
-        cornerstone.fitToWindow(element);
-
         // update viewport data with default properties
         const viewport = cornerstone.getViewport(element);
         if (!viewport) {
           logger.error("viewport not found");
           reject("viewport not found for element: " + elementId);
           return;
+        }
+
+        if (
+          renderOptions.translation === undefined &&
+          renderOptions.scale === undefined
+        ) {
+          // fit the image to the window with standard scaling
+          cornerstone.fitToWindow(element);
         }
 
         // set the optional custom zoom
@@ -801,11 +806,12 @@ export const renderImage = function (
         setStore(["ready", element.id, true]);
         const t1 = performance.now();
         logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
-
-        const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
-          data.imageId
-        ).url;
-        cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+        if (renderOptions.cached === false) {
+          const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+            data.imageId
+          ).url;
+          cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+        }
         //@ts-ignore
         image = null;
         //@ts-ignore

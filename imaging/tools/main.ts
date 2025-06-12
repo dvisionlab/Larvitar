@@ -16,7 +16,11 @@ import {
   DEFAULT_TOOLS,
   DEFAULT_STYLE,
   DEFAULT_SETTINGS,
-  dvTools
+  dvTools,
+  DEFAULT_TOOLS_3D,
+  DEFAULT_TOOLS_MPR,
+  dvTools3D,
+  dvToolsMPR
 } from "./default";
 import store, { set as setStore } from "../imageStore";
 import type { ToolConfig, ToolSettings, ToolStyle } from "./types";
