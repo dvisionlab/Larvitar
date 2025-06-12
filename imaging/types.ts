@@ -160,6 +160,7 @@ export type DSA = {
 
 export type Series = {
   imageIds: string[];
+  imageIds3D: string[];
   instances: { [key: string]: Instance };
   seriesDescription?: string;
   anonymized?: boolean;
@@ -324,6 +325,7 @@ export type NrrdInputVolume = {
 export type NrrdSeries = {
   currentImageIdIndex: number;
   imageIds: string[];
+  imageIds3D: string[];
   instances: { [key: string]: Instance };
   instanceUIDs: { [key: string]: string };
   numberOfImages: number;

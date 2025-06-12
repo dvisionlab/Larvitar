@@ -285,6 +285,11 @@ import { loadAndCacheMetadata as _loadAndCacheMetadata } from "./imaging3d/image
 import { readFiles as _readFiles } from "./imaging3d/imageParsing";
 import { convertMetadata as _convertMetadata } from "./imaging3d/imageParsing";
 import { renderImage as _renderImage } from "./imaging3d/imageRendering";
+import { initializeRenderingEngine as _initializeRenderingEngine } from "./imaging3d/imageRendering";
+import { destroyRenderingEngine as _destroyRenderingEngine } from "./imaging3d/imageRendering";
+import { initializeVolumeViewports as _initializeVolumeViewports } from "./imaging3d/imageRendering";
+import { loadAndCacheVolume as _loadAndCacheVolume } from "./imaging3d/imageRendering";
+import { setVolumeForRenderingEngine as _setVolumeForRenderingEngine } from "./imaging3d/imageRendering";
 import { renderMpr as _renderMpr } from "./imaging3d/imageRendering";
 import { prefetchMetadataInformation as _prefetchMetadataInformation } from "./imaging3d/multiframe";
 import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imaging3d/multiframe";
@@ -302,6 +307,7 @@ import {
   setSlab as _setSlab
 } from "./imaging3d/tools/main";
 import _CustomWWWLTool from "./imaging3d/tools/custom/exampleCustomTool";
+
 import {
   updateImageManager,
   populateImageManager,
@@ -330,6 +336,11 @@ export {
   _readFiles,
   _renderImage,
   _renderMpr,
+  _initializeRenderingEngine,
+  _destroyRenderingEngine,
+  _initializeVolumeViewports,
+  _loadAndCacheVolume,
+  _setVolumeForRenderingEngine,
   _registerStreamingImageVolume,
   _convertMetadata,
   _loadAndCacheMetadata,

@@ -11,6 +11,8 @@ import cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import { forEach } from "lodash";
 
+import cornerstoneDICOMImageLoader3D from "@cornerstonejs/dicom-image-loader";
+
 // internal libraries
 import { logger } from "../logger";
 import store from "./imageStore";
@@ -20,13 +22,7 @@ import { loadReslicedImage } from "./loaders/resliceLoader";
 import { loadMultiFrameImage } from "./loaders/multiframeLoader";
 import { loadSingleFrameImage } from "./loaders/singleFrameLoader";
 import { loadDsaImage } from "./loaders/dsaImageLoader";
-import {
-  ImageObject,
-  Instance,
-  MetaData,
-  Series,
-  StagedProtocol
-} from "./types";
+import { ImageObject, Instance, Series, StagedProtocol } from "./types";
 import {
   getImageTracker,
   getImageManager,
@@ -36,6 +32,7 @@ import {
 } from "./imageManagers";
 import { clearImageCache } from "./imageRendering";
 import { clearCornerstoneElements } from "./imageTools";
+import { convertMetadata } from "../imaging3d/imageParsing";
 
 /**
  * Global standard configuration
@@ -222,6 +219,7 @@ export const updateLoadedStack = function (
     let series: Partial<Series> = {
       currentImageIdIndex: 0,
       imageIds: [], // (ordered)
+      imageIds3D: [], // (ordered) 3D imageIds for MPR
       instanceUIDs: {}, // instanceUID: imageId (ordered)
       instances: {},
       seriesDescription: seriesDescription as string,
@@ -303,6 +301,23 @@ export const updateLoadedStack = function (
     let imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(
       seriesData.file
     ) as string;
+
+    if (!seriesData.dataSet) {
+      console.error(
+        "Unable to Init MPR: No dataset found for imageId: " + imageId
+      );
+    } else {
+      // Enable support for cornerstone3D and MPR
+      const imageId3D = cornerstoneDICOMImageLoader3D.wadouri.fileManager.add(
+        seriesData.file
+      ) as string;
+      allSeriesStack[id].imageIds3D.push(imageId3D);
+      const metadata = convertMetadata(seriesData.dataSet);
+      cornerstoneDICOMImageLoader3D.wadors.metaDataManager.add(
+        imageId3D,
+        metadata
+      );
+    }
 
     imageTracker[imageId] = lid as string;
     if (sliceIndex !== undefined) {

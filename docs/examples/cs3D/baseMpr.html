@@ -286,6 +286,9 @@
         larvitar.store.addViewport("sagittal");
         larvitar.store.addViewport("coronal");
         larvitar.store.addViewport("acquisition");
+
+        larvitar._destroyRenderingEngine("1234");
+
         larvitar
           .readFiles(demoFiles) // need to port the updateLoadedStack function
           .then(async seriesStack => {
@@ -382,20 +385,30 @@
               toolGroupMpr.id
             );
 
-            larvitar._renderMpr(serie, viewportInputs).then(renderingEngine => {
-              console.log("Volume rendered", renderingEngine);
+            const renderingEngine = larvitar._initializeRenderingEngine("1234");
+            larvitar._initializeVolumeViewports("1234", viewportInputs);
+
+            // await larvitar._loadAndCacheVolume(serie);
+            // larvitar._setVolumeForRenderingEngine(serie.uniqueUID, "1234");
+            // const viewport = renderingEngine.getViewport("coronal");
+            // viewport.setVolumes([volume]);
+            //larvitar._destroyRenderingEngine("1234");
+
+            larvitar._renderMpr(serie, "1234").then(() => {
+              console.log("Volume rendered");
+              console.log(renderingEngine.getViewports());
               // add and enable wwwc, pan, zoom, and stack tools
-              larvitar._addDefaultTools(mprViewportIds, renderingEngine, "MPR");
-              larvitar._addDefaultTools(
-                [viewportId4],
-                renderingEngine,
-                "3D",
-                "acquisition"
-              );
+              // larvitar._addDefaultTools(mprViewportIds, renderingEngine, "MPR");
+              // larvitar._addDefaultTools(
+              //   [viewportId4],
+              //   renderingEngine,
+              //   "3D",
+              //   "acquisition"
+              // );
               hideSpinner();
             });
-          })
-          .catch(err => console.error(err));
+          });
+        //.catch(err => console.error(err));
       }
 
       let demoFileList = getDemoFileNames();
