@@ -1114,8 +1114,8 @@ const registerExternalTool = function (
   toolName: string,
   toolClass: any,
   toolVersion: "MPR" | "3D" | "" = "",
-  toolCursor: string,
-  cursorOptions: CursorOptions
+  toolCursor?: string,
+  cursorOptions?: CursorOptions
 ) {
   if (dvTools[toolName] || DEFAULT_TOOLS[toolName]) {
     logger.debug(`${toolName} already exists, it will be replaced`);
@@ -1142,8 +1142,9 @@ const registerExternalTool = function (
     options: { mouseButtonMask: 1 },
     defaultActive: false
   };
-
-  registerCursor(toolName, toolCursor, cursorOptions);
+  if (toolCursor) {
+    registerCursor(toolName, toolCursor, cursorOptions);
+  }
 };
 
 /**
@@ -1170,7 +1171,7 @@ const registerExternalTool = function (
 export const registerCursor = function (
   toolName: string,
   iconContent: string,
-  cursorOptions: CursorOptions
+  cursorOptions?: CursorOptions
 ) {
   const descriptor = Object.assign(Object.create(BASE_CURSOR), {
     iconContent,
