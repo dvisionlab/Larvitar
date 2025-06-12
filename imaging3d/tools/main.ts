@@ -45,7 +45,6 @@ export const initializeCSTools = async function (
   style?: ToolStyle
 ) {
   setToolsStyle(style);
-  // TODO proper config (eg style, settings, etc)
   await cornerstoneTools.init();
   logger.warn("initializeCSTools is not fully implemented yet");
 };

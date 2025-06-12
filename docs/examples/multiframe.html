@@ -303,7 +303,6 @@
           frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
           const element = document.getElementById("viewer");
           const viewport = larvitar.cornerstone.getViewport(element);
-          const viewportCopy = JSON.parse(JSON.stringify(viewport));
           larvitar.renderImage(multiFrameSerie, "viewer", {
             cached: true,
             imageIndex: frameId,
