@@ -193,7 +193,7 @@ export const addDefaultTools = function (
 
   // for each default tool
   each(toolsList, tool => {
-    addTool(tool.name, tool.configuration, type);
+    addTool(tool.name, tool.configuration, toolGroupId, type);
     toolGroup.addTool(tool.name, tool.configuration);
     logger.debug(`Tool ${tool.name} added to group:`, toolGroupId);
 
@@ -422,7 +422,7 @@ export const createToolGroup = function (
   });
 
   tools.forEach(tool => {
-    addTool(tool.name, tool.configuration, type, groupId);
+    addTool(tool.name, tool.configuration, groupId, type);
     logger.debug(`Tool ${tool.name} added to group:`, groupId);
   });
 
