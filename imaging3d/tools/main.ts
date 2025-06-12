@@ -11,6 +11,7 @@ import { each, extend } from "lodash";
 // internal libraries
 import { logger } from "../../logger";
 import {
+  DEFAULT_STYLE_3D,
   DEFAULT_TOOLS_3D,
   DEFAULT_TOOLS_MPR,
   //DEFAULT_STYLE,
@@ -30,6 +31,7 @@ import type {
 import type { RenderingEngine } from "@cornerstonejs/core";
 import { viewport } from "@cornerstonejs/tools/dist/esm/utilities";
 import { ViewportInput } from "@cornerstonejs/core/dist/esm/types";
+import { utilities } from "@cornerstonejs/core";
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
@@ -42,11 +44,21 @@ export const initializeCSTools = async function (
   settings?: ToolSettings,
   style?: ToolStyle
 ) {
-  // TODO proper config (eg style, settings, etc)
+  setToolsStyle(style);
   await cornerstoneTools.init();
   logger.warn("initializeCSTools is not fully implemented yet");
 };
 
+/**
+ * Set cornerstone tools custom configuration (extend default configuration)
+ * @function setToolsStyle
+ * @param {Object} style - the style object (see tools/defaults.js)
+ */
+export const setToolsStyle = function (style?: ToolStyle) {
+  cornerstoneTools.annotation.config.style.setDefaultToolStyles(
+    utilities.deepMerge(DEFAULT_STYLE_3D, style)
+  );
+};
 /**
  * Check if a tool is missing in the current element
  * @function isToolMissing
@@ -75,8 +87,8 @@ const isToolMissing = function (
 export const addTool = function (
   toolName: string,
   customConfig: Partial<ToolConfig>,
-  type?: string,
-  groupId?: string
+  groupId: string = "default",
+  type?: string
 ) {
   let allToolsList;
 
@@ -90,8 +102,6 @@ export const addTool = function (
       ...DEFAULT_TOOLS_MPR
     };
   }
-
-  console.log("allToolsList", allToolsList);
 
   // extend defaults with user custom props
   let defaultConfig: ToolConfig | {} = allToolsList[toolName]
@@ -182,7 +192,7 @@ export const addDefaultTools = function (
 
   // for each default tool
   each(toolsList, tool => {
-    addTool(tool.name, tool.configuration, type);
+    addTool(tool.name, tool.configuration, toolGroupId, type);
     toolGroup.addTool(tool.name, tool.configuration);
     logger.debug(`Tool ${tool.name} added to group:`, toolGroupId);
 
@@ -411,7 +421,7 @@ export const createToolGroup = function (
   });
 
   tools.forEach(tool => {
-    addTool(tool.name, tool.configuration, type, groupId);
+    addTool(tool.name, tool.configuration, groupId, type);
     logger.debug(`Tool ${tool.name} added to group:`, groupId);
   });
 

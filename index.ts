@@ -195,7 +195,8 @@ import {
   dvTools,
   getDefaultToolsByType,
   setDefaultToolsProps,
-  registerExternalTool
+  registerExternalTool,
+  registerCursor
 } from "./imaging/tools/default";
 
 import {
@@ -290,6 +291,7 @@ import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imagi
 import {
   addDefaultTools as _addDefaultTools,
   initializeCSTools as _initializeCSTools,
+  setToolsStyle as _setToolsStyle,
   addTool as _addTool,
   setToolActive as _setToolActive,
   setToolPassive as _setToolPassive,
@@ -297,7 +299,7 @@ import {
   setToolDisabled as _setToolDisabled,
   syncViewportsCamera as _syncViewportsCamera,
   createToolGroup as _createToolGroup,
-  setSlab as _setSlab,
+  setSlab as _setSlab
 } from "./imaging3d/tools/main";
 import _CustomWWWLTool from "./imaging3d/tools/custom/exampleCustomTool";
 import {
@@ -536,6 +538,7 @@ export {
   getDefaultToolsByType,
   setDefaultToolsProps,
   registerExternalTool,
+  registerCursor,
   // tools/interaction
   addMouseKeyHandlers,
   removeMouseKeyHandlers,
