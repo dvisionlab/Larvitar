@@ -304,7 +304,9 @@ import {
   setToolDisabled as _setToolDisabled,
   syncViewportsCamera as _syncViewportsCamera,
   createToolGroup as _createToolGroup,
-  setSlab as _setSlab
+  destroyToolGroup as _destroyToolGroup,
+  setSlab as _setSlab,
+  setWWWL as _setWWWL
 } from "./imaging3d/tools/main";
 import _CustomWWWLTool from "./imaging3d/tools/custom/exampleCustomTool";
 
@@ -354,6 +356,8 @@ export {
   _setToolDisabled,
   _syncViewportsCamera,
   _createToolGroup,
+  _destroyToolGroup,
+  _setWWWL,
   _setSlab,
   _CustomWWWLTool,
   VERSION,

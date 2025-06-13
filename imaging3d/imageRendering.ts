@@ -5,6 +5,7 @@
 
 // external libraries
 import * as cornerstone from "@cornerstonejs/core";
+import * as cornerstoneTools from "@cornerstonejs/tools";
 import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
 import { each } from "lodash";
 import { v4 as uuidv4 } from "uuid";
@@ -35,6 +36,7 @@ import { MprViewport } from "./types";
 
 import { logger } from "../logger";
 import { rendering } from "cornerstone-core";
+import { destroyToolGroup } from "./tools/main";
 // import { DEFAULT_TOOLS } from "./tools/default";
 // import { initializeFileImageLoader } from "./imageLoading";
 // import { generateFiles } from "./parsers/pdf";
@@ -195,6 +197,17 @@ export const destroyRenderingEngine = function (
     );
     return;
   }
+
+  renderingEngine.getViewports().forEach(viewport => {
+    const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroupForViewport(
+      viewport.id,
+      renderingEngineId
+    );
+
+    if (toolGroup?.id) {
+      destroyToolGroup(toolGroup.id);
+    }
+  });
   renderingEngine.destroy();
 
   // TODO remove from viewport store?
