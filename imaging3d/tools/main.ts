@@ -429,6 +429,26 @@ export const createToolGroup = function (
 };
 
 /**
+ * Destroys a tool group and the tools added to it.
+ * @function destroyToolGroup
+ * @param groupId - The id of the tool group to destroy. @default "default"
+ * @returns void
+ */
+export const destroyToolGroup = function (groupId: string = "default") {
+  const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(groupId);
+
+  if (!toolGroup) {
+    logger.warn("createToolGroup: tool group does not exist yet");
+    return;
+  }
+  const activeTools = toolGroup.getToolInstances();
+  Object.keys(activeTools).forEach(toolName => {
+    setToolDisabled(toolName, groupId);
+  });
+
+  cornerstoneTools.ToolGroupManager.destroyToolGroup(groupId);
+};
+/**
  * Set slab thickness and mode for a given viewport
  * @function setSlab
  * @param slabThickness - The thickness of the slab [in mm].
