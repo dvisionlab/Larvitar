@@ -290,6 +290,7 @@ import { destroyRenderingEngine as _destroyRenderingEngine } from "./imaging3d/i
 import { initializeVolumeViewports as _initializeVolumeViewports } from "./imaging3d/imageRendering";
 import { loadAndCacheVolume as _loadAndCacheVolume } from "./imaging3d/imageRendering";
 import { setVolumeForRenderingEngine as _setVolumeForRenderingEngine } from "./imaging3d/imageRendering";
+import { resizeRenderingEngine as _resizeRenderingEngine } from "./imaging3d/imageRendering";
 import { renderMpr as _renderMpr } from "./imaging3d/imageRendering";
 import { prefetchMetadataInformation as _prefetchMetadataInformation } from "./imaging3d/multiframe";
 import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imaging3d/multiframe";
@@ -340,6 +341,7 @@ export {
   _renderMpr,
   _initializeRenderingEngine,
   _destroyRenderingEngine,
+  _resizeRenderingEngine,
   _initializeVolumeViewports,
   _loadAndCacheVolume,
   _setVolumeForRenderingEngine,

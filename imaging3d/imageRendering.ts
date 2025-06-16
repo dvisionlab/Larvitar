@@ -385,10 +385,44 @@ export const renderMpr = function (
   return renderPromise;
 };
 
+/**
+ * Unload a MPR rendering engine
+ * @instance
+ * @function unloadMpr
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine to unload
+ * @returns {void}
+ */
 export const unloadMpr = function (renderingEngineId: string): void {
   // destroy the rendering engine
   // decacha il volume? se associato ad altri?
   destroyRenderingEngine(renderingEngineId);
+};
+
+/**
+ * Resize a rendering engine
+ * @instance
+ * @function resizeRenderingEngine
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine to resize
+ * @returns {void}
+ */
+export const resizeRenderingEngine = function (
+  renderingEngineId: string
+): void {
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewports = renderingEngine.getViewports();
+  if (viewports.length === 0) {
+    logger.error(
+      `No viewports found for rendering engine ${renderingEngineId}. Please initialize them first.`
+    );
+    return;
+  }
+  renderingEngine.resize(true, true); // true flags for fitToWindow and forceResize
 };
 
 // /**
