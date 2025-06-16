@@ -6,7 +6,6 @@
 // external libraries
 import * as cornerstone from "@cornerstonejs/core";
 import * as cornerstoneTools from "@cornerstonejs/tools";
-import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
 import { each } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
@@ -15,27 +14,17 @@ import { v4 as uuidv4 } from "uuid";
 //import { getFileImageId, getFileManager } from "./loaders/fileLoader";
 //import { csToolsCreateStack } from "../imaging/tools/main";
 //import { toggleMouseToolsListeners } from "../imaging/tools/interaction";
-import store, { set as setStore } from "../imaging/imageStore";
+import { set as setStore } from "../imaging/imageStore";
 //import { applyColorMap } from "../imaging/imageColormaps";
 import { isElement } from "../imaging/imageUtils";
 
-import { convertMetadata } from "../imaging3d/imageParsing";
 import { loadAndCacheMetadata } from "../imaging3d/imageLoading";
 
-import {
-  //Image,
-  Instance,
-  MetaData,
-  RenderProps,
-  Series,
-  StoreViewport,
-  Viewport
-} from "../imaging/types";
+import { Instance, RenderProps, Series, StoreViewport } from "../imaging/types";
 
 import { MprViewport } from "./types";
 
 import { logger } from "../logger";
-import { rendering } from "cornerstone-core";
 import { destroyToolGroup } from "./tools/main";
 // import { DEFAULT_TOOLS } from "./tools/default";
 // import { initializeFileImageLoader } from "./imageLoading";
@@ -53,7 +42,7 @@ import { destroyToolGroup } from "./tools/main";
  * @function renderImage
  * @param {Object} seriesStack - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {Object} defaultProps - Optional default props
+ * @param {RenderProps} options - Optional rendering options
  * @return {Promise} Return a promise which will resolve when image is displayed
  */
 export const renderImage = function (
