@@ -3,7 +3,7 @@ import { DataSet } from "dicom-parser";
 import { MetaDataTypes } from "./MetaDataTypes";
 import { MetaDataReadable } from "./MetaDataReadable";
 import { Element } from "dicom-parser";
-import { Overlay } from "./tools/types";
+import { Coords, DisplayAreaVisualizations, Overlay } from "./tools/types";
 // TODO-ts: differentiate each single metadata @szanchi
 /*export type MetadataValue =
   | string
@@ -200,21 +200,16 @@ export interface Layer extends cornerstone.EnabledElementLayer {
 
 export interface Viewport extends cornerstone.Viewport {
   newImageIdIndex: number;
-  displayedArea: {
-    tlhc: {
-      x: number;
-      y: number;
-    };
-    brhc: {
-      x: number;
-      y: number;
-    };
-    columnPixelSpacing: number;
-    rowPixelSpacing: number;
-    presentationSizeMode: string;
-  };
   overlayColor?: boolean | string;
 }
+
+export type DisplayedArea = {
+  tlhc?: Coords;
+  brhc?: Coords;
+  presentationSizeMode?: DisplayAreaVisualizations;
+  rowPixelSpacing?: number;
+  columnPixelSpacing?: number;
+};
 
 export type Contours = {
   [key: string]: {

@@ -145,89 +145,7 @@ export const renderImage = function (
 export const initializeRenderingEngine = function (
   renderingEngineId: string
 ): cornerstone.RenderingEngine | void {
-<<<<<<< Updated upstream
   const t0 = performance.now();
-
-  // check if the rendering engine is already initialized
-  if (cornerstone.getRenderingEngine(renderingEngineId)) {
-    logger.warn(
-      `Rendering engine with id ${renderingEngineId} is already initialized.`
-    );
-    return;
-  }
-
-  const renderingEngine = new cornerstone.RenderingEngine(renderingEngineId);
-
-  // TODO Store in viewport store?
-
-  const t1 = performance.now();
-  logger.debug(
-    `Rendering engine initialized with id ${renderingEngineId} in ${
-      t1 - t0
-    } milliseconds`
-  );
-  return renderingEngine;
-};
-
-/**
- * Destroy a rendering engine by its unique UID
- * @instance
- * @function destroyRenderingEngine
- * @param {string} renderingEngineId - The unique identifier of the rendering engine to destroy
- * @return {void}
- * @throws {Error} If the rendering engine does not exist or has already been destroyed
- */
-export const destroyRenderingEngine = function (
-  renderingEngineId: string
-): void {
-  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
-  if (!renderingEngine) {
-    logger.warn(
-      `Rendering engine with id ${renderingEngineId} does not exist or has already been destroyed.`
-    );
-    return;
-  }
-
-  renderingEngine.getViewports().forEach(viewport => {
-    const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroupForViewport(
-      viewport.id,
-      renderingEngineId
-    );
-
-    if (toolGroup?.id) {
-      destroyToolGroup(toolGroup.id);
-    }
-  });
-  renderingEngine.destroy();
-
-  // TODO remove from viewport store?
-
-  logger.debug(`Rendering engine with id ${renderingEngineId} destroyed.`);
-};
-
-/**
- * Initialize volume viewports for a rendering engine
- * @instance
- * @function initializeVolumeViewports
- * @param {string} renderingEngineId - The unique identifier of the rendering engine to initialize
- * @param {MprViewport[]} mprViewports - An array of MprViewport objects to initialize
- * @returns {void}
- */
-export const initializeVolumeViewports = function (
-  renderingEngineId: string,
-  mprViewports: MprViewport[]
-): void {
-=======
->>>>>>> Stashed changes
-  const t0 = performance.now();
-  // get the rendering engine
-  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
-  if (!renderingEngine) {
-    logger.error(
-      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
-    );
-    return;
-  }
 
   // check if the rendering engine is already initialized
   if (cornerstone.getRenderingEngine(renderingEngineId)) {
@@ -358,60 +276,11 @@ export const loadAndCacheVolume = async function (
 
   //const volumeId = series.uniqueUID || uuidv4();
   const volumeId = uuidv4();
-<<<<<<< Updated upstream
 
   loadAndCacheMetadata(series.imageIds3D);
   // cornerstone.cache.getVolume(volumeId) ||
   const volume = await cornerstone.volumeLoader.createAndCacheVolume(volumeId, {
     imageIds: series.imageIds3D.map(id => id)
-  });
-
-  const t1 = performance.now();
-  logger.debug(`Time to load and cache volume: ${t1 - t0} milliseconds`);
-  volume.load();
-  return volume;
-};
-
-/**
- * Set a volume for a rendering engine
- * @instance
- * @function setVolumeForRenderingEngine
- * @param {string} volumeId - The unique identifier of the volume to set
- * @param {string} renderingEngineId - The unique identifier of the rendering engine to set the volume for
- * @returns
- */
-export const setVolumeForRenderingEngine = function (
-  volumeId: string,
-  renderingEngineId: string
-) {
-  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
-  if (!renderingEngine) {
-    logger.error(
-      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
-    );
-    return;
-  }
-
-<<<<<<< HEAD
-  // check if fileManager has been populated during parsing
-  // otherwise fill it with file objects
-  each(Object.keys(series.instances), function (imageId) {
-    const index = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
-    const cachedFile =
-      cornerstoneDICOMImageLoader.wadouri.fileManager.get(index);
-    if (cachedFile === undefined) {
-      cornerstoneDICOMImageLoader.wadouri.fileManager.add(
-        series.instances[imageId].file
-      );
-      logger.debug(`Caching into imageLoader: ${imageId}`);
-    }
-=======
-
-  loadAndCacheMetadata(series.imageIds3D);
-  // cornerstone.cache.getVolume(volumeId) ||
-  const volume = await cornerstone.volumeLoader.createAndCacheVolume(volumeId, {
-    imageIds: series.imageIds3D.map(id => id)
->>>>>>> Stashed changes
   });
 
   const t1 = performance.now();
@@ -458,92 +327,6 @@ export const renderMpr = function (
 ) {
   const t0 = performance.now();
 
-<<<<<<< Updated upstream
-      let viewportInputs: cornerstone.Types.PublicViewportInput[] = [];
-
-      each(mprViewports, function (viewport: MprViewport) {
-        const viewportInput: cornerstone.Types.PublicViewportInput = {
-          viewportId: viewport.viewportId,
-          element: document.getElementById(
-            viewport.viewportId
-          ) as HTMLDivElement,
-          type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-          defaultOptions: {
-            orientation: viewport.orientation
-          }
-        };
-        viewportInputs.push(viewportInput);
-      });
-
-      renderingEngine.setViewports(viewportInputs);
-      volume.load();
-
-      const t1 = performance.now();
-      logger.debug(`Time to load volume: ${t1 - t0} milliseconds`);
-
-      cornerstone.setVolumesForViewports(
-        renderingEngine,
-        [
-          {
-            volumeId
-          }
-        ],
-        viewportInputs.map(v => v.viewportId)
-      );
-      // Render the image
-      renderingEngine.renderViewports(viewportInputs.map(v => v.viewportId));
-
-      // TODO FIT TO WINDOW ?
-      // TODO VOI
-      // TODO DEFAULT PROPS (SCALE, TR, COLORMAP)
-
-      // TODO modificare lo store
-      // storeViewportData(image, element.id, storedViewport as Viewport, data);
-      each(mprViewports, function (viewport: MprViewport) {
-        setStore(["ready", viewport.viewportId, true]);
-      });
-
-      const t2 = performance.now();
-      logger.debug(`Time to render volume: ${t2 - t1} milliseconds`);
-
-      // remove the imageId from the cache
-      each(Object.keys(series.instances), function (imageId) {
-        const index =
-          cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
-        cornerstoneDICOMImageLoader.wadouri.fileManager.remove(index);
-        logger.debug(`Removing from imageLoader: ${imageId}`);
-      });
-      //cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
-      // @ts-ignore
-      // @ts-ignore
-      series = null;
-      // @ts-ignore
-      data = null;
-
-      resolve(renderingEngine);
-    }
-=======
-  cornerstone.setVolumesForViewports(
-    renderingEngine,
-    [
-      {
-        volumeId
-      }
-    ],
-    renderingEngine.getVolumeViewports().map(v => v.id)
->>>>>>> c6d8e2b31fa1f28ddadde405944f7fbb83ab8cef
-  );
-};
-
-export const renderMpr = function (
-  series: Series,
-  renderingEngineId: string,
-  options?: RenderProps
-) {
-  const t0 = performance.now();
-
-=======
->>>>>>> Stashed changes
   const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
   if (!renderingEngine) {
     logger.error(
