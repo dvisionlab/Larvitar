@@ -836,11 +836,12 @@ export const renderImage = function (
         setStore(["ready", element.id, true]);
         const t1 = performance.now();
         logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
-
-        const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
-          data.imageId
-        ).url;
-        cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+        if (renderOptions.cached === false) {
+          const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
+            data.imageId
+          ).url;
+          cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+        }
         //@ts-ignore
         image = null;
         //@ts-ignore
