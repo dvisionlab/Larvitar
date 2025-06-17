@@ -11,7 +11,8 @@ export type {
 export type {
   IEnabledElement,
   Point2,
-  Point3
+  Point3,
+  ICamera
 } from "@cornerstonejs/core/dist/esm/types";
 
 // Tool system types
