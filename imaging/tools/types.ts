@@ -24,6 +24,30 @@ export type ToolConfig = {
   currentMode?: string;
   offset?: number;
 };
+export type ToolStyle3D = {
+  global: {
+    angleArcLineDash: string;
+    color: string;
+    colorHighlighted: string;
+    colorLocked: string;
+    colorSelected: string;
+    lineDash: string;
+    lineWidth: string;
+    markerSize: string;
+    shadow: boolean;
+    textBoxBackground: string;
+    textBoxColor: string;
+    textBoxColorHighlighted: string;
+    textBoxColorLocked: string;
+    textBoxColorSelected: string;
+    textBoxFontFamily: string;
+    textBoxFontSize: string;
+    textBoxLinkLineDash: string;
+    textBoxLinkLineWidth: string;
+    textBoxShadow: boolean;
+    textBoxVisibility: boolean;
+  };
+};
 
 export type ToolStyle = {
   width: number;
