@@ -26,7 +26,8 @@ import store, { set as setStore } from "../../imaging/imageStore";
 import type {
   ToolConfig,
   ToolSettings,
-  ToolStyle
+  ToolStyle,
+  ToolStyle3D
 } from "../../imaging/tools/types";
 import type { RenderingEngine } from "@cornerstonejs/core";
 import { viewport } from "@cornerstonejs/tools/dist/esm/utilities";
@@ -42,7 +43,7 @@ import { utilities } from "@cornerstonejs/core";
  */
 export const initializeCSTools = async function (
   settings?: ToolSettings,
-  style?: ToolStyle
+  style?: ToolStyle3D
 ) {
   setToolsStyle(style);
   await cornerstoneTools.init();
@@ -54,7 +55,7 @@ export const initializeCSTools = async function (
  * @function setToolsStyle
  * @param {Object} style - the style object (see tools/defaults.js)
  */
-export const setToolsStyle = function (style?: ToolStyle) {
+export const setToolsStyle = function (style?: ToolStyle3D) {
   cornerstoneTools.annotation.config.style.setDefaultToolStyles(
     utilities.deepMerge(DEFAULT_STYLE_3D, style)
   );
