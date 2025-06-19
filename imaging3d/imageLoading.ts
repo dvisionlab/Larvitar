@@ -19,6 +19,7 @@ import { forEach } from "lodash";
 // internal libraries
 import store from "../imaging/imageStore";
 import { imageMetadataProvider } from "./imageMetadataProvider";
+import { registerImageUrlModuleProvider } from "./videoMetadataProvider";
 import {
   prefetchMetadataInformation,
   convertMultiframeImageIds
@@ -71,6 +72,7 @@ export const initializeImageLoader = function (maxConcurrency?: number) {
       `CornestoneDICOMImageLoader initialized with default WebWorkers.`
     );
   }
+  registerImageUrlModuleProvider();
 };
 
 export const registerStreamingImageVolume = function () {
@@ -444,4 +446,50 @@ export const loadAndCacheMetadata = (imageIds: string[]) => {
       });
     }
   });
+};
+
+const TRANSFER_SYNTAX_TO_MIME: Record<string, string> = {
+  "1.2.840.10008.1.2.4.100": "video/mpeg", // MPEG2
+  "1.2.840.10008.1.2.4.102": "video/mp4", // MPEG4 AVC/H.264 High Profile
+  "1.2.840.10008.1.2.4.103": "video/mp4", // MPEG4 AVC/H.264 BD-compatible
+  // fallback (non video):
+  "1.2.840.10008.1.2": "application/dicom", // Implicit VR Little Endian
+  "1.2.840.10008.1.2.1": "application/dicom" // Explicit VR Little Endian
+};
+
+export const getVideoUrlFromDicom = async function (
+  file: File
+): Promise<string | null> {
+  const arrayBuffer = await file.arrayBuffer();
+  const dicomData = dcmjs.data.DicomMessage.readFile(arrayBuffer);
+  const dicomDict = dcmjs.data.DicomMetaDictionary.naturalizeDataset(
+    dicomData.dict
+  );
+
+  const meta = dcmjs.data.DicomMetaDictionary.namifyDataset(dicomData.meta);
+  const transferSyntaxUID = meta.TransferSyntaxUID.Value[0];
+
+  console.log("Transfer Syntax UID", transferSyntaxUID);
+  const mimeType = TRANSFER_SYNTAX_TO_MIME[transferSyntaxUID];
+
+  if (!mimeType || !mimeType.startsWith("video")) {
+    console.warn(
+      "DICOM is not a video or has unsupported TransferSyntax:",
+      transferSyntaxUID
+    );
+    return null;
+  }
+
+  // Estrai i byte grezzi dal PixelData
+  const videoBytes = dicomDict.PixelData;
+  if (!videoBytes) {
+    throw new Error("PixelData not found in DICOM file");
+  }
+  console.log("Extracted video bytes from DICOM file", videoBytes);
+
+  // Assumiamo video/mp4, ma puoi controllare il TransferSyntax se necessario
+  const blob = new Blob([videoBytes], { type: mimeType });
+  console.log("Blob created for video data", blob);
+
+  return URL.createObjectURL(blob);
 };

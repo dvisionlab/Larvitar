@@ -294,6 +294,10 @@ import { resizeRenderingEngine as _resizeRenderingEngine } from "./imaging3d/ima
 import { renderMpr as _renderMpr } from "./imaging3d/imageRendering";
 import { prefetchMetadataInformation as _prefetchMetadataInformation } from "./imaging3d/multiframe";
 import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imaging3d/multiframe";
+
+import { getVideoUrlFromDicom as _getVideoUrlFromDicom } from "./imaging3d/imageLoading";
+import { addImageUrlMetadata as _addImageUrlMetadata } from "./imaging3d/videoMetadataProvider";
+
 import {
   addDefaultTools as _addDefaultTools,
   initializeCSTools as _initializeCSTools,
@@ -350,6 +354,8 @@ export {
   _loadAndCacheMetadata,
   _prefetchMetadataInformation,
   _convertMultiframeImageIds,
+  _getVideoUrlFromDicom,
+  _addImageUrlMetadata,
   _addDefaultTools,
   _addTool,
   _setToolActive,

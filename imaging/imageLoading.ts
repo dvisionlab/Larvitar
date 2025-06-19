@@ -33,6 +33,9 @@ import {
 import { clearImageCache } from "./imageRendering";
 import { clearCornerstoneElements } from "./imageTools";
 import { convertMetadata } from "../imaging3d/imageParsing";
+import { getVideoUrlFromDicom } from "../imaging3d/imageLoading";
+
+import { addImageUrlMetadata } from "../imaging3d/videoMetadataProvider";
 
 /**
  * Global standard configuration
@@ -317,6 +320,15 @@ export const updateLoadedStack = function (
         imageId3D,
         metadata
       );
+      // //@ts-ignore
+      // getVideoUrlFromDicom(seriesData.file as File).then(videoUrl => {
+      //   console.log(videoUrl);
+      //   const video = document.createElement("video");
+      //   video.src = videoUrl;
+      //   video.controls = true;
+      //   document.body.appendChild(video);
+      //   addImageUrlMetadata(imageId, videoUrl);
+      // });
     }
 
     imageTracker[imageId] = lid as string;
