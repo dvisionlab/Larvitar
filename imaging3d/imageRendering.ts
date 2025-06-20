@@ -320,11 +320,11 @@ export const setVolumeForRenderingEngine = function (
   );
 };
 
-export const renderMpr = function (
+export const renderMpr = async function (
   series: Series,
   renderingEngineId: string,
   options?: RenderProps
-) {
+): Promise<void> {
   const t0 = performance.now();
 
   const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
@@ -332,19 +332,16 @@ export const renderMpr = function (
     logger.error(
       `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
     );
-    return new Promise((_, reject) =>
-      reject(`Rendering engine with id ${renderingEngineId} not found.`)
-    );
+    throw new Error(`Rendering engine with id ${renderingEngineId} not found.`);
   }
+
   const viewports = renderingEngine.getVolumeViewports();
   if (viewports.length === 0) {
     logger.error(
       `No volume viewports found for rendering engine ${renderingEngineId}. Please initialize them first.`
     );
-    return new Promise((_, reject) =>
-      reject(
-        `No volume viewports found for rendering engine ${renderingEngineId}.`
-      )
+    throw new Error(
+      `No volume viewports found for rendering engine ${renderingEngineId}.`
     );
   }
 
@@ -382,7 +379,23 @@ export const renderMpr = function (
     resolve();
   });
 
-  return renderPromise;
+  // Wait for the render promise to complete
+  await renderPromise;
+
+  // !!! setTimeout needed to et default viewport propertie to globalDefaultProperties
+  await new Promise<void>(resolve => {
+    setTimeout(() => {
+      viewports.forEach(viewport => {
+        const viewportElement = cornerstone.getEnabledElementByViewportId(
+          viewport.id
+        )?.viewport;
+        if (viewportElement) {
+          viewportElement.setDefaultProperties(viewportElement.getProperties());
+        }
+      });
+      resolve();
+    }, 0);
+  });
 };
 
 /**
@@ -423,6 +436,39 @@ export const resizeRenderingEngine = function (
     return;
   }
   renderingEngine.resize(true, true); // true flags for fitToWindow and forceResize
+};
+
+/**
+ * Reset viewport values (contrast, pan and zoom)
+ * @instance
+ * @function resetViewports
+ * @param {Array} elementIds - The array of hmtl div ids
+ * @param {Array} keys - The array of viewport sections to resets (default is all)
+ */
+export const resetViewports = function (
+  elementIds: string[],
+  keys?: Array<"contrast" | "pan" | "zoom">
+) {
+  each(elementIds, function (elementId: string) {
+    const viewport =
+      cornerstone.getEnabledElementByViewportId(elementId).viewport;
+    if (!keys || keys?.includes("zoom")) {
+      viewport.setZoom(1);
+    }
+    if (!keys || keys?.includes("pan")) {
+      viewport.setPan([0, 0]);
+    }
+    if (!keys || keys?.includes("contrast")) {
+      const defaultVoiRange = viewport.getDefaultProperties(
+        viewport.getCurrentImageId()
+      ).voiRange;
+      viewport.setProperties({ voiRange: defaultVoiRange });
+    }
+
+    //TODO - add reset rotation
+
+    viewport.render();
+  });
 };
 
 // /**

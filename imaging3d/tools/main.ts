@@ -273,6 +273,14 @@ export const setToolPassive = function (
   }
   toolGroup.setToolPassive(toolName);
   logger.debug(`Tool ${toolName} set enabled in group:`, groupId);
+  if (resetCursor) {
+    toolGroup.getViewportIds().forEach(id => {
+      const element = document.getElementById(id) as HTMLDivElement;
+      if (element) {
+        cornerstoneTools.cursors.setCursorForElement(element, "default");
+      }
+    });
+  }
 };
 
 export const setToolEnabled = function (
@@ -287,6 +295,14 @@ export const setToolEnabled = function (
   }
   toolGroup.setToolEnabled(toolName);
   logger.debug(`Tool ${toolName} set enabled in group:`, groupId);
+  if (resetCursor) {
+    toolGroup.getViewportIds().forEach(id => {
+      const element = document.getElementById(id) as HTMLDivElement;
+      if (element) {
+        cornerstoneTools.cursors.setCursorForElement(element, "default");
+      }
+    });
+  }
 };
 
 export const setToolDisabled = function (
@@ -301,6 +317,14 @@ export const setToolDisabled = function (
   }
   toolGroup.setToolDisabled(toolName);
   logger.debug(`Tool ${toolName} set enabled in group:`, groupId);
+  if (resetCursor) {
+    toolGroup.getViewportIds().forEach(id => {
+      const element = document.getElementById(id) as HTMLDivElement;
+      if (element) {
+        cornerstoneTools.cursors.setCursorForElement(element, "default");
+      }
+    });
+  }
 };
 
 /**
@@ -385,6 +409,104 @@ export const syncViewportsCamera = function (
   );
 
   // FIXME: how to force a refresh of the viewport?
+};
+
+/**
+ * @function syncViewportsVOI
+ * @desc  Synchronizes the contrast of two (volume) viewports
+ * @param id - unique id for the synchronizer @default "default"
+ * @param targetViewportId - the id of the target viewport where the camera will be synced
+ * @param sourceViewportId - the id of the source viewport from where the camera position will be taken
+ */
+export const syncViewportsVOI = function (
+  id: string = "default", // unique id for the synchronizer
+  targetViewportId: string,
+  sourceViewportId: string
+) {
+  let voiSync = cornerstoneTools.SynchronizerManager.getSynchronizer(id);
+  const options = {
+    syncInvertState: true,
+    syncColormap: true
+  };
+  if (!voiSync) {
+    voiSync = cornerstoneTools.synchronizers.createVOISynchronizer(id, options);
+  } else if (voiSync) {
+    // cameraSync.getSourceViewports().forEach((viewportId) => {
+    //   cameraSync!.removeSource(viewportId);
+    // });
+    cornerstoneTools.SynchronizerManager.destroySynchronizer(id);
+    voiSync = cornerstoneTools.synchronizers.createVOISynchronizer(id, options);
+  }
+
+  const targetRenderingEngineId =
+    cornerstone.getEnabledElementByViewportId(
+      targetViewportId
+    )?.renderingEngineId;
+  const sourceRenderingEngineId =
+    cornerstone.getEnabledElementByViewportId(
+      sourceViewportId
+    )?.renderingEngineId;
+
+  if (!targetRenderingEngineId || !sourceRenderingEngineId) {
+    logger.error(
+      "syncViewportsCamera: no rendering engine found for one of the viewports"
+    );
+    return;
+  }
+
+  const sourceViewport =
+    cornerstone.getEnabledElementByViewportId(sourceViewportId)?.viewport;
+  if (!sourceViewport) {
+    logger.error("syncViewportsCamera: source viewport not found");
+    return;
+  }
+  const sourceViewRef = sourceViewport.getViewReference();
+
+  const targetViewport =
+    cornerstone.getEnabledElementByViewportId(targetViewportId)?.viewport;
+  if (!targetViewport) {
+    logger.error("syncViewportsCamera: target viewport not found");
+    return;
+  }
+  targetViewport.setViewReference(sourceViewRef);
+
+  voiSync.add({
+    renderingEngineId: sourceRenderingEngineId,
+    viewportId: sourceViewportId
+  });
+
+  voiSync.add({
+    renderingEngineId: targetRenderingEngineId,
+    viewportId: targetViewportId
+  });
+
+  const targetElement =
+    cornerstone.getEnabledElementByViewportId(targetViewportId);
+  targetElement.viewport.render();
+
+  const sourceElement =
+    cornerstone.getEnabledElementByViewportId(sourceViewportId);
+  sourceElement.viewport.render();
+
+  logger.debug(
+    `Camera sync added from ${sourceViewportId} to ${targetViewportId}`
+  );
+};
+
+/**
+ * @function syncViewports
+ * @desc  Synchronizes the camera position and contrast of two (volume) viewports
+ * @param id - unique id for the synchronizer @default "default"
+ * @param targetViewportId - the id of the target viewport where the camera will be synced
+ * @param sourceViewportId - the id of the source viewport from where the camera position will be taken
+ */
+export const syncViewports = function (
+  id: string = "default", // unique id for the synchronizer
+  targetViewportId: string,
+  sourceViewportId: string
+) {
+  syncViewportsCamera(id, targetViewportId, sourceViewportId);
+  syncViewportsVOI(id, targetViewportId, sourceViewportId);
 };
 
 /**

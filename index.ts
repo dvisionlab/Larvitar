@@ -284,7 +284,10 @@ import { registerStreamingImageVolume as _registerStreamingImageVolume } from ".
 import { loadAndCacheMetadata as _loadAndCacheMetadata } from "./imaging3d/imageLoading";
 import { readFiles as _readFiles } from "./imaging3d/imageParsing";
 import { convertMetadata as _convertMetadata } from "./imaging3d/imageParsing";
-import { renderImage as _renderImage } from "./imaging3d/imageRendering";
+import {
+  renderImage as _renderImage,
+  resetViewports as _resetViewports
+} from "./imaging3d/imageRendering";
 import { initializeRenderingEngine as _initializeRenderingEngine } from "./imaging3d/imageRendering";
 import { destroyRenderingEngine as _destroyRenderingEngine } from "./imaging3d/imageRendering";
 import { initializeVolumeViewports as _initializeVolumeViewports } from "./imaging3d/imageRendering";
@@ -304,6 +307,8 @@ import {
   setToolEnabled as _setToolEnabled,
   setToolDisabled as _setToolDisabled,
   syncViewportsCamera as _syncViewportsCamera,
+  syncViewportsVOI as _syncViewportsVOI,
+  syncViewports as _syncViewports,
   createToolGroup as _createToolGroup,
   destroyToolGroup as _destroyToolGroup,
   setSlab as _setSlab,
@@ -338,6 +343,7 @@ export {
   _initializeImageLoader,
   _readFiles,
   _renderImage,
+  _resetViewports,
   _renderMpr,
   _initializeRenderingEngine,
   _destroyRenderingEngine,
@@ -357,6 +363,8 @@ export {
   _setToolEnabled,
   _setToolDisabled,
   _syncViewportsCamera,
+  _syncViewportsVOI,
+  _syncViewports,
   _createToolGroup,
   _destroyToolGroup,
   _setWWWL,
