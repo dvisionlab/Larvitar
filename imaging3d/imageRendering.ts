@@ -324,7 +324,7 @@ export const renderMpr = async function (
   series: Series,
   renderingEngineId: string,
   options?: RenderProps
-): Promise<void> {
+) {
   const t0 = performance.now();
 
   const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
@@ -383,19 +383,18 @@ export const renderMpr = async function (
   await renderPromise;
 
   // !!! setTimeout needed to et default viewport propertie to globalDefaultProperties
-  await new Promise<void>(resolve => {
-    setTimeout(() => {
-      viewports.forEach(viewport => {
-        const viewportElement = cornerstone.getEnabledElementByViewportId(
-          viewport.id
-        )?.viewport;
-        if (viewportElement) {
-          viewportElement.setDefaultProperties(viewportElement.getProperties());
-        }
-      });
-      resolve();
-    }, 0);
-  });
+  setTimeout(() => {
+    viewports.forEach(viewport => {
+      const viewportElement = cornerstone.getEnabledElementByViewportId(
+        viewport.id
+      )?.viewport;
+      if (viewportElement) {
+        viewportElement.setDefaultProperties(viewportElement.getProperties());
+      }
+    });
+  }, 0);
+
+  return renderingEngine;
 };
 
 /**
