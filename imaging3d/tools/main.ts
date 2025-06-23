@@ -419,78 +419,54 @@ export const syncViewportsCamera = function (
  * @param sourceViewportId - the id of the source viewport from where the camera position will be taken
  */
 export const syncViewportsVOI = function (
-  id: string = "default", // unique id for the synchronizer
-  targetViewportId: string,
-  sourceViewportId: string
+  id: string = "default",
+  syncedViewportIds: string[]
 ) {
-  let voiSync = cornerstoneTools.SynchronizerManager.getSynchronizer(id);
+  if (!syncedViewportIds || syncedViewportIds.length < 2) {
+    logger.warn("At least two viewport IDs are required to sync VOI.");
+    return;
+  }
+
   const options = {
     syncInvertState: true,
     syncColormap: true
   };
-  if (!voiSync) {
-    voiSync = cornerstoneTools.synchronizers.createVOISynchronizer(id, options);
-  } else if (voiSync) {
-    // cameraSync.getSourceViewports().forEach((viewportId) => {
-    //   cameraSync!.removeSource(viewportId);
-    // });
+
+  let voiSync = cornerstoneTools.SynchronizerManager.getSynchronizer(id);
+  if (voiSync) {
     cornerstoneTools.SynchronizerManager.destroySynchronizer(id);
-    voiSync = cornerstoneTools.synchronizers.createVOISynchronizer(id, options);
+  }
+  voiSync = cornerstoneTools.synchronizers.createVOISynchronizer(id, options);
+
+  for (const viewportId of syncedViewportIds) {
+    const enabledElement =
+      cornerstone.getEnabledElementByViewportId(viewportId);
+    if (!enabledElement) {
+      logger.warn(`Enabled element not found for viewport ${viewportId}`);
+      continue;
+    }
+
+    const { renderingEngineId } = enabledElement;
+    if (!renderingEngineId) {
+      logger.warn(`Rendering engine not found for viewport ${viewportId}`);
+      continue;
+    }
+
+    voiSync.add({
+      renderingEngineId,
+      viewportId
+    });
+
+    logger.debug(`VOI sync added for viewport: ${viewportId}`);
   }
 
-  const targetRenderingEngineId =
-    cornerstone.getEnabledElementByViewportId(
-      targetViewportId
-    )?.renderingEngineId;
-  const sourceRenderingEngineId =
-    cornerstone.getEnabledElementByViewportId(
-      sourceViewportId
-    )?.renderingEngineId;
-
-  if (!targetRenderingEngineId || !sourceRenderingEngineId) {
-    logger.error(
-      "syncViewportsCamera: no rendering engine found for one of the viewports"
-    );
-    return;
+  // Optionally, trigger render on all synced viewports
+  for (const viewportId of syncedViewportIds) {
+    const element = cornerstone.getEnabledElementByViewportId(viewportId);
+    if (element?.viewport) {
+      element.viewport.render();
+    }
   }
-
-  const sourceViewport =
-    cornerstone.getEnabledElementByViewportId(sourceViewportId)?.viewport;
-  if (!sourceViewport) {
-    logger.error("syncViewportsCamera: source viewport not found");
-    return;
-  }
-  const sourceViewRef = sourceViewport.getViewReference();
-
-  const targetViewport =
-    cornerstone.getEnabledElementByViewportId(targetViewportId)?.viewport;
-  if (!targetViewport) {
-    logger.error("syncViewportsCamera: target viewport not found");
-    return;
-  }
-  targetViewport.setViewReference(sourceViewRef);
-
-  voiSync.add({
-    renderingEngineId: sourceRenderingEngineId,
-    viewportId: sourceViewportId
-  });
-
-  voiSync.add({
-    renderingEngineId: targetRenderingEngineId,
-    viewportId: targetViewportId
-  });
-
-  const targetElement =
-    cornerstone.getEnabledElementByViewportId(targetViewportId);
-  targetElement.viewport.render();
-
-  const sourceElement =
-    cornerstone.getEnabledElementByViewportId(sourceViewportId);
-  sourceElement.viewport.render();
-
-  logger.debug(
-    `Camera sync added from ${sourceViewportId} to ${targetViewportId}`
-  );
 };
 
 /**
@@ -506,7 +482,7 @@ export const syncViewports = function (
   sourceViewportId: string
 ) {
   syncViewportsCamera(id, targetViewportId, sourceViewportId);
-  syncViewportsVOI(id, targetViewportId, sourceViewportId);
+  syncViewportsVOI(id, [targetViewportId, sourceViewportId]);
 };
 
 /**
