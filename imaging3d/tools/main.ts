@@ -438,18 +438,18 @@ export const syncViewportsVOI = function (
   }
   voiSync = cornerstoneTools.synchronizers.createVOISynchronizer(id, options);
 
-  for (const viewportId of syncedViewportIds) {
+  syncedViewportIds.forEach(viewportId => {
     const enabledElement =
       cornerstone.getEnabledElementByViewportId(viewportId);
     if (!enabledElement) {
       logger.warn(`Enabled element not found for viewport ${viewportId}`);
-      continue;
+      return;
     }
 
     const { renderingEngineId } = enabledElement;
     if (!renderingEngineId) {
       logger.warn(`Rendering engine not found for viewport ${viewportId}`);
-      continue;
+      return;
     }
 
     voiSync.add({
@@ -458,15 +458,14 @@ export const syncViewportsVOI = function (
     });
 
     logger.debug(`VOI sync added for viewport: ${viewportId}`);
-  }
+  });
 
-  // Optionally, trigger render on all synced viewports
-  for (const viewportId of syncedViewportIds) {
+  syncedViewportIds.forEach(viewportId => {
     const element = cornerstone.getEnabledElementByViewportId(viewportId);
     if (element?.viewport) {
       element.viewport.render();
     }
-  }
+  });
 };
 
 /**
