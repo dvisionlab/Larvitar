@@ -3,7 +3,7 @@ import { Image } from "cornerstone-core";
 // declare var cv: any;
 
 // internal libraries
-import { getMaxPixelValue, getMinPixelValue } from "../../../../imageUtils";
+import { getMinMaxPixelValue } from "../../../../imageUtils";
 
 /*
  * This module provides the following functions to be exported:
@@ -47,11 +47,10 @@ export function calculateThresholds(
   maxThreshold: number
 ) {
   const { mean, stddev } = calculateStats(image, dicomPixelData, circleArray);
+  const { minPixelValue, maxPixelValue } = getMinMaxPixelValue(dicomPixelData);
 
-  minThreshold =
-    minThreshold === null ? getMinPixelValue(dicomPixelData) : minThreshold;
-  maxThreshold =
-    maxThreshold === null ? getMaxPixelValue(dicomPixelData) : maxThreshold;
+  minThreshold = minThreshold === null ? minPixelValue : minThreshold;
+  maxThreshold = maxThreshold === null ? maxPixelValue : maxThreshold;
 
   const meanNorm = mapToRange(mean, minThreshold, maxThreshold);
   const stdDevNorm = mapToRange(stddev, minThreshold, maxThreshold);

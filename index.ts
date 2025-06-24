@@ -81,6 +81,7 @@ import {
   getNormalOrientation,
   getMinPixelValue,
   getMaxPixelValue,
+  getMinMaxPixelValue,
   getPixelRepresentation,
   getTypedArrayFromDataType,
   getSortedStack,
@@ -268,7 +269,11 @@ import {
 } from "./imaging/imageColormaps";
 
 import { applyDSAShift } from "./imaging/postProcessing/applyDSA";
-
+import {
+  applyConvolutionFilter,
+  addCustomKernel,
+  getKernels
+} from "./imaging/postProcessing/applyKernel";
 import {
   addMouseKeyHandlers,
   removeMouseKeyHandlers,
@@ -406,6 +411,7 @@ export {
   getNormalOrientation,
   getMinPixelValue,
   getMaxPixelValue,
+  getMinMaxPixelValue,
   getPixelRepresentation,
   getTypedArrayFromDataType,
   getSortedStack,
@@ -531,6 +537,9 @@ export {
   getFileCustomImageId,
   // imaging/postProcessing
   applyDSAShift,
+  applyConvolutionFilter,
+  addCustomKernel,
+  getKernels,
   // imageTools
   addDiameterTool,
   addContoursTool,

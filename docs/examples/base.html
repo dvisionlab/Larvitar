@@ -212,6 +212,23 @@ larvitar
         >
           Next Series ->
         </button>
+
+        <select
+          id="filterSelect"
+          class="open-button"
+          style="width: auto"
+          onchange="applyFilter(this.value)"
+        >
+          <option value="">Select a filter</option>
+          <option value="sharpen5Low">Sharpen 5x5 Low</option>
+          <option value="sharpen5Med">Sharpen 5x5 Med</option>
+          <option value="sharpen5High">Sharpen 5x5 High</option>
+          <option value="sharpen7Low">Sharpen 7x7 Low</option>
+          <option value="sharpen7Med">Sharpen 7x7 Med</option>
+          <option value="sharpen7High">Sharpen 7x7 High</option>
+          <option value="gaussianBlur">Gaussian Blur</option>
+          <option value="edgeDetect">Edge Detect</option>
+        </select>
       </div>
 
       <div class="form-popup" id="myForm">
@@ -559,10 +576,12 @@ larvitar
             //   }
             // };
 
-            larvitar.renderImage(serie, "viewer").then(() => {
+            larvitar.renderImage(serie, "viewer").then(async () => {
               larvitar.logger.debug("Image has been rendered");
-              hideSpinner(); // Hide the spinner when all files are processed
               larvitar.addDefaultTools("viewer");
+              hideSpinner(); // Hide the spinner when all files are processed
+
+              await larvitar.loadAndCacheImageStack(serie);
             });
 
             series = serie;
@@ -608,8 +627,9 @@ larvitar
           showSpinner();
           const newUniqueUID = seriesIds[index - 1];
           const serie = stack[newUniqueUID];
-          larvitar.renderImage(serie, "viewer").then(() => {
+          larvitar.renderImage(serie, "viewer").then(async () => {
             larvitar.logger.debug("Image has been rendered");
+            await larvitar.loadAndCacheImageStack(serie);
             larvitar.addDefaultTools("viewer");
             hideSpinner(); // Hide the spinner when all files are processed
           });
@@ -635,6 +655,25 @@ larvitar
             hideSpinner(); // Hide the spinner when all files are processed
           });
         }
+      }
+
+      function applyFilter(filterName) {
+        const element = document.getElementById("viewer");
+        const sliceId = larvitar.store.get([
+          "viewports",
+          element.id,
+          "sliceId"
+        ]);
+        const image = larvitar.cornerstone.imageCache.cachedImages.find(
+          cachedImage => cachedImage.imageId === series.imageIds[sliceId]
+        )?.image;
+        const sharpenedImage = larvitar.applyConvolutionFilter(
+          image,
+          filterName,
+          true
+        );
+        larvitar.cornerstone.displayImage(element, sharpenedImage);
+        larvitar.addDefaultTools(element.id);
       }
 
       // Event listener for arrow keys
