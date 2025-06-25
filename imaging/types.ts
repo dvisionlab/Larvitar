@@ -18,7 +18,6 @@ import { Coords, DisplayAreaVisualizations, Overlay } from "./tools/types";
 export type tags = { [x: string]: Element }[];
 
 export type KernelConfig = {
-  modality: string;
   label: string;
   size: number;
   kernel: number[][];

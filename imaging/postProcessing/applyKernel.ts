@@ -1,88 +1,7 @@
 import { getMinMaxPixelValue } from "../imageUtils";
 import { Image, TypedArray, KernelConfig } from "../types";
 const CONVOLUTION_KERNELS: { [key: string]: KernelConfig } = {
-  sharpen5Low: {
-    modality: "sharpen",
-    label: "Sharpen 5x5 Low",
-    size: 7,
-    kernel: [
-      [0, 0, -1, -1, -1, 0, 0],
-      [0, -1, -3, -3, -3, -1, 0],
-      [-1, -3, 0, 7, 0, -3, -1],
-      [-1, -3, 7, 24, 7, -3, -1],
-      [-1, -3, 0, 7, 0, -3, -1],
-      [0, -1, -3, -3, -3, -1, 0],
-      [0, 0, -1, -1, -1, 0, 0]
-    ]
-  },
-  sharpen5Med: {
-    modality: "sharpen",
-    label: "Sharpen 5x5 Medium",
-    size: 5,
-    kernel: [
-      [-1, -1, -1, -1, -1],
-      [-1, 2, 2, 2, -1],
-      [-1, 2, 8, 2, -1],
-      [-1, 2, 2, 2, -1],
-      [-1, -1, -1, -1, -1]
-    ]
-  },
-  sharpen5High: {
-    modality: "sharpen",
-    label: "Sharpen 5x5 High",
-    size: 5,
-    kernel: [
-      [-1, -1, -1, -1, -1],
-      [-1, 2, 2, 2, -1],
-      [-1, 2, 16, 2, -1],
-      [-1, 2, 2, 2, -1],
-      [-1, -1, -1, -1, -1]
-    ]
-  },
-  sharpen7Low: {
-    modality: "sharpen",
-    label: "Sharpen 7x7 Low",
-    size: 7,
-    kernel: [
-      [-1, -1, -1, -1, -1, -1, -1],
-      [-1, 1, 2, 3, 2, 1, -1],
-      [-1, 2, 4, 5, 4, 2, -1],
-      [-1, 3, 5, 24, 5, 3, -1],
-      [-1, 2, 4, 5, 4, 2, -1],
-      [-1, 1, 2, 3, 2, 1, -1],
-      [-1, -1, -1, -1, -1, -1, -1]
-    ]
-  },
-  sharpen7Med: {
-    modality: "sharpen",
-    label: "Sharpen 7x7 Medium",
-    size: 7,
-    kernel: [
-      [-1, -1, -1, -1, -1, -1, -1],
-      [-1, 1, 1, 2, 1, 1, -1],
-      [-1, 1, 3, 4, 3, 1, -1],
-      [-1, 2, 4, 32, 4, 2, -1],
-      [-1, 1, 3, 4, 3, 1, -1],
-      [-1, 1, 1, 2, 1, 1, -1],
-      [-1, -1, -1, -1, -1, -1, -1]
-    ]
-  },
-  sharpen7High: {
-    modality: "sharpen",
-    label: "Sharpen 7x7 High",
-    size: 7,
-    kernel: [
-      [-2, -2, -2, -2, -2, -2, -2],
-      [-2, 2, 2, 2, 2, 2, -2],
-      [-2, 2, 4, 5, 4, 2, -2],
-      [-2, 2, 5, 48, 5, 2, -2],
-      [-2, 2, 4, 5, 4, 2, -2],
-      [-2, 2, 2, 2, 2, 2, -2],
-      [-2, -2, -2, -2, -2, -2, -2]
-    ]
-  },
-  gaussianBlur: {
-    modality: "blur",
+  /* gaussianBlur: {
     label: "Gaussian Blur 3x3",
     size: 3,
     kernel: [
@@ -92,7 +11,6 @@ const CONVOLUTION_KERNELS: { [key: string]: KernelConfig } = {
     ]
   },
   edgeDetect: {
-    modality: "edge",
     label: "Edge Detection 3x3",
     size: 3,
     kernel: [
@@ -100,7 +18,7 @@ const CONVOLUTION_KERNELS: { [key: string]: KernelConfig } = {
       [-1, 8, -1],
       [-1, -1, -1]
     ]
-  }
+  }*/
 };
 
 /**
@@ -260,7 +178,6 @@ export function addCustomKernel(name: string, config: KernelConfig): void {
   }
 
   CONVOLUTION_KERNELS[name] = {
-    modality: config.modality || "custom",
     label: config.label,
     size: config.size,
     kernel: config.kernel

@@ -163,7 +163,8 @@ export default {
                 {
                   text: "Post Processing",
                   children: [
-                    { text: "DSA", link: "/api/modules/postProcessing/dsa.md" }
+                    { text: "DSA", link: "/api/modules/postProcessing/dsa.md" },
+                    { text: "Image Filters", link: "/api/modules/postProcessing/applyKernel.md" }
                   ]
                 },
                 {
