@@ -373,6 +373,7 @@ type contrast = { windowCenter: number; windowWidth: number };
 type translation = { x: number; y: number };
 
 export type RenderProps = {
+  filterName?: string;
   cached?: boolean;
   imageIndex?: number;
   scale?: number;
