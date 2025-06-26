@@ -705,6 +705,8 @@ export const renderImage = function (
             renderOptions.filterName,
             true
           ) as Image;
+          data.default.voi.windowWidth = image.windowWidth;
+          data.default.voi.windowCenter = image.windowCenter;
         }
         // display the image on the element
         cornerstone.displayImage(element, image);
