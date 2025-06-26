@@ -17,11 +17,11 @@ import type { MetaData } from "../types";
  * Compute and return image frame
  * @instance
  * @function getImageFrame
- * @param {Object} metadata metadata object
- * @param {Object} dataSet dicom dataset
+ * @param {MetaData} metadata metadata object
+ * @param {DataSet} dataSet dicom dataset
  * @returns {Object} specific image frame
  */
-export const getImageFrame = function (metadata: MetaData, dataSet: DataSet) {
+export const getImageFrame = function (metadata: MetaData, dataSet?: DataSet) {
   let imagePixelModule;
 
   if (dataSet) {

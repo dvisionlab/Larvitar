@@ -223,7 +223,7 @@
       const qidoUrl = `${pacsURL}${qidoPrefix}instances?SeriesInstanceUID=${seriesInstanceUID}&StudyInstanceUID=${studyID}&PatientID=${patientID}&includefield=header`;
       const wadoUrl = `${pacsURL}${wadoPrefix}studies/${studyID}/series/${seriesInstanceUID}/instances/`;
 
-      const AUTO_PLAY = false; // Set to true to enable auto-play
+      const AUTO_PLAY = true; // Set to true to enable auto-play
 
       async function qido(qidoUrl) {
         const response = await fetch(qidoUrl, {
@@ -301,7 +301,7 @@
               larvitar.addDefaultTools("viewer-3");
               larvitar.addDefaultTools("viewer-4");
               larvitar.addDefaultTools("viewer-5");
-              //larvitar.setToolActive("StacScroll");
+              larvitar.setToolActive("StackScroll");
               if (AUTO_PLAY === true) {
                 frameId++;
                 const frameRate =
@@ -364,7 +364,6 @@
           const data = larvitar.convertQidoMetadata(element);
           metadata[data.instanceUID] = data;
         });
-
         cacheFrames(instanceUID_1, metadata[instanceUID_1], "viewer-1");
         cacheFrames(instanceUID_2, metadata[instanceUID_2], "viewer-2");
         cacheFrames(instanceUID_3, metadata[instanceUID_3], "viewer-3");
