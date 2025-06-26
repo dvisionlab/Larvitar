@@ -29,10 +29,11 @@ import type {
   ToolStyle,
   ToolStyle3D
 } from "../../imaging/tools/types";
-import type { RenderingEngine } from "@cornerstonejs/core";
-import { viewport } from "@cornerstonejs/tools/dist/esm/utilities";
-import { ViewportInput } from "@cornerstonejs/core/dist/esm/types";
-import { utilities } from "@cornerstonejs/core";
+import type { RenderingEngine, Types } from "@cornerstonejs/core";
+import { utilities, Enums, getRenderingEngine } from "@cornerstonejs/core";
+
+import { SynchronizerManager } from "@cornerstonejs/tools";
+const { createSynchronizer } = SynchronizerManager;
 
 /**
  * Initialize cornerstone tools with default configuration (extended with custom configuration)
@@ -328,90 +329,6 @@ export const setToolDisabled = function (
 };
 
 /**
- * @function syncViewportsCamera
- * @desc  Synchronizes the camera position of two (volume) viewports
- * @param id - unique id for the synchronizer @default "default"
- * @param targetViewportId - the id of the target viewport where the camera will be synced
- * @param sourceViewportId - the id of the source viewport from where the camera position will be taken
- */
-export const syncViewportsCamera = function (
-  id: string = "default", // unique id for the synchronizer
-  targetViewportId: string,
-  sourceViewportId: string
-) {
-  let cameraSync = cornerstoneTools.SynchronizerManager.getSynchronizer(id);
-  if (!cameraSync) {
-    cameraSync =
-      cornerstoneTools.synchronizers.createCameraPositionSynchronizer(id);
-  } else if (cameraSync) {
-    // cameraSync.getSourceViewports().forEach((viewportId) => {
-    //   cameraSync!.removeSource(viewportId);
-    // });
-    cornerstoneTools.SynchronizerManager.destroySynchronizer(id);
-    cameraSync =
-      cornerstoneTools.synchronizers.createCameraPositionSynchronizer(id);
-  }
-
-  const targetRenderingEngineId =
-    cornerstone.getEnabledElementByViewportId(
-      targetViewportId
-    )?.renderingEngineId;
-  const sourceRenderingEngineId =
-    cornerstone.getEnabledElementByViewportId(
-      sourceViewportId
-    )?.renderingEngineId;
-
-  if (!targetRenderingEngineId || !sourceRenderingEngineId) {
-    logger.error(
-      "syncViewportsCamera: no rendering engine found for one of the viewports"
-    );
-    return;
-  }
-
-  // get plane and position from the source viewport and set to target viewport
-  // TODO why the sync does not work first time ?
-  const sourceViewport =
-    cornerstone.getEnabledElementByViewportId(sourceViewportId)?.viewport;
-  if (!sourceViewport) {
-    logger.error("syncViewportsCamera: source viewport not found");
-    return;
-  }
-  const sourceViewRef = sourceViewport.getViewReference();
-
-  const targetViewport =
-    cornerstone.getEnabledElementByViewportId(targetViewportId)?.viewport;
-  if (!targetViewport) {
-    logger.error("syncViewportsCamera: target viewport not found");
-    return;
-  }
-  targetViewport.setViewReference(sourceViewRef);
-
-  cameraSync.add({
-    renderingEngineId: sourceRenderingEngineId,
-    viewportId: sourceViewportId
-  });
-
-  cameraSync.add({
-    renderingEngineId: targetRenderingEngineId,
-    viewportId: targetViewportId
-  });
-
-  const targetElement =
-    cornerstone.getEnabledElementByViewportId(targetViewportId);
-  targetElement.viewport.render();
-
-  const sourceElement =
-    cornerstone.getEnabledElementByViewportId(sourceViewportId);
-  sourceElement.viewport.render();
-
-  logger.debug(
-    `Camera sync added from ${sourceViewportId} to ${targetViewportId}`
-  );
-
-  // FIXME: how to force a refresh of the viewport?
-};
-
-/**
  * @function syncViewportsVOI
  * @desc  Synchronizes the contrast of two (volume) viewports
  * @param id - unique id for the synchronizer @default "default"
@@ -505,8 +422,105 @@ export const syncViewports = function (
   targetViewportId: string,
   sourceViewportId: string
 ) {
-  syncViewportsCamera(id, targetViewportId, sourceViewportId);
+  syncViewportsSlabAndCamera(
+    id,
+    ["camera", "slab"],
+    targetViewportId,
+    sourceViewportId
+  );
   syncViewportsVOI(id, targetViewportId, sourceViewportId);
+};
+
+/**
+ * @function syncViewportsSlabAndCamera
+ * @desc  Synchronizes the camera position and/or the slab of two (volume) viewports
+ * @param id - unique id for the synchronizer @default "default"
+ * @param syncTypes - the types of synchronization to perform (camera, slab)
+ * @param viewportIds - the ids of the viewport to synchronize
+ */
+export const syncViewportsSlabAndCamera = function (
+  id: string = "default", // unique id for the synchronizer
+  syncTypes: string[] = ["camera", "slab"],
+  ...viewportIds: string[]
+) {
+  let synchronizerInstance =
+    cornerstoneTools.SynchronizerManager.getSynchronizer(id);
+  const options = {
+    syncInvertState: true,
+    syncColormap: true
+  };
+  if (!synchronizerInstance) {
+    synchronizerInstance = cornerstoneTools.synchronizers.createVOISynchronizer(
+      id,
+      options
+    );
+  } else if (synchronizerInstance) {
+    cornerstoneTools.SynchronizerManager.destroySynchronizer(id);
+    synchronizerInstance = cornerstoneTools.synchronizers.createVOISynchronizer(
+      id,
+      options
+    );
+  }
+
+  function syncCameraAndSlabCallback(
+    _synchronizerInstance: cornerstoneTools.Synchronizer,
+    sourceViewport: Types.IViewportId,
+    targetViewport: Types.IViewportId,
+    cameraModifiedEvent: CustomEvent
+  ) {
+    const renderingEngine = getRenderingEngine(
+      targetViewport.renderingEngineId
+    );
+    if (!renderingEngine) {
+      throw new Error(
+        `No RenderingEngine for Id: ${targetViewport.renderingEngineId}`
+      );
+    }
+
+    const tViewport = renderingEngine.getViewport(targetViewport.viewportId);
+    const sViewport = renderingEngine.getViewport(sourceViewport.viewportId);
+
+    if (syncTypes.includes("slab")) {
+      const slabThickness = (
+        sViewport as Types.IVolumeViewport
+      ).getSlabThickness?.();
+      if (!slabThickness) {
+        return;
+      }
+      (tViewport as Types.IVolumeViewport).setSlabThickness?.(slabThickness);
+    }
+
+    if (syncTypes.includes("camera")) {
+      const { camera } = cameraModifiedEvent.detail;
+      tViewport.setCamera(camera);
+    }
+
+    tViewport.render();
+  }
+
+  const CAMERA_MODIFIED = Enums.Events.CAMERA_MODIFIED;
+  const synchronizer = createSynchronizer(
+    "custom",
+    CAMERA_MODIFIED,
+    syncCameraAndSlabCallback
+  );
+
+  viewportIds.forEach(viewportId => {
+    const renderingEngineId =
+      cornerstone.getEnabledElementByViewportId(viewportId)?.renderingEngineId;
+
+    if (!renderingEngineId) {
+      logger.error(
+        `syncViewport2: rendering engine not found for viewport ${viewportId}`
+      );
+      return;
+    }
+
+    synchronizer.add({
+      renderingEngineId,
+      viewportId
+    });
+  });
 };
 
 /**
