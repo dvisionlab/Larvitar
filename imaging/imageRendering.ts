@@ -17,6 +17,7 @@ import { applyColorMap } from "./imageColormaps";
 import { isElement } from "./imageUtils";
 import {
   DisplayedArea,
+  Image,
   Instance,
   RenderProps,
   Series,
@@ -28,6 +29,7 @@ import { initializeFileImageLoader } from "./imageLoading";
 import { generateFiles } from "./parsers/pdf";
 import { resetPixelShift, setPixelShift } from "./loaders/dsaImageLoader";
 import { ViewportComplete } from "./tools/types";
+import { applyConvolutionFilter } from "./postProcessing/applyKernel";
 
 /*
  * This module provides the following functions to be exported:
@@ -696,7 +698,15 @@ export const renderImage = function (
           reject(`invalid html element: ${elementId}`);
           return;
         }
-
+        if (renderOptions.filterName) {
+          image = applyConvolutionFilter(
+            image as Image,
+            renderOptions.filterName,
+            true
+          ) as Image;
+          data.default.voi.windowWidth = image.windowWidth;
+          data.default.voi.windowCenter = image.windowCenter;
+        }
         // display the image on the element
         cornerstone.displayImage(element, image);
         logger.debug(`Image has been displayed on the element: ${elementId}`);

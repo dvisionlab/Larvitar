@@ -29,7 +29,8 @@ import type {
   CustomDataSet,
   MetaData,
   ReslicedInstance,
-  Series
+  Series,
+  TypedArray
 } from "./types";
 import { getTagValue } from "./imageTags";
 import { MetaDataTypes } from "./MetaDataTypes";
@@ -95,19 +96,46 @@ export const getNormalOrientation = function (
 };
 
 /**
+ * Get the min and max pixel value from pixelData
+ * @instance
+ * @function getMinPixelValue
+ * @param {Array} pixelData - Pixel data array
+ */
+export const getMinMaxPixelValue = function (
+  pixelData: number[] | TypedArray
+): {
+  minPixelValue: number;
+  maxPixelValue: number;
+} {
+  let minPixelValue = +Infinity;
+  let maxPixelValue = -Infinity;
+  for (let i = 0; i < pixelData.length; i++) {
+    if (!minPixelValue || minPixelValue > pixelData[i]) {
+      minPixelValue = pixelData[i];
+    }
+    if (!maxPixelValue || maxPixelValue < pixelData[i]) {
+      maxPixelValue = pixelData[i];
+    }
+  }
+  return { minPixelValue, maxPixelValue };
+};
+
+/**
  * Get the min pixel value from pixelData
  * @instance
  * @function getMinPixelValue
  * @param {Array} pixelData - Pixel data array
  */
-export const getMinPixelValue = function (pixelData: number[]): number {
-  let min = +Infinity;
+export const getMinPixelValue = function (
+  pixelData: number[] | TypedArray
+): number {
+  let minPixelValue = +Infinity;
   for (let i = 0; i < pixelData.length; i++) {
-    if (!min || min > pixelData[i]) {
-      min = pixelData[i];
+    if (!minPixelValue || minPixelValue > pixelData[i]) {
+      minPixelValue = pixelData[i];
     }
   }
-  return min;
+  return minPixelValue;
 };
 
 /**
@@ -116,14 +144,16 @@ export const getMinPixelValue = function (pixelData: number[]): number {
  * @function getMaxPixelValue
  * @param {Array} pixelData - Pixel data array
  */
-export const getMaxPixelValue = function (pixelData: number[]): number {
-  let max = -Infinity;
+export const getMaxPixelValue = function (
+  pixelData: number[] | TypedArray
+): number {
+  let maxPixelValue = -Infinity;
   for (let i = 0; i < pixelData.length; i++) {
-    if (!max || max < pixelData[i]) {
-      max = pixelData[i];
+    if (!maxPixelValue || maxPixelValue < pixelData[i]) {
+      maxPixelValue = pixelData[i];
     }
   }
-  return max;
+  return maxPixelValue;
 };
 
 /**

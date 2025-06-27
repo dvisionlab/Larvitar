@@ -366,7 +366,14 @@ export type SingleFrameCache = {
 type contrast = { windowCenter: number; windowWidth: number };
 type translation = { x: number; y: number };
 
+export type KernelConfig = {
+  label: string;
+  size: number;
+  kernel: number[][];
+};
+
 export type RenderProps = {
+  filterName?: string;
   cached?: boolean;
   imageIndex?: number;
   scale?: number;
