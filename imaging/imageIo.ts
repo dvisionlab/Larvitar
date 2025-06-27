@@ -13,8 +13,7 @@ import {
   getDistanceBetweenSlices,
   getTypedArrayFromDataType,
   getSortedStack,
-  getMinPixelValue,
-  getMaxPixelValue
+  getMinMaxPixelValue
 } from "./imageUtils";
 import store from "./imageStore";
 import { parse } from "./parsers/nrrd";
@@ -303,12 +302,15 @@ export const exportImageToBase64OriginalSizes = function (imageId: string) {
 
   let dicomPixelData: number[] = image.getPixelData();
   let pngPixelData = new Uint8Array(image.width * image.height * 4);
-  const min = getMinPixelValue(dicomPixelData);
-  const max = getMaxPixelValue(dicomPixelData);
+  const { minPixelValue, maxPixelValue } = getMinMaxPixelValue(dicomPixelData);
 
   for (let i = 0; i < dicomPixelData.length; i++) {
     // Assuming each integer represents a grayscale value
-    pngPixelData[i * 4] = mapToRange(dicomPixelData[i], min, max); // Red channel
+    pngPixelData[i * 4] = mapToRange(
+      dicomPixelData[i],
+      minPixelValue,
+      maxPixelValue
+    ); // Red channel
     pngPixelData[i * 4 + 1] = pngPixelData[i * 4]; // Green channel
     pngPixelData[i * 4 + 2] = pngPixelData[i * 4]; // Blue channel
     pngPixelData[i * 4 + 3] = 255; // Alpha channel (fully opaque)

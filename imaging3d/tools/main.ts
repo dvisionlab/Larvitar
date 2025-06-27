@@ -405,7 +405,11 @@ export const syncViewports = function (
     targetViewportId,
     sourceViewportId
   );
-  syncViewportsVOI(id, [targetViewportId, sourceViewportId, ...otherViewportIds]);
+  syncViewportsVOI(id, [
+    targetViewportId,
+    sourceViewportId,
+    ...otherViewportIds
+  ]);
 };
 
 /**
@@ -477,7 +481,7 @@ export const syncViewportsSlabAndCamera = function (
 
   const CAMERA_MODIFIED = Enums.Events.CAMERA_MODIFIED;
   const synchronizer = createSynchronizer(
-    "custom",
+    id,
     CAMERA_MODIFIED,
     syncCameraAndSlabCallback
   );

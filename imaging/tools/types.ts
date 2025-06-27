@@ -59,6 +59,7 @@ export type ToolStyle = {
   backgroundColor: string; // "rgba(1,1,1,0.7)"
 };
 export type CursorOptions = {
+  name: string;
   iconSize: number;
   mousePoint: Coords;
   mousePointerGroupString: string;
