@@ -95,6 +95,7 @@ All properties are optional.
 | `default.rotation`    | `number`     | Default rotation angle for the image.            |
 | `default.translation` | `translation`| Default translation vector for the image.        |
 | `default.voi`         | `contrast`   | Default windowing parameters for the image.      |
+| `filterName` | `string` | The name of the filter to apply to the displayed image. |
 
 #### `contrast` Interface
 
