@@ -1144,7 +1144,7 @@ const registerExternalTool = function (
     defaultActive: false
   };
 
-  if (toolCursor) {
+  if (toolCursor && cursorOptions) {
     registerCursor(toolName, toolCursor, cursorOptions);
   }
 };
@@ -1183,11 +1183,12 @@ function extend(
 export const registerCursor = function (
   toolName: string,
   iconContent: string,
-  viewBox?: CursorOptions
+  cursorOptions: CursorOptions
 ) {
+  cursorOptions.name = toolName;
   cornerstoneTools.cursors.CursorSVG[toolName] = extend(BASE_CURSOR, {
     iconContent,
-    viewBox
+    ...cursorOptions
   });
 };
 
