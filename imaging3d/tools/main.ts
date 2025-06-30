@@ -446,9 +446,11 @@ export const syncViewportsSlabAndCamera = function (
       const slabThickness = (
         sViewport as Types.IVolumeViewport
       ).getSlabThickness?.();
-      if (!slabThickness) {
+      const blendMode = (sViewport as Types.IVolumeViewport).getBlendMode?.();
+      if (!slabThickness || !blendMode) {
         return;
       }
+      (tViewport as Types.IVolumeViewport).setBlendMode(blendMode);
       (tViewport as Types.IVolumeViewport).setSlabThickness?.(slabThickness);
     }
 
