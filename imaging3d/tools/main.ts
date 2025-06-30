@@ -424,25 +424,6 @@ export const syncViewportsSlabAndCamera = function (
   syncTypes: string[] = ["camera", "slab"],
   ...viewportIds: string[]
 ) {
-  let synchronizerInstance =
-    cornerstoneTools.SynchronizerManager.getSynchronizer(id);
-  const options = {
-    syncInvertState: true,
-    syncColormap: true
-  };
-  if (!synchronizerInstance) {
-    synchronizerInstance = cornerstoneTools.synchronizers.createVOISynchronizer(
-      id,
-      options
-    );
-  } else if (synchronizerInstance) {
-    cornerstoneTools.SynchronizerManager.destroySynchronizer(id);
-    synchronizerInstance = cornerstoneTools.synchronizers.createVOISynchronizer(
-      id,
-      options
-    );
-  }
-
   function syncCameraAndSlabCallback(
     _synchronizerInstance: cornerstoneTools.Synchronizer,
     sourceViewport: Types.IViewportId,
@@ -480,11 +461,22 @@ export const syncViewportsSlabAndCamera = function (
   }
 
   const CAMERA_MODIFIED = Enums.Events.CAMERA_MODIFIED;
-  const synchronizer = createSynchronizer(
-    id,
-    CAMERA_MODIFIED,
-    syncCameraAndSlabCallback
-  );
+  let synchronizer = cornerstoneTools.SynchronizerManager.getSynchronizer(id);
+
+  if (!synchronizer) {
+    synchronizer = createSynchronizer(
+      id,
+      CAMERA_MODIFIED,
+      syncCameraAndSlabCallback
+    );
+  } else if (synchronizer) {
+    cornerstoneTools.SynchronizerManager.destroySynchronizer(id);
+    synchronizer = createSynchronizer(
+      id,
+      CAMERA_MODIFIED,
+      syncCameraAndSlabCallback
+    );
+  }
 
   viewportIds.forEach(viewportId => {
     const renderingEngineId =
