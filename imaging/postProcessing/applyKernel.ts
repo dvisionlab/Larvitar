@@ -2,18 +2,18 @@ import { getMinMaxPixelValue } from "../imageUtils";
 import { Image, TypedArray, KernelConfig } from "../types";
 const CONVOLUTION_KERNELS: { [key: string]: KernelConfig } = {
   /* gaussianBlur: {
-    label: "Gaussian Blur 3x3",
-    size: 3,
-    kernel: [
+    Label: "Gaussian Blur 3x3",
+    Size: 3,
+    Kernel: [
       [1, 2, 1],
       [2, 4, 2],
       [1, 2, 1]
     ]
   },
   edgeDetect: {
-    label: "Edge Detection 3x3",
-    size: 3,
-    kernel: [
+    Label: "Edge Detection 3x3",
+    Size: 3,
+    Kernel: [
       [-1, -1, -1],
       [-1, 8, -1],
       [-1, -1, -1]
@@ -121,7 +121,7 @@ export function applyConvolutionFilter(
     pixelData: pixelData
   };
 
-  const kernel = CONVOLUTION_KERNELS[filterName].kernel;
+  const kernel = CONVOLUTION_KERNELS[filterName].Kernel;
   const filteredPixelArray = convolve(imageFrame, kernel, multiplier);
   const filteredImage = createFilteredImage(
     loadedImage,
@@ -173,14 +173,14 @@ export function createFilteredImage(
  * @param {Object} config - Kernel configuration (modality, label, size, kernel)
  */
 export function addCustomKernel(name: string, config: KernelConfig): void {
-  if (!config.kernel || !Array.isArray(config.kernel)) {
+  if (!config.Kernel || !Array.isArray(config.Kernel)) {
     throw new Error("Kernel must be a 2D array");
   }
 
   CONVOLUTION_KERNELS[name] = {
-    label: config.label,
-    size: config.size,
-    kernel: config.kernel
+    Label: config.Label,
+    Size: config.Size,
+    Kernel: config.Kernel
   };
 }
 
