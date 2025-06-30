@@ -68,6 +68,7 @@ export type StoreViewport = {
   numberOfTemporalPositions?: number;
   numberOfFrames?: number;
   timeIndex?: number;
+  filterName?: string;
   viewport: {
     scale: number;
     rotation: number;
