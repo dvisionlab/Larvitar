@@ -68,6 +68,7 @@ export type StoreViewport = {
   numberOfTemporalPositions?: number;
   numberOfFrames?: number;
   timeIndex?: number;
+  filterName?: string;
   viewport: {
     scale: number;
     rotation: number;
@@ -367,9 +368,10 @@ type contrast = { windowCenter: number; windowWidth: number };
 type translation = { x: number; y: number };
 
 export type KernelConfig = {
-  label: string;
-  size: number;
-  kernel: number[][];
+  Label: string;
+  Size: number;
+  Kernel: number[][];
+  Modality?: string[];
 };
 
 export type RenderProps = {

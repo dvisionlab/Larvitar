@@ -66,7 +66,7 @@ type SetPayload =
     ]
   | ["cached", string, string, boolean]
   | ["timestamp", string, number | undefined]
-  | ["uniqueUID" | "modality", string, string | undefined]
+  | ["uniqueUID" | "modality" | "filterName", string, string | undefined]
   | ["pendingSliceId", string, number | undefined]
   | ["timestamps" | "timeIds", string, number[]]
   | ["pixelShift", string, number[] | undefined]
@@ -134,6 +134,7 @@ const DEFAULT_VIEWPORT: StoreViewport = {
   isColor: false,
   isMultiframe: false,
   modality: "",
+  filterName: "",
   isTimeserie: false,
   isDSAEnabled: false,
   isPDF: false,
@@ -227,6 +228,13 @@ const setValue = (store: Store, data: SetPayload) => {
       triggerViewportListener(k);
       break;
     case "modality":
+      if (!viewport) {
+        return;
+      }
+      viewport[field] = (v as [string])[0];
+      triggerViewportListener(k);
+      break;
+    case "filterName":
       if (!viewport) {
         return;
       }
@@ -466,6 +474,9 @@ export default {
   },
   setDSAPixelShift: (elementId: string, pixelShift?: number[]) => {
     set(["pixelShift", elementId, pixelShift]);
+  },
+  setImageFilter: (elementId: string, filterName: string) => {
+    set(["filterName", elementId, filterName]);
   },
   resetActiveTools() {
     STORE!.leftActiveTool = undefined;
