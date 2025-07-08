@@ -181,6 +181,14 @@ export const updateLoadedStack = function (
   customId?: string,
   sliceIndex?: number
 ) {
+  console.log(
+    "updateLoadedStack",
+    seriesData,
+    allSeriesStack,
+    customId,
+    sliceIndex
+  );
+
   let imageTracker = getImageTracker();
   let lid = seriesData.metadata.uniqueUID;
   let sid = seriesData.metadata.seriesUID;
@@ -192,8 +200,9 @@ export const updateLoadedStack = function (
     : seriesData.metadata["x00201002"];
   let numberOfFrames = seriesData.metadata["x00280008"];
   let modality = seriesData.metadata["x00080060"];
-  let isMultiframe =
-    numberOfFrames && (numberOfFrames as number) > 1 ? true : false;
+  let isMultiframe = false;
+  // let isMultiframe =
+  //   numberOfFrames && (numberOfFrames as number) > 1 ? true : false;
   let numberOfTemporalPositions = seriesData.metadata["x00200105"];
   let acquisitionNumberAttribute = seriesData.metadata["x00200012"];
   let is4D = seriesData.metadata.is4D;
@@ -233,7 +242,7 @@ export const updateLoadedStack = function (
       numberOfSlices: numberOfSlices as number,
       numberOfFrames: numberOfFrames as number,
       numberOfTemporalPositions: numberOfTemporalPositions as number,
-      isMultiframe: isMultiframe,
+      isMultiframe: isMultiframe as boolean,
       waveform: waveform as boolean,
       is4D: is4D as boolean,
       isPDF: isPDF as boolean,
@@ -260,11 +269,15 @@ export const updateLoadedStack = function (
     allSeriesStack[id] = series as Series;
   }
 
+  console.log("All Series Stack:", allSeriesStack);
+
   // get instance number from metadata
   const instanceNumber = seriesData.metadata["x00200013"];
   const defaultMethod = instanceNumber ? "instanceNumber" : "imagePosition";
   const sortMethods: Array<"imagePosition" | "contentTime" | "instanceNumber"> =
     is4D ? [defaultMethod, "contentTime"] : [defaultMethod];
+
+  console.log(isMultiframe, "isMultiframe");
 
   // image is a dicom multiframe object with file and dataset attributes
   // that has been parsed by the dicomParser and is ready to be loaded
@@ -304,6 +317,7 @@ export const updateLoadedStack = function (
     let imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(
       seriesData.file
     ) as string;
+    console.log("ImageId:", imageId);
 
     if (!seriesData.dataSet) {
       console.error(
@@ -316,10 +330,16 @@ export const updateLoadedStack = function (
       ) as string;
       allSeriesStack[id].imageIds3D.push(imageId3D);
       const metadata = convertMetadata(seriesData.dataSet);
+      console.log(metadata);
       cornerstoneDICOMImageLoader3D.wadors.metaDataManager.add(
         imageId3D,
-        metadata
+        seriesData.metadata
       );
+      console.log("added imageId3D:", imageId3D, metadata);
+      console.log(
+        cornerstoneDICOMImageLoader3D.wadors.metaDataManager.get(imageId3D)
+      );
+
       // //@ts-ignore
       // getVideoUrlFromDicom(seriesData.file as File).then(videoUrl => {
       //   console.log(videoUrl);
@@ -395,6 +415,7 @@ let isNewInstance = function (
       isNewInstance = false;
     }
   });
+  console.log("isNewInstance:", isNewInstance, iid);
   return isNewInstance;
 };
 

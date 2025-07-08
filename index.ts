@@ -297,6 +297,7 @@ import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imagi
 
 import { getVideoUrlFromDicom as _getVideoUrlFromDicom } from "./imaging3d/imageLoading";
 import { addImageUrlMetadata as _addImageUrlMetadata } from "./imaging3d/videoMetadataProvider";
+import { addCineMetadata as _addCineMetadata } from "./imaging3d/cineMetadataProvider";
 
 import {
   addDefaultTools as _addDefaultTools,
@@ -356,6 +357,7 @@ export {
   _convertMultiframeImageIds,
   _getVideoUrlFromDicom,
   _addImageUrlMetadata,
+  _addCineMetadata,
   _addDefaultTools,
   _addTool,
   _setToolActive,

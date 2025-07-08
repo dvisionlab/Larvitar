@@ -185,6 +185,73 @@
             let manager = larvitar.getImageManager();
             let serie = manager[uniqueUID];
 
+            console.log("Serie:", serie);
+
+            const dataset = serie.instances["dicomfile:0"].dataSet;
+            console.log("Dataset:", dataset);
+
+            const pixelElement = dataset.elements.x7fe00010;
+            if (!pixelElement) {
+              console.error("❌ Pixel Data non trovato");
+              return;
+            }
+            const { dataOffset, length } = pixelElement;
+
+            const transferSyntax = dataset.string("x00020010");
+            console.log("Transfer Syntax:", transferSyntax);
+
+            if (pixelElement.fragments?.length) {
+              // Unisci tutti i frammenti in un singolo Uint8Array
+              const fragmentBuffers = pixelElement.fragments.map(fragment => {
+                return dataset.byteArray.slice(
+                  fragment.position,
+                  fragment.position + fragment.length
+                );
+              });
+
+              // Calcola la lunghezza totale
+              const totalLength = fragmentBuffers.reduce(
+                (sum, frag) => sum + frag.length,
+                0
+              );
+
+              // Crea un unico buffer
+              var fullBuffer = new Uint8Array(totalLength);
+              let offset = 0;
+              for (const frag of fragmentBuffers) {
+                fullBuffer.set(frag, offset);
+                offset += frag.length;
+              }
+            } else {
+              // Se non ci sono frammenti, usa il byte array direttamente
+              var fullBuffer = dataset.byteArray.slice(
+                dataOffset,
+                dataOffset + length
+              );
+            }
+
+            // Crea il blob con MIME corretto (MPEG2)
+            const blob = new Blob([fullBuffer], { type: "video/mp4" });
+
+            function downloadBlob(blob, filename) {
+              const url = URL.createObjectURL(blob);
+
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = filename;
+              a.style.display = "none";
+
+              document.body.appendChild(a);
+              a.click();
+
+              URL.revokeObjectURL(url);
+              document.body.removeChild(a);
+            }
+
+            const videoUrl = URL.createObjectURL(blob);
+            console.log("Video URL:", videoUrl);
+
+            // downloadBlob(blob, "extracted-video.mp4");
             const renderingEngine = larvitar._initializeRenderingEngine("1234");
             const viewportInput = {
               viewportId: "viewer",
@@ -198,46 +265,58 @@
             const viewport = renderingEngine.getViewport("viewer");
             console.log("Viewport:", viewport);
 
+            // CI SONO DEI PROB CON I METADATI
             larvitar._loadAndCacheMetadata([serie.imageIds[0]]);
 
-            const videoFile = serie.instances[serie.imageIds3D[0]].file;
-            const videoUrl = await larvitar._getVideoUrlFromDicom(videoFile);
+            // const videoUrl = await larvitar._getVideoUrlFromDicom(videoFile);
 
-            console.log("Video file:", videoFile);
-            console.log("Video URL:", videoUrl);
-            const video = document.createElement("video");
-            video.src = videoUrl;
-            video.controls = true;
-            document.body.appendChild(video);
-
+            // const video = document.createElement("video");
+            // video.src = videoUrl;
+            // video.controls = true;
+            // document.body.appendChild(video);
+            console.log("Setting video URL:", videoUrl);
             larvitar._addImageUrlMetadata(serie.imageIds[0], videoUrl);
+            console.log("Image URL metadata set:", serie.imageIds[0]);
 
-            console.log(viewport);
-            //await viewport.setVideo(serie.imageIds[0]);
-            viewport
-              .setVideoURL(videoUrl)
-              .then(() => {
-                console.log("Video URL set successfully");
-                console.log(viewport);
-                viewport.play();
-              })
-              .catch(err => {
-                console.error("Error setting video URL:", err);
-              });
+            larvitar._addCineMetadata(serie.imageIds[0], {
+              frameTime: 1000 / 25
+            });
 
-            // larvitar
-            //   ._renderImage(serie, "viewer")
-            //   .then(async ({ success, renderingEngine }) => {
-            //     console.log("Image has been rendered");
-            //     // add and enable wwwc, pan, zoom, and stack tools
-            //     larvitar._addDefaultTools(["viewer"], renderingEngine, "3D");
-            //     hideSpinner();
+            // await viewport.setVideoURL(
+            //   "https://ohif-assets.s3.us-east-2.amazonaws.com/video/rendered.mp4"
+            // );
+
+            //await viewport.setVideoURL(videoUrl);
+            await viewport.setVideo(serie.imageIds[0]);
+
+            await viewport.play();
+
+            // console.log(viewport);
+            // console.log("Setting video in viewport");
+            // await viewport.setVideo(serie.imageIds[0]);
+            // console.log("Video set in viewport");
+            // viewport
+            //   .setVideoURL(videoUrl)
+            //   .then(() => {
+            //     console.log("Video URL set successfully");
+            //     console.log(viewport);
+            //     viewport
+            //       .play()
+            //       .then(() => {
+            //         console.log("Video playback started");
+            //       })
+            //       .catch(err => {
+            //         console.error("Error starting video playback:", err);
+            //       });
+            //   })
+            //   .catch(err => {
+            //     console.error("Error setting video URL:", err);
             //   });
           })
           .catch(err => console.error(err));
       }
 
-      createFile("dicom_video.dcm", renderSerie);
+      createFile("dicom_mpeg4.dcm", renderSerie);
     </script>
   </body>
 </html>

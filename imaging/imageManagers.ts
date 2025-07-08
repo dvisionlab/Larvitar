@@ -53,13 +53,14 @@ export const populateImageManager = function (
   data: Series
 ): ImageManager {
   const metadata = data.instances[data.imageIds[0]]?.metadata;
+  console.log(metadata);
   if (imageManager === null) {
     imageManager = {};
   }
   let _data = { ...data };
   if (_data.isMultiframe) {
     buildMultiFrameImage(uniqueUID, _data);
-  } else if (metadata.seriesModality === "pr") {
+  } else if (metadata.seriesModality && metadata.seriesModality === "pr") {
     const prUniqueUID = uniqueUID + "_PR";
     imageManager[prUniqueUID] = _data;
     populateGSPSManager(prUniqueUID, _data);

@@ -433,7 +433,8 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
   const imagePosition = metadata["x00200032"];
   const sliceThickness = metadata["x00180050"];
   const numberOfFrames = metadata["x00280008"];
-  const isMultiframe = (numberOfFrames as number) > 1 ? true : false;
+  //let isMultiframe = (numberOfFrames as number) > 1 ? true : false;
+  let isMultiframe = false;
   const waveform = metadata["x50003000"] ? true : false;
   // check dicom tag image type x00080008 if contains the word BIPLANE A or BIPLANE B
   // if true, then it is a biplane image

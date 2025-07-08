@@ -38,6 +38,7 @@ import {
 } from "../imaging/types";
 
 import { getSortedStack, getSortedUIDs } from "../imaging/imageUtils";
+import { registerCineModuleProvider } from "./cineMetadataProvider";
 
 const MAX_CONCURRENCY = 32;
 
@@ -73,6 +74,7 @@ export const initializeImageLoader = function (maxConcurrency?: number) {
     );
   }
   registerImageUrlModuleProvider();
+  registerCineModuleProvider();
 };
 
 export const registerStreamingImageVolume = function () {
@@ -421,10 +423,10 @@ export const loadAndCacheMetadata = (imageIds: string[]) => {
   imageIds.map(imageId => {
     const metadata =
       cornerstoneDICOMImageLoader.wadors.metaDataManager.get(imageId);
-
     const cleanedMetadata = DicomMetaDictionary.naturalizeDataset(
       removeInvalidTags(metadata)
     );
+    console.log("Cleaned Metadata:", cleanedMetadata);
     imageMetadataProvider.add(imageId, metadata);
 
     const pixelSpacing = getPixelSpacingInformation(cleanedMetadata);
@@ -490,6 +492,12 @@ export const getVideoUrlFromDicom = async function (
   // Assumiamo video/mp4, ma puoi controllare il TransferSyntax se necessario
   const blob = new Blob([videoBytes], { type: mimeType });
   console.log("Blob created for video data", blob);
+
+  const afile = new File([blob], "video.mp4", {
+    type: mimeType,
+    lastModified: Date.now()
+  });
+  console.log("File created from Blob", afile);
 
   return URL.createObjectURL(blob);
 };

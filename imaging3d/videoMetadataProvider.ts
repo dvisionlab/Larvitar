@@ -17,6 +17,7 @@ function imageUrlModuleProvider(type: string, imageId: string) {
 // Registra il provider a runtime
 export function registerImageUrlModuleProvider() {
   metaData.addProvider(imageUrlModuleProvider);
+  console.log(metaData);
 }
 
 // Funzione per associare video a un imageId
