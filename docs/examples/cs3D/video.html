@@ -265,53 +265,39 @@
             const viewport = renderingEngine.getViewport("viewer");
             console.log("Viewport:", viewport);
 
-            // CI SONO DEI PROB CON I METADATI
-            larvitar._loadAndCacheMetadata([serie.imageIds[0]]);
+            const imageId = serie.imageIds[0];
+            const firstInstance = serie.instances[serie.imageIds[0]];
+            const metadata = firstInstance.metadata;
 
-            // const videoUrl = await larvitar._getVideoUrlFromDicom(videoFile);
-
-            // const video = document.createElement("video");
-            // video.src = videoUrl;
-            // video.controls = true;
-            // document.body.appendChild(video);
-            console.log("Setting video URL:", videoUrl);
-            larvitar._addImageUrlMetadata(serie.imageIds[0], videoUrl);
-            console.log("Image URL metadata set:", serie.imageIds[0]);
-
-            larvitar._addCineMetadata(serie.imageIds[0], {
-              frameTime: 1000 / 25
+            larvitar._addCompleteVideoMetadata({
+              imageId,
+              videoUrl,
+              metadata
             });
-
-            // await viewport.setVideoURL(
-            //   "https://ohif-assets.s3.us-east-2.amazonaws.com/video/rendered.mp4"
-            // );
+            /*
+            console.log(
+              "imageUrlModule:",
+              larvitar._cornerstone.metaData.get("imageUrlModule", imageId)
+            );
+            console.log(
+              "generalSeriesModule:",
+              larvitar._cornerstone.metaData.get("generalSeriesModule", imageId)
+            );
+            console.log(
+              "cineModule:",
+              larvitar._cornerstone.metaData.get("cineModule", imageId)
+            );
+            console.log(
+              "imagePlaneModule:",
+              larvitar._cornerstone.metaData.get("imagePlaneModule", imageId)
+            );*/
 
             //await viewport.setVideoURL(videoUrl);
-            await viewport.setVideo(serie.imageIds[0]);
+            await viewport.setVideo(imageId);
 
-            await viewport.play();
-
-            // console.log(viewport);
-            // console.log("Setting video in viewport");
-            // await viewport.setVideo(serie.imageIds[0]);
-            // console.log("Video set in viewport");
-            // viewport
-            //   .setVideoURL(videoUrl)
-            //   .then(() => {
-            //     console.log("Video URL set successfully");
-            //     console.log(viewport);
-            //     viewport
-            //       .play()
-            //       .then(() => {
-            //         console.log("Video playback started");
-            //       })
-            //       .catch(err => {
-            //         console.error("Error starting video playback:", err);
-            //       });
-            //   })
-            //   .catch(err => {
-            //     console.error("Error setting video URL:", err);
-            //   });
+            setTimeout(() => {
+              viewport.play();
+            }, 100);
           })
           .catch(err => console.error(err));
       }

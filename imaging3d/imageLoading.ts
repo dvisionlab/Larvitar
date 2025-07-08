@@ -19,7 +19,6 @@ import { forEach } from "lodash";
 // internal libraries
 import store from "../imaging/imageStore";
 import { imageMetadataProvider } from "./imageMetadataProvider";
-import { registerImageUrlModuleProvider } from "./videoMetadataProvider";
 import {
   prefetchMetadataInformation,
   convertMultiframeImageIds
@@ -39,6 +38,7 @@ import {
 
 import { getSortedStack, getSortedUIDs } from "../imaging/imageUtils";
 import { registerCineModuleProvider } from "./cineMetadataProvider";
+import { registerVideoMetadataProviders } from "./videoMetadataProvider";
 
 const MAX_CONCURRENCY = 32;
 
@@ -73,7 +73,7 @@ export const initializeImageLoader = function (maxConcurrency?: number) {
       `CornestoneDICOMImageLoader initialized with default WebWorkers.`
     );
   }
-  registerImageUrlModuleProvider();
+  registerVideoMetadataProviders();
   registerCineModuleProvider();
 };
 
@@ -426,7 +426,6 @@ export const loadAndCacheMetadata = (imageIds: string[]) => {
     const cleanedMetadata = DicomMetaDictionary.naturalizeDataset(
       removeInvalidTags(metadata)
     );
-    console.log("Cleaned Metadata:", cleanedMetadata);
     imageMetadataProvider.add(imageId, metadata);
 
     const pixelSpacing = getPixelSpacingInformation(cleanedMetadata);
