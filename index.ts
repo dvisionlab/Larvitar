@@ -296,7 +296,13 @@ import { prefetchMetadataInformation as _prefetchMetadataInformation } from "./i
 import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imaging3d/multiframe";
 
 import { getVideoUrlFromDicom as _getVideoUrlFromDicom } from "./imaging3d/imageLoading";
-import { addImageUrlMetadata as _addImageUrlMetadata } from "./imaging3d/videoMetadataProvider";
+import {
+  addImageUrlMetadata as _addImageUrlMetadata,
+  addGeneralSeriesMetadata as _addGeneralSeriesMetadata,
+  addVideoMetadata as _addVideoMetadata,
+  addImagePlaneMetadata as _addImagePlaneMetadata,
+  addCompleteVideoMetadata as _addCompleteVideoMetadata
+} from "./imaging3d/videoMetadataProvider";
 import { addCineMetadata as _addCineMetadata } from "./imaging3d/cineMetadataProvider";
 
 import {
@@ -357,6 +363,10 @@ export {
   _convertMultiframeImageIds,
   _getVideoUrlFromDicom,
   _addImageUrlMetadata,
+  _addGeneralSeriesMetadata,
+  _addVideoMetadata,
+  _addImagePlaneMetadata,
+  _addCompleteVideoMetadata,
   _addCineMetadata,
   _addDefaultTools,
   _addTool,
