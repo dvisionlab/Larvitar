@@ -38,6 +38,11 @@ export type MprViewport = {
   orientation: Enums.OrientationAxis;
 };
 
+export type VideoViewport = {
+  viewportId: string;
+  background: [number, number, number];
+};
+
 export type ImageUrlMetadata = {
   rendered: string;
 };

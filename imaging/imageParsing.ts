@@ -432,10 +432,18 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
   const imageOrientation = metadata["x00200037"];
   const imagePosition = metadata["x00200032"];
   const sliceThickness = metadata["x00180050"];
+  const transferSyntaxUID = metadata["x00020010"];
+  const isVideo =
+    transferSyntaxUID === "1.2.840.10008.1.2.4.100" || // MPEG2 Main Profile Main Level
+    transferSyntaxUID === "1.2.840.10008.1.2.4.102" || // MPEG-4 AVC/H.264 High Profile / Level 4.1
+    transferSyntaxUID === "1.2.840.10008.1.2.4.103" // 	MPEG-4 AVC/H.264 BD-compatible High Profile / Level 4.1
+      ? true
+      : false;
   const numberOfFrames = metadata["x00280008"];
-  //let isMultiframe = (numberOfFrames as number) > 1 ? true : false;
-  let isMultiframe = false;
+  const isMultiframe =
+    (numberOfFrames as number) > 1 && isVideo === false ? true : false;
   const waveform = metadata["x50003000"] ? true : false;
+
   // check dicom tag image type x00080008 if contains the word BIPLANE A or BIPLANE B
   // if true, then it is a biplane image
   const biplane = metadata["x00080008"]
@@ -491,6 +499,12 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
     }
   }
   metadataReadable.isMultiframe = isMultiframe;
+
+  if (isVideo) {
+    metadataReadable.isVideoSupported =
+      transferSyntaxUID === "1.2.840.10008.1.2.4.100" ? false : true; // MPEG2 Main Profile Main Level is not supported
+  }
+  metadataReadable.isVideo = isVideo;
 
   if (is4D) {
     metadataReadable.temporalPositionIdentifier = temporalPositionIdentifier;

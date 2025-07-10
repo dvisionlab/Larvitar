@@ -147,7 +147,7 @@
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
 
-      //showSpinner();
+      showSpinner();
 
       async function createFile(fileName, cb) {
         let response = await fetch("../demo/" + fileName);
@@ -155,20 +155,6 @@
         let file = new File([data], fileName);
         demoFiles.push(file);
         cb();
-        // const url =
-        //   "http://192.168.72.141:80/dicomwebcore/wado/studies/1.2.826.0.1.3680043.2.619.9.1.30.850670163.21181/series/1.2.40.0.13.53.55.0.2.25.122365416602926697921596220541294743528/instances/2.25.28570818127938426128093968801678168183";
-        // let response = await fetch(url, {
-        //   method: "GET",
-        //   headers: {
-        //     Accept: "application/dicom"
-        //   }
-        // });
-        // let data = await response.arrayBuffer();
-        // let file = new File([data], fileName);
-        // console.log("File created:", file);
-        // demoFiles.push(file);
-
-        // cb();
       }
 
       async function renderSerie() {
@@ -185,123 +171,55 @@
             let manager = larvitar.getImageManager();
             let serie = manager[uniqueUID];
 
-            console.log("Serie:", serie);
-
-            const dataset = serie.instances["dicomfile:0"].dataSet;
-            console.log("Dataset:", dataset);
-
-            const pixelElement = dataset.elements.x7fe00010;
-            if (!pixelElement) {
-              console.error("❌ Pixel Data non trovato");
+            // check if the serie is a video
+            if (serie.isVideo === false) {
+              console.error("The selected series is not a video.");
+              hideSpinner();
               return;
             }
-            const { dataOffset, length } = pixelElement;
 
-            const transferSyntax = dataset.string("x00020010");
-            console.log("Transfer Syntax:", transferSyntax);
-
-            if (pixelElement.fragments?.length) {
-              // Unisci tutti i frammenti in un singolo Uint8Array
-              const fragmentBuffers = pixelElement.fragments.map(fragment => {
-                return dataset.byteArray.slice(
-                  fragment.position,
-                  fragment.position + fragment.length
-                );
-              });
-
-              // Calcola la lunghezza totale
-              const totalLength = fragmentBuffers.reduce(
-                (sum, frag) => sum + frag.length,
-                0
+            // check if the video is supported by cornerstone
+            if (serie.isVideoSupported === false) {
+              console.error(
+                "The selected video is not supported by cornerstone."
               );
-
-              // Crea un unico buffer
-              var fullBuffer = new Uint8Array(totalLength);
-              let offset = 0;
-              for (const frag of fragmentBuffers) {
-                fullBuffer.set(frag, offset);
-                offset += frag.length;
-              }
-            } else {
-              // Se non ci sono frammenti, usa il byte array direttamente
-              var fullBuffer = dataset.byteArray.slice(
-                dataOffset,
-                dataOffset + length
-              );
+              hideSpinner();
+              return;
             }
 
-            // Crea il blob con MIME corretto (MPEG2)
-            const blob = new Blob([fullBuffer], { type: "video/mp4" });
-
-            function downloadBlob(blob, filename) {
-              const url = URL.createObjectURL(blob);
-
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = filename;
-              a.style.display = "none";
-
-              document.body.appendChild(a);
-              a.click();
-
-              URL.revokeObjectURL(url);
-              document.body.removeChild(a);
-            }
-
-            const videoUrl = URL.createObjectURL(blob);
-            console.log("Video URL:", videoUrl);
-
-            // downloadBlob(blob, "extracted-video.mp4");
+            // initialize rendering engine and its video viewport
             const renderingEngine = larvitar._initializeRenderingEngine("1234");
-            const viewportInput = {
+
+            const videoViewportInput = {
               viewportId: "viewer",
-              type: larvitar._cornerstone.Enums.ViewportType.VIDEO,
-              element: document.getElementById("viewer"),
-              defaultOptions: {
-                background: [0.2, 0, 0.2]
-              }
+              background: [0.2, 0, 0.2]
             };
-            renderingEngine.enableElement(viewportInput);
-            const viewport = renderingEngine.getViewport("viewer");
-            console.log("Viewport:", viewport);
 
-            const imageId = serie.imageIds[0];
-            const firstInstance = serie.instances[serie.imageIds[0]];
-            const metadata = firstInstance.metadata;
-
-            larvitar._addCompleteVideoMetadata({
-              imageId,
-              videoUrl,
-              metadata
-            });
-            /*
-            console.log(
-              "imageUrlModule:",
-              larvitar._cornerstone.metaData.get("imageUrlModule", imageId)
+            larvitar._initializeVideoViewport(
+              renderingEngine.id,
+              videoViewportInput
             );
-            console.log(
-              "generalSeriesModule:",
-              larvitar._cornerstone.metaData.get("generalSeriesModule", imageId)
-            );
-            console.log(
-              "cineModule:",
-              larvitar._cornerstone.metaData.get("cineModule", imageId)
-            );
-            console.log(
-              "imagePlaneModule:",
-              larvitar._cornerstone.metaData.get("imagePlaneModule", imageId)
-            );*/
 
-            //await viewport.setVideoURL(videoUrl);
-            await viewport.setVideo(imageId);
-
-            setTimeout(() => {
-              viewport.play();
-            }, 100);
+            larvitar
+              ._renderVideo(serie, renderingEngine.id)
+              .then(() => {
+                console.log("Video rendering completed successfully");
+                larvitar._playVideo(renderingEngine.id);
+                hideSpinner();
+              })
+              .catch(err => {
+                console.error("Error rendering video:", err);
+              });
           })
           .catch(err => console.error(err));
       }
-
+      // play + pause video (renderingEngineId) allows to play and pause video
+      // toggleVideoPlayback(renderingEngineId) allows to toggle video playback
+      // scrollVideo(renderingEngineId, delta) allows to scroll video frames
+      // setPlaybackRate(renderingEngineId, rate) allows to set playback rate
+      // setFrameNumber(renderingEngineId, frameNumber) allows to set the current frame number
+      // setTime(renderingEngineId, time) allows to set the current time in seconds
+      // setFrameRange(renderingEngineId, frameRange) allows to set the frame range
       createFile("dicom_mpeg4.dcm", renderSerie);
     </script>
   </body>

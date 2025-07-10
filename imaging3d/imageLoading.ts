@@ -18,7 +18,7 @@ import { forEach } from "lodash";
 
 // internal libraries
 import store from "../imaging/imageStore";
-import { imageMetadataProvider } from "./imageMetadataProvider";
+import { imageMetadataProvider } from "./metadataProviders/imageMetadataProvider";
 import {
   prefetchMetadataInformation,
   convertMultiframeImageIds
@@ -37,8 +37,7 @@ import {
 } from "../imaging/types";
 
 import { getSortedStack, getSortedUIDs } from "../imaging/imageUtils";
-import { registerCineModuleProvider } from "./cineMetadataProvider";
-import { registerVideoMetadataProviders } from "./videoMetadataProvider";
+import { registerMetadataProviders } from "./metadataProviders/metadataProviders";
 
 const MAX_CONCURRENCY = 32;
 
@@ -73,8 +72,7 @@ export const initializeImageLoader = function (maxConcurrency?: number) {
       `CornestoneDICOMImageLoader initialized with default WebWorkers.`
     );
   }
-  registerVideoMetadataProviders();
-  registerCineModuleProvider();
+  registerMetadataProviders();
 };
 
 export const registerStreamingImageVolume = function () {
@@ -119,7 +117,11 @@ export const updateLoadedStack = async function (
   let numberOfFrames = seriesData.metadata["x00280008"];
   let modality = seriesData.metadata["x00080060"];
   let isMultiframe =
-    numberOfFrames && (numberOfFrames as number) > 1 ? true : false;
+    numberOfFrames &&
+    (numberOfFrames as number) > 1 &&
+    seriesData.metadata.isVideo === false
+      ? true
+      : false;
   let numberOfTemporalPositions = seriesData.metadata["x00200105"];
   let acquisitionNumberAttribute = seriesData.metadata["x00200012"];
   let is4D = seriesData.metadata.is4D;
@@ -159,6 +161,8 @@ export const updateLoadedStack = async function (
       numberOfFrames: numberOfFrames as number,
       numberOfTemporalPositions: numberOfTemporalPositions as number,
       isMultiframe: isMultiframe,
+      isVideo: seriesData.metadata.isVideo as boolean,
+      isVideoSupported: seriesData.metadata.isVideoSupported as boolean,
       waveform: waveform as boolean,
       is4D: is4D as boolean,
       isPDF: isPDF as boolean,
@@ -277,6 +281,13 @@ let isNewInstance = function (
   return isNewInstance;
 };
 
+/**
+ * Remove invalid tags from metadata
+ * @instance
+ * @function removeInvalidTags
+ * @param {Object} srcMetadata - Source metadata object
+ * @returns {Object} Cleaned metadata object with only valid tags
+ */
 export const removeInvalidTags = (srcMetadata: { [tagId: string]: any }) => {
   // Object.create(null) make it ~9% faster
   const dstMetadata = Object.create(null);
@@ -292,12 +303,17 @@ export const removeInvalidTags = (srcMetadata: { [tagId: string]: any }) => {
   return dstMetadata;
 };
 
+/**
+ * Get pixel spacing information from the instance metadata
+ * @instance
+ * @function getPixelSpacingInformation
+ * @param {Object} instance - DICOM instance metadata
+ * @returns {Object} Pixel spacing information
+ */
 export default function getPixelSpacingInformation(instance: any) {
   // See http://gdcm.sourceforge.net/wiki/index.php/Imager_Pixel_Spacing
-
   // TODO: Add Ultrasound region spacing
   // TODO: Add manual calibration
-
   // TODO: Use ENUMS from dcmjs
   const projectionRadiographSOPClassUIDs = [
     "1.2.840.10008.5.1.4.1.1.1", //	CR Image Storage
@@ -419,6 +435,12 @@ export default function getPixelSpacingInformation(instance: any) {
   );
 }
 
+/**
+ * Load and cache metadata for the given image IDs
+ * @instance
+ * @function loadAndCacheMetadata
+ * @param {Array} imageIds - Array of image IDs to load metadata for
+ */
 export const loadAndCacheMetadata = (imageIds: string[]) => {
   imageIds.map(imageId => {
     const metadata =
@@ -447,56 +469,4 @@ export const loadAndCacheMetadata = (imageIds: string[]) => {
       });
     }
   });
-};
-
-const TRANSFER_SYNTAX_TO_MIME: Record<string, string> = {
-  "1.2.840.10008.1.2.4.100": "video/mpeg", // MPEG2
-  "1.2.840.10008.1.2.4.102": "video/mp4", // MPEG4 AVC/H.264 High Profile
-  "1.2.840.10008.1.2.4.103": "video/mp4", // MPEG4 AVC/H.264 BD-compatible
-  // fallback (non video):
-  "1.2.840.10008.1.2": "application/dicom", // Implicit VR Little Endian
-  "1.2.840.10008.1.2.1": "application/dicom" // Explicit VR Little Endian
-};
-
-export const getVideoUrlFromDicom = async function (
-  file: File
-): Promise<string | null> {
-  const arrayBuffer = await file.arrayBuffer();
-  const dicomData = dcmjs.data.DicomMessage.readFile(arrayBuffer);
-  const dicomDict = dcmjs.data.DicomMetaDictionary.naturalizeDataset(
-    dicomData.dict
-  );
-
-  const meta = dcmjs.data.DicomMetaDictionary.namifyDataset(dicomData.meta);
-  const transferSyntaxUID = meta.TransferSyntaxUID.Value[0];
-
-  console.log("Transfer Syntax UID", transferSyntaxUID);
-  const mimeType = TRANSFER_SYNTAX_TO_MIME[transferSyntaxUID];
-
-  if (!mimeType || !mimeType.startsWith("video")) {
-    console.warn(
-      "DICOM is not a video or has unsupported TransferSyntax:",
-      transferSyntaxUID
-    );
-    return null;
-  }
-
-  // Estrai i byte grezzi dal PixelData
-  const videoBytes = dicomDict.PixelData;
-  if (!videoBytes) {
-    throw new Error("PixelData not found in DICOM file");
-  }
-  console.log("Extracted video bytes from DICOM file", videoBytes);
-
-  // Assumiamo video/mp4, ma puoi controllare il TransferSyntax se necessario
-  const blob = new Blob([videoBytes], { type: mimeType });
-  console.log("Blob created for video data", blob);
-
-  const afile = new File([blob], "video.mp4", {
-    type: mimeType,
-    lastModified: Date.now()
-  });
-  console.log("File created from Blob", afile);
-
-  return URL.createObjectURL(blob);
 };

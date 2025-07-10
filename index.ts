@@ -294,16 +294,16 @@ import { resizeRenderingEngine as _resizeRenderingEngine } from "./imaging3d/ima
 import { renderMpr as _renderMpr } from "./imaging3d/imageRendering";
 import { prefetchMetadataInformation as _prefetchMetadataInformation } from "./imaging3d/multiframe";
 import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imaging3d/multiframe";
-
-import { getVideoUrlFromDicom as _getVideoUrlFromDicom } from "./imaging3d/imageLoading";
-import {
-  addImageUrlMetadata as _addImageUrlMetadata,
-  addGeneralSeriesMetadata as _addGeneralSeriesMetadata,
-  addVideoMetadata as _addVideoMetadata,
-  addImagePlaneMetadata as _addImagePlaneMetadata,
-  addCompleteVideoMetadata as _addCompleteVideoMetadata
-} from "./imaging3d/videoMetadataProvider";
-import { addCineMetadata as _addCineMetadata } from "./imaging3d/cineMetadataProvider";
+import { initializeVideoViewport as _initializeVideoViewport } from "./imaging3d/imageRendering";
+import { renderVideo as _renderVideo } from "./imaging3d/imageRendering";
+import { playVideo as _playVideo } from "./imaging3d/imageRendering";
+import { pauseVideo as _pauseVideo } from "./imaging3d/imageRendering";
+import { toggleVideoPlayback as _toggleVideoPlayback } from "./imaging3d/imageRendering";
+import { scrollVideo as _scrollVideo } from "./imaging3d/imageRendering";
+import { setPlaybackRate as _setPlaybackRate } from "./imaging3d/imageRendering";
+import { setFrameNumber as _setFrameNumber } from "./imaging3d/imageRendering";
+import { setTime as _setTime } from "./imaging3d/imageRendering";
+import { setFrameRange as _setFrameRange } from "./imaging3d/imageRendering";
 
 import {
   addDefaultTools as _addDefaultTools,
@@ -361,13 +361,16 @@ export {
   _loadAndCacheMetadata,
   _prefetchMetadataInformation,
   _convertMultiframeImageIds,
-  _getVideoUrlFromDicom,
-  _addImageUrlMetadata,
-  _addGeneralSeriesMetadata,
-  _addVideoMetadata,
-  _addImagePlaneMetadata,
-  _addCompleteVideoMetadata,
-  _addCineMetadata,
+  _initializeVideoViewport,
+  _renderVideo,
+  _playVideo,
+  _pauseVideo,
+  _toggleVideoPlayback,
+  _scrollVideo,
+  _setPlaybackRate,
+  _setFrameNumber,
+  _setTime,
+  _setFrameRange,
   _addDefaultTools,
   _addTool,
   _setToolActive,

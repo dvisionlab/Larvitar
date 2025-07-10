@@ -20,12 +20,22 @@ import { isElement } from "../imaging/imageUtils";
 
 import { loadAndCacheMetadata } from "../imaging3d/imageLoading";
 
-import { Instance, RenderProps, Series, StoreViewport } from "../imaging/types";
+import {
+  Instance,
+  MetaData,
+  RenderProps,
+  Series,
+  StoreViewport
+} from "../imaging/types";
 
-import { MprViewport } from "./types";
+import { MprViewport, VideoViewport } from "./types";
 
 import { logger } from "../logger";
 import { destroyToolGroup } from "./tools/main";
+import { addCineMetadata } from "./metadataProviders/cineMetadataProvider";
+import { addImageUrlMetadata } from "./metadataProviders/imageUrlMetadataProvider";
+import { addGeneralSeriesMetadata } from "./metadataProviders/generalSeriesProvider";
+import { addImagePlaneMetadata } from "./metadataProviders/imagePlaneMetadataProvider";
 // import { DEFAULT_TOOLS } from "./tools/default";
 // import { initializeFileImageLoader } from "./imageLoading";
 // import { generateFiles } from "./parsers/pdf";
@@ -396,6 +406,527 @@ export const unloadMpr = function (renderingEngineId: string): void {
   // destroy the rendering engine
   // decacha il volume? se associato ad altri?
   destroyRenderingEngine(renderingEngineId);
+};
+
+/**
+ * Initialize a video viewport for a rendering engine
+ * @instance
+ * @function initializeVideoViewport
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine to initialize
+ * @param {VideoViewport} viewport - The VideoViewport object to initialize
+ * @returns {void}
+ * @throws {Error} If the rendering engine does not exist or has already been destroyed
+ */
+export const initializeVideoViewport = function (
+  renderingEngineId: string,
+  viewport: VideoViewport
+): void {
+  const t0 = performance.now();
+  // get the rendering engine
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewportInput: cornerstone.Types.PublicViewportInput = {
+    viewportId: viewport.viewportId,
+    type: cornerstone.Enums.ViewportType.VIDEO,
+    element: document.getElementById(viewport.viewportId) as HTMLDivElement,
+    defaultOptions: {
+      background: viewport.background
+    }
+  };
+  renderingEngine.enableElement(viewportInput);
+  const t1 = performance.now();
+  logger.debug(
+    `Video viewport initialized for rendering engine ${renderingEngineId} in ${
+      t1 - t0
+    } milliseconds`
+  );
+};
+
+/**
+ * Get a video URL from a DICOM series
+ * @instance
+ * @function getVideoUrlFromDicom
+ * @param {Series} series - The series object containing imageIds and instances
+ * @param {number} index - The index of the image in the series
+ * @returns {string | null} Returns a video URL created from the DICOM pixel data or null if not found
+ */
+export const getVideoUrlFromDicom = function (
+  series: Series,
+  index: number
+): string | null {
+  const dataset = series.instances[series.imageIds[index]].dataSet;
+  if (!dataset) {
+    logger.error("❌ Dataset not found");
+    return null;
+  }
+
+  const pixelElement = dataset.elements.x7fe00010;
+  if (!pixelElement) {
+    logger.error("❌ Pixel Data not found in dataset");
+    return null;
+  }
+
+  const { dataOffset, length } = pixelElement;
+
+  if (pixelElement.fragments?.length) {
+    // Just in case there are fragments, we will concatenate them
+    const fragmentBuffers = pixelElement.fragments.map(fragment => {
+      return dataset.byteArray.slice(
+        fragment.position,
+        fragment.position + fragment.length
+      );
+    });
+
+    // Compute the total length of all fragments
+    const totalLength = fragmentBuffers.reduce(
+      (sum, frag) => sum + frag.length,
+      0
+    );
+
+    // Create a new Uint8Array to hold the concatenated data
+    const fullBuffer = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const frag of fragmentBuffers) {
+      fullBuffer.set(frag, offset);
+      offset += frag.length;
+    }
+    // Now fullBuffer contains the complete pixel data
+    const blob = new Blob([fullBuffer], { type: "video/mp4" });
+
+    // clean the memory
+    // // @ts-ignore
+    // fragmentBuffers = null;
+    // // @ts-ignore
+    // fullBuffer = null;
+    // // @ts-ignore
+    // blob = null;
+    return URL.createObjectURL(blob);
+  } else {
+    // If there are no fragments, we can directly slice the byteArray
+    const fullBuffer = dataset.byteArray.slice(dataOffset, dataOffset + length);
+    const blob = new Blob([fullBuffer], { type: "video/mp4" });
+    // clean the memory
+    // // @ts-ignore
+    // fullBuffer = null;
+    // // @ts-ignore
+    // blob = null;
+    return URL.createObjectURL(blob);
+  }
+};
+
+/**
+ * Add video metadata to an imageId
+ * @instance
+ * @function addVideoMetadata
+ * @param {string} imageId - The unique identifier of the image to add metadata to
+ * @param {MetaData} metadata - The metadata object containing video information
+ * @param {string} videoUrl - The URL of the video to associate with the imageId
+ * @returns {void}
+ * @throws {Error} If the metadata is missing required fields
+ */
+export const addVideoMetadata = function (
+  imageId: string,
+  metadata: MetaData,
+  videoUrl: string
+): void {
+  const frameRate = metadata["x00180040"] || 30;
+  const frameTime = 1000 / frameRate;
+
+  addCineMetadata(imageId, {
+    frameTime,
+    numberOfFrames: metadata.numberOfFrames || 1,
+    frameRate
+  });
+  addImageUrlMetadata(imageId, { rendered: videoUrl });
+  addGeneralSeriesMetadata(imageId, {
+    seriesInstanceUID: metadata.seriesUID!,
+    studyInstanceUID: metadata.studyUID!,
+    seriesNumber: metadata["x00200011"] || 1,
+    seriesDescription: metadata.seriesDescription || "Video Series",
+    modality: metadata.seriesModality || "XC",
+    seriesDate: metadata.seriesDate || new Date().toISOString().split("T")[0],
+    seriesTime: metadata["x00080031"] || new Date().toTimeString().split(" ")[0]
+  });
+  addImagePlaneMetadata(imageId, {
+    frameOfReferenceUID: metadata["x00200052"] || metadata.studyUID!,
+    rows: metadata.rows!,
+    columns: metadata.cols!,
+    imageOrientationPatient: metadata.imageOrientation || [1, 0, 0, 0, 1, 0],
+    rowCosines: metadata["x00200037"]?.slice(0, 3) || [1, 0, 0],
+    columnCosines: metadata["x00200037"]?.slice(3, 6) || [0, 1, 0],
+    imagePositionPatient: metadata.imagePosition || [0, 0, 0],
+    sliceThickness: (metadata.sliceThickness as number) || 1,
+    sliceLocation: metadata["x00201041"] || 0,
+    pixelSpacing: metadata.pixelSpacing || [1, 1],
+    rowPixelSpacing: metadata.pixelSpacing ? metadata.pixelSpacing[1] : 1,
+    columnPixelSpacing: metadata.pixelSpacing ? metadata.pixelSpacing[0] : 1
+  });
+};
+
+/**
+ * Render a video in a video viewport
+ * @instance
+ * @function renderVideo
+ * @param {Series} series - The series object containing imageIds and instances
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine to render the video in
+ * @param {number} frameNumber - Optional frame number to set for the video
+ * @returns {Promise<void>} Returns a promise that resolves when the video is rendered
+ */
+export const renderVideo = function (
+  series: Series,
+  renderingEngineId: string,
+  frameNumber?: number
+) {
+  const imageIndex = 0; // TODO EXPOSE THIS?
+
+  const t0 = performance.now();
+
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return new Promise((_, reject) =>
+      reject(`Rendering engine with id ${renderingEngineId} not found.`)
+    );
+  }
+  const viewports = renderingEngine.getViewports();
+  // check if there is a video viewport
+  const videoViewport = viewports.find(
+    viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
+  ) as cornerstone.VideoViewport | undefined;
+  if (!videoViewport) {
+    logger.error(
+      `No video viewport found for rendering engine ${renderingEngineId}. Please initialize it first.`
+    );
+    return new Promise((_, reject) =>
+      reject(
+        `No video viewport found for rendering engine ${renderingEngineId}.`
+      )
+    );
+  }
+  setStore(["ready", videoViewport.id, false]);
+
+  const videoUrl = getVideoUrlFromDicom(series, imageIndex);
+  if (!videoUrl) {
+    logger.error(
+      `No video URL found for series ${series.seriesUID}. Please check the DICOM pixel data.`
+    );
+    return new Promise((_, reject) =>
+      reject(`No video URL found for series ${series.seriesUID}.`)
+    );
+  }
+
+  const videoMetadata = series.instances[series.imageIds[imageIndex]].metadata;
+  if (!videoMetadata) {
+    logger.error(
+      `No metadata found for series ${series.seriesUID} at image index ${imageIndex}. Please check the DICOM pixel data.`
+    );
+    return new Promise((_, reject) =>
+      reject(
+        `No metadata found for series ${series.seriesUID} at image index ${imageIndex}.`
+      )
+    );
+  }
+
+  addVideoMetadata(series.imageIds[imageIndex], videoMetadata, videoUrl);
+
+  const renderPromise = new Promise<void>(async (resolve, _) => {
+    const frame = frameNumber || 0; // Default to the first frame if not provided
+    videoViewport.setVideo(series.imageIds[imageIndex], frame);
+    const t1 = performance.now();
+    setStore(["ready", videoViewport.id, true]);
+    logger.debug(
+      `Video viewport set for rendering engine ${renderingEngineId} in ${
+        t1 - t0
+      } milliseconds`
+    );
+
+    // @ts-ignore
+    series = null;
+    // @ts-ignore
+    //data = null;
+    resolve();
+  });
+
+  return renderPromise;
+};
+
+/**
+ * Play a video in a video viewport
+ * @instance
+ * @function playVideo
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine containing the video viewport
+ * @returns {void}
+ * @throws {Error} If the rendering engine or video viewport is not found
+ */
+export const playVideo = function (renderingEngineId: string): void {
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewports = renderingEngine.getViewports();
+  const videoViewport = viewports.find(
+    viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
+  ) as cornerstone.VideoViewport | undefined;
+  if (!videoViewport) {
+    logger.error(
+      `No video viewport found for rendering engine ${renderingEngineId}. Please initialize it first.`
+    );
+    return;
+  }
+  setTimeout(() => {
+    videoViewport.play();
+    logger.debug(
+      `Video playback started for rendering engine ${renderingEngineId}.`
+    );
+  }, 500); // Delay to ensure the video is ready to play
+};
+
+/**
+ * Set the frame range for a video in a video viewport
+ * @instance
+ * @function setFrameRange
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine containing the video viewport
+ * @param {number[]} frameRange - An array containing the start and end frame numbers
+ * @returns {void}
+ * @throws {Error} If the rendering engine or video viewport is not found
+ */
+export const setFrameRange = function (
+  renderingEngineId: string,
+  frameRange: number[]
+): void {
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewports = renderingEngine.getViewports();
+  const videoViewport = viewports.find(
+    viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
+  ) as cornerstone.VideoViewport | undefined;
+  if (!videoViewport) {
+    logger.error(
+      `No video viewport found for rendering engine ${renderingEngineId}. Please initialize it first.`
+    );
+    return;
+  }
+  videoViewport.setFrameRange(frameRange);
+  logger.debug(
+    `Frame range set to ${frameRange} for rendering engine ${renderingEngineId}.`
+  );
+};
+
+/**
+ * Set the time for a video in a video viewport
+ * @instance
+ * @function setTime
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine containing the video viewport
+ * @param {number} timeInSeconds - The time in seconds to set for the video
+ * @returns {void}
+ * @throws {Error} If the rendering engine or video viewport is not found
+ */
+export const setTime = function (
+  renderingEngineId: string,
+  timeInSeconds: number
+): void {
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewports = renderingEngine.getViewports();
+  const videoViewport = viewports.find(
+    viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
+  ) as cornerstone.VideoViewport | undefined;
+  if (!videoViewport) {
+    logger.error(
+      `No video viewport found for rendering engine ${renderingEngineId}. Please initialize it first.`
+    );
+    return;
+  }
+  videoViewport.setTime(timeInSeconds);
+  logger.debug(
+    `Video time set to ${timeInSeconds} seconds for rendering engine ${renderingEngineId}.`
+  );
+};
+
+/**
+ * Set the frame number for a video in a video viewport
+ * @instance
+ * @function setFrameNumber
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine containing the video viewport
+ * @param {number} frame - The frame number to set
+ * @returns {void}
+ * @throws {Error} If the rendering engine or video viewport is not found
+ */
+export const setFrameNumber = function (
+  renderingEngineId: string,
+  frame: number
+): void {
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewports = renderingEngine.getViewports();
+  const videoViewport = viewports.find(
+    viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
+  ) as cornerstone.VideoViewport | undefined;
+  if (!videoViewport) {
+    logger.error(
+      `No video viewport found for rendering engine ${renderingEngineId}. Please initialize it first.`
+    );
+    return;
+  }
+  videoViewport.setFrameNumber(frame);
+  logger.debug(
+    `Frame number set to ${frame} for rendering engine ${renderingEngineId}.`
+  );
+};
+
+/**
+ * Set the playback rate for a video in a video viewport
+ * @instance
+ * @function setPlaybackRate
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine containing the video viewport
+ * @param {number} rate - The playback rate to set (default is 1)
+ * @returns {void}
+ * @throws {Error} If the rendering engine or video viewport is not found
+ */
+export function setPlaybackRate(renderingEngineId: string, rate: number): void {
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewports = renderingEngine.getViewports();
+  const videoViewport = viewports.find(
+    viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
+  ) as cornerstone.VideoViewport | undefined;
+  if (!videoViewport) {
+    logger.error(
+      `No video viewport found for rendering engine ${renderingEngineId}. Please initialize it first.`
+    );
+    return;
+  }
+  videoViewport.setPlaybackRate(rate);
+  logger.debug(
+    `Playback rate set to ${rate} for rendering engine ${renderingEngineId}.`
+  );
+}
+
+/**
+ * Scroll a video in a video viewport
+ * @instance
+ * @function scrollVideo
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine containing the video viewport
+ * @param {number} delta - The number of frames to scroll (positive or negative)
+ * @returns {void}
+ * @throws {Error} If the rendering engine or video viewport is not found
+ */
+export function scrollVideo(
+  renderingEngineId: string,
+  delta: number = 1
+): void {
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewports = renderingEngine.getViewports();
+  const videoViewport = viewports.find(
+    viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
+  ) as cornerstone.VideoViewport | undefined;
+  if (!videoViewport) {
+    logger.error(
+      `No video viewport found for rendering engine ${renderingEngineId}. Please initialize it first.`
+    );
+    return;
+  }
+  videoViewport.scroll(delta);
+  logger.debug(
+    `Video scrolled by ${delta} frames for rendering engine ${renderingEngineId}.`
+  );
+}
+
+/**
+ * Toggle video playback in a video viewport
+ * @instance
+ * @function toggleVideoPlayback
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine containing the video viewport
+ * @returns {void}
+ * @throws {Error} If the rendering engine or video viewport is not found
+ */
+export const toggleVideoPlayback = function (renderingEngineId: string): void {
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewports = renderingEngine.getViewports();
+  const videoViewport = viewports.find(
+    viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
+  ) as cornerstone.VideoViewport | undefined;
+  if (!videoViewport) {
+    logger.error(
+      `No video viewport found for rendering engine ${renderingEngineId}. Please initialize it first  `
+    );
+    return;
+  }
+  videoViewport.togglePlayPause();
+};
+
+/**
+ * Pause a video in a video viewport
+ * @instance
+ * @function pauseVideo
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine containing the video viewport
+ * @returns {void}
+ * @throws {Error} If the rendering engine or video viewport is not found
+ */
+export const pauseVideo = function (renderingEngineId: string): void {
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewports = renderingEngine.getViewports();
+  const videoViewport = viewports.find(
+    viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
+  ) as cornerstone.VideoViewport | undefined;
+  if (!videoViewport) {
+    logger.error(
+      `No video viewport found for rendering engine ${renderingEngineId}. Please initialize it first.`
+    );
+    return;
+  }
+  videoViewport.pause();
+  logger.debug(
+    `Video playback paused for rendering engine ${renderingEngineId}.`
+  );
 };
 
 /**

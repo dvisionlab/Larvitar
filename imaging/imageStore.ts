@@ -33,6 +33,8 @@ type SetPayload =
       (
         | "isColor"
         | "isMultiframe"
+        | "isVideo"
+        | "isVideoSupported"
         | "isPDF"
         | "waveform"
         | "dsa"
@@ -133,6 +135,7 @@ const DEFAULT_VIEWPORT: StoreViewport = {
   maxPixelValue: 0,
   isColor: false,
   isMultiframe: false,
+  isVideo: false,
   modality: "",
   isTimeserie: false,
   isDSAEnabled: false,
@@ -235,6 +238,8 @@ const setValue = (store: Store, data: SetPayload) => {
       break;
     case "isColor":
     case "isMultiframe":
+    case "isVideo":
+    case "isVideoSupported":
     case "isPDF":
     case "waveform":
     case "dsa":

@@ -56,6 +56,8 @@ export type StoreViewport = {
   maxPixelValue: number;
   isColor: boolean;
   isMultiframe: boolean;
+  isVideo: boolean;
+  isVideoSupported?: boolean; // true if the video is supported by cornerstone
   isTimeserie: boolean;
   modality: string;
   isDSAEnabled: boolean;
@@ -169,6 +171,8 @@ export type Series = {
   currentImageIdIndex: number;
   numberOfImages?: number;
   isMultiframe: boolean;
+  isVideo?: boolean;
+  isVideoSupported?: boolean; // true if the video is supported by cornerstone
   color?: boolean;
   dataSet: DataSet | null;
   metadata?: MetaData;
