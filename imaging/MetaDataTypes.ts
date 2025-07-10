@@ -2203,9 +2203,9 @@ export type MetaDataTypes = {
   x00281080?: string;
   x00281090?: string;
   x00281100?: number;
-  x00281101?: number;
-  x00281102?: number;
-  x00281103?: number;
+  x00281101?: number[];
+  x00281102?: number[];
+  x00281103?: number[];
   x00281104?: number;
   x00281111?: number;
   x00281112?: number;
