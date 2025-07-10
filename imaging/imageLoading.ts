@@ -307,10 +307,9 @@ export const updateLoadedStack = function (
     let imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(
       seriesData.file
     ) as string;
-    console.log("ImageId:", imageId);
 
     if (!seriesData.dataSet) {
-      console.error(
+      logger.error(
         "Unable to Init MPR: No dataset found for imageId: " + imageId
       );
     } else {
@@ -390,7 +389,6 @@ let isNewInstance = function (
       isNewInstance = false;
     }
   });
-  console.log("isNewInstance:", isNewInstance, iid);
   return isNewInstance;
 };
 

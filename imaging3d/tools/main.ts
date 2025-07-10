@@ -204,7 +204,6 @@ export const addDefaultTools = function (
     // set default tools active
     // TODO handle options (mouseButtonMask, etc) and other modes (eg passive)
     if (tool.defaultActive) {
-      console.log("setToolActive", tool.name, tool.options);
       setToolActive(tool.name, tool.options, toolGroupId, true);
       logger.debug(`Tool ${tool.name} set as default active`);
     }

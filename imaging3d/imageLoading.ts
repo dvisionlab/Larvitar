@@ -38,6 +38,7 @@ import {
 
 import { getSortedStack, getSortedUIDs } from "../imaging/imageUtils";
 import { registerMetadataProviders } from "./metadataProviders/metadataProviders";
+import { logger } from "../logger";
 
 const MAX_CONCURRENCY = 32;
 
@@ -62,13 +63,13 @@ export const initializeImageLoader = function (maxConcurrency?: number) {
     cornerstoneDICOMImageLoader.init({
       maxWebWorkers: maxWebWorkers
     });
-    console.log(
+    logger.debug(
       `CornestoneDICOMImageLoader initialized with ${maxWebWorkers} WebWorkers.`
     );
   } else {
     // Default to half of the available hardware cores
     cornerstoneDICOMImageLoader.init();
-    console.log(
+    logger.debug(
       `CornestoneDICOMImageLoader initialized with default WebWorkers.`
     );
   }
@@ -401,7 +402,7 @@ export default function getPixelSpacingInformation(instance: any) {
           pixelSpacing / EstimatedRadiographicMagnificationFactor
       );
     } else {
-      console.warn(
+      logger.warn(
         "EstimatedRadiographicMagnificationFactor was not present. Unable to correct ImagerPixelSpacing."
       );
     }
@@ -425,12 +426,12 @@ export default function getPixelSpacingInformation(instance: any) {
     Array.isArray(SequenceOfUltrasoundRegions) &&
     SequenceOfUltrasoundRegions.length > 1
   ) {
-    console.warn(
+    logger.warn(
       "Sequence of Ultrasound Regions > one entry. This is not yet implemented, all measurements will be shown in pixels."
     );
   }
 
-  console.warn(
+  logger.warn(
     "Unknown combination of PixelSpacing and ImagerPixelSpacing identified. Unable to determine spacing."
   );
 }

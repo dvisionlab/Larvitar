@@ -24,6 +24,7 @@ import type {
   MetaDataTypes,
   ExtendedMetaDataTypes
 } from "../imaging/MetaDataTypes";
+import { logger } from "../logger";
 
 // global module variables
 var t0: number; // t0 variable for timing debugging purpose
@@ -150,7 +151,7 @@ export const parseDataSet = function (
         let TAG = propertyName as keyof ExtendedMetaDataTypes;
         // identify duplicated tags (keep the first occurency and store the others in another tag eg x00280010_uuid)
         if (metadata[TAG] !== undefined) {
-          console.debug(
+          logger.debug(
             `Identified duplicated tag "${propertyName}", values are:`,
             metadata[TAG],
             tagValue
@@ -165,7 +166,7 @@ export const parseDataSet = function (
       }
     }
   } catch (err) {
-    console.log(err);
+    logger.error(err);
   }
 };
 
@@ -196,7 +197,7 @@ let parseNextFile = function (
 
   if (parsingQueue.length === 0) {
     let t1 = performance.now();
-    console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
+    logger.debug(`Call to readFiles took ${t1 - t0} milliseconds.`);
     resolve(allSeriesStack);
     return;
   }
@@ -205,7 +206,7 @@ let parseNextFile = function (
   let file = parsingQueue.shift() as File | undefined | null;
 
   if (!file) {
-    console.warn("File is undefined or null");
+    logger.warn("File is undefined or null");
     return;
   }
 
@@ -214,7 +215,7 @@ let parseNextFile = function (
     // do not parse the file and stop parsing
     clearImageParsing(allSeriesStack);
     let t1 = performance.now();
-    console.log(`Call to readFiles took ${t1 - t0} milliseconds.`);
+    logger.debug(`Call to readFiles took ${t1 - t0} milliseconds.`);
     file = null;
     reject("Available memory is not enough");
     return;
@@ -232,7 +233,7 @@ let parseNextFile = function (
         file = null;
       })
       .catch(err => {
-        console.error(err);
+        logger.error(err);
         parseNextFile(parsingQueue, allSeriesStack, uuid, resolve, reject);
         file = null;
       });
@@ -340,9 +341,13 @@ const parseFile = function (file: File) {
         let sliceThickness = metadata["x00180050"];
         const transferSyntaxUID = metadata["x00020010"];
         const isVideo =
-          transferSyntaxUID === "1.2.840.10008.1.2.4.100" || // MPEG2 Main Profile Main Level
-          transferSyntaxUID === "1.2.840.10008.1.2.4.102" || // MPEG-4 AVC/H.264 High Profile / Level 4.1
-          transferSyntaxUID === "1.2.840.10008.1.2.4.103" // 	MPEG-4 AVC/H.264 BD-compatible High Profile / Level 4.1
+          transferSyntaxUID === "1.2.840.10008.1.2.4.100" ||
+          transferSyntaxUID === "1.2.840.10008.1.2.4.101" ||
+          transferSyntaxUID === "1.2.840.10008.1.2.4.102" ||
+          transferSyntaxUID === "1.2.840.10008.1.2.4.103" ||
+          transferSyntaxUID === "1.2.840.10008.1.2.4.104" ||
+          transferSyntaxUID === "1.2.840.10008.1.2.4.105" ||
+          transferSyntaxUID === "1.2.840.10008.1.2.4.106"
             ? true
             : false;
         let numberOfFrames = metadata["x00280008"];
@@ -438,7 +443,10 @@ const parseFile = function (file: File) {
 
             if (isVideo) {
               imageObject.metadata.isVideoSupported =
-                transferSyntaxUID === "1.2.840.10008.1.2.4.100" ? false : true; // MPEG2 Main Profile Main Level is not supported
+                transferSyntaxUID === "1.2.840.10008.1.2.4.100" ||
+                "1.2.840.10008.1.2.4.101"
+                  ? false
+                  : true; // MPEG2 is not supported
             }
             imageObject.metadata.isVideo = isVideo;
 
@@ -540,7 +548,7 @@ export const convertMetadata = function (dataSet: DataSet) {
     metadata = imageMetadata;
   } catch (err) {
     // we catch the error and display it to the user
-    console.log("parseError: " + err);
+    logger.error("parseError: " + err);
   }
   return metadata;
 };

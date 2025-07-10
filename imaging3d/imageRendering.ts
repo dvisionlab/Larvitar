@@ -67,7 +67,7 @@ export const renderImage = function (
     ? (elementId as HTMLDivElement)
     : (document.getElementById(elementId as string) as HTMLDivElement);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return new Promise((_, reject) =>
       reject("invalid html element: " + elementId)
     );
@@ -88,9 +88,7 @@ export const renderImage = function (
   let series = { ...seriesStack };
   const renderOptions = options ? options : {};
   setStore(["ready", id, false]);
-  console.log(series);
   let data: StoreViewport = getSeriesData(series, renderOptions);
-  console.log("data", data);
 
   if (!data.imageId) {
     logger.warn("error during renderImage: imageId has not been loaded yet.");
@@ -114,10 +112,10 @@ export const renderImage = function (
     const storedViewport = renderingEngine.getViewport(
       viewportInput.viewportId
     );
-    console.log("storedViewport", storedViewport);
+    logger.debug("storedViewport", storedViewport);
 
     if (!storedViewport) {
-      console.error("storedViewport not found");
+      logger.error("storedViewport not found");
       reject("storedViewport not found for element: " + elementId);
       return;
     }
@@ -128,7 +126,7 @@ export const renderImage = function (
     setStore(["ready", element.id, true]);
     //setStore(["seriesUID", element.id, data.seriesUID]);
     const t1 = performance.now();
-    console.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
+    logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
     // const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
     //   data.imageId

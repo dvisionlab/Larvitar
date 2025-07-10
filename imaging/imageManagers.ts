@@ -53,7 +53,6 @@ export const populateImageManager = function (
   data: Series
 ): ImageManager {
   const metadata = data.instances[data.imageIds[0]]?.metadata;
-  console.log(metadata);
   if (imageManager === null) {
     imageManager = {};
   }

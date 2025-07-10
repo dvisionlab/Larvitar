@@ -434,9 +434,13 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
   const sliceThickness = metadata["x00180050"];
   const transferSyntaxUID = metadata["x00020010"];
   const isVideo =
-    transferSyntaxUID === "1.2.840.10008.1.2.4.100" || // MPEG2 Main Profile Main Level
-    transferSyntaxUID === "1.2.840.10008.1.2.4.102" || // MPEG-4 AVC/H.264 High Profile / Level 4.1
-    transferSyntaxUID === "1.2.840.10008.1.2.4.103" // 	MPEG-4 AVC/H.264 BD-compatible High Profile / Level 4.1
+    transferSyntaxUID === "1.2.840.10008.1.2.4.100" ||
+    transferSyntaxUID === "1.2.840.10008.1.2.4.101" ||
+    transferSyntaxUID === "1.2.840.10008.1.2.4.102" ||
+    transferSyntaxUID === "1.2.840.10008.1.2.4.103" ||
+    transferSyntaxUID === "1.2.840.10008.1.2.4.104" ||
+    transferSyntaxUID === "1.2.840.10008.1.2.4.105" ||
+    transferSyntaxUID === "1.2.840.10008.1.2.4.106"
       ? true
       : false;
   const numberOfFrames = metadata["x00280008"];
@@ -502,7 +506,10 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
 
   if (isVideo) {
     metadataReadable.isVideoSupported =
-      transferSyntaxUID === "1.2.840.10008.1.2.4.100" ? false : true; // MPEG2 Main Profile Main Level is not supported
+      transferSyntaxUID === "1.2.840.10008.1.2.4.100" ||
+      "1.2.840.10008.1.2.4.101"
+        ? false
+        : true; // MPEG2 is not supported
   }
   metadataReadable.isVideo = isVideo;
 
