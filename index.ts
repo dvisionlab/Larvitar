@@ -81,6 +81,7 @@ import {
   getNormalOrientation,
   getMinPixelValue,
   getMaxPixelValue,
+  getMinMaxPixelValue,
   getPixelRepresentation,
   getTypedArrayFromDataType,
   getSortedStack,
@@ -268,7 +269,11 @@ import {
 } from "./imaging/imageColormaps";
 
 import { applyDSAShift } from "./imaging/postProcessing/applyDSA";
-
+import {
+  applyConvolutionFilter,
+  addCustomKernel,
+  getKernels
+} from "./imaging/postProcessing/applyKernel";
 import {
   addMouseKeyHandlers,
   removeMouseKeyHandlers,
@@ -284,7 +289,10 @@ import { registerStreamingImageVolume as _registerStreamingImageVolume } from ".
 import { loadAndCacheMetadata as _loadAndCacheMetadata } from "./imaging3d/imageLoading";
 import { readFiles as _readFiles } from "./imaging3d/imageParsing";
 import { convertMetadata as _convertMetadata } from "./imaging3d/imageParsing";
-import { renderImage as _renderImage } from "./imaging3d/imageRendering";
+import {
+  renderImage as _renderImage,
+  resetViewports as _resetViewports
+} from "./imaging3d/imageRendering";
 import { initializeRenderingEngine as _initializeRenderingEngine } from "./imaging3d/imageRendering";
 import { destroyRenderingEngine as _destroyRenderingEngine } from "./imaging3d/imageRendering";
 import { initializeVolumeViewports as _initializeVolumeViewports } from "./imaging3d/imageRendering";
@@ -319,7 +327,9 @@ import {
   setToolPassive as _setToolPassive,
   setToolEnabled as _setToolEnabled,
   setToolDisabled as _setToolDisabled,
-  syncViewportsCamera as _syncViewportsCamera,
+  syncViewportsSlabAndCamera as _syncViewportsSlabAndCamera,
+  syncViewportsVOI as _syncViewportsVOI,
+  syncViewports as _syncViewports,
   createToolGroup as _createToolGroup,
   destroyToolGroup as _destroyToolGroup,
   setSlab as _setSlab,
@@ -355,6 +365,7 @@ export {
   _readFiles,
   _renderImage,
   // mpr
+  _resetViewports,
   _renderMpr,
   _unloadMpr,
   _initializeRenderingEngine,
@@ -391,7 +402,9 @@ export {
   _setToolPassive,
   _setToolEnabled,
   _setToolDisabled,
-  _syncViewportsCamera,
+  _syncViewportsSlabAndCamera,
+  _syncViewportsVOI,
+  _syncViewports,
   _createToolGroup,
   _destroyToolGroup,
   _setWWWL,
@@ -433,6 +446,7 @@ export {
   getNormalOrientation,
   getMinPixelValue,
   getMaxPixelValue,
+  getMinMaxPixelValue,
   getPixelRepresentation,
   getTypedArrayFromDataType,
   getSortedStack,
@@ -558,6 +572,9 @@ export {
   getFileCustomImageId,
   // imaging/postProcessing
   applyDSAShift,
+  applyConvolutionFilter,
+  addCustomKernel,
+  getKernels,
   // imageTools
   addDiameterTool,
   addContoursTool,

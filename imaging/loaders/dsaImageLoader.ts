@@ -14,7 +14,7 @@ import {
   getDataFromImageManager
 } from "../imageManagers";
 import type { DSA, Image, ImageManager, Series } from "../types";
-import { getMaxPixelValue, getMinPixelValue } from "../imageUtils";
+import { getMinMaxPixelValue } from "../imageUtils";
 import { applyDSA } from "../postProcessing/applyDSA";
 import { logger } from "../../logger";
 import store from "../imageStore";
@@ -156,8 +156,7 @@ let createCustomImage = function (
   pixelData: number[]
 ) {
   let promise: Promise<Image> = new Promise((resolve, _) => {
-    const minPixelValue = getMinPixelValue(pixelData);
-    const maxPixelValue = getMaxPixelValue(pixelData);
+    const { minPixelValue, maxPixelValue } = getMinMaxPixelValue(pixelData);
 
     const computedWindowWidth = maxPixelValue - minPixelValue;
     const computedWindowCenter = (maxPixelValue + minPixelValue) / 2;

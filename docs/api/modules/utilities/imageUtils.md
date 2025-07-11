@@ -75,6 +75,36 @@ getMaxPixelValue(pixelData: number[]): number
 `number` - The maximum pixel value.
 
 ---
+### `getMinMaxPixelValue`
+
+Finds both the minimum and maximum pixel value in a given pixel data array.
+
+#### Syntax
+
+```typescript
+getMinMaxPixelValue(pixelData: number[]): {
+  minPixelValue: number;
+  maxPixelValue: number;
+}
+```
+
+#### Parameters
+
+| Parameter   | Type     | Description                  |
+| ----------- | -------- | ---------------------------- |
+| `pixelData` | number[] | Array containing pixel data. |
+
+#### Returns
+
+```typescript
+{
+  minPixelValue: number;
+  maxPixelValue: number;
+}
+```
+- The minimum and maximum pixel values.
+
+---
 
 ### `getMeanValue`
 

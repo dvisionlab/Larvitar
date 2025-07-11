@@ -70,6 +70,7 @@ export type StoreViewport = {
   numberOfTemporalPositions?: number;
   numberOfFrames?: number;
   timeIndex?: number;
+  filterName?: string;
   viewport: {
     scale: number;
     rotation: number;
@@ -370,7 +371,15 @@ export type SingleFrameCache = {
 type contrast = { windowCenter: number; windowWidth: number };
 type translation = { x: number; y: number };
 
+export type KernelConfig = {
+  Label: string;
+  Size: number;
+  Kernel: number[][];
+  Modality?: string[];
+};
+
 export type RenderProps = {
+  filterName?: string;
   cached?: boolean;
   imageIndex?: number;
   scale?: number;

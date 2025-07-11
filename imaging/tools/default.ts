@@ -51,7 +51,8 @@ import type {
   ToolConfig,
   ToolMouseKeys,
   ToolSettings,
-  ToolStyle
+  ToolStyle,
+  ToolStyle3D
 } from "./types";
 import RotateTool from "./custom/rotateTool";
 import GspsTool from "./custom/gspsTool";
@@ -1010,7 +1011,7 @@ const DEFAULT_STYLE: ToolStyle = {
   fontSize: 18,
   backgroundColor: "rgba(1, 1, 1, 0.7)"
 };
-const DEFAULT_STYLE_3D = {
+const DEFAULT_STYLE_3D: ToolStyle3D = {
   global: {
     angleArcLineDash: "",
     color: "#02FAE5",
@@ -1142,10 +1143,21 @@ const registerExternalTool = function (
     options: { mouseButtonMask: 1 },
     defaultActive: false
   };
-  if (toolCursor) {
+
+  if (toolCursor && cursorOptions) {
     registerCursor(toolName, toolCursor, cursorOptions);
   }
 };
+
+function extend(
+  base: SVGCursorDescriptor,
+  values: Record<string, unknown> & { name?: string }
+): SVGCursorDescriptor {
+  return Object.assign(Object.create(base), {
+    ...values,
+    name: values.name || base.name
+  });
+}
 
 /**
  * Register a custom tool cursor
@@ -1171,15 +1183,13 @@ const registerExternalTool = function (
 export const registerCursor = function (
   toolName: string,
   iconContent: string,
-  cursorOptions?: CursorOptions
+  cursorOptions: CursorOptions
 ) {
-  const descriptor = Object.assign(Object.create(BASE_CURSOR), {
+  cursorOptions.name = toolName;
+  cornerstoneTools.cursors.CursorSVG[toolName] = extend(BASE_CURSOR, {
     iconContent,
-    cursorOptions,
-    name: toolName
+    ...cursorOptions
   });
-
-  cornerstoneTools.cursors.CursorSVG[toolName] = descriptor;
 };
 
 export {
