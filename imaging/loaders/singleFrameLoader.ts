@@ -8,7 +8,14 @@ import { ImageLoadObject, ImageLoader } from "cornerstone-core";
 
 // internal libraries
 import { logger } from "../../logger";
-import type { Image, ImageObject, MetaData, SingleFrameCache } from "../types";
+import type {
+  Image,
+  ImageFrame,
+  ImageObject,
+  MetaData,
+  SingleFrameCache
+} from "../types";
+import { getImageFrame } from "./commonLoader";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -25,29 +32,23 @@ let singleFrameCache: { [key: string]: SingleFrameCache } = {};
  * Set the single frame cache
  * @export
  * @function setSingleFrameCache
- * @param {Array} data - Pixel data array
+ * @param {Array} pixelData - Pixel data array
  * @param {MetaData} metadata - Metadata object
  * @returns {ImageObject} - Image object
  */
 export const setSingleFrameCache = async function (
-  data: Uint8ClampedArray,
+  pixelData: Uint8ClampedArray,
   metadata: MetaData
 ): Promise<ImageObject> {
   const t0 = performance.now();
   const imageId = getSingleFrameImageId("singleFrameLoader");
   try {
-    let array = await convertRGBToRGBA(data);
-    let pixelData = new Uint8Array(array);
     singleFrameCache[imageId] = { pixelData, metadata };
     const t1 = performance.now();
     logger.debug(
       `setSingleFrameCache took ${t1 - t0} milliseconds for image ${imageId}`
     );
     // free memory
-    // @ts-ignore: is needed to clear the cache
-    array = null;
-    // @ts-ignore: is needed to clear the cache
-    data = null;
     // @ts-ignore: is needed to clear the cache
     pixelData = null;
     return {
@@ -105,52 +106,6 @@ export const loadSingleFrameImage: ImageLoader = function (
 // internal methods
 
 /**
- * Convert RGB pixel data to RGBA pixel data
- * @function convertRGBToRGBA
- * @param {ArrayBuffer} data - RGB pixel data in ArrayBuffer format
- * @returns {Promise<Uint8ClampedArray>} - RGBA pixel data
- */
-const convertRGBToRGBA = function (
-  data: ArrayBuffer
-): Promise<Uint8ClampedArray> {
-  let blob: Blob = new Blob([data], { type: "image/jpeg" });
-  let imgUrl = URL.createObjectURL(blob);
-  let img = new Image();
-  return new Promise<Uint8ClampedArray>(resolve => {
-    img.onload = function () {
-      // Create a canvas to draw the image
-      let canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-
-      let ctx = canvas.getContext("2d");
-      ctx!.drawImage(img, 0, 0);
-
-      // Extract pixel data
-      let imageData = ctx!.getImageData(0, 0, img.width, img.height);
-
-      // clean up memory
-      // @ts-ignore: is needed to clear the cache
-      blob = null;
-      // @ts-ignore: is needed to clear the cache
-      img = null;
-      // @ts-ignore: is needed to clear the cache
-      data = null;
-      // @ts-ignore: is needed to clear the cache
-      canvas = null;
-      // @ts-ignore: is needed to clear the cache
-      ctx = null;
-      // @ts-ignore: is needed to clear the cache
-      imgUrl = null;
-      URL.revokeObjectURL(imgUrl);
-      // resolve the promise
-      resolve(imageData.data);
-    };
-    img.src = imgUrl;
-  });
-};
-
-/**
  * Get the custom imageId from custom loader
  * @instance
  * @function getSingleFrameImageId
@@ -173,97 +128,140 @@ const getSingleFrameImageId = function (customLoaderName: string): string {
 const createCustomImage = function (imageId: string): ImageLoadObject {
   const { metadata, pixelData } = singleFrameCache[imageId];
 
-  let promise: Promise<Image> = new Promise((resolve, _) => {
-    let pixelSpacing = metadata.x00280030
-      ? metadata.x00280030
-      : metadata.x00080060 === "US" &&
-          metadata["x00186011"] != undefined &&
-          metadata["x00186011"][0].x0018602e != undefined &&
-          metadata["x00186011"][0].x0018602c != undefined
-        ? [
-            metadata["x00186011"][0].x0018602e * 10, //so that from cm goes to mm
-            metadata["x00186011"][0].x0018602c * 10
-          ]
-        : metadata.x00181164
-          ? metadata.x00181164
-          : [1, 1];
-    let rescaleIntercept = metadata.x00281052;
-    let rescaleSlope = metadata.x00281053;
-    let windowCenter = metadata.x00281050;
-    let windowWidth = metadata.x00281051;
-    let transferSyntax = metadata.x00020010;
-    let canvas = window.document.createElement("canvas");
+  let options: { [key: string]: any } = {};
+  options.preScale = {
+    enabled:
+      options.preScale && options.preScale.enabled !== undefined
+        ? options.preScale.enabled
+        : false
+  };
 
-    function getSizeInBytes() {
-      let bytesPerPixel = Math.round(metadata.x00280100! / 8);
-      return (
-        metadata.x00280010! *
-        metadata.x00280011! *
-        bytesPerPixel *
-        metadata.x00280002!
-      );
+  let imageFrame = getImageFrame(metadata);
+  const transferSyntax = metadata.x00020010;
+  let canvas = window.document.createElement("canvas");
+
+  // Get the scaling parameters from the metadata
+  if (options.preScale.enabled) {
+    const scalingParameters = cornerstoneDICOMImageLoader.getScalingParameters(
+      cornerstone.metaData,
+      imageId
+    );
+
+    if (scalingParameters) {
+      options.preScale = {
+        ...options.preScale,
+        scalingParameters
+      };
     }
-    let image: Partial<Image> = {
-      imageId: imageId, //const imageId = getMultiFrameImageId("singleFrameLoader") `dicomfile:${metadata.x00080018}:${frameIndex}`;
-      color: cornerstoneDICOMImageLoader.isColorImage(metadata.x00280004),
-      columnPixelSpacing: (pixelSpacing as number[])[1],
-      columns: metadata.x00280011!,
-      height: metadata.x00280010!,
-      floatPixelData: undefined,
-      intercept: rescaleIntercept ? (rescaleIntercept as number) : 0,
-      invert: metadata.x00280004 === "MONOCHROME1",
-      minPixelValue: metadata.x00280106,
-      maxPixelValue: metadata.x00280107,
-      render: undefined, // set below
-      rowPixelSpacing: (pixelSpacing as number[])[0],
-      rows: metadata.x00280010,
-      sizeInBytes: getSizeInBytes(),
-      slope: rescaleSlope ? (rescaleSlope as number) : 1,
-      width: metadata.x00280011!,
-      windowCenter: windowCenter as number,
-      windowWidth: windowWidth as number,
-      decodeTimeInMS: undefined, // TODO
-      loadTimeInMS: undefined // TODO
-    };
-    // add function to return pixel data
-    // @ts-ignore: is needed to avoid array conversion
-    image.getPixelData = function () {
-      if (pixelData === undefined) {
-        throw new Error("No pixel data for image " + imageId);
-      }
-      return pixelData;
-    };
+  }
 
-    let isJPEGBaseline8BitColor = false;
-    // convert color space if not isJPEGBaseline8BitColor
-    if (
-      metadata.x00280100! === 8 &&
-      transferSyntax === "1.2.840.10008.1.2.4.50" &&
-      (metadata.x00280002 === 3 || metadata.x00280002 === 4)
-    ) {
-      isJPEGBaseline8BitColor = true;
-    }
+  const decodePromise = cornerstoneDICOMImageLoader.decodeImageFrame(
+    imageFrame,
+    transferSyntax,
+    pixelData,
+    canvas,
+    options
+  );
 
-    if (image.color && !isJPEGBaseline8BitColor) {
-      // setup the canvas context
-      canvas.height = metadata.x00280010!;
-      canvas.width = metadata.x00280011!;
+  let promise: Promise<Image> = new Promise((resolve, reject) => {
+    decodePromise.then(function handleDecodeResponse(imageFrame: ImageFrame) {
+      setPixelDataType(imageFrame);
 
-      let context = canvas.getContext("2d");
+      let pixelSpacing = metadata.x00280030
+        ? metadata.x00280030
+        : metadata.x00080060 === "US" &&
+            metadata["x00186011"] != undefined &&
+            metadata["x00186011"][0].x0018602e != undefined &&
+            metadata["x00186011"][0].x0018602c != undefined
+          ? ([
+              metadata["x00186011"][0].x0018602e * 10, //so that from cm goes to mm
+              metadata["x00186011"][0].x0018602c * 10
+            ] as [number, number])
+          : metadata.x00181164
+            ? metadata.x00181164
+            : [1, 1];
+      let rescaleIntercept = metadata.x00281052;
+      let rescaleSlope = metadata.x00281053;
+      let windowCenter = metadata.x00281050;
+      let windowWidth = metadata.x00281051;
 
-      if (!context) {
-        throw new Error("Unable to get canvas context");
+      function getSizeInBytes() {
+        let bytesPerPixel = Math.round(imageFrame.bitsAllocated! / 8);
+        return (
+          imageFrame.rows! *
+          imageFrame.columns! *
+          bytesPerPixel *
+          imageFrame.samplesPerPixel!
+        );
       }
 
-      let imageData = context.createImageData(
-        metadata.x00280011!,
-        metadata.x00280010!
-      );
+      let image: Partial<Image> = {
+        imageId: imageId, //const imageId = getMultiFrameImageId("singleFrameLoader") `dicomfile:${metadata.x00080018}:${frameIndex}`;
+        color: cornerstoneDICOMImageLoader.isColorImage(
+          imageFrame.photometricInterpretation
+        ),
+        columnPixelSpacing: (pixelSpacing as number[])[1],
+        columns: imageFrame.columns,
+        height: imageFrame.rows,
+        floatPixelData: undefined,
+        intercept: (rescaleIntercept as number)
+          ? (rescaleIntercept as number)
+          : 0,
+        invert: imageFrame.photometricInterpretation === "MONOCHROME1",
+        minPixelValue: imageFrame.smallestPixelValue,
+        maxPixelValue: imageFrame.largestPixelValue,
+        render: undefined, // set below
+        rowPixelSpacing: (pixelSpacing as number[])[0],
+        rows: imageFrame.rows,
+        sizeInBytes: getSizeInBytes(),
+        slope: (rescaleSlope as number) ? (rescaleSlope as number) : 1,
+        width: imageFrame.columns,
+        windowCenter: windowCenter as number,
+        windowWidth: windowWidth as number,
+        decodeTimeInMS: undefined, // TODO
+        loadTimeInMS: undefined // TODO
+      };
+      // add function to return pixel data
+      // @ts-ignore: is needed to avoid array conversion
+      image.getPixelData = function () {
+        if (imageFrame.pixelData === undefined) {
+          throw new Error("No pixel data for image " + imageId);
+        }
+        return imageFrame.pixelData;
+      };
 
-      cornerstoneDICOMImageLoader.convertColorSpace(
-        { photometricInterpretation: metadata.x00280004, pixelData: pixelData },
-        imageData
-      );
+      // convert color space if not isJPEGBaseline8BitColor
+      let isJPEGBaseline8BitColor =
+        cornerstoneDICOMImageLoader.isJPEGBaseline8BitColor(
+          imageFrame,
+          transferSyntax
+        );
+
+      if (image.color && !isJPEGBaseline8BitColor) {
+        // setup the canvas context
+        canvas.height = imageFrame.rows!;
+        canvas.width = imageFrame.columns!;
+
+        let context = canvas.getContext("2d");
+
+        if (!context) {
+          throw new Error("Unable to get canvas context");
+        }
+
+        let imageData: ImageData = context.createImageData(
+          imageFrame.columns!,
+          imageFrame.rows!
+        );
+        // context.createImageData will always return an ImageData object with 4 components (RGBA)
+        cornerstoneDICOMImageLoader.convertColorSpace(
+          imageFrame, // input image frame
+          imageData.data, // data buffer to be filled
+          true // RGBA FLAG
+        );
+
+        imageFrame.imageData = imageData;
+        imageFrame.pixelData = imageData.data;
+      }
 
       // Setup the renderer
       if (image.color) {
@@ -274,47 +272,67 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
           if (!context) {
             throw new Error("Unable to get canvas context");
           }
-          context.putImageData(imageData!, 0, 0);
+          context.putImageData(imageFrame.imageData!, 0, 0);
           return canvas;
         };
       }
-    }
 
-    // calculate min/max if not supplied
-    if (
-      image.minPixelValue === undefined ||
-      image.maxPixelValue === undefined
-    ) {
-      let minMax = cornerstoneDICOMImageLoader.getMinMax(pixelData);
-      image.minPixelValue = minMax.min;
-      image.maxPixelValue = minMax.max;
-    }
-
-    // set the ww/wc to cover the dynamic range of the image if no values are supplied
-    if (image.windowCenter === undefined || image.windowWidth === undefined) {
-      if (image.color) {
-        image.windowWidth = 255;
-        image.windowCenter = 128;
-      } else if (
-        image.maxPixelValue &&
-        image.minPixelValue &&
-        image.slope &&
-        image.intercept
+      // calculate min/max if not supplied
+      if (
+        image.minPixelValue === undefined ||
+        image.maxPixelValue === undefined
       ) {
-        let maxVoi = image.maxPixelValue * image.slope + image.intercept;
-        let minVoi = image.minPixelValue * image.slope + image.intercept;
-        image.windowWidth = maxVoi - minVoi;
-        image.windowCenter = (maxVoi + minVoi) / 2;
+        let minMax = cornerstoneDICOMImageLoader.getMinMax(pixelData);
+        image.minPixelValue = minMax.min;
+        image.maxPixelValue = minMax.max;
       }
-    }
 
-    clearSingleFrameCache(imageId);
+      // set the ww/wc to cover the dynamic range of the image if no values are supplied
+      if (image.windowCenter === undefined || image.windowWidth === undefined) {
+        if (image.color) {
+          image.windowWidth = 255;
+          image.windowCenter = 128;
+        } else if (
+          image.maxPixelValue &&
+          image.minPixelValue &&
+          image.slope &&
+          image.intercept
+        ) {
+          let maxVoi = image.maxPixelValue * image.slope + image.intercept;
+          let minVoi = image.minPixelValue * image.slope + image.intercept;
+          image.windowWidth = maxVoi - minVoi;
+          image.windowCenter = (maxVoi + minVoi) / 2;
+        }
+      }
 
-    resolve(image as Image);
+      clearSingleFrameCache(imageId);
+
+      resolve(image as Image);
+    }, reject);
   });
   // Return an object containing the Promise to cornerstone so it can setup callbacks to be
   // invoked asynchronously for the success/resolve and failure/reject scenarios.
   return {
     promise
   };
+};
+
+/**
+ * This is an override of the cornerstoneDICOMImageLoader setPixelDataType function
+ * @instance
+ * @function setPixelDataType
+ * @param {Object} imageFrame The Id of the image
+ */
+const setPixelDataType = function (imageFrame: ImageFrame) {
+  if (imageFrame.bitsAllocated === 16) {
+    if (imageFrame.pixelRepresentation === 0) {
+      imageFrame.pixelData = new Uint16Array(
+        imageFrame.pixelData as Uint16Array
+      );
+    } else {
+      imageFrame.pixelData = new Int16Array(imageFrame.pixelData as Int16Array);
+    }
+  } else {
+    imageFrame.pixelData = new Uint8Array(imageFrame.pixelData as Uint8Array);
+  }
 };
