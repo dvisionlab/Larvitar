@@ -161,7 +161,6 @@
         larvitar
           .readFiles(demoFiles)
           .then(async seriesStack => {
-            console.log("Series stack:", seriesStack);
             //populate the image manager with the series
             for (const [uniqueId, data] of Object.entries(seriesStack)) {
               larvitar.populateImageManager(uniqueId, data);
@@ -170,7 +169,6 @@
             let uniqueUID = Object.keys(seriesStack)[0];
             let manager = larvitar.getImageManager();
             let serie = manager[uniqueUID];
-
             // check if the serie is a video
             if (serie.isVideo === false) {
               console.error("The selected series is not a video.");
@@ -192,7 +190,7 @@
 
             const videoViewportInput = {
               viewportId: "viewer",
-              background: [0.2, 0, 0.2]
+              background: [0, 0, 0]
             };
 
             larvitar._initializeVideoViewport(
@@ -220,6 +218,24 @@
       // setFrameNumber(renderingEngineId, frameNumber) allows to set the current frame number
       // setTime(renderingEngineId, time) allows to set the current time in seconds
       // setFrameRange(renderingEngineId, frameRange) allows to set the frame range
+      // enableAudioOnVideo (renderingEngineId) allows to enable audio playback  setProperties({muted:false}) default
+      // disableAudioOnVideo (renderingEngineId) allows to disable audio playback setProperties({muted:true})
+      // getFrameNumber (renderingEngineId) allows to get the current frame number
+
+      // unloadVideo(renderingEngineId) allows to unload the video viewport and event listeners
+
+      //    triggerEvent(this.element, EVENTS.STACK_NEW_IMAGE, {
+      //   element: this.element,
+      //   viewportId: this.id,
+      //   viewport: this,
+      //   renderingEngineId: this.renderingEngineId,
+      //   time: this.videoElement.currentTime,
+      //   duration: this.videoElement.duration,
+      // });
+
+      // element.addEventListener(_cs.Enums.Events.VOLUME_VIEWPORT_NEW_VOLUME, this._onNewVolume)
+      // element.removeEventListener(_cs.Enums.Events.VOLUME_VIEWPORT_NEW_VOLUME, this._onNewVolume)
+
       createFile("dicom_mpeg4.dcm", renderSerie);
     </script>
   </body>

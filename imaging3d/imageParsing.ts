@@ -444,7 +444,7 @@ const parseFile = function (file: File) {
             if (isVideo) {
               imageObject.metadata.isVideoSupported =
                 transferSyntaxUID === "1.2.840.10008.1.2.4.100" ||
-                "1.2.840.10008.1.2.4.101"
+                transferSyntaxUID === "1.2.840.10008.1.2.4.101"
                   ? false
                   : true; // MPEG2 is not supported
             }
