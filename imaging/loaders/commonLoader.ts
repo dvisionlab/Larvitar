@@ -6,7 +6,7 @@
 // external libraries
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 import { DataSet } from "dicom-parser";
-import type { MetaData } from "../types";
+import type { ImageFrame, MetaData } from "../types";
 
 /*
  * This module provides the following functions to be exported:
@@ -17,12 +17,15 @@ import type { MetaData } from "../types";
  * Compute and return image frame
  * @instance
  * @function getImageFrame
- * @param {Object} metadata metadata object
- * @param {Object} dataSet dicom dataset
+ * @param {MetaData} metadata metadata object
+ * @param {DataSet} dataSet dicom dataset
  * @returns {Object} specific image frame
  */
-export const getImageFrame = function (metadata: MetaData, dataSet: DataSet) {
-  let imagePixelModule;
+export const getImageFrame = function (
+  metadata: MetaData,
+  dataSet?: DataSet
+): ImageFrame {
+  let imagePixelModule: Partial<ImageFrame>;
 
   if (dataSet) {
     imagePixelModule =
@@ -34,16 +37,22 @@ export const getImageFrame = function (metadata: MetaData, dataSet: DataSet) {
       planarConfiguration: metadata.x00280006,
       rows: metadata.x00280010,
       columns: metadata.x00280011,
-      bitsAllocated: metadata.x00280100,
-      pixelRepresentation: metadata.x00280103,
+      bitsAllocated: metadata.x00280100 as number | undefined,
+      pixelRepresentation: metadata.x00280103 as number | undefined,
       smallestPixelValue: metadata.x00280106,
       largestPixelValue: metadata.x00280107,
       redPaletteColorLookupTableDescriptor: metadata.x00281101,
       greenPaletteColorLookupTableDescriptor: metadata.x00281102,
       bluePaletteColorLookupTableDescriptor: metadata.x00281103,
-      redPaletteColorLookupTableData: metadata.x00281201,
-      greenPaletteColorLookupTableData: metadata.x00281202,
-      bluePaletteColorLookupTableData: metadata.x00281203
+      redPaletteColorLookupTableData: metadata.x00281201 as
+        | Uint8Array
+        | undefined,
+      greenPaletteColorLookupTableData: metadata.x00281202 as
+        | Uint8Array
+        | undefined,
+      bluePaletteColorLookupTableData: metadata.x00281203 as
+        | Uint8Array
+        | undefined
     };
   }
 
@@ -70,6 +79,6 @@ export const getImageFrame = function (metadata: MetaData, dataSet: DataSet) {
     bluePaletteColorLookupTableData:
       imagePixelModule.bluePaletteColorLookupTableData,
     pixelData: undefined, // populated later after decoding,
-    ImageData: undefined
+    imageData: undefined
   };
 };

@@ -81,12 +81,12 @@ let createCustomImage = function (
   let windowWidth = metadata.x00281051;
 
   function getSizeInBytes() {
-    let bytesPerPixel = Math.round(imageFrame.bitsAllocated / 8);
+    let bytesPerPixel = Math.round(imageFrame.bitsAllocated! / 8);
     return (
-      imageFrame.rows *
-      imageFrame.columns *
+      imageFrame.rows! *
+      imageFrame.columns! *
       bytesPerPixel *
-      imageFrame.samplesPerPixel
+      imageFrame.samplesPerPixel!
     );
   }
 
@@ -128,8 +128,8 @@ let createCustomImage = function (
   // convert color space
   if (image.color) {
     // setup the canvas context
-    canvas.height = imageFrame.rows;
-    canvas.width = imageFrame.columns;
+    canvas.height = imageFrame.rows!;
+    canvas.width = imageFrame.columns!;
 
     let context = canvas.getContext("2d");
 
@@ -138,8 +138,8 @@ let createCustomImage = function (
     }
 
     let imageData = context.createImageData(
-      imageFrame.columns,
-      imageFrame.rows
+      imageFrame.columns!,
+      imageFrame.rows!
     );
     cornerstoneDICOMImageLoader.convertColorSpace(imageFrame, imageData);
 

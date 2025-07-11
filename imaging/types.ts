@@ -4,6 +4,7 @@ import { MetaDataTypes } from "./MetaDataTypes";
 import { MetaDataReadable } from "./MetaDataReadable";
 import { Element } from "dicom-parser";
 import { Coords, DisplayAreaVisualizations, Overlay } from "./tools/types";
+import { sample } from "lodash";
 // TODO-ts: differentiate each single metadata @szanchi
 /*export type MetadataValue =
   | string
@@ -259,16 +260,23 @@ export type FileManager = {
 } | null;
 
 export type ImageFrame = {
+  samplesPerPixel?: number;
+  photometricInterpretation?: string;
+  planarConfiguration?: number;
+  rows?: number;
+  columns?: number;
+  bitsAllocated?: number;
+  pixelRepresentation?: number;
+  smallestPixelValue?: number;
+  largestPixelValue?: number;
+  redPaletteColorLookupTableDescriptor?: number[];
+  greenPaletteColorLookupTableDescriptor?: number[];
+  bluePaletteColorLookupTableDescriptor?: number[];
+  redPaletteColorLookupTableData?: Uint8Array;
+  greenPaletteColorLookupTableData?: Uint8Array;
+  bluePaletteColorLookupTableData?: Uint8Array;
   pixelData?: Uint8ClampedArray | Uint16Array | Int16Array | Uint8Array;
-  bitsAllocated: number;
-  rows: number;
-  columns: number;
-  photometricInterpretation: string;
-  samplesPerPixel: number;
-  smallestPixelValue: number;
-  largestPixelValue: number;
   imageData?: ImageData;
-  pixelRepresentation: number;
 };
 
 export type ImageTracker = {
