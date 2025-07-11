@@ -432,9 +432,22 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
   const imageOrientation = metadata["x00200037"];
   const imagePosition = metadata["x00200032"];
   const sliceThickness = metadata["x00180050"];
+  const transferSyntaxUID = metadata["x00020010"];
+  const isVideo =
+    transferSyntaxUID === "1.2.840.10008.1.2.4.100" ||
+    transferSyntaxUID === "1.2.840.10008.1.2.4.101" ||
+    transferSyntaxUID === "1.2.840.10008.1.2.4.102" ||
+    transferSyntaxUID === "1.2.840.10008.1.2.4.103" ||
+    transferSyntaxUID === "1.2.840.10008.1.2.4.104" ||
+    transferSyntaxUID === "1.2.840.10008.1.2.4.105" ||
+    transferSyntaxUID === "1.2.840.10008.1.2.4.106"
+      ? true
+      : false;
   const numberOfFrames = metadata["x00280008"];
-  const isMultiframe = (numberOfFrames as number) > 1 ? true : false;
+  const isMultiframe =
+    (numberOfFrames as number) > 1 && isVideo === false ? true : false;
   const waveform = metadata["x50003000"] ? true : false;
+
   // check dicom tag image type x00080008 if contains the word BIPLANE A or BIPLANE B
   // if true, then it is a biplane image
   const biplane = metadata["x00080008"]
@@ -490,6 +503,15 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
     }
   }
   metadataReadable.isMultiframe = isMultiframe;
+
+  if (isVideo) {
+    metadataReadable.isVideoSupported =
+      transferSyntaxUID === "1.2.840.10008.1.2.4.100" ||
+      transferSyntaxUID === "1.2.840.10008.1.2.4.101"
+        ? false
+        : true; // MPEG2 is not supported
+  }
+  metadataReadable.isVideo = isVideo;
 
   if (is4D) {
     metadataReadable.temporalPositionIdentifier = temporalPositionIdentifier;

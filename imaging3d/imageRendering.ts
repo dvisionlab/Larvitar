@@ -14,18 +14,28 @@ import { v4 as uuidv4 } from "uuid";
 //import { getFileImageId, getFileManager } from "./loaders/fileLoader";
 //import { csToolsCreateStack } from "../imaging/tools/main";
 //import { toggleMouseToolsListeners } from "../imaging/tools/interaction";
-import { set as setStore } from "../imaging/imageStore";
+import { set, set as setStore } from "../imaging/imageStore";
 //import { applyColorMap } from "../imaging/imageColormaps";
 import { isElement } from "../imaging/imageUtils";
 
 import { loadAndCacheMetadata } from "../imaging3d/imageLoading";
 
-import { Instance, RenderProps, Series, StoreViewport } from "../imaging/types";
+import {
+  Instance,
+  MetaData,
+  RenderProps,
+  Series,
+  StoreViewport
+} from "../imaging/types";
 
-import { MprViewport } from "./types";
+import { MprViewport, VideoViewport } from "./types";
 
 import { logger } from "../logger";
 import { destroyToolGroup } from "./tools/main";
+import { addCineMetadata } from "./metadataProviders/cineMetadataProvider";
+import { addImageUrlMetadata } from "./metadataProviders/imageUrlMetadataProvider";
+import { addGeneralSeriesMetadata } from "./metadataProviders/generalSeriesProvider";
+import { addImagePlaneMetadata } from "./metadataProviders/imagePlaneMetadataProvider";
 // import { DEFAULT_TOOLS } from "./tools/default";
 // import { initializeFileImageLoader } from "./imageLoading";
 // import { generateFiles } from "./parsers/pdf";
@@ -57,7 +67,7 @@ export const renderImage = function (
     ? (elementId as HTMLDivElement)
     : (document.getElementById(elementId as string) as HTMLDivElement);
   if (!element) {
-    console.error("invalid html element: " + elementId);
+    logger.error("invalid html element: " + elementId);
     return new Promise((_, reject) =>
       reject("invalid html element: " + elementId)
     );
@@ -78,9 +88,7 @@ export const renderImage = function (
   let series = { ...seriesStack };
   const renderOptions = options ? options : {};
   setStore(["ready", id, false]);
-  console.log(series);
   let data: StoreViewport = getSeriesData(series, renderOptions);
-  console.log("data", data);
 
   if (!data.imageId) {
     logger.warn("error during renderImage: imageId has not been loaded yet.");
@@ -104,10 +112,10 @@ export const renderImage = function (
     const storedViewport = renderingEngine.getViewport(
       viewportInput.viewportId
     );
-    console.log("storedViewport", storedViewport);
+    logger.debug("storedViewport", storedViewport);
 
     if (!storedViewport) {
-      console.error("storedViewport not found");
+      logger.error("storedViewport not found");
       reject("storedViewport not found for element: " + elementId);
       return;
     }
@@ -118,7 +126,7 @@ export const renderImage = function (
     setStore(["ready", element.id, true]);
     //setStore(["seriesUID", element.id, data.seriesUID]);
     const t1 = performance.now();
-    console.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
+    logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
 
     // const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(
     //   data.imageId
@@ -407,6 +415,307 @@ export const renderMpr = async function (
 export const unloadMpr = function (renderingEngineId: string): void {
   // destroy the rendering engine
   // decacha il volume? se associato ad altri?
+  destroyRenderingEngine(renderingEngineId);
+};
+
+/**
+ * Initialize a video viewport for a rendering engine
+ * @instance
+ * @function initializeVideoViewport
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine to initialize
+ * @param {VideoViewport} viewport - The VideoViewport object to initialize
+ * @returns {void}
+ * @throws {Error} If the rendering engine does not exist or has already been destroyed
+ */
+export const initializeVideoViewport = function (
+  renderingEngineId: string,
+  viewport: VideoViewport
+): void {
+  const t0 = performance.now();
+  // get the rendering engine
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewportInput: cornerstone.Types.PublicViewportInput = {
+    viewportId: viewport.viewportId,
+    type: cornerstone.Enums.ViewportType.VIDEO,
+    element: document.getElementById(viewport.viewportId) as HTMLDivElement,
+    defaultOptions: {
+      background: viewport.background
+    }
+  };
+  renderingEngine.enableElement(viewportInput);
+  const t1 = performance.now();
+  logger.debug(
+    `Video viewport initialized for rendering engine ${renderingEngineId} in ${
+      t1 - t0
+    } milliseconds`
+  );
+};
+
+/**
+ * Get a video URL from a DICOM series
+ * @instance
+ * @function getVideoUrlFromDicom
+ * @param {Series} series - The series object containing imageIds and instances
+ * @param {number} index - The index of the image in the series
+ * @returns {string | null} Returns a video URL created from the DICOM pixel data or null if not found
+ */
+export const getVideoUrlFromDicom = function (
+  series: Series,
+  index: number
+): string | null {
+  const dataset = series.instances[series.imageIds[index]].dataSet;
+  if (!dataset) {
+    logger.error("❌ Dataset not found");
+    return null;
+  }
+
+  const pixelElement = dataset.elements.x7fe00010;
+  if (!pixelElement) {
+    logger.error("❌ Pixel Data not found in dataset");
+    return null;
+  }
+
+  const { dataOffset, length } = pixelElement;
+
+  if (pixelElement.fragments?.length) {
+    // Just in case there are fragments, we will concatenate them
+    const fragmentBuffers = pixelElement.fragments.map(fragment => {
+      return dataset.byteArray.slice(
+        fragment.position,
+        fragment.position + fragment.length
+      );
+    });
+
+    // Compute the total length of all fragments
+    const totalLength = fragmentBuffers.reduce(
+      (sum, frag) => sum + frag.length,
+      0
+    );
+
+    // Create a new Uint8Array to hold the concatenated data
+    const fullBuffer = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const frag of fragmentBuffers) {
+      fullBuffer.set(frag, offset);
+      offset += frag.length;
+    }
+    // Now fullBuffer contains the complete pixel data
+    const blob = new Blob([fullBuffer], { type: "video/mp4" });
+
+    // clean the memory
+    // // @ts-ignore
+    // fragmentBuffers = null;
+    // // @ts-ignore
+    // fullBuffer = null;
+    // // @ts-ignore
+    // blob = null;
+    return URL.createObjectURL(blob);
+  } else {
+    // If there are no fragments, we can directly slice the byteArray
+    const fullBuffer = dataset.byteArray.slice(dataOffset, dataOffset + length);
+    const blob = new Blob([fullBuffer], { type: "video/mp4" });
+    // clean the memory
+    // // @ts-ignore
+    // fullBuffer = null;
+    // // @ts-ignore
+    // blob = null;
+    return URL.createObjectURL(blob);
+  }
+};
+
+/**
+ * Add video metadata to an imageId
+ * @instance
+ * @function addVideoMetadata
+ * @param {string} imageId - The unique identifier of the image to add metadata to
+ * @param {MetaData} metadata - The metadata object containing video information
+ * @param {string} videoUrl - The URL of the video to associate with the imageId
+ * @returns {void}
+ * @throws {Error} If the metadata is missing required fields
+ */
+export const addVideoMetadata = function (
+  imageId: string,
+  metadata: MetaData,
+  videoUrl: string
+): void {
+  const frameRate = metadata["x00180040"] || 30;
+  const frameTime = 1000 / frameRate;
+
+  addCineMetadata(imageId, {
+    frameTime,
+    numberOfFrames: metadata.numberOfFrames || 1,
+    frameRate
+  });
+  addImageUrlMetadata(imageId, { rendered: videoUrl });
+  addGeneralSeriesMetadata(imageId, {
+    seriesInstanceUID: metadata.seriesUID!,
+    studyInstanceUID: metadata.studyUID!,
+    seriesNumber: metadata["x00200011"] || 1,
+    seriesDescription: metadata.seriesDescription || "Video Series",
+    modality: metadata.seriesModality || "XC",
+    seriesDate: metadata.seriesDate || new Date().toISOString().split("T")[0],
+    seriesTime: metadata["x00080031"] || new Date().toTimeString().split(" ")[0]
+  });
+  addImagePlaneMetadata(imageId, {
+    frameOfReferenceUID: metadata["x00200052"] || metadata.studyUID!,
+    rows: metadata.rows!,
+    columns: metadata.cols!,
+    imageOrientationPatient: metadata.imageOrientation || [1, 0, 0, 0, 1, 0],
+    rowCosines: metadata["x00200037"]?.slice(0, 3) || [1, 0, 0],
+    columnCosines: metadata["x00200037"]?.slice(3, 6) || [0, 1, 0],
+    imagePositionPatient: metadata.imagePosition || [0, 0, 0],
+    sliceThickness: (metadata.sliceThickness as number) || 1,
+    sliceLocation: metadata["x00201041"] || 0,
+    pixelSpacing: metadata.pixelSpacing || [1, 1],
+    rowPixelSpacing: metadata.pixelSpacing ? metadata.pixelSpacing[1] : 1,
+    columnPixelSpacing: metadata.pixelSpacing ? metadata.pixelSpacing[0] : 1
+  });
+};
+
+/**
+ * Render a video in a video viewport
+ * @instance
+ * @function renderVideo
+ * @param {Series} series - The series object containing imageIds and instances
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine to render the video in
+ * @param {number} frameNumber - Optional frame number to set for the video
+ * @returns {Promise<void>} Returns a promise that resolves when the video is rendered
+ */
+export const renderVideo = function (
+  series: Series,
+  renderingEngineId: string,
+  frameNumber?: number
+) {
+  const imageIndex = 0; // TODO EXPOSE THIS?
+
+  const t0 = performance.now();
+
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return new Promise((_, reject) =>
+      reject(`Rendering engine with id ${renderingEngineId} not found.`)
+    );
+  }
+  const viewports = renderingEngine.getViewports();
+  // check if there is a video viewport
+  const videoViewport = viewports.find(
+    viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
+  ) as cornerstone.VideoViewport | undefined;
+  if (!videoViewport) {
+    logger.error(
+      `No video viewport found for rendering engine ${renderingEngineId}. Please initialize it first.`
+    );
+    return new Promise((_, reject) =>
+      reject(
+        `No video viewport found for rendering engine ${renderingEngineId}.`
+      )
+    );
+  }
+  setStore(["ready", videoViewport.id, false]);
+
+  const videoUrl = getVideoUrlFromDicom(series, imageIndex);
+  if (!videoUrl) {
+    logger.error(
+      `No video URL found for series ${series.seriesUID}. Please check the DICOM pixel data.`
+    );
+    return new Promise((_, reject) =>
+      reject(`No video URL found for series ${series.seriesUID}.`)
+    );
+  }
+
+  const videoMetadata = series.instances[series.imageIds[imageIndex]].metadata;
+  if (!videoMetadata) {
+    logger.error(
+      `No metadata found for series ${series.seriesUID} at image index ${imageIndex}. Please check the DICOM pixel data.`
+    );
+    return new Promise((_, reject) =>
+      reject(
+        `No metadata found for series ${series.seriesUID} at image index ${imageIndex}.`
+      )
+    );
+  }
+
+  addVideoMetadata(series.imageIds[imageIndex], videoMetadata, videoUrl);
+
+  const renderPromise = new Promise<void>(async (resolve, _) => {
+    const frame = frameNumber || 0; // Default to the first frame if not provided
+    videoViewport.setVideo(series.imageIds[imageIndex], frame);
+    const t1 = performance.now();
+    setStore(["ready", videoViewport.id, true]);
+    logger.debug(
+      `Video viewport set for rendering engine ${renderingEngineId} in ${
+        t1 - t0
+      } milliseconds`
+    );
+
+    videoViewport.element.addEventListener(
+      cornerstone.Enums.Events.STACK_NEW_IMAGE,
+      renderFrameEvent
+    );
+
+    // @ts-ignore
+    series = null;
+    // @ts-ignore
+    //data = null;
+    resolve();
+  });
+
+  return renderPromise;
+};
+
+/**
+ * Event handler for rendering a frame in a video viewport
+ * @instance
+ * @function renderFrameEvent
+ * @param {any} event - The event object containing the viewport details
+ * @returns {void}
+ */
+const renderFrameEvent = function (event: any): void {
+  const frame = event.detail.viewport.getFrameNumber();
+  setStore(["sliceId", event.detail.viewport.id, frame]);
+};
+
+/**
+ * Unload a Video rendering engine and remove event listeners
+ * @instance
+ * @function unloadVideo
+ * @param {string} renderingEngineId - The unique identifier of the rendering engine to unload
+ * @returns {void}
+ */
+export const unloadVideo = function (renderingEngineId: string): void {
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewports = renderingEngine.getViewports();
+  const videoViewport = viewports.find(
+    viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
+  ) as cornerstone.VideoViewport | undefined;
+  if (!videoViewport) {
+    logger.error(
+      `No video viewport found for rendering engine ${renderingEngineId}. Please initialize it first.`
+    );
+    return;
+  }
+  const element = videoViewport.element;
+  element.removeEventListener(
+    cornerstone.Enums.Events.STACK_NEW_IMAGE,
+    renderFrameEvent
+  );
+
+  // destroy the rendering engine
   destroyRenderingEngine(renderingEngineId);
 };
 

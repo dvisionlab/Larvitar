@@ -18,7 +18,7 @@ import { forEach } from "lodash";
 
 // internal libraries
 import store from "../imaging/imageStore";
-import { imageMetadataProvider } from "./imageMetadataProvider";
+import { imageMetadataProvider } from "./metadataProviders/imageMetadataProvider";
 import {
   prefetchMetadataInformation,
   convertMultiframeImageIds
@@ -37,6 +37,8 @@ import {
 } from "../imaging/types";
 
 import { getSortedStack, getSortedUIDs } from "../imaging/imageUtils";
+import { registerMetadataProviders } from "./metadataProviders/metadataProviders";
+import { logger } from "../logger";
 
 const MAX_CONCURRENCY = 32;
 
@@ -61,16 +63,17 @@ export const initializeImageLoader = function (maxConcurrency?: number) {
     cornerstoneDICOMImageLoader.init({
       maxWebWorkers: maxWebWorkers
     });
-    console.log(
+    logger.debug(
       `CornestoneDICOMImageLoader initialized with ${maxWebWorkers} WebWorkers.`
     );
   } else {
     // Default to half of the available hardware cores
     cornerstoneDICOMImageLoader.init();
-    console.log(
+    logger.debug(
       `CornestoneDICOMImageLoader initialized with default WebWorkers.`
     );
   }
+  registerMetadataProviders();
 };
 
 export const registerStreamingImageVolume = function () {
@@ -115,7 +118,11 @@ export const updateLoadedStack = async function (
   let numberOfFrames = seriesData.metadata["x00280008"];
   let modality = seriesData.metadata["x00080060"];
   let isMultiframe =
-    numberOfFrames && (numberOfFrames as number) > 1 ? true : false;
+    numberOfFrames &&
+    (numberOfFrames as number) > 1 &&
+    seriesData.metadata.isVideo === false
+      ? true
+      : false;
   let numberOfTemporalPositions = seriesData.metadata["x00200105"];
   let acquisitionNumberAttribute = seriesData.metadata["x00200012"];
   let is4D = seriesData.metadata.is4D;
@@ -155,6 +162,8 @@ export const updateLoadedStack = async function (
       numberOfFrames: numberOfFrames as number,
       numberOfTemporalPositions: numberOfTemporalPositions as number,
       isMultiframe: isMultiframe,
+      isVideo: seriesData.metadata.isVideo as boolean,
+      isVideoSupported: seriesData.metadata.isVideoSupported as boolean,
       waveform: waveform as boolean,
       is4D: is4D as boolean,
       isPDF: isPDF as boolean,
@@ -273,6 +282,13 @@ let isNewInstance = function (
   return isNewInstance;
 };
 
+/**
+ * Remove invalid tags from metadata
+ * @instance
+ * @function removeInvalidTags
+ * @param {Object} srcMetadata - Source metadata object
+ * @returns {Object} Cleaned metadata object with only valid tags
+ */
 export const removeInvalidTags = (srcMetadata: { [tagId: string]: any }) => {
   // Object.create(null) make it ~9% faster
   const dstMetadata = Object.create(null);
@@ -288,12 +304,17 @@ export const removeInvalidTags = (srcMetadata: { [tagId: string]: any }) => {
   return dstMetadata;
 };
 
+/**
+ * Get pixel spacing information from the instance metadata
+ * @instance
+ * @function getPixelSpacingInformation
+ * @param {Object} instance - DICOM instance metadata
+ * @returns {Object} Pixel spacing information
+ */
 export default function getPixelSpacingInformation(instance: any) {
   // See http://gdcm.sourceforge.net/wiki/index.php/Imager_Pixel_Spacing
-
   // TODO: Add Ultrasound region spacing
   // TODO: Add manual calibration
-
   // TODO: Use ENUMS from dcmjs
   const projectionRadiographSOPClassUIDs = [
     "1.2.840.10008.5.1.4.1.1.1", //	CR Image Storage
@@ -381,7 +402,7 @@ export default function getPixelSpacingInformation(instance: any) {
           pixelSpacing / EstimatedRadiographicMagnificationFactor
       );
     } else {
-      console.warn(
+      logger.warn(
         "EstimatedRadiographicMagnificationFactor was not present. Unable to correct ImagerPixelSpacing."
       );
     }
@@ -405,21 +426,26 @@ export default function getPixelSpacingInformation(instance: any) {
     Array.isArray(SequenceOfUltrasoundRegions) &&
     SequenceOfUltrasoundRegions.length > 1
   ) {
-    console.warn(
+    logger.warn(
       "Sequence of Ultrasound Regions > one entry. This is not yet implemented, all measurements will be shown in pixels."
     );
   }
 
-  console.warn(
+  logger.warn(
     "Unknown combination of PixelSpacing and ImagerPixelSpacing identified. Unable to determine spacing."
   );
 }
 
+/**
+ * Load and cache metadata for the given image IDs
+ * @instance
+ * @function loadAndCacheMetadata
+ * @param {Array} imageIds - Array of image IDs to load metadata for
+ */
 export const loadAndCacheMetadata = (imageIds: string[]) => {
   imageIds.map(imageId => {
     const metadata =
       cornerstoneDICOMImageLoader.wadors.metaDataManager.get(imageId);
-
     const cleanedMetadata = DicomMetaDictionary.naturalizeDataset(
       removeInvalidTags(metadata)
     );

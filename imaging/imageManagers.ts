@@ -59,7 +59,7 @@ export const populateImageManager = function (
   let _data = { ...data };
   if (_data.isMultiframe) {
     buildMultiFrameImage(uniqueUID, _data);
-  } else if (metadata.seriesModality === "pr") {
+  } else if (metadata.seriesModality && metadata.seriesModality === "pr") {
     const prUniqueUID = uniqueUID + "_PR";
     imageManager[prUniqueUID] = _data;
     populateGSPSManager(prUniqueUID, _data);

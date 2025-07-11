@@ -190,7 +190,11 @@ export const updateLoadedStack = function (
   let numberOfFrames = seriesData.metadata["x00280008"];
   let modality = seriesData.metadata["x00080060"];
   let isMultiframe =
-    numberOfFrames && (numberOfFrames as number) > 1 ? true : false;
+    numberOfFrames &&
+    (numberOfFrames as number) > 1 &&
+    seriesData.metadata.isVideo == false
+      ? true
+      : false;
   let numberOfTemporalPositions = seriesData.metadata["x00200105"];
   let acquisitionNumberAttribute = seriesData.metadata["x00200012"];
   let is4D = seriesData.metadata.is4D;
@@ -230,7 +234,9 @@ export const updateLoadedStack = function (
       numberOfSlices: numberOfSlices as number,
       numberOfFrames: numberOfFrames as number,
       numberOfTemporalPositions: numberOfTemporalPositions as number,
-      isMultiframe: isMultiframe,
+      isMultiframe: isMultiframe as boolean,
+      isVideo: seriesData.metadata.isVideo as boolean,
+      isVideoSupported: seriesData.metadata.isVideoSupported as boolean,
       waveform: waveform as boolean,
       is4D: is4D as boolean,
       isPDF: isPDF as boolean,
@@ -303,7 +309,7 @@ export const updateLoadedStack = function (
     ) as string;
 
     if (!seriesData.dataSet) {
-      console.error(
+      logger.error(
         "Unable to Init MPR: No dataset found for imageId: " + imageId
       );
     } else {

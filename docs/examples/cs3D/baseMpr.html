@@ -335,15 +335,8 @@
               }
             ];
 
-            //
             const renderingEngine = larvitar._initializeRenderingEngine("1234");
             larvitar._initializeVolumeViewports("1234", viewportInputs);
-
-            // await larvitar._loadAndCacheVolume(serie);
-            // larvitar._setVolumeForRenderingEngine(serie.uniqueUID, "1234");
-            // const viewport = renderingEngine.getViewport("coronal");
-            // viewport.setVolumes([volume]);
-            //larvitar._destroyRenderingEngine("1234");
 
             larvitar._renderMpr(serie, "1234").then(() => {
               console.log("Volume rendered");
@@ -407,8 +400,8 @@
 
               hideSpinner();
             });
-          });
-        //.catch(err => console.error(err));
+          })
+          .catch(err => console.error(err));
       }
 
       let demoFileList = getDemoFileNames();

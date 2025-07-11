@@ -300,8 +300,24 @@ import { loadAndCacheVolume as _loadAndCacheVolume } from "./imaging3d/imageRend
 import { setVolumeForRenderingEngine as _setVolumeForRenderingEngine } from "./imaging3d/imageRendering";
 import { resizeRenderingEngine as _resizeRenderingEngine } from "./imaging3d/imageRendering";
 import { renderMpr as _renderMpr } from "./imaging3d/imageRendering";
+import { unloadMpr as _unloadMpr } from "./imaging3d/imageRendering";
 import { prefetchMetadataInformation as _prefetchMetadataInformation } from "./imaging3d/multiframe";
 import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imaging3d/multiframe";
+import { initializeVideoViewport as _initializeVideoViewport } from "./imaging3d/imageRendering";
+import { renderVideo as _renderVideo } from "./imaging3d/imageRendering";
+import { unloadVideo as _unloadVideo } from "./imaging3d/imageRendering";
+import { playVideo as _playVideo } from "./imaging3d/video/videoInteractions";
+import { pauseVideo as _pauseVideo } from "./imaging3d/video/videoInteractions";
+import { toggleVideoPlayback as _toggleVideoPlayback } from "./imaging3d/video/videoInteractions";
+import { scrollVideo as _scrollVideo } from "./imaging3d/video/videoInteractions";
+import { setPlaybackRate as _setPlaybackRate } from "./imaging3d/video/videoInteractions";
+import { setFrameNumber as _setFrameNumber } from "./imaging3d/video/videoInteractions";
+import { setTime as _setTime } from "./imaging3d/video/videoInteractions";
+import { setFrameRange as _setFrameRange } from "./imaging3d/video/videoInteractions";
+import { getFrameNumber as _getFrameNumber } from "./imaging3d/video/videoInteractions";
+import { enableAudioOnVideo as _enableAudioOnVideo } from "./imaging3d/video/videoInteractions";
+import { disableAudioOnVideo as _disableAudioOnVideo } from "./imaging3d/video/videoInteractions";
+
 import {
   addDefaultTools as _addDefaultTools,
   initializeCSTools as _initializeCSTools,
@@ -348,8 +364,10 @@ export {
   _initializeImageLoader,
   _readFiles,
   _renderImage,
+  // mpr
   _resetViewports,
   _renderMpr,
+  _unloadMpr,
   _initializeRenderingEngine,
   _destroyRenderingEngine,
   _resizeRenderingEngine,
@@ -360,7 +378,24 @@ export {
   _convertMetadata,
   _loadAndCacheMetadata,
   _prefetchMetadataInformation,
+  // multiframe
   _convertMultiframeImageIds,
+  //video
+  _initializeVideoViewport,
+  _renderVideo,
+  _unloadVideo,
+  _enableAudioOnVideo,
+  _disableAudioOnVideo,
+  _getFrameNumber,
+  _playVideo,
+  _pauseVideo,
+  _toggleVideoPlayback,
+  _scrollVideo,
+  _setPlaybackRate,
+  _setFrameNumber,
+  _setTime,
+  _setFrameRange,
+  // tools
   _addDefaultTools,
   _addTool,
   _setToolActive,

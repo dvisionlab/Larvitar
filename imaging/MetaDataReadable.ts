@@ -29,6 +29,8 @@ export type MetaDataReadable = {
   frameDelay?: number;
   rWaveTimeVector?: number[];
   isMultiframe?: boolean;
+  isVideo?: boolean;
+  isVideoSupported?: boolean;
   waveform?: boolean;
   temporalPositionIdentifier?: number;
   numberOfTemporalPositions?: number;
