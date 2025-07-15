@@ -8,7 +8,7 @@ import { get as _get, cloneDeep as _cloneDeep } from "lodash";
 
 // internal libraries
 import type { StoreViewport } from "./types";
-import { ICamera } from "../imaging3d/types";
+import { Point3, Point2 } from "../imaging3d/types";
 
 type StoreSeries = {
   imageIds: string[];
@@ -90,7 +90,22 @@ type SetPayload =
       number,
       boolean
     ]
-  | ["camera", string, ICamera];
+  | [
+      "camera",
+      string,
+      Point3 | undefined,
+      boolean | undefined,
+      number | undefined,
+      number | undefined,
+      Point3 | undefined,
+      number | undefined,
+      Point3 | undefined,
+      Point3 | undefined,
+      number | undefined,
+      boolean | undefined,
+      boolean | undefined,
+      Point2 | undefined
+    ];
 
 // Larvitar store object
 let STORE: Store;
@@ -116,36 +131,22 @@ const INITIAL_STORE_DATA: Store = {
 
 // default viewport object
 const DEFAULT_VIEWPORT: StoreViewport = {
-  camera: undefined, // Default camera state for the 3d viewport
-  loading: null, // from 0 to 100 (%)
-  ready: false, // true when currentImageId is rendered
-  minSliceId: 0,
-  maxSliceId: 0,
-  sliceId: 0,
-  pendingSliceId: undefined,
-  minTimeId: 0,
-  maxTimeId: 0,
-  timeId: 0,
-  timestamp: 0,
-  timestamps: [],
-  timeIds: [],
-  rows: 0,
-  cols: 0,
-  spacing_x: 0.0,
-  spacing_y: 0.0,
-  thickness: 0.0,
-  minPixelValue: 0,
-  maxPixelValue: 0,
-  isColor: false,
-  isMultiframe: false,
-  isVideo: false,
-  modality: "",
-  filterName: "",
-  isTimeserie: false,
-  isDSAEnabled: false,
-  isPDF: false,
-  waveform: false,
-  dsa: false,
+  // used ONLY in 3D rendering
+  camera: {
+    focalPoint: [0.0, 0.0, 0.0],
+    parallelProjection: false,
+    parallelScale: 0.0,
+    scale: 0.0,
+    position: [0.0, 0.0, 0.0],
+    viewAngle: 0.0,
+    viewPlaneNormal: [0.0, 0.0, 0.0],
+    viewUp: [0.0, 0.0, 0.0],
+    rotation: 0.0,
+    flipHorizontal: false,
+    flipVertical: false,
+    clippingRange: [0.0, 0.0]
+  },
+  // used ONLY in 2D rendering except for voi property
   viewport: {
     scale: 0.0,
     rotation: 0.0,
@@ -176,7 +177,37 @@ const DEFAULT_VIEWPORT: StoreViewport = {
       windowWidth: 0.0,
       invert: false
     }
-  }
+  },
+  // used in both 2D and 3D
+  loading: null, // from 0 to 100 (%)
+  ready: false, // true when currentImageId is rendered
+  minSliceId: 0,
+  maxSliceId: 0,
+  sliceId: 0,
+  pendingSliceId: undefined,
+  minTimeId: 0,
+  maxTimeId: 0,
+  timeId: 0,
+  timestamp: 0,
+  timestamps: [],
+  timeIds: [],
+  rows: 0,
+  cols: 0,
+  spacing_x: 0.0,
+  spacing_y: 0.0,
+  thickness: 0.0,
+  minPixelValue: 0,
+  maxPixelValue: 0,
+  isColor: false,
+  isMultiframe: false,
+  isVideo: false,
+  modality: "",
+  filterName: "",
+  isTimeserie: false,
+  isDSAEnabled: false,
+  isPDF: false,
+  waveform: false,
+  dsa: false
 };
 
 // Trigger store listeners
@@ -374,8 +405,48 @@ const setValue = (store: Store, data: SetPayload) => {
       if (!viewport) {
         return;
       }
-      viewport.camera = (v as [ICamera])[0];
-      triggerViewportListener(k);
+      const [
+        focalPoint,
+        parallelProjection,
+        parallelScale,
+        scale,
+        position,
+        viewAngle,
+        viewPlaneNormal,
+        viewUp,
+        rotation,
+        flipHorizontal,
+        flipVertical,
+        clippingRange
+      ] = v as [
+        Point3,
+        boolean,
+        number,
+        number,
+        Point3,
+        number,
+        Point3,
+        Point3,
+        number,
+        boolean,
+        boolean,
+        Point2
+      ];
+
+      viewport.camera = {
+        focalPoint,
+        parallelProjection,
+        parallelScale,
+        scale,
+        position,
+        viewAngle,
+        viewPlaneNormal,
+        viewUp,
+        rotation,
+        flipHorizontal,
+        flipVertical,
+        clippingRange
+      };
       break;
 
     default:

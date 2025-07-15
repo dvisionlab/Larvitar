@@ -403,3 +403,13 @@ export type RenderProps = {
     voi?: contrast;
   };
 };
+
+//TODO check what might be renderProps in 3d rendering - check on camera
+export type RenderProps3D = {
+  filterName?: string;
+  cached?: boolean;
+  imageIndex?: number;
+  voi?: contrast;
+  colormap?: string;
+  camera?: ICamera;
+};

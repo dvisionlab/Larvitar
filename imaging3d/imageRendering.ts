@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 //import { getFileImageId, getFileManager } from "./loaders/fileLoader";
 //import { csToolsCreateStack } from "../imaging/tools/main";
 //import { toggleMouseToolsListeners } from "../imaging/tools/interaction";
-import { set, set as setStore } from "../imaging/imageStore";
+import store, { set as setStore } from "../imaging/imageStore";
 //import { applyColorMap } from "../imaging/imageColormaps";
 import { isElement } from "../imaging/imageUtils";
 
@@ -23,7 +23,7 @@ import { loadAndCacheMetadata } from "../imaging3d/imageLoading";
 import {
   Instance,
   MetaData,
-  RenderProps,
+  RenderProps3D,
   Series,
   StoreViewport
 } from "../imaging/types";
@@ -52,13 +52,13 @@ import { addImagePlaneMetadata } from "./metadataProviders/imagePlaneMetadataPro
  * @function renderImage
  * @param {Object} seriesStack - The original series data object
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {RenderProps} options - Optional rendering options
+ * @param {RenderProps3D} options - Optional rendering options
  * @return {Promise} Return a promise which will resolve when image is displayed
  */
 export const renderImage = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
-  options?: RenderProps
+  options?: RenderProps3D
 ): Promise<{ success: boolean; renderingEngine: cornerstone.RenderingEngine }> {
   const t0 = performance.now();
 
@@ -87,8 +87,9 @@ export const renderImage = function (
 
   let series = { ...seriesStack };
   const renderOptions = options ? options : {};
-  setStore(["ready", id, false]);
   let data: StoreViewport = getSeriesData(series, renderOptions);
+  store3DViewportData(viewport.id, data, false);
+  setStore(["ready", id, false]);
 
   if (!data.imageId) {
     logger.warn("error during renderImage: imageId has not been loaded yet.");
@@ -329,39 +330,157 @@ export const setVolumeForRenderingEngine = function (
 };
 
 /**
- * Store the viewport data into internal storage
+ * Store the 3D camera/viewport data into internal storage
  * @instance
- * @function storeViewportData
- * @param {Object} image - The cornerstone image frame
+ * @function store3DViewportData
  * @param {String} elementId - The html div id used for rendering
- * @param {Object} viewport - The viewport instance (IStackViewport or IVolumeViewport)
  * @param {Object} data - The viewport data object
+ * @param {boolean} isMPR
  */
-export const storeMPRViewportData = function (elementId: string) {
-  const viewportElement =
+export const store3DViewportData = function (
+  elementId: string,
+  data: ReturnType<typeof getSeriesData>,
+  isMPR: boolean
+) {
+  const viewport =
     cornerstone.getEnabledElementByViewportId(elementId)?.viewport;
-  const properties = viewportElement.getProperties();
-  const camera = viewportElement.getCamera();
-  const { lower, upper } = properties.voiRange!;
 
-  if (lower !== undefined && upper !== undefined) {
-    setStore([
-      "contrast",
-      elementId,
-      upper - lower || 0,
-      (upper + lower) / 2 || 0
-    ]);
+  if (!viewport) return;
+
+  const properties = viewport.getProperties();
+
+  // Camera only used during runtime rendering
+  const camera = viewport.getCamera();
+
+  const { voiRange } = properties;
+  if (voiRange) {
+    const width = voiRange.upper - voiRange.lower || 255;
+    const center = (voiRange.upper + voiRange.lower) / 2 || 128;
+    setStore(["contrast", elementId, width, center]);
   }
 
   if (camera) {
-    setStore(["camera", elementId, camera]);
+    setStore([
+      "camera",
+      elementId,
+      camera.focalPoint,
+      camera.parallelProjection,
+      camera.parallelScale,
+      camera.scale,
+      camera.position,
+      camera.viewAngle,
+      camera.viewPlaneNormal,
+      camera.viewUp,
+      camera.rotation,
+      camera.flipHorizontal,
+      camera.flipVertical,
+      camera.clippingRange
+    ]);
   }
+
+  if (isMPR) return;
+
+  // Stack metadata
+  setStore(["dimensions", elementId, data.rows, data.cols]);
+  setStore(["spacing", elementId, data.spacing_x, data.spacing_y]);
+  setStore(["thickness", elementId, data.thickness]);
+  setStore(["modality", elementId, data.modality]);
+
+  // Slice metadata
+  setStore(["minSliceId", elementId, 0]);
+  if (data.imageIndex != null) {
+    setStore(["sliceId", elementId, data.imageIndex]);
+
+    const pendingSliceId = store.get([
+      "viewports",
+      elementId,
+      "pendingSliceId"
+    ]);
+    if (data.imageIndex === pendingSliceId) {
+      setStore(["pendingSliceId", elementId, undefined]);
+    }
+  }
+
+  if (data.numberOfSlices != null) {
+    setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
+  }
+
+  // Time series support
+  if (data.isTimeserie) {
+    const timeCount = data.numberOfTemporalPositions ?? 1;
+    const timeId = data.timeIndex ?? 0;
+
+    setStore(["numberOfTemporalPositions", elementId, timeCount]);
+    setStore(["minTimeId", elementId, 0]);
+    setStore(["timeId", elementId, timeId]);
+    setStore(["maxTimeId", elementId, timeCount - 1]);
+
+    if (data.numberOfSlices && timeCount) {
+      const maxSliceId = data.numberOfSlices * timeCount - 1;
+      setStore(["maxSliceId", elementId, maxSliceId]);
+    }
+
+    setStore(["timestamp", elementId, data.timestamp]);
+    setStore(["timestamps", elementId, data.timestamps]);
+    setStore(["timeIds", elementId, data.timeIds]);
+  } else {
+    setStore(["minTimeId", elementId, 0]);
+    setStore(["timeId", elementId, 0]);
+    setStore(["maxTimeId", elementId, 0]);
+    setStore(["timestamp", elementId, 0]);
+    setStore(["timestamps", elementId, []]);
+    setStore(["timeIds", elementId, []]);
+  }
+
+  // Viewport state
+  // camera is more relevant in 3D case
+  // You can directly use resetCamera to reset properties to default
+  /*
+  const defaultScale = data.default?.scale ?? camera?.scale ?? 0;
+  const defaultRotation = data.default?.rotation ?? 0;
+  const defaultTranslationX = data.default?.translation?.x ?? 0;
+  const defaultTranslationY = data.default?.translation?.y ?? 0;
+  const defaultWindowWidth =
+    data.default?.voi?.windowWidth ??
+    (voiRange?.upper ?? 255) - (voiRange?.lower ?? 0);
+  const defaultWindowCenter =
+    data.default?.voi?.windowCenter ??
+    ((voiRange?.upper ?? 255) + (voiRange?.lower ?? 0)) / 2;
+
+  setStore([
+    "defaultViewport",
+    elementId,
+    defaultScale,
+    defaultRotation,
+    defaultTranslationX,
+    defaultTranslationY,
+    defaultWindowWidth,
+    defaultWindowCenter,
+    properties.invert === true
+  ]);
+
+  Store scale/rotation - these infos are in the camera
+  setStore(["scale", elementId, camera?.scale ?? 1]);
+  setStore(["rotation", elementId, camera?.rotation ?? 0]);
+  setStore(["translation", elementId, viewport.translation?.x || 0, viewport.translation?.y || 0]);*/
+
+  // Metadata
+  setStore(["isColor", elementId, data.isColor]);
+  setStore(["isMultiframe", elementId, data.isMultiframe]);
+  if (data.isMultiframe) {
+    setStore(["numberOfFrames", elementId, data.numberOfFrames ?? 0]);
+  }
+
+  setStore(["isTimeserie", elementId, data.isTimeserie]);
+  setStore(["isPDF", elementId, false]);
+  setStore(["waveform", elementId, data.waveform]);
+  setStore(["dsa", elementId, data.dsa]);
 };
 
 export const renderMpr = async function (
   series: Series,
   renderingEngineId: string,
-  options?: RenderProps
+  options?: RenderProps3D
 ) {
   const t0 = performance.now();
 
@@ -383,10 +502,9 @@ export const renderMpr = async function (
     );
   }
 
-  // const renderOptions = options ? options : {};
-  // // TODO: CONTROLLA IMAGE ID NEL CASO DI MPR
-  // //let data: StoreViewport = getSeriesData(series, renderOptions);
-
+  const renderOptions = options ? options : {};
+  // TODO: CONTROLLA IMAGE ID NEL CASO DI MPR
+  let data: StoreViewport = getSeriesData(series, renderOptions);
   const renderPromise = new Promise<void>(async (resolve, _) => {
     // crea o prendi il volume dalla cache
     // const volume =
@@ -422,7 +540,7 @@ export const renderMpr = async function (
   // !!! setTimeout needed to et default viewport propertie to globalDefaultProperties
   setTimeout(() => {
     viewports.forEach(viewport => {
-      storeMPRViewportData(viewport.id);
+      store3DViewportData(viewport.id, data, true);
       const properties = viewport.getProperties();
       viewport.setDefaultProperties(properties);
     });
@@ -1579,7 +1697,7 @@ export const resetViewports = function (
  */
 const getSeriesData = function (
   series: Series,
-  renderOptions: RenderProps
+  renderOptions: RenderProps3D
 ): StoreViewport {
   type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;
@@ -1663,11 +1781,12 @@ const getSeriesData = function (
     // window center and window width
     data.viewport = {
       voi: {
-        windowCenter: windowCenter,
-        windowWidth: windowWidth
+        windowCenter,
+        windowWidth
       }
     };
-    // store default values for the viewport voi from the series metadata
+
+    /*// store default values for the viewport voi from the series metadata
     data.default = {};
     data.default!.voi = {
       windowCenter: instance.metadata.x00281050 as number,
@@ -1693,6 +1812,9 @@ const getSeriesData = function (
           windowWidth: renderOptions.default.voi.windowWidth
         };
       }
+    }*/
+    if (renderOptions.camera !== undefined) {
+      data.camera = { ...renderOptions.camera };
     }
 
     if (
