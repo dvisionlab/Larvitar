@@ -328,6 +328,36 @@ export const setVolumeForRenderingEngine = function (
   );
 };
 
+/**
+ * Store the viewport data into internal storage
+ * @instance
+ * @function storeViewportData
+ * @param {Object} image - The cornerstone image frame
+ * @param {String} elementId - The html div id used for rendering
+ * @param {Object} viewport - The viewport instance (IStackViewport or IVolumeViewport)
+ * @param {Object} data - The viewport data object
+ */
+export const storeMPRViewportData = function (elementId: string) {
+  const viewportElement =
+    cornerstone.getEnabledElementByViewportId(elementId)?.viewport;
+  const properties = viewportElement.getProperties();
+  const camera = viewportElement.getCamera();
+  const { lower, upper } = properties.voiRange!;
+
+  if (lower !== undefined && upper !== undefined) {
+    setStore([
+      "contrast",
+      elementId,
+      upper - lower || 0,
+      (upper + lower) / 2 || 0
+    ]);
+  }
+
+  if (camera) {
+    setStore(["camera", elementId, camera]);
+  }
+};
+
 export const renderMpr = async function (
   series: Series,
   renderingEngineId: string,
@@ -371,7 +401,6 @@ export const renderMpr = async function (
     const t1 = performance.now();
 
     // TODO modificare lo store
-    // storeViewportData(image, element.id, storedViewport as Viewport, data);
     each(viewports, function (viewport: cornerstone.VolumeViewport) {
       setStore(["ready", viewport.id, true]);
     });
@@ -393,12 +422,9 @@ export const renderMpr = async function (
   // !!! setTimeout needed to et default viewport propertie to globalDefaultProperties
   setTimeout(() => {
     viewports.forEach(viewport => {
-      const viewportElement = cornerstone.getEnabledElementByViewportId(
-        viewport.id
-      )?.viewport;
-      if (viewportElement) {
-        viewportElement.setDefaultProperties(viewportElement.getProperties());
-      }
+      storeMPRViewportData(viewport.id);
+      const properties = viewport.getProperties();
+      viewport.setDefaultProperties(properties);
     });
   }, 0);
 
@@ -1343,94 +1369,6 @@ export const resetViewports = function (
 //  * @param {String} viewport - The viewport tag name
 //  * @param {Object} data - The viewport data object
 //  */
-// export const storeViewportData = function (
-//   image: cornerstone.Image,
-//   elementId: string,
-//   viewport: Viewport,
-//   data: ReturnType<typeof getSeriesData>
-// ) {
-//   setStore(["dimensions", elementId, data.rows, data.cols]);
-//   setStore(["spacing", elementId, data.spacing_x, data.spacing_y]);
-//   setStore(["thickness", elementId, data.thickness]);
-//   setStore(["minPixelValue", elementId, image.minPixelValue]);
-//   setStore(["maxPixelValue", elementId, image.maxPixelValue]);
-//   setStore(["modality", elementId, data.modality]);
-//   // slice id from 0 to n - 1
-//   setStore(["minSliceId", elementId, 0]);
-//   if (data.imageIndex) {
-//     setStore(["sliceId", elementId, data.imageIndex]);
-//   }
-//   const pendingSliceId = store.get(["viewports", elementId, "pendingSliceId"]);
-//   if (data.imageIndex == pendingSliceId) {
-//     setStore(["pendingSliceId", elementId, undefined]);
-//   }
-
-//   if (data.numberOfSlices) {
-//     setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
-//   }
-
-//   if (data.isTimeserie) {
-//     setStore([
-//       "numberOfTemporalPositions",
-//       elementId,
-//       data.numberOfTemporalPositions as number
-//     ]);
-//     setStore(["minTimeId", elementId, 0]);
-//     setStore(["timeId", elementId, data.timeIndex || 0]);
-//     if (data.numberOfSlices && data.numberOfTemporalPositions) {
-//       setStore(["maxTimeId", elementId, data.numberOfTemporalPositions - 1]);
-//       let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
-//       setStore(["maxSliceId", elementId, maxSliceId]);
-//     }
-
-//     setStore(["timestamp", elementId, data.timestamp]);
-//     setStore(["timestamps", elementId, data.timestamps]);
-//     setStore(["timeIds", elementId, data.timeIds]);
-//   } else {
-//     setStore(["minTimeId", elementId, 0]);
-//     setStore(["timeId", elementId, 0]);
-//     setStore(["maxTimeId", elementId, 0]);
-//     setStore(["timestamp", elementId, 0]);
-//     setStore(["timestamps", elementId, []]);
-//     setStore(["timeIds", elementId, []]);
-//   }
-
-//   setStore([
-//     "defaultViewport",
-//     elementId,
-//     viewport.scale || 0,
-//     viewport.rotation || 0,
-//     viewport.translation?.x || 0,
-//     viewport.translation?.y || 0,
-//     data.default?.voi?.windowWidth,
-//     data.default?.voi?.windowCenter,
-//     viewport.invert === true
-//   ]);
-//   setStore(["scale", elementId, viewport.scale || 0]);
-//   setStore(["rotation", elementId, viewport.rotation || 0]);
-
-//   setStore([
-//     "translation",
-//     elementId,
-//     viewport.translation?.x || 0,
-//     viewport.translation?.y || 0
-//   ]);
-//   setStore([
-//     "contrast",
-//     elementId,
-//     viewport.voi?.windowWidth || 0,
-//     viewport.voi?.windowCenter || 0
-//   ]);
-//   setStore(["isColor", elementId, data.isColor]);
-//   setStore(["isMultiframe", elementId, data.isMultiframe]);
-//   if (data.isMultiframe) {
-//     setStore(["numberOfFrames", elementId, data.numberOfFrames as number]);
-//   }
-//   setStore(["isTimeserie", elementId, data.isTimeserie]);
-//   setStore(["isPDF", elementId, false]);
-//   setStore(["waveform", elementId, data.waveform]);
-//   setStore(["dsa", elementId, data.dsa]);
-// };
 
 // /**
 //  * Invert pixels of an image
