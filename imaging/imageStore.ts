@@ -133,18 +133,18 @@ const INITIAL_STORE_DATA: Store = {
 const DEFAULT_VIEWPORT: StoreViewport = {
   // used ONLY in 3D rendering
   camera: {
-    focalPoint: [0.0, 0.0, 0.0],
-    parallelProjection: false,
-    parallelScale: 0.0,
-    scale: 0.0,
-    position: [0.0, 0.0, 0.0],
-    viewAngle: 0.0,
-    viewPlaneNormal: [0.0, 0.0, 0.0],
-    viewUp: [0.0, 0.0, 0.0],
-    rotation: 0.0,
-    flipHorizontal: false,
-    flipVertical: false,
-    clippingRange: [0.0, 0.0]
+    focalPoint: undefined,
+    parallelProjection: undefined,
+    parallelScale: undefined,
+    scale: undefined,
+    position: undefined,
+    viewAngle: undefined,
+    viewPlaneNormal: undefined,
+    viewUp: undefined,
+    rotation: undefined,
+    flipHorizontal: undefined,
+    flipVertical: undefined,
+    clippingRange: undefined
   },
   // used ONLY in 2D rendering except for voi property
   viewport: {
