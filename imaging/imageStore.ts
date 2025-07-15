@@ -326,7 +326,6 @@ const setValue = (store: Store, data: SetPayload) => {
         return;
       }
       v = v as [number, number];
-      console.log(v);
       viewport.viewport.voi.windowWidth = v[0];
       viewport.viewport.voi.windowCenter = v[1];
       triggerViewportListener(k);
