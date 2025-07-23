@@ -205,6 +205,7 @@ export const destroyRenderingEngine = function (
       destroyToolGroup(toolGroup.id);
     }
   });
+
   renderingEngine.destroy();
 
   // TODO remove from viewport store?
@@ -699,10 +700,12 @@ export const unloadVideo = function (renderingEngineId: string): void {
     );
     return;
   }
+
   const viewports = renderingEngine.getViewports();
   const videoViewport = viewports.find(
     viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
   ) as cornerstone.VideoViewport | undefined;
+
   if (!videoViewport) {
     logger.error(
       `No video viewport found for rendering engine ${renderingEngineId}. Please initialize it first.`
@@ -714,6 +717,9 @@ export const unloadVideo = function (renderingEngineId: string): void {
     cornerstone.Enums.Events.STACK_NEW_IMAGE,
     renderFrameEvent
   );
+
+  // disable the element
+  renderingEngine.disableElement(videoViewport.id);
 
   // destroy the rendering engine
   destroyRenderingEngine(renderingEngineId);
