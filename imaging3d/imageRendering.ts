@@ -202,10 +202,12 @@ export const destroyRenderingEngine = function (
     );
 
     if (toolGroup?.id) {
+      console.log("destroy group", toolGroup.id);
       destroyToolGroup(toolGroup.id);
     }
   });
 
+  console.log("destroy engine");
   renderingEngine.destroy();
 
   // TODO remove from viewport store?
@@ -712,13 +714,16 @@ export const unloadVideo = function (renderingEngineId: string): void {
     );
     return;
   }
+
   const element = videoViewport.element;
+  console.log("remove listener for element", element);
   element.removeEventListener(
     cornerstone.Enums.Events.STACK_NEW_IMAGE,
     renderFrameEvent
   );
 
   // disable the element
+  console.log("disable element");
   renderingEngine.disableElement(videoViewport.id);
 
   // destroy the rendering engine
