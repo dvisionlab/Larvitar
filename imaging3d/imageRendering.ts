@@ -695,6 +695,8 @@ const renderFrameEvent = function (event: any): void {
  * @returns {void}
  */
 export const unloadVideo = function (renderingEngineId: string): void {
+  console.log("unloadVideo fn", renderingEngineId);
+
   const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
   if (!renderingEngine) {
     logger.error(
