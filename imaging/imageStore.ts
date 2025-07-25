@@ -8,6 +8,7 @@ import { get as _get, cloneDeep as _cloneDeep } from "lodash";
 
 // internal libraries
 import type { StoreViewport } from "./types";
+import { Point3, Point2 } from "../imaging3d/types";
 
 type StoreSeries = {
   imageIds: string[];
@@ -88,6 +89,22 @@ type SetPayload =
       number,
       number,
       boolean
+    ]
+  | [
+      "camera",
+      string,
+      Point3 | undefined,
+      boolean | undefined,
+      number | undefined,
+      number | undefined,
+      Point3 | undefined,
+      number | undefined,
+      Point3 | undefined,
+      Point3 | undefined,
+      number | undefined,
+      boolean | undefined,
+      boolean | undefined,
+      Point2 | undefined
     ];
 
 // Larvitar store object
@@ -114,35 +131,22 @@ const INITIAL_STORE_DATA: Store = {
 
 // default viewport object
 const DEFAULT_VIEWPORT: StoreViewport = {
-  loading: null, // from 0 to 100 (%)
-  ready: false, // true when currentImageId is rendered
-  minSliceId: 0,
-  maxSliceId: 0,
-  sliceId: 0,
-  pendingSliceId: undefined,
-  minTimeId: 0,
-  maxTimeId: 0,
-  timeId: 0,
-  timestamp: 0,
-  timestamps: [],
-  timeIds: [],
-  rows: 0,
-  cols: 0,
-  spacing_x: 0.0,
-  spacing_y: 0.0,
-  thickness: 0.0,
-  minPixelValue: 0,
-  maxPixelValue: 0,
-  isColor: false,
-  isMultiframe: false,
-  isVideo: false,
-  modality: "",
-  filterName: "",
-  isTimeserie: false,
-  isDSAEnabled: false,
-  isPDF: false,
-  waveform: false,
-  dsa: false,
+  // used ONLY in 3D rendering
+  camera: {
+    focalPoint: undefined,
+    parallelProjection: undefined,
+    parallelScale: undefined,
+    scale: undefined,
+    position: undefined,
+    viewAngle: undefined,
+    viewPlaneNormal: undefined,
+    viewUp: undefined,
+    rotation: undefined,
+    flipHorizontal: undefined,
+    flipVertical: undefined,
+    clippingRange: undefined
+  },
+  // used ONLY in 2D rendering except for voi property
   viewport: {
     scale: 0.0,
     rotation: 0.0,
@@ -173,7 +177,37 @@ const DEFAULT_VIEWPORT: StoreViewport = {
       windowWidth: 0.0,
       invert: false
     }
-  }
+  },
+  // used in both 2D and 3D
+  loading: null, // from 0 to 100 (%)
+  ready: false, // true when currentImageId is rendered
+  minSliceId: 0,
+  maxSliceId: 0,
+  sliceId: 0,
+  pendingSliceId: undefined,
+  minTimeId: 0,
+  maxTimeId: 0,
+  timeId: 0,
+  timestamp: 0,
+  timestamps: [],
+  timeIds: [],
+  rows: 0,
+  cols: 0,
+  spacing_x: 0.0,
+  spacing_y: 0.0,
+  thickness: 0.0,
+  minPixelValue: 0,
+  maxPixelValue: 0,
+  isColor: false,
+  isMultiframe: false,
+  isVideo: false,
+  modality: "",
+  filterName: "",
+  isTimeserie: false,
+  isDSAEnabled: false,
+  isPDF: false,
+  waveform: false,
+  dsa: false
 };
 
 // Trigger store listeners
@@ -365,6 +399,54 @@ const setValue = (store: Store, data: SetPayload) => {
       viewport.default.voi.windowCenter = v[5];
       viewport.default.voi.invert = v[6];
       triggerViewportListener(k);
+      break;
+
+    case "camera":
+      if (!viewport) {
+        return;
+      }
+      const [
+        focalPoint,
+        parallelProjection,
+        parallelScale,
+        scale,
+        position,
+        viewAngle,
+        viewPlaneNormal,
+        viewUp,
+        rotation,
+        flipHorizontal,
+        flipVertical,
+        clippingRange
+      ] = v as [
+        Point3,
+        boolean,
+        number,
+        number,
+        Point3,
+        number,
+        Point3,
+        Point3,
+        number,
+        boolean,
+        boolean,
+        Point2
+      ];
+
+      viewport.camera = {
+        focalPoint,
+        parallelProjection,
+        parallelScale,
+        scale,
+        position,
+        viewAngle,
+        viewPlaneNormal,
+        viewUp,
+        rotation,
+        flipHorizontal,
+        flipVertical,
+        clippingRange
+      };
       break;
 
     default:

@@ -4,7 +4,7 @@ import { MetaDataTypes } from "./MetaDataTypes";
 import { MetaDataReadable } from "./MetaDataReadable";
 import { Element } from "dicom-parser";
 import { Coords, DisplayAreaVisualizations, Overlay } from "./tools/types";
-import { sample } from "lodash";
+import { ICamera } from "../imaging3d/types";
 // TODO-ts: differentiate each single metadata @szanchi
 /*export type MetadataValue =
   | string
@@ -34,6 +34,7 @@ export type sortedTags = {
 export type pdfType = { getPage: Function; numPages: number };
 
 export type StoreViewport = {
+  camera?: ICamera; // Camera state for 3D rendering
   loading: number | null;
   ready: boolean;
   minSliceId: number;
@@ -401,4 +402,14 @@ export type RenderProps = {
     translation?: translation;
     voi?: contrast;
   };
+};
+
+//TODO check what might be renderProps in 3d rendering - check on camera
+export type RenderProps3D = {
+  filterName?: string;
+  cached?: boolean;
+  imageIndex?: number;
+  voi?: contrast;
+  colormap?: string;
+  camera?: ICamera;
 };
