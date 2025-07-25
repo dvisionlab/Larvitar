@@ -467,7 +467,10 @@ export const store3DViewportData = function (
   // Metadata
   setStore(["isColor", elementId, data.isColor]);
   setStore(["isMultiframe", elementId, data.isMultiframe]);
-  if (data.isMultiframe) {
+  setStore(["isVideo", elementId, data.isVideo]);
+  setStore(["isVideoSupported", elementId, data.isVideoSupported || false]);
+
+  if (data.isMultiframe || data.isVideo) {
     setStore(["numberOfFrames", elementId, data.numberOfFrames ?? 0]);
   }
 
@@ -764,6 +767,9 @@ export const renderVideo = function (
       )
     );
   }
+
+  let data: StoreViewport = getSeriesData(series, { imageIndex: frameNumber });
+  store3DViewportData(videoViewport.id, data, false);
   setStore(["ready", videoViewport.id, false]);
 
   const videoUrl = getVideoUrlFromDicom(series, imageIndex);
@@ -795,6 +801,7 @@ export const renderVideo = function (
     videoViewport.setVideo(series.imageIds[imageIndex], frame);
     const t1 = performance.now();
     setStore(["ready", videoViewport.id, true]);
+
     logger.debug(
       `Video viewport set for rendering engine ${renderingEngineId} in ${
         t1 - t0
@@ -1717,6 +1724,17 @@ const getSeriesData = function (
     data.imageId = series.imageIds[data.imageIndex];
     data.isTimeserie = false;
     data.numberOfFrames = series.numberOfFrames;
+  } else if (series.isVideo) {
+    data.isVideo = true;
+    data.isVideoSupported = series.isVideoSupported;
+    data.numberOfSlices = series.imageIds.length;
+    data.imageIndex =
+      renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0
+        ? renderOptions.imageIndex
+        : 0;
+    data.imageId = series.imageIds[data.imageIndex];
+    data.isTimeserie = false;
+    data.numberOfFrames = series.numberOfFrames;
   } else if (series.is4D) {
     data.isMultiframe = false;
     data.isTimeserie = true;
@@ -1751,6 +1769,7 @@ const getSeriesData = function (
         : Math.floor(series.imageIds.length / 2);
     data.imageId = series.imageIds[data.imageIndex];
   }
+
   const instance: Instance | null = data.imageId
     ? series.instances[data.imageId]
     : null;
