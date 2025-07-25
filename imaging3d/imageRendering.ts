@@ -485,8 +485,6 @@ export const renderMpr = async function (
   renderingEngineId: string,
   options?: RenderProps3D
 ) {
-  const t0 = performance.now();
-
   const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
   if (!renderingEngine) {
     logger.error(
@@ -508,7 +506,10 @@ export const renderMpr = async function (
   const renderOptions = options ? options : {};
   // TODO: CONTROLLA IMAGE ID NEL CASO DI MPR
   let data: StoreViewport = getSeriesData(series, renderOptions);
+  
   const renderPromise = new Promise<void>(async (resolve, _) => {
+    const t1 = performance.now();
+
     // crea o prendi il volume dalla cache
     // const volume =
     //   cornerstone.cache.getVolume(series.uniqueUID) ||
@@ -518,13 +519,6 @@ export const renderMpr = async function (
 
     setVolumeForRenderingEngine(volume.volumeId, renderingEngineId);
     renderingEngine.renderViewports(viewports.map(v => v.id));
-
-    const t1 = performance.now();
-
-    // TODO modificare lo store
-    each(viewports, function (viewport: cornerstone.VolumeViewport) {
-      setStore(["ready", viewport.id, true]);
-    });
 
     const t2 = performance.now();
     logger.debug(`Time to render volume: ${t2 - t1} milliseconds`);
@@ -540,14 +534,17 @@ export const renderMpr = async function (
   // Wait for the render promise to complete
   await renderPromise;
 
-  // !!! setTimeout needed to et default viewport propertie to globalDefaultProperties
-  setTimeout(() => {
-    viewports.forEach(viewport => {
-      store3DViewportData(viewport.id, data, true);
-      const properties = viewport.getProperties();
-      viewport.setDefaultProperties(properties);
-    });
-  }, 0);
+  // !!! setTimeout needed sto et default viewport properties to globalDefaultProperties
+  await new Promise(resolve => setTimeout(resolve, 0));
+
+  viewports.forEach(viewport => {
+    store3DViewportData(viewport.id, data, true);
+    setStore(["uniqueUID", viewport.id, data.uniqueUID]);
+    setStore(["ready", viewport.id, true]);
+
+    const properties = viewport.getProperties();
+    viewport.setDefaultProperties(properties);
+  });
 
   return renderingEngine;
 };
@@ -560,6 +557,12 @@ export const renderMpr = async function (
  * @returns {void}
  */
 export const unloadMpr = function (renderingEngineId: string): void {
+  const re = cornerstone.getRenderingEngine(renderingEngineId);
+  re?.getViewports().forEach(viewport => {
+    setStore(["uniqueUID", viewport.id, undefined]); // remove uniqueUID from viewport store
+    setStore(["ready", viewport.id, false]); // set ready to false in viewport store
+  });
+
   // destroy the rendering engine
   // decacha il volume? se associato ad altri?
   destroyRenderingEngine(renderingEngineId);
@@ -769,6 +772,8 @@ export const renderVideo = function (
   }
 
   let data: StoreViewport = getSeriesData(series, { imageIndex: frameNumber });
+  setStore(["uniqueUID", videoViewport.id, data.uniqueUID]);
+
   store3DViewportData(videoViewport.id, data, false);
   setStore(["ready", videoViewport.id, false]);
 
@@ -850,6 +855,7 @@ export const unloadVideo = function (renderingEngineId: string): void {
     );
     return;
   }
+
   const viewports = renderingEngine.getViewports();
   const videoViewport = viewports.find(
     viewport => viewport.type === cornerstone.Enums.ViewportType.VIDEO
@@ -860,6 +866,10 @@ export const unloadVideo = function (renderingEngineId: string): void {
     );
     return;
   }
+
+  setStore(["uniqueUID", videoViewport.id, undefined]); // remove uniqueUID from viewport store
+  setStore(["ready", videoViewport.id, false]); // set ready to false in viewport store
+
   const element = videoViewport.element;
   element.removeEventListener(
     cornerstone.Enums.Events.STACK_NEW_IMAGE,
