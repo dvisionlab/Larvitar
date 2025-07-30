@@ -39,7 +39,8 @@ export class GridTool extends BaseTool {
     super({
       name: "GridTool",
       configuration: {
-        setup: (DEFAULT_TOOLS["Grid"].configuration as GridConfig).setup,
+        setup:
+          (DEFAULT_TOOLS["Grid"]?.configuration as GridConfig)?.setup || {},
         gridPixelArray: []
       },
       ...props
@@ -60,7 +61,14 @@ export class GridTool extends BaseTool {
   async activeCallback(element: HTMLElement) {
     const enabledElement = await handleElement(element);
     element.addEventListener(EVENTS.MOUSE_CLICK, this.handleMouseClick);
-    const newSetup = (DEFAULT_TOOLS["Grid"].configuration as GridConfig).setup;
+
+    const newSetup = (DEFAULT_TOOLS["Grid"]?.configuration as GridConfig)
+      ?.setup;
+    if (!newSetup) {
+      console.error("GridTool: Setup configuration is undefined or null");
+      return;
+    }
+
     this.configuration.setup = newSetup;
     if (
       enabledElement &&
@@ -78,10 +86,24 @@ export class GridTool extends BaseTool {
   }
 
   triggerInputGridDimensionChange(event: any) {
-    (DEFAULT_TOOLS["Grid"].configuration as GridConfig).setup.gridDimensionMM =
-      event.target.value;
+    const defaultConfig = DEFAULT_TOOLS["Grid"]?.configuration as GridConfig;
+    if (!defaultConfig?.setup) {
+      console.error("GridTool: Setup configuration is undefined or null");
+      return;
+    }
+
+    const value = event?.target?.value;
+    if (value === undefined || value === null || value === "") {
+      console.warn(
+        "GridTool: Grid dimension input value is undefined, null or empty"
+      );
+      return;
+    }
+
+    defaultConfig.setup.gridDimensionMM = value;
     updateImage(this.enabledElement.element);
   }
+
   /**
    * function triggered when tool is set to disabled
    *
@@ -145,8 +167,14 @@ export class GridTool extends BaseTool {
    */
   triggerDrawGrid(enabledElement: EnabledElement) {
     this.configuration.gridPixelArray = [];
-    const newSetup = (DEFAULT_TOOLS["Grid"].configuration as GridConfig).setup;
-    if (newSetup) this.configuration.setup = newSetup;
+    const newSetup = (DEFAULT_TOOLS["Grid"]?.configuration as GridConfig)
+      ?.setup;
+    if (!newSetup) {
+      console.error("GridTool: Setup configuration is undefined or null");
+      return;
+    }
+
+    this.configuration.setup = newSetup;
 
     const image = enabledElement.image as Image;
     const imageMetadata = getImageDataFromLarvitarManager(image.imageId);
@@ -175,19 +203,50 @@ export class GridTool extends BaseTool {
       this.configuration.setup.colorFractionDark
     );
 
-    let patternHeight = this.configuration.setup.gridDimensionMM
-      ? mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing[1])
-      : mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing[1]);
-    let patternWidth = this.configuration.setup.gridDimensionMM
-      ? mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing[0])
-      : mmToPixels(this.configuration.setup.gridDimensionMM, pixelSpacing[0]);
+    // Validate grid dimension
+    if (
+      !this.configuration.setup.gridDimensionMM ||
+      this.configuration.setup.gridDimensionMM === undefined ||
+      this.configuration.setup.gridDimensionMM === null
+    ) {
+      console.error("GridTool: Grid dimension is undefined, null or empty");
+      return;
+    }
+
+    let patternHeight = mmToPixels(
+      this.configuration.setup.gridDimensionMM,
+      pixelSpacing[1]
+    );
+    let patternWidth = mmToPixels(
+      this.configuration.setup.gridDimensionMM,
+      pixelSpacing[0]
+    );
+
     const patternCanvasDimensions = convertDimensionsToCanvas(
       element,
       patternWidth,
       patternHeight
     );
 
-    //dash dimension
+    //dash dimension validation
+    if (
+      !this.configuration.setup.dashHeightMM ||
+      this.configuration.setup.dashHeightMM === undefined ||
+      this.configuration.setup.dashHeightMM === null
+    ) {
+      console.error("GridTool: Dash height is undefined, null or empty");
+      return;
+    }
+
+    if (
+      !this.configuration.setup.dashWidthMM ||
+      this.configuration.setup.dashWidthMM === undefined ||
+      this.configuration.setup.dashWidthMM === null
+    ) {
+      console.error("GridTool: Dash width is undefined, null or empty");
+      return;
+    }
+
     let dashHeight = mmToPixels(
       this.configuration.setup.dashHeightMM,
       pixelSpacing[1]
