@@ -1,0 +1,247 @@
+<!doctype html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Include the Larvitar script -->
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- custom styles for the example -->
+    <style></style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <!-- <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const showCodeBtn = document.getElementById("showCodeBtn");
+      const codeSnippet = document.getElementById("codeSnippet");
+      const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+      // TODO Code snippet to be displayed and updated for the example
+      const code = ``;
+
+      // Show the modal and populate code snippet
+      showCodeBtn.addEventListener("click", () => {
+        codeSnippet.textContent = code;
+        Prism.highlightElement(codeSnippet); // Highlight the code
+        const codeModal = new bootstrap.Modal(
+          document.getElementById("codeModal")
+        );
+        codeModal.show();
+      });
+
+      // Copy the code to clipboard
+      copyCodeBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(code);
+      });
+    });
+  </script> -->
+
+    <title>Larvitar - Filters</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; top: 0px; color: white">
+        Press "1" to remove filter
+      </p>
+      <p style="position: absolute; top: 20px; color: white">
+        Press "2" to apply filter
+      </p>
+      <!-- <button id="showCodeBtn" class="open-button" style="position: absolute; top: 165px">
+      Show Code
+    </button> -->
+
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
+    </div>
+
+    <script>
+      const spinner = document.getElementById("spinner");
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.registerMultiFrameImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+
+      larvitar.addCustomKernel("sharpening.low.3", {
+        Label: "Low",
+        Size: 3,
+        Kernel: [
+          [-1, -1, -1],
+          [-1, 8, -1],
+          [-1, -1, -1]
+        ],
+        modalities: ["CT", "MR"],
+        type: "sharpening"
+      });
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
+      let demoFiles = [];
+
+      showSpinner();
+
+      async function resetFilter(multiFrameSerie, frameId) {
+        larvitar.store.setImageFilter("viewer", "");
+        const imageIds = Object.keys(multiFrameSerie.instances);
+        const imageIdAtSlice = imageIds[frameId];
+        const imageInstance = multiFrameSerie.instances[imageIdAtSlice];
+        await larvitar.renderImage(multiFrameSerie, "viewer", {
+          imageIndex: frameId,
+          voi: {
+            windowWidth: imageInstance.metadata.windowWidth,
+            windowCenter: imageInstance.metadata.windowCenter
+          }
+        });
+      }
+
+      async function applyFilter(multiFrameSerie, frameId) {
+        await resetFilter(multiFrameSerie, frameId);
+
+        const element = document.getElementById("viewer");
+        const image = larvitar.cornerstone.getEnabledElement(element)?.image;
+        const filteredImage = larvitar.applyConvolutionFilter(
+          image,
+          "sharpening.low.3",
+          true
+        );
+        larvitar.store.setImageFilter(element.id, "sharpening.low.3");
+        larvitar.cornerstone.displayImage(element, filteredImage);
+        larvitar.setImageCustomPreset(["viewer"], {
+          ww: filteredImage.windowWidth,
+          wl: filteredImage.windowCenter
+        });
+      }
+
+      async function renderSerie() {
+        const seriesStack = await larvitar.readFiles(demoFiles);
+        // render the first series of the study
+        let seriesId = Object.keys(seriesStack)[0];
+        let serie = seriesStack[seriesId];
+        larvitar.populateImageManager(seriesId, serie);
+        let manager = larvitar.getImageManager();
+        let multiFrameSerie = manager[seriesId];
+
+        let frameId = 0;
+        await larvitar.renderImage(multiFrameSerie, "viewer", {
+          imageIndex: frameId
+        });
+        hideSpinner();
+        larvitar.logger.debug("Image has been rendered");
+
+        larvitar.addDefaultTools("viewer");
+        larvitar.setToolActive("Wwwc");
+
+        await larvitar.loadAndCacheImageStack(multiFrameSerie);
+
+        document.onkeypress = function (e) {
+          e = e || window.event;
+          switch (e.keyCode) {
+            case 49: // 1
+              resetFilter(multiFrameSerie, frameId);
+              break;
+            case 50: // 2
+              applyFilter(multiFrameSerie, frameId);
+              break;
+          }
+        };
+      }
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/DSA/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        cb();
+      }
+
+      createFile("XA-DSA-Shutter.dcm", renderSerie);
+    </script>
+  </body>
+</html>
