@@ -149,9 +149,9 @@
       larvitar.store.addViewport("viewer");
 
       larvitar.addCustomKernel("sharpening.low.3", {
-        Label: "Low",
-        Size: 3,
-        Kernel: [
+        label: "Low",
+        size: 3,
+        kernel: [
           [-1, -1, -1],
           [-1, 8, -1],
           [-1, -1, -1]
@@ -168,7 +168,7 @@
       showSpinner();
 
       async function resetFilter(multiFrameSerie, frameId) {
-        larvitar.store.setImageFilter("viewer", "");
+        // larvitar.store.setImageFilter("viewer", "");
         const imageIds = Object.keys(multiFrameSerie.instances);
         const imageIdAtSlice = imageIds[frameId];
         const imageInstance = multiFrameSerie.instances[imageIdAtSlice];
@@ -191,7 +191,7 @@
           "sharpening.low.3",
           true
         );
-        larvitar.store.setImageFilter(element.id, "sharpening.low.3");
+        // larvitar.store.setImageFilter(element.id, "sharpening.low.3");
         larvitar.cornerstone.displayImage(element, filteredImage);
         larvitar.setImageCustomPreset(["viewer"], {
           ww: filteredImage.windowWidth,
