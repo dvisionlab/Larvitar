@@ -279,6 +279,67 @@ export const exportImageToBase64 = function (
 };
 
 /**
+ * Export 3D image rendered in a canvas to base64
+ * @function exportImageToBase64
+ * @param elementId - Id of the div element containing the canvas
+ * @returns {String | null} base64 image (png full quality) or null if canvas does not exist
+ */
+export const export3DImageToBase64 = async function (
+  elementId: string,
+  imageType: "png" | "jpeg"
+): Promise<string | null> {
+  const element: HTMLElement | null = document.getElementById(elementId);
+  if (!element) {
+    logger.warn("Element not found, invalid elementId");
+    return null;
+  }
+
+  const canvas: HTMLCanvasElement | null = element.querySelector("canvas");
+  const svgElement: SVGSVGElement | null = element.querySelector("svg");
+
+  if (!canvas) {
+    logger.warn("Canvas not found inside element");
+    return null;
+  }
+
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = canvas.width;
+  exportCanvas.height = canvas.height;
+  const ctx = exportCanvas.getContext("2d");
+  if (!ctx) {
+    logger.warn("Failed to get canvas context");
+    return null;
+  }
+
+  ctx.drawImage(canvas, 0, 0);
+
+  if (svgElement) {
+    const svgString = new XMLSerializer().serializeToString(svgElement);
+    const svgBlob = new Blob([svgString], {
+      type: "image/svg+xml;charset=utf-8"
+    });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    const img = new Image();
+
+    return new Promise(resolve => {
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(svgUrl);
+        const dataUrl = exportCanvas.toDataURL("image/" + imageType, 1.0);
+        resolve(dataUrl);
+      };
+      img.onerror = () => {
+        logger.warn("Failed to load SVG as image");
+        resolve(null);
+      };
+      img.src = svgUrl;
+    });
+  }
+
+  return exportCanvas.toDataURL("image/" + imageType, 1.0);
+};
+
+/**
  * Export image rendered in a canvas to base64
  * @function exportImageToBase64OriginalSizes
  * @param imageId - Id of the original image element
