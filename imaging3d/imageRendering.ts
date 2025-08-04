@@ -5,8 +5,9 @@
 
 // external libraries
 import * as cornerstone from "@cornerstonejs/core";
+import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
 import * as cornerstoneTools from "@cornerstonejs/tools";
-import { each } from "lodash";
+import { each, forEach } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
@@ -14,7 +15,7 @@ import { v4 as uuidv4 } from "uuid";
 //import { getFileImageId, getFileManager } from "./loaders/fileLoader";
 //import { csToolsCreateStack } from "../imaging/tools/main";
 //import { toggleMouseToolsListeners } from "../imaging/tools/interaction";
-import { set, set as setStore } from "../imaging/imageStore";
+import store, { set as setStore } from "../imaging/imageStore";
 //import { applyColorMap } from "../imaging/imageColormaps";
 import { isElement } from "../imaging/imageUtils";
 
@@ -36,6 +37,7 @@ import { addCineMetadata } from "./metadataProviders/cineMetadataProvider";
 import { addImageUrlMetadata } from "./metadataProviders/imageUrlMetadataProvider";
 import { addGeneralSeriesMetadata } from "./metadataProviders/generalSeriesProvider";
 import { addImagePlaneMetadata } from "./metadataProviders/imagePlaneMetadataProvider";
+
 // import { DEFAULT_TOOLS } from "./tools/default";
 // import { initializeFileImageLoader } from "./imageLoading";
 // import { generateFiles } from "./parsers/pdf";
@@ -208,8 +210,6 @@ export const destroyRenderingEngine = function (
 
   renderingEngine.destroy();
 
-  // TODO remove from viewport store?
-
   logger.debug(`Rendering engine with id ${renderingEngineId} destroyed.`);
 };
 
@@ -283,11 +283,9 @@ export const loadAndCacheVolume = async function (
 ): Promise<cornerstone.ImageVolume | cornerstone.Types.IStreamingImageVolume> {
   const t0 = performance.now();
 
-  //const volumeId = series.uniqueUID || uuidv4();
   const volumeId = uuidv4();
+  loadAndCacheMetadata(series);
 
-  loadAndCacheMetadata(series.imageIds3D);
-  // cornerstone.cache.getVolume(volumeId) ||
   const volume = await cornerstone.volumeLoader.createAndCacheVolume(volumeId, {
     imageIds: series.imageIds3D.map(id => id)
   });
@@ -329,11 +327,49 @@ export const setVolumeForRenderingEngine = function (
   );
 };
 
+/**
+ * Add standard metadata to an imageId
+ * @instance
+ * @function addStandardMetadata
+ * @param {string} imageId - The unique identifier of the image to add metadata to
+ * @param {MetaData} metadata - The metadata object containing video information
+ * @returns {void}
+ * @throws {Error} If the metadata is missing required fields
+ */
+export const addStandardMetadata = function (
+  imageId: string,
+  metadata: MetaData
+): void {
+  addGeneralSeriesMetadata(imageId, {
+    seriesInstanceUID: metadata.seriesUID!,
+    studyInstanceUID: metadata.studyUID!,
+    seriesNumber: metadata["x00200011"] || 1,
+    seriesDescription: metadata.seriesDescription || "Video Series",
+    modality: metadata.seriesModality || "XC",
+    seriesDate: metadata.seriesDate || new Date().toISOString().split("T")[0],
+    seriesTime: metadata["x00080031"] || new Date().toTimeString().split(" ")[0]
+  });
+  addImagePlaneMetadata(imageId, {
+    frameOfReferenceUID: metadata["x00200052"] || metadata.studyUID!,
+    rows: metadata.rows!,
+    columns: metadata.cols!,
+    imageOrientationPatient: metadata.imageOrientation || [1, 0, 0, 0, 1, 0],
+    rowCosines: metadata["x00200037"]?.slice(0, 3) || [1, 0, 0],
+    columnCosines: metadata["x00200037"]?.slice(3, 6) || [0, 1, 0],
+    imagePositionPatient: metadata.imagePosition || [0, 0, 0],
+    sliceThickness: (metadata.sliceThickness as number) || 1,
+    sliceLocation: metadata["x00201041"] || 0,
+    pixelSpacing: metadata.pixelSpacing || [1, 1],
+    rowPixelSpacing: metadata.pixelSpacing ? metadata.pixelSpacing[1] : 1,
+    columnPixelSpacing: metadata.pixelSpacing ? metadata.pixelSpacing[0] : 1
+  });
+};
+
 export const renderMpr = async function (
-  series: Series,
+  seriesStack: Series,
   renderingEngineId: string,
   options?: RenderProps
-) {
+): Promise<{ success: boolean; renderingEngine: cornerstone.RenderingEngine }> {
   const t0 = performance.now();
 
   const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
@@ -341,7 +377,10 @@ export const renderMpr = async function (
     logger.error(
       `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
     );
-    throw new Error(`Rendering engine with id ${renderingEngineId} not found.`);
+    // throw new Error(`Rendering engine with id ${renderingEngineId} not found.`);
+    return new Promise((_, reject) =>
+      reject(`Rendering engine with id ${renderingEngineId} not found.`)
+    );
   }
 
   const viewports = renderingEngine.getVolumeViewports();
@@ -349,61 +388,60 @@ export const renderMpr = async function (
     logger.error(
       `No volume viewports found for rendering engine ${renderingEngineId}. Please initialize them first.`
     );
-    throw new Error(
-      `No volume viewports found for rendering engine ${renderingEngineId}.`
+    return new Promise((_, reject) =>
+      reject(
+        `No volume viewports found for rendering engine ${renderingEngineId}.`
+      )
     );
   }
 
-  // const renderOptions = options ? options : {};
-  // // TODO: CONTROLLA IMAGE ID NEL CASO DI MPR
-  // //let data: StoreViewport = getSeriesData(series, renderOptions);
+  let series = { ...seriesStack };
+  const renderOptions = options ? options : {};
+  let data: StoreViewport = getSeriesData(series, renderOptions);
 
-  const renderPromise = new Promise<void>(async (resolve, _) => {
-    // crea o prendi il volume dalla cache
-    // const volume =
-    //   cornerstone.cache.getVolume(series.uniqueUID) ||
-    //   (await loadAndCacheVolume(series));
-    // console.log("volume", volume);
+  const renderPromise = new Promise<{
+    success: boolean;
+    renderingEngine: cornerstone.RenderingEngine;
+  }>(async (resolve, reject) => {
     const volume = await loadAndCacheVolume(series);
+    const t1 = performance.now();
+    logger.debug(`Time to load and cache volume: ${t1 - t0} milliseconds`);
 
     setVolumeForRenderingEngine(volume.volumeId, renderingEngineId);
     renderingEngine.renderViewports(viewports.map(v => v.id));
-
-    const t1 = performance.now();
-
-    // TODO modificare lo store
-    // storeViewportData(image, element.id, storedViewport as Viewport, data);
     each(viewports, function (viewport: cornerstone.VolumeViewport) {
+      storeViewportData(
+        viewport.id,
+        viewport as cornerstone.VolumeViewport,
+        data
+      );
       setStore(["ready", viewport.id, true]);
     });
 
     const t2 = performance.now();
     logger.debug(`Time to render volume: ${t2 - t1} milliseconds`);
 
+    if (renderOptions.cached === false) {
+      // Unload the dataset from the cache
+      // This is needed to free memory if the imageId is not cached
+      forEach(series.imageIds3D, imageId => {
+        const uri =
+          cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+        logger.debug(`Unloading imageId: ${imageId} from cache`);
+        cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      });
+    }
+
     // @ts-ignore
     series = null;
     // @ts-ignore
-    //data = null;
+    data = null;
 
-    resolve();
+    resolve({ success: true, renderingEngine });
   });
 
   // Wait for the render promise to complete
-  await renderPromise;
-
-  // !!! setTimeout needed to et default viewport propertie to globalDefaultProperties
-  setTimeout(() => {
-    viewports.forEach(viewport => {
-      const viewportElement = cornerstone.getEnabledElementByViewportId(
-        viewport.id
-      )?.viewport;
-      if (viewportElement) {
-        viewportElement.setDefaultProperties(viewportElement.getProperties());
-      }
-    });
-  }, 0);
-
-  return renderingEngine;
+  return renderPromise;
 };
 
 /**
@@ -414,8 +452,33 @@ export const renderMpr = async function (
  * @returns {void}
  */
 export const unloadMpr = function (renderingEngineId: string): void {
-  // destroy the rendering engine
-  // decacha il volume? se associato ad altri?
+  // get a viewport from the rendering engine
+  // in order to remove the imageIds from the cache
+  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  if (!renderingEngine) {
+    logger.error(
+      `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
+    );
+    return;
+  }
+  const viewports = renderingEngine.getVolumeViewports();
+  if (viewports.length === 0) {
+    logger.error(
+      `No volume viewports found for rendering engine ${renderingEngineId}. Please initialize them first.`
+    );
+    return;
+  }
+  const viewport = viewports[0]; // Get the first viewport to access imageIds
+  const imageIds3D = viewport.getImageIds();
+
+  if (imageIds3D && imageIds3D.length > 0) {
+    forEach(imageIds3D, imageId => {
+      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+      logger.debug(`Unloading imageId: ${imageId} from cache`);
+      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+    });
+  }
+
   destroyRenderingEngine(renderingEngineId);
 };
 
@@ -592,7 +655,7 @@ export const renderVideo = function (
   series: Series,
   renderingEngineId: string,
   frameNumber?: number
-) {
+): Promise<void> {
   const imageIndex = 0; // TODO EXPOSE THIS?
 
   const t0 = performance.now();
@@ -644,7 +707,7 @@ export const renderVideo = function (
       )
     );
   }
-
+  addStandardMetadata(series.imageIds[imageIndex], videoMetadata);
   addVideoMetadata(series.imageIds[imageIndex], videoMetadata, videoUrl);
 
   const renderPromise = new Promise<void>(async (resolve, _) => {
@@ -1340,103 +1403,53 @@ export const resetViewports = function (
 //   }
 // };
 
-// /**
-//  * Store the viewport data into internal storage
-//  * @instance
-//  * @function storeViewportData
-//  * @param {Object} image - The cornerstone image frame
-//  * @param {String} elementId - The html div id used for rendering
-//  * @param {String} viewport - The viewport tag name
-//  * @param {Object} data - The viewport data object
-//  */
-// export const storeViewportData = function (
-//   image: cornerstone.Image,
-//   elementId: string,
-//   viewport: Viewport,
-//   data: ReturnType<typeof getSeriesData>
-// ) {
-//   setStore(["dimensions", elementId, data.rows, data.cols]);
-//   setStore(["spacing", elementId, data.spacing_x, data.spacing_y]);
-//   setStore(["thickness", elementId, data.thickness]);
-//   setStore(["minPixelValue", elementId, image.minPixelValue]);
-//   setStore(["maxPixelValue", elementId, image.maxPixelValue]);
-//   setStore(["modality", elementId, data.modality]);
-//   // slice id from 0 to n - 1
-//   setStore(["minSliceId", elementId, 0]);
-//   if (data.imageIndex) {
-//     setStore(["sliceId", elementId, data.imageIndex]);
-//   }
-//   const pendingSliceId = store.get(["viewports", elementId, "pendingSliceId"]);
-//   if (data.imageIndex == pendingSliceId) {
-//     setStore(["pendingSliceId", elementId, undefined]);
-//   }
+/**
+ * Store the viewport data into internal storage
+ * @instance
+ * @function storeViewportData
+ * @param {Object} image - The cornerstone image frame
+ * @param {String} elementId - The html div id used for rendering
+ * @param {String} viewport - The viewport tag name
+ * @param {Object} data - The viewport data object
+ */
+export const storeViewportData = function (
+  elementId: string,
+  viewport: cornerstone.VolumeViewport,
+  data: ReturnType<typeof getSeriesData>
+) {
+  setStore(["dimensions", elementId, data.rows, data.cols]);
+  setStore(["spacing", elementId, data.spacing_x, data.spacing_y]);
+  setStore(["thickness", elementId, data.thickness]);
+  //setStore(["minPixelValue", elementId, image.minPixelValue]);
+  //setStore(["maxPixelValue", elementId, image.maxPixelValue]);
+  setStore(["modality", elementId, data.modality]);
+  // slice id from 0 to n - 1
+  setStore(["minSliceId", elementId, 0]);
+  if (data.imageIndex) {
+    setStore(["sliceId", elementId, data.imageIndex]);
+  }
+  const pendingSliceId = store.get(["viewports", elementId, "pendingSliceId"]);
+  if (data.imageIndex == pendingSliceId) {
+    setStore(["pendingSliceId", elementId, undefined]);
+  }
 
-//   if (data.numberOfSlices) {
-//     setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
-//   }
+  if (data.numberOfSlices) {
+    setStore(["maxSliceId", elementId, data.numberOfSlices - 1]);
+  }
 
-//   if (data.isTimeserie) {
-//     setStore([
-//       "numberOfTemporalPositions",
-//       elementId,
-//       data.numberOfTemporalPositions as number
-//     ]);
-//     setStore(["minTimeId", elementId, 0]);
-//     setStore(["timeId", elementId, data.timeIndex || 0]);
-//     if (data.numberOfSlices && data.numberOfTemporalPositions) {
-//       setStore(["maxTimeId", elementId, data.numberOfTemporalPositions - 1]);
-//       let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
-//       setStore(["maxSliceId", elementId, maxSliceId]);
-//     }
+  setStore(["camera", elementId, viewport.getCamera()]);
+  setStore(["mpr", elementId, viewport]);
 
-//     setStore(["timestamp", elementId, data.timestamp]);
-//     setStore(["timestamps", elementId, data.timestamps]);
-//     setStore(["timeIds", elementId, data.timeIds]);
-//   } else {
-//     setStore(["minTimeId", elementId, 0]);
-//     setStore(["timeId", elementId, 0]);
-//     setStore(["maxTimeId", elementId, 0]);
-//     setStore(["timestamp", elementId, 0]);
-//     setStore(["timestamps", elementId, []]);
-//     setStore(["timeIds", elementId, []]);
-//   }
-
-//   setStore([
-//     "defaultViewport",
-//     elementId,
-//     viewport.scale || 0,
-//     viewport.rotation || 0,
-//     viewport.translation?.x || 0,
-//     viewport.translation?.y || 0,
-//     data.default?.voi?.windowWidth,
-//     data.default?.voi?.windowCenter,
-//     viewport.invert === true
-//   ]);
-//   setStore(["scale", elementId, viewport.scale || 0]);
-//   setStore(["rotation", elementId, viewport.rotation || 0]);
-
-//   setStore([
-//     "translation",
-//     elementId,
-//     viewport.translation?.x || 0,
-//     viewport.translation?.y || 0
-//   ]);
-//   setStore([
-//     "contrast",
-//     elementId,
-//     viewport.voi?.windowWidth || 0,
-//     viewport.voi?.windowCenter || 0
-//   ]);
-//   setStore(["isColor", elementId, data.isColor]);
-//   setStore(["isMultiframe", elementId, data.isMultiframe]);
-//   if (data.isMultiframe) {
-//     setStore(["numberOfFrames", elementId, data.numberOfFrames as number]);
-//   }
-//   setStore(["isTimeserie", elementId, data.isTimeserie]);
-//   setStore(["isPDF", elementId, false]);
-//   setStore(["waveform", elementId, data.waveform]);
-//   setStore(["dsa", elementId, data.dsa]);
-// };
+  setStore(["isColor", elementId, data.isColor]);
+  setStore(["isMultiframe", elementId, data.isMultiframe]);
+  if (data.isMultiframe) {
+    setStore(["numberOfFrames", elementId, data.numberOfFrames as number]);
+  }
+  setStore(["isTimeserie", elementId, data.isTimeserie]);
+  setStore(["isPDF", elementId, false]);
+  setStore(["waveform", elementId, data.waveform]);
+  setStore(["dsa", elementId, data.dsa]);
+};
 
 // /**
 //  * Invert pixels of an image

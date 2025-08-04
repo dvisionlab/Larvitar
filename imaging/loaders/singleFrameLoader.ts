@@ -42,6 +42,9 @@ export const setSingleFrameCache = async function (
 ): Promise<ImageObject> {
   const t0 = performance.now();
   const imageId = getSingleFrameImageId("singleFrameLoader");
+
+  // bisogna fare come con il multiframe loader...
+
   try {
     singleFrameCache[imageId] = { pixelData, metadata };
     const t1 = performance.now();

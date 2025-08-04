@@ -37,8 +37,13 @@ import {
 } from "../imaging/types";
 
 import { getSortedStack, getSortedUIDs } from "../imaging/imageUtils";
-import { registerMetadataProviders } from "./metadataProviders/metadataProviders";
+import {
+  addMetadataForImageId,
+  registerAllMetadataProviders,
+  registerMetadataProviders
+} from "./metadataProviders/metadataProviders";
 import { logger } from "../logger";
+import { convertMetadata } from "./imageParsing";
 
 const MAX_CONCURRENCY = 32;
 
@@ -74,6 +79,7 @@ export const initializeImageLoader = function (maxConcurrency?: number) {
     );
   }
   registerMetadataProviders();
+  registerAllMetadataProviders();
 };
 
 export const registerStreamingImageVolume = function () {
@@ -151,6 +157,7 @@ export const updateLoadedStack = async function (
     let series: Partial<Series> = {
       currentImageIdIndex: 0,
       imageIds: [], // (ordered)
+      imageIds3D: [], // (ordered) 3D imageIds for MPR
       instanceUIDs: {}, // instanceUID: imageId (ordered)
       instances: {},
       seriesDescription: seriesDescription as string,
@@ -219,8 +226,10 @@ export const updateLoadedStack = async function (
 
     if (sliceIndex !== undefined) {
       allSeriesStack[id].imageIds[sliceIndex] = imageId;
+      allSeriesStack[id].imageIds3D[sliceIndex] = imageId;
     } else {
       allSeriesStack[id].imageIds.push(imageId);
+      allSeriesStack[id].imageIds3D.push(imageId);
     }
 
     if (is4D === false) {
@@ -442,17 +451,18 @@ export default function getPixelSpacingInformation(instance: any) {
  * @function loadAndCacheMetadata
  * @param {Array} imageIds - Array of image IDs to load metadata for
  */
-export const loadAndCacheMetadata = (imageIds: string[]) => {
-  imageIds.map(imageId => {
-    const metadata =
-      cornerstoneDICOMImageLoader.wadors.metaDataManager.get(imageId);
+//export const loadAndCacheMetadata = (imageIds: string[]) => {
+export const loadAndCacheMetadata = (series: Series) => {
+  series.imageIds3D.map((imageId: string) => {
+    const instance = series.instances[imageId];
     const cleanedMetadata = DicomMetaDictionary.naturalizeDataset(
-      removeInvalidTags(metadata)
+      removeInvalidTags(convertMetadata(instance!.dataSet!))
     );
-    imageMetadataProvider.add(imageId, metadata);
+    imageMetadataProvider.add(imageId, instance.metadata);
+    // Add the metadata to all providers
+    addMetadataForImageId(imageId, instance.metadata);
 
     const pixelSpacing = getPixelSpacingInformation(cleanedMetadata);
-
     if (pixelSpacing === undefined) return;
     if (
       typeof pixelSpacing === "object" &&

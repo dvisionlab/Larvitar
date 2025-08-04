@@ -8,6 +8,7 @@ import { get as _get, cloneDeep as _cloneDeep } from "lodash";
 
 // internal libraries
 import type { StoreViewport } from "./types";
+import { ICamera, VolumeViewport } from "../imaging3d/types";
 
 type StoreSeries = {
   imageIds: string[];
@@ -88,7 +89,9 @@ type SetPayload =
       number,
       number,
       boolean
-    ];
+    ]
+  | ["camera", string, ICamera]
+  | ["mpr", string, VolumeViewport];
 
 // Larvitar store object
 let STORE: Store;
@@ -364,6 +367,24 @@ const setValue = (store: Store, data: SetPayload) => {
       viewport.default.voi.windowWidth = v[4];
       viewport.default.voi.windowCenter = v[5];
       viewport.default.voi.invert = v[6];
+      triggerViewportListener(k);
+      break;
+
+    case "camera":
+      if (!viewport) {
+        return;
+      }
+      v = v as [ICamera];
+      viewport.viewport.camera = v[0];
+      triggerViewportListener(k);
+      break;
+
+    case "mpr":
+      if (!viewport) {
+        return;
+      }
+      v = v as [VolumeViewport];
+      viewport.viewport.mpr = v[0];
       triggerViewportListener(k);
       break;
 

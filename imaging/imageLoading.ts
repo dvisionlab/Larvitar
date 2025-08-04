@@ -32,7 +32,6 @@ import {
 } from "./imageManagers";
 import { clearImageCache } from "./imageRendering";
 import { clearCornerstoneElements } from "./imageTools";
-import { convertMetadata } from "../imaging3d/imageParsing";
 
 /**
  * Global standard configuration
@@ -318,11 +317,6 @@ export const updateLoadedStack = function (
         seriesData.file
       ) as string;
       allSeriesStack[id].imageIds3D.push(imageId3D);
-      const metadata = convertMetadata(seriesData.dataSet);
-      cornerstoneDICOMImageLoader3D.wadors.metaDataManager.add(
-        imageId3D,
-        metadata
-      );
     }
 
     imageTracker[imageId] = lid as string;

@@ -509,7 +509,16 @@ const parseFile = function (file: File) {
   return parsePromise;
 };
 
-export const convertMetadata = function (dataSet: DataSet) {
+/**
+ * Convert DICOM metadata from DataSet to a more usable format
+ * @instance
+ * @function convertMetadata
+ * @param {DataSet} dataSet - dicom parser DataSet object
+ * @returns {Object} - Returns a metadata object with keys as DICOM tags and values as their corresponding values
+ */
+export const convertMetadata = function (dataSet: DataSet): {
+  [key: string]: { Value: any[]; vr: string };
+} {
   const options = {
     omitPrivateAttibutes: false,
     maxElementLength: 128

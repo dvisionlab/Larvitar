@@ -287,7 +287,7 @@
         larvitar.store.addViewport("coronal");
         larvitar.store.addViewport("acquisition");
 
-        larvitar._destroyRenderingEngine("1234");
+        larvitar._unloadMpr("1234");
 
         larvitar
           .readFiles(demoFiles) // need to port the updateLoadedStack function
@@ -338,68 +338,70 @@
             const renderingEngine = larvitar._initializeRenderingEngine("1234");
             larvitar._initializeVolumeViewports("1234", viewportInputs);
 
-            larvitar._renderMpr(serie, "1234").then(() => {
-              console.log("Volume rendered");
-              console.log(renderingEngine.getViewports());
-              // add and enable wwwc, pan, zoom, and stack tools
-              larvitar._addDefaultTools(
-                mprViewportIds,
-                renderingEngine,
-                "MPR",
-                "mprTools"
-              );
-              larvitar._addDefaultTools(
-                [viewportId4],
-                renderingEngine,
-                "3D",
-                "acquisition"
-              );
+            larvitar
+              ._renderMpr(serie, "1234", { cached: false })
+              .then(({ success, renderingEngine }) => {
+                console.log("Volume rendered");
+                console.log(renderingEngine);
+                // add and enable wwwc, pan, zoom, and stack tools
+                // larvitar._addDefaultTools(
+                //   mprViewportIds,
+                //   renderingEngine,
+                //   "MPR",
+                //   "mprTools"
+                // );
+                // larvitar._addDefaultTools(
+                //   [viewportId4],
+                //   renderingEngine,
+                //   "3D",
+                //   "acquisition"
+                // );
 
-              larvitar._addTool(
-                "Crosshairs",
-                {
-                  getReferenceLineColor: vpId => {
-                    switch (vpId) {
-                      case "axial":
-                        return "rgb(255,0,0)";
-                      case "sagittal":
-                        return "rgb(0,255,0)";
-                      case "coronal":
-                        return "rgb(255,255,0)";
-                    }
-                  },
-                  // getReferenceLineSlabThicknessControlsOn: () => false,
-                  shadow: true,
-                  viewportIndicators: true,
-                  viewportIndicatorsConfig: {
-                    radius: 5,
-                    x: null,
-                    y: null
-                  },
-                  autoPan: {
-                    enabled: true,
-                    panSize: 10
-                  },
-                  handleRadius: 5,
-                  enableHDPIHandles: false,
-                  referenceLinesCenterGapRadius: 20,
-                  filterActorUIDsToSetSlabThickness: []
-                  // slabThicknessBlendMode: Enums.BlendModes.MAXIMUM_INTENSITY_BLEND,
-                },
-                "mprTools",
-                "MPR"
-              );
-              // set tool active on the two groups
-              larvitar._setToolActive(
-                "Crosshairs",
-                {
-                  bindings: [{ mouseButton: Enums.MouseBindings.Primary }]
-                },
-                "mprTools"
-              );
+                // larvitar._addTool(
+                //   "Crosshairs",
+                //   {
+                //     getReferenceLineColor: vpId => {
+                //       switch (vpId) {
+                //         case "axial":
+                //           return "rgb(255,0,0)";
+                //         case "sagittal":
+                //           return "rgb(0,255,0)";
+                //         case "coronal":
+                //           return "rgb(255,255,0)";
+                //       }
+                //     },
+                //     // getReferenceLineSlabThicknessControlsOn: () => false,
+                //     shadow: true,
+                //     viewportIndicators: true,
+                //     viewportIndicatorsConfig: {
+                //       radius: 5,
+                //       x: null,
+                //       y: null
+                //     },
+                //     autoPan: {
+                //       enabled: true,
+                //       panSize: 10
+                //     },
+                //     handleRadius: 5,
+                //     enableHDPIHandles: false,
+                //     referenceLinesCenterGapRadius: 20,
+                //     filterActorUIDsToSetSlabThickness: []
+                //     // slabThicknessBlendMode: Enums.BlendModes.MAXIMUM_INTENSITY_BLEND,
+                //   },
+                //   "mprTools",
+                //   "MPR"
+                // );
+                // // set tool active on the two groups
+                // larvitar._setToolActive(
+                //   "Crosshairs",
+                //   {
+                //     bindings: [{ mouseButton: Enums.MouseBindings.Primary }]
+                //   },
+                //   "mprTools"
+                // );
 
-              hideSpinner();
-            });
+                hideSpinner();
+              });
           })
           .catch(err => console.error(err));
       }
