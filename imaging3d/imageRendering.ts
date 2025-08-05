@@ -19,8 +19,6 @@ import store, { set as setStore } from "../imaging/imageStore";
 //import { applyColorMap } from "../imaging/imageColormaps";
 import { isElement } from "../imaging/imageUtils";
 
-import { loadAndCacheMetadata } from "../imaging3d/imageLoading";
-
 import {
   Instance,
   MetaData,
@@ -284,8 +282,6 @@ export const loadAndCacheVolume = async function (
   const t0 = performance.now();
 
   const volumeId = uuidv4();
-  loadAndCacheMetadata(series);
-
   const volume = await cornerstone.volumeLoader.createAndCacheVolume(volumeId, {
     imageIds: series.imageIds3D.map(id => id)
   });

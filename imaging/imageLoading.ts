@@ -16,7 +16,7 @@ import cornerstoneDICOMImageLoader3D from "@cornerstonejs/dicom-image-loader";
 // internal libraries
 import { logger } from "../logger";
 import store from "./imageStore";
-import { getSortedStack, getSortedUIDs } from "./imageUtils";
+import { getSortedStack, getSortedUIDs, getSortedUIDs3D } from "./imageUtils";
 import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
 import { loadMultiFrameImage } from "./loaders/multiframeLoader";
@@ -32,6 +32,7 @@ import {
 } from "./imageManagers";
 import { clearImageCache } from "./imageRendering";
 import { clearCornerstoneElements } from "./imageTools";
+import { loadAndCacheMetadata } from "../imaging3d/imageLoading";
 
 /**
  * Global standard configuration
@@ -224,6 +225,7 @@ export const updateLoadedStack = function (
       imageIds: [], // (ordered)
       imageIds3D: [], // (ordered) 3D imageIds for MPR
       instanceUIDs: {}, // instanceUID: imageId (ordered)
+      instanceUIDs3D: {}, // instanceUID: imageId3D (ordered)
       instances: {},
       seriesDescription: seriesDescription as string,
       uniqueUID: lid as string,
@@ -311,19 +313,24 @@ export const updateLoadedStack = function (
       logger.error(
         "Unable to Init MPR: No dataset found for imageId: " + imageId
       );
-    } else {
-      // Enable support for cornerstone3D and MPR
-      const imageId3D = cornerstoneDICOMImageLoader3D.wadouri.fileManager.add(
-        seriesData.file
-      ) as string;
-      allSeriesStack[id].imageIds3D.push(imageId3D);
     }
+    const imageId3D = seriesData.dataSet
+      ? (cornerstoneDICOMImageLoader3D.wadouri.fileManager.add(
+          seriesData.file
+        ) as string)
+      : undefined;
 
     imageTracker[imageId] = lid as string;
     if (sliceIndex !== undefined) {
       allSeriesStack[id].imageIds[sliceIndex] = imageId;
+      if (imageId3D) {
+        allSeriesStack[id].imageIds3D[sliceIndex] = imageId3D;
+      }
     } else {
       allSeriesStack[id].imageIds.push(imageId);
+      if (imageId3D) {
+        allSeriesStack[id].imageIds3D.push(imageId3D);
+      }
     }
 
     if (is4D === false) {
@@ -339,6 +346,9 @@ export const updateLoadedStack = function (
       file: seriesData.file,
       dataSet: seriesData.dataSet
     };
+    if (imageId3D) {
+      loadAndCacheMetadata(imageId3D, allSeriesStack[id].instances[imageId]);
+    }
 
     if (isPDF === false) {
       if (sliceIndex === undefined) {
@@ -348,12 +358,24 @@ export const updateLoadedStack = function (
           sortMethods,
           true
         );
+        allSeriesStack[id].imageIds = getSortedStack(
+          allSeriesStack[id] as Series,
+          sortMethods,
+          true,
+          true
+        );
         // populate the ordered dictionary of instanceUIDs
         allSeriesStack[id].instanceUIDs = getSortedUIDs(
           allSeriesStack[id] as Series
         );
+        allSeriesStack[id].instanceUIDs3D = getSortedUIDs3D(
+          allSeriesStack[id] as Series
+        );
       } else {
         allSeriesStack[id].instanceUIDs[iid] = imageId;
+        if (imageId3D) {
+          allSeriesStack[id].instanceUIDs3D[iid] = imageId3D;
+        }
       }
       store.addImageIds(id, allSeriesStack[id].imageIds);
     } else {

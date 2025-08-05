@@ -209,13 +209,15 @@ export const getTypedArrayFromDataType = function (dataType: string) {
  * @function getSortedStack
  * @param {Object} seriesData - The dataset
  * @param {Array} sortPriorities - An array which represents the priority tasks
+ * @param {Bool} is3D - Boolean for 3D series
  * @param {Bool} returnSuccessMethod - Boolean for returning the success method
  * @return {Object} The sorted stack
  */
 export const getSortedStack = function (
   seriesData: Series,
   sortPriorities: Array<"imagePosition" | "contentTime" | "instanceNumber">,
-  returnSuccessMethod: boolean
+  returnSuccessMethod: boolean,
+  is3D: boolean = false
 ) {
   let tryToSort = function (
     data: Series,
@@ -230,9 +232,15 @@ export const getSortedStack = function (
     }
 
     let sortMethod = methods.shift();
-    var sorted = sortBy(data.imageIds, function (imageId: string) {
-      return sortStackCallback(data, imageId, sortMethod!);
-    });
+    if (is3D === true) {
+      var sorted = sortBy(data.imageIds3D, function (imageId: string) {
+        return sortStackCallback(data, imageId, sortMethod!);
+      });
+    } else {
+      var sorted = sortBy(data.imageIds, function (imageId: string) {
+        return sortStackCallback(data, imageId, sortMethod!);
+      });
+    }
     if (returnSuccessMethod === true) {
       return sorted;
     } else {
@@ -259,6 +267,22 @@ export const getSortedUIDs = function (seriesData: Series) {
     instanceUIDs[instanceUID] = imageId;
   });
   return instanceUIDs;
+};
+
+/**
+ * Sort the array of instanceUIDs according to imageIds sorted using sortSeriesStack
+ * @instance
+ * @function getSortedUIDs
+ * @param {Object} seriesData - The dataset
+ * @return {Object} The sorted instanceUIDs
+ */
+export const getSortedUIDs3D = function (seriesData: Series) {
+  let instanceUIDs3D: { [key: string]: string } = {};
+  forEach(seriesData.imageIds3D, function (imageId3D: string) {
+    let instanceUID = seriesData.instances[imageId3D].metadata.instanceUID!;
+    instanceUIDs3D[instanceUID] = imageId3D;
+  });
+  return instanceUIDs3D;
 };
 
 /**

@@ -185,6 +185,7 @@ export type Series = {
   frameTime?: number;
   rWaveTimeVector?: number[];
   instanceUIDs: { [key: string]: string };
+  instanceUIDs3D: { [key: string]: string };
   is4D: boolean;
   waveform: boolean;
   ecgData?: number[];
@@ -339,6 +340,7 @@ export type NrrdSeries = {
   imageIds3D: string[];
   instances: { [key: string]: Instance };
   instanceUIDs: { [key: string]: string };
+  instanceUIDs3D: { [key: string]: string };
   numberOfImages: number;
   seriesDescription: string;
   seriesUID: string;

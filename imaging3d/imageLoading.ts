@@ -446,38 +446,39 @@ export default function getPixelSpacingInformation(instance: any) {
 }
 
 /**
- * Load and cache metadata for the given image IDs
+ * Load and cache metadata for the given image ID
  * @instance
  * @function loadAndCacheMetadata
- * @param {Array} imageIds - Array of image IDs to load metadata for
+ * @param {string} imageId3D - The image ID for the 3D image
+ * @param {Instance} instance - The DICOM instance containing metadata
+ * @returns {void}
  */
-//export const loadAndCacheMetadata = (imageIds: string[]) => {
-export const loadAndCacheMetadata = (series: Series) => {
-  series.imageIds3D.map((imageId: string) => {
-    const instance = series.instances[imageId];
-    const cleanedMetadata = DicomMetaDictionary.naturalizeDataset(
-      removeInvalidTags(convertMetadata(instance!.dataSet!))
-    );
-    imageMetadataProvider.add(imageId, instance.metadata);
-    // Add the metadata to all providers
-    addMetadataForImageId(imageId, instance.metadata);
+export const loadAndCacheMetadata = (
+  imageId3D: string,
+  instance: Instance
+): void => {
+  const cleanedMetadata = DicomMetaDictionary.naturalizeDataset(
+    removeInvalidTags(convertMetadata(instance!.dataSet!))
+  );
+  imageMetadataProvider.add(imageId3D, instance.metadata);
+  // Add the metadata to all providers
+  addMetadataForImageId(imageId3D, instance.metadata);
 
-    const pixelSpacing = getPixelSpacingInformation(cleanedMetadata);
-    if (pixelSpacing === undefined) return;
-    if (
-      typeof pixelSpacing === "object" &&
-      "PixelSpacing" in pixelSpacing &&
-      pixelSpacing.PixelSpacing !== undefined
-    ) {
-      calibratedPixelSpacingMetadataProvider.add(
-        imageId,
-        pixelSpacing.PixelSpacing.map((s: string) => parseFloat(s))
-      );
-    } else if (Array.isArray(pixelSpacing) && pixelSpacing.length === 2) {
-      calibratedPixelSpacingMetadataProvider.add(imageId, {
-        rowPixelSpacing: pixelSpacing[0],
-        columnPixelSpacing: pixelSpacing[1]
-      });
-    }
-  });
+  const pixelSpacing = getPixelSpacingInformation(cleanedMetadata);
+  if (pixelSpacing === undefined) return;
+  if (
+    typeof pixelSpacing === "object" &&
+    "PixelSpacing" in pixelSpacing &&
+    pixelSpacing.PixelSpacing !== undefined
+  ) {
+    calibratedPixelSpacingMetadataProvider.add(
+      imageId3D,
+      pixelSpacing.PixelSpacing.map((s: string) => parseFloat(s))
+    );
+  } else if (Array.isArray(pixelSpacing) && pixelSpacing.length === 2) {
+    calibratedPixelSpacingMetadataProvider.add(imageId3D, {
+      rowPixelSpacing: pixelSpacing[0],
+      columnPixelSpacing: pixelSpacing[1]
+    });
+  }
 };
