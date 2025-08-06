@@ -95,6 +95,7 @@ All properties are optional.
 | `default.rotation`    | `number`     | Default rotation angle for the image.            |
 | `default.translation` | `translation`| Default translation vector for the image.        |
 | `default.voi`         | `contrast`   | Default windowing parameters for the image.      |
+| `filterName` | `string` | The name of the filter to apply to the displayed image. |
 
 #### `contrast` Interface
 
@@ -129,6 +130,7 @@ All properties are optional.
    - Extracts series metadata and retrieves the appropriate image ID based on the series stack and optional `renderProps.imageIndex` value.
    - If the image ID is missing, it logs a warning and rejects the promise.
    - If `renderProps` is provided, it applies custom viewport settings.
+   - If the image is anisotropic (`rowPixelSpacing !== colPixelSpacing` checked through `isAnisotropic`), a `displayedArea` property is applied to ensure the correct maintenance of the aspect ratio.
 
 4. **Check for Series Change**
    - Determines whether the current series (`uniqueID`) differs from the previously loaded one.
@@ -396,7 +398,7 @@ This function does not return any value.
    - Throws an error if the element is not found.
 2. **Resizes the Viewport:**
    - Adjusts the size of the viewport element based on the current window dimensions.
-   - Maintains the aspect ratio and resolution settings of the viewport.
+   - Maintains the aspect ratio and resolution settings of the viewport, also for anisotropic images, by retrieving its `displayedArea` using `AnisotropicDisplayedArea`.
 
 ### Example Usage
 ```typescript

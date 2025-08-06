@@ -1,5 +1,5 @@
 import { EnabledElement } from "cornerstone-core";
-import { Image, Viewport } from "../types";
+import { DisplayedArea, Image, Viewport } from "../types";
 
 type ToolOptions = {
   mouseButtonMask?: number | number[];
@@ -139,7 +139,7 @@ export type HandlePosition = {
 };
 export interface ViewportComplete extends Viewport {
   initialRotation: number;
-  displayedArea: any;
+  displayedArea: DisplayedArea;
   scale: number;
   rotation: number;
   vflip: boolean;

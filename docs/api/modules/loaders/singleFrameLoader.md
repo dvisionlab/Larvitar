@@ -9,7 +9,6 @@ The singleFrameLoader module is a custom DICOM loader designed to cache and rend
 ## Key Responsibilities
 
 - **Caches pixel data and metadata for quick access:** Stores pixel data and metadata for single-frame images in an internal cache to optimize performance.
-- **Converts RGB to RGBA format for rendering:** Converts RGB pixel data to RGBA format for compatibility with Cornerstone rendering.
 - **Clears cached frames to free memory:** Removes cached frames from memory to prevent memory leaks and optimize performance.
 - **Creates custom image objects for rendering:** Generates Cornerstone-compatible image objects for rendering single-frame images.
 

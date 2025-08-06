@@ -6,13 +6,10 @@
 
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
-import {
-  calculateStats,
-  calculateThresholds
-} from "./utils/watershedSegmentationToolUtils/WSUtils";
-import { getMaxPixelValue, getMinPixelValue } from "../../imageUtils";
+import { calculateStats } from "./utils/watershedSegmentationToolUtils/WSUtils";
 import { MeasurementMouseEvent, ThresholdsBrushProp } from "../types";
 import { Image } from "cornerstone-core";
+import { getMinMaxPixelValue } from "../../imageUtils";
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
 const segmentationUtils = cornerstoneTools.importInternal(
@@ -157,10 +154,11 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
   ) {
     const { mean, stddev } = calculateStats(image, dicomPixelData, circleArray);
 
-    minThreshold =
-      minThreshold === null ? getMinPixelValue(dicomPixelData) : minThreshold;
-    maxThreshold =
-      maxThreshold === null ? getMaxPixelValue(dicomPixelData) : maxThreshold;
+    const { minPixelValue, maxPixelValue } =
+      getMinMaxPixelValue(dicomPixelData);
+
+    minThreshold = minThreshold === null ? minPixelValue : minThreshold;
+    maxThreshold = maxThreshold === null ? maxPixelValue : maxThreshold;
 
     let lowerThreshold = mean - this.xFactor * stddev;
     let upperThreshold = mean + this.xFactor * stddev;

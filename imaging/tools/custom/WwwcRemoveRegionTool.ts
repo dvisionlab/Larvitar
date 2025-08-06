@@ -1,5 +1,4 @@
 import cornerstoneTools from "cornerstone-tools";
-import { getMaxPixelValue, getMinPixelValue } from "../../imageUtils";
 import {
   Coords,
   EventData,
@@ -11,7 +10,7 @@ import {
   Rectangle,
   ToolConfig
 } from "../types";
-import { Image } from "cornerstone-core";
+import { getMinMaxPixelValue } from "../../imageUtils";
 const external = cornerstoneTools.external;
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
@@ -816,11 +815,11 @@ const calculateWindowParameters = function (pixelValues: number[]) {
   const filteredValues = sortedValues.filter(
     value => Math.abs(value - median) <= outlierThreshold
   );
+  const { minPixelValue, maxPixelValue } = getMinMaxPixelValue(filteredValues);
+
   // Calculate window width and window center based on filtered values
-  const windowWidth =
-    getMaxPixelValue(filteredValues) - getMinPixelValue(filteredValues);
-  const windowCenter =
-    (getMaxPixelValue(filteredValues) + getMinPixelValue(filteredValues)) / 2;
+  const windowWidth = maxPixelValue - minPixelValue;
+  const windowCenter = (maxPixelValue + minPixelValue) / 2;
   return { windowWidth, windowCenter };
 };
 
