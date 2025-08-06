@@ -249,6 +249,19 @@ Key features covered in this example include:
 
 [View Example ➔](https://larvitar.dvisionlab.com/examples/nrrd.html)
 
+---
+
+### 17. Applying Kernel Filters
+
+This example demonstrates how to use kernel filters in Larvitar to enhance the visualization of medical images. Kernel filteres are applied to improve image quality or highlight specific features. Different kernels can be chosen to emphasize different image features, like edges or soft tissues.
+
+Key features covered in this example include:
+
+- Setting up a custom kernel with Larvitar
+- Applying an resetting filter to the rendered image
+
+[View Example ➔](https://larvitar.dvisionlab.com/examples/filters.html)
+
 <br></br>
 
 <div style="text-align: center;">
