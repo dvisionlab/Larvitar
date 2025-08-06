@@ -270,9 +270,9 @@ export const getSortedUIDs = function (seriesData: Series) {
 };
 
 /**
- * Sort the array of instanceUIDs according to imageIds sorted using sortSeriesStack
+ * Sort the array of instanceUIDs3D according to imageIds3D sorted using sortSeriesStack
  * @instance
- * @function getSortedUIDs
+ * @function getSortedUIDs3D
  * @param {Object} seriesData - The dataset
  * @return {Object} The sorted instanceUIDs
  */
