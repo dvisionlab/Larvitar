@@ -1,12 +1,19 @@
 import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
+import { EventData } from "../types";
 const MagnifyTool = cornerstoneTools.MagnifyTool;
 const drawTextBox = cornerstoneTools.importInternal("drawing/drawTextBox");
 const textStyle = cornerstoneTools.textStyle;
 const toolColors = cornerstoneTools.toolColors;
 
 export default class BorderMagnifyTool extends MagnifyTool {
-  constructor(props = {}) {
+  constructor(
+    props: {
+      showBorders?: boolean;
+      showInfo?: boolean;
+      borderColor?: string;
+    } = {}
+  ) {
     super(props);
 
     // Additional configuration options
@@ -15,13 +22,13 @@ export default class BorderMagnifyTool extends MagnifyTool {
     this.configuration.borderColor = props.borderColor; // Default border color is green
     this.handleKeyDown = this.handleKeyDown.bind(this);
   }
-  activeCallback(element) {
+  activeCallback(element: HTMLElement) {
     element.addEventListener("keydown", this.handleKeyDown);
   }
-  disabledCallback(element) {
+  disabledCallback(element: HTMLElement) {
     element.removeEventListener("keydown", this.handleKeyDown);
   }
-  passiveCallback(element) {
+  passiveCallback(element: HTMLElement) {
     element.removeEventListener("keydown", this.handleKeyDown);
   }
   /**
@@ -29,7 +36,7 @@ export default class BorderMagnifyTool extends MagnifyTool {
    * @param {KeyboardEvent} event
    * @returns {void}
    */
-  handleKeyDown(event) {
+  handleKeyDown(event: KeyboardEvent) {
     if (event.key === "M" || event.key === "m") {
       // Toggle the visibility of borders
       this.configuration.showBorders = !this.configuration.showBorders;
@@ -47,19 +54,19 @@ export default class BorderMagnifyTool extends MagnifyTool {
    * @param {*} evt
    * @returns {void}
    */
-  _drawMagnificationTool(evt) {
+  _drawMagnificationTool(evt?: { detail: EventData }) {
     // Call the parent method to draw the magnification tool
     super._drawMagnificationTool(evt);
     // Query for the magnify canvas using the correct class name
     const magnifyCanvas = evt
-      ? evt.detail.element.querySelector(".magnifyTool")
+      ? (evt.detail.element.querySelector(".magnifyTool") as HTMLCanvasElement)
       : null;
 
     if (magnifyCanvas) {
       const context = magnifyCanvas.getContext("2d");
 
       // Check if the user wants to show borders
-      if (this.configuration.showBorders) {
+      if (this.configuration.showBorders && context) {
         // Add configurable borders
         context.strokeStyle =
           this.configuration.borderColor ||
@@ -71,8 +78,8 @@ export default class BorderMagnifyTool extends MagnifyTool {
       // Check if the user wants to show info
       if (this.configuration.showInfo) {
         // Get the zoom level
-        const viewport = cornerstone.getViewport(evt.detail.element);
-        const zoomLevel = viewport.scale.toFixed(2); // Adjust the precision as needed
+        const viewport = cornerstone.getViewport(evt!.detail.element);
+        const zoomLevel = viewport!.scale.toFixed(2); // Adjust the precision as needed
 
         // Get ROI dimensions
         const roiWidth = magnifyCanvas.width;
