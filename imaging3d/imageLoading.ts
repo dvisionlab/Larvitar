@@ -37,8 +37,13 @@ import {
 } from "../imaging/types";
 
 import { getSortedStack, getSortedUIDs } from "../imaging/imageUtils";
-import { registerMetadataProviders } from "./metadataProviders/metadataProviders";
+import {
+  addMetadataForImageId,
+  registerAllMetadataProviders,
+  registerMetadataProviders
+} from "./metadataProviders/metadataProviders";
 import { logger } from "../logger";
+import { convertMetadata } from "./imageParsing";
 
 const MAX_CONCURRENCY = 32;
 
@@ -74,6 +79,7 @@ export const initializeImageLoader = function (maxConcurrency?: number) {
     );
   }
   registerMetadataProviders();
+  registerAllMetadataProviders();
 };
 
 export const registerStreamingImageVolume = function () {
@@ -151,6 +157,7 @@ export const updateLoadedStack = async function (
     let series: Partial<Series> = {
       currentImageIdIndex: 0,
       imageIds: [], // (ordered)
+      imageIds3D: [], // (ordered) 3D imageIds for MPR
       instanceUIDs: {}, // instanceUID: imageId (ordered)
       instances: {},
       seriesDescription: seriesDescription as string,
@@ -219,8 +226,10 @@ export const updateLoadedStack = async function (
 
     if (sliceIndex !== undefined) {
       allSeriesStack[id].imageIds[sliceIndex] = imageId;
+      allSeriesStack[id].imageIds3D[sliceIndex] = imageId;
     } else {
       allSeriesStack[id].imageIds.push(imageId);
+      allSeriesStack[id].imageIds3D.push(imageId);
     }
 
     if (is4D === false) {
@@ -437,37 +446,39 @@ export default function getPixelSpacingInformation(instance: any) {
 }
 
 /**
- * Load and cache metadata for the given image IDs
+ * Load and cache metadata for the given image ID
  * @instance
  * @function loadAndCacheMetadata
- * @param {Array} imageIds - Array of image IDs to load metadata for
+ * @param {string} imageId3D - The image ID for the 3D image
+ * @param {Instance} instance - The DICOM instance containing metadata
+ * @returns {void}
  */
-export const loadAndCacheMetadata = (imageIds: string[]) => {
-  imageIds.map(imageId => {
-    const metadata =
-      cornerstoneDICOMImageLoader.wadors.metaDataManager.get(imageId);
-    const cleanedMetadata = DicomMetaDictionary.naturalizeDataset(
-      removeInvalidTags(metadata)
+export const loadAndCacheMetadata = (
+  imageId3D: string,
+  instance: Instance
+): void => {
+  const cleanedMetadata = DicomMetaDictionary.naturalizeDataset(
+    removeInvalidTags(convertMetadata(instance!.dataSet!))
+  );
+  imageMetadataProvider.add(imageId3D, instance.metadata);
+  // Add the metadata to all providers
+  addMetadataForImageId(imageId3D, instance.metadata);
+
+  const pixelSpacing = getPixelSpacingInformation(cleanedMetadata);
+  if (pixelSpacing === undefined) return;
+  if (
+    typeof pixelSpacing === "object" &&
+    "PixelSpacing" in pixelSpacing &&
+    pixelSpacing.PixelSpacing !== undefined
+  ) {
+    calibratedPixelSpacingMetadataProvider.add(
+      imageId3D,
+      pixelSpacing.PixelSpacing.map((s: string) => parseFloat(s))
     );
-    imageMetadataProvider.add(imageId, metadata);
-
-    const pixelSpacing = getPixelSpacingInformation(cleanedMetadata);
-
-    if (pixelSpacing === undefined) return;
-    if (
-      typeof pixelSpacing === "object" &&
-      "PixelSpacing" in pixelSpacing &&
-      pixelSpacing.PixelSpacing !== undefined
-    ) {
-      calibratedPixelSpacingMetadataProvider.add(
-        imageId,
-        pixelSpacing.PixelSpacing.map((s: string) => parseFloat(s))
-      );
-    } else if (Array.isArray(pixelSpacing) && pixelSpacing.length === 2) {
-      calibratedPixelSpacingMetadataProvider.add(imageId, {
-        rowPixelSpacing: pixelSpacing[0],
-        columnPixelSpacing: pixelSpacing[1]
-      });
-    }
-  });
+  } else if (Array.isArray(pixelSpacing) && pixelSpacing.length === 2) {
+    calibratedPixelSpacingMetadataProvider.add(imageId3D, {
+      rowPixelSpacing: pixelSpacing[0],
+      columnPixelSpacing: pixelSpacing[1]
+    });
+  }
 };

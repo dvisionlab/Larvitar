@@ -5,6 +5,7 @@ import { MetaDataReadable } from "./MetaDataReadable";
 import { Element } from "dicom-parser";
 import { Coords, DisplayAreaVisualizations, Overlay } from "./tools/types";
 import { sample } from "lodash";
+import { ICamera, VolumeViewport } from "../imaging3d/types";
 // TODO-ts: differentiate each single metadata @szanchi
 /*export type MetadataValue =
   | string
@@ -89,6 +90,8 @@ export type StoreViewport = {
     spacing_x: number;
     spacing_y: number;
     thickness: number;
+    camera?: ICamera;
+    mpr?: VolumeViewport;
   };
   default: {
     scale: number;
@@ -182,6 +185,7 @@ export type Series = {
   frameTime?: number;
   rWaveTimeVector?: number[];
   instanceUIDs: { [key: string]: string };
+  instanceUIDs3D: { [key: string]: string };
   is4D: boolean;
   waveform: boolean;
   ecgData?: number[];
@@ -336,6 +340,7 @@ export type NrrdSeries = {
   imageIds3D: string[];
   instances: { [key: string]: Instance };
   instanceUIDs: { [key: string]: string };
+  instanceUIDs3D: { [key: string]: string };
   numberOfImages: number;
   seriesDescription: string;
   seriesUID: string;

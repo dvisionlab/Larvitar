@@ -56,6 +56,8 @@ export type GeneralSeriesMetadata = {
   modality: string;
   seriesDate: string;
   seriesTime: string;
+  acquisitionDate?: string;
+  acquisitionTime?: string;
 };
 
 export type CineMetadata = {
