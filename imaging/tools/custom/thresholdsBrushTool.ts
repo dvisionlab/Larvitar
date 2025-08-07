@@ -6,10 +6,9 @@
 
 // external libraries
 import cornerstoneTools from "cornerstone-tools";
-import {
-  calculateStats,
-  calculateThresholds
-} from "./utils/watershedSegmentationToolUtils/WSUtils";
+import { calculateStats } from "./utils/watershedSegmentationToolUtils/WSUtils";
+import { MeasurementMouseEvent, ThresholdsBrushProp } from "../types";
+import { Image } from "cornerstone-core";
 import { getMinMaxPixelValue } from "../../imageUtils";
 const external = cornerstoneTools.external;
 const BaseBrushTool = cornerstoneTools.importInternal("base/BaseBrushTool");
@@ -29,7 +28,7 @@ const segmentationModule = cornerstoneTools.getModule("segmentation");
  */
 export default class ThresholdsBrushTool extends BaseBrushTool {
   constructor(props = {}) {
-    const defaultProps = {
+    const defaultProps: ThresholdsBrushProp = {
       name: "ThresholdsBrush",
       supportedInteractionTypes: ["Mouse", "Touch"],
       configuration: {},
@@ -58,10 +57,10 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
    *
    * @protected
    * @event
-   * @param {Object} evt - The event.
+   * @param {MeasurementMouseEvent} evt - The event.
    * @returns {void}
    */
-  _drawingMouseUpCallback(evt) {
+  _drawingMouseUpCallback(evt: MeasurementMouseEvent) {
     const eventData = evt.detail;
     const element = eventData.element;
 
@@ -77,10 +76,10 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
    * Paints the data to the labelmap.
    *
    * @protected
-   * @param  {Object} evt The data object associated with the event.
+   * @param  {MeasurementMouseEvent} evt The data object associated with the event.
    * @returns {void}
    */
-  _paint(evt) {
+  _paint(evt: MeasurementMouseEvent) {
     const { configuration } = segmentationModule;
     const eventData = evt.detail;
     const { rows, columns } = eventData.image;
@@ -147,11 +146,11 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
     this.xFactor = this.xFactor - 0.2;
   }
   _calculateThresholdsWithoutMap(
-    image,
-    dicomPixelData,
-    circleArray,
-    minThreshold,
-    maxThreshold
+    image: Image,
+    dicomPixelData: number[],
+    circleArray: number[][],
+    minThreshold: number | null,
+    maxThreshold: number | null
   ) {
     const { mean, stddev } = calculateStats(image, dicomPixelData, circleArray);
 
@@ -182,18 +181,18 @@ export default class ThresholdsBrushTool extends BaseBrushTool {
  * @returns {Array.number[]}      Array of pixels contained within the circle.
  */
 function getCircleWithThreshold(
-  image,
-  radius,
-  thresholds,
-  xCoord = 0,
-  yCoord = 0,
-  applyMapping
+  image: Image,
+  radius: number,
+  thresholds: number[],
+  xCoord: number = 0,
+  yCoord: number = 0,
+  applyMapping: boolean
 ) {
   const pixelData = image.getPixelData();
   const { rows, columns } = image;
   const x0 = Math.floor(xCoord);
   const y0 = Math.floor(yCoord);
-  let circleArray = [];
+  let circleArray: number[][] = [];
 
   // if no thresholds, set all pixels range
   if (!thresholds) {
@@ -203,7 +202,7 @@ function getCircleWithThreshold(
     ];
   }
 
-  function isInsideThresholds(v, t) {
+  function isInsideThresholds(v: number, t: number[]) {
     return v >= t[0] && v <= t[1];
   }
   const tMapped = applyMapping

@@ -407,3 +407,10 @@ export type RenderProps = {
     voi?: contrast;
   };
 };
+// Type definitions needed for the above functions
+
+export interface CornerstoneElement {
+  element: HTMLElement & {
+    id: string;
+  };
+}
