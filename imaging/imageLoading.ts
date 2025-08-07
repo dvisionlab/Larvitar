@@ -358,7 +358,7 @@ export const updateLoadedStack = function (
           sortMethods,
           true
         );
-        allSeriesStack[id].imageIds = getSortedStack(
+        allSeriesStack[id].imageIds3D = getSortedStack(
           allSeriesStack[id] as Series,
           sortMethods,
           true,
