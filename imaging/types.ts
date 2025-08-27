@@ -377,7 +377,12 @@ export type KernelConfig = {
   size: number;
   kernel: number[][];
 };
-
+export type FilterImageFrame = {
+  width: number;
+  height: number;
+  pixelData: TypedArray;
+};
+export type ConvolutionKernels = { [key: string]: KernelConfig };
 export type RenderProps = {
   filterName?: string;
   cached?: boolean;

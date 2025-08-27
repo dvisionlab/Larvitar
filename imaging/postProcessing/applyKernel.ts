@@ -1,6 +1,12 @@
 import { getMinMaxPixelValue } from "../imageUtils";
-import { Image, TypedArray, KernelConfig } from "../types";
-const CONVOLUTION_KERNELS: { [key: string]: KernelConfig } = {
+import {
+  Image,
+  TypedArray,
+  KernelConfig,
+  FilterImageFrame,
+  ConvolutionKernels
+} from "../types";
+const CONVOLUTION_KERNELS: ConvolutionKernels = {
   /* gaussianBlur: {
     label: "Gaussian Blur 3x3",
     size: 3,
@@ -43,16 +49,12 @@ const getTypedArrayConstructor = function (pixelData: TypedArray) {
 /**
  * Core convolution algorithm
  * @function convolve
- * @param {Object} imageFrame - Image frame data containing width, height, and pixelData
+ * @param {FilterImageFrame} imageFrame - Image frame data containing width, height, and pixelData
  * @param {Array} kernel - 2D array representing the convolution kernel
  * @returns {TypedArray} - Convolved pixel data
  */
 const convolve = function (
-  imageFrame: {
-    width: number;
-    height: number;
-    pixelData: TypedArray;
-  },
+  imageFrame: FilterImageFrame,
   kernel: number[][]
 ): TypedArray {
   const typedArrayConstructor = getTypedArrayConstructor(imageFrame.pixelData);
@@ -101,7 +103,7 @@ const convolve = function (
  * Add custom kernel to the global object
  * @function addCustomKernel
  * @param {string} name - Name for the new kernel
- * @param {Object} config - Kernel configuration (modality, label, size, kernel)
+ * @param {KernelConfig} config - Kernel configuration (modality, label, size, kernel)
  * @returns {void}
  */
 export const addCustomKernel = function (
@@ -122,7 +124,7 @@ export const addCustomKernel = function (
 /**
  * Get kernels
  * @function getKernels
- * @returns {Object} - CONVOLUTION_KERNELS object
+ * @returns {ConvolutionKernels} - CONVOLUTION_KERNELS object
  */
 export const getKernels = function () {
   return { ...CONVOLUTION_KERNELS };
@@ -131,7 +133,7 @@ export const getKernels = function () {
 /**
  * Apply convolution filter to DICOM image
  * @function applyConvolutionFilter
- * @param {Object} loadedImage - The DICOM image object
+ * @param {Image} loadedImage - The DICOM image object
  * @param {string} filterName - Name of the filter to apply
  * @param {number} multiplier - Optional multiplier for kernel values (default: 1)
  * @returns {TypedArray} - Convolved pixel data
@@ -164,8 +166,8 @@ export const applyConvolutionFilter = function (
 /**
  * Create the filtered image
  * @function createFilteredImage
- * @param {string} name - Name for the new kernel
- * @param {Object} config - Kernel configuration (modality, label, size, kernel)
+ * @param {Image} loadedImage - the source image
+ * @param {number[]} filteredPixelArray - filtered pixel data
  * @returns {Partial<Image>} - Convolved pixel data
  */
 export const createFilteredImage = function (
