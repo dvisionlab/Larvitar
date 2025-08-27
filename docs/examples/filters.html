@@ -48,7 +48,6 @@
 
       // TODO Code snippet to be displayed and updated for the example
       const code = ``;
-
       // Show the modal and populate code snippet
       showCodeBtn.addEventListener("click", () => {
         codeSnippet.textContent = code;
@@ -67,69 +66,131 @@
   </script> -->
 
     <title>Larvitar - Filters</title>
+    <style>
+      body {
+        background-color: #000;
+        color: white;
+      }
+      #filter-controls {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: rgba(40, 40, 40, 0.9);
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #444;
+        width: 280px; /* Increased width for new input */
+      }
+      .form-label {
+        margin-bottom: 0.25rem;
+      }
+      .form-control,
+      .form-select,
+      .form-control:focus {
+        background-color: #333;
+        color: white;
+        border-color: #555;
+      }
+      .form-control:focus,
+      .form-select:focus {
+        background-color: #444;
+        color: white;
+        border-color: #888;
+        box-shadow: none;
+      }
+      #spinner {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 2s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -30px;
+        margin-left: -30px;
+        display: none; /* Initially hidden */
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
 
-  <body class="h-100" style="background-color: #000000">
+  <body class="h-100">
     <div class="row h-100">
       <div
         id="viewer"
         class="col-12 h-100"
         style="background-color: black"
       ></div>
-      <p style="position: absolute; top: 0px; color: white">
-        Press "1" to remove filter
-      </p>
-      <p style="position: absolute; top: 20px; color: white">
-        Press "2" to apply filter
-      </p>
-      <!-- <button id="showCodeBtn" class="open-button" style="position: absolute; top: 165px">
-      Show Code
-    </button> -->
 
-      <!-- Modal -->
-      <div
-        class="modal fade"
-        id="codeModal"
-        tabindex="-1"
-        aria-labelledby="codeModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
-              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-            </div>
-            <div class="modal-footer">
-              <button id="copyCodeBtn" class="btn btn-success">
-                Copy Code
-              </button>
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-            </div>
-          </div>
+      <div id="filter-controls">
+        <h5>Image Filters</h5>
+        <p style="font-size: 12px; margin-top: -5px; color: #ccc">
+          Press "1" to remove filter
+        </p>
+        <div class="mb-3">
+          <label for="kernelSize" class="form-label">Kernel Size</label>
+          <select id="kernelSize" class="form-select">
+            <option>3</option>
+            <option>5</option>
+            <option>7</option>
+            <option>9</option>
+            <option>11</option>
+            <option>13</option>
+            <option>15</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="strength" class="form-label">Strength / Sigma</label>
+          <input
+            type="number"
+            id="strength"
+            class="form-control"
+            value="1.0"
+            step="0.1"
+            min="0.1"
+          />
+        </div>
+        <div class="d-grid gap-2 mb-3">
+          <button id="applyGaussian" class="btn btn-primary">
+            Apply Gaussian Blur
+          </button>
+          <button id="applySharpen" class="btn btn-success">
+            Apply Sharpen
+          </button>
+        </div>
+
+        <hr style="border-color: #555" />
+
+        <div class="mb-3">
+          <label for="jsonKernel" class="form-label">Custom JSON Kernel</label>
+          <textarea id="jsonKernel" class="form-control" rows="4">
+[[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]]</textarea
+          >
+        </div>
+        <div class="d-grid gap-2">
+          <button id="applyJsonKernel" class="btn btn-secondary">
+            Apply JSON Kernel
+          </button>
         </div>
       </div>
 
-      <!-- Spinner icon -->
       <div id="spinner"></div>
     </div>
 
     <script>
       const spinner = document.getElementById("spinner");
+      let demoFiles = [];
+      let multiFrameSerie;
+      let frameId = 0;
 
       // Show spinner
       function showSpinner() {
@@ -141,34 +202,15 @@
         spinner.style.display = "none";
       }
 
-      // init all
       larvitar.initializeImageLoader();
       larvitar.registerMultiFrameImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer");
-
-      larvitar.addCustomKernel("sharpening.low.3", {
-        label: "Low",
-        size: 3,
-        kernel: [
-          [-1, -1, -1],
-          [-1, 8, -1],
-          [-1, -1, -1]
-        ],
-        modalities: ["CT", "MR"],
-        type: "sharpening"
-      });
-
-      // set log level to debug
       larvitar.setLogLevel("debug");
 
-      let demoFiles = [];
-
-      showSpinner();
-
-      async function resetFilter(multiFrameSerie, frameId) {
-        // larvitar.store.setImageFilter("viewer", "");
+      async function resetFilter() {
+        if (!multiFrameSerie) return;
         const imageIds = Object.keys(multiFrameSerie.instances);
         const imageIdAtSlice = imageIds[frameId];
         const imageInstance = multiFrameSerie.instances[imageIdAtSlice];
@@ -181,34 +223,101 @@
         });
       }
 
-      async function applyFilter(multiFrameSerie, frameId) {
-        await resetFilter(multiFrameSerie, frameId);
-
+      async function handleApplyFilter(applyKernelFunction) {
+        await resetFilter();
         const element = document.getElementById("viewer");
         const image = larvitar.cornerstone.getEnabledElement(element)?.image;
-        const filteredImage = larvitar.applyConvolutionFilter(
-          image,
-          "sharpening.low.3",
-          true
+        if (!image) {
+          larvitar.logger.error("No image found in the viewer element.");
+          return;
+        }
+
+        const kernelSize = parseInt(
+          document.getElementById("kernelSize").value,
+          10
         );
-        // larvitar.store.setImageFilter(element.id, "sharpening.low.3");
-        larvitar.cornerstone.displayImage(element, filteredImage);
-        larvitar.setImageCustomPreset(["viewer"], {
-          ww: filteredImage.windowWidth,
-          wl: filteredImage.windowCenter
-        });
+        const strength = parseFloat(document.getElementById("strength").value);
+
+        if (isNaN(kernelSize) || isNaN(strength)) {
+          alert("Please enter valid numbers for Kernel Size and Strength.");
+          return;
+        }
+
+        try {
+          const filteredImage = applyKernelFunction(
+            image,
+            kernelSize,
+            strength
+          );
+          larvitar.cornerstone.displayImage(element, filteredImage);
+          larvitar.setImageCustomPreset(["viewer"], {
+            ww: filteredImage.windowWidth,
+            wl: filteredImage.windowCenter
+          });
+        } catch (error) {
+          alert(error.message);
+          console.error(error);
+        }
+      }
+
+      async function handleApplyJsonKernel() {
+        await resetFilter();
+        const element = document.getElementById("viewer");
+        const image = larvitar.cornerstone.getEnabledElement(element)?.image;
+        if (!image) {
+          larvitar.logger.error("No image found in the viewer element.");
+          return;
+        }
+
+        const jsonString = document.getElementById("jsonKernel").value;
+        const kernelName = "custom.user.filter";
+
+        try {
+          const kernel = JSON.parse(jsonString);
+          if (
+            !Array.isArray(kernel) ||
+            kernel.length === 0 ||
+            !kernel.every(
+              row => Array.isArray(row) && row.length === kernel.length
+            )
+          ) {
+            throw new Error(
+              "Invalid kernel. Must be a square array of arrays (e.g., 3x3, 5x5)."
+            );
+          }
+
+          larvitar.addCustomKernel(kernelName, {
+            label: "User Defined",
+            size: kernel.length,
+            kernel: kernel,
+            type: "custom"
+          });
+
+          const filteredImage = larvitar.applyConvolutionFilter(
+            image,
+            kernelName,
+            true
+          );
+          larvitar.cornerstone.displayImage(element, filteredImage);
+          larvitar.setImageCustomPreset(["viewer"], {
+            ww: filteredImage.windowWidth,
+            wl: filteredImage.windowCenter
+          });
+        } catch (error) {
+          alert("Error applying custom kernel: " + error.message);
+          console.error(error);
+        }
       }
 
       async function renderSerie() {
+        showSpinner();
         const seriesStack = await larvitar.readFiles(demoFiles);
-        // render the first series of the study
         let seriesId = Object.keys(seriesStack)[0];
         let serie = seriesStack[seriesId];
         larvitar.populateImageManager(seriesId, serie);
         let manager = larvitar.getImageManager();
-        let multiFrameSerie = manager[seriesId];
+        multiFrameSerie = manager[seriesId];
 
-        let frameId = 0;
         await larvitar.renderImage(multiFrameSerie, "viewer", {
           imageIndex: frameId
         });
@@ -220,28 +329,41 @@
 
         await larvitar.loadAndCacheImageStack(multiFrameSerie);
 
+        // Add event listeners
+        document
+          .getElementById("applyGaussian")
+          .addEventListener("click", () =>
+            handleApplyFilter(larvitar.applyGaussianBlur)
+          );
+
+        document
+          .getElementById("applySharpen")
+          .addEventListener("click", () =>
+            handleApplyFilter(larvitar.applySharpening)
+          );
+
+        document
+          .getElementById("applyJsonKernel")
+          .addEventListener("click", handleApplyJsonKernel);
+
         document.onkeypress = function (e) {
           e = e || window.event;
-          switch (e.keyCode) {
-            case 49: // 1
-              resetFilter(multiFrameSerie, frameId);
-              break;
-            case 50: // 2
-              applyFilter(multiFrameSerie, frameId);
-              break;
+          if (e.keyCode === 49) {
+            // "1" key
+            resetFilter();
           }
         };
       }
 
       async function createFile(fileName, cb) {
-        let response = await fetch("./demo/DSA/" + fileName);
+        let response = await fetch("./demo/" + fileName);
         let data = await response.blob();
         let file = new File([data], fileName);
         demoFiles.push(file);
         cb();
       }
 
-      createFile("XA-DSA-Shutter.dcm", renderSerie);
+      createFile("anon1", renderSerie);
     </script>
   </body>
 </html>
