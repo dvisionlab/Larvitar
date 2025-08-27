@@ -23,10 +23,11 @@ const CONVOLUTION_KERNELS: { [key: string]: KernelConfig } = {
 
 /**
  * Determine the appropriate TypedArray constructor based on input data
+ * @function getTypedArrayConstructor
  * @param {TypedArray} pixelData - Original pixel data
  * @returns {Function} - TypedArray constructor
  */
-function getTypedArrayConstructor(pixelData: TypedArray) {
+const getTypedArrayConstructor = function (pixelData: TypedArray) {
   if (pixelData instanceof Int8Array) return Int8Array;
   if (pixelData instanceof Uint8Array) return Uint8Array;
   if (pixelData instanceof Int16Array) return Int16Array;
@@ -37,15 +38,16 @@ function getTypedArrayConstructor(pixelData: TypedArray) {
   if (pixelData instanceof Float64Array) return Float64Array;
 
   return Int16Array;
-}
+};
 
 /**
  * Core convolution algorithm
+ * @function convolve
  * @param {Object} imageFrame - Image frame data containing width, height, and pixelData
  * @param {Array} kernel - 2D array representing the convolution kernel
  * @returns {TypedArray} - Convolved pixel data
  */
-function convolve(
+const convolve = function (
   imageFrame: {
     width: number;
     height: number;
@@ -93,13 +95,19 @@ function convolve(
   }
 
   return convolvedPixelData;
-}
+};
+
 /**
  * Add custom kernel to the global object
+ * @function addCustomKernel
  * @param {string} name - Name for the new kernel
  * @param {Object} config - Kernel configuration (modality, label, size, kernel)
+ * @returns {void}
  */
-export function addCustomKernel(name: string, config: KernelConfig): void {
+export const addCustomKernel = function (
+  name: string,
+  config: KernelConfig
+): void {
   if (!config.kernel || !Array.isArray(config.kernel)) {
     throw new Error("Kernel must be a 2D array");
   }
@@ -109,24 +117,26 @@ export function addCustomKernel(name: string, config: KernelConfig): void {
     size: config.size,
     kernel: config.kernel
   };
-}
+};
 
 /**
  * Get kernels
+ * @function getKernels
  * @returns {Object} - CONVOLUTION_KERNELS object
  */
-export function getKernels() {
+export const getKernels = function () {
   return { ...CONVOLUTION_KERNELS };
-}
+};
 
 /**
  * Apply convolution filter to DICOM image
+ * @function applyConvolutionFilter
  * @param {Object} loadedImage - The DICOM image object
  * @param {string} filterName - Name of the filter to apply
  * @param {number} multiplier - Optional multiplier for kernel values (default: 1)
  * @returns {TypedArray} - Convolved pixel data
  */
-export function applyConvolutionFilter(
+export const applyConvolutionFilter = function (
   loadedImage: Image,
   filterName: string,
   generateImage: boolean = false
@@ -149,15 +159,16 @@ export function applyConvolutionFilter(
     filteredPixelArray as unknown as number[]
   );
   return generateImage ? filteredImage : filteredPixelArray;
-}
+};
 
 /**
  * Create the filtered image
+ * @function createFilteredImage
  * @param {string} name - Name for the new kernel
  * @param {Object} config - Kernel configuration (modality, label, size, kernel)
  * @returns {Partial<Image>} - Convolved pixel data
  */
-export function createFilteredImage(
+export const createFilteredImage = function (
   loadedImage: Image,
   filteredPixelArray: number[]
 ): Partial<Image> {
@@ -185,15 +196,19 @@ export function createFilteredImage(
     }
   };
   return filteredImage;
-}
+};
 
 /**
  * Generates a Gaussian kernel for blurring.
+ * @function generateGaussianKernel
  * @param {number} size - The size of the kernel (must be an odd number).
  * @param {number} sigma - The standard deviation (strength) of the Gaussian distribution.
  * @returns {number[][]} - The generated 2D kernel.
  */
-function generateGaussianKernel(size: number, sigma: number): number[][] {
+const generateGaussianKernel = function (
+  size: number,
+  sigma: number
+): number[][] {
   if (size % 2 === 0 || size < 3) {
     throw new Error("Kernel size must be an odd number >= 3");
   }
@@ -221,15 +236,19 @@ function generateGaussianKernel(size: number, sigma: number): number[][] {
   }
 
   return kernel;
-}
+};
 
 /**
  * Generates a sharpening kernel.
+ * @function generateSharpenKernel
  * @param {number} size - The size of the kernel (must be an odd number).
  * @param {number} strength - The strength of the sharpening effect.
  * @returns {number[][]} - The generated 2D kernel.
  */
-function generateSharpenKernel(size: number, strength: number): number[][] {
+const generateSharpenKernel = function (
+  size: number,
+  strength: number
+): number[][] {
   if (size % 2 === 0 || size < 3) {
     throw new Error("Kernel size must be an odd number >= 3");
   }
@@ -242,16 +261,17 @@ function generateSharpenKernel(size: number, strength: number): number[][] {
   kernel[center][center] = 1 + strength * (size * size - 1);
 
   return kernel;
-}
+};
 
 /**
  * Applies a Gaussian blur filter to a cornerstone image.
+ * @function applyGaussianBlur
  * @param {Image} loadedImage - The cornerstone image object.
  * @param {number} kernelSize - The size of the kernel.
  * @param {number} strength - The sigma value for the Gaussian function.
  * @returns {Partial<Image>} - The new, blurred cornerstone image object.
  */
-export function applyGaussianBlur(
+export const applyGaussianBlur = function (
   loadedImage: Image,
   kernelSize: number,
   strength: number
@@ -269,16 +289,17 @@ export function applyGaussianBlur(
     kernel
   ) as unknown as number[];
   return createFilteredImage(loadedImage, filteredPixelArray);
-}
+};
 
 /**
  * Applies a sharpening filter to a cornerstone image.
+ * @function applySharpening
  * @param {Image} loadedImage - The cornerstone image object.
  * @param {number} kernelSize - The size of the kernel.
  * @param {number} strength - The strength of the sharpening effect.
  * @returns {Partial<Image>} - The new, sharpened cornerstone image object.
  */
-export function applySharpening(
+export const applySharpening = function (
   loadedImage: Image,
   kernelSize: number,
   strength: number
@@ -296,4 +317,4 @@ export function applySharpening(
     kernel
   ) as unknown as number[];
   return createFilteredImage(loadedImage, filteredPixelArray);
-}
+};

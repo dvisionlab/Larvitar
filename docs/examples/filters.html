@@ -45,6 +45,7 @@
       const showCodeBtn = document.getElementById("showCodeBtn");
       const codeSnippet = document.getElementById("codeSnippet");
       const copyCodeBtn = document.getElementById("copyCodeBtn");
+
       // TODO Code snippet to be displayed and updated for the example
       const code = ``;
       // Show the modal and populate code snippet
@@ -56,6 +57,7 @@
         );
         codeModal.show();
       });
+
       // Copy the code to clipboard
       copyCodeBtn.addEventListener("click", () => {
         navigator.clipboard.writeText(code);
