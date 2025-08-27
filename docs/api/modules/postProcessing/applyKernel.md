@@ -2,7 +2,6 @@
     <img src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/246.png" alt="Larvitar" height="200" />
 </div>
 
-
 ## Kernel Convolution for Image Processing
 
 Convolution is a fundamental operation in image processing that modifies an image by applying a mathematical operator called a **kernel**. A kernel is a small matrix of numbers that is passed over the entire image. The value of each pixel is recalculated based on the values of its neighbors, as defined by the kernel.
@@ -119,6 +118,76 @@ getKernels(): { [key: string]: KernelConfig }
 
 -----
 
+### `applyGaussianBlur`
+
+Applies a Gaussian blur filter with dynamically generated kernel to a cornerstone image. This function generates the appropriate Gaussian kernel based on the specified parameters and applies it to create a smooth blurring effect.
+
+#### Syntax
+
+```typescript
+applyGaussianBlur(
+  loadedImage: Image,
+  kernelSize: number,
+  strength: number
+): Partial<Image>
+```
+
+#### Parameters
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `loadedImage` | `Image` | The source cornerstone image object to be blurred. |
+| `kernelSize` | `number` | The size of the kernel (must be an odd number ≥ 3). |
+| `strength` | `number` | The sigma value for the Gaussian function, controlling blur intensity. |
+
+#### Returns
+
+`Partial<Image>` – A new, partial `Image` object containing the blurred result.
+
+#### Example
+
+```typescript
+// Apply a 5x5 Gaussian blur with sigma of 1.5
+const blurredImage = applyGaussianBlur(myImage, 5, 1.5);
+```
+
+-----
+
+### `applySharpening`
+
+Applies a sharpening filter with dynamically generated kernel to a cornerstone image. This function creates an appropriate sharpening kernel based on the specified parameters to enhance edge definition and image clarity.
+
+#### Syntax
+
+```typescript
+applySharpening(
+  loadedImage: Image,
+  kernelSize: number,
+  strength: number
+): Partial<Image>
+```
+
+#### Parameters
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `loadedImage` | `Image` | The source cornerstone image object to be sharpened. |
+| `kernelSize` | `number` | The size of the kernel (must be an odd number ≥ 3). |
+| `strength` | `number` | The strength of the sharpening effect (higher values = more sharpening). |
+
+#### Returns
+
+`Partial<Image>` – A new, partial `Image` object containing the sharpened result.
+
+#### Example
+
+```typescript
+// Apply a 3x3 sharpening filter with moderate strength
+const sharpenedImage = applySharpening(myImage, 3, 0.8);
+```
+
+-----
+
 ### `createFilteredImage`
 
 A utility function that constructs a new `Image` object from an array of filtered pixel data. It uses the original image as a template for metadata (e.g., dimensions, slope, intercept) and calculates new values for properties like `minPixelValue`, `maxPixelValue`, and `windowCenter`.
@@ -147,7 +216,8 @@ createFilteredImage(
 
   - **`convolve`**: The core algorithm that performs the mathematical convolution. It iterates over image pixels, applies the kernel weights, and handles boundary logic.
   - **`getTypedArrayConstructor`**: A helper utility that inspects the input image's pixel data to select the correct `TypedArray` constructor (e.g., `Int16Array`, `Uint8Array`) for the output. This preserves the numerical precision and data type of the original image.
-
+  - **`generateGaussianKernel`**: Generates a Gaussian kernel matrix for blurring operations based on size and sigma parameters.
+  - **`generateSharpenKernel`**: Generates a sharpening kernel matrix based on size and strength parameters.
 
 <div style="text-align: center;">
     <img src="https://press.r1-it.storage.cloud.it/logo_trasparent.png" alt="D/Vision Lab" height="200" />

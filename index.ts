@@ -271,6 +271,8 @@ import {
 import { applyDSAShift } from "./imaging/postProcessing/applyDSA";
 import {
   applyConvolutionFilter,
+  applySharpening,
+  applyGaussianBlur,
   addCustomKernel,
   getKernels
 } from "./imaging/postProcessing/applyKernel";
@@ -462,6 +464,8 @@ export {
   // imaging/postProcessing
   applyDSAShift,
   applyConvolutionFilter,
+  applySharpening,
+  applyGaussianBlur,
   addCustomKernel,
   getKernels,
   // imageTools
