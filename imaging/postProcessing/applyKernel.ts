@@ -152,9 +152,8 @@ export function createFilteredImage(
     imageId: new Date().toISOString(),
     maxPixelValue,
     minPixelValue,
-    windowWidth: maxPixelValue - minPixelValue || loadedImage.windowWidth,
-    windowCenter:
-      (maxPixelValue + minPixelValue) / 2 || loadedImage.windowCenter,
+    windowWidth: loadedImage.windowWidth,
+    windowCenter: loadedImage.windowCenter,
     sizeInBytes: loadedImage.sizeInBytes,
     render: loadedImage.render,
     slope: loadedImage.slope,
