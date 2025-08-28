@@ -101,20 +101,23 @@ export const readFile = function (entry: File) {
 export const convertQidoMetadata = function (data: any): MetaData {
   const metadata: MetaData = Object.keys(data).reduce(
     (accumulator: any, key) => {
-      let value;
+      let value = data[key];
       const newKey = `x${key.toLowerCase()}`;
       if (Array.isArray(data[key].Value)) {
         const isMultiple =
           data[key].Value.length > 1 || arrayTags.includes(newKey);
         value = isMultiple ? data[key].Value : data[key].Value[0];
-      } else {
-        value = undefined;
       }
 
       // check if value is an object with key "Alphabetic"
       if (value && value.Alphabetic) {
         value = value.Alphabetic;
       }
+
+      if (value && value.InlineBinary) {
+        value = value.InlineBinary;
+      }
+
       // check if value is a sequence and fill with values
       if (data[key].vr === "SQ") {
         value = parseSequence(value);
