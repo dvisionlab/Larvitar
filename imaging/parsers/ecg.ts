@@ -26,11 +26,11 @@ export const parseECG = function (
 ): void {
   const rawData = metadata["x50003000"];
 
-  let ecgDataBytes: Uint8Array;
+  let data: Uint8Array;
   //case Qido retrieved Metadata where metadata["x50003000"] is a base64 string
   if (typeof rawData === "string") {
     try {
-      ecgDataBytes = base64ToUint8Array(rawData);
+      data = base64ToUint8Array(rawData);
     } catch (e) {
       console.error("Invalid Base64 ECG data", e);
       return;
@@ -38,39 +38,32 @@ export const parseECG = function (
   }
   //case parsed Metadata where metadata["x50003000"] is a byteArray retrieved from the DataSet
   else if (rawData instanceof Uint8Array) {
-    ecgDataBytes = rawData;
+    data = rawData;
   } else {
     console.warn("ECG data is missing or in an unsupported format.");
     return;
   }
 
-  const fullWaveform = new Uint16Array(
-    ecgDataBytes.buffer,
-    ecgDataBytes.byteOffset,
-    ecgDataBytes.byteLength / 2
-  );
-
-  const downsampledValues: number[] = [];
-  for (let i = 0; i < fullWaveform.length; i += nSampling) {
-    downsampledValues.push(fullWaveform[i]);
-  }
-  if (downsampledValues.length === 0) {
-    return;
+  let points: number[] = [];
+  const nCountFrom: number = data.length / 2;
+  const nCountTo: number = Math.floor(0.5 + nCountFrom / nSampling);
+  let values: number[] = [];
+  let nFrom: number = 0;
+  for (let nTo: number = 0; nTo < nCountTo; nTo++) {
+    let v: number = data[nFrom] + 255 * data[nFrom + 1];
+    values.push(v);
+    nFrom += nSampling * 2;
   }
 
-  const nMax = Math.max(...downsampledValues);
-  const nMin = Math.min(...downsampledValues);
-  const range = nMax - nMin || 1;
+  const nMax: number = Math.max(...values);
+  const nMin: number = Math.min(...values);
 
-  const normalizedPoints = downsampledValues.map(
-    v => ((v - nMin) / range) * 100
-  );
-
-  const series = getDataFromImageManager(seriesId);
-
-  if (series) {
-    series.ecgData = normalizedPoints;
+  for (let nTo: number = 0; nTo < nCountTo; nTo++) {
+    let data: number = ((values[nTo] - nMin) / (nMax - nMin)) * 100;
+    points.push(data);
   }
+  let series = getDataFromImageManager(seriesId);
+  series!.ecgData = points;
 };
 
 /**
