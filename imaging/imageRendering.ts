@@ -608,6 +608,39 @@ export const getAnisotropicDisplayedArea = function (
 };
 
 /**
+ * Gets default FitToWindow Image scale factor
+ * @instance
+ * @function getAnisotropicDisplayedArea
+ * @param {Image} image
+ * @param {HTMLElement} canvas
+ * @returns {DisplayedArea}
+ */
+function getImageFitScale(image: cornerstone.Image, canvas: HTMLElement) {
+  const imageSize = { height: image.height, width: image.width };
+  const rowPixelSpacing = image.rowPixelSpacing || 1;
+  const columnPixelSpacing = image.columnPixelSpacing || 1;
+  let verticalRatio = 1;
+  let horizontalRatio = 1;
+
+  if (rowPixelSpacing < columnPixelSpacing) {
+    horizontalRatio = columnPixelSpacing / rowPixelSpacing;
+  } else {
+    // even if they are equal we want to calculate this ratio (the ration might be 0.5)
+    verticalRatio = rowPixelSpacing / columnPixelSpacing;
+  }
+
+  const verticalScale = canvas.clientHeight / imageSize.height / verticalRatio;
+  const horizontalScale =
+    canvas.clientWidth / imageSize.width / horizontalRatio;
+
+  // Fit image to window
+  return {
+    verticalScale,
+    horizontalScale,
+    scaleFactor: Math.min(horizontalScale, verticalScale)
+  };
+}
+/**
  * Cache image and render it in a html div using cornerstone
  * @instance
  * @function renderImage
@@ -693,10 +726,6 @@ export const renderImage = function (
     if (pixelDataLengthAllowed === true) {
       // load and display one image (imageId)
       loadImageFunction(data.imageId as string).then(function (image) {
-        const defaultViewport = cornerstone.getDefaultViewport(
-          element,
-          image as any
-        );
         if (!element) {
           logger.error(`invalid html element: ${elementId}`);
           reject(`invalid html element: ${elementId}`);
@@ -749,10 +778,6 @@ export const renderImage = function (
 
         // set the optional custom zoom
         if (renderOptions.scale !== undefined) {
-          // store default scale value if not specified
-          if (data.default?.scale === undefined) {
-            data.default!.scale = defaultViewport.scale!;
-          }
           viewport.scale = renderOptions.scale;
           logger.debug(
             `updating cornerstone viewport with custom scale value: ${renderOptions.scale}`
@@ -761,12 +786,6 @@ export const renderImage = function (
         // set the optional custom translation
         if (renderOptions.translation !== undefined) {
           // store default translation value if not specified
-          if (data.default?.translation === undefined) {
-            data.default!.translation = defaultViewport.translation || {
-              x: 0,
-              y: 0
-            };
-          }
           viewport.translation!.x = renderOptions.translation.x;
           viewport.translation!.y = renderOptions.translation.y;
           logger.debug(
@@ -775,10 +794,6 @@ export const renderImage = function (
         }
         // set the optional custom rotation
         if (renderOptions.rotation !== undefined) {
-          // store default rotation value if not specified
-          if (data.default?.rotation === undefined) {
-            data.default!.rotation = defaultViewport.rotation || 0;
-          }
           viewport.rotation = renderOptions.rotation;
           logger.debug(
             `updating cornerstone viewport with custom rotation value: ${renderOptions.rotation}`
@@ -786,9 +801,6 @@ export const renderImage = function (
         }
         // set the optional custom contrast
         if (renderOptions.voi !== undefined) {
-          if (data.default?.rotation === undefined) {
-            data.default!.voi = defaultViewport.voi || 0;
-          }
           viewport.voi!.windowWidth = renderOptions.voi.windowWidth;
           viewport.voi!.windowCenter = renderOptions.voi.windowCenter;
           logger.debug(
@@ -846,6 +858,11 @@ export const renderImage = function (
           applyColorMap(renderOptions.colormap);
           logger.debug("updating cornerstone viewport with custom colormap");
         }
+        const defaultViewport = cornerstone.getDefaultViewport(
+          element,
+          image as any
+        );
+        defaultViewport.scale = getImageFitScale(image, element).scaleFactor;
 
         storeViewportData(
           image,
