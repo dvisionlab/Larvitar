@@ -693,6 +693,10 @@ export const renderImage = function (
     if (pixelDataLengthAllowed === true) {
       // load and display one image (imageId)
       loadImageFunction(data.imageId as string).then(function (image) {
+        const defaultViewport = cornerstone.getDefaultViewport(
+          element,
+          image as any
+        );
         if (!element) {
           logger.error(`invalid html element: ${elementId}`);
           reject(`invalid html element: ${elementId}`);
@@ -747,7 +751,7 @@ export const renderImage = function (
         if (renderOptions.scale !== undefined) {
           // store default scale value if not specified
           if (data.default?.scale === undefined) {
-            data.default!.scale = viewport.scale!;
+            data.default!.scale = defaultViewport.scale!;
           }
           viewport.scale = renderOptions.scale;
           logger.debug(
@@ -758,12 +762,10 @@ export const renderImage = function (
         if (renderOptions.translation !== undefined) {
           // store default translation value if not specified
           if (data.default?.translation === undefined) {
-            data.default!.translation = data.default!.translation || {
+            data.default!.translation = defaultViewport.translation || {
               x: 0,
               y: 0
             };
-            data.default!.translation.x = viewport.translation!.x || 0;
-            data.default!.translation.y = viewport.translation!.y || 0;
           }
           viewport.translation!.x = renderOptions.translation.x;
           viewport.translation!.y = renderOptions.translation.y;
@@ -775,7 +777,7 @@ export const renderImage = function (
         if (renderOptions.rotation !== undefined) {
           // store default rotation value if not specified
           if (data.default?.rotation === undefined) {
-            data.default!.rotation = viewport.rotation || 0;
+            data.default!.rotation = defaultViewport.rotation || 0;
           }
           viewport.rotation = renderOptions.rotation;
           logger.debug(
@@ -784,6 +786,9 @@ export const renderImage = function (
         }
         // set the optional custom contrast
         if (renderOptions.voi !== undefined) {
+          if (data.default?.rotation === undefined) {
+            data.default!.voi = defaultViewport.voi || 0;
+          }
           viewport.voi!.windowWidth = renderOptions.voi.windowWidth;
           viewport.voi!.windowCenter = renderOptions.voi.windowCenter;
           logger.debug(
