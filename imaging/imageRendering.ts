@@ -608,6 +608,39 @@ export const getAnisotropicDisplayedArea = function (
 };
 
 /**
+ * Gets default FitToWindow Image scale factor
+ * @instance
+ * @function getAnisotropicDisplayedArea
+ * @param {Image} image
+ * @param {HTMLElement} canvas
+ * @returns {DisplayedArea}
+ */
+function getImageFitScale(image: cornerstone.Image, canvas: HTMLElement) {
+  const imageSize = { height: image.height, width: image.width };
+  const rowPixelSpacing = image.rowPixelSpacing || 1;
+  const columnPixelSpacing = image.columnPixelSpacing || 1;
+  let verticalRatio = 1;
+  let horizontalRatio = 1;
+
+  if (rowPixelSpacing < columnPixelSpacing) {
+    horizontalRatio = columnPixelSpacing / rowPixelSpacing;
+  } else {
+    // even if they are equal we want to calculate this ratio (the ration might be 0.5)
+    verticalRatio = rowPixelSpacing / columnPixelSpacing;
+  }
+
+  const verticalScale = canvas.clientHeight / imageSize.height / verticalRatio;
+  const horizontalScale =
+    canvas.clientWidth / imageSize.width / horizontalRatio;
+
+  // Fit image to window
+  return {
+    verticalScale,
+    horizontalScale,
+    scaleFactor: Math.min(horizontalScale, verticalScale)
+  };
+}
+/**
  * Cache image and render it in a html div using cornerstone
  * @instance
  * @function renderImage
@@ -745,10 +778,6 @@ export const renderImage = function (
 
         // set the optional custom zoom
         if (renderOptions.scale !== undefined) {
-          // store default scale value if not specified
-          if (data.default?.scale === undefined) {
-            data.default!.scale = viewport.scale!;
-          }
           viewport.scale = renderOptions.scale;
           logger.debug(
             `updating cornerstone viewport with custom scale value: ${renderOptions.scale}`
@@ -757,14 +786,6 @@ export const renderImage = function (
         // set the optional custom translation
         if (renderOptions.translation !== undefined) {
           // store default translation value if not specified
-          if (data.default?.translation === undefined) {
-            data.default!.translation = data.default!.translation || {
-              x: 0,
-              y: 0
-            };
-            data.default!.translation.x = viewport.translation!.x || 0;
-            data.default!.translation.y = viewport.translation!.y || 0;
-          }
           viewport.translation!.x = renderOptions.translation.x;
           viewport.translation!.y = renderOptions.translation.y;
           logger.debug(
@@ -773,10 +794,6 @@ export const renderImage = function (
         }
         // set the optional custom rotation
         if (renderOptions.rotation !== undefined) {
-          // store default rotation value if not specified
-          if (data.default?.rotation === undefined) {
-            data.default!.rotation = viewport.rotation || 0;
-          }
           viewport.rotation = renderOptions.rotation;
           logger.debug(
             `updating cornerstone viewport with custom rotation value: ${renderOptions.rotation}`
@@ -841,8 +858,19 @@ export const renderImage = function (
           applyColorMap(renderOptions.colormap);
           logger.debug("updating cornerstone viewport with custom colormap");
         }
+        const defaultViewport = cornerstone.getDefaultViewport(
+          element,
+          image as any
+        );
+        defaultViewport.scale = getImageFitScale(image, element).scaleFactor;
 
-        storeViewportData(image, element.id, viewport as Viewport, data);
+        storeViewportData(
+          image,
+          element.id,
+          viewport as Viewport,
+          defaultViewport as Viewport,
+          data
+        );
         setStore(["ready", element.id, true]);
         const t1 = performance.now();
         logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
@@ -1156,6 +1184,7 @@ export const storeViewportData = function (
   image: cornerstone.Image,
   elementId: string,
   viewport: Viewport,
+  defaultViewport: Viewport,
   data: ReturnType<typeof getSeriesData>
 ) {
   const t0 = performance.now();
@@ -1208,17 +1237,21 @@ export const storeViewportData = function (
   setStore([
     "defaultViewport",
     elementId,
-    (data.default && data.default.scale) || viewport.scale || 0,
-    (data.default && data.default.rotation) || 0,
-    (data.default && data.default.translation?.x) || 0,
-    (data.default && data.default.translation?.y) || 0,
+    (data.default && data.default.scale) || defaultViewport.scale || 0,
+    (data.default && data.default.rotation) || defaultViewport.rotation || 0,
+    (data.default && data.default.translation?.x) ||
+      defaultViewport.translation?.x ||
+      0,
+    (data.default && data.default.translation?.y) ||
+      defaultViewport.translation?.y ||
+      0,
     (data.default && data.default?.voi?.windowWidth) ||
-      viewport.voi?.windowWidth ||
+      defaultViewport.voi?.windowWidth ||
       255,
     (data.default && data.default?.voi?.windowCenter) ||
-      viewport.voi?.windowCenter ||
+      defaultViewport.voi?.windowCenter ||
       128,
-    viewport.invert === true
+    defaultViewport.invert === true
   ]);
   setStore(["scale", elementId, viewport.scale || 0]);
   setStore(["rotation", elementId, viewport.rotation || 0]);
