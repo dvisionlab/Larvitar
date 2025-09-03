@@ -847,7 +847,13 @@ export const renderImage = function (
           logger.debug("updating cornerstone viewport with custom colormap");
         }
 
-        storeViewportData(image, element.id, viewport as Viewport, data);
+        storeViewportData(
+          image,
+          element.id,
+          viewport as Viewport,
+          defaultViewport as Viewport,
+          data
+        );
         setStore(["ready", element.id, true]);
         const t1 = performance.now();
         logger.debug(`Call to renderImage took ${t1 - t0} milliseconds.`);
@@ -1161,6 +1167,7 @@ export const storeViewportData = function (
   image: cornerstone.Image,
   elementId: string,
   viewport: Viewport,
+  defaultViewport: Viewport,
   data: ReturnType<typeof getSeriesData>
 ) {
   const t0 = performance.now();
@@ -1213,17 +1220,21 @@ export const storeViewportData = function (
   setStore([
     "defaultViewport",
     elementId,
-    (data.default && data.default.scale) || viewport.scale || 0,
-    (data.default && data.default.rotation) || 0,
-    (data.default && data.default.translation?.x) || 0,
-    (data.default && data.default.translation?.y) || 0,
+    (data.default && data.default.scale) || defaultViewport.scale || 0,
+    (data.default && data.default.rotation) || defaultViewport.rotation || 0,
+    (data.default && data.default.translation?.x) ||
+      defaultViewport.translation?.x ||
+      0,
+    (data.default && data.default.translation?.y) ||
+      defaultViewport.translation?.y ||
+      0,
     (data.default && data.default?.voi?.windowWidth) ||
-      viewport.voi?.windowWidth ||
+      defaultViewport.voi?.windowWidth ||
       255,
     (data.default && data.default?.voi?.windowCenter) ||
-      viewport.voi?.windowCenter ||
+      defaultViewport.voi?.windowCenter ||
       128,
-    viewport.invert === true
+    defaultViewport.invert === true
   ]);
   setStore(["scale", elementId, viewport.scale || 0]);
   setStore(["rotation", elementId, viewport.rotation || 0]);

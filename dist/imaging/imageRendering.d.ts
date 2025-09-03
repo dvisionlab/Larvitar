@@ -178,7 +178,7 @@ export declare const updateViewportData: (elementId: string, viewportData: Viewp
  * @param {String} viewport - The viewport tag name
  * @param {Object} data - The viewport data object
  */
-export declare const storeViewportData: (image: cornerstone.Image, elementId: string, viewport: Viewport, data: ReturnType<typeof getSeriesData>) => void;
+export declare const storeViewportData: (image: cornerstone.Image, elementId: string, viewport: Viewport, defaultViewport: Viewport, data: ReturnType<typeof getSeriesData>) => void;
 /**
  * Invert pixels of an image
  * @instance
