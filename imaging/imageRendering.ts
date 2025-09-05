@@ -647,25 +647,34 @@ export const renderImage = function (
 
   let series = { ...seriesStack };
   const renderOptions = options ? options : {};
-  let data: StoreViewport = getSeriesData(series, renderOptions);
-  logger.debug(`Rendering imageIndex: ${data.imageIndex}`);
+  const imageIndex =
+    renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0
+      ? renderOptions.imageIndex
+      : 0;
+  const imageId = series.imageIds[imageIndex];
 
-  if (!data.imageId) {
+  logger.debug(`Rendering imageIndex: ${imageIndex}`);
+
+  if (!imageId) {
     logger.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) => {
-      setStore(["pendingSliceId", id, data.imageIndex]);
+      setStore(["pendingSliceId", id, imageIndex]);
       reject("error during renderImage: imageId has not been loaded yet.");
     });
   }
 
+  const uniqueUID = series.uniqueUID || series.seriesUID;
   // this by default is the uniqueId of the rendered stack
   const storedUniqueUID = store.get(["viewports", id, "uniqueUID"]);
-  const isUniqueUIDChanged = storedUniqueUID !== data.uniqueUID;
+  const isUniqueUIDChanged = storedUniqueUID !== uniqueUID;
+
   if (isUniqueUIDChanged) {
-    logger.debug(
-      `uniqueUID changed from ${storedUniqueUID} to ${data.uniqueUID}`
-    );
+    logger.debug(`uniqueUID changed from ${storedUniqueUID} to ${uniqueUID}`);
   }
+
+  let data: StoreViewport = isUniqueUIDChanged
+    ? getSeriesData(series, renderOptions)
+    : store.get(["viewports", element.id]);
 
   // DSA ALGORITHM OPTIONS
   const dsaEnabled = store.get(["viewports", id, "isDSAEnabled"]);
