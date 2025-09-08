@@ -31,8 +31,7 @@ Generates an array of points representing the ECG signal from a DICOM dataset an
 ```typescript
 parseECG(
   seriesId: string,
-  dataSet: DataSet,
-  tag: string,
+  metadata: MetaData,
   nSampling?: number
 ): void
 ```
@@ -42,8 +41,7 @@ parseECG(
 | Parameter	  | Type	| Description                                                        |
 |-------------|---------|--------------------------------------------------------------------|
 | `seriesId`  | string	| The unique identifier of the series to which the ECG data belongs. | 
-| `dataSet`	  | DataSet	| The DICOM dataset containing the ECG signal.                       |       
-| `tag`	      | string	| The DICOM tag identifying the ECG signal data element.             | 
+| `metadata`	  | MetaData	| Thes metadata object containing the ECG signal data                  |       
 | `nSampling` | number  | The sampling rate to downsample the signal. Defaults to 2.         | 
 
 
@@ -54,8 +52,13 @@ parseECG(
 
 1. **Data Extraction:**
 
-   - Reads the ECG signal data from the DICOM dataset using the provided tag.
-   - Extracts the byte array from the specified element.
+The function first looks for the raw ECG data within the metadata object using the private DICOM tag (5000,3000).
+It's designed to handle two common formats:
+
+  - A Base64 encoded string, which it decodes into a byte array (Uint8Array) -> singleFrame / frame by frame case.
+
+  - A pre-existing byte array (Uint8Array) -> default multiframe DICOM.  
+
 
 2. **Downsampling:**
 
