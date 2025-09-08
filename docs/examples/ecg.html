@@ -262,7 +262,7 @@ async function renderSerie() {
         let frameId = 0;
         // check if the series has waveform data
         if (multiFrameSerie.waveform) {
-          larvitar.parseECG(seriesId, manager[seriesId].dataSet, "x50003000");
+          larvitar.parseECG(seriesId, multiFrameSerie.metadata);
         }
         await larvitar.renderImage(multiFrameSerie, "viewer", {
           imageIndex: frameId
