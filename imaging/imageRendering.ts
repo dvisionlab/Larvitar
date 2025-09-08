@@ -660,9 +660,6 @@ export const renderImage = function (
         : Math.floor(series.imageIds.length / 2);
   }
   const imageId = series.imageIds[imageIndex];
-
-  logger.debug(`Rendering imageIndex: ${imageIndex}`);
-
   if (!imageId) {
     logger.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) => {
@@ -670,7 +667,7 @@ export const renderImage = function (
       reject("error during renderImage: imageId has not been loaded yet.");
     });
   }
-
+  logger.debug(`Rendering imageIndex: ${imageIndex}`);
   const uniqueUID = series.uniqueUID || series.seriesUID;
   // this by default is the uniqueId of the rendered stack
   const storedUniqueUID = store.get(["viewports", id, "uniqueUID"]);
@@ -682,7 +679,7 @@ export const renderImage = function (
 
   let data: StoreViewport = isUniqueUIDChanged
     ? getSeriesData(series, renderOptions)
-    : getSeriesDataFromStore(id, renderOptions);
+    : getSeriesDataFromStore(id, series, renderOptions);
 
   // DSA ALGORITHM OPTIONS
   const dsaEnabled = store.get(["viewports", id, "isDSAEnabled"]);
@@ -1611,8 +1608,18 @@ const getSeriesData = function (
   return data as SeriesData;
 };
 
+/**
+ * Get series metadata from default props or larvitar store
+ * @instance
+ * @function getSeriesData
+ * @param {string} elementId - The viewport id
+ * @param {Series} series - The parsed data series
+ * @param {RenderProps} renderOptions - Optional default properties
+ * @return {StoreViewport} data - A data dictionary with parsed tags' values
+ */
 const getSeriesDataFromStore = function (
   elementId: string,
+  series: Series,
   renderOptions: RenderProps = {}
 ): StoreViewport {
   type RecursivePartial<T> = {
@@ -1634,6 +1641,19 @@ const getSeriesDataFromStore = function (
     data.imageIndex = renderOptions.imageIndex;
   } else {
     data.imageIndex = storedData.sliceId;
+  }
+
+  data.imageId = series.imageIds[data.imageIndex];
+  if (data.timeId !== undefined) {
+    data.timeIndex = data.timeId;
+  }
+  if (data.maxSliceId !== undefined) {
+    if (data.isTimeserie && data.numberOfTemporalPositions !== undefined) {
+      data.numberOfSlices =
+        (data.maxSliceId + 1) / data.numberOfTemporalPositions;
+    } else {
+      data.numberOfSlices = data.maxSliceId + 1;
+    }
   }
 
   if (renderOptions.voi !== undefined) {
