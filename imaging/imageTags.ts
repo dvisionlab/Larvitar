@@ -529,6 +529,12 @@ export function parseTag<T>(
         element.length +
         " as uint32: " +
         dataSet.uint32(propertyName);
+    } else if (propertyName === "x50003000") {
+      const element: Element = dataSet.elements[propertyName];
+      valueOut = dataSet.byteArray.slice(
+        element.dataOffset,
+        element.dataOffset + element.length
+      );
     } else if (dataSet.string(propertyName)) {
       valueOut = dataSet.string(propertyName);
     } else {
