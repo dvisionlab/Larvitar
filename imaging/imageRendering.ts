@@ -1687,13 +1687,22 @@ const getSeriesDataFromStore = function (
     if (renderOptions.default.rotation !== undefined) {
       data.default.rotation = renderOptions.default.rotation;
     }
+    const instance: Instance | null = data.imageId
+      ? series.instances[data.imageId]
+      : null;
 
-    if (renderOptions.default.voi !== undefined) {
+    if (instance) {
       if (!data.default.voi) {
         data.default.voi = { windowCenter: 0, windowWidth: 0 };
       }
-      data.default.voi.windowCenter = renderOptions.default.voi.windowCenter;
-      data.default.voi.windowWidth = renderOptions.default.voi.windowWidth;
+      data.default.voi.windowCenter =
+        renderOptions.default.voi !== undefined
+          ? renderOptions.default.voi.windowCenter
+          : (instance.metadata.x00281050 as number);
+      data.default.voi.windowWidth =
+        renderOptions.default.voi !== undefined
+          ? renderOptions.default.voi.windowWidth
+          : (instance.metadata.x00281051 as number);
     }
   }
 
