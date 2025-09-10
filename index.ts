@@ -249,6 +249,7 @@ import {
 
 import {
   setSingleFrameCache,
+  getSingleFrameCache,
   clearSingleFrameCache,
   loadSingleFrameImage
 } from "./imaging/loaders/singleFrameLoader";
@@ -454,6 +455,7 @@ export {
   clearMultiFrameCache,
   // loaders/singleFrameLoader
   setSingleFrameCache,
+  getSingleFrameCache,
   clearSingleFrameCache,
   loadSingleFrameImage,
   // loaders/dsaImageLoader

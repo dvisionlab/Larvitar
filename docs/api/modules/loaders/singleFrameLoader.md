@@ -27,6 +27,26 @@ The singleFrameLoader module is a custom DICOM loader designed to cache and rend
 
 ## Main Functions
 
+### getSingleFrameCache
+
+#### Syntax:
+
+```typescript
+getSingleFrameCache(imageId?: string): { [key: string]: SingleFrameCache }
+```
+
+#### Parameters:
+
+| Parameter	 | Type	              | Description                              |
+|------------|--------------------|------------------------------------------|
+| `imageId`	 | string             | The ID of the cached single frame.       |
+
+#### Returns:
+
+`[key: string]: SingleFrameCache` – An object containing the cached single frame data and metadata. If no ID is provided, returns all cached frames.
+
+---
+
 ### setSingleFrameCache
 
 #### Syntax:
