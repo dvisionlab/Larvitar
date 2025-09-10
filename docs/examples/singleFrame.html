@@ -184,44 +184,42 @@
 
       showSpinner();
 
-      larvitar.clearSingleFrameCache();
+      larvitar.resetImageManager();
 
       const pacsURL = "http://192.168.72.141:80/dicomwebcore/";
       const wadoPrefix = "wado/";
       const qidoPrefix = "qidors/";
 
       /* STRESS ECHO 5 IMAGES */
-      // const patientID = "TEST_FIVEMF_STRESS";
-      // const studyID =
-      //   "1.2.826.0.1.3680043.2.97.4.2017.1247782231.250207090009398";
-      // const seriesInstanceUID =
-      //   "1.2.826.0.1.3680043.2.97.4.2017.1044975747.250207090029960";
+      const patientID = "TEST_FIVEMF_STRESS";
+      const studyID =
+        "1.2.826.0.1.3680043.2.97.4.2017.1247782231.250207090009398";
+      const seriesInstanceUID =
+        "1.2.826.0.1.3680043.2.97.4.2017.1044975747.250207090029960";
 
-      // const instanceUID_1 =
-      //   "1.2.826.0.1.3680043.2.97.19529.21573.851230414.250207090046713";
-      // const instanceUID_2 =
-      //   "1.2.826.0.1.3680043.2.97.19529.21573.486881842.250207090047588";
-      // const instanceUID_3 =
-      //   "1.2.826.0.1.3680043.2.97.19529.21573.1383892180.2502070900458070";
-      // const instanceUID_4 =
-      //   "1.2.826.0.1.3680043.2.97.19529.21573.4271180931.2502070900450260";
-      // const instanceUID_5 =
-      //   "1.2.826.0.1.3680043.2.97.19529.21573.1888853007.2502070900482760";
+      const instanceUID_1 =
+        "1.2.826.0.1.3680043.2.97.19529.21573.851230414.250207090046713";
+      const instanceUID_2 =
+        "1.2.826.0.1.3680043.2.97.19529.21573.486881842.250207090047588";
+      const instanceUID_3 =
+        "1.2.826.0.1.3680043.2.97.19529.21573.1383892180.2502070900458070";
+      const instanceUID_4 =
+        "1.2.826.0.1.3680043.2.97.19529.21573.4271180931.2502070900450260";
+      const instanceUID_5 =
+        "1.2.826.0.1.3680043.2.97.19529.21573.1888853007.2502070900482760";
       /* END STRESS ECHO 5 IMAGES */
 
       /* XA 2 IMAGES */
+      // const patientID = "";
+      // const studyID =
+      //   "1.2.826.0.1.3680043.2.97.19529.21573.56762315.2305111440116770";
+      // const seriesInstanceUID =
+      //   "1.3.12.2.1107.5.4.5.153909.30000023032704445857800005582";
 
-      const patientID = "";
-      const studyID =
-        "1.2.826.0.1.3680043.2.97.19529.21573.56762315.2305111440116770";
-      const seriesInstanceUID =
-        "1.3.12.2.1107.5.4.5.153909.30000023032704445857800005582";
-
-      const instanceUID_1 =
-        "1.3.12.2.1107.5.4.5.153909.30000023032704445857800005609.512";
-      const instanceUID_2 =
-        "1.3.12.2.1107.5.4.5.153909.30000023032704445857800005610.512";
-
+      // const instanceUID_1 =
+      //   "1.3.12.2.1107.5.4.5.153909.30000023032704445857800005609.512";
+      // const instanceUID_2 =
+      //   "1.3.12.2.1107.5.4.5.153909.30000023032704445857800005610.512";
       /* END XA 2 IMAGES */
 
       const qidoUrl = `${pacsURL}${qidoPrefix}instances?SeriesInstanceUID=${seriesInstanceUID}&StudyInstanceUID=${studyID}&PatientID=${patientID}&includefield=header`;
@@ -297,19 +295,19 @@
               "Call to renderImage took " + (t1 - t0) + " milliseconds."
             );
             hideSpinner();
-            const trace_data = renderSeriesECG(
-              instanceUID,
-              dicomSerie,
-              canvasId
-            );
+            // const trace_data = renderSeriesECG(
+            //   instanceUID,
+            //   dicomSerie,
+            //   canvasId
+            // );
             // cine LOOP
             if (frameId === 0) {
-              //larvitar.addDefaultTools("viewer-1");
-              //larvitar.addDefaultTools("viewer-2");
-              //larvitar.addDefaultTools("viewer-3");
-              //larvitar.addDefaultTools("viewer-4");
-              //larvitar.addDefaultTools("viewer-5");
-              larvitar.addDefaultTools(canvasId);
+              larvitar.addDefaultTools("viewer-1");
+              larvitar.addDefaultTools("viewer-2");
+              larvitar.addDefaultTools("viewer-3");
+              larvitar.addDefaultTools("viewer-4");
+              larvitar.addDefaultTools("viewer-5");
+              //larvitar.addDefaultTools(canvasId);
               larvitar.setToolActive("StackScroll");
               if (AUTO_PLAY === true) {
                 frameId++;
@@ -346,14 +344,14 @@
                     cached: true,
                     imageIndex: currentFrameId
                   });
-                  if (trace_data) {
-                    larvitar.updateECGMarker(
-                      trace_data,
-                      currentFrameId,
-                      numberOfFrames,
-                      "ecg" + " - " + canvasId
-                    );
-                  }
+                  // if (trace_data) {
+                  //   larvitar.updateECGMarker(
+                  //     trace_data,
+                  //     currentFrameId,
+                  //     numberOfFrames,
+                  //     "ecg" + " - " + canvasId
+                  //   );
+                  // }
                   frameId =
                     currentFrameId == numberOfFrames - 1
                       ? 0
@@ -383,9 +381,9 @@
         });
         cacheFrames(instanceUID_1, metadata[instanceUID_1], "viewer-1");
         cacheFrames(instanceUID_2, metadata[instanceUID_2], "viewer-2");
-        //cacheFrames(instanceUID_3, metadata[instanceUID_3], "viewer-3");
-        //cacheFrames(instanceUID_4, metadata[instanceUID_4], "viewer-4");
-        //cacheFrames(instanceUID_5, metadata[instanceUID_5], "viewer-5");
+        cacheFrames(instanceUID_3, metadata[instanceUID_3], "viewer-3");
+        cacheFrames(instanceUID_4, metadata[instanceUID_4], "viewer-4");
+        cacheFrames(instanceUID_5, metadata[instanceUID_5], "viewer-5");
       })();
 
       const renderSeriesECG = function (

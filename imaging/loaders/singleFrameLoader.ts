@@ -29,6 +29,22 @@ let singleFrameCache: { [key: string]: SingleFrameCache } = {};
  */
 
 /**
+ * Get the single frame cache
+ * @export
+ * @function getSingleFrameCache
+ * @param {String} imageId - Optional Image tag
+ * @returns {Object} - Single frame cache object
+ */
+export const getSingleFrameCache = function (imageId?: string): {
+  [key: string]: SingleFrameCache;
+} {
+  if (imageId) {
+    return { [imageId]: singleFrameCache[imageId] };
+  }
+  return singleFrameCache;
+};
+
+/**
  * Set the single frame cache
  * @export
  * @function setSingleFrameCache
@@ -72,18 +88,19 @@ export const setSingleFrameCache = async function (
  * @param {String} imageId - Optional Image tag
  */
 export const clearSingleFrameCache = function (imageId?: string): void {
-  if (imageId) {
+  if (imageId && singleFrameCache[imageId]) {
     // @ts-ignore: is needed to clear the cache
     singleFrameCache[imageId].pixelData = null;
     // @ts-ignore: is needed to clear the cache
     singleFrameCache[imageId].metadata = null;
     delete singleFrameCache[imageId];
   } else {
-    Object.values(singleFrameCache).forEach(element => {
+    Object.values(singleFrameCache).forEach((element, imageId) => {
       // @ts-ignore: is needed to clear the cache
       element.pixelData = null;
       // @ts-ignore: is needed to clear the cache
       element.metadata = null;
+      delete singleFrameCache[imageId];
     });
     singleFrameCache = {};
   }
@@ -307,8 +324,6 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
           image.windowCenter = (maxVoi + minVoi) / 2;
         }
       }
-
-      clearSingleFrameCache(imageId);
 
       resolve(image as Image);
     }, reject);

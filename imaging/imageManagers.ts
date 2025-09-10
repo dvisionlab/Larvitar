@@ -22,6 +22,7 @@ import type {
 } from "./types";
 import { getFileCustomImageId } from "./loaders/fileLoader";
 import { logger } from "../logger";
+import { clearSingleFrameCache } from "./loaders/singleFrameLoader";
 
 // global variables
 var imageManager: ImageManager = null;
@@ -143,6 +144,7 @@ export const resetImageManager = function () {
   });
   imageManager = null;
   imageTracker = null;
+  clearSingleFrameCache();
   let t1 = performance.now();
   logger.debug(
     "Call to resetImageManager took " + (t1 - t0) + " milliseconds."
@@ -153,7 +155,7 @@ export const resetImageManager = function () {
  * Remove a stored seriesId from the image manager
  * @instance
  * @function removeDataFromImageManager
- * @param {String} seriesId The Id of the series
+ * @param {String} uniqueUID The Id of the series
  */
 export const removeDataFromImageManager = function (uniqueUID: string) {
   if (imageManager && imageManager[uniqueUID]) {
@@ -167,7 +169,8 @@ export const removeDataFromImageManager = function (uniqueUID: string) {
 
       clearMultiFrameCache(uniqueUID);
     }
-    each(imageManager[uniqueUID].instances, function (instance) {
+    each(imageManager[uniqueUID].instances, function (instance, imageId) {
+      clearSingleFrameCache(imageId);
       if (instance.dataSet) {
         //@ts-ignore for memory leak
         instance.dataSet.byteArray = null;
