@@ -285,7 +285,6 @@ export const loadAndCacheVolume = async function (
   const volume = await cornerstone.volumeLoader.createAndCacheVolume(volumeId, {
     imageIds: series.imageIds3D.map(id => id)
   });
-
   const t1 = performance.now();
   logger.debug(`Time to load and cache volume: ${t1 - t0} milliseconds`);
   volume.load();
@@ -361,6 +360,23 @@ export const addStandardMetadata = function (
   });
 };
 
+// DEV
+const windowWidth = 400;
+const windowCenter = 40;
+
+const lower = windowCenter - windowWidth / 2.0;
+const upper = windowCenter + windowWidth / 2.0;
+
+const ctVoiRange = { lower, upper };
+
+function setCtTransferFunctionForVolumeActor({ volumeActor }: any) {
+  volumeActor
+    .getProperty()
+    .getRGBTransferFunction(0)
+    .setMappingRange(lower, upper);
+}
+// END DEV
+
 export const renderMpr = async function (
   seriesStack: Series,
   renderingEngineId: string,
@@ -402,15 +418,32 @@ export const renderMpr = async function (
     const volume = await loadAndCacheVolume(series);
     const t1 = performance.now();
     logger.debug(`Time to load and cache volume: ${t1 - t0} milliseconds`);
+    console.log(volume);
 
     setVolumeForRenderingEngine(volume.volumeId, renderingEngineId);
-    renderingEngine.renderViewports(viewports.map(v => v.id));
+    //renderingEngine.renderViewports(viewports.map(v => v.id));
     each(viewports, function (viewport: cornerstone.VolumeViewport) {
+      // const volumeId = volume.volumeId;
+      // viewport
+      //   .setVolumes([
+      //     { volumeId, callback: setCtTransferFunctionForVolumeActor }
+      //   ])
+      //   .then(() => {
+      //     viewport.setProperties({
+      //       voiRange: { lower: -160, upper: 240 },
+      //       VOILUTFunction: cornerstone.Enums.VOILUTFunctionType.LINEAR,
+      //       colormap: { name: "Grayscale" },
+      //       slabThickness: 0.1
+      //     });
+      //   });
       storeViewportData(
         viewport.id,
         viewport as cornerstone.VolumeViewport,
         data
       );
+      // Render the image
+      viewport.render();
+
       setStore(["ready", viewport.id, true]);
     });
 
@@ -467,13 +500,13 @@ export const unloadMpr = function (renderingEngineId: string): void {
   const viewport = viewports[0]; // Get the first viewport to access imageIds
   const imageIds3D = viewport.getImageIds();
 
-  if (imageIds3D && imageIds3D.length > 0) {
-    forEach(imageIds3D, imageId => {
-      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
-      logger.debug(`Unloading imageId: ${imageId} from cache`);
-      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
-    });
-  }
+  // if (imageIds3D && imageIds3D.length > 0) {
+  //   forEach(imageIds3D, imageId => {
+  //     const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+  //     logger.debug(`Unloading imageId: ${imageId} from cache`);
+  //     cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+  //   });
+  // }
 
   destroyRenderingEngine(renderingEngineId);
 };

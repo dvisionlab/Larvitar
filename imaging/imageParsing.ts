@@ -416,7 +416,6 @@ const parseFile = function (file: File) {
               file: file,
               dataSet: dataSet
             };
-            imageObject.metadata = metadata as MetaData;
             imageObject.metadata = { ...metadata, ...metadataReadables };
 
             // check if pixelDataElement is found, if not sets pixelDataLength=0
