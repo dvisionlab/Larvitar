@@ -677,9 +677,9 @@ export const renderImage = function (
     logger.debug(`uniqueUID changed from ${storedUniqueUID} to ${uniqueUID}`);
   }
 
-  let data: StoreViewport = isUniqueUIDChanged
-    ? getSeriesData(series, renderOptions)
-    : getSeriesDataFromStore(id, series, renderOptions);
+  const isFirstRendering = storedUniqueUID === undefined;
+  const useStore: boolean = isUniqueUIDChanged && !isFirstRendering;
+  let data: StoreViewport = getSeriesData(id, series, renderOptions, useStore);
 
   // DSA ALGORITHM OPTIONS
   const dsaEnabled = store.get(["viewports", id, "isDSAEnabled"]);
@@ -1467,211 +1467,168 @@ const getTemporalSeriesData = function (series: Series): StoreViewport {
 };
 
 /**
- * Get series metadata from default props and series' metadata
+ * Get series metadata from store (if available) or series metadata
  * @instance
  * @function getSeriesData
+ * @param {string} elementId - The viewport id (optional, used for store lookup)
  * @param {Series} series - The parsed data series
  * @param {RenderProps} renderOptions - Optional default properties
+ * @param {boolean} useStore - Whether to try to get data from store first
  * @return {StoreViewport} data - A data dictionary with parsed tags' values
  */
 const getSeriesData = function (
+  elementId: string | null,
   series: Series,
-  renderOptions: RenderProps
+  renderOptions: RenderProps = {},
+  useStore: boolean = false
 ): StoreViewport {
   type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;
   };
   type SeriesData = StoreViewport;
-  const data: RecursivePartial<SeriesData> = {};
-  data.uniqueUID = series.uniqueUID || series.seriesUID; //case of resliced series
-  data.modality = series.modality;
 
-  if (series.isMultiframe) {
-    data.isMultiframe = true;
-    data.numberOfSlices = series.imageIds.length;
-    data.imageIndex =
-      renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0
-        ? renderOptions.imageIndex
-        : 0;
-    data.imageId = series.imageIds[data.imageIndex];
-    data.isTimeserie = false;
-    data.numberOfFrames = series.numberOfFrames;
-  } else if (series.is4D) {
-    data.isMultiframe = false;
-    data.isTimeserie = true;
-    data.numberOfSlices = series.numberOfImages;
-    data.numberOfTemporalPositions = series.numberOfTemporalPositions;
-    data.imageIndex =
-      renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0
-        ? renderOptions.imageIndex
-        : 0;
-    data.timeIndex = 0;
-    data.imageId = series.imageIds[data.imageIndex];
-    data.timestamp = series.instances[data.imageId].metadata[
-      "x00080033"
-    ] as number;
-    data.timestamps = [];
-    data.timeIds = [];
-    each(series.imageIds, function (imageId: string) {
-      (data.timestamps as any[]).push(
-        series.instances[imageId].metadata.contentTime
+  let data: RecursivePartial<SeriesData> = {};
+  let storedData: StoreViewport | null = null;
+
+  if (useStore && elementId) {
+    storedData = store.get(["viewports", elementId]) as StoreViewport;
+    if (!storedData) {
+      throw new Error(
+        `No viewport data found in store for element: ${elementId}`
       );
-      (data.timeIds as any[]).push(
-        series.instances[imageId].metadata.temporalPositionIdentifier! - 1 // timeId from 0 to N
-      );
-    });
-  } else {
-    data.isMultiframe = false;
-    data.isTimeserie = false;
-    data.numberOfSlices = series.imageIds.length;
-    data.imageIndex =
-      renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0 // slice number between 0 and n-1
-        ? renderOptions.imageIndex
-        : Math.floor(series.imageIds.length / 2);
-    data.imageId = series.imageIds[data.imageIndex];
-  }
-  const instance: Instance | null = data.imageId
-    ? series.instances[data.imageId]
-    : null;
-
-  data.isColor = series.color as boolean;
-  data.isPDF = series.isPDF;
-  data.waveform = series.waveform;
-  data.dsa = series.dsa ? true : false;
-  if (instance) {
-    data.rows = instance.metadata.x00280010!;
-    data.cols = instance.metadata.x00280011!;
-    data.thickness = instance.metadata.x00180050 as number;
-
-    let spacing = instance.metadata.x00280030!;
-    data.spacing_x = spacing ? spacing[0] : 1;
-    data.spacing_y = spacing ? spacing[1] : 1;
-
-    // voi contrast value from metadata or renderOptions
-    const windowCenter =
-      renderOptions.voi !== undefined
-        ? renderOptions.voi.windowCenter
-        : (instance.metadata.x00281050 as number);
-    const windowWidth =
-      renderOptions.voi !== undefined
-        ? renderOptions.voi.windowWidth
-        : (instance.metadata.x00281051 as number);
-
-    // window center and window width
-    data.viewport = {
-      voi: {
-        windowCenter: windowCenter,
-        windowWidth: windowWidth
-      }
-    };
-    // store default values for the viewport voi from the series metadata
-    data.default = {};
-    data.default!.voi = {
-      windowCenter: instance.metadata.x00281050 as number,
-      windowWidth: instance.metadata.x00281051 as number
-    };
-    data.default.rotation = 0;
-    data.default.translation = { x: 0, y: 0 };
-
-    if (renderOptions.default !== undefined) {
-      if (renderOptions.default.scale !== undefined) {
-        data.default!.scale = renderOptions.default.scale;
-      }
-      if (renderOptions.default.translation !== undefined) {
-        data.default!.translation!.x = renderOptions.default.translation.x;
-        data.default!.translation!.y = renderOptions.default.translation.y;
-      }
-      if (renderOptions.default.rotation !== undefined) {
-        data.default!.rotation = renderOptions.default.rotation;
-      }
-      if (renderOptions.default.voi !== undefined) {
-        data.default!.voi = {
-          windowCenter: renderOptions.default.voi.windowCenter,
-          windowWidth: renderOptions.default.voi.windowWidth
-        };
-      }
     }
+    data = { ...storedData };
+  }
 
-    if (
-      (data.rows == null || data.cols == null) &&
-      series.instances[data.imageId!].metadata.pixelDataLength != 0
-    ) {
-      setStore(["errorLog", "Invalid Image Metadata"]);
-      throw new Error("invalid image metadata (rows or cols is null)");
+  if (!storedData) {
+    data.uniqueUID = series.uniqueUID || series.seriesUID;
+    data.modality = series.modality;
+
+    if (series.isMultiframe) {
+      data.isMultiframe = true;
+      data.numberOfSlices = series.imageIds.length;
+      data.isTimeserie = false;
+      data.numberOfFrames = series.numberOfFrames;
+    } else if (series.is4D) {
+      data.isMultiframe = false;
+      data.isTimeserie = true;
+      data.numberOfSlices = series.numberOfImages;
+      data.numberOfTemporalPositions = series.numberOfTemporalPositions;
+      data.timeIndex = 0;
+      data.timestamps = [];
+      data.timeIds = [];
+
+      each(series.imageIds, function (imageId: string) {
+        (data.timestamps as any[]).push(
+          series.instances[imageId].metadata.contentTime
+        );
+        (data.timeIds as any[]).push(
+          series.instances[imageId].metadata.temporalPositionIdentifier! - 1 // timeId from 0 to N
+        );
+      });
     } else {
-      setStore(["errorLog", ""]);
+      data.isMultiframe = false;
+      data.isTimeserie = false;
+      data.numberOfSlices = series.imageIds.length;
     }
-  } else {
-    logger.warn(`ImageId not found in imageIds with index ${data.imageIndex}.`);
+
+    data.isColor = series.color as boolean;
+    data.isPDF = series.isPDF;
+    data.waveform = series.waveform;
+    data.dsa = series.dsa ? true : false;
   }
-
-  return data as SeriesData;
-};
-
-/**
- * Get series metadata from default props or larvitar store
- * @instance
- * @function getSeriesData
- * @param {string} elementId - The viewport id
- * @param {Series} series - The parsed data series
- * @param {RenderProps} renderOptions - Optional default properties
- * @return {StoreViewport} data - A data dictionary with parsed tags' values
- */
-const getSeriesDataFromStore = function (
-  elementId: string,
-  series: Series,
-  renderOptions: RenderProps = {}
-): StoreViewport {
-  type RecursivePartial<T> = {
-    [P in keyof T]?: RecursivePartial<T[P]>;
-  };
-  type SeriesData = StoreViewport;
-
-  const storedData = store.get(["viewports", elementId]) as StoreViewport;
-
-  if (!storedData) {
-    throw new Error(
-      `No viewport data found in store for element: ${elementId}`
-    );
-  }
-  if (!storedData) {
-    throw new Error(
-      `No viewport data found in store for element: ${elementId}`
-    );
-  }
-
-  const data: RecursivePartial<SeriesData> = { ...storedData };
 
   if (renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0) {
     data.imageIndex = renderOptions.imageIndex;
+  } else if (!storedData) {
+    if (series.isMultiframe || series.is4D) {
+      data.imageIndex = 0;
+    } else {
+      data.imageIndex = Math.floor(series.imageIds.length / 2);
+    }
   } else {
     data.imageIndex = storedData.sliceId;
   }
 
-  data.imageId = series.imageIds[data.imageIndex];
-  if (data.timeId !== undefined) {
-    data.timeIndex = data.timeId;
-  }
-  if (data.maxSliceId !== undefined) {
-    if (data.isTimeserie && data.numberOfTemporalPositions !== undefined) {
-      data.numberOfSlices =
-        (data.maxSliceId + 1) / data.numberOfTemporalPositions;
-    } else {
-      data.numberOfSlices = data.maxSliceId + 1;
+  data.imageId = series.imageIds[data.imageIndex!];
+
+  if (storedData) {
+    if (data.timeId !== undefined) {
+      data.timeIndex = data.timeId;
+    }
+    if (data.maxSliceId !== undefined) {
+      if (data.isTimeserie && data.numberOfTemporalPositions !== undefined) {
+        data.numberOfSlices =
+          (data.maxSliceId + 1) / data.numberOfTemporalPositions;
+      } else {
+        data.numberOfSlices = data.maxSliceId + 1;
+      }
     }
   }
-  const instance = data.imageId ? series.instances[data.imageId] : null;
+
+  if (!storedData && series.is4D && data.imageId) {
+    data.timestamp = series.instances[data.imageId].metadata[
+      "x00080033"
+    ] as number;
+  }
+
+  const instance: Instance | null = data.imageId
+    ? series.instances[data.imageId]
+    : null;
 
   if (instance) {
+    if (!storedData) {
+      data.rows = instance.metadata.x00280010!;
+      data.cols = instance.metadata.x00280011!;
+      data.thickness = instance.metadata.x00180050 as number;
+
+      let spacing = instance.metadata.x00280030!;
+      data.spacing_x = spacing ? spacing[0] : 1;
+      data.spacing_y = spacing ? spacing[1] : 1;
+
+      if (
+        (data.rows == null || data.cols == null) &&
+        instance.metadata.pixelDataLength != 0
+      ) {
+        setStore(["errorLog", "Invalid Image Metadata"]);
+        throw new Error("invalid image metadata (rows or cols is null)");
+      } else {
+        setStore(["errorLog", ""]);
+      }
+    }
+
+    const instanceWindowCenter = instance.metadata.x00281050 as number;
+    const instanceWindowWidth = instance.metadata.x00281051 as number;
+
     if (!data.default) {
       data.default = {};
     }
     if (!data.default.voi) {
       data.default.voi = { windowCenter: 0, windowWidth: 0 };
     }
-    data.default.voi.windowCenter = instance.metadata.x00281050 as number;
-    data.default.voi.windowWidth = instance.metadata.x00281051 as number;
+
+    data.default.voi.windowCenter = instanceWindowCenter;
+    data.default.voi.windowWidth = instanceWindowWidth;
+
+    if (!storedData) {
+      data.default.rotation = 0;
+      data.default.translation = { x: 0, y: 0 };
+
+      const windowCenter =
+        renderOptions.voi?.windowCenter ?? instanceWindowCenter;
+      const windowWidth = renderOptions.voi?.windowWidth ?? instanceWindowWidth;
+
+      data.viewport = {
+        voi: {
+          windowCenter: windowCenter,
+          windowWidth: windowWidth
+        }
+      };
+    }
+  } else if (data.imageIndex !== undefined) {
+    logger.warn(`ImageId not found in imageIds with index ${data.imageIndex}.`);
   }
+
   if (renderOptions.voi !== undefined) {
     if (!data.viewport) {
       data.viewport = { voi: {} };
