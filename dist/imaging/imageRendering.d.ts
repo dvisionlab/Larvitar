@@ -223,12 +223,14 @@ export declare const rotateImageRight: (elementId: string | HTMLElement) => void
  */
 export declare const updateTemporalViewportData: (seriesStack: Series, elementId: string) => void;
 /**
- * Get series metadata from default props and series' metadata
+ * Get series metadata from store (if available) or series metadata
  * @instance
  * @function getSeriesData
+ * @param {string} elementId - The viewport id (optional, used for store lookup)
  * @param {Series} series - The parsed data series
  * @param {RenderProps} renderOptions - Optional default properties
+ * @param {boolean} useStore - Whether to try to get data from store first
  * @return {StoreViewport} data - A data dictionary with parsed tags' values
  */
-declare const getSeriesData: (series: Series, renderOptions: RenderProps) => StoreViewport;
+declare const getSeriesData: (elementId: string | null, series: Series, renderOptions?: RenderProps, useStore?: boolean) => StoreViewport;
 export {};
