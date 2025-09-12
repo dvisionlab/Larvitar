@@ -1634,6 +1634,11 @@ const getSeriesDataFromStore = function (
       `No viewport data found in store for element: ${elementId}`
     );
   }
+  if (!storedData) {
+    throw new Error(
+      `No viewport data found in store for element: ${elementId}`
+    );
+  }
 
   const data: RecursivePartial<SeriesData> = { ...storedData };
 
@@ -1655,7 +1660,18 @@ const getSeriesDataFromStore = function (
       data.numberOfSlices = data.maxSliceId + 1;
     }
   }
+  const instance = data.imageId ? series.instances[data.imageId] : null;
 
+  if (instance) {
+    if (!data.default) {
+      data.default = {};
+    }
+    if (!data.default.voi) {
+      data.default.voi = { windowCenter: 0, windowWidth: 0 };
+    }
+    data.default.voi.windowCenter = instance.metadata.x00281050 as number;
+    data.default.voi.windowWidth = instance.metadata.x00281051 as number;
+  }
   if (renderOptions.voi !== undefined) {
     if (!data.viewport) {
       data.viewport = { voi: {} };
@@ -1687,22 +1703,13 @@ const getSeriesDataFromStore = function (
     if (renderOptions.default.rotation !== undefined) {
       data.default.rotation = renderOptions.default.rotation;
     }
-    const instance: Instance | null = data.imageId
-      ? series.instances[data.imageId]
-      : null;
-
-    if (instance) {
+    if (renderOptions.default.voi !== undefined) {
       if (!data.default.voi) {
         data.default.voi = { windowCenter: 0, windowWidth: 0 };
       }
-      data.default.voi.windowCenter =
-        renderOptions.default.voi !== undefined
-          ? renderOptions.default.voi.windowCenter
-          : (instance.metadata.x00281050 as number);
-      data.default.voi.windowWidth =
-        renderOptions.default.voi !== undefined
-          ? renderOptions.default.voi.windowWidth
-          : (instance.metadata.x00281051 as number);
+      data.default.voi.windowCenter = renderOptions.default.voi.windowCenter;
+
+      data.default.voi.windowWidth = renderOptions.default.voi.windowWidth;
     }
   }
 
