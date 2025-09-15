@@ -647,23 +647,27 @@ export const renderImage = function (
 
   let series = { ...seriesStack };
   const renderOptions = options ? options : {};
-  let imageIndex = 0;
-  if (series.isMultiframe || series.is4D) {
-    imageIndex =
-      renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0
-        ? renderOptions.imageIndex
-        : 0;
-  } else {
-    imageIndex =
-      renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0 // slice number between 0 and n-1
-        ? renderOptions.imageIndex
-        : Math.floor(series.imageIds.length / 2);
-  }
+  // Determine the index of the image to render
+  const imageIndex =
+    // If renderOptions.imageIndex is provided and valid (>= 0), use it
+    renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0
+      ? renderOptions.imageIndex
+      : // Otherwise, if the series is multiframe or 4D, default to the first frame (index 0)
+        series.isMultiframe || series.is4D
+        ? 0
+        : // Otherwise, for regular 2D image stacks, pick the middle image as default
+          Math.floor(series.imageIds.length / 2);
+
+  // Get the imageId corresponding to the chosen imageIndex
   const imageId = series.imageIds[imageIndex];
   if (!imageId) {
+    // If the imageId is missing (not yet loaded in memory),
+    // log a warning and reject the rendering process.
     logger.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) => {
+      // Mark this slice as pending in the store, so it can be retried once loaded.
       setStore(["pendingSliceId", id, imageIndex]);
+      // Reject the promise to signal that rendering cannot proceed.
       reject("error during renderImage: imageId has not been loaded yet.");
     });
   }
@@ -809,15 +813,15 @@ export const renderImage = function (
         // Note: Not all images have the same VOI values, so this update is needed
         // even when the uniqueUID hasn't changed but the slice has changed.
         else {
-          viewport.voi!.windowWidth =
-            data.default?.voi?.windowWidth || image.windowWidth;
-          viewport.voi!.windowCenter =
-            data.default?.voi?.windowCenter || image.windowCenter;
-          logger.debug(
-            "updating cornerstone viewport with default voi values: ",
-            viewport.voi!.windowWidth,
-            viewport.voi!.windowCenter
-          );
+          // viewport.voi!.windowWidth =
+          //   data.default?.voi?.windowWidth || image.windowWidth;
+          // viewport.voi!.windowCenter =
+          //   data.default?.voi?.windowCenter || image.windowCenter;
+          // logger.debug(
+          //   "updating cornerstone viewport with default voi values: ",
+          //   viewport.voi!.windowWidth,
+          //   viewport.voi!.windowCenter
+          // );
         }
 
         if (isAnisotropic(id)) {
@@ -1612,9 +1616,9 @@ const getSeriesData = function (
 };
 
 /**
- * Get series metadata from default props or larvitar store
+ * Get series metadata from store and override with default props
  * @instance
- * @function getSeriesData
+ * @function getSeriesDataFromStore
  * @param {string} elementId - The viewport id
  * @param {Series} series - The parsed data series
  * @param {RenderProps} renderOptions - Optional default properties
@@ -1637,13 +1641,8 @@ const getSeriesDataFromStore = function (
       `No viewport data found in store for element: ${elementId}`
     );
   }
-  if (!storedData) {
-    throw new Error(
-      `No viewport data found in store for element: ${elementId}`
-    );
-  }
 
-  const data: RecursivePartial<SeriesData> = { ...storedData } as any;
+  const data: RecursivePartial<SeriesData> = { ...storedData };
 
   if (renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0) {
     data.imageIndex = renderOptions.imageIndex;
