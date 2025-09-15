@@ -804,6 +804,22 @@ export const renderImage = function (
             `updating cornerstone viewport with custom contrast values: ${renderOptions.voi.windowWidth}, ${renderOptions.voi.windowCenter}`
           );
         }
+        // Update the viewport VOI values with the default values from the series
+        // if the VOI is not defined in the renderOptions.
+        // Note: Not all images have the same VOI values, so this update is needed
+        // even when the uniqueUID hasn't changed but the slice has changed.
+        else {
+          viewport.voi!.windowWidth =
+            data.default?.voi?.windowWidth || image.windowWidth;
+          viewport.voi!.windowCenter =
+            data.default?.voi?.windowCenter || image.windowCenter;
+          logger.debug(
+            "updating cornerstone viewport with default voi values: ",
+            viewport.voi!.windowWidth,
+            viewport.voi!.windowCenter
+          );
+        }
+
         if (isAnisotropic(id)) {
           viewport.displayedArea = getAnisotropicDisplayedArea(id, viewport)!;
         }
@@ -833,21 +849,8 @@ export const renderImage = function (
               viewport.rotation
             );
           }
-          // if the uniqueUID has changed, update the viewport voi values
-          // with the default values from the series
-          // if the voi is not defined in the renderOptions
-          if (renderOptions.voi === undefined) {
-            viewport.voi!.windowWidth =
-              data.default?.voi?.windowWidth || image.windowWidth;
-            viewport.voi!.windowCenter =
-              data.default?.voi?.windowCenter || image.windowCenter;
-            logger.debug(
-              "updating cornerstone viewport with default voi values: ",
-              viewport.voi!.windowWidth,
-              viewport.voi!.windowCenter
-            );
-          }
         }
+
         cornerstone.setViewport(element, viewport);
 
         // set the optional custom color map
@@ -1640,7 +1643,7 @@ const getSeriesDataFromStore = function (
     );
   }
 
-  const data: RecursivePartial<SeriesData> = { ...storedData };
+  const data: RecursivePartial<SeriesData> = { ...storedData } as any;
 
   if (renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0) {
     data.imageIndex = renderOptions.imageIndex;
