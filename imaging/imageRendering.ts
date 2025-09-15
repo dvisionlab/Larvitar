@@ -833,20 +833,21 @@ export const renderImage = function (
               viewport.rotation
             );
           }
-          // if the uniqueUID has changed, update the viewport voi values
-          // with the default values from the series
-          // if the voi is not defined in the renderOptions
-          if (renderOptions.voi === undefined) {
-            viewport.voi!.windowWidth =
-              data.default?.voi?.windowWidth || image.windowWidth;
-            viewport.voi!.windowCenter =
-              data.default?.voi?.windowCenter || image.windowCenter;
-            logger.debug(
-              "updating cornerstone viewport with default voi values: ",
-              viewport.voi!.windowWidth,
-              viewport.voi!.windowCenter
-            );
-          }
+        }
+        //update the viewport voi values
+        // with the default values from the series
+        // if the voi is not defined in the renderOptions
+
+        if (renderOptions.voi === undefined) {
+          viewport.voi!.windowWidth =
+            data.default?.voi?.windowWidth || image.windowWidth;
+          viewport.voi!.windowCenter =
+            data.default?.voi?.windowCenter || image.windowCenter;
+          logger.debug(
+            "updating cornerstone viewport with default voi values: ",
+            viewport.voi!.windowWidth,
+            viewport.voi!.windowCenter
+          );
         }
         cornerstone.setViewport(element, viewport);
 
