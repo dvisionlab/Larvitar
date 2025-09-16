@@ -813,15 +813,35 @@ export const renderImage = function (
         // Note: Not all images have the same VOI values, so this update is needed
         // even when the uniqueUID hasn't changed but the slice has changed.
         else {
-          // viewport.voi!.windowWidth =
-          //   data.default?.voi?.windowWidth || image.windowWidth;
-          // viewport.voi!.windowCenter =
-          //   data.default?.voi?.windowCenter || image.windowCenter;
-          // logger.debug(
-          //   "updating cornerstone viewport with default voi values: ",
-          //   viewport.voi!.windowWidth,
-          //   viewport.voi!.windowCenter
-          // );
+          const lastStoredDefaultVoi = store.get([
+            "viewports",
+            id,
+            "default",
+            "voi"
+          ]);
+
+          // Check if the current viewport VOI is still the default one.
+          // If lastStoredDefaultVoi doesn't exist (e.g., first render), treat as unchanged.
+          const isVoiUnchangedByUser = lastStoredDefaultVoi
+            ? viewport.voi?.windowWidth === lastStoredDefaultVoi.windowWidth &&
+              viewport.voi?.windowCenter === lastStoredDefaultVoi.windowCenter
+            : true;
+
+          // If the VOI is unchanged, it means the user hasn't manually adjusted it.
+          // In this case, we apply the default VOI of the NEW image slice.
+          if (isVoiUnchangedByUser) {
+            viewport.voi!.windowWidth =
+              data.default?.voi?.windowWidth || image.windowWidth;
+            viewport.voi!.windowCenter =
+              data.default?.voi?.windowCenter || image.windowCenter;
+            logger.debug(
+              "Updating with new image's default VOI: ",
+              viewport.voi!.windowWidth,
+              viewport.voi!.windowCenter
+            );
+          } else {
+            logger.debug("VOI was manually changed. Preserving custom VOI.");
+          }
         }
 
         if (isAnisotropic(id)) {
