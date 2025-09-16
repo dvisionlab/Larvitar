@@ -31,6 +31,11 @@ import { resetPixelShift, setPixelShift } from "./loaders/dsaImageLoader";
 import { ViewportComplete } from "./tools/types";
 import { applyConvolutionFilter } from "./postProcessing/applyKernel";
 
+type RecursivePartial<T> = {
+  [P in keyof T]?: RecursivePartial<T[P]>;
+};
+type SeriesData = StoreViewport;
+
 /*
  * This module provides the following functions to be exported:
  * clearImageCache(seriesId)
@@ -1505,10 +1510,6 @@ const getSeriesData = function (
   series: Series,
   renderOptions: RenderProps
 ): StoreViewport {
-  type RecursivePartial<T> = {
-    [P in keyof T]?: RecursivePartial<T[P]>;
-  };
-  type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
   data.uniqueUID = series.uniqueUID || series.seriesUID; //case of resliced series
   data.modality = series.modality;
@@ -1649,28 +1650,24 @@ const getSeriesDataFromStore = function (
   series: Series,
   renderOptions: RenderProps = {}
 ): StoreViewport {
-  type RecursivePartial<T> = {
-    [P in keyof T]?: RecursivePartial<T[P]>;
-  };
-  type SeriesData = StoreViewport;
+  const data = store.get([
+    "viewports",
+    elementId
+  ]) as RecursivePartial<SeriesData>;
 
-  const storedData = store.get(["viewports", elementId]) as StoreViewport;
-
-  if (!storedData) {
+  if (!data) {
     throw new Error(
       `No viewport data found in store for element: ${elementId}`
     );
   }
 
-  const data: RecursivePartial<SeriesData> = { ...storedData };
-
   if (renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0) {
     data.imageIndex = renderOptions.imageIndex;
   } else {
-    data.imageIndex = storedData.sliceId;
+    data.imageIndex = data.sliceId;
   }
 
-  data.imageId = series.imageIds[data.imageIndex];
+  data.imageId = series.imageIds[data.imageIndex!];
   if (data.timeId !== undefined) {
     data.timeIndex = data.timeId;
   }
