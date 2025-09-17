@@ -81,7 +81,7 @@ const convolve = function (
       }
     }
 
-    return convolvedPixel;
+    return convolvedPixel < 0 ? 0 : convolvedPixel;
   };
 
   const convolvedPixelData = new typedArrayConstructor(pixelData.length);
