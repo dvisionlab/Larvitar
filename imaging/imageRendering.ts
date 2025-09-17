@@ -31,6 +31,11 @@ import { resetPixelShift, setPixelShift } from "./loaders/dsaImageLoader";
 import { ViewportComplete } from "./tools/types";
 import { applyConvolutionFilter } from "./postProcessing/applyKernel";
 
+type RecursivePartial<T> = {
+  [P in keyof T]?: RecursivePartial<T[P]>;
+};
+type SeriesData = StoreViewport;
+
 /*
  * This module provides the following functions to be exported:
  * clearImageCache(seriesId)
@@ -647,25 +652,43 @@ export const renderImage = function (
 
   let series = { ...seriesStack };
   const renderOptions = options ? options : {};
-  let data: StoreViewport = getSeriesData(series, renderOptions);
-  logger.debug(`Rendering imageIndex: ${data.imageIndex}`);
+  // Determine the index of the image to render
+  const imageIndex =
+    // If renderOptions.imageIndex is provided and valid (>= 0), use it
+    renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0
+      ? renderOptions.imageIndex
+      : // Otherwise, if the series is multiframe or 4D, default to the first frame (index 0)
+        series.isMultiframe || series.is4D
+        ? 0
+        : // Otherwise, for regular 2D image stacks, pick the middle image as default
+          Math.floor(series.imageIds.length / 2);
 
-  if (!data.imageId) {
+  // Get the imageId corresponding to the chosen imageIndex
+  const imageId = series.imageIds[imageIndex];
+  if (!imageId) {
+    // If the imageId is missing (not yet loaded in memory),
+    // log a warning and reject the rendering process.
     logger.warn("error during renderImage: imageId has not been loaded yet.");
     return new Promise((_, reject) => {
-      setStore(["pendingSliceId", id, data.imageIndex]);
+      // Mark this slice as pending in the store, so it can be retried once loaded.
+      setStore(["pendingSliceId", id, imageIndex]);
+      // Reject the promise to signal that rendering cannot proceed.
       reject("error during renderImage: imageId has not been loaded yet.");
     });
   }
-
+  logger.debug(`Rendering imageIndex: ${imageIndex}`);
+  const uniqueUID = series.uniqueUID || series.seriesUID;
   // this by default is the uniqueId of the rendered stack
   const storedUniqueUID = store.get(["viewports", id, "uniqueUID"]);
-  const isUniqueUIDChanged = storedUniqueUID !== data.uniqueUID;
+  const isUniqueUIDChanged = storedUniqueUID !== uniqueUID;
+
   if (isUniqueUIDChanged) {
-    logger.debug(
-      `uniqueUID changed from ${storedUniqueUID} to ${data.uniqueUID}`
-    );
+    logger.debug(`uniqueUID changed from ${storedUniqueUID} to ${uniqueUID}`);
   }
+
+  let data: StoreViewport = isUniqueUIDChanged
+    ? getSeriesData(series, renderOptions)
+    : getSeriesDataFromStore(id, series, renderOptions);
 
   // DSA ALGORITHM OPTIONS
   const dsaEnabled = store.get(["viewports", id, "isDSAEnabled"]);
@@ -790,6 +813,42 @@ export const renderImage = function (
             `updating cornerstone viewport with custom contrast values: ${renderOptions.voi.windowWidth}, ${renderOptions.voi.windowCenter}`
           );
         }
+        // Update the viewport VOI values with the default values from the series
+        // if the VOI is not defined in the renderOptions.
+        // Note: Not all images have the same VOI values, so this update is needed
+        // even when the uniqueUID hasn't changed but the slice has changed.
+        else {
+          const lastStoredDefaultVoi = store.get([
+            "viewports",
+            id,
+            "default",
+            "voi"
+          ]);
+
+          // Check if the current viewport VOI is still the default one.
+          // If lastStoredDefaultVoi doesn't exist (e.g., first render), treat as unchanged.
+          const isVoiUnchangedByUser = lastStoredDefaultVoi
+            ? viewport.voi?.windowWidth === lastStoredDefaultVoi.windowWidth &&
+              viewport.voi?.windowCenter === lastStoredDefaultVoi.windowCenter
+            : true;
+
+          // If the VOI is unchanged, it means the user hasn't manually adjusted it.
+          // In this case, we apply the default VOI of the NEW image slice.
+          if (isVoiUnchangedByUser) {
+            viewport.voi!.windowWidth =
+              data.default?.voi?.windowWidth || image.windowWidth;
+            viewport.voi!.windowCenter =
+              data.default?.voi?.windowCenter || image.windowCenter;
+            logger.debug(
+              "Updating with new image's default VOI: ",
+              viewport.voi!.windowWidth,
+              viewport.voi!.windowCenter
+            );
+          } else {
+            logger.debug("VOI was manually changed. Preserving custom VOI.");
+          }
+        }
+
         if (isAnisotropic(id)) {
           viewport.displayedArea = getAnisotropicDisplayedArea(id, viewport)!;
         }
@@ -819,21 +878,8 @@ export const renderImage = function (
               viewport.rotation
             );
           }
-          // if the uniqueUID has changed, update the viewport voi values
-          // with the default values from the series
-          // if the voi is not defined in the renderOptions
-          if (renderOptions.voi === undefined) {
-            viewport.voi!.windowWidth =
-              data.default?.voi?.windowWidth || image.windowWidth;
-            viewport.voi!.windowCenter =
-              data.default?.voi?.windowCenter || image.windowCenter;
-            logger.debug(
-              "updating cornerstone viewport with default voi values: ",
-              viewport.voi!.windowWidth,
-              viewport.voi!.windowCenter
-            );
-          }
         }
+
         cornerstone.setViewport(element, viewport);
 
         // set the optional custom color map
@@ -1464,10 +1510,6 @@ const getSeriesData = function (
   series: Series,
   renderOptions: RenderProps
 ): StoreViewport {
-  type RecursivePartial<T> = {
-    [P in keyof T]?: RecursivePartial<T[P]>;
-  };
-  type SeriesData = StoreViewport;
   const data: RecursivePartial<SeriesData> = {};
   data.uniqueUID = series.uniqueUID || series.seriesUID; //case of resliced series
   data.modality = series.modality;
@@ -1589,6 +1631,105 @@ const getSeriesData = function (
     }
   } else {
     logger.warn(`ImageId not found in imageIds with index ${data.imageIndex}.`);
+  }
+
+  return data as SeriesData;
+};
+
+/**
+ * Get series metadata from store and override with default props
+ * @instance
+ * @function getSeriesDataFromStore
+ * @param {string} elementId - The viewport id
+ * @param {Series} series - The parsed data series
+ * @param {RenderProps} renderOptions - Optional default properties
+ * @return {StoreViewport} data - A data dictionary with parsed tags' values
+ */
+const getSeriesDataFromStore = function (
+  elementId: string,
+  series: Series,
+  renderOptions: RenderProps = {}
+): StoreViewport {
+  const data = store.get([
+    "viewports",
+    elementId
+  ]) as RecursivePartial<SeriesData>;
+
+  if (!data) {
+    throw new Error(
+      `No viewport data found in store for element: ${elementId}`
+    );
+  }
+
+  if (renderOptions.imageIndex !== undefined && renderOptions.imageIndex >= 0) {
+    data.imageIndex = renderOptions.imageIndex;
+  } else {
+    data.imageIndex = data.sliceId;
+  }
+
+  data.imageId = series.imageIds[data.imageIndex!];
+  if (data.timeId !== undefined) {
+    data.timeIndex = data.timeId;
+  }
+  if (data.maxSliceId !== undefined) {
+    if (data.isTimeserie && data.numberOfTemporalPositions !== undefined) {
+      data.numberOfSlices =
+        (data.maxSliceId + 1) / data.numberOfTemporalPositions;
+    } else {
+      data.numberOfSlices = data.maxSliceId + 1;
+    }
+  }
+  const instance = data.imageId ? series.instances[data.imageId] : null;
+
+  if (instance) {
+    if (!data.default) {
+      data.default = {};
+    }
+    if (!data.default.voi) {
+      data.default.voi = { windowCenter: 0, windowWidth: 0 };
+    }
+    data.default.voi.windowCenter = instance.metadata.x00281050 as number;
+    data.default.voi.windowWidth = instance.metadata.x00281051 as number;
+  }
+  if (renderOptions.voi !== undefined) {
+    if (!data.viewport) {
+      data.viewport = { voi: {} };
+    }
+    if (!data.viewport.voi) {
+      data.viewport.voi = {};
+    }
+    data.viewport.voi.windowCenter = renderOptions.voi.windowCenter;
+    data.viewport.voi.windowWidth = renderOptions.voi.windowWidth;
+  }
+
+  if (renderOptions.default !== undefined) {
+    if (!data.default) {
+      data.default = {};
+    }
+
+    if (renderOptions.default.scale !== undefined) {
+      data.default.scale = renderOptions.default.scale;
+    }
+
+    if (renderOptions.default.translation !== undefined) {
+      if (!data.default.translation) {
+        data.default.translation = { x: 0, y: 0 };
+      }
+      data.default.translation.x = renderOptions.default.translation.x;
+      data.default.translation.y = renderOptions.default.translation.y;
+    }
+
+    if (renderOptions.default.rotation !== undefined) {
+      data.default.rotation = renderOptions.default.rotation;
+    }
+    if (renderOptions.default.voi !== undefined) {
+      if (!data.default.voi) {
+        data.default.voi = { windowCenter: 0, windowWidth: 0 };
+      }
+      data.default.voi.windowCenter = renderOptions.default.voi.windowCenter;
+
+      data.default.voi.windowWidth = renderOptions.default.voi.windowWidth;
+    }
   }
 
   return data as SeriesData;
