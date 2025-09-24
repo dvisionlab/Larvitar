@@ -1,4 +1,4 @@
-import { getMinMaxPixelValue } from "../imageUtils";
+import { getMinMaxPixelValue, getMinPixelValue } from "../imageUtils";
 import {
   Image,
   TypedArray,
@@ -59,17 +59,36 @@ const convolve = function (
 ): TypedArray {
   const typedArrayConstructor = getTypedArrayConstructor(imageFrame.pixelData);
   const pixelData = imageFrame.pixelData;
-
+  const { width, height } = imageFrame;
+  const minPixelValue = getMinPixelValue(pixelData);
   const origin = Math.floor(kernel.length / 2);
 
   const getPixel = (x: number, y: number) => {
     x -= origin;
     y -= origin;
 
-    x = Math.max(0, Math.min(x, imageFrame.width - 1));
-    y = Math.max(0, Math.min(y, imageFrame.height - 1));
+    x = Math.max(0, Math.min(x, width - 1));
+    y = Math.max(0, Math.min(y, height - 1));
 
-    return pixelData[x + y * imageFrame.width];
+    return pixelData[x + y * width];
+  };
+
+  const isAdjacentToBackground = (cx: number, cy: number): boolean => {
+    for (let i = -origin; i <= origin; i++) {
+      for (let j = -origin; j <= origin; j++) {
+        if (i === 0 && j === 0) continue;
+
+        const nx = cx + j;
+        const ny = cy + i;
+
+        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+          if (pixelData[nx + ny * width] === minPixelValue) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   };
 
   const getConvolvedPixel = (x: number, y: number) => {
@@ -81,18 +100,33 @@ const convolve = function (
       }
     }
 
-    return convolvedPixel < 0 ? 0 : convolvedPixel;
+    return convolvedPixel <= 0 ? getPixel(x, y) : convolvedPixel;
   };
 
   const convolvedPixelData = new typedArrayConstructor(pixelData.length);
 
-  for (let y = 0; y < imageFrame.height; y++) {
-    for (let x = 0; x < imageFrame.width; x++) {
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const index = x + y * width;
+      const originalPixel = pixelData[index];
+
+      const isEdge =
+        x < origin || x >= width - origin || y < origin || y >= height - origin;
+
+      if (
+        originalPixel === minPixelValue ||
+        isEdge ||
+        isAdjacentToBackground(x, y)
+      ) {
+        convolvedPixelData[index] = originalPixel;
+        continue;
+      }
+
       let pixel = getConvolvedPixel(x, y);
 
       pixel = Math.max(Math.min(pixel, 32767), -32768);
 
-      convolvedPixelData[x + y * imageFrame.width] = pixel;
+      convolvedPixelData[index] = pixel;
     }
   }
 
