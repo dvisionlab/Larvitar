@@ -73,7 +73,7 @@ addCustomKernel(name: string, config: KernelConfig): void
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `name` | `string` | A unique name to identify the new kernel. |
-| `config` | `KernelConfig` | An object with the kernel's configuration: `{ Label: string, Size: number, Kernel: number[][] }`. |
+| `config` | `KernelConfig` | An object with the kernel's configuration: `{ label: string, size: number, kernel: number[][] }`. |
 
 #### Returns
 
@@ -84,9 +84,9 @@ addCustomKernel(name: string, config: KernelConfig): void
 ```typescript
 // Define a 3x3 sharpening kernel
 const sharpenConfig = {
-  Label: "Sharpen 3x3",
-  Size: 3,
-  Kernel: [
+  label: "Sharpen 3x3",
+  size: 3,
+  kernel: [
     [0, -1, 0],
     [-1, 5, -1],
     [0, -1, 0]
