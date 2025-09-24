@@ -373,9 +373,9 @@ type contrast = { windowCenter: number; windowWidth: number };
 type translation = { x: number; y: number };
 
 export type KernelConfig = {
-  Label: string;
-  Size: number;
-  Kernel: number[][];
+  label: string;
+  size: number;
+  kernel: number[][];
 };
 export type FilterImageFrame = {
   width: number;

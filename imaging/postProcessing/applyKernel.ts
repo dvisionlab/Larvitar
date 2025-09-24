@@ -1,4 +1,4 @@
-import { getMinMaxPixelValue } from "../imageUtils";
+import { getMinMaxPixelValue, getMinPixelValue } from "../imageUtils";
 import {
   Image,
   TypedArray,
@@ -60,7 +60,7 @@ const convolve = function (
   const typedArrayConstructor = getTypedArrayConstructor(imageFrame.pixelData);
   const pixelData = imageFrame.pixelData;
   const { width, height } = imageFrame;
-
+  const minPixelValue = getMinPixelValue(pixelData);
   const origin = Math.floor(kernel.length / 2);
 
   const getPixel = (x: number, y: number) => {
@@ -82,7 +82,7 @@ const convolve = function (
         const ny = cy + i;
 
         if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-          if (pixelData[nx + ny * width] === 0) {
+          if (pixelData[nx + ny * width] === minPixelValue) {
             return true;
           }
         }
@@ -113,7 +113,11 @@ const convolve = function (
       const isEdge =
         x < origin || x >= width - origin || y < origin || y >= height - origin;
 
-      if (originalPixel === 0 || isEdge || isAdjacentToBackground(x, y)) {
+      if (
+        originalPixel === minPixelValue ||
+        isEdge ||
+        isAdjacentToBackground(x, y)
+      ) {
         convolvedPixelData[index] = originalPixel;
         continue;
       }
@@ -140,14 +144,14 @@ export const addCustomKernel = function (
   name: string,
   config: KernelConfig
 ): void {
-  if (!config.Kernel || !Array.isArray(config.Kernel)) {
+  if (!config.kernel || !Array.isArray(config.kernel)) {
     throw new Error("Kernel must be a 2D array");
   }
 
   CONVOLUTION_KERNELS[name] = {
-    Label: config.Label,
-    Size: config.Size,
-    Kernel: config.Kernel
+    label: config.label,
+    size: config.size,
+    kernel: config.kernel
   };
 };
 
@@ -184,7 +188,7 @@ export const applyConvolutionFilter = function (
     pixelData: pixelData
   };
 
-  const kernel = CONVOLUTION_KERNELS[filterName].Kernel;
+  const kernel = CONVOLUTION_KERNELS[filterName].kernel;
   const filteredPixelArray = convolve(imageFrame, kernel);
   const filteredImage = createFilteredImage(
     loadedImage,
