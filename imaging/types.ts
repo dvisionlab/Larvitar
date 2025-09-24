@@ -385,10 +385,10 @@ type contrast = { windowCenter: number; windowWidth: number };
 type translation = { x: number; y: number };
 
 export type KernelConfig = {
-  Label: string;
-  Size: number;
-  Kernel: number[][];
-  Modality?: string[];
+  label: string;
+  size: number;
+  kernel: number[][];
+  modality?: string[];
 };
 export type FilterImageFrame = {
   width: number;
