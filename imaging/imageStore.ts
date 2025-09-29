@@ -504,6 +504,9 @@ export default {
   setImageFilter: (elementId: string, filterName: string) => {
     set(["filterName", elementId, filterName]);
   },
+  setCamera: (elementId: string, camera: ICamera) => {
+    set(["camera", elementId, camera]);
+  },
   resetActiveTools() {
     STORE!.leftActiveTool = undefined;
     STORE!.rightActiveTool = undefined;
