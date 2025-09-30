@@ -219,7 +219,7 @@ export const createFilteredImage = function (
     rows: loadedImage.rows,
     width: loadedImage.width,
     height: loadedImage.height,
-    imageId: loadedImage.imageId + "_filtered",
+    imageId: loadedImage.imageId + "_" + (filterName ?? "filtered"),
     maxPixelValue,
     minPixelValue,
     windowWidth: loadedImage.windowWidth,
@@ -329,7 +329,7 @@ export const applyGaussianBlur = function (
   return createFilteredImage(
     loadedImage,
     filteredPixelArray,
-    "gaussian" + kernelSize + "_strength" + strength
+    "gaussian_kernelSize" + kernelSize + "_strength" + strength
   );
 };
 
@@ -361,6 +361,6 @@ export const applySharpening = function (
   return createFilteredImage(
     loadedImage,
     filteredPixelArray,
-    "sharpen" + kernelSize + "_strength" + strength
+    "sharpen_kernelSize" + kernelSize + "_strength" + strength
   );
 };
