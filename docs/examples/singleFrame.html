@@ -70,88 +70,57 @@
   </head>
 
   <body class="h-100" style="background-color: #000000">
-    <div class="row h-50">
-      <div
-        id="viewer-1"
-        class="col-6 h-100"
-        style="background-color: black"
-      ></div>
-      <div
-        id="viewer-2"
-        class="col-6 h-100"
-        style="background-color: black"
-      ></div>
-      <div class="row h-25 m-0">
-        <div id="ecg - viewer-1" class="col-6 h-100 p-0"></div>
-        <div id="ecg - viewer-2" class="col-6 h-100 p-0"></div>
-      </div>
-      <button
-        id="showCodeBtn"
-        class="open-button"
-        style="position: absolute; top: 10px"
-      >
-        Show Code
-      </button>
+    <div id="viewer-1" class="h-100" style="background-color: black"></div>
 
-      <!-- Modal -->
-      <div
-        class="modal fade"
-        id="codeModal"
-        tabindex="-1"
-        aria-labelledby="codeModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="modal-body">
-              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-            </div>
-            <div class="modal-footer">
-              <button id="copyCodeBtn" class="btn btn-success">
-                Copy Code
-              </button>
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-            </div>
+    <div class="row h-25 m-0">
+      <div id="ecg - viewer-1" class="col-6 h-100 p-0"></div>
+    </div>
+    <button
+      id="showCodeBtn"
+      class="open-button"
+      style="position: absolute; top: 10px"
+    >
+      Show Code
+    </button>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="codeModal"
+      tabindex="-1"
+      aria-labelledby="codeModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+          </div>
+          <div class="modal-footer">
+            <button id="copyCodeBtn" class="btn btn-success">Copy Code</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>
-
-      <!-- Spinner icon -->
-      <div id="spinner"></div>
     </div>
 
-    <div class="row h-50">
-      <div
-        id="viewer-3"
-        class="col-4 h-100"
-        style="background-color: black"
-      ></div>
-      <div
-        id="viewer-4"
-        class="col-4 h-100"
-        style="background-color: black"
-      ></div>
-      <div
-        id="viewer-5"
-        class="col-4 h-100"
-        style="background-color: black"
-      ></div>
-    </div>
+    <!-- Spinner icon -->
+    <div id="spinner"></div>
 
     <script>
       const spinner = document.getElementById("spinner");
@@ -174,10 +143,6 @@
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer-1");
-      larvitar.store.addViewport("viewer-2");
-      larvitar.store.addViewport("viewer-3");
-      larvitar.store.addViewport("viewer-4");
-      larvitar.store.addViewport("viewer-5");
 
       // set log level to debug
       larvitar.setLogLevel("debug");
@@ -191,22 +156,14 @@
       const qidoPrefix = "qidors/";
 
       /* STRESS ECHO 5 IMAGES */
-      const patientID = "TEST_FIVEMF_STRESS";
-      const studyID =
-        "1.2.826.0.1.3680043.2.97.4.2017.1247782231.250207090009398";
+      const patientID = "PW-OCT1";
+      const studyID = "2.16.840.1.114432.2.25.1.7.14.41.4.118.210.7.2";
       const seriesInstanceUID =
-        "1.2.826.0.1.3680043.2.97.4.2017.1044975747.250207090029960";
+        "2.16.840.1.114432.2.25.1.7.14.48.10.232.116.11.1";
 
       const instanceUID_1 =
-        "1.2.826.0.1.3680043.2.97.19529.21573.851230414.250207090046713";
-      const instanceUID_2 =
-        "1.2.826.0.1.3680043.2.97.19529.21573.486881842.250207090047588";
-      const instanceUID_3 =
-        "1.2.826.0.1.3680043.2.97.19529.21573.1383892180.2502070900458070";
-      const instanceUID_4 =
-        "1.2.826.0.1.3680043.2.97.19529.21573.4271180931.2502070900450260";
-      const instanceUID_5 =
-        "1.2.826.0.1.3680043.2.97.19529.21573.1888853007.2502070900482760";
+        "2.16.840.1.114432.2.25.1.7.14.48.10.6.106.79.0.0.375";
+
       /* END STRESS ECHO 5 IMAGES */
 
       /* XA 2 IMAGES */
@@ -284,6 +241,7 @@
         const imageManager = larvitar.getImageManager();
         const dicomSerie = imageManager[instanceUID];
         const t0 = performance.now();
+        console.log(dicomSerie);
         larvitar
           .renderImage(dicomSerie, canvasId, {
             cached: true,
@@ -303,12 +261,9 @@
             // cine LOOP
             if (frameId === 0) {
               larvitar.addDefaultTools("viewer-1");
-              larvitar.addDefaultTools("viewer-2");
-              larvitar.addDefaultTools("viewer-3");
-              larvitar.addDefaultTools("viewer-4");
-              larvitar.addDefaultTools("viewer-5");
+
               //larvitar.addDefaultTools(canvasId);
-              larvitar.setToolActive("StackScroll");
+              larvitar.setToolActive("Wwwl");
               if (AUTO_PLAY === true) {
                 frameId++;
                 const frameRate =
@@ -380,10 +335,6 @@
           metadata[data.instanceUID] = data;
         });
         cacheFrames(instanceUID_1, metadata[instanceUID_1], "viewer-1");
-        cacheFrames(instanceUID_2, metadata[instanceUID_2], "viewer-2");
-        cacheFrames(instanceUID_3, metadata[instanceUID_3], "viewer-3");
-        cacheFrames(instanceUID_4, metadata[instanceUID_4], "viewer-4");
-        cacheFrames(instanceUID_5, metadata[instanceUID_5], "viewer-5");
       })();
 
       const renderSeriesECG = function (

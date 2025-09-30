@@ -174,11 +174,11 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
       };
     }
   }
-
+  const myUint8Array = new Uint8Array(pixelData);
   const decodePromise = cornerstoneDICOMImageLoader.decodeImageFrame(
     imageFrame,
     transferSyntax,
-    pixelData,
+    myUint8Array,
     canvas,
     options
   );
@@ -302,7 +302,9 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
         image.minPixelValue === undefined ||
         image.maxPixelValue === undefined
       ) {
-        let minMax = cornerstoneDICOMImageLoader.getMinMax(pixelData);
+        let minMax = cornerstoneDICOMImageLoader.getMinMax(
+          imageFrame.pixelData
+        );
         image.minPixelValue = minMax.min;
         image.maxPixelValue = minMax.max;
       }
