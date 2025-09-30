@@ -192,7 +192,8 @@ export const applyConvolutionFilter = function (
   const filteredPixelArray = convolve(imageFrame, kernel);
   const filteredImage = createFilteredImage(
     loadedImage,
-    filteredPixelArray as unknown as number[]
+    filteredPixelArray as unknown as number[],
+    filterName
   );
   return generateImage ? filteredImage : filteredPixelArray;
 };
@@ -206,7 +207,8 @@ export const applyConvolutionFilter = function (
  */
 export const createFilteredImage = function (
   loadedImage: Image,
-  filteredPixelArray: number[]
+  filteredPixelArray: number[],
+  filterName?: string
 ): Partial<Image> {
   const { minPixelValue, maxPixelValue } =
     getMinMaxPixelValue(filteredPixelArray);
@@ -217,7 +219,7 @@ export const createFilteredImage = function (
     rows: loadedImage.rows,
     width: loadedImage.width,
     height: loadedImage.height,
-    imageId: new Date().toISOString(),
+    imageId: loadedImage.imageId + "_filtered",
     maxPixelValue,
     minPixelValue,
     windowWidth: loadedImage.windowWidth,
@@ -324,7 +326,11 @@ export const applyGaussianBlur = function (
     imageFrame,
     kernel
   ) as unknown as number[];
-  return createFilteredImage(loadedImage, filteredPixelArray);
+  return createFilteredImage(
+    loadedImage,
+    filteredPixelArray,
+    "gaussian" + kernelSize + "_strength" + strength
+  );
 };
 
 /**
@@ -352,5 +358,9 @@ export const applySharpening = function (
     imageFrame,
     kernel
   ) as unknown as number[];
-  return createFilteredImage(loadedImage, filteredPixelArray);
+  return createFilteredImage(
+    loadedImage,
+    filteredPixelArray,
+    "sharpen" + kernelSize + "_strength" + strength
+  );
 };
