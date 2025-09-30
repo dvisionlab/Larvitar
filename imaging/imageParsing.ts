@@ -115,7 +115,11 @@ export const convertQidoMetadata = function (data: any): MetaData {
       }
 
       if (value && value.InlineBinary) {
-        value = value.InlineBinary;
+        if (value.vr === "OW") {
+          value = inlineBinaryToUint16Array(value.InlineBinary);
+        } else {
+          value = inlineBinaryToUint8Array(value.InlineBinary);
+        }
       }
 
       // check if value is a sequence and fill with values
@@ -538,7 +542,40 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
 
   return metadataReadable;
 };
+/**
+ * @instance
+ * @function inlineBinaryToUint16Array
+ * @param {string} inlineBinary - inline binary base64 string
+ * @returns {Uint16Array}
+ */
+function inlineBinaryToUint16Array(inlineBinary: string) {
+  const binaryStr = atob(inlineBinary);
 
+  const buf = new ArrayBuffer(binaryStr.length);
+  const view = new Uint8Array(buf);
+  for (let i = 0; i < binaryStr.length; i++) {
+    view[i] = binaryStr.charCodeAt(i);
+  }
+
+  return new Uint16Array(buf);
+}
+/**
+ * @instance
+ * @function inlineBinaryToUint8Array
+ * @param {string} inlineBinary - inline binary base64 string
+ * @returns {Uint8Array}
+ */
+function inlineBinaryToUint8Array(inlineBinary: string): Uint8Array {
+  const binaryStr = atob(inlineBinary);
+
+  const buf = new ArrayBuffer(binaryStr.length);
+  const view = new Uint8Array(buf);
+  for (let i = 0; i < binaryStr.length; i++) {
+    view[i] = binaryStr.charCodeAt(i);
+  }
+
+  return new Uint8Array(buf);
+}
 /**
  * @instance
  * @function parseSequence
