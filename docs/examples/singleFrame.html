@@ -182,7 +182,7 @@
       const qidoUrl = `${pacsURL}${qidoPrefix}instances?SeriesInstanceUID=${seriesInstanceUID}&StudyInstanceUID=${studyID}&PatientID=${patientID}&includefield=header`;
       const wadoUrl = `${pacsURL}${wadoPrefix}studies/${studyID}/series/${seriesInstanceUID}/instances/`;
 
-      const AUTO_PLAY = true; // Set to true to enable auto-play
+      const AUTO_PLAY = false; // Set to true to enable auto-play
 
       async function qido(qidoUrl) {
         const response = await fetch(qidoUrl, {
@@ -241,7 +241,7 @@
         const imageManager = larvitar.getImageManager();
         const dicomSerie = imageManager[instanceUID];
         const t0 = performance.now();
-        console.log(dicomSerie);
+        console.log("DICOMSERIE", dicomSerie);
         larvitar
           .renderImage(dicomSerie, canvasId, {
             cached: true,

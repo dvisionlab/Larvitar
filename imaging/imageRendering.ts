@@ -627,7 +627,7 @@ export const renderImage = function (
   options?: RenderProps
 ): Promise<true> {
   const t0 = performance.now();
-
+  logger.debug("RENDER IMAGE INGLEFRAME");
   // get element and enable it
   const element = isElement(elementId)
     ? (elementId as HTMLElement)
@@ -713,6 +713,10 @@ export const renderImage = function (
       ? true
       : data.imageId &&
         series.instances[data.imageId!].metadata.pixelDataLength != 0;
+    logger.debug(
+      "PIXEL DATA LENGTH",
+      series.instances[data.imageId!].metadata.pixelDataLength
+    );
     if (pixelDataLengthAllowed === true) {
       // load and display one image (imageId)
       loadImageFunction(data.imageId as string).then(function (image) {

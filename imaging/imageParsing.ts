@@ -134,6 +134,10 @@ export const convertQidoMetadata = function (data: any): MetaData {
   );
   // add human readable values
   const metadataReadables: MetaDataReadable = fillMetadataReadable(metadata);
+  logger.debug("Converted QIDO metadata:", {
+    ...metadata,
+    ...metadataReadables
+  });
   return { ...metadata, ...metadataReadables };
 };
 
