@@ -161,7 +161,7 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
         : false
   };
 
-  let imageFrame = getImageFrame(metadata);
+  let imageFrame = unwrapProxies(getImageFrame(metadata));
   const transferSyntax = metadata.x00020010;
   let canvas = window.document.createElement("canvas");
 
@@ -188,6 +188,7 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
     canvas,
     options
   );
+
   const decodePromise = cornerstoneDICOMImageLoader.decodeImageFrame(
     imageFrame,
     transferSyntax,
@@ -370,3 +371,38 @@ const setPixelDataType = function (imageFrame: ImageFrame) {
     imageFrame.pixelData = new Uint8Array(imageFrame.pixelData as Uint8Array);
   }
 };
+/**
+ * Recursively unwrap proxies from an object or array
+ * @instance
+ * @function unwrapProxies
+ * @param {any} value The value to unwrap
+ * @returns {any} The unwrapped value
+ */
+function unwrapProxies<T>(value: T): T {
+  if (
+    value instanceof Uint8Array ||
+    value instanceof Uint16Array ||
+    value instanceof Uint32Array ||
+    value instanceof Int8Array ||
+    value instanceof Int16Array ||
+    value instanceof Int32Array ||
+    value instanceof Float32Array ||
+    value instanceof Float64Array
+  ) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(unwrapProxies) as T;
+  }
+
+  if (value && typeof value === "object") {
+    const plain: any = {};
+    for (const key of Object.keys(value as any)) {
+      plain[key] = unwrapProxies((value as any)[key]);
+    }
+    return plain;
+  }
+
+  return value;
+}
