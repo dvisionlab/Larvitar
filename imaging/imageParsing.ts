@@ -127,7 +127,7 @@ export const convertQidoMetadata = function (data: any): MetaData {
         value = parseSequence(value);
       }
 
-      accumulator[newKey] = value;
+      accumulator[newKey] = unwrapProxy(value);
       return accumulator;
     },
     {}
@@ -136,6 +136,42 @@ export const convertQidoMetadata = function (data: any): MetaData {
   const metadataReadables: MetaDataReadable = fillMetadataReadable(metadata);
   return { ...metadata, ...metadataReadables };
 };
+
+/**
+ * Recursively unwrap proxies from an object or array
+ * @instance
+ * @function unwrapProxy
+ * @param {T} value The value to unwrap
+ * @returns {T} The unwrapped value
+ */
+function unwrapProxy<T>(value: T): T {
+  if (
+    value instanceof Uint8Array ||
+    value instanceof Uint16Array ||
+    value instanceof Uint32Array ||
+    value instanceof Int8Array ||
+    value instanceof Int16Array ||
+    value instanceof Int32Array ||
+    value instanceof Float32Array ||
+    value instanceof Float64Array
+  ) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(unwrapProxy) as T;
+  }
+
+  if (value && typeof value === "object") {
+    const plain: any = {};
+    for (const key of Object.keys(value as any)) {
+      plain[key] = unwrapProxy((value as any)[key]);
+    }
+    return plain;
+  }
+
+  return value;
+}
 
 /**
  * Parse metadata from dicom parser dataSet object
