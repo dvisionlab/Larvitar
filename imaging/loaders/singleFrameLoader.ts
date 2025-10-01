@@ -16,6 +16,7 @@ import type {
   SingleFrameCache
 } from "../types";
 import { getImageFrame } from "./commonLoader";
+import { log } from "@techstark/opencv-js";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -147,7 +148,11 @@ const getSingleFrameImageId = function (customLoaderName: string): string {
  */
 const createCustomImage = function (imageId: string): ImageLoadObject {
   const { metadata, pixelData } = singleFrameCache[imageId];
-
+  logger.debug("CREATE CUSTOM IMAGE SINGLE FRAME", {
+    imageId,
+    metadata,
+    pixelData
+  });
   let options: { [key: string]: any } = {};
   options.preScale = {
     enabled:
@@ -175,6 +180,14 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
     }
   }
   const myUint8Array = new Uint8Array(pixelData);
+  logger.debug(
+    "decodeImageFrame",
+    imageFrame,
+    transferSyntax,
+    myUint8Array,
+    canvas,
+    options
+  );
   const decodePromise = cornerstoneDICOMImageLoader.decodeImageFrame(
     imageFrame,
     transferSyntax,
@@ -185,6 +198,7 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
 
   let promise: Promise<Image> = new Promise((resolve, reject) => {
     decodePromise.then(function handleDecodeResponse(imageFrame: ImageFrame) {
+      logger.debug("createCustomImage: decodePromise resolved", imageFrame);
       setPixelDataType(imageFrame);
 
       let pixelSpacing = metadata.x00280030
