@@ -1,0 +1,591 @@
+<!doctype html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <link rel="stylesheet" href="../resources/styles.css" />
+
+    <style>
+      .open-button {
+        left: 20px;
+      }
+
+      /* Mask overlay */
+      .dragover {
+        opacity: 0.3;
+      }
+
+      /* New styles for the control panel */
+      .control-panel {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        // TODO Code snippet to be displayed and updated for the example
+        const code = ``;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
+    <title>Larvitar CS3D - Basic MPR rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #ffffff">
+    <div id="viewer" class="row h-100">
+      <div id="vr" class="col-12 h-100" style="background-color: black"></div>
+
+      <div class="control-panel">
+        <div>
+          <select id="colormap-dropdown" class="form-select"></select>
+        </div>
+        <button id="showCodeBtn" class="open-button">Show Code</button>
+      </div>
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="spinner"></div>
+    </div>
+
+    <script>
+      const mockColormaps = [
+        {
+          name: "Epidermis",
+          colormapCurves: [
+            {
+              interpolationMethod: "linear",
+              points: [
+                {
+                  value: -370,
+                  opacity: 0,
+                  color: [150, 50, 30],
+                  layer: 0
+                },
+                {
+                  value: -320,
+                  opacity: 0.15,
+                  color: [150, 50, 30],
+                  layer: 0
+                },
+                {
+                  value: -82,
+                  opacity: 0.5,
+                  color: [255, 200, 100],
+                  layer: 0
+                },
+                {
+                  value: 144,
+                  opacity: 0.75,
+                  color: [255, 255, 255],
+                  layer: 0
+                },
+                {
+                  value: 322,
+                  opacity: 0.75,
+                  color: [255, 255, 255],
+                  layer: 0
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          name: "Gray",
+          colormapCurves: [
+            {
+              interpolationMethod: "linear",
+              points: [
+                {
+                  value: -106,
+                  opacity: 0,
+                  color: [0, 0, 0],
+                  layer: 0
+                },
+                {
+                  value: 336,
+                  opacity: 1,
+                  color: [255, 255, 255],
+                  layer: 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: "XA Cerebral 1",
+          colormapCurves: [
+            {
+              interpolationMethod: "linear",
+              points: [
+                {
+                  value: 0,
+                  opacity: 0,
+                  color: [0, 0, 0],
+                  layer: 0
+                },
+                {
+                  value: 391,
+                  opacity: 0,
+                  color: [0, 0, 0],
+                  layer: 0
+                },
+                {
+                  value: 1564,
+                  opacity: 0.02,
+                  color: [128, 0, 0],
+                  layer: 0
+                },
+                {
+                  value: 3128,
+                  opacity: 0.83,
+                  color: [255, 255, 128],
+                  layer: 0
+                },
+                {
+                  value: 4692,
+                  opacity: 1,
+                  color: [255, 255, 255],
+                  layer: 0
+                }
+              ]
+            }
+          ]
+        }
+      ];
+
+      const COLORMAP_REGISTRY = {};
+
+      /**
+       * Add a colormap to the registry.
+       */
+      function addCustomColormap(colormap) {
+        if (
+          !colormap.colormapCurves ||
+          !Array.isArray(colormap.colormapCurves)
+        ) {
+          throw new Error("ColormapCurves must be an array");
+        }
+        COLORMAP_REGISTRY[colormap.name] = colormap;
+      }
+
+      // Initialize the registry with mock data
+      mockColormaps.forEach(addCustomColormap);
+
+      let viewport;
+      let currentBaseColormap;
+
+      const colormapDropdown = document.getElementById("colormap-dropdown");
+
+      function updateColormapDropdown() {
+        colormapDropdown.innerHTML = "";
+        Object.keys(COLORMAP_REGISTRY).forEach(name => {
+          const option = document.createElement("option");
+          option.value = name;
+          option.innerText = name;
+          colormapDropdown.appendChild(option);
+        });
+      }
+
+      function handleColormapChange(event) {
+        const selectedName = event.target.value;
+        const selectedColormap = COLORMAP_REGISTRY[selectedName];
+
+        if (selectedColormap && viewport) {
+          currentBaseColormap = selectedColormap; // Update the base colormap
+          const currentVoi = getVOIFromViewport(viewport);
+          applyColormap(viewport, currentBaseColormap, currentVoi);
+        }
+      }
+
+      /**
+       * Get VOI from viewport
+       */
+      function getVOIFromViewport(viewport) {
+        const voiRange = viewport.getProperties().voiRange;
+        return {
+          windowWidth: voiRange.upper - voiRange.lower,
+          windowCenter: (voiRange.upper + voiRange.lower) / 2
+        };
+      }
+
+      /**
+       * Remaps a colormap's points to fit within a new VOI (window/level).
+       */
+      function remapColormap(originalColormap, voi) {
+        const { windowWidth, windowCenter } = voi;
+        const lower = windowCenter - windowWidth / 2;
+
+        const remappedColormap = JSON.parse(JSON.stringify(originalColormap));
+        let minOriginalValue = Infinity;
+        let maxOriginalValue = -Infinity;
+
+        originalColormap.colormapCurves.forEach(curve => {
+          curve.points.forEach(point => {
+            if (point.value < minOriginalValue) minOriginalValue = point.value;
+            if (point.value > maxOriginalValue) maxOriginalValue = point.value;
+          });
+        });
+
+        const originalRange = maxOriginalValue - minOriginalValue;
+
+        if (originalRange === 0) {
+          remappedColormap.colormapCurves.forEach(curve => {
+            curve.points.forEach(point => {
+              point.value = windowCenter;
+            });
+          });
+          return remappedColormap;
+        }
+
+        remappedColormap.colormapCurves.forEach(curve => {
+          curve.points.forEach(point => {
+            const normalizedValue =
+              (point.value - minOriginalValue) / originalRange;
+            point.value = lower + normalizedValue * windowWidth;
+          });
+        });
+
+        return remappedColormap;
+      }
+
+      /**
+       * Apply a colormap to a viewport, optionally remapping it to a new VOI.
+       */
+      function applyColormap(viewport, colormap, voi = null) {
+        const volumeActor = viewport.getActors()[0]?.actor;
+        if (!volumeActor) {
+          console.warn("Volume actor not found. Cannot apply colormap.");
+          return;
+        }
+
+        let colormapToApply = voi ? remapColormap(colormap, voi) : colormap;
+
+        const rgbTransferFunction = volumeActor
+          .getProperty()
+          .getRGBTransferFunction(0);
+        const opacityTransferFunction = volumeActor
+          .getProperty()
+          .getScalarOpacity(0);
+
+        rgbTransferFunction.removeAllPoints();
+        opacityTransferFunction.removeAllPoints();
+
+        colormapToApply.colormapCurves.forEach(curve => {
+          curve.points.forEach(point => {
+            const { value, opacity, color } = point;
+            const r = color[0] / 255;
+            const g = color[1] / 255;
+            const b = color[2] / 255;
+            rgbTransferFunction.addRGBPoint(value, r, g, b);
+            opacityTransferFunction.addPoint(value, opacity);
+          });
+        });
+
+        viewport.render();
+      }
+
+      colormapDropdown.addEventListener("change", handleColormapChange);
+
+      updateColormapDropdown();
+
+      const dropCanvas = document.getElementById("viewer");
+      const spinner = document.getElementById("spinner");
+
+      ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+        dropCanvas.addEventListener(eventName, e => e.preventDefault());
+      });
+
+      dropCanvas.addEventListener("dragover", () => {
+        dropCanvas.classList.add("dragover");
+      });
+
+      dropCanvas.addEventListener("dragleave", () => {
+        dropCanvas.classList.remove("dragover");
+      });
+
+      dropCanvas.addEventListener("drop", e => {
+        demoFiles = [];
+        totalFiles = 0;
+        processedFiles = 0;
+        showSpinner();
+        dropCanvas.classList.remove("dragover");
+        const items = e.dataTransfer.items;
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i].webkitGetAsEntry();
+            if (item) {
+              traverseFileTree(item);
+            }
+          }
+        }
+      });
+
+      function traverseFileTree(item) {
+        if (item.isFile && item.name.startsWith(".") == false) {
+          totalFiles++;
+          item.file(file => {
+            handleFile(file);
+          });
+        } else if (item.isDirectory) {
+          const dirReader = item.createReader();
+          readAllEntries(dirReader);
+        }
+      }
+
+      function readAllEntries(dirReader, path) {
+        dirReader.readEntries(entries => {
+          if (entries.length > 0) {
+            entries.forEach(entry => {
+              traverseFileTree(entry);
+            });
+            readAllEntries(dirReader);
+          }
+        });
+      }
+
+      function handleFile(file) {
+        demoFiles.push(file);
+        processedFiles++;
+        if (processedFiles === totalFiles) {
+          processFileList(demoFiles);
+        }
+      }
+
+      function processFileList() {
+        renderSerie();
+      }
+
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+
+      let demoFiles = [];
+      let counter = 0;
+      let series;
+
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 33; i++) {
+          i = i.toString().padStart(2, "0");
+          let filename = i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+
+      const viewportId1 = "vr";
+      const renderingEngineId = "vr";
+      const toolGroupId = "VR_TOOLGROUP";
+
+      larvitar._cornerstone.init();
+      larvitar._initializeImageLoader();
+      larvitar._registerStreamingImageVolume();
+      larvitar._cornerstoneTools.init();
+      larvitar.store.initialize();
+      larvitar.store.addViewport(viewportId1);
+      const Enums = larvitar._cornerstoneTools.Enums;
+      showSpinner();
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("../demo/3d/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 32) {
+          cb();
+        }
+      }
+
+      async function renderSerie() {
+        larvitar.resetImageManager();
+        larvitar.disableViewport("vr");
+        larvitar.store.addViewport("vr");
+        larvitar._unloadMpr("vr");
+
+        larvitar
+          .readFiles(demoFiles)
+          .then(async seriesStack => {
+            const seriesId = Object.keys(seriesStack)[0];
+            const serie = seriesStack[seriesId];
+            const vrViewportInput = {
+              viewportId: viewportId1,
+              type: larvitar._cornerstone.Enums.ViewportType.VOLUME_3D,
+              element: document.getElementById(viewportId1),
+              defaultOptions: {
+                orientation:
+                  larvitar._cornerstone.Enums.OrientationAxis.CORONAL,
+                background:
+                  larvitar._cornerstone.CONSTANTS.BACKGROUND_COLORS.slicer3D
+              }
+            };
+            const renderingEngine =
+              larvitar._initializeRenderingEngine(renderingEngineId);
+            renderingEngine.setViewports([vrViewportInput]);
+            const { ToolGroupManager, TrackballRotateTool, WindowLevelTool } =
+              larvitar._cornerstoneTools;
+
+            larvitar._cornerstoneTools.addTool(TrackballRotateTool);
+            larvitar._cornerstoneTools.addTool(WindowLevelTool);
+
+            const toolGroup = ToolGroupManager.createToolGroup(toolGroupId);
+            if (!toolGroup) {
+              console.warn(`Tool group ${toolGroupId} already exists.`);
+              return;
+            }
+
+            toolGroup.addTool(TrackballRotateTool.toolName);
+            toolGroup.addTool(WindowLevelTool.toolName);
+            toolGroup.addViewport(viewportId1, renderingEngineId);
+
+            toolGroup.setToolActive(TrackballRotateTool.toolName, {
+              bindings: [
+                {
+                  mouseButton: Enums.MouseBindings.Primary
+                }
+              ]
+            });
+            toolGroup.setToolActive(WindowLevelTool.toolName, {
+              bindings: [
+                {
+                  mouseButton: Enums.MouseBindings.Secondary
+                }
+              ]
+            });
+
+            larvitar._renderMpr(serie, "vr").then(() => {
+              hideSpinner();
+              setTimeout(() => {
+                viewport = renderingEngine.getViewport(viewportId1);
+
+                if (Object.keys(COLORMAP_REGISTRY).length > 0 && viewport) {
+                  currentBaseColormap =
+                    COLORMAP_REGISTRY[colormapDropdown.value];
+
+                  const initialVoi = getVOIFromViewport(viewport);
+                  applyColormap(viewport, currentBaseColormap, initialVoi);
+
+                  const element = document.getElementById(viewportId1);
+                  element.addEventListener(
+                    larvitar._cornerstone.Enums.Events.VOI_MODIFIED,
+                    evt => {
+                      const { range } = evt.detail;
+                      const newVoi = {
+                        windowWidth: range.upper - range.lower,
+                        windowCenter: (range.upper + range.lower) / 2
+                      };
+
+                      if (currentBaseColormap && newVoi && viewport) {
+                        applyColormap(viewport, currentBaseColormap, newVoi);
+                      }
+                    }
+                  );
+                }
+              }, 2000);
+            });
+          })
+          .catch(err => {
+            console.error(err);
+            hideSpinner();
+          });
+      }
+
+      let demoFileList = getDemoFileNames();
+      _.each(demoFileList, function (demoFile) {
+        createFile(demoFile, renderSerie);
+      });
+    </script>
+  </body>
+</html>

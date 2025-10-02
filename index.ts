@@ -279,6 +279,12 @@ import {
   getKernels
 } from "./imaging/postProcessing/applyKernel";
 import {
+  applyColormap,
+  applyColormapByName,
+  addCustomColormap,
+  getColormaps
+} from "./imaging/postProcessing/applyColormap";
+import {
   addMouseKeyHandlers,
   removeMouseKeyHandlers,
   toggleMouseToolsListeners
@@ -583,6 +589,10 @@ export {
   applyGaussianBlur,
   addCustomKernel,
   getKernels,
+  applyColormap,
+  applyColormapByName,
+  addCustomColormap,
+  getColormaps,
   // imageTools
   addDiameterTool,
   addContoursTool,

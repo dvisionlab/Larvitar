@@ -82,25 +82,6 @@ export const getColormaps = function (): ColormapRegistry {
 };
 
 /**
- * Get a specific colormap by name
- * @function getColormap
- * @param {string} name - Name of the colormap
- * @returns {Colormap | undefined} - The colormap or undefined if not found
- */
-export const getColormap = function (name: string): Colormap | undefined {
-  return COLORMAP_REGISTRY[name];
-};
-
-/**
- * Get all colormap names
- * @function getColormapNames
- * @returns {string[]} - Array of colormap names
- */
-export const getColormapNames = function (): string[] {
-  return Object.keys(COLORMAP_REGISTRY);
-};
-
-/**
  * Remap a colormap to fit within a new VOI (window/level)
  * @function remapColormap
  * @param {Colormap} originalColormap - The original colormap
