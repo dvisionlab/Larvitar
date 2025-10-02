@@ -27,8 +27,7 @@ docs/.vuepress/.temp/
 docs/.vuepress/dist/
 docs_legacy/*
 
-# build files
-dist/*
+
 
 #cypress screenshots
 cypress/screenshots
