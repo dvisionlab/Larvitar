@@ -80,10 +80,7 @@ export type StoreViewport = {
       x: number;
       y: number;
     };
-    voi: {
-      windowCenter: number;
-      windowWidth: number;
-    };
+    voi: VOI;
     // redundant fields ?
     rows: number;
     cols: number;
@@ -100,11 +97,7 @@ export type StoreViewport = {
       x: number;
       y: number;
     };
-    voi: {
-      windowCenter: number;
-      windowWidth: number;
-      invert: boolean;
-    };
+    voi: VOI;
   };
 };
 
@@ -390,6 +383,34 @@ export type KernelConfig = {
   kernel: number[][];
   modality?: string[];
 };
+export type ColormapPoint = {
+  value: number;
+  opacity: number;
+  color: [number, number, number];
+  layer: number;
+};
+
+export type ColormapCurve = {
+  interpolationMethod: string;
+  points: ColormapPoint[];
+};
+
+export type Colormap = {
+  name: string;
+  colormapCurves: ColormapCurve[];
+};
+
+export type VOI = {
+  windowWidth: number;
+  windowCenter: number;
+  invert?: boolean;
+};
+
+export type ColormapConfig = {
+  name: string;
+  colormapCurves: ColormapCurve[];
+};
+
 export type FilterImageFrame = {
   width: number;
   height: number;
