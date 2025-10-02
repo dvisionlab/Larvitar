@@ -292,7 +292,7 @@ export const updateLoadedStack = function (
     // store needed instance tags
     allSeriesStack[id].instances[imageId] = {
       frame:
-        sliceIndex === undefined || sliceIndex === null
+        sliceIndex !== undefined || sliceIndex !== null
           ? sliceIndex
           : allSeriesStack[id].imageIds.length - 1,
       instanceId: iid,
