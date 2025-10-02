@@ -287,7 +287,10 @@ export const updateLoadedStack = function (
 
     // store needed instance tags
     allSeriesStack[id].instances[imageId] = {
-      frame: sliceIndex ? sliceIndex : allSeriesStack[id].imageIds.length - 1,
+      frame:
+        sliceIndex !== undefined || sliceIndex !== null
+          ? sliceIndex
+          : allSeriesStack[id].imageIds.length - 1,
       instanceId: iid,
       metadata: seriesData.metadata
     };
