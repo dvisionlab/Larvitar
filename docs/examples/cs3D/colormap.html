@@ -182,37 +182,6 @@
         }
       ];
 
-      const setupColormapVOIListener = function (viewport, colormapName) {
-        const colormap = COLORMAP_REGISTRY[colormapName];
-
-        if (!colormap) {
-          throw new Error(`Colormap '${colormapName}' not found in registry`);
-        }
-
-        const element = viewport.element;
-
-        const voiModifiedHandler = evt => {
-          const { range } = evt.detail;
-          const newVoi = {
-            windowWidth: range.upper - range.lower,
-            windowCenter: (range.upper + range.lower) / 2
-          };
-
-          applyColormapByName(viewport, colormapName, newVoi);
-        };
-
-        element.addEventListener(
-          _cornerstone.Enums.Events.VOI_MODIFIED,
-          voiModifiedHandler
-        );
-
-        return () => {
-          element.removeEventListener(
-            _cornerstone.Enums.Events.VOI_MODIFIED,
-            voiModifiedHandler
-          );
-        };
-      };
       mockColormaps.forEach(colormap => larvitar.addCustomColormap(colormap));
 
       let viewport;
@@ -243,10 +212,7 @@
 
           larvitar.applyColormapByName(viewport, selectedName, currentVoi);
 
-          cleanupVOIListener = larvitar.setupColormapVOIListener(
-            viewport,
-            selectedName
-          );
+          cleanupVOIListener = setupColormapVOIListener(viewport, selectedName);
         }
       }
 
@@ -434,7 +400,7 @@
                     initialVoi
                   );
 
-                  cleanupVOIListener = larvitar.setupColormapVOIListener(
+                  cleanupVOIListener = setupColormapVOIListener(
                     viewport,
                     initialColormapName
                   );
@@ -452,6 +418,37 @@
       demoFileList.forEach(function (demoFile) {
         createFile(demoFile, renderSerie);
       });
+      const setupColormapVOIListener = function (viewport, colormapName) {
+        const COLORMAP_REGISTRY = larvitar.getColormaps();
+        const colormap = COLORMAP_REGISTRY[colormapName];
+        if (!colormap) {
+          throw new Error(`Colormap '${colormapName}' not found in registry`);
+        }
+
+        const element = viewport.element;
+
+        const voiModifiedHandler = evt => {
+          const { range } = evt.detail;
+          const newVoi = {
+            windowWidth: range.upper - range.lower,
+            windowCenter: (range.upper + range.lower) / 2
+          };
+
+          larvitar.applyColormapByName(viewport, colormapName, newVoi);
+        };
+
+        element.addEventListener(
+          larvitar._cornerstone.Enums.Events.VOI_MODIFIED,
+          voiModifiedHandler
+        );
+
+        return () => {
+          element.removeEventListener(
+            larvitar._cornerstone.Enums.Events.VOI_MODIFIED,
+            voiModifiedHandler
+          );
+        };
+      };
     </script>
   </body>
 </html>
