@@ -283,7 +283,6 @@ import {
   applyColormapByName,
   addCustomColormap,
   getColormaps,
-  setupColormapVOIListener,
   getVOIFromViewport
 } from "./imaging/postProcessing/applyColormap";
 import {
@@ -595,7 +594,6 @@ export {
   applyColormapByName,
   addCustomColormap,
   getColormaps,
-  setupColormapVOIListener,
   getVOIFromViewport,
   // imageTools
   addDiameterTool,

@@ -1,3 +1,4 @@
+import { cloneDeep } from "lodash";
 import { Colormap, VOI } from "../types";
 import * as _cornerstone from "@cornerstonejs/core";
 interface ColormapRegistry {
@@ -95,9 +96,7 @@ const remapColormap = function (
   const { windowWidth, windowCenter } = voi;
   const lower = windowCenter - windowWidth / 2;
 
-  const remappedColormap: Colormap = JSON.parse(
-    JSON.stringify(originalColormap)
-  );
+  const remappedColormap: Colormap = cloneDeep(originalColormap);
 
   let minOriginalValue = Infinity;
   let maxOriginalValue = -Infinity;
@@ -220,49 +219,5 @@ export const getVOIFromViewport = function (
   return {
     windowWidth: voiRange.upper - voiRange.lower,
     windowCenter: (voiRange.upper + voiRange.lower) / 2
-  };
-};
-
-/**
- * Setup automatic colormap update on VOI change
- * @function setupColormapVOIListener
- * @param {any} viewport - Cornerstone3D viewport
- * @param {string} elementId - ID of the viewport element
- * @param {RenderingEngine} renderingEngine
- * @param {string} colormapName - Name of the colormap to apply
- * @returns {Function} - Cleanup function to remove the listener
- */
-export const setupColormapVOIListener = function (
-  viewport: _cornerstone.VolumeViewport,
-  colormapName: string
-): () => void {
-  const colormap = COLORMAP_REGISTRY[colormapName];
-
-  if (!colormap) {
-    throw new Error(`Colormap '${colormapName}' not found in registry`);
-  }
-
-  const element = viewport.element;
-
-  const voiModifiedHandler = (evt: any) => {
-    const { range } = evt.detail;
-    const newVoi: VOI = {
-      windowWidth: range.upper - range.lower,
-      windowCenter: (range.upper + range.lower) / 2
-    };
-
-    applyColormapByName(viewport, colormapName, newVoi);
-  };
-
-  element.addEventListener(
-    _cornerstone.Enums.Events.VOI_MODIFIED,
-    voiModifiedHandler
-  );
-
-  return () => {
-    element.removeEventListener(
-      _cornerstone.Enums.Events.VOI_MODIFIED,
-      voiModifiedHandler
-    );
   };
 };

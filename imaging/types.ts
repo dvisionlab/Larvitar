@@ -73,6 +73,7 @@ export type StoreViewport = {
   numberOfFrames?: number;
   timeIndex?: number;
   filterName?: string;
+  colormapName?: string;
   viewport: {
     scale: number;
     rotation: number;
