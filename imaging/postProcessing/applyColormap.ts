@@ -1,5 +1,5 @@
 import { Colormap, VOI } from "../types";
-
+import * as _cornerstone from "@cornerstonejs/core";
 interface ColormapRegistry {
   [name: string]: Colormap;
 }
@@ -194,7 +194,7 @@ export const applyColormap = function (
  * @returns {void}
  */
 export const applyColormapByName = function (
-  viewport: any,
+  viewport: _cornerstone.VolumeViewport,
   colormapName: string,
   voi: VOI | null = null
 ): void {
@@ -213,8 +213,10 @@ export const applyColormapByName = function (
  * @param {any} viewport - Cornerstone3D viewport
  * @returns {VOI} - Current VOI settings
  */
-export const getVOIFromViewport = function (viewport: any): VOI {
-  const voiRange = viewport.getProperties().voiRange;
+export const getVOIFromViewport = function (
+  viewport: _cornerstone.VolumeViewport
+): VOI {
+  const voiRange = viewport.getProperties().voiRange!;
   return {
     windowWidth: voiRange.upper - voiRange.lower,
     windowCenter: (voiRange.upper + voiRange.lower) / 2
@@ -226,15 +228,13 @@ export const getVOIFromViewport = function (viewport: any): VOI {
  * @function setupColormapVOIListener
  * @param {any} viewport - Cornerstone3D viewport
  * @param {string} elementId - ID of the viewport element
+ * @param {RenderingEngine} renderingEngine
  * @param {string} colormapName - Name of the colormap to apply
- * @param {any} cornerstoneEnums - Cornerstone Enums object
  * @returns {Function} - Cleanup function to remove the listener
  */
 export const setupColormapVOIListener = function (
-  viewport: any,
-  elementId: string,
-  colormapName: string,
-  cornerstoneEnums: any
+  viewport: _cornerstone.VolumeViewport,
+  colormapName: string
 ): () => void {
   const colormap = COLORMAP_REGISTRY[colormapName];
 
@@ -242,14 +242,7 @@ export const setupColormapVOIListener = function (
     throw new Error(`Colormap '${colormapName}' not found in registry`);
   }
 
-  const initialVoi = getVOIFromViewport(viewport);
-  applyColormap(viewport, colormap, initialVoi);
-
-  const element = document.getElementById(elementId);
-
-  if (!element) {
-    throw new Error(`Element with id "${elementId}" not found`);
-  }
+  const element = viewport.element;
 
   const voiModifiedHandler = (evt: any) => {
     const { range } = evt.detail;
@@ -258,17 +251,17 @@ export const setupColormapVOIListener = function (
       windowCenter: (range.upper + range.lower) / 2
     };
 
-    applyColormap(viewport, colormap, newVoi);
+    applyColormapByName(viewport, colormapName, newVoi);
   };
 
   element.addEventListener(
-    cornerstoneEnums.Events.VOI_MODIFIED,
+    _cornerstone.Enums.Events.VOI_MODIFIED,
     voiModifiedHandler
   );
 
   return () => {
     element.removeEventListener(
-      cornerstoneEnums.Events.VOI_MODIFIED,
+      _cornerstone.Enums.Events.VOI_MODIFIED,
       voiModifiedHandler
     );
   };

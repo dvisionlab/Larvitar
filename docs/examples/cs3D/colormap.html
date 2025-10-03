@@ -48,6 +48,7 @@
         display: flex;
         gap: 15px;
         align-items: center;
+        background-color: rgba(30, 30, 30, 0.7);
       }
     </style>
 
@@ -67,7 +68,7 @@
         // Show the modal and populate code snippet
         showCodeBtn.addEventListener("click", () => {
           codeSnippet.textContent = code;
-          Prism.highlightElement(codeSnippet); // Highlight the code
+          Prism.highlightElement(codeSnippet);
           const codeModal = new bootstrap.Modal(
             document.getElementById("codeModal")
           );
@@ -81,7 +82,7 @@
       });
     </script>
 
-    <title>Larvitar CS3D - Basic MPR rendering example</title>
+    <title>Larvitar CS3D - Colormap Rendering Example</title>
   </head>
 
   <body class="h-100" style="background-color: #ffffff">
@@ -142,36 +143,11 @@
             {
               interpolationMethod: "linear",
               points: [
-                {
-                  value: -370,
-                  opacity: 0,
-                  color: [150, 50, 30],
-                  layer: 0
-                },
-                {
-                  value: -320,
-                  opacity: 0.15,
-                  color: [150, 50, 30],
-                  layer: 0
-                },
-                {
-                  value: -82,
-                  opacity: 0.5,
-                  color: [255, 200, 100],
-                  layer: 0
-                },
-                {
-                  value: 144,
-                  opacity: 0.75,
-                  color: [255, 255, 255],
-                  layer: 0
-                },
-                {
-                  value: 322,
-                  opacity: 0.75,
-                  color: [255, 255, 255],
-                  layer: 0
-                }
+                { value: -370, opacity: 0, color: [150, 50, 30] },
+                { value: -320, opacity: 0.15, color: [150, 50, 30] },
+                { value: -82, opacity: 0.5, color: [255, 200, 100] },
+                { value: 144, opacity: 0.75, color: [255, 255, 255] },
+                { value: 322, opacity: 0.75, color: [255, 255, 255] }
               ]
             }
           ]
@@ -183,18 +159,8 @@
             {
               interpolationMethod: "linear",
               points: [
-                {
-                  value: -106,
-                  opacity: 0,
-                  color: [0, 0, 0],
-                  layer: 0
-                },
-                {
-                  value: 336,
-                  opacity: 1,
-                  color: [255, 255, 255],
-                  layer: 0
-                }
+                { value: -106, opacity: 0, color: [0, 0, 0] },
+                { value: 336, opacity: 1, color: [255, 255, 255] }
               ]
             }
           ]
@@ -205,68 +171,28 @@
             {
               interpolationMethod: "linear",
               points: [
-                {
-                  value: 0,
-                  opacity: 0,
-                  color: [0, 0, 0],
-                  layer: 0
-                },
-                {
-                  value: 391,
-                  opacity: 0,
-                  color: [0, 0, 0],
-                  layer: 0
-                },
-                {
-                  value: 1564,
-                  opacity: 0.02,
-                  color: [128, 0, 0],
-                  layer: 0
-                },
-                {
-                  value: 3128,
-                  opacity: 0.83,
-                  color: [255, 255, 128],
-                  layer: 0
-                },
-                {
-                  value: 4692,
-                  opacity: 1,
-                  color: [255, 255, 255],
-                  layer: 0
-                }
+                { value: 0, opacity: 0, color: [0, 0, 0] },
+                { value: 391, opacity: 0, color: [0, 0, 0] },
+                { value: 1564, opacity: 0.02, color: [128, 0, 0] },
+                { value: 3128, opacity: 0.83, color: [255, 255, 128] },
+                { value: 4692, opacity: 1, color: [255, 255, 255] }
               ]
             }
           ]
         }
       ];
 
-      const COLORMAP_REGISTRY = {};
-
-      /**
-       * Add a colormap to the registry.
-       */
-      function addCustomColormap(colormap) {
-        if (
-          !colormap.colormapCurves ||
-          !Array.isArray(colormap.colormapCurves)
-        ) {
-          throw new Error("ColormapCurves must be an array");
-        }
-        COLORMAP_REGISTRY[colormap.name] = colormap;
-      }
-
-      // Initialize the registry with mock data
-      mockColormaps.forEach(addCustomColormap);
+      mockColormaps.forEach(colormap => larvitar.addCustomColormap(colormap));
 
       let viewport;
-      let currentBaseColormap;
+      let cleanupVOIListener = null;
 
       const colormapDropdown = document.getElementById("colormap-dropdown");
 
       function updateColormapDropdown() {
         colormapDropdown.innerHTML = "";
-        Object.keys(COLORMAP_REGISTRY).forEach(name => {
+        const registeredColormaps = larvitar.getColormaps();
+        Object.keys(registeredColormaps).forEach(name => {
           const option = document.createElement("option");
           option.value = name;
           option.innerText = name;
@@ -276,100 +202,21 @@
 
       function handleColormapChange(event) {
         const selectedName = event.target.value;
-        const selectedColormap = COLORMAP_REGISTRY[selectedName];
 
-        if (selectedColormap && viewport) {
-          currentBaseColormap = selectedColormap; // Update the base colormap
-          const currentVoi = getVOIFromViewport(viewport);
-          applyColormap(viewport, currentBaseColormap, currentVoi);
+        if (viewport && selectedName) {
+          if (cleanupVOIListener) {
+            cleanupVOIListener();
+          }
+
+          const currentVoi = larvitar.getVOIFromViewport(viewport);
+
+          larvitar.applyColormapByName(viewport, selectedName, currentVoi);
+
+          cleanupVOIListener = larvitar.setupColormapVOIListener(
+            viewport,
+            selectedName
+          );
         }
-      }
-
-      /**
-       * Get VOI from viewport
-       */
-      function getVOIFromViewport(viewport) {
-        const voiRange = viewport.getProperties().voiRange;
-        return {
-          windowWidth: voiRange.upper - voiRange.lower,
-          windowCenter: (voiRange.upper + voiRange.lower) / 2
-        };
-      }
-
-      /**
-       * Remaps a colormap's points to fit within a new VOI (window/level).
-       */
-      function remapColormap(originalColormap, voi) {
-        const { windowWidth, windowCenter } = voi;
-        const lower = windowCenter - windowWidth / 2;
-
-        const remappedColormap = JSON.parse(JSON.stringify(originalColormap));
-        let minOriginalValue = Infinity;
-        let maxOriginalValue = -Infinity;
-
-        originalColormap.colormapCurves.forEach(curve => {
-          curve.points.forEach(point => {
-            if (point.value < minOriginalValue) minOriginalValue = point.value;
-            if (point.value > maxOriginalValue) maxOriginalValue = point.value;
-          });
-        });
-
-        const originalRange = maxOriginalValue - minOriginalValue;
-
-        if (originalRange === 0) {
-          remappedColormap.colormapCurves.forEach(curve => {
-            curve.points.forEach(point => {
-              point.value = windowCenter;
-            });
-          });
-          return remappedColormap;
-        }
-
-        remappedColormap.colormapCurves.forEach(curve => {
-          curve.points.forEach(point => {
-            const normalizedValue =
-              (point.value - minOriginalValue) / originalRange;
-            point.value = lower + normalizedValue * windowWidth;
-          });
-        });
-
-        return remappedColormap;
-      }
-
-      /**
-       * Apply a colormap to a viewport, optionally remapping it to a new VOI.
-       */
-      function applyColormap(viewport, colormap, voi = null) {
-        const volumeActor = viewport.getActors()[0]?.actor;
-        if (!volumeActor) {
-          console.warn("Volume actor not found. Cannot apply colormap.");
-          return;
-        }
-
-        let colormapToApply = voi ? remapColormap(colormap, voi) : colormap;
-
-        const rgbTransferFunction = volumeActor
-          .getProperty()
-          .getRGBTransferFunction(0);
-        const opacityTransferFunction = volumeActor
-          .getProperty()
-          .getScalarOpacity(0);
-
-        rgbTransferFunction.removeAllPoints();
-        opacityTransferFunction.removeAllPoints();
-
-        colormapToApply.colormapCurves.forEach(curve => {
-          curve.points.forEach(point => {
-            const { value, opacity, color } = point;
-            const r = color[0] / 255;
-            const g = color[1] / 255;
-            const b = color[2] / 255;
-            rgbTransferFunction.addRGBPoint(value, r, g, b);
-            opacityTransferFunction.addPoint(value, opacity);
-          });
-        });
-
-        viewport.render();
       }
 
       colormapDropdown.addEventListener("change", handleColormapChange);
@@ -531,18 +378,10 @@
             toolGroup.addViewport(viewportId1, renderingEngineId);
 
             toolGroup.setToolActive(TrackballRotateTool.toolName, {
-              bindings: [
-                {
-                  mouseButton: Enums.MouseBindings.Primary
-                }
-              ]
+              bindings: [{ mouseButton: Enums.MouseBindings.Primary }]
             });
             toolGroup.setToolActive(WindowLevelTool.toolName, {
-              bindings: [
-                {
-                  mouseButton: Enums.MouseBindings.Secondary
-                }
-              ]
+              bindings: [{ mouseButton: Enums.MouseBindings.Secondary }]
             });
 
             larvitar._renderMpr(serie, "vr").then(() => {
@@ -550,30 +389,26 @@
               setTimeout(() => {
                 viewport = renderingEngine.getViewport(viewportId1);
 
-                if (Object.keys(COLORMAP_REGISTRY).length > 0 && viewport) {
-                  currentBaseColormap =
-                    COLORMAP_REGISTRY[colormapDropdown.value];
+                if (viewport) {
+                  if (cleanupVOIListener) {
+                    cleanupVOIListener();
+                  }
 
-                  const initialVoi = getVOIFromViewport(viewport);
-                  applyColormap(viewport, currentBaseColormap, initialVoi);
+                  const initialColormapName = colormapDropdown.value;
+                  const initialVoi = larvitar.getVOIFromViewport(viewport);
 
-                  const element = document.getElementById(viewportId1);
-                  element.addEventListener(
-                    larvitar._cornerstone.Enums.Events.VOI_MODIFIED,
-                    evt => {
-                      const { range } = evt.detail;
-                      const newVoi = {
-                        windowWidth: range.upper - range.lower,
-                        windowCenter: (range.upper + range.lower) / 2
-                      };
+                  larvitar.applyColormapByName(
+                    viewport,
+                    initialColormapName,
+                    initialVoi
+                  );
 
-                      if (currentBaseColormap && newVoi && viewport) {
-                        applyColormap(viewport, currentBaseColormap, newVoi);
-                      }
-                    }
+                  cleanupVOIListener = larvitar.setupColormapVOIListener(
+                    viewport,
+                    initialColormapName
                   );
                 }
-              }, 2000);
+              }, 500);
             });
           })
           .catch(err => {
@@ -583,7 +418,7 @@
       }
 
       let demoFileList = getDemoFileNames();
-      _.each(demoFileList, function (demoFile) {
+      demoFileList.forEach(function (demoFile) {
         createFile(demoFile, renderSerie);
       });
     </script>
