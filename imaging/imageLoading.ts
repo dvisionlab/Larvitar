@@ -279,15 +279,16 @@ export const updateLoadedStack = function (
   else if (isMultiframe) {
     const imageId = seriesData.imageId as string;
     imageTracker[imageId] = lid as string;
-    if (sliceIndex !== undefined) {
+    if (sliceIndex !== undefined && sliceIndex !== null) {
       allSeriesStack[id].imageIds[sliceIndex] = imageId;
     } else {
       allSeriesStack[id].imageIds.push(imageId);
+      sliceIndex = allSeriesStack[id].imageIds.length - 1;
     }
 
     // store needed instance tags
     allSeriesStack[id].instances[imageId] = {
-      frame: sliceIndex ? sliceIndex : allSeriesStack[id].imageIds.length - 1,
+      frame: sliceIndex,
       instanceId: iid,
       metadata: seriesData.metadata
     };
