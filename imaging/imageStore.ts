@@ -69,7 +69,11 @@ type SetPayload =
     ]
   | ["cached", string, string, boolean]
   | ["timestamp", string, number | undefined]
-  | ["uniqueUID" | "modality" | "filterName", string, string | undefined]
+  | [
+      "uniqueUID" | "modality" | "filterName" | "colormapName",
+      string,
+      string | undefined
+    ]
   | ["pendingSliceId", string, number | undefined]
   | ["timestamps" | "timeIds", string, number[]]
   | ["pixelShift", string, number[] | undefined]
@@ -141,6 +145,7 @@ const DEFAULT_VIEWPORT: StoreViewport = {
   isVideo: false,
   modality: "",
   filterName: "",
+  colormapName: "",
   isTimeserie: false,
   isDSAEnabled: false,
   isPDF: false,
@@ -241,6 +246,13 @@ const setValue = (store: Store, data: SetPayload) => {
       triggerViewportListener(k);
       break;
     case "filterName":
+      if (!viewport) {
+        return;
+      }
+      viewport[field] = (v as [string])[0];
+      triggerViewportListener(k);
+      break;
+    case "colormapName":
       if (!viewport) {
         return;
       }
@@ -503,6 +515,9 @@ export default {
   },
   setImageFilter: (elementId: string, filterName: string) => {
     set(["filterName", elementId, filterName]);
+  },
+  setImageColormap: (elementId: string, colormapName: string) => {
+    set(["colormapName", elementId, colormapName]);
   },
   setCamera: (elementId: string, camera: ICamera) => {
     set(["camera", elementId, camera]);
