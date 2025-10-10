@@ -1,60 +1,40 @@
 import { cloneDeep } from "lodash";
-import { Colormap, VOI } from "../types";
+import { Colormap, VOI } from "../../imaging/types";
 import * as _cornerstone from "@cornerstonejs/core";
+import store from "../../imaging/imageStore";
+
 interface ColormapRegistry {
   [name: string]: Colormap;
 }
+const defaultColormap: Colormap = {
+  name: "Default",
+  colormapCurves: [
+    {
+      points: [
+        { value: -3024, opacity: 0, color: [0, 0, 0] },
+        {
+          value: -16.4458,
+          opacity: 0.7,
+          color: [186, 65, 77]
+        },
+        {
+          value: 641.385,
+          opacity: 0.715686,
+          color: [231, 208, 141]
+        },
+        {
+          value: 3071,
+          opacity: 0.705882,
+          color: [255, 255, 255]
+        }
+      ]
+    }
+  ]
+};
 
-const COLORMAP_REGISTRY: ColormapRegistry = {};
-/*[
-  {
-    "name": "CT-Bone",
-    "colormapCurves": [
-      {
-        "interpolationMethod": "linear",
-        "points": [
-          {
-            "value": -1000,
-            "opacity": 0,
-            "color": [
-              0,
-              0,
-              0
-            ], layer:0
-          },
-          {
-            "value": 250,
-            "opacity": 0,
-            "color": [
-              128,
-              84,
-              43
-            ], layer:0
-          },
-          {
-            "value": 600,
-            "opacity": 0.5,
-            "color": [
-              255,
-              255,
-              255
-            ], layer:0
-          },
-          {
-            "value": 3000,
-            "opacity": 0.8,
-            "color": [
-              255,
-              255,
-              255
-            ], layer:0
-          }
-        ]
-      }
-    ]
-  }
-]*/
-
+const COLORMAP_REGISTRY: ColormapRegistry = {
+  [defaultColormap.name]: defaultColormap
+};
 /**
  * Add custom colormap to the global registry
  * @function addCustomColormap
@@ -142,10 +122,12 @@ const remapColormap = function (
  * @returns {void}
  */
 export const applyColormap = function (
-  viewport: any,
+  viewport: _cornerstone.VolumeViewport,
   colormap: Colormap,
   voi: VOI | null = null
 ): void {
+  const currentVoi = getVOIFromViewport(viewport) ?? voi;
+
   const volumeActor = viewport.getActors()[0]?.actor;
 
   if (!volumeActor) {
@@ -154,23 +136,20 @@ export const applyColormap = function (
 
   let colormapToApply = colormap;
 
-  if (voi) {
-    colormapToApply = remapColormap(colormap, voi);
+  if (currentVoi) {
+    colormapToApply = remapColormap(colormap, currentVoi);
   }
+  const property = volumeActor.getProperty() as any;
+  const rgbTransferFunction = property.getRGBTransferFunction(0);
 
-  const rgbTransferFunction = volumeActor
-    .getProperty()
-    .getRGBTransferFunction(0);
-
-  const opacityTransferFunction = volumeActor.getProperty().getScalarOpacity(0);
+  const opacityTransferFunction = property.getScalarOpacity(0);
 
   rgbTransferFunction.removeAllPoints();
   opacityTransferFunction.removeAllPoints();
 
   colormapToApply.colormapCurves.forEach(curve => {
     curve.points.forEach(point => {
-      //TODO: check what layer is for
-      const { value, opacity, color, layer } = point;
+      const { value, opacity, color } = point;
 
       const r = color[0] / 255;
       const g = color[1] / 255;
@@ -182,6 +161,7 @@ export const applyColormap = function (
   });
 
   viewport.render();
+  store.setImageColormap(viewport.element.id, colormap.name);
 };
 
 /**
@@ -220,4 +200,18 @@ export const getVOIFromViewport = function (
     windowWidth: voiRange.upper - voiRange.lower,
     windowCenter: (voiRange.upper + voiRange.lower) / 2
   };
+};
+
+/**s
+ * Reset the colormap to default and clear the store
+ * @function resetColormapToDefault
+ * @param {_cornerstone.VolumeViewport} viewport - Cornerstone3D viewport
+ * @param {string} elementId - Element ID for the store
+ * @returns {void}
+ */
+export const resetColormapToDefault = function (
+  viewport: _cornerstone.VolumeViewport
+): void {
+  const currentVoi = getVOIFromViewport(viewport);
+  applyColormap(viewport, defaultColormap, currentVoi);
 };
