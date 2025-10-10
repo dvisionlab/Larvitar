@@ -93,6 +93,9 @@
         <div>
           <select id="colormap-dropdown" class="form-select"></select>
         </div>
+        <button id="resetColormapBtn" class="btn btn-info btn-sm">
+          Reset to Default
+        </button>
         <button id="showCodeBtn" class="open-button">Show Code</button>
       </div>
       <div
@@ -188,6 +191,7 @@
       let cleanupVOIListener = null;
 
       const colormapDropdown = document.getElementById("colormap-dropdown");
+      const resetColormapBtn = document.getElementById("resetColormapBtn");
 
       function updateColormapDropdown() {
         colormapDropdown.innerHTML = "";
@@ -208,15 +212,27 @@
             cleanupVOIListener();
           }
 
-          const currentVoi = larvitar.getVOIFromViewport(viewport);
-
-          larvitar.applyColormapByName(viewport, selectedName, currentVoi);
+          larvitar.applyColormapByName(viewport, selectedName);
 
           cleanupVOIListener = setupColormapVOIListener(viewport, selectedName);
         }
       }
 
       colormapDropdown.addEventListener("change", handleColormapChange);
+
+      resetColormapBtn.addEventListener("click", () => {
+        if (!viewport) {
+          return;
+        }
+        if (cleanupVOIListener) {
+          cleanupVOIListener();
+          cleanupVOIListener = null;
+        }
+        larvitar.resetColormapToDefault(viewport);
+        colormapDropdown.value = "Default";
+        cleanupVOIListener = setupColormapVOIListener(viewport, "Default");
+        larvitar._resetViewports([viewport.element.id], ["contrast"]);
+      });
 
       updateColormapDropdown();
 
@@ -392,13 +408,8 @@
                   }
 
                   const initialColormapName = colormapDropdown.value;
-                  const initialVoi = larvitar.getVOIFromViewport(viewport);
 
-                  larvitar.applyColormapByName(
-                    viewport,
-                    initialColormapName,
-                    initialVoi
-                  );
+                  larvitar.applyColormapByName(viewport, initialColormapName);
 
                   cleanupVOIListener = setupColormapVOIListener(
                     viewport,

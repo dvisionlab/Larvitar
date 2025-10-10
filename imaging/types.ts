@@ -388,11 +388,9 @@ export type ColormapPoint = {
   value: number;
   opacity: number;
   color: [number, number, number];
-  layer: number;
 };
 
 export type ColormapCurve = {
-  interpolationMethod: string;
   points: ColormapPoint[];
 };
 
