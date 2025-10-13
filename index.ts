@@ -283,8 +283,9 @@ import {
   applyColormapByName,
   addCustomColormap,
   getColormaps,
-  getVOIFromViewport
-} from "./imaging/postProcessing/applyColormap";
+  getVOIFromViewport,
+  resetColormapToDefault
+} from "./imaging3d/postProcessing/applyColormap";
 import {
   addMouseKeyHandlers,
   removeMouseKeyHandlers,
@@ -595,6 +596,7 @@ export {
   addCustomColormap,
   getColormaps,
   getVOIFromViewport,
+  resetColormapToDefault,
   // imageTools
   addDiameterTool,
   addContoursTool,
