@@ -203,16 +203,16 @@ export const destroyRenderingEngine = function (
     );
     return;
   }
-
   renderingEngine.getViewports().forEach(viewport => {
     const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroupForViewport(
       viewport.id,
       renderingEngineId
     );
-
+    toolGroup?.removeViewports(renderingEngineId, viewport.id);
     if (toolGroup?.id) {
       destroyToolGroup(toolGroup.id);
     }
+    renderingEngine.disableElement(viewport.id);
   });
 
   renderingEngine.destroy();
@@ -470,7 +470,7 @@ export const renderMpr = async function (
 export const unloadMpr = function (renderingEngineId: string): void {
   // get a viewport from the rendering engine
   // in order to remove the imageIds from the cache
-  const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
+  let renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
   if (!renderingEngine) {
     logger.error(
       `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
@@ -484,12 +484,13 @@ export const unloadMpr = function (renderingEngineId: string): void {
     );
     return;
   }
+
   const viewport = viewports[0]; // Get the first viewport to access imageIds
   const imageIds3D = viewport.getImageIds();
 
   const volumeId = viewport.getVolumeId();
   // cache from cornerstone core
-  const volume = cornerstone.cache.getVolume(volumeId);
+  let volume = cornerstone.cache.getVolume(volumeId);
   if (volume) {
     logger.debug(`Unloading volume: ${volumeId} from cache`);
     volume.removeFromCache();
@@ -506,6 +507,10 @@ export const unloadMpr = function (renderingEngineId: string): void {
   }
 
   destroyRenderingEngine(renderingEngineId);
+  // @ts-ignore for garbage collection
+  renderingEngine = null;
+  // @ts-ignore for garbage collection
+  volume = null;
 };
 
 /**
