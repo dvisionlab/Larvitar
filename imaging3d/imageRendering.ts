@@ -1,6 +1,6 @@
-/** @module imaging/imageRendering
+/** @module imaging3d/imageRendering
  *  @desc  This file provides functionalities for
- *         rendering images in html canvas using cornerstone
+ *         rendering images in html canvas using cornerstone3D
  */
 
 // external libraries
@@ -11,12 +11,7 @@ import { each, forEach } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
-//import { getPerformanceMonitor } from "./monitors/performance";
-//import { getFileImageId, getFileManager } from "./loaders/fileLoader";
-//import { csToolsCreateStack } from "../imaging/tools/main";
-//import { toggleMouseToolsListeners } from "../imaging/tools/interaction";
 import store, { set as setStore } from "../imaging/imageStore";
-//import { applyColorMap } from "../imaging/imageColormaps";
 import { isElement } from "../imaging/imageUtils";
 
 import {
@@ -36,14 +31,26 @@ import { addImageUrlMetadata } from "./metadataProviders/imageUrlMetadataProvide
 import { addGeneralSeriesMetadata } from "./metadataProviders/generalSeriesProvider";
 import { addImagePlaneMetadata } from "./metadataProviders/imagePlaneMetadataProvider";
 
-// import { DEFAULT_TOOLS } from "./tools/default";
-// import { initializeFileImageLoader } from "./imageLoading";
-// import { generateFiles } from "./parsers/pdf";
-// import { setPixelShift } from "./loaders/dsaImageLoader";
-
 /*
  * This module provides the following functions to be exported:
- *
+ * renderImage(seriesStack, elementId, options)
+ * initializeRenderingEngine(renderingEngineId)
+ * destroyRenderingEngine(renderingEngineId)
+ * initializeVolumeViewports(renderingEngineId, mprViewports)
+ * loadAndCacheVolume(series)
+ * setVolumeForRenderingEngine(volumeId, renderingEngineId)
+ * addStandardMetadata(imageId, metadata)
+ * renderMpr(seriesStack, renderingEngineId, options)
+ * unloadMpr(renderingEngineId)
+ * initializeVideoViewport(renderingEngineId, viewport)
+ * getVideoUrlFromDicom(series, index)
+ * addVideoMetadata(imageId, metadata, videoUrl)
+ * renderVideo(series, renderingEngineId, frameNumber)
+ * unloadVideo(renderingEngineId)
+ * resizeRenderingEngine(renderingEngineId)
+ * resetViewports(elementIds, keys)
+ * purge3DCache()
+ * storeViewportData(elementId, viewport, data)
  */
 
 /**
@@ -141,6 +148,8 @@ export const renderImage = function (
 
   return renderPromise;
 };
+
+// TODO UNLOAD STANDARD IMAGE, NOT USED AT THE MOMENT
 
 /**
  * Initialize a rendering engine with a renderingEngineId
@@ -360,23 +369,16 @@ export const addStandardMetadata = function (
   });
 };
 
-// DEV
-const windowWidth = 400;
-const windowCenter = 40;
-
-const lower = windowCenter - windowWidth / 2.0;
-const upper = windowCenter + windowWidth / 2.0;
-
-const ctVoiRange = { lower, upper };
-
-function setCtTransferFunctionForVolumeActor({ volumeActor }: any) {
-  volumeActor
-    .getProperty()
-    .getRGBTransferFunction(0)
-    .setMappingRange(lower, upper);
-}
-// END DEV
-
+/**
+ * Render a multiplanar reconstruction (MPR) view
+ * @instance
+ * @function renderMpr
+ * @param {Object} seriesStack - The original series data object
+ * @param {String} renderingEngineId - The unique identifier of the rendering engine to render the MPR in
+ * @param {RenderProps} options - Optional rendering options
+ * @return {Promise} Return a promise which will resolve when MPR is displayed
+ * @throws {Error} If the rendering engine does not exist or has no volume viewports
+ */
 export const renderMpr = async function (
   seriesStack: Series,
   renderingEngineId: string,
@@ -389,7 +391,6 @@ export const renderMpr = async function (
     logger.error(
       `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
     );
-    // throw new Error(`Rendering engine with id ${renderingEngineId} not found.`);
     return new Promise((_, reject) =>
       reject(`Rendering engine with id ${renderingEngineId} not found.`)
     );
@@ -418,24 +419,10 @@ export const renderMpr = async function (
     const volume = await loadAndCacheVolume(series);
     const t1 = performance.now();
     logger.debug(`Time to load and cache volume: ${t1 - t0} milliseconds`);
-    console.log(volume);
 
     setVolumeForRenderingEngine(volume.volumeId, renderingEngineId);
     //renderingEngine.renderViewports(viewports.map(v => v.id));
     each(viewports, function (viewport: cornerstone.VolumeViewport) {
-      // const volumeId = volume.volumeId;
-      // viewport
-      //   .setVolumes([
-      //     { volumeId, callback: setCtTransferFunctionForVolumeActor }
-      //   ])
-      //   .then(() => {
-      //     viewport.setProperties({
-      //       voiRange: { lower: -160, upper: 240 },
-      //       VOILUTFunction: cornerstone.Enums.VOILUTFunctionType.LINEAR,
-      //       colormap: { name: "Grayscale" },
-      //       slabThickness: 0.1
-      //     });
-      //   });
       storeViewportData(
         viewport.id,
         viewport as cornerstone.VolumeViewport,
@@ -500,13 +487,23 @@ export const unloadMpr = function (renderingEngineId: string): void {
   const viewport = viewports[0]; // Get the first viewport to access imageIds
   const imageIds3D = viewport.getImageIds();
 
-  // if (imageIds3D && imageIds3D.length > 0) {
-  //   forEach(imageIds3D, imageId => {
-  //     const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
-  //     logger.debug(`Unloading imageId: ${imageId} from cache`);
-  //     cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
-  //   });
-  // }
+  const volumeId = viewport.getVolumeId();
+  // cache from cornerstone core
+  const volume = cornerstone.cache.getVolume(volumeId);
+  if (volume) {
+    logger.debug(`Unloading volume: ${volumeId} from cache`);
+    volume.removeFromCache();
+    volume.destroy();
+  }
+
+  if (imageIds3D && imageIds3D.length > 0) {
+    forEach(imageIds3D, imageId => {
+      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+      logger.debug(`Unloading imageId: ${imageId} from cache`);
+      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      cornerstone.cache.removeImageLoadObject(imageId, { force: true });
+    });
+  }
 
   destroyRenderingEngine(renderingEngineId);
 };
@@ -766,18 +763,6 @@ export const renderVideo = function (
 };
 
 /**
- * Event handler for rendering a frame in a video viewport
- * @instance
- * @function renderFrameEvent
- * @param {any} event - The event object containing the viewport details
- * @returns {void}
- */
-const renderFrameEvent = function (event: any): void {
-  const frame = event.detail.viewport.getFrameNumber();
-  setStore(["sliceId", event.detail.viewport.id, frame]);
-};
-
-/**
  * Unload a Video rendering engine and remove event listeners
  * @instance
  * @function unloadVideo
@@ -877,569 +862,30 @@ export const resetViewports = function (
   });
 };
 
-// /**
-//  * Purge the cornestone internal cache
-//  * If seriesId is passed as argument only imageIds of the series are purged from internal cache
-//  * @instance
-//  * @function clearImageCache
-//  * @param {String} seriesId - The id of the serie
-//  */
-// export const clearImageCache = function (seriesId?: string) {
-//   if (seriesId) {
-//     let series = store.get("series");
-//     if (has(series, seriesId)) {
-//       each(series[seriesId].imageIds, function (imageId: string) {
-//         if (cornerstone.imageCache.cachedImages.length > 0) {
-//           try {
-//             cornerstone.imageCache.removeImageLoadObject(imageId);
-//           } catch (e) {
-//             console.warn("no cached image");
-//           }
-//         } else {
-//           let uri =
-//             cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
-//           cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
-//         }
-//       });
-
-//       store.removeSeriesId(seriesId);
-//       console.log("Uncached images for ", seriesId);
-//     }
-//   } else {
-//     cornerstone.imageCache.purgeCache();
-//   }
-// };
-
-// /**
-//  * Load and cache a single image
-//  * Add series's imageIds into store
-//  * @instance
-//  * @function loadAndCacheImage
-//  * @param {Object} series the parsed series data
-//  * @param {number} imageIndex the image index in the imageIds array
-//  */
-// export function loadAndCacheImage(
-//   series: Series,
-//   imageIndex: number
-// ): Promise<true> {
-//   const t0 = performance.now();
-//   // add serie's imageIds into store
-//   store.addSeriesId(series.seriesUID, series.imageIds);
-//   const imageId: string | undefined = series.imageIds[imageIndex];
-
-//   const cachePromise = new Promise<true>((resolve, reject) => {
-//     //check if it is a metadata-only object
-//     if (imageId && series.instances[imageId].metadata.pixelDataLength != 0) {
-//       cornerstone.loadAndCacheImage(imageId).then(function () {
-//         setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
-//         const t1 = performance.now();
-//         console.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
-//         console.debug(
-//           `Cached image with index ${imageIndex} for ${series.seriesUID}`
-//         );
-//         resolve(true);
-//       });
-//     } else if (series.instances[imageId].metadata.pixelDataLength === 0) {
-//       reject(`File ${imageIndex}, has no Pixel Data available`);
-//     } else {
-//       reject(`Error: wrong image index ${imageIndex}, no imageId available`);
-//     }
-//   });
-//   return cachePromise;
-// }
-
-// /**
-//  * Load and cache all serie's images
-//  * Add series's imageIds into store
-//  * @instance
-//  * @function loadAndCacheImages
-//  * @param {Object} series the parsed series data
-//  * @param {Function} callback a callback function
-//  */
-// export function loadAndCacheImages(
-//   series: Series,
-//   callback: (payload: {
-//     seriesId: string;
-//     loading: number;
-//     series: Series;
-//   }) => any
-// ) {
-//   const t0 = performance.now();
-//   let cachingCounter = 0;
-//   const response = {
-//     seriesId: series.seriesUID,
-//     loading: 0,
-//     series: {} as Series
-//   };
-//   callback(response);
-//   // add serie's imageIds into store
-//   store.addSeriesId(series.seriesUID, series.imageIds);
-//   // add serie's caching progress into store
-//   setStore(["progress", series.seriesUID, 0]);
-
-//   function updateProgress() {
-//     cachingCounter += 1;
-//     const cachingPercentage = Math.floor(
-//       (cachingCounter / series.imageIds.length) * 100
-//     );
-//     response.loading = cachingPercentage;
-//     setStore(["progress", series.seriesUID, cachingPercentage]);
-//     if (cachingCounter == series.imageIds.length) {
-//       const t1 = performance.now();
-//       console.debug(`Call to cacheImages took ${t1 - t0} milliseconds.`);
-//       console.debug(`Cached images for ${series.seriesUID}`);
-//       response.series = series;
-//     }
-//   }
-
-//   each(series.imageIds, function (imageId: string | undefined, index: number) {
-//     //check if it is a metadata-only object
-//     if (imageId && series.instances[imageId].metadata.pixelDataLength != 0) {
-//       cornerstone.loadAndCacheImage(imageId).then(function () {
-//         setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
-//         updateProgress();
-//         callback(response);
-//       });
-//     } else if (series.instances[imageId!].metadata.pixelDataLength === 0) {
-//       updateProgress();
-//       //throw new Error(`File ${index} has no Pixel Data`);
-//     } else {
-//       updateProgress();
-//       console.warn(
-//         `Stack is not fully loaded, skipping cache for index ${index}`
-//       );
-//       callback(response);
-//     }
-//   });
-// }
-
-// /**
-//  * Render a PDF from a DICOM Encapsulated PDF
-//  * @instance
-//  * @function renderDICOMPDF
-//  * @param {Object} seriesStack - The original series data object
-//  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
-//  * @param {Boolean} convertToImage - An optional flag to convert pdf to image, default is false
-//  * @returns {Promise} - Return a promise which will resolve when pdf is displayed
-//  */
-// export const renderDICOMPDF = function (
-//   seriesStack: Series,
-//   elementId: string | HTMLElement,
-//   convertToImage: boolean = false
-// ): Promise<true> {
-//   let t0 = performance.now();
-//   let element: HTMLElement | null = isElement(elementId)
-//     ? (elementId as HTMLElement)
-//     : document.getElementById(elementId as string);
-
-//   let renderPromise = new Promise<true>(async (resolve, reject) => {
-//     let image: Instance | null = seriesStack.instances[seriesStack.imageIds[0]];
-//     const SOPUID = image.dataSet?.string("x00080016");
-
-//     // check sopUID in order to detect pdf report array
-//     if (SOPUID === "1.2.840.10008.5.1.4.1.1.104.1") {
-//       let fileTag = image.dataSet?.elements.x00420011;
-
-//       if (!fileTag) {
-//         throw new Error("No file tag found");
-//       }
-
-//       let pdfByteArray = image.dataSet?.byteArray.slice(
-//         fileTag.dataOffset,
-//         fileTag.dataOffset + fileTag.length
-//       );
-
-//       if (!pdfByteArray) {
-//         console.error("No pdf byte array found");
-//         return;
-//       }
-
-//       if (!element) {
-//         console.error("invalid html element: " + elementId);
-//         return;
-//       }
-
-//       let PDF: Blob | null = new Blob([pdfByteArray], {
-//         type: "application/pdf"
-//       });
-//       let fileURL = URL.createObjectURL(PDF);
-//       const id: string = isElement(elementId)
-//         ? element.id
-//         : (elementId as string);
-//       // Render using HTML PDF viewer
-//       if (convertToImage === false) {
-//         element.innerHTML =
-//           '<object data="' +
-//           fileURL +
-//           '" type="application/pdf" width="100%" height="100%"></object>';
-//         setStore(["isPDF", id, true]);
-//         let t1 = performance.now();
-//         console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
-//         image = null;
-//         fileTag = undefined;
-//         pdfByteArray = undefined;
-//         PDF = null;
-//         resolve(true);
-//       } else if (convertToImage === true) {
-//         initializeFileImageLoader();
-//         let pngFiles = await generateFiles(fileURL);
-//         // render first page // TODO: render all pages?
-//         renderFileImage(pngFiles[0], elementId).then(() => {
-//           let t1 = performance.now();
-//           console.log(`Call to renderDICOMPDF took ${t1 - t0} milliseconds.`);
-//           image = null;
-//           fileTag = undefined;
-//           pdfByteArray = undefined;
-//           PDF = null;
-//           // activate the scroll stack tool
-//           if (element) {
-//             csToolsCreateStack(element, Object.values(getFileManager()), 0);
-//           }
-//           toggleMouseToolsListeners(id, false);
-//           resolve(true);
-//         });
-//       }
-//     } else {
-//       reject("This is not a DICOM with a PDF");
-//     }
-//   });
-//   return renderPromise;
-// };
-
-// /**
-//  * Unrender an image on a html div using cornerstone
-//  * @instance
-//  * @function disableViewport
-//  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
-//  */
-// export const disableViewport = function (elementId: string | HTMLElement) {
-//   let element = isElement(elementId)
-//     ? (elementId as HTMLElement)
-//     : document.getElementById(elementId as string);
-//   if (!element) {
-//     console.error("invalid html element: " + elementId);
-//     return;
-//   }
-//   toggleMouseToolsListeners(element, true);
-//   cornerstone.disable(element);
-//   const id: string = isElement(elementId) ? element.id : (elementId as string);
-//   setStore(["ready", id, false]);
-// };
-
-// /**
-//  * Unrender an image on a html div using cornerstone
-//  * Remove image from cornerstone cache and remove from store
-//  * @instance
-//  * @function unloadViewport
-//  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
-//  * @param {String} seriesId - The id of the serie
-//  */
-// export const unloadViewport = function (elementId: string, seriesId: string) {
-//   disableViewport(elementId);
-
-//   if (!seriesId) {
-//     console.warn(
-//       "seriesId not provided, use disableViewport if you do not want to uncache images"
-//     );
-//   }
-//   // remove images from cornerstone cache
-//   if (seriesId && has(store.get("series"), seriesId)) {
-//     clearImageCache(seriesId);
-//   }
-//   store.deleteViewport(elementId);
-// };
-
-// /**
-//  * Resize a viewport using cornerstone resize
-//  * And forcing fit to window
-//  * @instance
-//  * @function resizeViewport
-//  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
-//  */
-// export const resizeViewport = function (elementId: string | HTMLElement) {
-//   let element = isElement(elementId)
-//     ? (elementId as HTMLElement)
-//     : document.getElementById(elementId as string);
-//   if (!element) {
-//     console.error("invalid html element: " + elementId);
-//     return;
-//   }
-//   cornerstone.resize(element, true); // true flag forces fitToWindow
-// };
-
-// /**
-//  * Update the cornerstone image with new imageIndex
-//  * @instance
-//  * @function updateImage
-//  * @param {Object} series - The original series data object
-//  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
-//  * @param {Number} imageIndex - The index of the image to be rendered
-//  * @param {Boolean} cacheImage - A flag to handle image cache
-//  */
-// export const updateImage = async function (
-//   series: Series,
-//   elementId: string | HTMLElement,
-//   imageIndex: number,
-//   cacheImage: boolean
-// ): Promise<void> {
-//   const element = isElement(elementId)
-//     ? (elementId as HTMLElement)
-//     : document.getElementById(elementId as string);
-//   if (!element) {
-//     throw "not element";
-//   }
-
-//   const id: string = isElement(elementId) ? element.id : (elementId as string);
-//   const isDSAEnabled = store.get(["viewports", id, "isDSAEnabled"]);
-//   const imageId =
-//     isDSAEnabled === true
-//       ? series.dsa!.imageIds[imageIndex]
-//       : series.imageIds[imageIndex];
-
-//   //check if it is a metadata-only object
-//   if (
-//     series.instances[series.imageIds[imageIndex]].metadata.pixelDataLength != 0
-//   ) {
-//     if (isDSAEnabled === true) {
-//       // get the optional custom pixel shift
-//       const pixelShift = store.get(["viewports", id, "pixelShift"]);
-//       setPixelShift(pixelShift);
-//     }
-
-//     if (!imageId) {
-//       setStore(["pendingSliceId", id, imageIndex]);
-//       throw `Error: wrong image index ${imageIndex}, no imageId available`;
-//     }
-
-//     if (series.is4D) {
-//       const timestamp = series.instances[imageId].metadata.contentTime;
-//       const timeId =
-//         series.instances[imageId].metadata.temporalPositionIdentifier! - 1; // timeId from 0 to N
-//       setStore(["timeId", id as string, timeId]);
-//       setStore(["timestamp", id as string, timestamp]);
-//     }
-
-//     if (cacheImage) {
-//       let t0: number | undefined;
-//       if (getPerformanceMonitor() === true) {
-//         t0 = performance.now();
-//       }
-
-//       cornerstone.loadAndCacheImage(imageId).then(function (image) {
-//         cornerstone.displayImage(element, image);
-
-//         if (getPerformanceMonitor() === true) {
-//           const t1 = performance.now();
-//           if (t0 !== undefined) {
-//             // check if t0 is defined before using it
-//             console.log(
-//               `Call to updateImage for viewport ${id} took ${
-//                 t1 - t0
-//               } milliseconds.`
-//             );
-//           }
-//         }
-//         setStore(["cached", series.larvitarSeriesInstanceUID, imageId, true]);
-//         setStore(["sliceId", id, imageIndex]);
-//         const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
-//         if (imageIndex == pendingSliceId) {
-//           setStore(["pendingSliceId", id, undefined]);
-//         }
-//         setStore(["minPixelValue", id, image.minPixelValue]);
-//         setStore(["maxPixelValue", id, image.maxPixelValue]);
-//       });
-//     } else {
-//       let t0: number | undefined;
-//       if (getPerformanceMonitor() === true) {
-//         t0 = performance.now();
-//       }
-
-//       const image = await cornerstone.loadImage(imageId);
-//       cornerstone.displayImage(element, image);
-
-//       if (getPerformanceMonitor() === true) {
-//         const t1 = performance.now();
-//         if (t0 !== undefined) {
-//           // check if t0 is defined before using it
-//           console.log(
-//             `Call to updateImage for viewport ${id} took ${
-//               t1 - t0
-//             } milliseconds.`
-//           );
-//         }
-//       }
-
-//       setStore(["sliceId", id, imageIndex]);
-//       const pendingSliceId = store.get(["viewports", id, "pendingSliceId"]);
-//       if (imageIndex == pendingSliceId) {
-//         setStore(["pendingSliceId", id, undefined]);
-//       }
-//       setStore(["minPixelValue", id, image.minPixelValue]);
-//       setStore(["maxPixelValue", id, image.maxPixelValue]);
-//     }
-//   }
-// };
-
-// /**
-//  * Reset viewport values (scale, translation and wwwc)
-//  * @instance
-//  * @function resetViewports
-//  * @param {Array} elementIds - The array of hmtl div ids
-//  * @param {Array} keys - The array of viewport sections to resets (default is all)
-//  */
-// export const resetViewports = function (
-//   elementIds: string[],
-//   keys?: Array<
-//     "contrast" | "scaleAndTranslation" | "rotation" | "flip" | "zoom"
-//   >
-// ) {
-//   each(elementIds, function (elementId: string) {
-//     const element = document.getElementById(elementId);
-//     if (!element) {
-//       console.error("invalid html element: " + elementId);
-//       return;
-//     }
-
-//     const defaultViewport = store.get(["viewports", elementId, "default"]);
-//     const viewport = cornerstone.getViewport(element);
-
-//     if (!viewport) {
-//       throw new Error("viewport not found");
-//     }
-
-//     if (!keys || keys.find(v => v === "contrast")) {
-//       viewport.voi.windowWidth = defaultViewport.voi.windowWidth;
-//       viewport.voi.windowCenter = defaultViewport.voi.windowCenter;
-//       viewport.invert = defaultViewport.voi.invert;
-//       setStore([
-//         "contrast",
-//         elementId,
-//         viewport.voi.windowWidth,
-//         viewport.voi.windowCenter
-//       ]);
-//     }
-
-//     if (!keys || keys.find(v => v === "scaleAndTranslation")) {
-//       viewport.scale = defaultViewport.scale;
-//       setStore(["scale", elementId, viewport.scale]);
-
-//       viewport.translation.x = defaultViewport.translation.x;
-//       viewport.translation.y = defaultViewport.translation.y;
-//       setStore([
-//         "translation",
-//         elementId,
-//         viewport.translation.x,
-//         viewport.translation.y
-//       ]);
-//     }
-
-//     if (!keys || keys.find(v => v === "rotation")) {
-//       viewport.rotation = defaultViewport.rotation;
-//       setStore(["rotation", elementId, viewport.rotation]);
-//     }
-
-//     if (!keys || keys.find(v => v === "flip")) {
-//       viewport.hflip = false;
-//       viewport.vflip = false;
-//     }
-
-//     if (!keys || keys.find(v => v === "zoom")) {
-//       viewport.scale = defaultViewport.scale;
-//       setStore(["scale", elementId, viewport.scale]);
-//     }
-
-//     cornerstone.setViewport(element, viewport);
-
-//     if (!keys || keys.find(v => v === "scaleAndTranslation")) {
-//       cornerstone.fitToWindow(element);
-//     }
-//     cornerstone.updateImage(element);
-//   });
-// };
-
-// /**
-//  * Update viewport data in store
-//  * @instance
-//  * @function updateViewportData
-//  * @param {string} elementId - The html div id used for rendering or its DOM HTMLElement
-//  * @param {Viewport} viewportData - The new viewport data
-//  * @param {string} activeTool - The active tool on the viewport
-//  */
-// export const updateViewportData = function (
-//   elementId: string,
-//   viewportData: Viewport,
-//   activeTool: string
-// ) {
-//   let element = document.getElementById(elementId as string);
-//   if (!element) {
-//     console.error("invalid html element: " + elementId);
-//     return;
-//   }
-//   const toolsNames = Object.keys(DEFAULT_TOOLS);
-//   const isValidTool = toolsNames.includes(activeTool);
-//   if (isValidTool === true) {
-//     switch (activeTool) {
-//       case "WwwcRegion":
-//       case "WwwcRemoveRegion":
-//       case "Wwwc":
-//       case "Wwwl":
-//         if (viewportData.voi) {
-//           setStore([
-//             "contrast",
-//             elementId,
-//             viewportData.voi.windowWidth,
-//             viewportData.voi.windowCenter
-//           ]);
-//         }
-//         break;
-//       case "Pan":
-//         if (viewportData.translation) {
-//           setStore([
-//             "translation",
-//             elementId,
-//             viewportData.translation.x,
-//             viewportData.translation.y
-//           ]);
-//         }
-//         break;
-//       case "Zoom":
-//         if (viewportData.scale) {
-//           setStore(["scale", elementId, viewportData.scale]);
-//         }
-//         break;
-//       case "Rotate":
-//         if (viewportData.rotation) {
-//           setStore(["rotation", elementId, viewportData.rotation]);
-//         }
-//         break;
-//       case "CustomMouseWheelScroll":
-//         const viewport = store.get(["viewports", elementId]);
-//         const isTimeserie = viewport.isTimeserie;
-//         if (isTimeserie) {
-//           const index = viewportData.newImageIdIndex;
-//           const timeId = viewport.timeIds[index];
-//           const timestamp = viewport.timestamps[index];
-//           setStore(["timeId", elementId, timeId]);
-//           setStore(["timestamp", elementId, timestamp]);
-//         }
-//         break;
-//       default:
-//         // console.warn("unhandled tool: " + activeTool);
-//         break;
-//     }
-//   } else {
-//     console.warn("unknown tool: " + activeTool);
-//   }
-// };
+/**
+ * Purge all 3D cached volumes and rendering engines
+ * @instance
+ * @function purge3DCache
+ * @returns {void}
+ */
+export const purge3DCache = function (): void {
+  const renderingEngines = cornerstone.getRenderingEngines();
+  each(renderingEngines, function (re: cornerstone.RenderingEngine) {
+    const viewports = re.getVolumeViewports();
+    if (viewports.length > 0) {
+      unloadMpr(re.id);
+    }
+  });
+};
 
 /**
  * Store the viewport data into internal storage
  * @instance
  * @function storeViewportData
- * @param {Object} image - The cornerstone image frame
  * @param {String} elementId - The html div id used for rendering
  * @param {String} viewport - The viewport tag name
  * @param {Object} data - The viewport data object
+ * @returns {void}
  */
 export const storeViewportData = function (
   elementId: string,
@@ -1480,204 +926,7 @@ export const storeViewportData = function (
   setStore(["dsa", elementId, data.dsa]);
 };
 
-// /**
-//  * Invert pixels of an image
-//  * @instance
-//  * @function invertImage
-//  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
-//  */
-// export const invertImage = function (elementId: string | HTMLElement) {
-//   let element = isElement(elementId)
-//     ? (elementId as HTMLElement)
-//     : document.getElementById(elementId as string);
-//   if (!element) {
-//     console.error("invalid html element: " + elementId);
-//     return;
-//   }
-//   let viewport = cornerstone.getViewport(element);
-
-//   if (!viewport) {
-//     throw new Error("Viewport is undefined");
-//   }
-
-//   viewport.invert = !viewport.invert;
-//   cornerstone.setViewport(element, viewport);
-// };
-
-// /**
-//  * Flip image around horizontal axis
-//  * @instance
-//  * @function flipImageHorizontal
-//  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
-//  */
-// export const flipImageHorizontal = function (elementId: string | HTMLElement) {
-//   let element = isElement(elementId)
-//     ? (elementId as HTMLElement)
-//     : document.getElementById(elementId as string);
-//   if (!element) {
-//     console.error("invalid html element: " + elementId);
-//     return;
-//   }
-//   let viewport = cornerstone.getViewport(element);
-
-//   if (!viewport) {
-//     throw new Error("Viewport is undefined");
-//   }
-
-//   viewport.hflip = !viewport.hflip;
-//   cornerstone.setViewport(element, viewport);
-// };
-
-// /**
-//  * Flip image around vertical axis
-//  * @instance
-//  * @function flipImageVertical
-//  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
-//  */
-// export const flipImageVertical = function (elementId: string | HTMLElement) {
-//   let element = isElement(elementId)
-//     ? (elementId as HTMLElement)
-//     : document.getElementById(elementId as string);
-//   if (!element) {
-//     console.error("invalid html element: " + elementId);
-//     return;
-//   }
-//   let viewport = cornerstone.getViewport(element);
-
-//   if (!viewport) {
-//     throw new Error("Viewport is undefined");
-//   }
-
-//   viewport.vflip = !viewport.vflip;
-//   cornerstone.setViewport(element, viewport);
-// };
-
-// /**
-//  * Rotate image by 90° in left direction
-//  * @instance
-//  * @function rotateImageLeft
-//  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
-//  */
-// export const rotateImageLeft = function (elementId: string | HTMLElement) {
-//   let element = isElement(elementId)
-//     ? (elementId as HTMLElement)
-//     : document.getElementById(elementId as string);
-//   if (!element) {
-//     console.error("invalid html element: " + elementId);
-//     return;
-//   }
-//   let viewport = cornerstone.getViewport(element);
-
-//   if (!viewport) {
-//     throw new Error("Viewport is undefined");
-//   }
-
-//   viewport.rotation -= 90;
-//   cornerstone.setViewport(element, viewport);
-// };
-
-// /**
-//  * Rotate image by 90° in right direction
-//  * @instance
-//  * @function rotateImageRight
-//  * @param {Object} elementId - The html div id used for rendering or its DOM HTMLElement
-//  */
-// export const rotateImageRight = function (elementId: string | HTMLElement) {
-//   let element = isElement(elementId)
-//     ? (elementId as HTMLElement)
-//     : document.getElementById(elementId as string);
-//   if (!element) {
-//     console.error("invalid html element: " + elementId);
-//     return;
-//   }
-//   let viewport = cornerstone.getViewport(element);
-
-//   if (!viewport) {
-//     throw new Error("Viewport is undefined");
-//   }
-
-//   viewport.rotation += 90;
-//   cornerstone.setViewport(element, viewport);
-// };
-
-// /**
-//  * Update Larvitar manager temporal viewport data
-//  * @instance
-//  * @function updateTemporalViewportData
-//  * @param {Series} seriesStack The Id of the series
-//  * @param {String} elementId The Id of the html element
-//  */
-// export const updateTemporalViewportData = function (
-//   seriesStack: Series,
-//   elementId: string
-// ): void {
-//   let series = { ...seriesStack };
-
-//   const data = getTemporalSeriesData(series);
-//   if (series.is4D) {
-//     setStore([
-//       "numberOfTemporalPositions",
-//       elementId,
-//       data.numberOfTemporalPositions as number
-//     ]);
-//     setStore(["minTimeId", elementId, 0]);
-//     if (data.numberOfSlices && data.numberOfTemporalPositions) {
-//       setStore(["maxTimeId", elementId, data.numberOfTemporalPositions - 1]);
-//       let maxSliceId = data.numberOfSlices * data.numberOfTemporalPositions - 1;
-//       setStore(["maxSliceId", elementId, maxSliceId]);
-//     }
-//     setStore(["timestamps", elementId, data.timestamps || []]);
-//     setStore(["timeIds", elementId, data.timeIds || []]);
-//   } else {
-//     setStore(["minTimeId", elementId, 0]);
-//     setStore(["timeId", elementId, 0]);
-//     setStore(["maxTimeId", elementId, 0]);
-//     setStore(["timestamp", elementId, 0]);
-//     setStore(["timestamps", elementId, []]);
-//     setStore(["timeIds", elementId, []]);
-//   }
-// };
-
-/* Internal module functions */
-
-// /**
-//  * Get series metadata from default props and series' metadata
-//  * @instance
-//  * @function getTemporalSeriesData
-//  * @param {Object} series - The parsed data series
-//  * @return {Object} data - A data dictionary with temporal parsed tags' values
-//  */
-// const getTemporalSeriesData = function (series: Series): StoreViewport {
-//   type RecursivePartial<T> = {
-//     [P in keyof T]?: RecursivePartial<T[P]>;
-//   };
-//   type SeriesData = StoreViewport;
-//   const data: RecursivePartial<SeriesData> = {};
-//   if (series.is4D) {
-//     data.isMultiframe = false;
-//     data.isTimeserie = true;
-//     // check with real indices
-//     data.numberOfSlices = series.numberOfImages;
-//     data.numberOfTemporalPositions = series.numberOfTemporalPositions;
-//     data.imageIndex = 0;
-//     data.timeIndex = 0;
-//     data.imageId = series.imageIds[data.imageIndex];
-//     data.timestamp = series.instances[data.imageId].metadata[
-//       "x00080033"
-//     ] as number;
-//     data.timestamps = [];
-//     data.timeIds = [];
-//     each(series.imageIds, function (imageId: string) {
-//       (data.timestamps as any[]).push(
-//         series.instances[imageId].metadata.contentTime
-//       );
-//       (data.timeIds as any[]).push(
-//         series.instances[imageId].metadata.temporalPositionIdentifier! - 1 // timeId from 0 to N
-//       );
-//     });
-//   }
-//   return data as SeriesData;
-// };
+// Helper functions
 
 /**
  * Get series metadata from default props and series' metadata
@@ -1820,3 +1069,90 @@ const getSeriesData = function (
 
   return data as SeriesData;
 };
+
+/**
+ * Event handler for rendering a frame in a video viewport
+ * @instance
+ * @function renderFrameEvent
+ * @param {any} event - The event object containing the viewport details
+ * @returns {void}
+ */
+const renderFrameEvent = function (event: any): void {
+  const frame = event.detail.viewport.getFrameNumber();
+  setStore(["sliceId", event.detail.viewport.id, frame]);
+};
+
+// /**
+//  * Update viewport data in store
+//  * @instance
+//  * @function updateViewportData
+//  * @param {string} elementId - The html div id used for rendering or its DOM HTMLElement
+//  * @param {Viewport} viewportData - The new viewport data
+//  * @param {string} activeTool - The active tool on the viewport
+//  */
+// export const updateViewportData = function (
+//   elementId: string,
+//   viewportData: Viewport,
+//   activeTool: string
+// ) {
+//   let element = document.getElementById(elementId as string);
+//   if (!element) {
+//     console.error("invalid html element: " + elementId);
+//     return;
+//   }
+//   const toolsNames = Object.keys(DEFAULT_TOOLS);
+//   const isValidTool = toolsNames.includes(activeTool);
+//   if (isValidTool === true) {
+//     switch (activeTool) {
+//       case "WwwcRegion":
+//       case "WwwcRemoveRegion":
+//       case "Wwwc":
+//       case "Wwwl":
+//         if (viewportData.voi) {
+//           setStore([
+//             "contrast",
+//             elementId,
+//             viewportData.voi.windowWidth,
+//             viewportData.voi.windowCenter
+//           ]);
+//         }
+//         break;
+//       case "Pan":
+//         if (viewportData.translation) {
+//           setStore([
+//             "translation",
+//             elementId,
+//             viewportData.translation.x,
+//             viewportData.translation.y
+//           ]);
+//         }
+//         break;
+//       case "Zoom":
+//         if (viewportData.scale) {
+//           setStore(["scale", elementId, viewportData.scale]);
+//         }
+//         break;
+//       case "Rotate":
+//         if (viewportData.rotation) {
+//           setStore(["rotation", elementId, viewportData.rotation]);
+//         }
+//         break;
+//       case "CustomMouseWheelScroll":
+//         const viewport = store.get(["viewports", elementId]);
+//         const isTimeserie = viewport.isTimeserie;
+//         if (isTimeserie) {
+//           const index = viewportData.newImageIdIndex;
+//           const timeId = viewport.timeIds[index];
+//           const timestamp = viewport.timestamps[index];
+//           setStore(["timeId", elementId, timeId]);
+//           setStore(["timestamp", elementId, timestamp]);
+//         }
+//         break;
+//       default:
+//         // console.warn("unhandled tool: " + activeTool);
+//         break;
+//     }
+//   } else {
+//     console.warn("unknown tool: " + activeTool);
+//   }
+// };
