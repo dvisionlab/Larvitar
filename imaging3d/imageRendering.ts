@@ -236,7 +236,7 @@ export const initializeVolumeViewports = function (
   // get the rendering engine
   const renderingEngine = cornerstone.getRenderingEngine(renderingEngineId);
   if (!renderingEngine) {
-    logger.error(
+    logger.debug(
       `Rendering engine with id ${renderingEngineId} not found. Please initialize it first.`
     );
     return;
