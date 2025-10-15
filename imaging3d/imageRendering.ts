@@ -879,6 +879,32 @@ export const purge3DCache = function (): void {
 };
 
 /**
+ * Clear the 3D image cache for a specific series using its uniqueUID
+ * @instance
+ * @function clear3DImageCache
+ * @param {string} uniqueUID - The unique identifier of the series to clear the 3D image cache for
+ * @returns {void}
+ */
+export const clear3DImageCache = function (uniqueUID: string): void {
+  const series = store.get("series");
+  const imageIds3D = series?.[uniqueUID]?.imageIds3D || [];
+
+  if (imageIds3D.length === 0) return;
+
+  logger.debug(`Clearing 3Dimage cache for ${uniqueUID}`);
+  for (const imageId of imageIds3D) {
+    const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
+    logger.debug(`Unloading imageId3D: ${imageId} from 3Dcache`);
+    try {
+      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+      cornerstone.cache.removeImageLoadObject(imageId, { force: true });
+    } catch (e) {
+      logger.debug(`Failed to clear 3D cache for imageId: ${imageId}`, e);
+    }
+  }
+};
+
+/**
  * Store the viewport data into internal storage
  * @instance
  * @function storeViewportData
@@ -891,7 +917,7 @@ export const storeViewportData = function (
   elementId: string,
   viewport: cornerstone.VolumeViewport,
   data: ReturnType<typeof getSeriesData>
-) {
+): void {
   setStore(["dimensions", elementId, data.rows, data.cols]);
   setStore(["spacing", elementId, data.spacing_x, data.spacing_y]);
   setStore(["thickness", elementId, data.thickness]);

@@ -380,9 +380,11 @@ export const updateLoadedStack = function (
         }
       }
       store.addImageIds(id, allSeriesStack[id].imageIds);
+      store.addImageIds3D(id, allSeriesStack[id].imageIds3D!);
     } else {
       allSeriesStack[id].instanceUIDs[iid] = imageId;
       store.addImageIds(id, allSeriesStack[id].imageIds);
+      store.addImageIds3D(id, allSeriesStack[id].imageIds3D!);
     }
   }
 };

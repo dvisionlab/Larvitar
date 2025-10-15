@@ -3,6 +3,7 @@
  *        monitoring memory usage
  */
 
+import { clear3DImageCache } from "../../imaging3d/imageRendering";
 import { logger } from "../../logger";
 import { getImageManager, removeDataFromImageManager } from "../imageManagers";
 import { clearImageCache } from "../imageRendering";
@@ -49,6 +50,7 @@ export const checkAndClearMemory = function (
     // remove non rendered series from manager
     nonRenderedUniqueIds.forEach(uniqueUID => {
       removeDataFromImageManager(uniqueUID);
+      clear3DImageCache(uniqueUID);
       clearImageCache(uniqueUID);
       store.removeImageIds(uniqueUID);
     });

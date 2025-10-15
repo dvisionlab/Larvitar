@@ -314,6 +314,7 @@ import { resizeRenderingEngine as _resizeRenderingEngine } from "./imaging3d/ima
 import { renderMpr as _renderMpr } from "./imaging3d/imageRendering";
 import { unloadMpr as _unloadMpr } from "./imaging3d/imageRendering";
 import { purge3DCache as _purge3DCache } from "./imaging3d/imageRendering";
+import { clear3DImageCache as _clear3DImageCache } from "./imaging3d/imageRendering";
 import { prefetchMetadataInformation as _prefetchMetadataInformation } from "./imaging3d/multiframe";
 import { convertMultiframeImageIds as _convertMultiframeImageIds } from "./imaging3d/multiframe";
 import { initializeVideoViewport as _initializeVideoViewport } from "./imaging3d/imageRendering";
@@ -382,6 +383,7 @@ export {
   _renderMpr,
   _unloadMpr,
   _purge3DCache,
+  _clear3DImageCache,
   _initializeRenderingEngine,
   _destroyRenderingEngine,
   _resizeRenderingEngine,
