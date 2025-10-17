@@ -32,6 +32,7 @@ import { getImageTracker, getImageManager } from "../imaging/imageManagers";
 import {
   ImageObject,
   Instance,
+  MetaData,
   Series,
   StagedProtocol
 } from "../imaging/types";
@@ -44,6 +45,7 @@ import {
 } from "./metadataProviders/metadataProviders";
 import { logger } from "../logger";
 import { convertMetadata } from "./imageParsing";
+import { DataSet } from "dicom-parser";
 
 const MAX_CONCURRENCY = 32;
 
@@ -261,9 +263,11 @@ export const updateLoadedStack = async function (
         allSeriesStack[id].instanceUIDs[iid] = imageId;
       }
       store.addImageIds(id, allSeriesStack[id].imageIds);
+      store.addImageIds3D(id, allSeriesStack[id].imageIds3D!);
     } else {
       allSeriesStack[id].instanceUIDs[iid] = imageId;
       store.addImageIds(id, allSeriesStack[id].imageIds);
+      store.addImageIds3D(id, allSeriesStack[id].imageIds3D!);
     }
   }
 };
@@ -450,19 +454,21 @@ export default function getPixelSpacingInformation(instance: any) {
  * @instance
  * @function loadAndCacheMetadata
  * @param {string} imageId3D - The image ID for the 3D image
- * @param {Instance} instance - The DICOM instance containing metadata
+ * @param {DataSet} dataSet - The DICOM data set
+ * @param {MetaData} metadata - The metadata object to be cached
  * @returns {void}
  */
 export const loadAndCacheMetadata = (
   imageId3D: string,
-  instance: Instance
+  dataSet: DataSet,
+  metadata: MetaData
 ): void => {
   const cleanedMetadata = DicomMetaDictionary.naturalizeDataset(
-    removeInvalidTags(convertMetadata(instance!.dataSet!))
+    removeInvalidTags(convertMetadata(dataSet))
   );
-  imageMetadataProvider.add(imageId3D, instance.metadata);
+  imageMetadataProvider.add(imageId3D, metadata);
   // Add the metadata to all providers
-  addMetadataForImageId(imageId3D, instance.metadata);
+  addMetadataForImageId(imageId3D, metadata);
 
   const pixelSpacing = getPixelSpacingInformation(cleanedMetadata);
   if (pixelSpacing === undefined) return;

@@ -144,9 +144,26 @@
 
       <!-- Spinner icon -->
       <div id="spinner"></div>
+      <span style="position: absolute; top: 60px; color: white"
+        >Used Memory (Mb): </span
+      ><span
+        style="position: absolute; top: 80px; color: white"
+        id="usedMemory"
+      ></span>
     </div>
 
     <script>
+      // memory checks
+      document.getElementById("usedMemory").textContent = parseInt(
+        performance.memory.totalJSHeapSize / 1024 / 1024
+      );
+      setInterval(() => {
+        const usedMemory = parseInt(
+          performance.memory.totalJSHeapSize / 1024 / 1024
+        );
+        document.getElementById("usedMemory").textContent = usedMemory;
+      }, 1000); // Log memory usage every 1 second
+
       const dropCanvas = document.getElementById("viewer");
       const spinner = document.getElementById("spinner");
 
@@ -292,7 +309,6 @@
         larvitar
           .readFiles(demoFiles) // need to port the updateLoadedStack function
           .then(async seriesStack => {
-            console.log(seriesStack);
             const seriesId = _.keys(seriesStack)[0];
             const serie = seriesStack[seriesId];
             const viewportInputs = [
@@ -340,10 +356,11 @@
             larvitar._initializeVolumeViewports("1234", viewportInputs);
 
             larvitar
-              ._renderMpr(serie, "1234")
+              ._renderMpr(serie, "1234") // optional params: cached: false
               .then(({ success, renderingEngine }) => {
                 console.log("Volume rendered");
                 console.log(renderingEngine);
+
                 // add and enable wwwc, pan, zoom, and stack tools
                 larvitar._addDefaultTools(
                   mprViewportIds,
@@ -401,13 +418,13 @@
                   "mprTools"
                 );
 
-                // larvitar._setToolActive(
-                //   "Wwwc",
-                //   {
-                //     bindings: [{ mouseButton: Enums.MouseBindings.Secondary }]
-                //   },
-                //   "mprTools"
-                // );
+                larvitar._setToolActive(
+                  "Wwwc",
+                  {
+                    bindings: [{ mouseButton: Enums.MouseBindings.Secondary }]
+                  },
+                  "mprTools"
+                );
 
                 hideSpinner();
               });

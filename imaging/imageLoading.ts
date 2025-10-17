@@ -348,7 +348,8 @@ export const updateLoadedStack = function (
       dataSet: seriesData.dataSet
     };
     if (imageId3D) {
-      loadAndCacheMetadata(imageId3D, allSeriesStack[id].instances[imageId]);
+      const metadata = { ...seriesData.metadata };
+      loadAndCacheMetadata(imageId3D, seriesData.dataSet!, metadata);
     }
 
     if (isPDF === false) {
@@ -379,9 +380,11 @@ export const updateLoadedStack = function (
         }
       }
       store.addImageIds(id, allSeriesStack[id].imageIds);
+      store.addImageIds3D(id, allSeriesStack[id].imageIds3D!);
     } else {
       allSeriesStack[id].instanceUIDs[iid] = imageId;
       store.addImageIds(id, allSeriesStack[id].imageIds);
+      store.addImageIds3D(id, allSeriesStack[id].imageIds3D!);
     }
   }
 };

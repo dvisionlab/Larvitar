@@ -12,6 +12,7 @@ import { ICamera, VolumeViewport } from "../imaging3d/types";
 
 type StoreSeries = {
   imageIds: string[];
+  imageIds3D?: string[];
   progress: number;
   elementId: string;
   cached: { [imageId: string]: boolean };
@@ -493,6 +494,15 @@ export default {
   resetImageIds: () => {
     validateStore();
     STORE!.series = {};
+  },
+  // add/remove series instances ids
+  addImageIds3D: (uniqueUID: string, imageIds3D: string[]) => {
+    validateStore();
+    if (!STORE!.series[uniqueUID]) {
+      STORE!.series[uniqueUID] = {} as StoreSeries;
+    }
+    STORE!.series[uniqueUID].imageIds3D = imageIds3D;
+    triggerSeriesListener(uniqueUID);
   },
   // expose useful sets
   setSliceId: (elementId: string, imageIndex: number) => {

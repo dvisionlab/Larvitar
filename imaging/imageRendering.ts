@@ -134,7 +134,7 @@ const clearCornerstoneImageCache = function (imageId: string) {
       cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
     }
   } catch (e) {
-    logger.warn(`Failed to clear cache for imageId: ${imageId}`, e);
+    logger.debug(`Failed to clear cache for imageId: ${imageId}`, e);
   }
 };
 
