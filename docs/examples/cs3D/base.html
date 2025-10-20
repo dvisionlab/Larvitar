@@ -32,7 +32,17 @@
     <link rel="stylesheet" href="../resources/styles.css" />
 
     <!-- custom styles for the example -->
-    <style></style>
+    <!-- custom styles for the example -->
+    <style>
+      .open-button {
+        left: 20px;
+      }
+
+      /* Mask overlay */
+      .dragover {
+        opacity: 0.3;
+      }
+    </style>
 
     <!-- Add the Bootstrap JS and Prism JS for code modal -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
@@ -120,11 +130,100 @@
 
         <!-- Spinner icon -->
         <div id="spinner"></div>
+        <span style="position: absolute; top: 60px; color: white"
+          >Used Memory (Mb): </span
+        ><span
+          style="position: absolute; top: 80px; color: white"
+          id="usedMemory"
+        ></span>
       </div>
     </div>
 
     <script>
+      // memory checks
+      document.getElementById("usedMemory").textContent = parseInt(
+        performance.memory.totalJSHeapSize / 1024 / 1024
+      );
+      setInterval(() => {
+        const usedMemory = parseInt(
+          performance.memory.totalJSHeapSize / 1024 / 1024
+        );
+        document.getElementById("usedMemory").textContent = usedMemory;
+      }, 1000); // Log memory usage every 1 second
+
+      const dropCanvas = document.getElementById("viewer");
       const spinner = document.getElementById("spinner");
+
+      // Prevent default behavior for drag-and-drop events
+      ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+        dropCanvas.addEventListener(eventName, e => e.preventDefault());
+      });
+
+      // Add dragover and dragleave event listeners to style the canvas
+      dropCanvas.addEventListener("dragover", () => {
+        dropCanvas.classList.add("dragover");
+      });
+
+      dropCanvas.addEventListener("dragleave", () => {
+        dropCanvas.classList.remove("dragover");
+      });
+
+      dropCanvas.addEventListener("drop", e => {
+        demoFiles = [];
+        totalFiles = 0;
+        processedFiles = 0;
+        showSpinner(); // Show the spinner
+        dropCanvas.classList.remove("dragover");
+        const items = e.dataTransfer.items;
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i].webkitGetAsEntry();
+            if (item) {
+              traverseFileTree(item);
+            }
+          }
+        }
+      });
+
+      // Function to traverse files in folders
+      function traverseFileTree(item) {
+        if (item.isFile & (item.name.startsWith(".") == false)) {
+          totalFiles++;
+          item.file(file => {
+            handleFile(file);
+          });
+        } else if (item.isDirectory) {
+          const dirReader = item.createReader();
+          readAllEntries(dirReader);
+        }
+      }
+
+      // Helper function to read all entries in a directory (to handle the 100-item limit)
+      function readAllEntries(dirReader, path) {
+        dirReader.readEntries(entries => {
+          if (entries.length > 0) {
+            entries.forEach(entry => {
+              traverseFileTree(entry); // Recursively read entries
+            });
+            // Continue reading entries if there might be more
+            readAllEntries(dirReader);
+          }
+        });
+      }
+
+      // Function to handle individual files
+      function handleFile(file) {
+        demoFiles.push(file);
+        processedFiles++;
+        if (processedFiles === totalFiles) {
+          processFileList(demoFiles); // Call the function when all files are processed
+        }
+      }
+
+      // Function to handle the full list once it's ready
+      function processFileList() {
+        renderSerie();
+      }
 
       // Show spinner
       function showSpinner() {
@@ -171,8 +270,22 @@
       }
 
       async function renderSerie() {
+        larvitar.resetImageManager();
+        larvitar.disableViewport("viewer");
+        larvitar.store.addViewport("viewer");
+        larvitar._cornerstone.cache.purgeCache();
+        const toolGroup =
+          larvitar._cornerstoneTools.ToolGroupManager.getToolGroupForViewport(
+            "viewer",
+            "2d"
+          );
+        toolGroup?.removeViewports("2d", "viewer");
+        if (toolGroup?.id) {
+          larvitar._destroyToolGroup(toolGroup.id);
+        }
+
         larvitar
-          ._readFiles(demoFiles)
+          .readFiles(demoFiles)
           .then(async seriesStack => {
             //populate the image manager with the series
             for (const [uniqueId, data] of Object.entries(seriesStack)) {
@@ -185,7 +298,6 @@
             larvitar
               ._renderImage(serie, "viewer")
               .then(async ({ success, renderingEngine }) => {
-                console.log("Image has been rendered");
                 // add and enable wwwc, pan, zoom, and stack tools
                 larvitar._addDefaultTools(["viewer"], renderingEngine, "3D");
                 hideSpinner();

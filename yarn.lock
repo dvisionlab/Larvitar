@@ -227,57 +227,57 @@
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.5.0.tgz#bb504579c1cae923e6576a4f5da43d25f97bdbd9"
   integrity sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==
 
-"@cornerstonejs/codec-charls@^1.2.3":
+"@cornerstonejs/codec-charls@1.2.3", "@cornerstonejs/codec-charls@^1.2.3":
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/@cornerstonejs/codec-charls/-/codec-charls-1.2.3.tgz#6952c420486822ac8404409ae0ed5a559aff6e25"
   integrity sha512-qKUe6DN0dnGzhhfZLYhH9UZacMcudjxcaLXCrpxJImT/M/PQvZCT2rllu6VGJbWKJWG+dMVV2zmmleZcdJ7/cA==
 
-"@cornerstonejs/codec-libjpeg-turbo-8bit@^1.2.2":
+"@cornerstonejs/codec-libjpeg-turbo-8bit@1.2.2", "@cornerstonejs/codec-libjpeg-turbo-8bit@^1.2.2":
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@cornerstonejs/codec-libjpeg-turbo-8bit/-/codec-libjpeg-turbo-8bit-1.2.2.tgz#ae384b149d6655e3dd6e18b9891fab479ab5e144"
   integrity sha512-aAUMK2958YNpOb/7G6e2/aG7hExTiFTASlMt/v90XA0pRHdWiNg5ny4S5SAju0FbIw4zcMnR0qfY+yW3VG2ivg==
 
-"@cornerstonejs/codec-openjpeg@^1.2.2":
+"@cornerstonejs/codec-openjpeg@1.2.4", "@cornerstonejs/codec-openjpeg@^1.2.2":
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/@cornerstonejs/codec-openjpeg/-/codec-openjpeg-1.2.4.tgz#c7cf67a34091eb74a6676abec80a5251c412b551"
   integrity sha512-UT2su6xZZnCPSuWf2ldzKa/2+guQ7BGgfBSKqxanggwJHh48gZqIAzekmsLyJHMMK5YDK+ti+fzvVJhBS3Xi/g==
 
-"@cornerstonejs/codec-openjph@^2.4.2", "@cornerstonejs/codec-openjph@^2.4.5":
+"@cornerstonejs/codec-openjph@2.4.7", "@cornerstonejs/codec-openjph@^2.4.2":
   version "2.4.7"
   resolved "https://registry.yarnpkg.com/@cornerstonejs/codec-openjph/-/codec-openjph-2.4.7.tgz#784394d05d8cf735640e9c3baa206535ee8e0376"
   integrity sha512-qvP4q4JDib7mi9r7LqKOwqz7YZ8gjtDX4ZCezeYf8+eb7MBXCz5uXAMeVF3yz9Axw4XiIMdB/pqXkm8tqCl13w==
 
-"@cornerstonejs/core@^3.12.1":
-  version "3.12.1"
-  resolved "https://registry.yarnpkg.com/@cornerstonejs/core/-/core-3.12.1.tgz#3b165d0fa2e12bc6a60f5b2e306b8d53f6c9cad8"
-  integrity sha512-pWFbobllPu0mjnAbV6/4U+YaRKoY661yNCdw1BUvm0Vs/FVNGz0E61/VVtZfS2L/gatj3SBpYPTw6k6G9wk1AA==
+"@cornerstonejs/core@^4.5.19":
+  version "4.5.19"
+  resolved "https://registry.yarnpkg.com/@cornerstonejs/core/-/core-4.5.19.tgz#4fbde277b97a80de1b2612e8eacf8f15c3d777db"
+  integrity sha512-p2uCEgxul1eB5mgy03KYkAaJEtg6ebGIqI/zA7bT7bt6ow8J+LCNpya9YZd4th9KUg0+16qQqhSoVmeTszjZLQ==
   dependencies:
     "@kitware/vtk.js" "32.12.1"
-    comlink "^4.4.1"
-    gl-matrix "^3.4.3"
-    loglevel "^1.9.2"
+    comlink "4.4.2"
+    gl-matrix "3.4.3"
+    loglevel "1.9.2"
 
-"@cornerstonejs/dicom-image-loader@^3.12.1":
-  version "3.12.1"
-  resolved "https://registry.yarnpkg.com/@cornerstonejs/dicom-image-loader/-/dicom-image-loader-3.12.1.tgz#8d650c1574dea90420dfe49d5aa0a305b0dd6aa7"
-  integrity sha512-HX4++HYN0Lx8g8fTTVbp7DPsEWJHXRDqO9nuiJzgr9b79nMp1rrybTcP07RIXY38iCsSBr17WIkPWMxdby4nPw==
+"@cornerstonejs/dicom-image-loader@^4.5.19":
+  version "4.5.19"
+  resolved "https://registry.yarnpkg.com/@cornerstonejs/dicom-image-loader/-/dicom-image-loader-4.5.19.tgz#2678daf66a479ae53504c9d21d02ab1af53b87ee"
+  integrity sha512-B4hPQHEsmlUlW70C+uBDhHctPsaCbI0RHOHi5Fhjwal3VQqrSwZ6gU6JT2I6ak7EdL0Lr916LFP5gLMGu6hxPg==
   dependencies:
-    "@cornerstonejs/codec-charls" "^1.2.3"
-    "@cornerstonejs/codec-libjpeg-turbo-8bit" "^1.2.2"
-    "@cornerstonejs/codec-openjpeg" "^1.2.2"
-    "@cornerstonejs/codec-openjph" "^2.4.5"
-    comlink "^4.4.1"
-    dicom-parser "^1.8.9"
-    jpeg-lossless-decoder-js "^2.1.0"
-    pako "^2.0.4"
-    uuid "^9.0.0"
+    "@cornerstonejs/codec-charls" "1.2.3"
+    "@cornerstonejs/codec-libjpeg-turbo-8bit" "1.2.2"
+    "@cornerstonejs/codec-openjpeg" "1.2.4"
+    "@cornerstonejs/codec-openjph" "2.4.7"
+    comlink "4.4.2"
+    dicom-parser "1.8.21"
+    jpeg-lossless-decoder-js "2.1.2"
+    pako "2.1.0"
+    uuid "9.0.1"
 
-"@cornerstonejs/nifti-volume-loader@^3.12.1":
-  version "3.12.1"
-  resolved "https://registry.yarnpkg.com/@cornerstonejs/nifti-volume-loader/-/nifti-volume-loader-3.12.1.tgz#b24e9843f8204257c4cebc9f1ca22c4762b3a227"
-  integrity sha512-CPNdW50sDyEvsw8ZMmrGNUTzNzX974xO4eUAFOsTPwF6wmO3vmOIjJSCUR8F6aLEOQHG5s61dQVgt7ARhrvavA==
+"@cornerstonejs/nifti-volume-loader@^4.5.19":
+  version "4.5.19"
+  resolved "https://registry.yarnpkg.com/@cornerstonejs/nifti-volume-loader/-/nifti-volume-loader-4.5.19.tgz#c7a3d78a4f0bb80c4c2ae07b893730aba73e30f4"
+  integrity sha512-ka4jZ0HN/JMllznpnZeLwf3rRxn6wsOZhz6RXITH0pcx2I9xY9nl+q/x45HybDhwe528XpNMcvw2SuUTrvbWWg==
   dependencies:
-    nifti-reader-js "^0.6.8"
+    nifti-reader-js "0.6.9"
 
 "@cornerstonejs/tools@^3.12.1":
   version "3.12.1"
@@ -1437,9 +1437,9 @@
   integrity sha512-g9gZnnXVq7gM7v3tJCWV/qw7w+KeOlSHAhgF9RytFyifW6AF61hdT2ucrYhPq9hLs5JIryeupHV3qGk95dH9ow==
 
 "@types/webxr@^0.5.5":
-  version "0.5.22"
-  resolved "https://registry.yarnpkg.com/@types/webxr/-/webxr-0.5.22.tgz#d8a14c12bbfaaa4a13de21ec2d4a8197b3e1b532"
-  integrity sha512-Vr6Stjv5jPRqH690f5I5GLjVk8GSsoQSYJ2FVd/3jJF7KaqfwPi3ehfBS96mlQ2kPCwZaX6U0rG2+NGHBKkA/A==
+  version "0.5.24"
+  resolved "https://registry.yarnpkg.com/@types/webxr/-/webxr-0.5.24.tgz#734d5d90dadc5809a53e422726c60337fa2f4a44"
+  integrity sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==
 
 "@types/ws@^8.5.5":
   version "8.5.13"
@@ -2769,7 +2769,7 @@ combined-stream@^1.0.8, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-comlink@^4.4.1:
+comlink@4.4.2, comlink@^4.4.1:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/comlink/-/comlink-4.4.2.tgz#cbbcd82742fbebc06489c28a183eedc5c60a2bca"
   integrity sha512-OxGdvBmJuNKSCMO4NTl1L47VRp6xn2wG4F/2hYzB6tiCb709otOxtEYCSvK80PtjODfXXZu8ds+Nw5kVCjqd2g==
@@ -3334,7 +3334,7 @@ dicom-character-set@^1.0.3:
   resolved "https://registry.yarnpkg.com/dicom-character-set/-/dicom-character-set-1.0.5.tgz#706c54dbc6b4e9ab3cbebb66f91bd7f64c275037"
   integrity sha512-W+LqAZ+HiVK/COVhcmKgFluPbMBmeET1IcSqux4e9u3MqMuGQ/MeGki5CgfvEkqNd6oH09vGC2O9DZQRcwOL+g==
 
-dicom-parser@^1.8.13, dicom-parser@^1.8.9:
+dicom-parser@1.8.21, dicom-parser@^1.8.13, dicom-parser@^1.8.9:
   version "1.8.21"
   resolved "https://registry.yarnpkg.com/dicom-parser/-/dicom-parser-1.8.21.tgz#916fdc77776367976b8457cad462b5b7cf74eaea"
   integrity sha512-lYCweHQDsC8UFpXErPlg86Px2A8bay0HiUY+wzoG3xv5GzgqVHU3lziwSc/Gzn7VV7y2KeP072SzCviuOoU02w==
@@ -4305,7 +4305,7 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
-gl-matrix@3.4.3, gl-matrix@^3.1.0, gl-matrix@^3.4.3:
+gl-matrix@3.4.3, gl-matrix@^3.1.0:
   version "3.4.3"
   resolved "https://registry.yarnpkg.com/gl-matrix/-/gl-matrix-3.4.3.tgz#fc1191e8320009fd4d20e9339595c6041ddc22c9"
   integrity sha512-wcCp8vu8FT22BnvKVPjXa/ICBWRq/zjFfdofZy1WSpQZpphblv12/bOQLBC1rMM7SGOFS9ltVmKOHil5+Ml7gA==
@@ -5066,7 +5066,7 @@ jest-worker@^27.4.5:
     merge-stream "^2.0.0"
     supports-color "^8.0.0"
 
-jpeg-lossless-decoder-js@^2.0.7, jpeg-lossless-decoder-js@^2.1.0:
+jpeg-lossless-decoder-js@2.1.2, jpeg-lossless-decoder-js@^2.0.7:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/jpeg-lossless-decoder-js/-/jpeg-lossless-decoder-js-2.1.2.tgz#9ff0ecfcafa6acaee6097c532720bd526278aa3d"
   integrity sha512-fYf/plymnuKwVw+s8gJ8O/BPw8y8OLaN11MBvEcT05kuy3m45o7BEC4J0JbxMNUYyO+MdK/I/jq0q1gkVYZm2Q==
@@ -5494,7 +5494,7 @@ log-update@^4.0.0:
     slice-ansi "^4.0.0"
     wrap-ansi "^6.2.0"
 
-loglevel@^1.9.2:
+loglevel@1.9.2:
   version "1.9.2"
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.9.2.tgz#c2e028d6c757720107df4e64508530db6621ba08"
   integrity sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg==
@@ -5830,7 +5830,7 @@ nice-try@^1.0.4:
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"
   integrity sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==
 
-nifti-reader-js@^0.6.8:
+nifti-reader-js@0.6.9:
   version "0.6.9"
   resolved "https://registry.yarnpkg.com/nifti-reader-js/-/nifti-reader-js-0.6.9.tgz#737b88eb951c6b98841ce888204a9370214b17e5"
   integrity sha512-oEC35cuYFR0i+KeXhaK0hJz4oSj511Vo7LmO/6iqbxzwek6XWnBi77VURlk4jsnJ86tlJNpYv6ujmSDpPP46Tw==
@@ -6098,15 +6098,15 @@ p-try@^2.0.0:
   resolved "https://registry.yarnpkg.com/p-try/-/p-try-2.2.0.tgz#cb2868540e313d61de58fafbe35ce9004d5540e6"
   integrity sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==
 
+pako@2.1.0, pako@^2.0.4:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/pako/-/pako-2.1.0.tgz#266cc37f98c7d883545d11335c00fbd4062c9a86"
+  integrity sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==
+
 pako@^1.0.10, pako@^1.0.5:
   version "1.0.11"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
   integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
-
-pako@^2.0.4:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/pako/-/pako-2.1.0.tgz#266cc37f98c7d883545d11335c00fbd4062c9a86"
-  integrity sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==
 
 param-case@^3.0.4:
   version "3.0.4"
@@ -7822,15 +7822,15 @@ utils-merge@1.0.1:
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==
 
+uuid@9.0.1, uuid@^9.0.0:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.1.tgz#e188d4c8853cc722220392c424cd637f32293f30"
+  integrity sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==
+
 uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
-
-uuid@^9.0.0:
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.1.tgz#e188d4c8853cc722220392c424cd637f32293f30"
-  integrity sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==
 
 validator@^13.6.0:
   version "13.15.0"

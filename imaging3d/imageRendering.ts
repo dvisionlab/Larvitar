@@ -110,7 +110,7 @@ export const renderImage = function (
     renderingEngine: cornerstone.RenderingEngine;
   }>((resolve, reject) => {
     // @ts-ignore IViewport does not have a setStack method
-    viewport.setStack(series.imageIds, 5);
+    viewport.setStack(series.imageIds, 0);
     viewport.render();
     // TODO FIT TO WINDOW ?
     // TODO VOI

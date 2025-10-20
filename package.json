@@ -40,9 +40,9 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@cornerstonejs/core": "^3.12.1",
-    "@cornerstonejs/dicom-image-loader": "^3.12.1",
-    "@cornerstonejs/nifti-volume-loader": "^3.12.1",
+    "@cornerstonejs/core": "^4.5.19",
+    "@cornerstonejs/dicom-image-loader": "^4.5.19",
+    "@cornerstonejs/nifti-volume-loader": "^4.5.19",
     "@cornerstonejs/tools": "^3.12.1",
     "@hyzyla/pdfium": "^2.1.2",
     "@icr/polyseg-wasm": "^0.4.0",
