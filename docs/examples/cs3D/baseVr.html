@@ -32,7 +32,6 @@
     <link rel="stylesheet" href="../resources/styles.css" />
 
     <!-- custom styles for the example -->
-    <!-- custom styles for the example -->
     <style>
       .open-button {
         left: 20px;
@@ -76,81 +75,63 @@
       });
     </script>
 
-    <title>Larvitar CS3D - Basic rendering example</title>
+    <title>Larvitar CS3D - Basic VR rendering example</title>
   </head>
 
   <body class="h-100" style="background-color: #000000">
-    <div class="row h-100">
-      <div id="viewer" class="col-12 h-100" style="background-color: black">
-        <button
-          id="showCodeBtn"
-          class="open-button"
-          style="position: absolute; top: 10px"
-        >
-          Show Code
-        </button>
+    <div id="viewer" class="row h-100">
+      <div id="vr" class="col-12 h-100" style="background-color: black"></div>
+      <button
+        id="showCodeBtn"
+        class="open-button"
+        style="position: absolute; top: 10px"
+      >
+        Show Code
+      </button>
 
-        <!-- Modal -->
-        <div
-          class="modal fade"
-          id="codeModal"
-          tabindex="-1"
-          aria-labelledby="codeModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div class="modal-body">
-                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
-              </div>
-              <div class="modal-footer">
-                <button id="copyCodeBtn" class="btn btn-success">
-                  Copy Code
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-              </div>
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
-
-        <!-- Spinner icon -->
-        <div id="spinner"></div>
-        <span style="position: absolute; top: 60px; color: white"
-          >Used Memory (Mb): </span
-        ><span
-          style="position: absolute; top: 80px; color: white"
-          id="usedMemory"
-        ></span>
       </div>
+
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
     </div>
 
     <script>
-      // memory checks
-      document.getElementById("usedMemory").textContent = parseInt(
-        performance.memory.totalJSHeapSize / 1024 / 1024
-      );
-      setInterval(() => {
-        const usedMemory = parseInt(
-          performance.memory.totalJSHeapSize / 1024 / 1024
-        );
-        document.getElementById("usedMemory").textContent = usedMemory;
-      }, 1000); // Log memory usage every 1 second
-
       const dropCanvas = document.getElementById("viewer");
       const spinner = document.getElementById("spinner");
 
@@ -241,69 +222,89 @@
 
       const getDemoFileNames = function () {
         let demoFileList = [];
-        for (let i = 1; i < 25; i++) {
-          let filename = "anon" + i;
+        for (let i = 1; i < 33; i++) {
+          i = i.toString().padStart(2, "0");
+          let filename = i;
           demoFileList.push(filename);
         }
         return demoFileList;
       };
 
+      const viewportId1 = "vr";
+
       // init all
       larvitar._cornerstone.init();
-      larvitar._initializeCSTools();
       larvitar._initializeImageLoader();
-      // initialize store and add viewport
+      larvitar._registerStreamingImageVolume();
+      larvitar._cornerstoneTools.init();
+      // initialize store and add viewports
       larvitar.store.initialize();
-      larvitar.store.addViewport("viewer");
-
+      larvitar.store.addViewport(viewportId1);
+      const Enums = larvitar._cornerstoneTools.Enums;
       showSpinner();
 
       async function createFile(fileName, cb) {
-        let response = await fetch("../demo/" + fileName);
+        let response = await fetch("../demo/3d/" + fileName);
         let data = await response.blob();
         let file = new File([data], fileName);
         demoFiles.push(file);
         counter++;
-        if (counter == 24) {
+        if (counter == 32) {
           cb();
         }
       }
 
       async function renderSerie() {
         larvitar.resetImageManager();
-        larvitar.disableViewport("viewer");
-        larvitar.store.addViewport("viewer");
-        larvitar._cornerstone.cache.purgeCache();
-        const toolGroup =
-          larvitar._cornerstoneTools.ToolGroupManager.getToolGroupForViewport(
-            "viewer",
-            "2d"
-          );
-        toolGroup?.removeViewports("2d", "viewer");
-        if (toolGroup?.id) {
-          larvitar._destroyToolGroup(toolGroup.id);
-        }
+        larvitar.disableViewport("vr");
+        larvitar.store.addViewport("vr");
+        larvitar._unloadMpr("1234");
 
         larvitar
-          .readFiles(demoFiles)
+          .readFiles(demoFiles) // need to port the updateLoadedStack function
           .then(async seriesStack => {
-            //populate the image manager with the series
-            for (const [uniqueId, data] of Object.entries(seriesStack)) {
-              larvitar.populateImageManager(uniqueId, data);
-            }
-            // render the first series of the study
-            let uniqueUID = Object.keys(seriesStack)[0];
-            let manager = larvitar.getImageManager();
-            let serie = manager[uniqueUID];
-            larvitar
-              ._renderImage(serie, "viewer")
-              .then(async ({ success, renderingEngine }) => {
-                // add and enable wwwc, pan, zoom, and stack tools
-                larvitar._addDefaultTools(["viewer"], renderingEngine, "3D");
-                hideSpinner();
+            console.log(seriesStack);
+            const seriesId = _.keys(seriesStack)[0];
+            const serie = seriesStack[seriesId];
+
+            const renderingEngine = larvitar._initializeRenderingEngine("1234");
+            //larvitar._initializeVolumeViewports("1234", viewportInputs);
+            const viewportInputArray = [
+              {
+                viewportId: viewportId1,
+                type: larvitar._cornerstone.Enums.ViewportType.VOLUME_3D,
+                element: document.getElementById(viewportId1),
+                defaultOptions: {
+                  orientation:
+                    larvitar._cornerstone.Enums.OrientationAxis.CORONAL,
+                  background:
+                    larvitar._cornerstone.CONSTANTS.BACKGROUND_COLORS.slicer3D
+                }
+              }
+            ];
+            renderingEngine.setViewports(viewportInputArray);
+            console.log(renderingEngine);
+
+            const volume = await larvitar._loadAndCacheVolume(serie);
+            console.log(volume);
+            const volumeId = volume.volumeId;
+            viewport = renderingEngine.getViewport(viewportId1);
+
+            await larvitar._cornerstone
+              .setVolumesForViewports(
+                renderingEngine,
+                [{ volumeId }],
+                [viewportId1]
+              )
+              .then(() => {
+                viewport.setProperties({
+                  preset: "CT-Bone"
+                });
+                viewport.render();
               });
-          })
-          .catch(err => console.error(err));
+
+            hideSpinner();
+          });
       }
 
       let demoFileList = getDemoFileNames();
