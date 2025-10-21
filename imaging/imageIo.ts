@@ -5,7 +5,7 @@
 // external libraries
 import cornerstone from "cornerstone-core";
 import { forEach, find } from "lodash";
-
+import html2canvas from "html2canvas";
 // internal libraries
 import { logger } from "../logger";
 import {
@@ -294,51 +294,20 @@ export const export3DImageToBase64 = async function (
     return null;
   }
 
-  const canvas: HTMLCanvasElement | null = element.querySelector("canvas");
-  const svgElement: SVGSVGElement | null = element.querySelector("svg");
+  try {
+    const canvas = await html2canvas(element, {
+      backgroundColor: null,
+      useCORS: true,
+      scale: window.devicePixelRatio,
+      logging: false
+    });
 
-  if (!canvas) {
-    logger.warn("Canvas not found inside element");
+    return canvas.toDataURL(`image/${imageType}`, 1.0);
+  } catch (err) {
+    console.error("Failed to export 3D image:", err);
     return null;
   }
-
-  const exportCanvas = document.createElement("canvas");
-  exportCanvas.width = canvas.width;
-  exportCanvas.height = canvas.height;
-  const ctx = exportCanvas.getContext("2d");
-  if (!ctx) {
-    logger.warn("Failed to get canvas context");
-    return null;
-  }
-
-  ctx.drawImage(canvas, 0, 0);
-
-  if (svgElement) {
-    const svgString = new XMLSerializer().serializeToString(svgElement);
-    const svgBlob = new Blob([svgString], {
-      type: "image/svg+xml;charset=utf-8"
-    });
-    const svgUrl = URL.createObjectURL(svgBlob);
-    const img = new Image();
-
-    return new Promise(resolve => {
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0);
-        URL.revokeObjectURL(svgUrl);
-        const dataUrl = exportCanvas.toDataURL("image/" + imageType, 1.0);
-        resolve(dataUrl);
-      };
-      img.onerror = () => {
-        logger.warn("Failed to load SVG as image");
-        resolve(null);
-      };
-      img.src = svgUrl;
-    });
-  }
-
-  return exportCanvas.toDataURL("image/" + imageType, 1.0);
 };
-
 /**
  * Export image rendered in a canvas to base64
  * @function exportImageToBase64OriginalSizes
