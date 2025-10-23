@@ -70,7 +70,7 @@ export const parseECG = function (
 
   const points =
     range === 0
-      ? new Array(sampledValues.length).fill(50)
+      ? new Array(sampledValues.length).fill(0)
       : sampledValues.map(value => ((value - nMin) / range) * 100);
 
   const series = getDataFromImageManager(seriesId);
