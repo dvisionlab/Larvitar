@@ -3,6 +3,7 @@
  *         handling ECG signales in DICOM files
  */
 
+import { logger } from "../../logger";
 import { getDataFromImageManager, getImageManager } from "../imageManagers";
 import { MetaData } from "../types";
 
@@ -26,44 +27,56 @@ export const parseECG = function (
 ): void {
   const rawData = metadata["x50003000"];
 
-  let data: Uint8Array;
-  //case Qido retrieved Metadata where metadata["x50003000"] is a base64 string
-  if (typeof rawData === "string") {
-    try {
-      data = base64ToUint8Array(rawData);
-    } catch (e) {
-      console.error("Invalid Base64 ECG data", e);
-      return;
-    }
-  }
-  //case parsed Metadata where metadata["x50003000"] is a byteArray retrieved from the DataSet
-  else if (rawData instanceof Uint8Array) {
-    data = rawData;
-  } else {
-    console.warn("ECG data is missing or in an unsupported format.");
+  if (!rawData) {
+    logger.warn("ECG data (tag x50003000) is missing.");
     return;
   }
 
-  let points: number[] = [];
-  const nCountFrom: number = data.length / 2;
-  const nCountTo: number = Math.floor(0.5 + nCountFrom / nSampling);
-  let values: number[] = [];
-  let nFrom: number = 0;
-  for (let nTo: number = 0; nTo < nCountTo; nTo++) {
-    let v: number = data[nFrom] + 255 * data[nFrom + 1];
-    values.push(v);
-    nFrom += nSampling * 2;
+  let waveform: Uint16Array;
+
+  try {
+    if (typeof rawData === "string") {
+      const byteArray = base64ToUint8Array(rawData);
+      waveform = new Uint16Array(byteArray.buffer);
+    } else if (rawData instanceof Uint16Array) {
+      waveform = rawData;
+    } else if (rawData instanceof Uint8Array) {
+      waveform = new Uint16Array(
+        rawData.buffer,
+        rawData.byteOffset,
+        rawData.length / 2
+      );
+    } else {
+      logger.warn("ECG data is in an unsupported format:", typeof rawData);
+      return;
+    }
+  } catch (e) {
+    logger.error("Failed to parse ECG data.", e);
+    return;
   }
 
-  const nMax: number = Math.max(...values);
-  const nMin: number = Math.min(...values);
-
-  for (let nTo: number = 0; nTo < nCountTo; nTo++) {
-    let data: number = ((values[nTo] - nMin) / (nMax - nMin)) * 100;
-    points.push(data);
+  const sampledValues: number[] = [];
+  for (let i = 0; i < waveform.length; i += nSampling) {
+    sampledValues.push(waveform[i]);
   }
-  let series = getDataFromImageManager(seriesId);
-  series!.ecgData = points;
+
+  if (sampledValues.length === 0) {
+    return;
+  }
+
+  const nMin = Math.min(...sampledValues);
+  const nMax = Math.max(...sampledValues);
+  const range = nMax - nMin;
+
+  const points =
+    range === 0
+      ? new Array(sampledValues.length).fill(50)
+      : sampledValues.map(value => ((value - nMin) / range) * 100);
+
+  const series = getDataFromImageManager(seriesId);
+  if (series) {
+    series.ecgData = points;
+  }
 };
 
 /**
