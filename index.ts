@@ -100,10 +100,9 @@ import {
   buildDataAsync,
   importNRRDImage,
   exportImageToBase64,
-  export3DImageToBase64,
   exportImageToBase64OriginalSizes
 } from "./imaging/imageIo";
-
+import { export3DImageToBase64 } from "./imaging3d/imageIo";
 import { anonymize } from "./imaging/imageAnonymization";
 
 import { customizeByteArray } from "./imaging/imageCustomization";
