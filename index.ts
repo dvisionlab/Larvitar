@@ -32,6 +32,7 @@ function createAliasWithWarning(
 }
 
 import cornerstone from "cornerstone-core";
+import Plotly from "plotly.js-dist-min";
 import cornerstoneTools from "cornerstone-tools";
 import { parseDicom } from "dicom-parser";
 import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
@@ -370,6 +371,7 @@ import {
 } from "./imaging/imageManagers";
 
 export {
+  Plotly,
   // cs3D
   _cornerstone,
   _cornerstoneDICOMImageLoader,

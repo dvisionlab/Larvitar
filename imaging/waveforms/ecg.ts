@@ -140,6 +140,7 @@ export const renderECG = function (
   LAYOUT.xaxis!.range = [0, totalTime];
   // fix the grid of x-axis using a line for each frame
   LAYOUT.xaxis!.dtick = totalTime / (numberOfFrames - 1);
+  LAYOUT.autosize = true;
   Plotly.newPlot(divId, traceData, LAYOUT, {
     responsive: true,
     displayModeBar: false
