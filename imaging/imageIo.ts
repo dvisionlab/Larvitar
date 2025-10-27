@@ -297,46 +297,60 @@ export const export3DImageToBase64 = async function (
   const canvas: HTMLCanvasElement | null = element.querySelector("canvas");
   const svgElement: SVGSVGElement | null = element.querySelector("svg");
 
-  if (!canvas) {
+  if (!canvas || !svgElement) {
     logger.warn("Canvas not found inside element");
     return null;
   }
 
-  const exportCanvas = document.createElement("canvas");
-  exportCanvas.width = canvas.width;
-  exportCanvas.height = canvas.height;
-  const ctx = exportCanvas.getContext("2d");
-  if (!ctx) {
-    logger.warn("Failed to get canvas context");
-    return null;
-  }
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
 
-  ctx.drawImage(canvas, 0, 0);
+  const combinedCanvas = document.createElement("canvas");
+  const ctx = combinedCanvas.getContext("2d")!;
 
-  if (svgElement) {
-    const svgString = new XMLSerializer().serializeToString(svgElement);
-    const svgBlob = new Blob([svgString], {
-      type: "image/svg+xml;charset=utf-8"
-    });
-    const svgUrl = URL.createObjectURL(svgBlob);
-    const img = new Image();
+  combinedCanvas.width = width;
+  combinedCanvas.height = height;
 
-    return new Promise(resolve => {
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0);
-        URL.revokeObjectURL(svgUrl);
-        const dataUrl = exportCanvas.toDataURL("image/" + imageType, 1.0);
-        resolve(dataUrl);
+  const svgClone = svgElement.cloneNode(true) as SVGSVGElement;
+  svgClone.setAttribute("width", `${width}px`);
+  svgClone.setAttribute("height", `${height}px`);
+
+  const svgString = new XMLSerializer().serializeToString(svgClone);
+
+  const svgBlob = new Blob([svgString], { type: "image/svg+xml" });
+  const reader = new FileReader();
+  const svgImage = new Image();
+
+  return new Promise(resolve => {
+    reader.onloadend = () => {
+      const svgDataURL = reader.result as string;
+
+      svgImage.onload = () => {
+        ctx.drawImage(canvas, 0, 0, width, height);
+        ctx.drawImage(svgImage, 0, 0, width, height);
+
+        const finalDataURL = combinedCanvas.toDataURL(
+          `image/${imageType}`,
+          1.0
+        );
+        resolve(finalDataURL);
       };
-      img.onerror = () => {
-        logger.warn("Failed to load SVG as image");
+
+      svgImage.onerror = error => {
+        logger.error("SVG Image loading error:", error);
         resolve(null);
       };
-      img.src = svgUrl;
-    });
-  }
 
-  return exportCanvas.toDataURL("image/" + imageType, 1.0);
+      svgImage.src = svgDataURL;
+    };
+
+    reader.onerror = error => {
+      logger.error("FileReader error:", error);
+      resolve(null);
+    };
+
+    reader.readAsDataURL(svgBlob);
+  });
 };
 
 /**
