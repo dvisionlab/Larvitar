@@ -52,6 +52,8 @@ export const parseECG = function (
     }
   } catch (e) {
     logger.error("Failed to parse ECG data.", e);
+    // @ts-ignore
+    waveform = null;
     return;
   }
 
@@ -61,6 +63,10 @@ export const parseECG = function (
   }
 
   if (sampledValues.length === 0) {
+    // @ts-ignore
+    waveform = null;
+    // @ts-ignore
+    sampledValues = null;
     return;
   }
 
@@ -76,7 +82,16 @@ export const parseECG = function (
   const series = getDataFromImageManager(seriesId);
   if (series) {
     series.ecgData = points;
+  } else {
+    logger.error("No series found in ImageManager with seriesId", seriesId);
   }
+
+  // @ts-ignore
+  waveform = null;
+  // @ts-ignore
+  sampledValues = null;
+  // @ts-ignore
+  points = null;
 };
 
 /**
