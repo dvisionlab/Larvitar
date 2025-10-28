@@ -57,7 +57,7 @@ export const parseECG = function (
     return;
   }
 
-  const sampledValues: number[] = [];
+  let sampledValues: number[] = [];
   for (let i = 0; i < waveform.length; i += nSampling) {
     sampledValues.push(waveform[i]);
   }
@@ -74,7 +74,7 @@ export const parseECG = function (
   const nMax = Math.max(...sampledValues);
   const range = nMax - nMin;
 
-  const points =
+  let points =
     range === 0
       ? new Array(sampledValues.length).fill(0)
       : sampledValues.map(value => ((value - nMin) / range) * 100);
