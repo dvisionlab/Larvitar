@@ -35,7 +35,7 @@ import cornerstone from "cornerstone-core";
 import cornerstoneTools from "cornerstone-tools";
 import { parseDicom } from "dicom-parser";
 import cornerstoneFileImageLoader from "cornerstone-file-image-loader";
-
+import Plotly from "plotly.js-dist-min";
 import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-loader";
 const segModule = cornerstoneTools.getModule("segmentation");
 
@@ -303,6 +303,8 @@ import {
 
 export {
   VERSION,
+  // global Plotly variable
+  Plotly,
   // global cornerstone variables
   cornerstone,
   cornerstoneTools,
