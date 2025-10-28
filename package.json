@@ -43,7 +43,7 @@
     "@cornerstonejs/core": "^4.5.19",
     "@cornerstonejs/dicom-image-loader": "^4.5.19",
     "@cornerstonejs/nifti-volume-loader": "^4.5.19",
-    "@cornerstonejs/tools": "^3.12.1",
+    "@cornerstonejs/tools": "^4.7.0",
     "@hyzyla/pdfium": "^2.1.2",
     "@icr/polyseg-wasm": "^0.4.0",
     "consola": "^3.4.0",

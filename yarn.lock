@@ -279,14 +279,14 @@
   dependencies:
     nifti-reader-js "0.6.9"
 
-"@cornerstonejs/tools@^3.12.1":
-  version "3.12.1"
-  resolved "https://registry.yarnpkg.com/@cornerstonejs/tools/-/tools-3.12.1.tgz#476b457c303d2e37a064acf0a09d1d203bfec5b0"
-  integrity sha512-0Yax5NIdX1X6ELMf32rticoTehPFh2k0OTx/znAf3IgMUYdsox4peMe8Lf72MrFvmLeDvtyB45iT0Xk6bjeAvw==
+"@cornerstonejs/tools@^4.7.0":
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/@cornerstonejs/tools/-/tools-4.7.0.tgz#bac617c973dbd6ed66b4fa97796caa06a9b7f087"
+  integrity sha512-fDxkCoG31sM484VeG2LPiTXf437cFt2OJsAjrr69DpNz5qeI+rQysSnRc7Qs3tujbn547qatAePboQcJb6/0PA==
   dependencies:
     "@types/offscreencanvas" "2019.7.3"
-    comlink "^4.4.1"
-    lodash.get "^4.4.2"
+    comlink "4.4.2"
+    lodash.get "4.4.2"
 
 "@csstools/color-helpers@^5.0.2":
   version "5.0.2"
@@ -2769,7 +2769,7 @@ combined-stream@^1.0.8, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-comlink@4.4.2, comlink@^4.4.1:
+comlink@4.4.2:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/comlink/-/comlink-4.4.2.tgz#cbbcd82742fbebc06489c28a183eedc5c60a2bca"
   integrity sha512-OxGdvBmJuNKSCMO4NTl1L47VRp6xn2wG4F/2hYzB6tiCb709otOxtEYCSvK80PtjODfXXZu8ds+Nw5kVCjqd2g==
@@ -5409,7 +5409,7 @@ lodash.create@3.1.1:
     lodash._basecreate "^3.0.0"
     lodash._isiterateecall "^3.0.0"
 
-lodash.get@^4.4.2:
+lodash.get@4.4.2:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
   integrity sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==
