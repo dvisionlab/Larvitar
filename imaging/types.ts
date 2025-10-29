@@ -347,6 +347,7 @@ export type NrrdSeries = {
   ecgData?: number[];
   isMultiframe?: boolean;
   numberOfFrames?: number;
+  dsa?: DSA;
 };
 
 export type NrrdHeader = {

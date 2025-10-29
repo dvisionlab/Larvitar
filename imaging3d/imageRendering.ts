@@ -308,7 +308,7 @@ export const loadAndCacheVolume = async function (
  * @param {string} renderingEngineId - The unique identifier of the rendering engine to set the volume for
  * @returns
  */
-export const setVolumeForRenderingEngine = function (
+export const setVolumeForRenderingEngine = async function (
   volumeId: string,
   renderingEngineId: string
 ) {
@@ -320,7 +320,7 @@ export const setVolumeForRenderingEngine = function (
     return;
   }
 
-  cornerstone.setVolumesForViewports(
+  await cornerstone.setVolumesForViewports(
     renderingEngine,
     [
       {
@@ -420,7 +420,7 @@ export const renderMpr = async function (
     const t1 = performance.now();
     logger.debug(`Time to load and cache volume: ${t1 - t0} milliseconds`);
 
-    setVolumeForRenderingEngine(volume.volumeId, renderingEngineId);
+    await setVolumeForRenderingEngine(volume.volumeId, renderingEngineId);
     //renderingEngine.renderViewports(viewports.map(v => v.id));
     each(viewports, function (viewport: cornerstone.VolumeViewport) {
       storeViewportData(
@@ -494,7 +494,11 @@ export const unloadMpr = function (renderingEngineId: string): void {
   if (volume) {
     logger.debug(`Unloading volume: ${volumeId} from cache`);
     volume.removeFromCache();
-    volume.destroy();
+    try {
+      volume.destroy();
+    } catch (error) {
+      logger.debug(`Error destroying volume: ${error}`);
+    }
   }
 
   if (imageIds3D && imageIds3D.length > 0) {

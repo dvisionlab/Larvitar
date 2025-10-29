@@ -21,8 +21,8 @@ import { loadNrrdImage } from "./loaders/nrrdLoader";
 import { loadReslicedImage } from "./loaders/resliceLoader";
 import { loadMultiFrameImage } from "./loaders/multiframeLoader";
 import { loadSingleFrameImage } from "./loaders/singleFrameLoader";
-import { loadDsaImage } from "./loaders/dsaImageLoader";
-import { ImageObject, Instance, Series, StagedProtocol } from "./types";
+import { loadDsaImage, updateDsaImageIds } from "./loaders/dsaImageLoader";
+import { DSA, ImageObject, Instance, Series, StagedProtocol } from "./types";
 import {
   getImageTracker,
   getImageManager,
@@ -202,6 +202,7 @@ export const updateLoadedStack = function (
   let SOPUID = seriesData.metadata["x00080016"];
   let isPDF = SOPUID == "1.2.840.10008.5.1.4.1.1.104.1" ? true : false;
   let anonymized = seriesData.metadata.anonymized;
+  let isDSA = seriesData.metadata["x00286100"] !== undefined ? true : false;
 
   let color = cornerstoneDICOMImageLoader.isColorImage(
     seriesData.metadata["x00280004"]
@@ -283,11 +284,36 @@ export const updateLoadedStack = function (
   else if (isMultiframe) {
     const imageId = seriesData.imageId as string;
     imageTracker[imageId] = lid as string;
+    // check for DSA object and populate it
+    if (isDSA && !allSeriesStack[id].dsa) {
+      const dsa: DSA = {
+        imageIds: [],
+        x00286101: seriesData.metadata!.x00286100![0].x00286101,
+        x00286102: seriesData.metadata!.x00286100![0].x00286102,
+        x00286110: seriesData.metadata!.x00286100![0].x00286110,
+        x00286112: seriesData.metadata!.x00286100![0].x00286112,
+        x00286114: seriesData.metadata!.x00286100![0].x00286114,
+        x00286120: seriesData.metadata!.x00286100![0].x00286120,
+        x00286190: seriesData.metadata!.x00286100![0].x00286190,
+        x00289416: seriesData.metadata!.x00286100![0].x00289416,
+        x00289454: seriesData.metadata!.x00286100![0].x00289454
+      };
+      allSeriesStack[id].dsa = dsa;
+    }
+
     if (sliceIndex !== undefined && sliceIndex !== null) {
       allSeriesStack[id].imageIds[sliceIndex] = imageId;
+      if (isDSA) {
+        allSeriesStack[id].dsa!.imageIds[sliceIndex] = updateDsaImageIds(
+          lid as string
+        );
+      }
     } else {
       allSeriesStack[id].imageIds.push(imageId);
       sliceIndex = allSeriesStack[id].imageIds.length - 1;
+      if (isDSA) {
+        allSeriesStack[id].dsa!.imageIds.push(updateDsaImageIds(lid as string));
+      }
     }
 
     // store needed instance tags
