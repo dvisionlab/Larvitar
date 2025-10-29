@@ -278,15 +278,15 @@ export const updateLoadedStack = function (
     if (isDSA && !allSeriesStack[id].dsa) {
       const dsa: DSA = {
         imageIds: [],
-        x00286101: allSeriesStack[id].metadata!.x00286100![0].x00286101,
-        x00286102: allSeriesStack[id].metadata!.x00286100![0].x00286102,
-        x00286110: allSeriesStack[id].metadata!.x00286100![0].x00286110,
-        x00286112: allSeriesStack[id].metadata!.x00286100![0].x00286112,
-        x00286114: allSeriesStack[id].metadata!.x00286100![0].x00286114,
-        x00286120: allSeriesStack[id].metadata!.x00286100![0].x00286120,
-        x00286190: allSeriesStack[id].metadata!.x00286100![0].x00286190,
-        x00289416: allSeriesStack[id].metadata!.x00286100![0].x00289416,
-        x00289454: allSeriesStack[id].metadata!.x00286100![0].x00289454
+        x00286101: seriesData.metadata!.x00286100![0].x00286101,
+        x00286102: seriesData.metadata!.x00286100![0].x00286102,
+        x00286110: seriesData.metadata!.x00286100![0].x00286110,
+        x00286112: seriesData.metadata!.x00286100![0].x00286112,
+        x00286114: seriesData.metadata!.x00286100![0].x00286114,
+        x00286120: seriesData.metadata!.x00286100![0].x00286120,
+        x00286190: seriesData.metadata!.x00286100![0].x00286190,
+        x00289416: seriesData.metadata!.x00286100![0].x00289416,
+        x00289454: seriesData.metadata!.x00286100![0].x00289454
       };
       allSeriesStack[id].dsa = dsa;
     }
