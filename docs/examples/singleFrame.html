@@ -171,6 +171,7 @@
       // init all
       larvitar.initializeImageLoader();
       larvitar.registerSingleFrameImageLoader();
+      //larvitar.registerDsaImageLoader();
       larvitar.initializeCSTools();
       larvitar.store.initialize();
       larvitar.store.addViewport("viewer-1");
@@ -189,7 +190,6 @@
       const pacsURL = "http://192.168.72.141:80/dicomwebcore/";
       const wadoPrefix = "wado/";
       const qidoPrefix = "qidors/";
-
       /* STRESS ECHO 5 IMAGES */
       const patientID = "TEST_FIVEMF_STRESS";
       const studyID =
@@ -208,6 +208,13 @@
       const instanceUID_5 =
         "1.2.826.0.1.3680043.2.97.19529.21573.1888853007.2502070900482760";
       /* END STRESS ECHO 5 IMAGES */
+
+      /* DSA TEST IMAGE */
+      //const patientID = "20-3992-7";
+      //const studyID = "1.3.12.2.1107.5.4.5.25247.5.0.453645532212743";
+      //const seriesInstanceUID = "1.3.12.2.1107.5.4.5.25247.5.0.453645844701385";
+      //const instanceUID_1 = "1.3.12.2.1107.5.4.5.25247.5.0.45434083902153";
+      /* END DSA TEST IMAGE */
 
       /* XA 2 IMAGES */
       // const patientID = "";
@@ -366,6 +373,123 @@
                     );
                     tStart = performance.now();
                   }
+                  //TO TEST DSA APPLYMENT AND SHIFTING
+                  /*document.onkeypress = function (e) {
+                    e = e || window.event;
+                    let storedPixelShift = larvitar.store.get([
+                      "viewports",
+                      "viewer-1",
+                      "pixelShift"
+                    ])
+                      ? larvitar.store.get([
+                          "viewports",
+                          "viewer-1",
+                          "pixelShift"
+                        ])
+                      : [0.0, 0.0];
+                    const delta = 1;
+                    switch (e.keyCode) {
+                      case 49: // 1
+                        // standard Mode
+                        larvitar.store.setDSAEnabled(["viewer-1"], false);
+                        larvitar.renderImage(dicomSerie, "viewer-1", {
+                          imageIndex: frameId
+                        });
+                        break;
+                      case 50: // 2
+                        // DSA Mode
+                        larvitar.store.setDSAEnabled(["viewer-1"], true);
+                        larvitar.renderImage(dicomSerie, "viewer-1", {
+                          imageIndex: frameId
+                        });
+                        break;
+                      case 51: // 3
+                        // async function
+                        larvitar.loadAndCacheDsaImageStack(dicomSerie, true);
+                        larvitar.renderImage(dicomSerie, "viewer-1", {
+                          imageIndex: frameId
+                        });
+                        larvitar.redrawImage("viewer-1");
+                        break;
+                      case 119: // W
+                        // vertical shift to the upper part of the image
+                        // value has to be negative
+                        larvitar.applyDSAShift(
+                          "viewer-1",
+                          dicomSerie,
+                          frameId,
+                          [storedPixelShift[0] - delta, storedPixelShift[1]]
+                        );
+                        break;
+                      case 97: // A
+                        // horizontal shift to the left part of the image
+                        // value has to be positive
+                        larvitar.applyDSAShift(
+                          "viewer-1",
+                          dicomSerie,
+                          frameId,
+                          [storedPixelShift[0], storedPixelShift[1] + delta]
+                        );
+                        break;
+                      case 115: // S
+                        // vertical shift to the bottom part of the image
+                        // value has to be positive
+                        larvitar.applyDSAShift(
+                          "viewer-1",
+                          dicomSerie,
+                          frameId,
+                          [storedPixelShift[0] + delta, storedPixelShift[1]]
+                        );
+                        break;
+                      case 100: // D
+                        // horizontal shift to the right part of the image
+                        // value has to be negative
+                        larvitar.applyDSAShift(
+                          "viewer-1",
+                          dicomSerie,
+                          frameId,
+                          [storedPixelShift[0], storedPixelShift[1] - delta]
+                        );
+                        break;
+                      case 120: // x
+                        // RESET pixel shift
+                        // async function
+                        larvitar.applyDSAShift(
+                          "viewer-1",
+                          dicomSerie,
+                          frameId,
+                          [0.0, 0.0]
+                        );
+                        break;
+                      case 112: // P
+                        animation = !animation;
+                        if (animation) {
+                          frameId = larvitar.store.get([
+                            "viewports",
+                            "viewer-1",
+                            "sliceId"
+                          ]);
+                          animationId = setInterval(function () {
+                            frameId =
+                              frameId == dicomSerie.numberOfFrames - 1
+                                ? 0
+                                : frameId + 1;
+                            larvitar.renderImage(dicomSerie, "viewer-1", {
+                              imageIndex: frameId
+                            });
+                            document.getElementById("image-time").innerText =
+                              "Current Frame: " +
+                              parseInt(frameId + 1) +
+                              " of " +
+                              numberOfFrames;
+                          }, dicomSerie.frameTime);
+                        } else {
+                          clearInterval(animationId);
+                          document.getElementById("image-time").innerText = "";
+                        }
+                        break;
+                    }
+                  };*/
                 }
               }
             }

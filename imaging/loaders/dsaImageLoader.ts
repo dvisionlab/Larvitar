@@ -78,6 +78,20 @@ export const loadDsaImage: ImageLoader = function (imageId: string): any {
 };
 
 /**
+ * Update the DSA imageIds for a given seriesId
+ * @export
+ * @function updateDsaImageIds
+ * @param {string} uniqueUID - The unique identifier for the series
+ * @return {string} The new imageId
+ */
+export const updateDsaImageIds = function (uniqueUID: string): string {
+  const imageId: string = getDsaImageId("dsaImageLoader");
+  let imageTracker = getImageTracker();
+  imageTracker[imageId] = uniqueUID;
+  return imageId;
+};
+
+/**
  * Populate the DSA imageIds for a given seriesId
  * @export
  * @function populateDsaImageIds
@@ -135,7 +149,7 @@ export const setPixelShift = function (pixelShift: number[] | undefined): void {
  * @param {String} customLoaderName The custom loader name
  * @return {String} the custom image id
  */
-const getDsaImageId = function (customLoaderName: string) {
+const getDsaImageId = function (customLoaderName: string): string {
   let imageId = customLoaderName + "://" + customImageLoaderCounter;
   customImageLoaderCounter++;
   return imageId;
