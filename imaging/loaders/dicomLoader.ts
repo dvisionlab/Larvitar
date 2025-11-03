@@ -147,13 +147,18 @@ export const loadAndCacheDsaImageStack = async function (
     }
 
     if (seriesData.dsa.imageIds.length > 0) {
-      const dsaPromises: Promise<cornerstone.Image>[] =
+      const dsaPromises: (Promise<cornerstone.Image> | Promise<undefined>)[] =
         seriesData.dsa.imageIds.map(imageId => {
-          if (forceRecache) {
-            cornerstone.imageCache.removeImageLoadObject(imageId);
+          if (imageId) {
+            if (forceRecache) {
+              cornerstone.imageCache.removeImageLoadObject(imageId);
+            }
+            setStore(["cached", seriesData.uniqueUID, imageId, true]);
+            return cornerstone.loadAndCacheImage(imageId);
+          } else {
+            logger.warn("Encountered undefined imageId in DSA series.");
+            return Promise.resolve(undefined);
           }
-          setStore(["cached", seriesData.uniqueUID, imageId, true]);
-          return cornerstone.loadAndCacheImage(imageId);
         });
       Promise.all(dsaPromises).then(() => {
         const t1 = performance.now();
