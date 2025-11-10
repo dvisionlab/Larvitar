@@ -624,7 +624,8 @@ export const getAnisotropicDisplayedArea = function (
 export const renderImage = function (
   seriesStack: Series,
   elementId: string | HTMLElement,
-  options?: RenderProps
+  options?: RenderProps,
+  signal?: AbortSignal
 ): Promise<true> {
   const t0 = performance.now();
 
@@ -721,6 +722,12 @@ export const renderImage = function (
           reject(`invalid html element: ${elementId}`);
           return;
         }
+
+        if (signal?.aborted) {
+          reject(signal.reason);
+          return;
+        }
+
         if (renderOptions.filterName) {
           image = applyConvolutionFilter(
             image as Image,
@@ -730,6 +737,7 @@ export const renderImage = function (
           data.default.voi.windowWidth = image.windowWidth;
           data.default.voi.windowCenter = image.windowCenter;
         }
+
         // display the image on the element
         cornerstone.displayImage(element, image);
         logger.debug(`Image has been displayed on the element: ${elementId}`);
