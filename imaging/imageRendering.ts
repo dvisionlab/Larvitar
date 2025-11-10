@@ -676,7 +676,11 @@ export const renderImage = function (
       // Reject the promise to signal that rendering cannot proceed.
       reject("error during renderImage: imageId has not been loaded yet.");
     });
+  } else {
+    // Clear the pending slice id if the image is instead available.
+    setStore(["pendingSliceId", id, undefined]);
   }
+
   logger.debug(`Rendering imageIndex: ${imageIndex}`);
   const uniqueUID = series.uniqueUID || series.seriesUID;
   // this by default is the uniqueId of the rendered stack
