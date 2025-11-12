@@ -486,7 +486,8 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
       ? true
       : false;
   const numberOfFrames = metadata["x00280008"];
-  const isMultiframe = (numberOfFrames as number) > 1 ? true : false;
+  const isMultiframe =
+    (numberOfFrames as number) > 1 && isVideo === false ? true : false;
   const waveform =
     "x50003000" in metadata && metadata["x50000020"] === "ECG" ? true : false;
   // check dicom tag image type x00080008 if contains the word BIPLANE A or BIPLANE B
