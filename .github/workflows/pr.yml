@@ -17,8 +17,7 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GIT_TOKEN }}
+    
 
       # Setup node environment
       - name: Setup Node.js environment
@@ -75,6 +74,7 @@ jobs:
           body-includes: "## 🔍 Cypress Test Results"
 
       - name: Create or update comment
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -104,6 +104,7 @@ jobs:
           body-includes: "## 🧪 TypeScript Coverage Report"
 
       - name: Create or update PR comment with coverage
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
