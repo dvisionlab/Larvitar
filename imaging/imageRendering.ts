@@ -568,18 +568,9 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
  * Check if the displayed image is anisotropic (row pixel spacing !== col pixel spacing)
  * @instance
  * @function isAnisotropic
- * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {String | StoreViewport} idOrViewport - The html div id or the viewport used for rendering
  * @returns {Boolean}
  */
-export function isAnisotropic(elementId: string): boolean;
-/**
- * Check if the displayed image is anisotropic (row pixel spacing !== col pixel spacing)
- * @instance
- * @function isAnisotropic
- * @param {StoreViewport} viewport - The viewport to check
- * @returns {Boolean}
- */
-export function isAnisotropic(viewport: StoreViewport): boolean;
 export function isAnisotropic(idOrViewport: string | StoreViewport) {
   let colPixelSpacing, rowPixelSpacing;
   if (typeof idOrViewport === "string") {
