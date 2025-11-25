@@ -568,12 +568,18 @@ export const resizeViewport = function (elementId: string | HTMLElement) {
  * Check if the displayed image is anisotropic (row pixel spacing !== col pixel spacing)
  * @instance
  * @function isAnisotropic
- * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
+ * @param {String | StoreViewport} idOrViewport - The html div id or the viewport used for rendering
  * @returns {Boolean}
  */
-export const isAnisotropic = function (elementId: string) {
-  const colPixelSpacing = store.get(["viewports", elementId, "spacing_x"]);
-  const rowPixelSpacing = store.get(["viewports", elementId, "spacing_y"]);
+export function isAnisotropic(idOrViewport: string | StoreViewport) {
+  let colPixelSpacing, rowPixelSpacing;
+  if (typeof idOrViewport === "string") {
+    colPixelSpacing = store.get(["viewports", idOrViewport, "spacing_x"]);
+    rowPixelSpacing = store.get(["viewports", idOrViewport, "spacing_y"]);
+  } else {
+    colPixelSpacing = idOrViewport.spacing_x;
+    rowPixelSpacing = idOrViewport.spacing_y;
+  }
 
   if (colPixelSpacing === undefined || rowPixelSpacing === undefined) {
     logger.warn("colPixelSpacing or rowPixelSpacing is undefined");
@@ -581,31 +587,48 @@ export const isAnisotropic = function (elementId: string) {
   }
 
   return rowPixelSpacing !== colPixelSpacing;
-};
+}
 
 /**
  * Retrieves Anisotropic Viewport displayedArea properties
  * @instance
  * @function getAnisotropicDisplayedArea
  * @param {String} elementId - The html div id used for rendering or its DOM HTMLElement
- * @param {ViewportComplete} viewport - The viewport
+ * @param {ViewportComplete | StoreViewport} viewport - The viewport
  * @returns {DisplayedArea}
  */
 export const getAnisotropicDisplayedArea = function (
   id: string,
-  viewport: ViewportComplete
+  viewport: ViewportComplete | StoreViewport
 ) {
-  const width = store.get(["viewports", id, "cols"]);
-  const height = store.get(["viewports", id, "rows"]);
+  let width = store.get(["viewports", id, "cols"]);
+  let height = store.get(["viewports", id, "rows"]);
+  if ((!width || !height) && "cols" in viewport && "rows" in viewport) {
+    width = viewport.cols;
+    height = viewport.rows;
+  }
 
   if (width === undefined || height === undefined) {
     logger.error("Viewport dimensions are undefined");
     return;
   }
 
+  let tlhc, brhc;
+  if (
+    "displayedArea" in viewport &&
+    viewport.displayedArea?.tlhc &&
+    viewport.displayedArea?.brhc
+  ) {
+    tlhc = viewport.displayedArea.tlhc;
+    brhc = viewport.displayedArea.brhc;
+  } else {
+    tlhc = { x: 0, y: 0 };
+    brhc = { x: width, y: height };
+  }
+
   return {
-    tlhc: viewport.displayedArea?.tlhc || { x: 0, y: 0 },
-    brhc: viewport.displayedArea?.brhc || { x: width, y: height },
+    tlhc,
+    brhc,
     presentationSizeMode: "SCALE TO FIT",
     rowPixelSpacing: 1,
     columnPixelSpacing: 1
@@ -861,8 +884,8 @@ export const renderImage = function (
           }
         }
 
-        if (isAnisotropic(id)) {
-          viewport.displayedArea = getAnisotropicDisplayedArea(id, viewport)!;
+        if (isAnisotropic(data)) {
+          viewport.displayedArea = getAnisotropicDisplayedArea(id, data)!;
         }
         // if uniqueUID has changed update the value into the store
         if (isUniqueUIDChanged) {
