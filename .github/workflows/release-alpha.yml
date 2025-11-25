@@ -1,0 +1,93 @@
+name: Sync cs3d and Release Alpha
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  release:
+    types: [published]
+
+jobs:
+  sync-and-release:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GIT_TOKEN }}
+          fetch-depth: 0 # Required to fetch origin/master and cs3d
+
+      # Setup node environment
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Merge Master into cs3d branch, resolve package.json conflict, increase alpha version and commit
+      - name: Merge Master into cs3d
+        id: merge
+        run: |
+          # 1. Fetch latest
+          git fetch origin master
+          git fetch origin cs3d
+
+          # 2. Get the version from Master (for the commit message)
+          # We read the file content from the master branch without checking it out
+          MASTER_VERSION=$(git show origin/master:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf-8')).version")
+          echo "Master version is: $MASTER_VERSION"
+
+          # 3. Checkout target branch
+          git checkout cs3d
+
+          # 4. Attempt merge
+          # If successful (no conflicts), exit naturally.
+          if git merge origin/master --no-edit; then
+            echo "Merge successful without conflicts."
+            exit 0
+          fi
+
+          # --- Conflict Resolution Logic ---
+          
+          # Check which files are in conflict
+          CONFLICTS=$(git diff --name-only --diff-filter=U)
+          CONFLICTS_CLEAN=$(echo "$CONFLICTS" | tr -d '[:space:]')
+          
+          # If the conflict is NOT strictly package.json, abort.
+          if [ "$CONFLICTS_CLEAN" != "package.json" ]; then
+            echo "Critical conflict detected in: $CONFLICTS"
+            git merge --abort
+            exit 1
+          fi
+
+          echo "Resolving package.json conflict..."
+
+          # A. Keep OUR (cs3d) package.json to preserve 4.0.0-alpha base
+          git checkout --ours package.json
+          
+          # B. Increment the Alpha version (4.0.0-alpha.x -> 4.0.0-alpha.x+1)
+          # --preid=alpha ensures we stick to the alpha tag
+          npm version prerelease --preid=alpha --no-git-tag-version
+          
+          # C. Finalize the merge with dynamic message
+          git add package.json
+          git commit -m "fix: rebased to v$MASTER_VERSION"
+
+      # Force push changes to cs3d branch
+      - name: Push changes
+        run: git push --force origin cs3d
+
+      # Create Pre-Release in GitHub for cs3d branch
+      - name: Create Pre-Release for cs3d
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG_NAME="v$VERSION"
+          
+          gh release create "$TAG_NAME" \
+            --title "Pre-release cs3d $VERSION" \
+            --notes "Automatic sync from master." \
+            --target cs3d \
+            --prerelease
