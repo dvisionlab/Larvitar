@@ -82,16 +82,17 @@ jobs:
       - name: Push changes
         run: git push --force origin cs3d
 
-      # Create Pre-Release in GitHub for cs3d branch
-      - name: Create Pre-Release for cs3d
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          TAG_NAME="v$VERSION"
-          
-          gh release create "$TAG_NAME" \
-            --title "Pre-release cs3d $VERSION" \
-            --notes "Automatic sync from master." \
-            --target cs3d \
-            --prerelease
+      ## Create Pre-Release in GitHub for cs3d branch
+      #- name: Create Pre-Release for cs3d
+      #  env:
+      #    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  run: |
+      #    VERSION=$(node -p "require('./package.json').version")
+      #    TAG_NAME="v$VERSION"
+      #    
+      #    gh release create "$TAG_NAME" \
+      #      --title "v$VERSION" \
+      #      --notes "Automatic sync with master." \
+      #      --generate-notes \
+      #      --target cs3d \
+      #      --prerelease
