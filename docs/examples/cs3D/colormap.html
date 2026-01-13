@@ -367,8 +367,7 @@
               defaultOptions: {
                 orientation:
                   larvitar._cornerstone.Enums.OrientationAxis.CORONAL,
-                background:
-                  larvitar._cornerstone.CONSTANTS.BACKGROUND_COLORS.slicer3D
+                background: [0, 0, 0]
               }
             };
             const renderingEngine =
@@ -439,13 +438,7 @@
         const element = viewport.element;
 
         const voiModifiedHandler = evt => {
-          const { range } = evt.detail;
-          const newVoi = {
-            windowWidth: range.upper - range.lower,
-            windowCenter: (range.upper + range.lower) / 2
-          };
-
-          larvitar.applyColormapByName(viewport, colormapName, newVoi);
+          larvitar.applyColormapByName(viewport, colormapName, false);
         };
 
         element.addEventListener(
