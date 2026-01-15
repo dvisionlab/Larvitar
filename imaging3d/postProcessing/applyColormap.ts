@@ -11,22 +11,11 @@ const defaultColormap: Colormap = {
   colormapCurves: [
     {
       points: [
-        { value: -3024, opacity: 0, color: [0, 0, 0] },
-        {
-          value: -16.4458,
-          opacity: 0.7,
-          color: [186, 65, 77]
-        },
-        {
-          value: 641.385,
-          opacity: 0.715686,
-          color: [231, 208, 141]
-        },
-        {
-          value: 3071,
-          opacity: 0.705882,
-          color: [255, 255, 255]
-        }
+        { value: 150, opacity: 0, color: [255, 120, 80] },
+        { value: 168, opacity: 0.396, color: [255, 120, 80] },
+        { value: 261, opacity: 0.623, color: [255, 150, 70] },
+        { value: 323, opacity: 0.782, color: [244, 231, 149] },
+        { value: 392, opacity: 1, color: [255, 255, 255] }
       ]
     }
   ]
@@ -63,13 +52,33 @@ export const getColormaps = function (): ColormapRegistry {
 };
 
 /**
- * Remap a colormap to fit within a new VOI (window/level)
- * @function remapColormap
- * @param {Colormap} originalColormap - The original colormap
- * @param {VOI} voi - VOI settings (windowWidth, windowCenter)
- * @returns {Colormap} - Remapped colormap
+ * Calculates the VOI (Window Width/Center) based on the points defined in a colormap
  */
-const remapColormap = function (
+const getVOIFromColormap = (colormap: Colormap): VOI => {
+  let min = Infinity;
+  let max = -Infinity;
+
+  colormap.colormapCurves.forEach(curve => {
+    curve.points.forEach(point => {
+      if (point.value < min) min = point.value;
+      if (point.value > max) max = point.value;
+    });
+  });
+
+  if (min === Infinity) return { windowWidth: 400, windowCenter: 40 };
+
+  return {
+    windowWidth: max - min,
+    windowCenter: (max + min) / 2
+  };
+};
+
+/**
+ * Remaps the colormap points relative to a VOI.
+ * It treats the colormap's original min/max as the 'standard' view
+ * and scales it to the new Window/Level.
+ */
+const remapColormapToVOI = function (
   originalColormap: Colormap,
   voi: VOI
 ): Colormap {
@@ -124,20 +133,27 @@ const remapColormap = function (
 export const applyColormap = function (
   viewport: _cornerstone.VolumeViewport,
   colormap: Colormap,
-  voi: VOI | null = null
+  forceSnapToPreset: boolean = true // Set TRUE on first click, FALSE on VOI tool drag
 ): void {
-  const currentVoi = getVOIFromViewport(viewport) ?? voi;
-
   const volumeActor = viewport.getActors()[0]?.actor;
+  if (!volumeActor) return;
 
-  if (!volumeActor) {
-    throw new Error("Volume actor not found. Cannot apply colormap.");
+  if (forceSnapToPreset) {
+    const targetVoi = getVOIFromColormap(colormap);
+    viewport.setProperties({
+      voiRange: {
+        lower: targetVoi.windowCenter - targetVoi.windowWidth / 2,
+        upper: targetVoi.windowCenter + targetVoi.windowWidth / 2
+      }
+    });
   }
+
+  const currentVoi = getVOIFromViewport(viewport);
 
   let colormapToApply = colormap;
 
   if (currentVoi) {
-    colormapToApply = remapColormap(colormap, currentVoi);
+    colormapToApply = remapColormapToVOI(colormap, currentVoi);
   }
   const property = volumeActor.getProperty() as any;
   const rgbTransferFunction = property.getRGBTransferFunction(0);
@@ -160,6 +176,12 @@ export const applyColormap = function (
     });
   });
 
+  opacityTransferFunction.setClamping(true);
+  property.setShade(true);
+  property.setAmbient(0.2);
+  property.setDiffuse(0.7);
+  property.setSpecular(0.3);
+  property.setSpecularPower(10);
   viewport.render();
   store.setImageColormap(viewport.element.id, colormap.name);
 };
@@ -175,7 +197,7 @@ export const applyColormap = function (
 export const applyColormapByName = function (
   viewport: _cornerstone.VolumeViewport,
   colormapName: string,
-  voi: VOI | null = null
+  forceSnapToPreset: boolean = true
 ): void {
   const colormap = COLORMAP_REGISTRY[colormapName];
 
@@ -183,7 +205,7 @@ export const applyColormapByName = function (
     throw new Error(`Colormap '${colormapName}' not found in registry`);
   }
 
-  applyColormap(viewport, colormap, voi);
+  applyColormap(viewport, colormap, forceSnapToPreset);
 };
 
 /**
@@ -206,12 +228,10 @@ export const getVOIFromViewport = function (
  * Reset the colormap to default and clear the store
  * @function resetColormapToDefault
  * @param {_cornerstone.VolumeViewport} viewport - Cornerstone3D viewport
- * @param {string} elementId - Element ID for the store
  * @returns {void}
  */
 export const resetColormapToDefault = function (
   viewport: _cornerstone.VolumeViewport
 ): void {
-  const currentVoi = getVOIFromViewport(viewport);
-  applyColormap(viewport, defaultColormap, currentVoi);
+  applyColormap(viewport, defaultColormap);
 };
