@@ -14,9 +14,9 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          # persist-credentials: false
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.GIT_TOKEN }}
+          # token: ${{ secrets.GIT_TOKEN }}
 
       # Setup node environment
       - name: Setup Node.js environment
