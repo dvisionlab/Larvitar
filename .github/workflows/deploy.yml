@@ -26,7 +26,8 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
 
       # Install node modules
       - name: Install node modules
@@ -47,4 +48,8 @@ jobs:
       # Publish to npm
       - name: Publish to npm
         run: | 
-          npm publish
+          if [[ "$GITHUB_REF_NAME" =~ -(alpha|beta|rc)\. ]]; then
+            npm publish --tag next
+          else
+            npm publish
+          fi
