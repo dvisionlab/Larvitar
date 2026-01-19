@@ -14,9 +14,9 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          # persist-credentials: false
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.GIT_TOKEN }}
+          # token: ${{ secrets.GIT_TOKEN }}
 
       # Setup node environment
       - name: Setup Node.js environment
@@ -64,4 +64,4 @@ jobs:
           build_dir: docs/.vuepress/dist
         env:
           # @see https://docs.github.com/en/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GHPAGES_TOKEN }}
