@@ -6,6 +6,10 @@ on:
   release:
     types: [published]
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -42,6 +46,5 @@ jobs:
 
       # Publish to npm
       - name: Publish to npm
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+        run: | 
           npm publish
