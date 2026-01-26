@@ -176,12 +176,13 @@ export const applyColormap = function (
     });
   });
 
-  opacityTransferFunction.setClamping(true);
+  opacityTransferFunction.setClamping(false);
+
   property.setShade(true);
-  property.setAmbient(0.2);
-  property.setDiffuse(0.7);
-  property.setSpecular(0.3);
-  property.setSpecularPower(10);
+  property.setAmbient(0.15);
+  property.setDiffuse(0.8);
+  property.setSpecular(0.4);
+  property.setSpecularPower(20);
   viewport.render();
   store.setImageColormap(viewport.element.id, colormap.name);
 };
