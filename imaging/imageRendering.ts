@@ -14,7 +14,7 @@ import { getDataFromFileManager, getFileManager } from "./imageManagers";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
-import { isElement } from "./imageUtils";
+import { getFrameSequenceMammoVOI, isElement } from "./imageUtils";
 import {
   DisplayedArea,
   Image,
@@ -1610,15 +1610,25 @@ const getSeriesData = function (
     data.spacing_x = spacing ? spacing[0] : 1;
     data.spacing_y = spacing ? spacing[1] : 1;
 
-    // voi contrast value from metadata or renderOptions
-    const windowCenter =
-      renderOptions.voi !== undefined
-        ? renderOptions.voi.windowCenter
-        : (instance.metadata.x00281050 as number);
-    const windowWidth =
-      renderOptions.voi !== undefined
-        ? renderOptions.voi.windowWidth
-        : (instance.metadata.x00281051 as number);
+    let windowCenter: number;
+    let windowWidth: number;
+
+    if (renderOptions.voi !== undefined) {
+      windowCenter = renderOptions.voi.windowCenter;
+      windowWidth = renderOptions.voi.windowWidth;
+    } else if (instance.metadata.x00080060?.toUpperCase() === "MG") {
+      const frameSequenceMammoVOI = getFrameSequenceMammoVOI(instance);
+
+      windowCenter =
+        frameSequenceMammoVOI?.windowCenter ??
+        (instance.metadata.x00281050 as number);
+      windowWidth =
+        frameSequenceMammoVOI?.windowWidth ??
+        (instance.metadata.x00281051 as number);
+    } else {
+      windowCenter = instance.metadata.x00281050 as number;
+      windowWidth = instance.metadata.x00281051 as number;
+    }
 
     // window center and window width
     data.viewport = {
@@ -1629,10 +1639,21 @@ const getSeriesData = function (
     };
     // store default values for the viewport voi from the series metadata
     data.default = {};
-    data.default!.voi = {
-      windowCenter: instance.metadata.x00281050 as number,
-      windowWidth: instance.metadata.x00281051 as number
-    };
+    if (instance.metadata.x00080060?.toUpperCase() === "MG") {
+      const frameSequenceMammoVOI = getFrameSequenceMammoVOI(instance);
+
+      data.default!.voi = {
+        windowCenter: (frameSequenceMammoVOI?.windowCenter ??
+          instance.metadata.x00281050) as number,
+        windowWidth: (frameSequenceMammoVOI?.windowWidth ??
+          instance.metadata.x00281051) as number
+      };
+    } else {
+      data.default!.voi = {
+        windowCenter: instance.metadata.x00281050 as number,
+        windowWidth: instance.metadata.x00281051 as number
+      };
+    }
     data.default.rotation = 0;
     data.default.translation = { x: 0, y: 0 };
 
@@ -1723,8 +1744,22 @@ const getSeriesDataFromStore = function (
     if (!data.default.voi) {
       data.default.voi = { windowCenter: 0, windowWidth: 0 };
     }
-    data.default.voi.windowCenter = instance.metadata.x00281050 as number;
-    data.default.voi.windowWidth = instance.metadata.x00281051 as number;
+
+    if (instance.metadata.x00080060?.toUpperCase() === "MG") {
+      const frameSequenceMammoVOI = getFrameSequenceMammoVOI(instance);
+
+      data.default!.voi = {
+        windowCenter: (frameSequenceMammoVOI?.windowCenter ??
+          instance.metadata.x00281050) as number,
+        windowWidth: (frameSequenceMammoVOI?.windowWidth ??
+          instance.metadata.x00281051) as number
+      };
+    } else {
+      data.default!.voi = {
+        windowCenter: instance.metadata.x00281050 as number,
+        windowWidth: instance.metadata.x00281051 as number
+      };
+    }
   }
   if (renderOptions.voi !== undefined) {
     if (!data.viewport) {
