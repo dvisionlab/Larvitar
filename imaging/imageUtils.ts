@@ -493,6 +493,19 @@ export const getReslicedMetadata = function (
   };
 };
 
+export const getFrameSequenceMammoVOI = function (instance: any) {
+  try {
+    const perFrameGroups = instance.metadata.x52009230?.[0];
+    const frameVOI = perFrameGroups?.x00289132?.[0];
+
+    return {
+      windowCenter: frameVOI?.x00281050,
+      windowWidth: frameVOI?.x00281051
+    };
+  } catch (e) {
+    return null;
+  }
+};
 /**
  * Compute cmpr metadata from pyCmpr data (generated using Scyther {@link https://github.com/dvisionlab/Scyther})
  * @instance
