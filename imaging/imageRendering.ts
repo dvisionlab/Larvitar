@@ -1081,7 +1081,7 @@ export const updateImage = async function (
 export const resetViewports = function (
   elementIds: string[],
   keys?: Array<
-    "contrast" | "scaleAndTranslation" | "rotation" | "flip" | "zoom"
+    "contrast" | "scaleAndTranslation" | "rotation" | "flip" | "zoom" | 'scaleAndTranslationOriginalSize'
   >
 ) {
   each(elementIds, function (elementId: string) {
@@ -1111,6 +1111,19 @@ export const resetViewports = function (
       ]);
     }
 
+    if (!keys || keys!.find(v => v === "scaleAndTranslationOriginalSize")) {
+      viewport.scale = 1.00;
+      setStore(["scale", elementId, 1.00]);
+      viewport.translation.x = defaultViewport.translation.x;
+      viewport.translation.y = defaultViewport.translation.y;
+      setStore([
+        "translation",
+        elementId,
+        viewport.translation.x,
+        viewport.translation.y
+      ]);
+    }
+    
     if (!keys || keys.find(v => v === "scaleAndTranslation")) {
       viewport.scale = defaultViewport.scale;
       setStore(["scale", elementId, viewport.scale]);
