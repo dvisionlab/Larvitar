@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 
 // internal libraries
 import { logger } from "../logger";
-import { randomId } from "./imageUtils";
+import { getVOIFromMetadata, randomId } from "./imageUtils";
 import { getNestedObject, parseTag } from "./imageTags";
 import { updateLoadedStack } from "./imageLoading";
 import { checkMemoryAllocation } from "./monitors/memory";
@@ -520,8 +520,10 @@ const fillMetadataReadable = function (metadata: MetaData): MetaDataReadable {
   metadataReadable.numberOfSlices = metadata["x00540081"]
     ? metadata["x00540081"] // number of slices
     : metadata["x00201002"]; // number of instances
-  metadataReadable.windowCenter = metadata["x00281050"];
-  metadataReadable.windowWidth = metadata["x00281051"];
+  const { windowWidth, windowCenter } = getVOIFromMetadata(metadata);
+
+  metadataReadable.windowCenter = windowCenter;
+  metadataReadable.windowWidth = windowWidth;
   metadataReadable.minPixelValue = metadata["x00280106"];
   metadataReadable.maxPixelValue = metadata["x00280107"];
   metadataReadable.numberOfFrames = numberOfFrames;

@@ -21,6 +21,7 @@ import type {
 } from "../types";
 import { populateDsaImageIds } from "./dsaImageLoader";
 import store from "./../imageStore";
+import { getVOIFromMetadata } from "../imageUtils";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -307,8 +308,7 @@ let createCustomImage = function (
             : [1, 1];
       let rescaleIntercept = metadata.x00281052;
       let rescaleSlope = metadata.x00281053;
-      let windowCenter = metadata.x00281050;
-      let windowWidth = metadata.x00281051;
+      const { windowWidth, windowCenter } = getVOIFromMetadata(metadata);
 
       function getSizeInBytes() {
         let bytesPerPixel = Math.round(imageFrame.bitsAllocated! / 8);
