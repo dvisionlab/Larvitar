@@ -493,9 +493,34 @@ export const getReslicedMetadata = function (
   };
 };
 
-export const getFrameSequenceMammoVOI = function (instance: any) {
+export const getVOIFromMetadata = function (
+  metadata: MetaData,
+  renderOptionsVoi?: any
+) {
+  if (renderOptionsVoi !== undefined) {
+    return {
+      windowCenter: renderOptionsVoi.windowCenter,
+      windowWidth: renderOptionsVoi.windowWidth
+    };
+  } else if (metadata.x00080060?.toUpperCase() === "MG") {
+    const frameSequenceMammoVOI = getFrameSequenceMammoVOI(metadata);
+    return {
+      windowCenter:
+        frameSequenceMammoVOI?.windowCenter ?? (metadata.x00281050 as number),
+      windowWidth:
+        frameSequenceMammoVOI?.windowWidth ?? (metadata.x00281051 as number)
+    };
+  } else {
+    return {
+      windowCenter: metadata.x00281050 as number,
+      windowWidth: metadata.x00281051 as number
+    };
+  }
+};
+
+export const getFrameSequenceMammoVOI = function (metadata: MetaData) {
   try {
-    const perFrameGroups = instance.metadata.x52009230?.[0];
+    const perFrameGroups = metadata.x52009230?.[0];
     const frameVOI = perFrameGroups?.x00289132?.[0];
 
     return {

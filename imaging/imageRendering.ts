@@ -14,7 +14,7 @@ import { getDataFromFileManager, getFileManager } from "./imageManagers";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
-import { getFrameSequenceMammoVOI, isElement } from "./imageUtils";
+import { getVOIFromMetadata, isElement } from "./imageUtils";
 import {
   DisplayedArea,
   Image,
@@ -1081,7 +1081,12 @@ export const updateImage = async function (
 export const resetViewports = function (
   elementIds: string[],
   keys?: Array<
-    "contrast" | "scaleAndTranslation" | "rotation" | "flip" | "zoom" | 'scaleAndTranslationOriginalSize'
+    | "contrast"
+    | "scaleAndTranslation"
+    | "rotation"
+    | "flip"
+    | "zoom"
+    | "scaleAndTranslationOriginalSize"
   >
 ) {
   each(elementIds, function (elementId: string) {
@@ -1112,8 +1117,8 @@ export const resetViewports = function (
     }
 
     if (!keys || keys!.find(v => v === "scaleAndTranslationOriginalSize")) {
-      viewport.scale = 1.00;
-      setStore(["scale", elementId, 1.00]);
+      viewport.scale = 1.0;
+      setStore(["scale", elementId, 1.0]);
       viewport.translation.x = defaultViewport.translation.x;
       viewport.translation.y = defaultViewport.translation.y;
       setStore([
@@ -1123,7 +1128,6 @@ export const resetViewports = function (
         viewport.translation.y
       ]);
     }
-    
     if (!keys || keys.find(v => v === "scaleAndTranslation")) {
       viewport.scale = defaultViewport.scale;
       setStore(["scale", elementId, viewport.scale]);
@@ -1623,25 +1627,10 @@ const getSeriesData = function (
     data.spacing_x = spacing ? spacing[0] : 1;
     data.spacing_y = spacing ? spacing[1] : 1;
 
-    let windowCenter: number;
-    let windowWidth: number;
-
-    if (renderOptions.voi !== undefined) {
-      windowCenter = renderOptions.voi.windowCenter;
-      windowWidth = renderOptions.voi.windowWidth;
-    } else if (instance.metadata.x00080060?.toUpperCase() === "MG") {
-      const frameSequenceMammoVOI = getFrameSequenceMammoVOI(instance);
-
-      windowCenter =
-        frameSequenceMammoVOI?.windowCenter ??
-        (instance.metadata.x00281050 as number);
-      windowWidth =
-        frameSequenceMammoVOI?.windowWidth ??
-        (instance.metadata.x00281051 as number);
-    } else {
-      windowCenter = instance.metadata.x00281050 as number;
-      windowWidth = instance.metadata.x00281051 as number;
-    }
+    const { windowWidth, windowCenter } = getVOIFromMetadata(
+      instance.metadata,
+      renderOptions.voi
+    );
 
     // window center and window width
     data.viewport = {
@@ -1652,21 +1641,7 @@ const getSeriesData = function (
     };
     // store default values for the viewport voi from the series metadata
     data.default = {};
-    if (instance.metadata.x00080060?.toUpperCase() === "MG") {
-      const frameSequenceMammoVOI = getFrameSequenceMammoVOI(instance);
-
-      data.default!.voi = {
-        windowCenter: (frameSequenceMammoVOI?.windowCenter ??
-          instance.metadata.x00281050) as number,
-        windowWidth: (frameSequenceMammoVOI?.windowWidth ??
-          instance.metadata.x00281051) as number
-      };
-    } else {
-      data.default!.voi = {
-        windowCenter: instance.metadata.x00281050 as number,
-        windowWidth: instance.metadata.x00281051 as number
-      };
-    }
+    data.default.voi = getVOIFromMetadata(instance.metadata);
     data.default.rotation = 0;
     data.default.translation = { x: 0, y: 0 };
 
@@ -1758,21 +1733,7 @@ const getSeriesDataFromStore = function (
       data.default.voi = { windowCenter: 0, windowWidth: 0 };
     }
 
-    if (instance.metadata.x00080060?.toUpperCase() === "MG") {
-      const frameSequenceMammoVOI = getFrameSequenceMammoVOI(instance);
-
-      data.default!.voi = {
-        windowCenter: (frameSequenceMammoVOI?.windowCenter ??
-          instance.metadata.x00281050) as number,
-        windowWidth: (frameSequenceMammoVOI?.windowWidth ??
-          instance.metadata.x00281051) as number
-      };
-    } else {
-      data.default!.voi = {
-        windowCenter: instance.metadata.x00281050 as number,
-        windowWidth: instance.metadata.x00281051 as number
-      };
-    }
+    data.default.voi = getVOIFromMetadata(instance.metadata);
   }
   if (renderOptions.voi !== undefined) {
     if (!data.viewport) {

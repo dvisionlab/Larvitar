@@ -14,7 +14,8 @@ import { ImageLoader } from "cornerstone-core";
 import {
   getNormalOrientation,
   getPixelRepresentation,
-  getTypedArrayFromDataType
+  getTypedArrayFromDataType,
+  getVOIFromMetadata
 } from "../imageUtils";
 
 import { getImageFrame } from "./commonLoader";
@@ -435,8 +436,7 @@ let createCustomImage = function (
         : [1, 1];
   let rescaleIntercept = metadata.x00281052;
   let rescaleSlope = metadata.x00281053;
-  let windowCenter = metadata.x00281050;
-  let windowWidth = metadata.x00281051;
+  const { windowWidth, windowCenter } = getVOIFromMetadata(metadata);
 
   function getSizeInBytes() {
     let bytesPerPixel = Math.round(imageFrame.bitsAllocated! / 8);
