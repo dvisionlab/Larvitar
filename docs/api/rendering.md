@@ -417,7 +417,7 @@ The `resetViewports` function resets one or more viewports to their default stat
 ```typescript
 export const resetViewports = function (
   elementIds: string[],
-  keys?: Array<"contrast" | "scaleAndTranslation" | "rotation" | "flip" | "zoom">
+  keys?: Array<"contrast" | "scaleAndTranslation" | "rotation" | "flip" | "zoom"| 'scaleAndTranslationOriginalSize'>
 ): void
 ```
 
