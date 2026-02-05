@@ -1,0 +1,512 @@
+<!doctype html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Include the Larvitar script -->
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- custom styles for the example -->
+    <style>
+      .buttonbar {
+        background-color: #f4f4f4;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+      }
+      .buttonbar > * {
+        margin-right: 5px;
+      }
+      .loader {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 3px;
+      }
+
+      /* Adjust the styling for the other elements as needed */
+      .button {
+        padding: 10px;
+        font-size: 16px;
+      }
+
+      .manualInput {
+        width: 100px;
+        padding: 8px;
+        font-size: 14px;
+      }
+      .custom-width {
+        width: calc(1% - 1px); /* Adjust the width as needed */
+      }
+    </style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+        const closeCodeBtn = document.getElementById("closeModal");
+        const closeCodeXBtn = document.getElementById("closeModalX");
+        // TODO Code snippet to be displayed and updated for the example
+        const code = `
+larvitar.initializeImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+larvitar.resetImageManager();
+const seriesStack = await larvitar.readFiles(demoFiles);
+// render the first series of the study
+let seriesId = Object.keys(seriesStack)[0];
+let serie = seriesStack[seriesId];
+await larvitar.renderImage(serie, "viewer");
+larvitar.addDefaultTools("viewer");
+loadMasks();
+
+// optionally cache the series
+larvitar.populateImageManager(seriesId, serie);
+
+await larvitar.loadAndCacheImageStack(serie);
+setTimeout(function () {
+  larvitar.setToolActive("Brush");
+}, 1000);
+
+let mouseConfig = {
+  mouse_button_right: {
+    ctrl: "Pan",
+    default: "Zoom"
+  },
+  debug: true
+};
+
+// NOTE: this also activate the tools marked as default for each mouse button
+larvitar.addMouseKeyHandlers(mouseConfig);
+async function loadMasks() {
+let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
+let properties = {
+  // color: "#00ff00",
+  opacity: 0.2,
+  labelId: 0
+};
+// add to viewport
+await larvitar
+  .addSegmentationMask(properties, data, "viewer")
+  .then(() => {
+    // activate brush on this labelmap
+    larvitar.setActiveLabelmap(0, "viewer");
+  });
+}
+`;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+          document.documentElement.style.overflow = "hidden";
+          larvitar.setToolDisabled("Brush");
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+        closeCodeBtn.addEventListener("click", () => {
+          larvitar.setToolActive("Brush");
+        });
+        closeCodeXBtn.addEventListener("click", () => {
+          larvitar.setToolActive("Brush");
+        });
+      });
+    </script>
+
+    <title>Larvitar - Segmentation Tools example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; color: white; top: 0">
+        Press "t" to cycle through tools<br />
+      </p>
+      <p id="active-tool" style="position: absolute; top: 20px; color: white">
+        Active Tool: Brush<br />
+      </p>
+      <p id="info" style="position: absolute; top: 40px; color: white"></p>
+      <button
+        id="showCodeBtn"
+        class="open-button"
+        style="position: absolute; top: 70px; left: 10px"
+      >
+        Show Code
+      </button>
+      <div
+        class="container"
+        style="position: absolute; top: 160px; left: 134px"
+      >
+        <div id="buttonBar" class="row" style="display: none">
+          <div id="loaderDiv" class="col">
+            <div class="loader" id="loader"></div>
+          </div>
+
+          <!-- Bootstrap grid system for alignment -->
+          <div id="toggleButtonDiv" class="col">
+            <button
+              id="toggleButton"
+              class="open-button"
+              style="width: 200px; border-color: blue; background-color: blue"
+            >
+              Current Image
+            </button>
+          </div>
+
+          <div id="masksNumberDiv" class="col">
+            <input
+              type="number"
+              class="form-control manualInput"
+              id="masksNumber"
+              placeholder="N° Masks"
+            />
+          </div>
+
+          <div id="startImageDiv" class="col">
+            <input
+              type="number"
+              class="form-control manualInput"
+              id="startImage"
+              placeholder="startImage"
+              style="display: none"
+            />
+          </div>
+
+          <div id="endImageDiv" class="col">
+            <input
+              type="number"
+              class="form-control manualInput"
+              id="endImage"
+              placeholder="endImage"
+              style="display: none"
+            />
+          </div>
+        </div>
+      </div>
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                id="closeModalX"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                id="closeModal"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
+    </div>
+    <script>
+      function onOpenCvReady() {
+        larvitar.logger.debug("OpenCV Ready", cv);
+      }
+    </script>
+    <script>
+      const loader = document.getElementById("loader");
+      let rotation = 0;
+
+      function rotateLoader() {
+        loader.style.display = "block";
+
+        if (larvitar.DEFAULT_TOOLS["WSToggle"].configuration.onload) {
+          rotation += 10; // You can adjust the rotation speed
+          loader.style.transform = `rotate(${rotation}deg)`;
+          requestAnimationFrame(rotateLoader);
+        } else {
+          loader.style.display = "none";
+        }
+      }
+
+      //rotateLoader();
+    </script>
+    <script
+      src="https://docs.opencv.org/4.5.4/opencv.js"
+      onload="onOpenCvReady();"
+      type="text/javascript"
+    ></script>
+
+    <script>
+      const spinner = document.getElementById("spinner");
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+      const toggleButton = document.getElementById("toggleButton");
+      const buttonDiv = document.getElementById("toggleButtonDiv");
+      const loaderDiv = document.getElementById("loaderDiv");
+      const startDiv = document.getElementById("startImageDiv");
+      const endDiv = document.getElementById("endImageDiv");
+      const maskDiv = document.getElementById("masksNumberDiv");
+      const masksNumberInput = document.getElementById("masksNumber");
+      const endInput = document.getElementById("endImage");
+      const startInput = document.getElementById("startImage");
+      function triggerHandleToggle() {
+        let isMultiImage =
+          larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage === false
+            ? true
+            : false;
+        larvitar.DEFAULT_TOOLS["WSToggle"].configuration.multiImage =
+          isMultiImage;
+        toggleButton.innerHTML =
+          isMultiImage === true ? "Multi Image" : "Current Image";
+        startInput.style.display = isMultiImage === true ? "block" : "none";
+        endInput.style.display = isMultiImage === true ? "block" : "none";
+      }
+
+      const bindInputEvent = (inputElement, configKey) => {
+        inputElement.addEventListener("input", function (event) {
+          larvitar.DEFAULT_TOOLS["WSToggle"].configuration[configKey] =
+            event.target.value;
+        });
+      };
+      masksNumberInput.addEventListener("input", function (event) {
+        larvitar.DEFAULT_TOOLS["WSToggle"].configuration.masksNumber =
+          event.target.value;
+      });
+
+      bindInputEvent(startInput, "startIndex");
+      bindInputEvent(endInput, "endIndex");
+      toggleButton.addEventListener("click", triggerHandleToggle);
+
+      let demoFiles = [];
+      let counter = 0;
+
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+      larvitar.registerNRRDImageLoader();
+      larvitar.initSegmentationModule();
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
+      showSpinner();
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 24) {
+          cb();
+        }
+      }
+
+      async function renderSerie() {
+        larvitar.resetImageManager();
+        const seriesStack = await larvitar.readFiles(demoFiles);
+        // render the first series of the study
+        let seriesId = Object.keys(seriesStack)[0];
+        let serie = seriesStack[seriesId];
+        await larvitar.renderImage(serie, "viewer");
+        hideSpinner();
+        larvitar.logger.debug("Image has been rendered");
+        larvitar.addDefaultTools("viewer");
+        loadMasks();
+
+        // optionally cache the series
+        larvitar.populateImageManager(seriesId, serie);
+
+        await larvitar.loadAndCacheImageStack(serie);
+        setTimeout(function () {
+          larvitar.setToolActive("Brush");
+        }, 1000);
+
+        let mouseConfig = {
+          mouse_button_right: {
+            ctrl: "Pan",
+            default: "Zoom"
+          },
+          debug: true
+        };
+
+        // NOTE: this also activate the tools marked as default for each mouse button
+        larvitar.addMouseKeyHandlers(mouseConfig);
+      }
+
+      async function loadMasks() {
+        let data = new Int16Array(768 * 768 * 24); //fix dimensions based on loaded images dimensions
+        let properties = {
+          // color: "#00ff00",
+          opacity: 0.2,
+          labelId: 0
+        };
+        // add to viewport
+        await larvitar
+          .addSegmentationMask(properties, data, "viewer")
+          .then(() => {
+            // activate brush on this labelmap
+            larvitar.setActiveLabelmap(0, "viewer");
+          });
+      }
+
+      let demoFileList = getDemoFileNames();
+      demoFileList.forEach(demoFile => {
+        createFile(demoFile, renderSerie);
+      });
+      let element = document.getElementById("viewer");
+      let tool_counter = 0;
+      let tool;
+      const showCodeBtn = document.getElementById("showCodeBtn");
+
+      document.onkeypress = function (e) {
+        e = e || window.event;
+        //larvitar.clearSegmentationState();
+        if (e.keyCode == 116 || e.keyCode == 84) {
+          if (tool != undefined) {
+            //clearToolData(element, tool);
+          }
+
+          const selectedNames = [
+            "Brush",
+            "RectangleScissors",
+            "FreehandScissors",
+            "CircleScissors",
+            "CorrectionScissors",
+            "PolylineScissors",
+            "WSToggle"
+          ]; // Replace with your selected names
+
+          // Filter out segmentation tools
+          const selectedTools = Object.values(larvitar.DEFAULT_TOOLS).filter(
+            tool => selectedNames.includes(tool.name)
+          );
+
+          const tools = Object.values(selectedTools).map(tool => tool.name);
+          let increment = e.shiftKey ? -1 : 1;
+          tool_counter =
+            tool_counter == tools.length - 1 ? 0 : tool_counter + increment;
+          tool_counter = tool_counter < 0 ? 0 : tool_counter;
+          tool = tools[tool_counter];
+
+          larvitar.setToolActive(tool);
+          if (tool === "WSToggle") {
+            larvitar.clearSegmentationState();
+            document.getElementById("info").innerHTML =
+              "<b>ctrl+mouse wheel to change brush radius</b><br />" +
+              "<b>click to activate watershed segmentation of features with greyscale " +
+              "value of interest</b><br />" +
+              "<b>ctrl+click for Label Eraser:</b> erases selected label<br />" +
+              "<b>alt+click for LabelPicker: </b>allows you to pick a label, click again to " +
+              "apply the picked label<br />" +
+              "<b>shift+click+drag for Manual Eraser</b>";
+            showCodeBtn.style.top = "160px";
+            buttonBar.style.removeProperty("display"); // make it visible
+            //TODO: do not use block, delete display parameter from style instead
+            //to make it return to boostrap's default (flex)
+            //remove flex grow for
+            buttonDiv.style.removeProperty("display");
+            loader.style.display = "none";
+            [maskDiv, loaderDiv, startDiv, endDiv, buttonDiv].forEach(div => {
+              div.style.flexGrow = 0;
+              div.style.paddingLeft = "3px";
+            });
+            element.addEventListener("click", rotateLoader);
+          } else {
+            showCodeBtn.style.top = "70px";
+            document.getElementById("info").innerHTML = "<br>";
+            buttonBar.style.display = "none"; // make it invisible
+            element.removeEventListener("click", rotateLoader);
+          }
+          document.getElementById("active-tool").innerText =
+            "Active Tool: " + tool;
+        }
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,650 @@
+<!doctype html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Include the Larvitar script -->
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- custom styles for the example -->
+    <style>
+      label {
+        color: #28b47f;
+        font-weight: bold;
+        text-align: center;
+        border: 2px;
+      }
+
+      /* The popup form - hidden by default */
+      .form-popup {
+        display: none;
+        position: absolute;
+        top: 30px;
+        border: 3px solid #555;
+        z-index: 9;
+      }
+
+      /* Add styles to the form container */
+      .form-container {
+        max-width: 300px;
+        padding: 10px;
+        background-color: rgb(0, 0, 0);
+      }
+
+      /* Full-width input fields */
+      .form-container input[type="text"],
+      .form-container input[type="password"] {
+        width: 100%;
+        padding: 15px;
+        margin: 5px 0 22px 0;
+        border: none;
+        background: #f1f1f1;
+      }
+
+      /* When the inputs get focus, do something */
+      .form-container input[type="text"]:focus,
+      .form-container input[type="password"]:focus {
+        background-color: #ddd;
+        outline: none;
+      }
+
+      /* Set a style for the submit/login button */
+      .form-container .btn {
+        background-color: #04aa6d;
+        color: white;
+        padding: 16px 20px;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        margin-bottom: 10px;
+        opacity: 0.8;
+      }
+
+      /* Add a red background color to the cancel button */
+      .form-container .cancel {
+        background-color: red;
+      }
+
+      /* Add some hover effects to buttons */
+      .form-container .btn:hover,
+      .open-button:hover {
+        opacity: 1;
+      }
+
+      /* Mask overlay */
+      .dragover {
+        opacity: 0.3;
+      }
+    </style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        const code = `
+larvitar.initializeImageLoader();
+larvitar.registerMultiFrameImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+larvitar
+  .readFiles(fileList)
+  .then(seriesStack => {
+    const uniqueUID = Object.keys(seriesStack)[0];
+    const serie = seriesStack[uniqueUID];
+    larvitar.populateImageManager(uniqueUID, serie);
+    larvitar.renderImage(serie, "viewer").then(() => {
+      larvitar.logger.debug("Image has been rendered");
+      larvitar.addDefaultTools("viewer");
+    });
+  })`;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
+    <title>Larvitar - Basic rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; color: white">
+        <b>Open form:</b> Allows to modify DICOM tags and download the modified
+        image/images
+      </p>
+      <p style="position: absolute; top: 20px; color: white">
+        <b
+          >Drag and drop a folder or a list of dicom files to visualize in the
+          current viewer</b
+        >
+      </p>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          position: absolute;
+          top: 50px;
+        "
+      >
+        <button id="showCodeBtn" class="open-button" style="width: auto">
+          Show Code
+        </button>
+
+        <button class="open-button" style="width: auto" onclick="openForm()">
+          Open Form
+        </button>
+
+        <button
+          class="open-button"
+          style="width: auto"
+          id="previous"
+          onclick="getMetadata()"
+        >
+          Display Metadata
+        </button>
+
+        <button
+          class="open-button"
+          style="width: auto"
+          id="previous"
+          onclick="previousImage()"
+        >
+          Previous Series <-
+        </button>
+
+        <button
+          class="open-button"
+          style="width: auto"
+          id="next"
+          onclick="nextImage()"
+        >
+          Next Series ->
+        </button>
+      </div>
+
+      <div class="form-popup" id="myForm">
+        <form id="myFormSub" class="form-container">
+          <h1 style="text-align: center; color: #28b47f; font-weight: bold">
+            Metadata
+          </h1>
+          <div id="metadata" style="overflow-y: scroll; height: 300px"></div>
+          <div>
+            <input type="checkbox" id="downloadCheck" />
+            <label> Download modified image/images</label><br />
+            <label style="display: none" id="downloadLabel"
+              >Download image N:</label
+            >
+            <input
+              type="number"
+              id="downloadInput"
+              style="display: none"
+              placeholder="Download all images"
+            />
+          </div>
+          <button id="submit" class="btn">submit</button>
+          <button type="button" class="btn cancel" onclick="closeForm()">
+            Close
+          </button>
+        </form>
+      </div>
+
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="metadataModal" class="modal">
+        <table id="metadataTable">
+          <thead>
+            <tr>
+              <th>Tag</th>
+              <th>Name</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rows will be added here dynamically -->
+          </tbody>
+        </table>
+      </div>
+      <div id="spinner"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+
+    <script>
+      let demoFiles = [];
+      let newMetaData = {};
+      let series;
+      let totalFiles = 0;
+      let processedFiles = 0;
+
+      const dropCanvas = document.getElementById("viewer");
+      const spinner = document.getElementById("spinner");
+
+      // Prevent default behavior for drag-and-drop events
+      ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+        dropCanvas.addEventListener(eventName, e => e.preventDefault());
+      });
+
+      // Add dragover and dragleave event listeners to style the canvas
+      dropCanvas.addEventListener("dragover", () => {
+        dropCanvas.classList.add("dragover");
+      });
+
+      dropCanvas.addEventListener("dragleave", () => {
+        dropCanvas.classList.remove("dragover");
+      });
+
+      dropCanvas.addEventListener("drop", e => {
+        demoFiles = [];
+        totalFiles = 0;
+        processedFiles = 0;
+        showSpinner(); // Show the spinner
+        dropCanvas.classList.remove("dragover");
+        const items = e.dataTransfer.items;
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i].webkitGetAsEntry();
+            if (item) {
+              traverseFileTree(item);
+            }
+          }
+        }
+      });
+
+      // Function to traverse files in folders
+      function traverseFileTree(item) {
+        if (item.isFile & (item.name.startsWith(".") == false)) {
+          totalFiles++;
+          item.file(file => {
+            handleFile(file);
+          });
+        } else if (item.isDirectory) {
+          const dirReader = item.createReader();
+          readAllEntries(dirReader);
+        }
+      }
+
+      // Helper function to read all entries in a directory (to handle the 100-item limit)
+      function readAllEntries(dirReader, path) {
+        dirReader.readEntries(entries => {
+          if (entries.length > 0) {
+            entries.forEach(entry => {
+              traverseFileTree(entry); // Recursively read entries
+            });
+            // Continue reading entries if there might be more
+            readAllEntries(dirReader);
+          }
+        });
+      }
+
+      // Function to handle individual files
+      function handleFile(file) {
+        demoFiles.push(file);
+        processedFiles++;
+        if (processedFiles === totalFiles) {
+          processFileList(demoFiles); // Call the function when all files are processed
+        }
+      }
+
+      // Function to handle the full list once it's ready
+      function processFileList() {
+        renderSerie();
+      }
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+
+      var form = document.getElementById("myFormSub");
+      function handleForm(event) {
+        event.preventDefault();
+      }
+      form.addEventListener("submit", handleForm);
+      function openForm() {
+        document.getElementById("myForm").style.display = "block";
+      }
+
+      function closeForm() {
+        document.getElementById("myForm").style.display = "none";
+      }
+      const inputBtn = document.getElementById("submit");
+      inputBtn.addEventListener("click", func);
+
+      function func() {
+        if (series) {
+          const keys = Object.keys(
+            series.instances[series.imageIds[0]].metadata
+          ).filter(item => item.startsWith("x"));
+
+          for (key in keys) {
+            if (
+              document.getElementById(keys[key]) != undefined &&
+              document.getElementById(keys[key]) != null &&
+              typeof series.instances[series.imageIds[0]].metadata[
+                keys[key]
+              ] === "string" &&
+              document.getElementById(keys[key]).value &&
+              document.getElementById(keys[key]).value !==
+                document.getElementById(keys[key]).placeholder
+            ) {
+              let value = document.getElementById(keys[key]).value;
+              newMetaData[keys[key]] = value;
+            }
+          }
+          if (Object.keys(newMetaData) != 0) {
+            larvitar.customizeByteArray(series, newMetaData);
+          }
+
+          if (document.getElementById("downloadCheck").checked) {
+            if (document.getElementById("downloadInput").value) {
+              var blob = new Blob(
+                [
+                  series.instances[
+                    series.imageIds[
+                      parseInt(
+                        document.getElementById("downloadInput").value,
+                        10
+                      )
+                    ]
+                  ].dataSet.byteArray
+                ],
+                {
+                  type: "application/dicom"
+                }
+              );
+              var url = window.URL.createObjectURL(blob);
+              window.open(url);
+              window.URL.revokeObjectURL(url);
+            } else {
+              for (let i = 0; i < series.imageIds.length; i++) {
+                var blob = new Blob(
+                  [series.instances[series.imageIds[i]].dataSet.byteArray], //[series.instances[series.imageIds[i]].dataSet.byteArray]
+                  {
+                    type: "application/dicom"
+                  }
+                );
+                var url = window.URL.createObjectURL(blob);
+                window.open(url);
+                window.URL.revokeObjectURL(url);
+              }
+            }
+          }
+        }
+      }
+      document.getElementById("downloadCheck").addEventListener("click", () => {
+        if (document.getElementById("downloadCheck").checked) {
+          document.getElementById("downloadLabel").style.display = "block";
+          document.getElementById("downloadInput").style.display = "block";
+          document.getElementById("downloadInput").style.width = "250px";
+          document.getElementById("downloadInput").min = 0;
+          document.getElementById("downloadInput").max =
+            series.imageIds.length - 1;
+        } else {
+          document.getElementById("downloadLabel").style.display = "none";
+          document.getElementById("downloadInput").style.display = "none";
+        }
+      });
+      let keys = [];
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.registerMultiFrameImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        processedFiles++;
+        if (processedFiles == 24) {
+          cb();
+        }
+      }
+
+      function getMetadata() {
+        const modal = document.getElementById("metadataModal");
+        const tableBody = document.querySelector("#metadataTable tbody");
+        const stack = larvitar.getImageManager();
+        const uniqueUID = larvitar.store.get([
+          "viewports",
+          "viewer",
+          "uniqueUID"
+        ]);
+        const sliceId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
+        const imageId = stack[uniqueUID].imageIds[sliceId];
+        const instanceUid =
+          stack[uniqueUID].instances[imageId].metadata.instanceUID;
+        const metadata = larvitar.getImageMetadata(
+          uniqueUID,
+          instanceUid,
+          sliceId
+        );
+        localStorage.setItem("tableData", JSON.stringify(metadata));
+        window.open("metadataTable.html", "_blank");
+      }
+
+      function renderSerie() {
+        larvitar.resetImageManager();
+        larvitar.disableViewport("viewer");
+        larvitar.store.addViewport("viewer");
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            //populate the image manager with the series
+            for (const [uniqueId, data] of Object.entries(seriesStack)) {
+              larvitar.populateImageManager(uniqueId, data);
+            }
+            // render the first series of the study
+            let uniqueUID = Object.keys(seriesStack)[0];
+            let manager = larvitar.getImageManager();
+            let serie = manager[uniqueUID];
+
+            // const options = {
+            //   imageIndex: 3,
+            //   scale: 5,
+            //   rotation: 40,
+            //   translation: {
+            //     x: 5,
+            //     y: 5
+            //   },
+            //   voi: {
+            //     windowCenter: 40,
+            //     windowWidth: 400
+            //   }
+            // };
+
+            larvitar.renderImage(serie, "viewer").then(() => {
+              larvitar.logger.debug("Image has been rendered");
+              hideSpinner(); // Hide the spinner when all files are processed
+              larvitar.addDefaultTools("viewer");
+            });
+
+            series = serie;
+            const keys = Object.keys(
+              serie.instances[serie.imageIds[0]].metadata
+            ).filter(item => item.startsWith("x"));
+            for (key in keys) {
+              if (
+                typeof serie.instances[serie.imageIds[0]].metadata[
+                  keys[key]
+                ] === "string"
+              ) {
+                let newElement = document.createElement("label");
+                newElement.innerHTML = keys[key];
+                let newChild = document.createElement("input");
+                newChild.id = keys[key];
+                newChild.placeholder =
+                  serie.instances[serie.imageIds[0]].metadata[keys[key]];
+                document.getElementById("metadata").appendChild(newElement);
+                newElement.appendChild(newChild);
+              }
+            }
+          })
+          .catch(err => larvitar.logger.error(err));
+      }
+
+      let demoFileList = getDemoFileNames();
+      showSpinner(); // Show the spinner
+      demoFileList.forEach(demoFile => {
+        createFile(demoFile, renderSerie);
+      });
+
+      function previousImage() {
+        const stack = larvitar.getImageManager();
+        const seriesIds = Object.keys(stack);
+        const uniqueUID = larvitar.store.get([
+          "viewports",
+          "viewer",
+          "uniqueUID"
+        ]);
+        const index = seriesIds.indexOf(uniqueUID);
+        if (index > 0) {
+          showSpinner();
+          const newUniqueUID = seriesIds[index - 1];
+          const serie = stack[newUniqueUID];
+          larvitar.renderImage(serie, "viewer").then(() => {
+            larvitar.logger.debug("Image has been rendered");
+            larvitar.addDefaultTools("viewer");
+            hideSpinner(); // Hide the spinner when all files are processed
+          });
+        }
+      }
+
+      function nextImage() {
+        const stack = larvitar.getImageManager();
+        const seriesIds = Object.keys(stack);
+        const uniqueUID = larvitar.store.get([
+          "viewports",
+          "viewer",
+          "uniqueUID"
+        ]);
+        const index = seriesIds.indexOf(uniqueUID);
+        if (index < seriesIds.length - 1) {
+          showSpinner();
+          const newUniqueUID = seriesIds[index + 1];
+          const serie = stack[newUniqueUID];
+          larvitar.renderImage(serie, "viewer").then(() => {
+            larvitar.logger.debug("Image has been rendered");
+            larvitar.addDefaultTools("viewer");
+            hideSpinner(); // Hide the spinner when all files are processed
+          });
+        }
+      }
+
+      // Event listener for arrow keys
+      document.addEventListener("keydown", event => {
+        if (event.key === "ArrowLeft") {
+          previousImage();
+        } else if (event.key === "ArrowRight") {
+          nextImage();
+        }
+      });
+    </script>
+  </body>
+</html>
