@@ -16,6 +16,7 @@ import type {
   SingleFrameCache
 } from "../types";
 import { getImageFrame } from "./commonLoader";
+import { getVOIFromMetadata } from "../imageUtils";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -199,8 +200,7 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
             : [1, 1];
       let rescaleIntercept = metadata.x00281052;
       let rescaleSlope = metadata.x00281053;
-      let windowCenter = metadata.x00281050;
-      let windowWidth = metadata.x00281051;
+      const { windowWidth, windowCenter } = getVOIFromMetadata(metadata);
 
       function getSizeInBytes() {
         let bytesPerPixel = Math.round(imageFrame.bitsAllocated! / 8);
