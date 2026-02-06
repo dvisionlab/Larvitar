@@ -471,6 +471,7 @@ export const getReslicedMetadata = function (
 
 export const getVOIFromMetadata = function (
   metadata: MetaData,
+  frameIndex: number = 0,
   renderOptionsVoi?: any
 ) {
   if (renderOptionsVoi !== undefined) {
@@ -479,7 +480,10 @@ export const getVOIFromMetadata = function (
       windowWidth: renderOptionsVoi.windowWidth
     };
   } else if (metadata.x00080060?.toUpperCase() === "MG") {
-    const frameSequenceMammoVOI = getFrameSequenceMammoVOI(metadata);
+    const frameSequenceMammoVOI = getFrameSequenceMammoVOI(
+      metadata,
+      frameIndex
+    );
     return {
       windowCenter:
         frameSequenceMammoVOI?.windowCenter ?? (metadata.x00281050 as number),
@@ -494,19 +498,27 @@ export const getVOIFromMetadata = function (
   }
 };
 
-export const getFrameSequenceMammoVOI = function (metadata: MetaData) {
+export const getFrameSequenceMammoVOI = function (
+  metadata: MetaData,
+  frameIndex: number
+) {
   try {
-    const perFrameGroups = metadata.x52009230?.[0];
-    const frameVOI = perFrameGroups?.x00289132?.[0];
+    const perFrameVOI = metadata.x52009230?.[frameIndex]?.x00289132?.[0];
+
+    const sharedVOI = metadata.x52009229?.[0]?.x00289132?.[0];
 
     return {
-      windowCenter: frameVOI?.x00281050,
-      windowWidth: frameVOI?.x00281051
+      windowCenter:
+        perFrameVOI?.x00281050 ?? sharedVOI?.x00281050 ?? metadata.x00281050,
+
+      windowWidth:
+        perFrameVOI?.x00281051 ?? sharedVOI?.x00281051 ?? metadata.x00281051
     };
-  } catch (e) {
+  } catch {
     return null;
   }
 };
+
 /**
  * Compute cmpr metadata from pyCmpr data (generated using Scyther {@link https://github.com/dvisionlab/Scyther})
  * @instance
