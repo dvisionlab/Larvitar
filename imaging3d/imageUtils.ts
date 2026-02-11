@@ -4,6 +4,7 @@ import { PositionerAngles } from "./types";
 /*
  * This module provides the following functions to be exported:
  * getMPRPositionerAngles(viewportId: string, renderingEngineId: string)
+ * getRenderingEngineByViewportId(viewportId: string)
  */
 
 /**
