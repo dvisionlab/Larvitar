@@ -17,14 +17,14 @@ Cypress operates by executing commands sequentially, ensuring that each step com
 - Ensures proper test execution with assertions such as `should()` and `expect()`.
 
 # How to run existing Tests
-You can run Cypress tests in Larvitar using the following yarn commands:
+You can run Cypress tests in Larvitar using the following npm commands:
 
 ```typescript
 // Open Cypress Test Runner in interactive mode
-yarn cypress
+npm cypress
 
 //Run all tests headlessly (for CI environments)
-yarn cypress:run
+npm cypress:run
 ```
 
 # Continuous Integration
