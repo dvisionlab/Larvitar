@@ -7,6 +7,9 @@
     "cornerstone"
   ],
   "version": "3.8.6",
+  "engines": {
+    "node": ">=24"
+  },
   "description": "typescript library for parsing, loading, rendering and interacting with DICOM images",
   "repository": {
     "url": "https://github.com/dvisionlab/Larvitar.git",
@@ -71,6 +74,8 @@
     "@vuepress/bundler-vite": "^2.0.0-rc.18",
     "@vuepress/plugin-slimsearch": "^2.0.0-rc.68",
     "@vuepress/theme-default": "^2.0.0-rc.60",
+    "ajv": "^8.17.1",
+    "ajv-keywords": "^5.1.0",
     "babel-loader": "^9.1.2",
     "clean-webpack-plugin": "^4.0.0",
     "cypress": "^14.2.0",
