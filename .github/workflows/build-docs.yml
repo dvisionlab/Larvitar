@@ -27,17 +27,17 @@ jobs:
       # Install node modules
       - name: Install node modules
         run: |
-          yarn install --frozen-lockfile
+          npm ci
 
       # Generate docs
       - name: Generate docs
         run: |
-          yarn run docs:build
+          npm run docs:build
 
       # Generate Build
       - name: Generate build
         run: |
-          yarn run build
+          npm run build
 
       # Copy larvitar.js
       - name: Copy larvitar build for examples
