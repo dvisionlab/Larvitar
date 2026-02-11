@@ -93,7 +93,10 @@ import {
   getDistanceBetweenSlices,
   getImageMetadata
 } from "./imaging/imageUtils";
-
+import {
+  getPositionerAngles,
+  getRenderingEngineByViewportId
+} from "./imaging3d/imageUtils";
 import {
   buildHeader,
   getCachedPixelData,
@@ -474,6 +477,8 @@ export {
   getReslicedPixeldata,
   getDistanceBetweenSlices,
   getImageMetadata,
+  getPositionerAngles,
+  getRenderingEngineByViewportId,
   // imageIo
   buildHeader,
   getCachedPixelData,

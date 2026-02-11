@@ -117,3 +117,10 @@ export type ImagePlaneMetadataInput = {
   rowPixelSpacing: number;
   columnPixelSpacing: number;
 };
+
+export type PositionerAngles = {
+  positionerPrimaryAngle: number;
+  positionerSecondaryAngle: number;
+  positionerPrimaryDirection: "LAO" | "RAO";
+  positionerSecondaryDirection: "CRA" | "CAU";
+};
