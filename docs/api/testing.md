@@ -21,10 +21,11 @@ You can run Cypress tests in Larvitar using the following npm commands:
 
 ```typescript
 // Open Cypress Test Runner in interactive mode
-npm cypress
+npm run cypress
 
 //Run all tests headlessly (for CI environments)
-npm cypress:run
+npm run cypress:run
+
 ```
 
 # Continuous Integration
