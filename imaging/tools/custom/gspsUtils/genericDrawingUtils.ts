@@ -3,6 +3,7 @@ import { rotateCoords } from "./genericMathUtils";
 import * as csTools from "cornerstone-tools";
 import cornerstone, { Image, PixelCoordinate } from "cornerstone-core";
 import { Coords, ViewportComplete } from "../../types";
+import { hexToRgb, rgbToHex } from "../../segmentation";
 const drawArrow = csTools.importInternal("drawing/drawArrow");
 const drawLine = csTools.importInternal("drawing/drawLine");
 
@@ -207,7 +208,7 @@ export function drawText(
 
   context.font = fontName;
   context.fillStyle = textColor;
-  context.textAlign = textObject.textFormat as CanvasTextAlign;
+  context.textAlign = (textObject.textFormat as CanvasTextAlign) ?? "center";
   context.textBaseline = "top";
 
   const fontSize = parseInt(context.font.match(/\d+/)![0], 10);
@@ -241,10 +242,12 @@ export function drawBoundingBox(
   top: number,
   width: number,
   height: number,
-  color: string
+  color?: string
 ) {
   context.save();
-  context.strokeStyle = color;
+  if (color) {
+    context.strokeStyle = color;
+  }
   context.rect(left, top, width, height);
   context.stroke();
   context.restore();
@@ -549,8 +552,11 @@ export function drawTick(
  */
 
 export function convertCIELabToRGBWithRefs(
-  cieLabColor: number[]
+  cieLabColor?: number[]
 ): [number, number, number] {
+  if (!cieLabColor) {
+    return [0, 0, 0];
+  }
   const l = (cieLabColor[0] / 65535) * 100;
   const a = (cieLabColor[1] / 65535) * 255 - 128;
   const b = (cieLabColor[2] / 65535) * 255 - 128;
@@ -561,7 +567,30 @@ export function convertCIELabToRGBWithRefs(
   const rgb = converter.convertCIELabToRGB(l, a, b); // Example values for L, a, b
   return [rgb.red, rgb.green, rgb.blue];
 }
-class ColorConversion {
+
+export function convertCIELabToHex(cieLabColor: number[]): string {
+  const rgb = convertCIELabToRGBWithRefs(cieLabColor);
+  return rgbToHex(rgb);
+}
+
+export function convertHexToCIELab(hex: string): [number, number, number] {
+  const rgb = hexToRgb(hex);
+  const converter = new ColorConversion();
+
+  const lab = converter.convertRGBToCIELab(rgb[0], rgb[1], rgb[2]);
+
+  const dicomL = Math.round((lab.L / 100) * 65535);
+
+  const dicomA = Math.round(((lab.a + 128) / 255) * 65535);
+  const dicomB = Math.round(((lab.b + 128) / 255) * 65535);
+
+  return [
+    Math.max(0, Math.min(65535, dicomL)),
+    Math.max(0, Math.min(65535, dicomA)),
+    Math.max(0, Math.min(65535, dicomB))
+  ];
+}
+export class ColorConversion {
   private readonly REF_X = 95.047; // Observer= 2°, Illuminant= D65
   private readonly REF_Y = 100.0;
   private readonly REF_Z = 108.883;
@@ -643,6 +672,53 @@ class ColorConversion {
     this._red = varR * 255.0;
     this._green = varG * 255.0;
     this._blue = varB * 255.0;
+  }
+
+  public convertRGBToCIELab(
+    r: number,
+    g: number,
+    b: number
+  ): { L: number; a: number; b: number } {
+    this._red = r / 255.0;
+    this._green = g / 255.0;
+    this._blue = b / 255.0;
+
+    this.RGBToXYZ();
+    this.XYZToCIELab();
+
+    return { L: this._l, a: this._a, b: this._b };
+  }
+
+  private RGBToXYZ(): void {
+    let r = this._red;
+    let g = this._green;
+    let b = this._blue;
+
+    r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+    g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+    b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+
+    r *= 100;
+    g *= 100;
+    b *= 100;
+
+    this._x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+    this._y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+    this._z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+  }
+
+  private XYZToCIELab(): void {
+    let x = this._x / this.REF_X;
+    let y = this._y / this.REF_Y;
+    let z = this._z / this.REF_Z;
+
+    x = x > 0.008856 ? Math.pow(x, 1.0 / 3.0) : 7.787 * x + 16.0 / 116.0;
+    y = y > 0.008856 ? Math.pow(y, 1.0 / 3.0) : 7.787 * y + 16.0 / 116.0;
+    z = z > 0.008856 ? Math.pow(z, 1.0 / 3.0) : 7.787 * z + 16.0 / 116.0;
+
+    this._l = 116.0 * y - 16.0;
+    this._a = 500.0 * (x - y);
+    this._b = 200.0 * (y - z);
   }
 }
 
