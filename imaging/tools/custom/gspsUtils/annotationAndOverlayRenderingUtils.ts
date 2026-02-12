@@ -1,4 +1,7 @@
-import { convertCIELabToRGBWithRefs } from "./genericDrawingUtils";
+import {
+  convertCIELabToHex,
+  convertCIELabToRGBWithRefs
+} from "./genericDrawingUtils";
 import type {
   AnnotationOverlay,
   CompoundDetails,
@@ -51,12 +54,50 @@ export function renderGraphicAnnotation(
   graphicObject: GraphicDetails,
   context: CanvasRenderingContext2D,
   element: HTMLElement,
-  color: string,
+  defaultColor: string,
   viewport: ViewportComplete,
   image: Image
-  //angle: number
 ) {
   const graphicType = graphicObject.graphicType;
+  if (!graphicType) return;
+
+  context.save();
+
+  let strokeColor = defaultColor;
+
+  if (graphicObject.lineStyleSequence) {
+    context.lineWidth = graphicObject.lineStyleSequence.lineThickness || 1;
+
+    if (graphicObject.lineStyleSequence.patternOnColorCIELabValue) {
+      strokeColor = convertCIELabToHex(
+        graphicObject.lineStyleSequence.patternOnColorCIELabValue
+      );
+    }
+
+    if (graphicObject.lineStyleSequence.lineDashingStyle === "DASHED") {
+      context.setLineDash([8, 5]);
+    } else if (graphicObject.lineStyleSequence.lineDashingStyle === "DOTTED") {
+      context.setLineDash([2, 2]);
+    } else {
+      context.setLineDash([]);
+    }
+
+    if (graphicObject.lineStyleSequence.shadowStyle === "ON") {
+      const shadowRgb = convertCIELabToRGBWithRefs(
+        graphicObject.lineStyleSequence.shadowColorCIELabValue
+      );
+      context.shadowColor = `rgba(${shadowRgb[0]}, ${shadowRgb[1]}, ${shadowRgb[2]}, 1)`;
+      context.shadowBlur = graphicObject.lineStyleSequence.shadowOpacity || 0;
+      context.shadowOffsetX =
+        graphicObject.lineStyleSequence.shadowOffsetX || 0;
+      context.shadowOffsetY =
+        graphicObject.lineStyleSequence.shadowOffsetY || 0;
+    }
+  }
+
+  context.strokeStyle = strokeColor;
+  context.fillStyle = strokeColor;
+
   const xMultiplier =
     viewport.displayedArea?.tlhc?.x && viewport.displayedArea?.brhc?.x
       ? viewport.displayedArea.brhc.x - viewport.displayedArea.tlhc.x
@@ -68,25 +109,14 @@ export function renderGraphicAnnotation(
       : 1;
   const yScope = viewport.displayedArea?.tlhc?.y ?? 0;
 
-  if (graphicObject.lineStyleSequence) {
-    context.lineWidth = graphicObject.lineStyleSequence.lineThickness!;
-    const shadowRgb = convertCIELabToRGBWithRefs(
-      graphicObject.lineStyleSequence.shadowColorCIELabValue!
-    );
-    context.shadowColor = `rgba(${shadowRgb[0]}, ${shadowRgb[1]}, ${shadowRgb[2]}, 1)`;
-    context.shadowBlur = graphicObject.lineStyleSequence.shadowOpacity!;
-    context.shadowOffsetX = graphicObject.lineStyleSequence.shadowOffsetX!;
-    context.shadowOffsetY = graphicObject.lineStyleSequence.shadowOffsetY!;
-  }
-  if (!graphicType) return;
+  const isDisplay = graphicObject.graphicAnnotationUnits === "DISPLAY";
+
   switch (graphicType) {
     case "POINT":
-      const handle = {
-        x: graphicObject.graphicData![0],
-        y: graphicObject.graphicData![1]
-      };
-      const [handleCanvas] = applyPixelToCanvas(
-        [handle],
+      const [pointCanvas] = applyPixelToCanvas(
+        [
+          { x: graphicObject.graphicData![0], y: graphicObject.graphicData![1] }
+        ],
         element,
         xMultiplier,
         yMultiplier,
@@ -94,134 +124,51 @@ export function renderGraphicAnnotation(
         yScope,
         image,
         viewport,
-        graphicObject.graphicAnnotationUnits === "DISPLAY"
+        isDisplay
       );
-
-      context.fillRect(handleCanvas.x, handleCanvas.y, 1, 1);
-
+      context.fillRect(pointCanvas.x - 1, pointCanvas.y - 1, 3, 3);
       break;
+
     case "POLYLINE":
-      const xy: Coords[] = [];
-
-      if (graphicObject.graphicData) {
-        for (let i = 0; i < graphicObject.graphicData.length; i += 2) {
-          if (i + 1 < graphicObject.graphicData.length) {
-            let handle = {
-              x: graphicObject.graphicData[i],
-              y: graphicObject.graphicData[i + 1]
-            };
-            [handle] = applyPixelToCanvas(
-              [handle],
-              element,
-              xMultiplier,
-              yMultiplier,
-              xScope,
-              yScope,
-              image,
-              viewport,
-              graphicObject.graphicAnnotationUnits === "DISPLAY"
-            );
-            xy.push(handle);
-          }
-        }
-        context.beginPath();
-        context.moveTo(xy[0].x, xy[0].y);
-        // Draw lines to each subsequent point
-        for (let i = 1; i < xy.length; i++) {
-          context.lineTo(xy[i].x, xy[i].y);
-        }
-        context.closePath();
-
-        // Render the polyline
-        context.stroke();
-      }
-      break;
     case "INTERPOLATED":
-      const xyInterpolated = [];
-
-      if (graphicObject.graphicData) {
-        for (let i = 0; i < graphicObject.graphicData.length; i += 2) {
-          if (i + 1 < graphicObject.graphicData.length) {
-            let handle = {
-              x: graphicObject.graphicData[i],
-              y: graphicObject.graphicData[i + 1]
-            };
-            [handle] = applyPixelToCanvas(
-              [handle],
-              element,
-              xMultiplier,
-              yMultiplier,
-              xScope,
-              yScope,
-              image,
-              viewport,
-              graphicObject.graphicAnnotationUnits === "DISPLAY"
-            );
-            xyInterpolated.push(handle);
-          }
-        }
-
-        context.beginPath();
-        context.moveTo(xyInterpolated[0].x, xyInterpolated[0].y);
-        for (let i = 0; i < xyInterpolated.length - 1; i++) {
-          const startPoint = xyInterpolated[i];
-          const endPoint = xyInterpolated[i + 1];
-          const deltaX = (endPoint.x - startPoint.x) / 10;
-          const deltaY = (endPoint.y - startPoint.y) / 10;
-
-          for (let i = 1; i <= 10; i++) {
-            const x = startPoint.x + deltaX * i;
-            const y = startPoint.y + deltaY * i;
-            context.lineTo(x, y);
-          }
-        }
-
-        // Optionally, close the path to create a closed shape
-        context.closePath();
-        context.stroke();
+      const points: Coords[] = [];
+      for (let i = 0; i < graphicObject.graphicData!.length; i += 2) {
+        const [p] = applyPixelToCanvas(
+          [
+            {
+              x: graphicObject.graphicData![i],
+              y: graphicObject.graphicData![i + 1]
+            }
+          ],
+          element,
+          xMultiplier,
+          yMultiplier,
+          xScope,
+          yScope,
+          image,
+          viewport,
+          isDisplay
+        );
+        points.push(p);
       }
-
-      break;
-    case "CIRCLE":
-      let center = {
-        x: graphicObject.graphicData![0],
-        y: graphicObject.graphicData![1]
-      };
-      let point = {
-        x: graphicObject.graphicData![2],
-        y: graphicObject.graphicData![3]
-      };
-      const [canvasCenter, canvasPoint] = applyPixelToCanvas(
-        [center, point],
-        element,
-        xMultiplier,
-        yMultiplier,
-        xScope,
-        yScope,
-        image,
-        viewport,
-        graphicObject.graphicAnnotationUnits === "DISPLAY"
-      );
       context.beginPath();
-      const radius = Math.sqrt(
-        Math.pow(canvasCenter.x - canvasPoint.x, 2) +
-          Math.pow(canvasCenter.y - canvasPoint.y, 2)
-      );
-      context.arc(canvasCenter.x, canvasCenter.y, radius, 0, 2 * Math.PI);
-
+      context.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        context.lineTo(points[i].x, points[i].y);
+      }
+      if (graphicObject.graphicFilled === "Y") context.fill();
       context.stroke();
       break;
-    case "ELLIPSE":
-      const { c, right, left, bottom, top } = calculateEllipseCoordinates(
-        graphicObject.graphicData!
-      );
 
-      let coords = [c, right, left, bottom, top];
-
-      context.beginPath();
-
-      const transformedCoords = applyPixelToCanvas(
-        coords,
+    case "CIRCLE":
+      const [center, radiusPt] = applyPixelToCanvas(
+        [
+          {
+            x: graphicObject.graphicData![0],
+            y: graphicObject.graphicData![1]
+          },
+          { x: graphicObject.graphicData![2], y: graphicObject.graphicData![3] }
+        ],
         element,
         xMultiplier,
         yMultiplier,
@@ -229,30 +176,52 @@ export function renderGraphicAnnotation(
         yScope,
         image,
         viewport,
-        graphicObject.graphicAnnotationUnits === "DISPLAY"
+        isDisplay
       );
-      const [
-        centerNew,
-        transformedRight,
-        transformedLeft,
-        transformedBottom,
-        transformedTop
-      ] = transformedCoords;
+      const radius = Math.sqrt(
+        Math.pow(center.x - radiusPt.x, 2) + Math.pow(center.y - radiusPt.y, 2)
+      );
+      context.beginPath();
+      context.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+      if (graphicObject.graphicFilled === "Y") context.fill();
+      context.stroke();
+      break;
 
+    case "ELLIPSE":
+      const ellipseCoords = calculateEllipseCoordinates(
+        graphicObject.graphicData!
+      );
+      const transformed = applyPixelToCanvas(
+        [
+          ellipseCoords.c,
+          ellipseCoords.right,
+          ellipseCoords.left,
+          ellipseCoords.bottom,
+          ellipseCoords.top
+        ],
+        element,
+        xMultiplier,
+        yMultiplier,
+        xScope,
+        yScope,
+        image,
+        viewport,
+        isDisplay
+      );
       drawEllipse(
         context,
-        centerNew,
-        transformedRight,
-        transformedLeft,
-        transformedBottom,
-        transformedTop,
-        color,
+        transformed[0],
+        transformed[1],
+        transformed[2],
+        transformed[3],
+        transformed[4],
+        strokeColor,
         graphicObject.graphicFilled === "Y"
       );
       break;
-    default:
-      return;
   }
+
+  context.restore();
 }
 
 /**
@@ -272,11 +241,15 @@ export function renderGraphicAnnotation(
 export function renderTextAnnotation(
   textObject: TextDetails,
   context: CanvasRenderingContext2D,
-  color: string,
+  defaultColor: string,
   element: HTMLElement,
   image: Image,
   viewport: ViewportComplete
 ) {
+  const color = textObject.textStyleSequence?.textColorCIELabValue
+    ? convertCIELabToHex(textObject.textStyleSequence.textColorCIELabValue)
+    : defaultColor;
+
   const xMultiplier =
     viewport.displayedArea?.tlhc?.x && viewport.displayedArea?.brhc?.x
       ? viewport.displayedArea.brhc.x - viewport.displayedArea.tlhc.x
@@ -304,51 +277,28 @@ export function renderTextAnnotation(
     textObject.boundingBoxUnits === "DISPLAY"
   );
 
-  const isCenteredOnAnchorPoints: boolean =
-    (brhc.x === null || tlhc.x === null) && anchorPoint.x !== null;
+  const hasBox = brhc.x !== null && tlhc.x !== null;
+  const xCenter = hasBox ? (brhc.x! + tlhc.x!) / 2 : (anchorPoint.x ?? 0);
+  const yCenter = hasBox ? (brhc.y! + tlhc.y!) / 2 : (anchorPoint.y ?? 0);
 
-  const xCenter = isCenteredOnAnchorPoints
-    ? anchorPoint.x!
-    : (brhc.x! + tlhc.x!) / 2;
-  const yCenter = isCenteredOnAnchorPoints
-    ? anchorPoint.y!
-    : (brhc.y! + tlhc.y!) / 2;
+  const boundingBoxWidth = hasBox ? Math.abs(brhc.x! - tlhc.x!) : 0;
+  const boundingBoxHeight = hasBox ? Math.abs(brhc.y! - tlhc.y!) : 0;
 
-  const boundingBoxWidth = brhc.x! - tlhc.x!;
-  const boundingBoxHeight = brhc.y! - tlhc.y!;
-  const top = yCenter! - boundingBoxHeight! / 2;
-  const left = xCenter! - boundingBoxWidth! / 2;
+  const left = xCenter - boundingBoxWidth / 2;
+  const top = yCenter - boundingBoxHeight / 2;
 
-  const fontSize = parseInt(context.font.match(/\d+/)![0], 10);
-  const textY =
-    top +
-    boundingBoxHeight / 2 -
-    (fontSize * textObject.unformattedTextValue!.split("\n").length) / 2;
-  let textX = xCenter;
+  drawText(context, textObject, xCenter, yCenter, color);
 
-  switch (textObject.textFormat) {
-    case "LEFT":
-      textX = left;
-      break;
-    case "RIGHT":
-      textX = xCenter + boundingBoxWidth / 2;
-      break;
-    case "CENTER":
-      textX = xCenter;
-      break;
-  }
+  if (
+    anchorPoint.x !== null &&
+    anchorPoint.y !== null &&
+    textObject.anchorPointVisibility === "Y"
+  ) {
+    context.save();
+    context.setLineDash([5, 5]);
+    context.strokeStyle = color;
+    context.lineWidth = 1;
 
-  drawText(context, textObject, textX, textY, color);
-  drawBoundingBox(
-    context,
-    left,
-    top,
-    boundingBoxWidth,
-    boundingBoxHeight,
-    color
-  );
-
-  if (anchorPoint.x && anchorPoint.y && textObject.anchorpointVisibility) {
     drawLink(
       [
         {
@@ -365,8 +315,10 @@ export function renderTextAnnotation(
       },
       context,
       color,
-      2
+      1
     );
+
+    context.restore();
   }
 }
 
@@ -411,7 +363,7 @@ export function renderCompoundAnnotation(
     lineDashed = compoundObject.lineStyleSequence.lineDashingStyle ?? [2, 3];
     context.lineWidth = lineWidth;
     const shadowRgb = convertCIELabToRGBWithRefs(
-      compoundObject.lineStyleSequence?.shadowColorCIELabValue!
+      compoundObject.lineStyleSequence?.shadowColorCIELabValue
     );
     context.shadowColor = `rgba(${shadowRgb[0]}, ${shadowRgb[1]}, ${shadowRgb[2]}, 1)`;
     context.shadowBlur = compoundObject.lineStyleSequence?.shadowOpacity!;
