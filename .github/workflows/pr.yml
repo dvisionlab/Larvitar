@@ -28,28 +28,28 @@ jobs:
       # Install node modules
       - name: Install node modules
         run: |
-          yarn install --frozen-lockfile
+          npm ci
 
       # Generate docs
       - name: Generate docs
         run: |
-          yarn run docs:build
+          npm run docs:build
 
       # Generate Build
       - name: Generate build
         run: |
-          yarn run build
+          npm run build
       
       # Check Prettier
       - name: Check Prettier
         run: |
-          yarn run format:check
+          npm run format:check
 
       - name: Install mochawesome-merge
-        run: yarn install --no-save mochawesome-merge
+        run: npm install --no-save mochawesome-merge
 
       - name: Run Cypress tests
-        run: yarn run cypress:run
+        run: npm run cypress:run
         
       - name: Combine test reports
         run: node .github/scripts/combine-reports.js
@@ -84,7 +84,7 @@ jobs:
           edit-mode: replace
 
       - name: Run tests and generate coverage
-        run: yarn run coverage
+        run: npm run coverage
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
