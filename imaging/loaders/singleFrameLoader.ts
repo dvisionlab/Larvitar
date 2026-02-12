@@ -188,7 +188,6 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
   let promise: Promise<Image> = new Promise((resolve, reject) => {
     decodePromise.then(function handleDecodeResponse(imageFrame: ImageFrame) {
       setPixelDataType(imageFrame);
-      console.log("imageFrame after decode", imageFrame);
       let pixelSpacing = metadata.x00280030
         ? metadata.x00280030
         : metadata.x00080060 === "US" &&
