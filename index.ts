@@ -130,6 +130,7 @@ import {
 
 import {
   readFile,
+  readBytes,
   readFiles,
   parseDataSet,
   clearImageParsing,
@@ -381,6 +382,7 @@ export {
   reset,
   // imageParsing
   readFile,
+  readBytes,
   readFiles,
   parseDataSet,
   clearImageParsing,
