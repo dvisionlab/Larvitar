@@ -40,6 +40,7 @@ const singleFrameModalities = [
  * This module provides the following functions to be exported:
  * readFiles(fileList)
  * readFile(file)
+ * readBytes(byteArray, fileName)
  * parseDataSet(dataSet, metadata, customFilter)
  * clearImageParsing(seriesStack)
  * convertQidoMetadata(data)
@@ -89,6 +90,27 @@ export const readFiles = function (entries: File[]) {
  */
 export const readFile = function (entry: File) {
   return parseFile(entry);
+};
+
+/**
+ * Read DICOM bytes and return parsed object
+ * @instance
+ * @function readBytes
+ * @param {Uint8Array} byteArray - DICOM bytes
+ * @param {String} fileName - Optional virtual file name
+ * @returns {Promise} - Return a promise which will resolve to a image object or fail if an error occurs
+ */
+export const readBytes = function (
+  byteArray: Uint8Array,
+  fileName: string = "dicom-bytes.dcm"
+) {
+  if (!byteArray || byteArray.byteLength === 0) {
+    return Promise.reject("Error reading bytes");
+  }
+  const virtualFile = new File([byteArray], fileName, {
+    type: "application/dicom"
+  });
+  return parseByteArray(byteArray, virtualFile);
 };
 
 /**
@@ -350,92 +372,91 @@ const parseFiles = function (fileList: File[]) {
  * @returns {Promise} - Return a promise which will resolve to a image object or fail if an error occurs
  */
 const parseFile = function (file: File) {
-  const parsePromise = new Promise<ImageObject>((resolve, reject) => {
+  return new Promise<ImageObject>((resolve, reject) => {
     let reader = new FileReader();
     reader.onload = function () {
       let arrayBuffer = reader.result;
       // Here we have the file data as an ArrayBuffer.
       // dicomParser requires as input a Uint8Array so we create that here.
-
       if (!arrayBuffer || typeof arrayBuffer === "string") {
         reject("Error reading file");
         return;
       }
-
-      let byteArray: Uint8Array | null = new Uint8Array(arrayBuffer);
-      let dataSet;
-
-      // this try-catch is used to handle non-DICOM files: log error but continue parsing the other files
-      try {
-        dataSet = parseDicom(byteArray);
-        byteArray = null;
-        let metadata: MetaData = {};
-        parseDataSet(dataSet, metadata);
-
-        const metadataReadables: MetaDataReadable =
-          fillMetadataReadable(metadata);
-
-        if (dataSet.warnings.length > 0) {
-          // warnings
-          reject(dataSet.warnings);
-        } else {
-          let pixelDataElement = dataSet.elements.x7fe00010;
-          let SOPUID = metadata["x00080016"];
-          if (SOPUID == "1.2.840.10008.5.1.4.1.1.104.1") {
-            const instanceUID = metadataReadables.instanceUID;
-            let pdfObject: Partial<ImageObject> = {
-              // data needed for rendering
-              file: file,
-              dataSet: dataSet,
-              instanceUID
-            };
-            pdfObject.metadata = metadata;
-            pdfObject.metadata.uniqueUID = metadataReadables.uniqueUID;
-            pdfObject.metadata.seriesUID = metadataReadables.seriesUID;
-            pdfObject.metadata.instanceUID = instanceUID;
-            pdfObject.metadata.studyUID = metadataReadables.studyUID;
-            pdfObject.metadata.accessionNumber =
-              metadataReadables.accessionNumber;
-            pdfObject.metadata.studyDescription =
-              metadataReadables.studyDescription;
-            pdfObject.metadata.patientName = metadataReadables.patientName;
-            pdfObject.metadata.patientBirthdate =
-              metadataReadables.patientBirthdate;
-            pdfObject.metadata.seriesDate = metadataReadables.seriesDate;
-            pdfObject.metadata.seriesModality =
-              metadataReadables.seriesModality;
-            pdfObject.metadata.mimeType = metadata["x00420012"];
-            pdfObject.metadata.is4D = false;
-            pdfObject.metadata.numberOfFrames = 0;
-            pdfObject.metadata.numberOfSlices = 0;
-            pdfObject.metadata.numberOfTemporalPositions = 0;
-            resolve(pdfObject as ImageObject);
-          } else {
-            let imageObject: Partial<ImageObject> = {
-              // data needed for rendering
-              file: file,
-              dataSet: dataSet
-            };
-            imageObject.metadata = metadata as MetaData;
-            imageObject.metadata = { ...metadata, ...metadataReadables };
-
-            // check if pixelDataElement is found, if not sets pixelDataLength=0
-            // means that it is a metadata-only object
-            imageObject.metadata.pixelDataLength = pixelDataElement
-              ? pixelDataElement.length
-              : 0;
-            resolve(imageObject as ImageObject);
-          }
-        }
-      } catch (err) {
-        reject(
-          `Larvitar: can not read file "${file.name}" \nParsing error: ${err}`
-        );
-      }
+      parseByteArray(new Uint8Array(arrayBuffer), file).then(resolve).catch(
+        reject
+      );
     };
     reader.readAsArrayBuffer(file);
   });
-  return parsePromise;
+};
+
+const parseByteArray = function (byteArray: Uint8Array, file: File) {
+  return new Promise<ImageObject>((resolve, reject) => {
+    let dicomByteArray: Uint8Array | null = byteArray;
+    let dataSet;
+
+    // this try-catch is used to handle non-DICOM files
+    try {
+      dataSet = parseDicom(dicomByteArray);
+      dicomByteArray = null;
+      let metadata: MetaData = {};
+      parseDataSet(dataSet, metadata);
+
+      const metadataReadables: MetaDataReadable = fillMetadataReadable(metadata);
+
+      if (dataSet.warnings.length > 0) {
+        // warnings
+        reject(dataSet.warnings);
+      } else {
+        let pixelDataElement = dataSet.elements.x7fe00010;
+        let SOPUID = metadata["x00080016"];
+        if (SOPUID == "1.2.840.10008.5.1.4.1.1.104.1") {
+          const instanceUID = metadataReadables.instanceUID;
+          let pdfObject: Partial<ImageObject> = {
+            // data needed for rendering
+            file: file,
+            dataSet: dataSet,
+            instanceUID
+          };
+          pdfObject.metadata = metadata;
+          pdfObject.metadata.uniqueUID = metadataReadables.uniqueUID;
+          pdfObject.metadata.seriesUID = metadataReadables.seriesUID;
+          pdfObject.metadata.instanceUID = instanceUID;
+          pdfObject.metadata.studyUID = metadataReadables.studyUID;
+          pdfObject.metadata.accessionNumber = metadataReadables.accessionNumber;
+          pdfObject.metadata.studyDescription =
+            metadataReadables.studyDescription;
+          pdfObject.metadata.patientName = metadataReadables.patientName;
+          pdfObject.metadata.patientBirthdate = metadataReadables.patientBirthdate;
+          pdfObject.metadata.seriesDate = metadataReadables.seriesDate;
+          pdfObject.metadata.seriesModality = metadataReadables.seriesModality;
+          pdfObject.metadata.mimeType = metadata["x00420012"];
+          pdfObject.metadata.is4D = false;
+          pdfObject.metadata.numberOfFrames = 0;
+          pdfObject.metadata.numberOfSlices = 0;
+          pdfObject.metadata.numberOfTemporalPositions = 0;
+          resolve(pdfObject as ImageObject);
+        } else {
+          let imageObject: Partial<ImageObject> = {
+            // data needed for rendering
+            file: file,
+            dataSet: dataSet
+          };
+          imageObject.metadata = metadata as MetaData;
+          imageObject.metadata = { ...metadata, ...metadataReadables };
+
+          // check if pixelDataElement is found, if not sets pixelDataLength=0
+          // means that it is a metadata-only object
+          imageObject.metadata.pixelDataLength = pixelDataElement
+            ? pixelDataElement.length
+            : 0;
+          resolve(imageObject as ImageObject);
+        }
+      }
+    } catch (err) {
+      reject(`Larvitar: can not read file "${file.name}" \nParsing error: ${err}`);
+    }
+  });
 };
 
 /**
