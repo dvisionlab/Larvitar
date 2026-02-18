@@ -308,7 +308,10 @@ let createCustomImage = function (
             : [1, 1];
       let rescaleIntercept = metadata.x00281052;
       let rescaleSlope = metadata.x00281053;
-      const { windowWidth, windowCenter } = getVOIFromMetadata(metadata);
+      const { windowWidth, windowCenter } = getVOIFromMetadata(
+        metadata,
+        frameIndex
+      );
 
       function getSizeInBytes() {
         let bytesPerPixel = Math.round(imageFrame.bitsAllocated! / 8);
