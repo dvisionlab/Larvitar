@@ -762,10 +762,14 @@ function createTextObject(
   const worldPoints: Types.Point3[] = annotation.data?.handles?.points;
   if (!worldPoints?.length) return null;
 
-  const textBoxWorld =
-    annotation.data?.handles?.textBox?.worldPosition ??
-    worldPoints[worldPoints.length - 1];
-  console.log(toolName);
+  const textContent = getAnnotationText(annotation, imageId);
+  if (!textContent || textContent === "N/A") return null;
+
+  const lines = textContent.split("\n");
+  const lineHeight = 14;
+  const boxWidth = 160;
+  const boxHeight = lineHeight * lines.length + 8;
+
   const anchorWorldPoint =
     toolName === "ArrowAnnotate"
       ? worldPoints[0]
@@ -775,29 +779,50 @@ function createTextObject(
     imageId,
     anchorWorldPoint
   );
-  const textBoxAnchor = _cornerstone.utilities.worldToImageCoords(
-    imageId,
-    textBoxWorld
-  );
+  if (!anchor) return null;
 
-  if (!anchor || !textBoxAnchor) return null;
+  const worldBBox = annotation.data?.handles?.textBox?.worldBoundingBox;
 
-  const textContent = getAnnotationText(annotation, imageId);
-  if (!textContent || textContent === "N/A") return null;
+  let tlhc: number[];
+  let brhc: number[];
 
-  const offsetX = 5;
-  const offsetY = 5;
-  const boxWidth = 120;
-  const boxHeight = 24;
+  if (worldBBox) {
+    const topLeft = _cornerstone.utilities.worldToImageCoords(
+      imageId,
+      worldBBox.topLeft as Types.Point3
+    );
+    const bottomRight = _cornerstone.utilities.worldToImageCoords(
+      imageId,
+      worldBBox.bottomRight as Types.Point3
+    );
 
-  const tlhc = [
-    textBoxAnchor[0] + offsetX,
-    textBoxAnchor[1] - offsetY - boxHeight
-  ];
-  const brhc = [
-    textBoxAnchor[0] + offsetX + boxWidth,
-    textBoxAnchor[1] - offsetY
-  ];
+    if (topLeft && bottomRight) {
+      tlhc = [
+        Math.min(topLeft[0], bottomRight[0]),
+        Math.min(topLeft[1], bottomRight[1])
+      ];
+      brhc = [
+        Math.max(topLeft[0], bottomRight[0]),
+        Math.max(topLeft[1], bottomRight[1])
+      ];
+    } else {
+      const textBoxAnchor = _cornerstone.utilities.worldToImageCoords(
+        imageId,
+        annotation.data?.handles?.textBox?.worldPosition ?? anchorWorldPoint
+      );
+      if (!textBoxAnchor) return null;
+      tlhc = [textBoxAnchor[0] + 5, textBoxAnchor[1] - boxHeight - 5];
+      brhc = [textBoxAnchor[0] + 5 + boxWidth, textBoxAnchor[1] - 5];
+    }
+  } else {
+    const textBoxAnchor = _cornerstone.utilities.worldToImageCoords(
+      imageId,
+      annotation.data?.handles?.textBox?.worldPosition ?? anchorWorldPoint
+    );
+    if (!textBoxAnchor) return null;
+    tlhc = [textBoxAnchor[0] + 5, textBoxAnchor[1] - boxHeight - 5];
+    brhc = [textBoxAnchor[0] + 5 + boxWidth, textBoxAnchor[1] - 5];
+  }
 
   const textColor = style.textBoxColor || style.color || "#02FAE5";
 
@@ -866,7 +891,7 @@ function getAnnotationText(annotation: any, imageId: string): string {
         parts.push(`SD: ${stats.stdDev.toFixed(2)}`);
       if (stats.max !== undefined) parts.push(`Max: ${stats.max.toFixed(2)}`);
       if (stats.min !== undefined) parts.push(`Min: ${stats.min.toFixed(2)}`);
-      return parts.length ? parts.join(" | ") : "N/A";
+      return parts.length ? parts.join("\n") : "N/A";
     }
 
     case "Bidirectional":
