@@ -834,12 +834,21 @@
           console.warn("Flip error:", err);
         }
       }
-
+      function downloadDICOM(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
       //  Save GSPS
       async function saveDICOMPresentationState() {
         try {
           const blob = larvitar.createPresentationStateBlob("viewer", "2d");
-          larvitar.downloadDICOM(blob, "presentationState.dcm");
+          downloadDICOM(blob, "presentationState.dcm");
         } catch (err) {
           console.error(err);
         }

@@ -291,10 +291,7 @@ import {
   removeMouseKeyHandlers,
   toggleMouseToolsListeners
 } from "./imaging/tools/interaction";
-import {
-  createPresentationStateBlob,
-  downloadDICOM
-} from "./imaging/presentationStates";
+import { createPresentationStateBlob } from "./imaging/presentationStates";
 // Cornestone 3D
 import * as _cornerstone from "@cornerstonejs/core"; // Imports the main entry point
 import * as _cornerstoneTools from "@cornerstonejs/tools";
@@ -432,7 +429,6 @@ export {
   VERSION,
   // presentation states
   createPresentationStateBlob,
-  downloadDICOM,
   // global Plotly variable
   Plotly,
   // global cornerstone variables

@@ -71,17 +71,6 @@ export function createPresentationStateBlob(
   return new Blob([buffer], { type: "application/dicom" });
 }
 
-export function downloadDICOM(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
 function buildPresentationDataset(
   context: PresentationContext,
   annotations: any[]
@@ -960,7 +949,7 @@ function getLarvitarStyle() {
 }
 
 // UTILITIES
-
+// TODO change this?
 function generateUID(): string {
   const root = "1.2.826.0.1.3680043.9.5830";
   const timestamp = Date.now();
