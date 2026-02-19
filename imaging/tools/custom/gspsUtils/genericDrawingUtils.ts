@@ -279,8 +279,9 @@ export function drawEllipse(
   shouldFill: boolean
 ) {
   const rx = Math.sqrt(Math.pow(right.x - left.x, 2)) / 2;
-  const ry = Math.sqrt(Math.pow(top.x - bottom.x, 2)) / 2;
+  const ry = Math.sqrt(Math.pow(top.y - bottom.y, 2)) / 2;
 
+  context.beginPath();
   context.ellipse(canvasCenter.x, canvasCenter.y, rx, ry, 0, 0, 2 * Math.PI);
   if (shouldFill) {
     context.fillStyle = color;

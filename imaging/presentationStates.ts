@@ -353,16 +353,23 @@ function buildGraphicAnnotationSequence(
 
   for (const annotation of annotations) {
     const style = getAnnotationStyle(annotation);
+    const toolName: string = annotation.metadata?.toolName ?? "";
 
-    const graphicObj = createGraphicObject(context, annotation, style);
-    if (graphicObj) {
-      layerItem.GraphicObjectSequence.push(graphicObj);
+    if (toolName === "CobbAngle") {
+      createCobbAngleGraphics(context, annotation, style).forEach(g =>
+        layerItem.GraphicObjectSequence.push(g)
+      );
+    } else if (toolName === "Bidirectional") {
+      createBidirectionalGraphics(context, annotation, style).forEach(g =>
+        layerItem.GraphicObjectSequence.push(g)
+      );
+    } else {
+      const graphicObj = createGraphicObject(context, annotation, style);
+      if (graphicObj) layerItem.GraphicObjectSequence.push(graphicObj);
     }
 
     const textObj = createTextObject(context, annotation, style);
-    if (textObj) {
-      layerItem.TextObjectSequence.push(textObj);
-    }
+    if (textObj) layerItem.TextObjectSequence.push(textObj);
   }
 
   return [layerItem];
@@ -375,7 +382,6 @@ function createGraphicObject(
   style: any
 ): any | null {
   const toolName: string = annotation.metadata?.toolName ?? "";
-
   switch (toolName) {
     case "Length":
     case "Probe":
@@ -385,11 +391,13 @@ function createGraphicObject(
       return createArrowGraphic(context, annotation, style);
 
     case "Angle":
-    case "CobbAngle":
       return createAngleGraphic(context, annotation, style);
 
+    case "CobbAngle":
+      return createCobbAngleGraphics(context, annotation, style);
+
     case "Bidirectional":
-      return createBidirectionalGraphic(context, annotation, style);
+      return createBidirectionalGraphics(context, annotation, style);
 
     case "RectangleROI":
       return createRectangleGraphic(context, annotation, style);
@@ -397,11 +405,8 @@ function createGraphicObject(
     case "EllipticalROI":
       return createEllipseGraphic(context, annotation, style);
 
-    case "CircleROI":
-      return createCircleGraphic(context, annotation, style);
-
     case "PlanarFreehandROI":
-    case "Freehand":
+    case "FreehandROI":
       return createFreehandGraphic(context, annotation, style);
 
     default:
@@ -481,7 +486,7 @@ function createArrowGraphic(
   };
 }
 
-//  ANGLE / COBB ANGLE
+//  ANGLE
 function createAngleGraphic(
   context: PresentationContext,
   annotation: any,
@@ -505,27 +510,88 @@ function createAngleGraphic(
   };
 }
 
-//  BIDIRECTIONAL
-function createBidirectionalGraphic(
+// COBB ANGLE
+function createCobbAngleGraphics(
   context: PresentationContext,
   annotation: any,
   style: any
-): any | null {
+): any[] {
   const worldPoints: Types.Point3[] = annotation.data?.handles?.points;
-  if (!worldPoints || worldPoints.length < 4) return null;
+  if (!worldPoints || worldPoints.length < 4) return [];
 
-  const graphicData = worldPointsToImagePixels(context.imageId, worldPoints);
-  if (!graphicData) return null;
+  const line1 = worldPointsToImagePixels(context.imageId, [
+    worldPoints[0],
+    worldPoints[1]
+  ]);
+  const line2 = worldPointsToImagePixels(context.imageId, [
+    worldPoints[2],
+    worldPoints[3]
+  ]);
 
-  return {
-    GraphicAnnotationUnits: "PIXEL",
-    GraphicDimensions: 2,
-    GraphicType: "POLYLINE",
-    NumberOfGraphicPoints: worldPoints.length,
-    GraphicData: graphicData,
-    GraphicFilled: "N",
-    LineStyleSequence: [baseLineStyle(style)]
-  };
+  const result = [];
+  if (line1)
+    result.push({
+      GraphicAnnotationUnits: "PIXEL",
+      GraphicDimensions: 2,
+      GraphicType: "POLYLINE",
+      NumberOfGraphicPoints: 2,
+      GraphicData: line1,
+      GraphicFilled: "N",
+      LineStyleSequence: [baseLineStyle(style)]
+    });
+  if (line2)
+    result.push({
+      GraphicAnnotationUnits: "PIXEL",
+      GraphicDimensions: 2,
+      GraphicType: "POLYLINE",
+      NumberOfGraphicPoints: 2,
+      GraphicData: line2,
+      GraphicFilled: "N",
+      LineStyleSequence: [baseLineStyle(style)]
+    });
+  return result;
+}
+
+//  BIDIRECTIONAL
+function createBidirectionalGraphics(
+  context: PresentationContext,
+  annotation: any,
+  style: any
+): any[] {
+  const worldPoints: Types.Point3[] = annotation.data?.handles?.points;
+  if (!worldPoints || worldPoints.length < 4) return [];
+
+  const longAxis = worldPointsToImagePixels(context.imageId, [
+    worldPoints[0],
+    worldPoints[1]
+  ]);
+  const shortAxis = worldPointsToImagePixels(context.imageId, [
+    worldPoints[2],
+    worldPoints[3]
+  ]);
+
+  const result = [];
+  if (longAxis)
+    result.push({
+      GraphicAnnotationUnits: "PIXEL",
+      GraphicDimensions: 2,
+      GraphicType: "POLYLINE",
+      NumberOfGraphicPoints: 2,
+      GraphicData: longAxis,
+      GraphicFilled: "N",
+      LineStyleSequence: [baseLineStyle(style)]
+    });
+  if (shortAxis)
+    result.push({
+      GraphicAnnotationUnits: "PIXEL",
+      GraphicDimensions: 2,
+      GraphicType: "POLYLINE",
+      NumberOfGraphicPoints: 2,
+      GraphicData: shortAxis,
+      GraphicFilled: "N",
+      LineStyleSequence: [baseLineStyle(style)]
+    });
+  return result;
 }
 
 //  RECTANGLE ROI
@@ -584,25 +650,39 @@ function createEllipseGraphic(
   style: any
 ): any | null {
   const worldPoints: Types.Point3[] = annotation.data?.handles?.points;
-  if (!worldPoints || worldPoints.length < 2) return null;
+  if (!worldPoints || worldPoints.length < 4) return null;
 
   const { imageId } = context;
 
-  const p1 = _cornerstone.utilities.worldToImageCoords(imageId, worldPoints[0]);
-  const p2 = _cornerstone.utilities.worldToImageCoords(
+  const top = _cornerstone.utilities.worldToImageCoords(
     imageId,
-    worldPoints[worldPoints.length - 1]
+    worldPoints[0]
   );
-  if (!p1 || !p2) return null;
+  const bottom = _cornerstone.utilities.worldToImageCoords(
+    imageId,
+    worldPoints[1]
+  );
+  const left = _cornerstone.utilities.worldToImageCoords(
+    imageId,
+    worldPoints[2]
+  );
+  const right = _cornerstone.utilities.worldToImageCoords(
+    imageId,
+    worldPoints[3]
+  );
 
-  const [x1, y1] = p1;
-  const [x2, y2] = p2;
-  const cx = (x1 + x2) / 2;
-  const cy = (y1 + y2) / 2;
-  const rx = Math.abs(x2 - x1) / 2;
-  const ry = Math.abs(y2 - y1) / 2;
+  if (!top || !bottom || !left || !right) return null;
 
-  const graphicData = [cx - rx, cy, cx + rx, cy, cx, cy - ry, cx, cy + ry];
+  const graphicData = [
+    left[0],
+    left[1],
+    right[0],
+    right[1],
+    top[0],
+    top[1],
+    bottom[0],
+    bottom[1]
+  ];
 
   return {
     GraphicAnnotationUnits: "PIXEL",
