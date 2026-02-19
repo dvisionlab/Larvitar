@@ -497,14 +497,35 @@ export function renderCompoundAnnotation(
         viewport,
         compoundObject.compoundGraphicUnits === "DISPLAY"
       );
-      drawArrow(
-        context,
-        startHandleCanvas,
-        endHandleCanvas,
-        color,
-        lineWidth,
-        lineDashed
+
+      context.save();
+      context.strokeStyle = color;
+      context.lineWidth = lineWidth;
+      context.beginPath();
+      context.moveTo(startHandleCanvas.x, startHandleCanvas.y);
+      context.lineTo(endHandleCanvas.x, endHandleCanvas.y);
+      context.stroke();
+
+      // Punta freccia manuale
+      const angle = Math.atan2(
+        endHandleCanvas.y - startHandleCanvas.y,
+        endHandleCanvas.x - startHandleCanvas.x
       );
+      const arrowLen = 15;
+      context.beginPath();
+      context.moveTo(endHandleCanvas.x, endHandleCanvas.y);
+      context.lineTo(
+        endHandleCanvas.x - arrowLen * Math.cos(angle - Math.PI / 6),
+        endHandleCanvas.y - arrowLen * Math.sin(angle - Math.PI / 6)
+      );
+      context.moveTo(endHandleCanvas.x, endHandleCanvas.y);
+      context.lineTo(
+        endHandleCanvas.x - arrowLen * Math.cos(angle + Math.PI / 6),
+        endHandleCanvas.y - arrowLen * Math.sin(angle + Math.PI / 6)
+      );
+      context.stroke();
+      context.restore();
+
       break;
     case "MULTILINE":
       for (let i = 0; i < compoundObject.graphicData!.length; i += 4) {

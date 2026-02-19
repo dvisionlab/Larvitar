@@ -348,21 +348,17 @@ function buildGraphicAnnotationSequence(
       }
     ],
     GraphicObjectSequence: [] as any[],
-    TextObjectSequence: [] as any[]
+    TextObjectSequence: [] as any[],
+    CompoundGraphicSequence: [] as any[]
   };
 
   for (const annotation of annotations) {
     const style = getAnnotationStyle(annotation);
     const toolName: string = annotation.metadata?.toolName ?? "";
 
-    if (toolName === "CobbAngle") {
-      createCobbAngleGraphics(context, annotation, style).forEach(g =>
-        layerItem.GraphicObjectSequence.push(g)
-      );
-    } else if (toolName === "Bidirectional") {
-      createBidirectionalGraphics(context, annotation, style).forEach(g =>
-        layerItem.GraphicObjectSequence.push(g)
-      );
+    if (toolName === "ArrowAnnotate") {
+      const compound = createArrowCompound(context, annotation, style);
+      if (compound) layerItem.CompoundGraphicSequence.push(compound);
     } else {
       const graphicObj = createGraphicObject(context, annotation, style);
       if (graphicObj) layerItem.GraphicObjectSequence.push(graphicObj);
@@ -386,10 +382,6 @@ function createGraphicObject(
     case "Length":
     case "Probe":
       return createPolylineGraphic(context, annotation, style);
-
-    case "ArrowAnnotate":
-      return createArrowGraphic(context, annotation, style);
-
     case "Angle":
       return createAngleGraphic(context, annotation, style);
 
@@ -461,7 +453,7 @@ function createPolylineGraphic(
 }
 
 // ARROW
-function createArrowGraphic(
+function createArrowCompound(
   context: PresentationContext,
   annotation: any,
   style: any
@@ -470,17 +462,17 @@ function createArrowGraphic(
   if (!worldPoints || worldPoints.length < 2) return null;
 
   const graphicData = worldPointsToImagePixels(context.imageId, [
-    worldPoints[0],
-    worldPoints[1]
+    worldPoints[1],
+    worldPoints[0]
   ]);
   if (!graphicData) return null;
 
   return {
-    GraphicAnnotationUnits: "PIXEL",
-    GraphicDimensions: 2,
-    GraphicType: "POLYLINE",
-    NumberOfGraphicPoints: 2,
+    CompoundGraphicType: "ARROW",
+    CompoundGraphicUnits: "PIXEL",
     GraphicData: graphicData,
+    GraphicDimensions: 2,
+    NumberOfGraphicPoints: 2,
     GraphicFilled: "N",
     LineStyleSequence: [baseLineStyle(style)]
   };
@@ -766,16 +758,22 @@ function createTextObject(
   style: any
 ): any | null {
   const { imageId } = context;
+  const toolName: string = annotation.metadata?.toolName ?? "";
   const worldPoints: Types.Point3[] = annotation.data?.handles?.points;
   if (!worldPoints?.length) return null;
 
   const textBoxWorld =
     annotation.data?.handles?.textBox?.worldPosition ??
     worldPoints[worldPoints.length - 1];
+  console.log(toolName);
+  const anchorWorldPoint =
+    toolName === "ArrowAnnotate"
+      ? worldPoints[0]
+      : worldPoints[worldPoints.length - 1];
 
   const anchor = _cornerstone.utilities.worldToImageCoords(
     imageId,
-    worldPoints[worldPoints.length - 1]
+    anchorWorldPoint
   );
   const textBoxAnchor = _cornerstone.utilities.worldToImageCoords(
     imageId,
@@ -877,7 +875,7 @@ function getAnnotationText(annotation: any, imageId: string): string {
         : "N/A";
 
     case "ArrowAnnotate":
-      return annotation.data?.text || "";
+      return annotation.data.label || "";
 
     case "PlanarFreehandROI":
     case "Freehand":
