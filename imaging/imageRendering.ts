@@ -1629,6 +1629,7 @@ const getSeriesData = function (
 
     const { windowWidth, windowCenter } = getVOIFromMetadata(
       instance.metadata,
+      data.imageIndex,
       renderOptions.voi
     );
 
@@ -1641,7 +1642,7 @@ const getSeriesData = function (
     };
     // store default values for the viewport voi from the series metadata
     data.default = {};
-    data.default.voi = getVOIFromMetadata(instance.metadata);
+    data.default.voi = getVOIFromMetadata(instance.metadata, data.imageIndex);
     data.default.rotation = 0;
     data.default.translation = { x: 0, y: 0 };
 
@@ -1733,7 +1734,7 @@ const getSeriesDataFromStore = function (
       data.default.voi = { windowCenter: 0, windowWidth: 0 };
     }
 
-    data.default.voi = getVOIFromMetadata(instance.metadata);
+    data.default.voi = getVOIFromMetadata(instance.metadata, data.imageIndex);
   }
   if (renderOptions.voi !== undefined) {
     if (!data.viewport) {

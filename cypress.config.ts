@@ -1,7 +1,7 @@
 import { defineConfig } from "cypress";
 const {
   addMatchImageSnapshotPlugin
-} = require("cypress-image-snapshot/plugin");
+} = require("@simonsmith/cypress-image-snapshot/plugin");
 const fs = require("fs");
 const path = require("path");
 
