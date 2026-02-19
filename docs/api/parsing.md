@@ -17,7 +17,18 @@ After parsing, Larvitar returns a structured data object where the key is a uniq
 
 The main logic for parsing is implemented in Larvitar's [imageParsing.ts](https://github.com/dvisionlab/Larvitar/blob/master/imaging/imageParsing.ts) file.
 
-In addition to parsing, Larvitar also provides an utility function (`convertQidoMetadata`) for converting QIDO responses to Metadata objects. This function help streamline data processing.
+In some integrations, you may already have access to:
+
+- the **instance metadata** via PACS (e.g. **QIDO-RS** responses), and
+- the **pixel data buffer** (e.g. retrieved via WADO-RS, custom proxy, or a backend service).
+
+In this case you don’t need to parse a local DICOM file with `dicomParser`.  
+Instead, you can:
+
+1. **Convert the QIDO metadata** to Larvitar `Metadata` using `convertQidoMetadata`
+2. **Load the image** using the **Single Frame Loader**, providing the metadata and the pixel buffer
+
+This approach is particularly useful when your UI is driven by PACS queries and you want to avoid re-parsing DICOM files on the client.
 
 ### Parsing API
 
@@ -36,6 +47,8 @@ readFiles(files:File[]).then((series) => {
 
 // convert a QIDO response to a Metadata object
 const metadata: Metadata = convertQidoMetadata(data: object);
+const imageObject = await larvitar.setSingleFrameCache(data as ArrayBuffer, metadata as Metadata);
+larvitar.updateImageManager(imageObject);
 ```
 
 ## Structure of a Series Object

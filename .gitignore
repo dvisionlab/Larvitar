@@ -18,7 +18,9 @@ npm-error.log*
 *.sw?
 
 # TS coverage reports
-/coverage-ts
+typecov.txt
+typecov.json
+coverage-summary.md
 
 # docs
 docs/.vuepress/.cache/
