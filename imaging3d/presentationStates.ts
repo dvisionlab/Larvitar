@@ -1105,14 +1105,21 @@ function getLarvitarStyle() {
 }
 
 /**
- * Generates a pseudo-random DICOM UID.
- *
- * @function generateUID
- * @returns {string} A DICOM UID string.
+ * DICOM UID generator compliant with dicom standard
  */
+let counter = 0;
 function generateUID(): string {
-  const root = "1.2.826.0.1.3680043.9.5830";
-  const timestamp = Date.now();
-  const random = Math.floor(Math.random() * 1_000_000);
-  return `${root}.${timestamp}.${random}`;
+  const DICOM_ROOT = "1.2.826.0.1.3680043.9.5830";
+
+  const now = Date.now();
+  counter = (counter + 1) % 100000;
+  const random = crypto.getRandomValues(new Uint32Array(1))[0];
+  let uid = `${DICOM_ROOT}.${now}.${counter}.${random}`;
+
+  if (uid.length > 64) {
+    const maxRandomLength = 64 - `${DICOM_ROOT}.${now}.${counter}.`.length;
+    uid = `${DICOM_ROOT}.${now}.${counter}.${random.toString().slice(0, maxRandomLength)}`;
+  }
+
+  return uid;
 }
