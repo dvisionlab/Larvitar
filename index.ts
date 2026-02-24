@@ -291,7 +291,7 @@ import {
   removeMouseKeyHandlers,
   toggleMouseToolsListeners
 } from "./imaging/tools/interaction";
-import { createPresentationStateBlob } from "./imaging/presentationStates";
+import { exportPresentationState } from "./imaging3d/presentationStates";
 // Cornestone 3D
 import * as _cornerstone from "@cornerstonejs/core"; // Imports the main entry point
 import * as _cornerstoneTools from "@cornerstonejs/tools";
@@ -428,7 +428,7 @@ export {
   _CustomWWWLTool,
   VERSION,
   // presentation states
-  createPresentationStateBlob,
+  exportPresentationState,
   // global Plotly variable
   Plotly,
   // global cornerstone variables
