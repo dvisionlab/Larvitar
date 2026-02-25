@@ -292,7 +292,11 @@ export const loadAndCacheVolume = async function (
 
   const volumeId = uuidv4();
   const volume = await cornerstone.volumeLoader.createAndCacheVolume(volumeId, {
-    imageIds: series.imageIds3D.map(id => id)
+    imageIds: series.imageIds3D
+      .filter(
+        imageId => series.instances[imageId]?.metadata?.pixelDataLength !== 0
+      )
+      .map(imageId => imageId)
   });
   const t1 = performance.now();
   logger.debug(`Time to load and cache volume: ${t1 - t0} milliseconds`);
@@ -503,10 +507,31 @@ export const unloadMpr = function (renderingEngineId: string): void {
 
   if (imageIds3D && imageIds3D.length > 0) {
     forEach(imageIds3D, imageId => {
-      const uri = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId).url;
-      logger.debug(`Unloading imageId: ${imageId} from cache`);
-      cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
-      cornerstone.cache.removeImageLoadObject(imageId, { force: true });
+      try {
+        const parsed =
+          cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
+        const uri = parsed?.url;
+
+        if (uri) {
+          logger.debug(`Unloading imageId: ${imageId} from cache`);
+
+          try {
+            cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+          } catch (e) {
+            logger.debug(`Dataset not in cache for uri: ${uri}`);
+          }
+
+          try {
+            cornerstone.cache.removeImageLoadObject(imageId, { force: true });
+          } catch (e) {
+            logger.debug(
+              `ImageLoadObject not in cache for imageId: ${imageId}`
+            );
+          }
+        }
+      } catch (error) {
+        logger.debug(`Error while unloading imageId ${imageId}: ${error}`);
+      }
     });
   }
 
