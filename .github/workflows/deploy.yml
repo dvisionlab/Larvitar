@@ -49,7 +49,7 @@ jobs:
       - name: Publish to npm
         run: | 
           if [[ "$GITHUB_REF_NAME" =~ -(alpha|beta|rc)\. ]]; then
-            npm publish --tag next --provenance
+            npm publish --tag next --provenance --access public
           else
-            npm publish --provenance
+            npm publish --provenance --access public
           fi
