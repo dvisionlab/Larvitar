@@ -23,33 +23,33 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "20"
 
       # Install node modules
       - name: Install node modules
         run: |
-          npm ci
+          yarn install --frozen-lockfile
 
       # Generate docs
       - name: Generate docs
         run: |
-          npm run docs:build
+          yarn run docs:build
 
       # Generate Build
       - name: Generate build
         run: |
-          npm run build
+          yarn run build
       
       # Check Prettier
       - name: Check Prettier
         run: |
-          npm run format:check
+          yarn run format:check
 
       - name: Install mochawesome-merge
-        run: npm install --no-save mochawesome-merge
+        run: yarn install --no-save mochawesome-merge
 
       - name: Run Cypress tests
-        run: npm run cypress:run
+        run: yarn run cypress:run
         
       - name: Combine test reports
         run: node .github/scripts/combine-reports.js
@@ -83,17 +83,17 @@ jobs:
           body-path: cypress-summary.md
           edit-mode: replace
 
-      - name: Run type coverage (txt + json)
-        run: npm run coverage
+      - name: Run tests and generate coverage
+        run: yarn run coverage
 
-      - name: Upload type coverage artifacts
+      - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: type-coverage
-          path: |
-            typecov.txt
-            typecov.json
-            coverage-summary.md
+          name: typescript-coverage
+          path: coverage-ts/index.html
+
+      - name: Display coverage summary
+        run: node .github/scripts/ts-coverage-summary.js coverage-ts/index.html
 
       - name: Find Coverage Comment
         uses: peter-evans/find-comment@v2
@@ -101,7 +101,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
-          body-includes: "<!-- type-coverage-report -->"
+          body-includes: "## 🧪 TypeScript Coverage Report"
 
       - name: Create or update PR comment with coverage
         if: github.event.pull_request.head.repo.full_name == github.repository
@@ -112,3 +112,4 @@ jobs:
           comment-id: ${{ steps.find-coverage-comment.outputs.comment-id }}
           body-path: coverage-summary.md
           edit-mode: replace
+

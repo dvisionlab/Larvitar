@@ -32,12 +32,12 @@ jobs:
       # Install node modules
       - name: Install node modules
         run: |
-          npm ci
+          yarn install --frozen-lockfile
 
       # Generate Build
       - name: Generate build
         run: |
-          npm run build
+          yarn run build
 
       # Clean examples and docs file
       - name: Clean examples and docs file

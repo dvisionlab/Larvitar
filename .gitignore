@@ -7,7 +7,8 @@ node_modules
 
 # Log files
 npm-debug.log*
-npm-error.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Editor directories and files
 .idea
@@ -18,9 +19,7 @@ npm-error.log*
 *.sw?
 
 # TS coverage reports
-typecov.txt
-typecov.json
-coverage-summary.md
+/coverage-ts
 
 # docs
 docs/.vuepress/.cache/

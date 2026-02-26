@@ -493,18 +493,8 @@ export const getReslicedMetadata = function (
   };
 };
 
-/**
- * Compute resliced metadata from a cornerstone data structure
- * @instance
- * @function getVOIFromMetadata
- * @param {MetaData} metadata - The metadata of the image to be rendered
- * @param {number} frameIndex - The frame index to be rendered
- * @param {any} renderOptionsVoi - The render options VOI, if defined it will be used instead of the metadata values
- * @return {Object} - VOI object with windowCenter and windowWidth
- */
 export const getVOIFromMetadata = function (
   metadata: MetaData,
-  frameIndex: number = 0,
   renderOptionsVoi?: any
 ) {
   if (renderOptionsVoi !== undefined) {
@@ -513,10 +503,7 @@ export const getVOIFromMetadata = function (
       windowWidth: renderOptionsVoi.windowWidth
     };
   } else if (metadata.x00080060?.toUpperCase() === "MG") {
-    const frameSequenceMammoVOI = getFrameSequenceMammoVOI(
-      metadata,
-      frameIndex
-    );
+    const frameSequenceMammoVOI = getFrameSequenceMammoVOI(metadata);
     return {
       windowCenter:
         frameSequenceMammoVOI?.windowCenter ?? (metadata.x00281050 as number),
@@ -531,35 +518,19 @@ export const getVOIFromMetadata = function (
   }
 };
 
-/**
- * Compute resliced metadata from a cornerstone data structure
- * @instance
- * @function getFrameSequenceMammoVOI
- * @param {MetaData} metadata - The metadata of the image to be rendered
- * @param {number} frameIndex - The frame index to be rendered
- * @return {Object} - VOI object with windowCenter and windowWidth
- */
-export const getFrameSequenceMammoVOI = function (
-  metadata: MetaData,
-  frameIndex: number
-) {
+export const getFrameSequenceMammoVOI = function (metadata: MetaData) {
   try {
-    const perFrameVOI = metadata.x52009230?.[frameIndex]?.x00289132?.[0];
-
-    const sharedVOI = metadata.x52009229?.[0]?.x00289132?.[0];
+    const perFrameGroups = metadata.x52009230?.[0];
+    const frameVOI = perFrameGroups?.x00289132?.[0];
 
     return {
-      windowCenter:
-        perFrameVOI?.x00281050 ?? sharedVOI?.x00281050 ?? metadata.x00281050,
-
-      windowWidth:
-        perFrameVOI?.x00281051 ?? sharedVOI?.x00281051 ?? metadata.x00281051
+      windowCenter: frameVOI?.x00281050,
+      windowWidth: frameVOI?.x00281051
     };
-  } catch {
+  } catch (e) {
     return null;
   }
 };
-
 /**
  * Compute cmpr metadata from pyCmpr data (generated using Scyther {@link https://github.com/dvisionlab/Scyther})
  * @instance

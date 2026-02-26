@@ -78,6 +78,17 @@ describe("Testing the base.html functionalities", () => {
     cy.get("#viewer").should("be.visible");
   });
 
+  it("should open the code modal when clicking the Show Code button", () => {
+    cy.get("#showCodeBtn").click();
+    cy.get("#codeModal").should("be.visible");
+    cy.get("#codeSnippet").should("be.visible");
+    cy.get("#copyCodeBtn").should("be.visible");
+
+    // Close the modal
+    cy.get(".btn-close").click();
+    cy.get("#codeModal").should("not.be.visible");
+  });
+
   it("should open the metadata form when clicking the Open Form button", () => {
     cy.get(".open-button").contains("Open Form").click();
     cy.get("#myForm").should("be.visible");

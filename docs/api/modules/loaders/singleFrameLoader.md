@@ -4,7 +4,7 @@
 
 # Single Frame Loader
 
-The singleFrameLoader module is a custom DICOM loader designed to cache and render a single frame buffer with its metadata. It enables efficient retrieval and display of single-frame images extracted from DICOM objects.
+The singleFrameLoader module is a custom DICOM loader designed to cache and render a single frame buffer with its metadata. It enables efficient retrieval and display of single-frame images extracted from multi-frame DICOM objects.
 
 ## Key Responsibilities
 

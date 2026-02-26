@@ -66,11 +66,11 @@ To start developing Larvitar or contribute to the project:
    ```
 2. **Install dependencies**:
    ```bash
-    npm ci
+    yarn install
    ```
 3. **Start the development server**:
    ```bash
-   npm run dev
+   yarn run dev
    ```
 4. **Open the development environment**:
    - Serve the examples folder using a static server (e.g., `http-server` or visual studio code live server).

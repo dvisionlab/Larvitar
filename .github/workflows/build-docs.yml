@@ -22,22 +22,22 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "20"
 
       # Install node modules
       - name: Install node modules
         run: |
-          npm ci
+          yarn install --frozen-lockfile
 
       # Generate docs
       - name: Generate docs
         run: |
-          npm run docs:build
+          yarn run docs:build
 
       # Generate Build
       - name: Generate build
         run: |
-          npm run build
+          yarn run build
 
       # Copy larvitar.js
       - name: Copy larvitar build for examples
