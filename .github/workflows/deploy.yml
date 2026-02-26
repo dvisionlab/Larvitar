@@ -29,6 +29,9 @@ jobs:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Upgrade npm to v11
+        run: npm install -g npm@11
+
       # Install node modules
       - name: Install node modules
         run: |
