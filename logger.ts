@@ -1,4 +1,4 @@
-import consola, { LogLevels, LogType } from "consola";
+import { consola, LogLevels, LogType } from "consola";
 
 const STORAGE_KEY = "larvitar_log_level"; // Store log level persistently
 
