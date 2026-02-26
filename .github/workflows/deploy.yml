@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') && '22' || '24' }}
           registry-url: 'https://registry.npmjs.org'
 
       # Install node modules
