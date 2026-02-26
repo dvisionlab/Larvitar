@@ -507,30 +507,27 @@ export const unloadMpr = function (renderingEngineId: string): void {
 
   if (imageIds3D && imageIds3D.length > 0) {
     forEach(imageIds3D, imageId => {
-      try {
-        const parsed =
-          cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
-        const uri = parsed?.url;
+      const parsed = cornerstoneDICOMImageLoader.wadouri.parseImageId(imageId);
+      const uri = parsed?.url;
 
-        if (uri) {
-          logger.debug(`Unloading imageId: ${imageId} from cache`);
+      if (uri) {
+        logger.debug(`Unloading imageId: ${imageId} from cache`);
 
-          try {
-            cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
-          } catch (e) {
-            logger.debug(`Dataset not in cache for uri: ${uri}`);
-          }
-
-          try {
-            cornerstone.cache.removeImageLoadObject(imageId, { force: true });
-          } catch (e) {
-            logger.debug(
-              `ImageLoadObject not in cache for imageId: ${imageId}`
-            );
-          }
+        try {
+          cornerstoneDICOMImageLoader.wadouri.dataSetCacheManager.unload(uri);
+        } catch (e) {
+          logger.debug(`Dataset not in cache for uri: ${uri}`);
         }
-      } catch (error) {
-        logger.debug(`Error while unloading imageId ${imageId}: ${error}`);
+
+        try {
+          cornerstone.cache.removeImageLoadObject(imageId, { force: true });
+        } catch (e) {
+          logger.debug(`ImageLoadObject not in cache for imageId: ${imageId}`);
+        }
+      } else {
+        logger.debug(
+          `No URI found for imageId: ${imageId}, skipping cache unload.`
+        );
       }
     });
   }
