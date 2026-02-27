@@ -155,7 +155,7 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
         : false
   };
   let imageManager = getImageManager();
-  const frameIndex = imageManager[metadata.seriesUID!].imageIds.findIndex(
+  const frameIndex = imageManager[metadata.uniqueUID!].imageIds.findIndex(
     (imageIdentifier: string) => imageIdentifier === imageId
   ) as number;
   let imageFrame = getImageFrame(metadata);
