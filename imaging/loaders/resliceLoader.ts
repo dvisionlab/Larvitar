@@ -12,6 +12,7 @@ import { logger } from "../../logger";
 import { getImageFrame } from "./commonLoader";
 import { getImageTracker, getImageManager } from "../imageManagers";
 import type { Image, ImageFrame, MetaData } from "../types";
+import { getVOIFromMetadata } from "../imageUtils";
 
 /*
  * This module provides the following functions to be exported:
@@ -77,8 +78,7 @@ let createCustomImage = function (
         : [1, 1];
   let rescaleIntercept = metadata.x00281052;
   let rescaleSlope = metadata.x00281053;
-  let windowCenter = metadata.x00281050;
-  let windowWidth = metadata.x00281051;
+  const { windowWidth, windowCenter } = getVOIFromMetadata(metadata);
 
   function getSizeInBytes() {
     let bytesPerPixel = Math.round(imageFrame.bitsAllocated! / 8);

@@ -16,6 +16,8 @@ import type {
   SingleFrameCache
 } from "../types";
 import { getImageFrame } from "./commonLoader";
+import { getVOIFromMetadata } from "../imageUtils";
+import { getImageManager } from "../imageManagers";
 
 // global module variables
 let customImageLoaderCounter = 0;
@@ -155,7 +157,10 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
         ? options.preScale.enabled
         : false
   };
-
+  let imageManager = getImageManager();
+  const frameIndex = imageManager[metadata.seriesUID!].imageIds.findIndex(
+    (imageIdentifier: string) => imageIdentifier === imageId
+  ) as number;
   let imageFrame = getImageFrame(metadata);
   const transferSyntax = metadata.x00020010;
   let canvas = window.document.createElement("canvas");
@@ -186,7 +191,6 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
   let promise: Promise<Image> = new Promise((resolve, reject) => {
     decodePromise.then(function handleDecodeResponse(imageFrame: ImageFrame) {
       setPixelDataType(imageFrame);
-
       let pixelSpacing = metadata.x00280030
         ? metadata.x00280030
         : metadata.x00080060 === "US" &&
@@ -202,8 +206,10 @@ const createCustomImage = function (imageId: string): ImageLoadObject {
             : [1, 1];
       let rescaleIntercept = metadata.x00281052;
       let rescaleSlope = metadata.x00281053;
-      let windowCenter = metadata.x00281050;
-      let windowWidth = metadata.x00281051;
+      const { windowWidth, windowCenter } = getVOIFromMetadata(
+        metadata,
+        frameIndex
+      );
 
       function getSizeInBytes() {
         let bytesPerPixel = Math.round(imageFrame.bitsAllocated! / 8);

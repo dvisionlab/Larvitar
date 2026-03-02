@@ -369,6 +369,8 @@ export const arrayTags = [
 ];
 
 export type MetaDataTypes = {
+  x52009229?: MetaDataTypes[];
+  x52009230?: MetaDataTypes[];
   x50000020?: string;
   x20000010?: number;
   x2000001e?: MetaDataTypes[];
