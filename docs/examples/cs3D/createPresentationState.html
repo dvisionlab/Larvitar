@@ -1,0 +1,865 @@
+<!doctype html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+
+    <script src="https://unpkg.com/dcmjs"></script>
+
+    <script>
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../../dist/larvitar.js"><\/script>');
+      }
+      document.head.appendChild(script);
+    </script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+    <link rel="stylesheet" href="../resources/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      :root {
+        --accent: #02fae5;
+        --accent2: #ff6b35;
+        --accent3: #a855f7;
+        --accent-flip: #facc15;
+        --panel-bg: rgba(10, 10, 12, 0.92);
+        --panel-border: rgba(2, 250, 229, 0.18);
+        --tool-hover: rgba(2, 250, 229, 0.08);
+        --tool-active: rgba(2, 250, 229, 0.18);
+        --text-dim: rgba(255, 255, 255, 0.45);
+        --font-mono: "JetBrains Mono", monospace;
+        --font-ui: "Syne", sans-serif;
+      }
+
+      body {
+        background: #000;
+        overflow: hidden;
+        font-family: var(--font-ui);
+      }
+
+      #toolbar {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        z-index: 999;
+        width: 220px;
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        border-radius: 12px;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 14px 12px 12px;
+        box-shadow:
+          0 0 0 1px rgba(2, 250, 229, 0.05),
+          0 24px 48px rgba(0, 0, 0, 0.7),
+          0 0 80px rgba(2, 250, 229, 0.04);
+        user-select: none;
+        max-height: calc(100vh - 32px);
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(2, 250, 229, 0.2) transparent;
+      }
+
+      #toolbar-header {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--panel-border);
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      #toolbar-header::before {
+        content: "";
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 8px var(--accent);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      .tool-section-label {
+        font-family: var(--font-mono);
+        font-size: 8px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        margin: 10px 0 5px 4px;
+      }
+
+      .tool-btn {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        width: 100%;
+        padding: 7px 10px;
+        margin-bottom: 3px;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        color: rgba(255, 255, 255, 0.75);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 400;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        text-align: left;
+      }
+
+      .tool-btn:hover {
+        background: var(--tool-hover);
+        border-color: var(--panel-border);
+        color: #fff;
+      }
+
+      .tool-btn.active {
+        background: var(--tool-active);
+        border-color: rgba(2, 250, 229, 0.35);
+        color: var(--accent);
+        box-shadow:
+          0 0 12px rgba(2, 250, 229, 0.08),
+          inset 0 0 12px rgba(2, 250, 229, 0.04);
+      }
+
+      .tool-icon {
+        font-size: 14px;
+        width: 18px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      .tool-key {
+        margin-left: auto;
+        font-size: 8px;
+        color: var(--text-dim);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+        padding: 1px 4px;
+      }
+
+      .tool-btn.active .tool-key {
+        color: var(--accent);
+        border-color: rgba(2, 250, 229, 0.25);
+        background: rgba(2, 250, 229, 0.06);
+      }
+
+      .toolbar-divider {
+        height: 1px;
+        background: var(--panel-border);
+        margin: 10px 0;
+      }
+
+      .flip-row {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 3px;
+      }
+
+      .flip-btn {
+        flex: 1;
+        padding: 7px 6px;
+        border-radius: 7px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid rgba(250, 204, 21, 0.3);
+        background: rgba(250, 204, 21, 0.07);
+        color: var(--accent-flip);
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+      }
+
+      .flip-btn:hover {
+        background: rgba(250, 204, 21, 0.15);
+        box-shadow: 0 0 10px rgba(250, 204, 21, 0.12);
+      }
+
+      .flip-btn.flipped {
+        background: rgba(250, 204, 21, 0.22);
+        border-color: rgba(250, 204, 21, 0.6);
+        box-shadow: 0 0 10px rgba(250, 204, 21, 0.2);
+      }
+
+      .action-row {
+        display: flex;
+        gap: 6px;
+        margin-top: 4px;
+      }
+
+      .action-btn-small {
+        flex: 1;
+        padding: 7px 6px;
+        border-radius: 7px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+      }
+
+      .btn-save {
+        background: rgba(255, 107, 53, 0.12);
+        border-color: rgba(255, 107, 53, 0.35);
+        color: var(--accent2);
+      }
+      .btn-save:hover {
+        background: rgba(255, 107, 53, 0.22);
+        box-shadow: 0 0 12px rgba(255, 107, 53, 0.15);
+      }
+
+      #status-bar {
+        position: absolute;
+        bottom: 14px;
+        left: 16px;
+        z-index: 999;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        color: var(--text-dim);
+        letter-spacing: 0.06em;
+        display: flex;
+        gap: 14px;
+        align-items: center;
+      }
+
+      #usedMemory {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      #active-tool-name {
+        color: #fff;
+        font-weight: 600;
+      }
+
+      .dragover {
+        opacity: 0.3;
+      }
+
+      #spinner {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        width: 40px;
+        height: 40px;
+        border: 2px solid rgba(2, 250, 229, 0.15);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+
+      #showCodeBtn {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        z-index: 999;
+        background: rgba(10, 10, 12, 0.85);
+        border: 1px solid var(--panel-border);
+        color: var(--text-dim);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        transition: all 0.15s;
+        letter-spacing: 0.06em;
+      }
+      #showCodeBtn:hover {
+        color: var(--accent);
+      }
+
+      #toast {
+        position: absolute;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-60px);
+        z-index: 9999;
+        background: rgba(2, 250, 229, 0.12);
+        border: 1px solid rgba(2, 250, 229, 0.3);
+        color: var(--accent);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 8px 18px;
+        border-radius: 8px;
+        backdrop-filter: blur(20px);
+        letter-spacing: 0.06em;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        pointer-events: none;
+        white-space: nowrap;
+      }
+      #toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const code = `// See source code of this file for full implementation`;
+        document.getElementById("showCodeBtn").addEventListener("click", () => {
+          const el = document.getElementById("codeSnippet");
+          el.textContent = code;
+          Prism.highlightElement(el);
+          new bootstrap.Modal(document.getElementById("codeModal")).show();
+        });
+        document.getElementById("copyCodeBtn").addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
+    <title>Larvitar CS3D – GSPS Annotation Tester</title>
+  </head>
+
+  <body class="h-100">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background: #000; position: relative"
+      >
+        <!-- TOOLBAR -->
+        <div id="toolbar" onmousedown="event.stopPropagation()">
+          <div id="toolbar-header">GSPS Tester</div>
+
+          <!-- MEASURE -->
+          <div class="tool-section-label">Measure</div>
+
+          <button
+            class="tool-btn"
+            id="btn-Length"
+            onclick="activateTool('Length')"
+          >
+            <span class="tool-icon">📏</span><span>Length</span
+            ><span class="tool-key">L</span>
+          </button>
+
+          <button
+            class="tool-btn"
+            id="btn-Bidirectional"
+            onclick="activateTool('Bidirectional')"
+          >
+            <span class="tool-icon">✛</span><span>Bidirectional</span
+            ><span class="tool-key">B</span>
+          </button>
+
+          <button
+            class="tool-btn"
+            id="btn-Angle"
+            onclick="activateTool('Angle')"
+          >
+            <span class="tool-icon">📐</span><span>Angle</span
+            ><span class="tool-key">A</span>
+          </button>
+
+          <button
+            class="tool-btn"
+            id="btn-CobbAngle"
+            onclick="activateTool('CobbAngle')"
+          >
+            <span class="tool-icon">∠</span><span>Cobb Angle</span
+            ><span class="tool-key">C</span>
+          </button>
+
+          <!-- ROI -->
+          <div class="tool-section-label">ROI</div>
+
+          <button
+            class="tool-btn"
+            id="btn-RectangleROI"
+            onclick="activateTool('RectangleROI')"
+          >
+            <span class="tool-icon">▭</span><span>Rectangle ROI</span
+            ><span class="tool-key">R</span>
+          </button>
+
+          <button
+            class="tool-btn"
+            id="btn-EllipticalROI"
+            onclick="activateTool('EllipticalROI')"
+          >
+            <span class="tool-icon">⬬</span><span>Ellipse ROI</span
+            ><span class="tool-key">E</span>
+          </button>
+
+          <!-- ANNOTATION -->
+          <div class="tool-section-label">Annotation</div>
+
+          <button
+            class="tool-btn"
+            id="btn-ArrowAnnotate"
+            onclick="activateTool('ArrowAnnotate')"
+          >
+            <span class="tool-icon">→</span><span>Arrow + Text</span
+            ><span class="tool-key">T</span>
+          </button>
+
+          <!-- NAVIGATE -->
+          <div class="tool-section-label">Navigate</div>
+
+          <button
+            class="tool-btn"
+            id="btn-WindowLevel"
+            onclick="activateTool('WindowLevel')"
+          >
+            <span class="tool-icon">◐</span><span>W / L</span
+            ><span class="tool-key">W</span>
+          </button>
+
+          <button class="tool-btn" id="btn-Pan" onclick="activateTool('Pan')">
+            <span class="tool-icon">✋</span><span>Pan</span
+            ><span class="tool-key">Space</span>
+          </button>
+
+          <button class="tool-btn" id="btn-Zoom" onclick="activateTool('Zoom')">
+            <span class="tool-icon">🔍</span><span>Zoom</span
+            ><span class="tool-key">Z</span>
+          </button>
+
+          <!-- TRANSFORM -->
+          <div class="tool-section-label">Transform</div>
+
+          <div class="flip-row">
+            <button
+              class="flip-btn"
+              id="btn-flipH"
+              onclick="flipViewport('horizontal')"
+            >
+              ↔ Flip H
+            </button>
+            <button
+              class="flip-btn"
+              id="btn-flipV"
+              onclick="flipViewport('vertical')"
+            >
+              ↕ Flip V
+            </button>
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <!-- ACTIONS -->
+          <div class="action-row">
+            <button
+              class="action-btn-small btn-save"
+              onclick="saveDICOMPresentationState()"
+            >
+              💾 Save PR
+            </button>
+          </div>
+        </div>
+
+        <button id="showCodeBtn" onmousedown="event.stopPropagation()">
+          Show Code
+        </button>
+        <div id="toast"></div>
+
+        <!-- CODE MODAL -->
+        <div class="modal fade" id="codeModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">JavaScript Code</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+              </div>
+              <div class="modal-footer">
+                <button id="copyCodeBtn" class="btn btn-success">
+                  Copy Code
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="spinner"></div>
+
+        <div id="status-bar">
+          <span>MEM <span id="usedMemory">—</span> MB</span>
+          <span>TOOL <span id="active-tool-name">WindowLevel</span></span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //  Memory monitor
+      setInterval(() => {
+        if (performance.memory)
+          document.getElementById("usedMemory").textContent = parseInt(
+            performance.memory.totalJSHeapSize / 1024 / 1024
+          );
+      }, 1000);
+
+      //  Drag & Drop
+      const dropCanvas = document.getElementById("viewer");
+      const spinner = document.getElementById("spinner");
+      let demoFiles = [],
+        totalFiles = 0,
+        processedFiles = 0;
+
+      ["dragenter", "dragover", "dragleave", "drop"].forEach(ev =>
+        dropCanvas.addEventListener(ev, e => e.preventDefault())
+      );
+      dropCanvas.addEventListener("dragover", () =>
+        dropCanvas.classList.add("dragover")
+      );
+      dropCanvas.addEventListener("dragleave", () =>
+        dropCanvas.classList.remove("dragover")
+      );
+      dropCanvas.addEventListener("drop", e => {
+        demoFiles = [];
+        totalFiles = 0;
+        processedFiles = 0;
+        showSpinner();
+        dropCanvas.classList.remove("dragover");
+        Array.from(e.dataTransfer.items).forEach(item => {
+          const entry = item.webkitGetAsEntry();
+          if (entry) traverseFileTree(entry);
+        });
+      });
+
+      function traverseFileTree(item) {
+        if (item.isFile && !item.name.startsWith(".")) {
+          totalFiles++;
+          item.file(file => handleFile(file));
+        } else if (item.isDirectory) {
+          readAllEntries(item.createReader());
+        }
+      }
+
+      function readAllEntries(dirReader) {
+        dirReader.readEntries(entries => {
+          if (entries.length > 0) {
+            entries.forEach(e => traverseFileTree(e));
+            readAllEntries(dirReader);
+          }
+        });
+      }
+
+      function handleFile(file) {
+        demoFiles.push(file);
+        if (++processedFiles === totalFiles) renderSerie();
+      }
+
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+
+      //  Larvitar init
+      let counter = 0;
+
+      larvitar._cornerstone.init();
+      larvitar._initializeCSTools();
+      larvitar._initializeImageLoader();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+      showSpinner();
+
+      async function createFile(fileName, cb) {
+        const data = await (await fetch("../demo/" + fileName)).blob();
+        demoFiles.push(new File([data], fileName));
+        if (++counter === 24) cb();
+      }
+
+      async function renderSerie() {
+        larvitar.resetImageManager();
+        larvitar.disableViewport("viewer");
+        larvitar.store.addViewport("viewer");
+        larvitar._cornerstone.cache.purgeCache();
+
+        const toolGroup =
+          larvitar._cornerstoneTools.ToolGroupManager.getToolGroupForViewport(
+            "viewer",
+            "2d"
+          );
+        toolGroup?.removeViewports("2d", "viewer");
+        if (toolGroup?.id) larvitar._destroyToolGroup(toolGroup.id);
+
+        // reset flip state on reload
+        flipState = { horizontal: false, vertical: false };
+        document.getElementById("btn-flipH").classList.remove("flipped");
+        document.getElementById("btn-flipV").classList.remove("flipped");
+
+        larvitar
+          .readFiles(demoFiles)
+          .then(async seriesStack => {
+            for (const [uid, data] of Object.entries(seriesStack))
+              larvitar.populateImageManager(uid, data);
+
+            const serie =
+              larvitar.getImageManager()[Object.keys(seriesStack)[0]];
+
+            larvitar
+              ._renderImage(serie, "viewer")
+              .then(({ renderingEngine }) => {
+                larvitar._addDefaultTools(["viewer"], renderingEngine, "3D");
+                hideSpinner();
+                activateTool("WindowLevel");
+              });
+          })
+          .catch(console.error);
+      }
+
+      //  Tool list (mouse-bound)
+      const MOUSE_TOOLS = [
+        "Length",
+        "Bidirectional",
+        "Angle",
+        "CobbAngle",
+        "RectangleROI",
+        "EllipticalROI",
+        "ArrowAnnotate",
+        "WindowLevel",
+        "Pan",
+        "Zoom"
+      ];
+
+      // Tools that need explicit registration on the toolgroup
+      // (not included in larvitar._addDefaultTools "3D" preset)
+      const EXTRA_TOOLS = ["CobbAngle"];
+
+      //  Keyboard shortcuts
+      const keyMap = {
+        l: "Length",
+        b: "Bidirectional",
+        a: "Angle",
+        c: "CobbAngle",
+        r: "RectangleROI",
+        e: "EllipticalROI",
+        t: "ArrowAnnotate",
+        w: "WindowLevel",
+        z: "Zoom",
+        " ": "Pan",
+        h: () => flipViewport("horizontal"),
+        v: () => flipViewport("vertical")
+      };
+
+      document.addEventListener("keydown", e => {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")
+          return;
+        const key = e.key === " " ? " " : e.key.toLowerCase();
+        const action = keyMap[key];
+        if (!action) return;
+        if (e.key === " ") e.preventDefault();
+        if (typeof action === "function") action();
+        else activateTool(action);
+      });
+
+      //  Tool activation ─
+      let currentTool = "WindowLevel";
+
+      function setActiveButton(toolName) {
+        document
+          .querySelectorAll(".tool-btn")
+          .forEach(b => b.classList.remove("active"));
+        document.getElementById("btn-" + toolName)?.classList.add("active");
+        document.getElementById("active-tool-name").textContent = toolName;
+        currentTool = toolName;
+      }
+
+      function ensureToolRegistered(toolName) {
+        try {
+          const toolGroup =
+            larvitar._cornerstoneTools.ToolGroupManager.getToolGroupForViewport(
+              "viewer",
+              "2d"
+            );
+          if (!toolGroup) return;
+
+          // Check if already registered
+          const toolInstances =
+            toolGroup._toolInstances ?? toolGroup.toolOptions ?? {};
+          if (toolInstances[toolName]) return;
+
+          // Map tool name to CS Tools class
+          const toolClassMap = {
+            CobbAngle: larvitar._cornerstoneTools.CobbAngleTool
+          };
+
+          const ToolClass = toolClassMap[toolName];
+
+          if (!ToolClass) return;
+          larvitar._cornerstoneTools.addTool(ToolClass);
+
+          toolGroup.addTool(ToolClass.toolName ?? toolName);
+        } catch (err) {
+          console.warn("ensureToolRegistered:", toolName, err);
+        }
+      }
+
+      function activateTool(toolName) {
+        MOUSE_TOOLS.forEach(t => {
+          try {
+            larvitar._setToolPassive(t);
+          } catch (_) {}
+        });
+
+        if (EXTRA_TOOLS.includes(toolName)) {
+          ensureToolRegistered(toolName);
+        }
+
+        try {
+          larvitar._setToolActive(toolName, {
+            bindings: [
+              {
+                mouseButton:
+                  larvitar._cornerstoneTools.Enums.MouseBindings.Primary
+              }
+            ]
+          });
+          setActiveButton(toolName);
+        } catch (err) {
+          console.warn("Could not activate tool:", toolName, err);
+        }
+      }
+
+      let flipState = { horizontal: false, vertical: false };
+
+      function flipViewport(direction) {
+        try {
+          const ee = larvitar._cornerstone.getEnabledElementByIds(
+            "viewer",
+            "2d"
+          );
+          const vp = ee.viewport;
+
+          flipState[direction] = !flipState[direction];
+
+          const camera = vp.getCamera();
+
+          if (direction === "horizontal") {
+            vp.setCamera({
+              ...camera,
+              viewUp: [-camera.viewUp[0], -camera.viewUp[1], camera.viewUp[2]]
+            });
+          } else {
+            const dx = camera.position[0] - camera.focalPoint[0];
+            const dy = camera.position[1] - camera.focalPoint[1];
+            const dz = camera.position[2] - camera.focalPoint[2];
+            vp.setCamera({
+              ...camera,
+              position: [
+                camera.focalPoint[0] - dx,
+                camera.focalPoint[1] - dy,
+                camera.focalPoint[2] + dz // inverti Z
+              ],
+              viewUp: [camera.viewUp[0], -camera.viewUp[1], camera.viewUp[2]]
+            });
+          }
+
+          vp.render();
+
+          const btnId = direction === "horizontal" ? "btn-flipH" : "btn-flipV";
+          document
+            .getElementById(btnId)
+            .classList.toggle("flipped", flipState[direction]);
+        } catch (err) {
+          console.warn("Flip error:", err);
+        }
+      }
+      function downloadDICOM(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      //  Save GSPS
+      async function saveDICOMPresentationState() {
+        try {
+          const { blob, filename } = larvitar.exportPresentationState(
+            "viewer",
+            "2d",
+            "dicom"
+          );
+          downloadDICOM(blob, filename);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      //  Load demo
+      for (let i = 1; i < 25; i++) createFile("anon" + i, renderSerie);
+    </script>
+  </body>
+</html>
