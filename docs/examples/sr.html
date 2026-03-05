@@ -1,0 +1,289 @@
+<!doctype html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Larvitar – SR (Structured Report) Viewer</title>
+
+    <!-- Larvitar -->
+    <script>
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+    </script>
+
+    <!-- Bootstrap + Prism -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <style>
+      body {
+        background-color: #000;
+        overflow: hidden;
+        height: 100vh;
+        color: #e2e8f0;
+      }
+
+      /* Full-viewport SR panel — drag target */
+      #sr-panel {
+        position: absolute;
+        inset: 0;
+        overflow-y: auto;
+        padding: 1rem;
+      }
+
+      /* Match base.html dragover style */
+      #sr-panel.dragover {
+        opacity: 0.3;
+      }
+
+      /* Top bar (absolute, like other examples) */
+      #topbar {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 10;
+      }
+
+      /* Drop hint shown before any file is loaded */
+      #drop-hint {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        color: #475569;
+        pointer-events: none;
+      }
+      #drop-hint b {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #64748b;
+      }
+      #drop-hint p {
+        font-size: 0.82rem;
+        margin: 0;
+      }
+    </style>
+
+    <!-- Code snippet for modal -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+        const code = `
+// 1. Detect if a loaded serie is a Structured Report
+const serie = larvitar.getImageManager()[uniqueUID];
+if (larvitar.isSR(serie)) {
+  // 2. Get raw metadata from the first instance
+  const meta = serie.instances[serie.imageIds[0]].metadata;
+  // 3. Mount interactive viewer into a container element
+  const container = document.getElementById("sr-panel");
+  larvitar.mountSRViewer(meta, container, { expandDepth: 2 });
+}`;
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet);
+          new bootstrap.Modal(document.getElementById("codeModal")).show();
+        });
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+  </head>
+
+  <body class="h-100">
+    <!-- Top bar -->
+    <div id="topbar">
+      <button id="showCodeBtn" class="open-button" style="width: auto">
+        Show Code
+      </button>
+    </div>
+
+    <!-- Drop hint (shown only before a file is loaded) -->
+    <div id="drop-hint" style="display: none">
+      <b>Drag and drop a DICOM SR file to visualize it in the viewer</b>
+      <p>SR files will replace the current report</p>
+    </div>
+
+    <!-- SR viewer (also acts as drag target) -->
+    <div id="sr-panel"></div>
+
+    <!-- Spinner -->
+    <div id="spinner"></div>
+
+    <!-- Code modal -->
+    <div class="modal fade" id="codeModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">JavaScript Code</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+          </div>
+          <div class="modal-footer">
+            <button id="copyCodeBtn" class="btn btn-success">Copy Code</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      "use strict";
+
+      larvitar.injectSRStyles();
+
+      larvitar.initializeImageLoader();
+      larvitar.registerMultiFrameImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.setLogLevel("warn");
+
+      const srPanel = document.getElementById("sr-panel");
+      const dropHint = document.getElementById("drop-hint");
+      const spinner = document.getElementById("spinner");
+
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+
+      function renderSR(serie) {
+        const firstId = serie.imageIds && serie.imageIds[0];
+        const meta =
+          firstId && serie.instances && serie.instances[firstId]
+            ? serie.instances[firstId].metadata
+            : serie.metadata || {};
+
+        larvitar.mountSRViewer(meta, srPanel, { expandDepth: 2 });
+        dropHint.style.display = "none";
+      }
+
+      function loadFiles(files) {
+        showSpinner();
+        larvitar.resetImageManager();
+        larvitar
+          .readFiles(files)
+          .then(stack => {
+            for (const [uid, data] of Object.entries(stack)) {
+              larvitar.populateImageManager(uid, data);
+            }
+            const manager = larvitar.getImageManager();
+            const srUID = Object.keys(manager).find(uid =>
+              larvitar.isSR(manager[uid])
+            );
+            hideSpinner();
+            if (srUID) {
+              renderSR(manager[srUID]);
+            } else {
+              dropHint.style.display = "flex";
+            }
+          })
+          .catch(err => {
+            larvitar.logger.error(err);
+            hideSpinner();
+            dropHint.style.display = "flex";
+          });
+      }
+
+      async function loadDemo() {
+        showSpinner();
+        try {
+          const response = await fetch("./demo/SR/sr.dcm");
+          const blob = await response.blob();
+          const file = new File([blob], "sr.dcm");
+          loadFiles([file]);
+        } catch (err) {
+          larvitar.logger.error("Could not load demo SR:", err);
+          hideSpinner();
+          dropHint.style.display = "flex";
+        }
+      }
+
+      ["dragenter", "dragover", "dragleave", "drop"].forEach(ev =>
+        srPanel.addEventListener(ev, e => e.preventDefault())
+      );
+
+      srPanel.addEventListener("dragover", () =>
+        srPanel.classList.add("dragover")
+      );
+      srPanel.addEventListener("dragleave", () =>
+        srPanel.classList.remove("dragover")
+      );
+
+      srPanel.addEventListener("drop", e => {
+        srPanel.classList.remove("dragover");
+        const files = [];
+        let total = 0;
+        let processed = 0;
+
+        function onFile(f) {
+          files.push(f);
+          processed++;
+          if (processed === total) loadFiles(files);
+        }
+
+        function traverse(item) {
+          if (item.isFile && !item.name.startsWith(".")) {
+            total++;
+            item.file(f => onFile(f));
+          } else if (item.isDirectory) {
+            const reader = item.createReader();
+            (function readAll() {
+              reader.readEntries(entries => {
+                if (entries.length > 0) {
+                  entries.forEach(traverse);
+                  readAll();
+                }
+              });
+            })();
+          }
+        }
+
+        const items = e.dataTransfer.items;
+        for (let i = 0; i < items.length; i++) {
+          const entry = items[i].webkitGetAsEntry();
+          if (entry) traverse(entry);
+        }
+      });
+
+      loadDemo();
+    </script>
+  </body>
+</html>

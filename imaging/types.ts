@@ -407,3 +407,30 @@ export interface CornerstoneElement {
     id: string;
   };
 }
+
+export interface SRNode {
+  label: string;
+  relationshipType: string;
+  valueType: string;
+  value: string;
+  children: SRNode[];
+}
+
+export interface SRHeader {
+  patientName: string;
+  studyDescription: string;
+  manufacturer: string;
+  completionFlag: string;
+  verificationFlag: string;
+  contentDate: string;
+  contentTime: string;
+}
+
+export interface SRParseResult {
+  header: SRHeader;
+  tree: SRNode[];
+}
+
+export interface RenderOptions {
+  expandDepth?: number;
+}

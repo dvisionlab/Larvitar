@@ -73,6 +73,14 @@ import {
 } from "./imaging/waveforms/ecg";
 
 import {
+  isSR,
+  parseSR,
+  renderSRTree,
+  mountSRViewer,
+  injectSRStyles
+} from "./imaging/srUtils";
+
+import {
   getImagePresets,
   setImagePreset,
   setImageCustomPreset
@@ -332,6 +340,12 @@ export {
   updateECGMarker,
   updateECGTotalTime,
   getDefaultECGLayout,
+  // structured reports
+  isSR,
+  parseSR,
+  renderSRTree,
+  mountSRViewer,
+  injectSRStyles,
   // imagePresets
   getImagePresets,
   setImagePreset,
