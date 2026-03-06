@@ -30,6 +30,11 @@ import { addCineMetadata } from "./metadataProviders/cineMetadataProvider";
 import { addImageUrlMetadata } from "./metadataProviders/imageUrlMetadataProvider";
 import { addGeneralSeriesMetadata } from "./metadataProviders/generalSeriesProvider";
 import { addImagePlaneMetadata } from "./metadataProviders/imagePlaneMetadataProvider";
+import {
+  applyColormapByName,
+  resetColormapToDefault
+} from "./postProcessing/applyColormap";
+import { setOrientation } from "./imageUtils";
 
 /*
  * This module provides the following functions to be exported:
@@ -869,17 +874,37 @@ export const resizeRenderingEngine = function (
  */
 export const resetViewports = function (
   elementIds: string[],
-  keys?: Array<"contrast" | "pan" | "zoom">
+  keys?: Array<
+    | "contrast"
+    | "pan"
+    | "zoom"
+    | "colormap"
+    | "orientation"
+    | "flip"
+    | "invert"
+    | "interpolation"
+    | "camera"
+  >
 ) {
   each(elementIds, function (elementId: string) {
     const viewport =
       cornerstone.getEnabledElementByViewportId(elementId).viewport;
+
     if (!keys || keys?.includes("zoom")) {
       viewport.setZoom(1);
     }
+
     if (!keys || keys?.includes("pan")) {
       viewport.setPan([0, 0]);
     }
+
+    if (!keys || keys?.includes("invert")) {
+      const defaultInvert =
+        viewport.getDefaultProperties(viewport.getCurrentImageId())?.invert ||
+        false;
+      viewport.setProperties({ invert: defaultInvert });
+    }
+
     if (!keys || keys?.includes("contrast")) {
       const defaultVoiRange = viewport.getDefaultProperties(
         viewport.getCurrentImageId()
@@ -887,7 +912,35 @@ export const resetViewports = function (
       viewport.setProperties({ voiRange: defaultVoiRange });
     }
 
-    //TODO - add reset rotation
+    if (!keys || keys?.includes("camera")) {
+      viewport.resetCamera();
+    }
+
+    if (!keys || keys?.includes("interpolation")) {
+      viewport.setProperties({
+        interpolationType: cornerstone.Enums.InterpolationType.LINEAR
+      });
+    }
+
+    if (viewport instanceof cornerstone.VolumeViewport) {
+      if (!keys || keys?.includes("flip")) {
+        viewport.flip({
+          flipHorizontal: false,
+          flipVertical: false
+        });
+      }
+
+      if (!keys || keys?.includes("colormap")) {
+        resetColormapToDefault(viewport);
+      }
+
+      if (!keys || keys?.includes("orientation")) {
+        const defaultOrientation =
+          viewport.getDefaultProperties(viewport.getCurrentImageId())
+            ?.orientation || cornerstone.Enums.OrientationAxis.CORONAL;
+        setOrientation(viewport, defaultOrientation, true);
+      }
+    }
 
     viewport.render();
   });

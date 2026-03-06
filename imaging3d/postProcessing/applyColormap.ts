@@ -236,3 +236,20 @@ export const resetColormapToDefault = function (
 ): void {
   applyColormap(viewport, defaultColormap);
 };
+
+/**
+ * Set a registered colormap as the new default
+ * @function setDefaultColormap
+ * @param {string} colormapName - Name of the registered colormap to set as default
+ * @returns {void}
+ * @throws {Error} If colormap name is not found in registry
+ */
+export const setDefaultColormap = function (colormapName: string): void {
+  const colormap = COLORMAP_REGISTRY[colormapName];
+
+  if (!colormap) {
+    throw new Error(`Colormap '${colormapName}' not found in registry`);
+  }
+
+  Object.assign(defaultColormap, colormap);
+};
