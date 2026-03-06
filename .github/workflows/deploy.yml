@@ -26,18 +26,21 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '22'
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm to v11
+        run: npm install -g npm@11
 
       # Install node modules
       - name: Install node modules
         run: |
-          yarn install --frozen-lockfile
+          npm ci
 
       # Generate Build
       - name: Generate build
         run: |
-          yarn run build
+          npm run build
 
       # Clean examples and docs file
       - name: Clean examples and docs file
@@ -49,7 +52,7 @@ jobs:
       - name: Publish to npm
         run: | 
           if [[ "$GITHUB_REF_NAME" =~ -(alpha|beta|rc)\. ]]; then
-            npm publish --tag next
+            npm publish --tag next --provenance --access public
           else
-            npm publish
+            npm publish --provenance --access public
           fi

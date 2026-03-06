@@ -247,7 +247,9 @@ export const populateGSPSManager = function (
 ) {
   Object.keys(seriesData.instances).forEach(imageId => {
     const metadata = seriesData.instances[imageId].metadata;
-    const referenceInstanceSeqAttribute = metadata.x00081115?.[0]?.x00081140;
+    const referenceInstanceSeqAttribute =
+      metadata.x00081115?.[0]?.x00081140 ?? metadata.x00081115?.[0]?.x0008114a;
+
     if (referenceInstanceSeqAttribute) {
       referenceInstanceSeqAttribute.forEach(elem => {
         const instanceUID = elem?.x00081155;
