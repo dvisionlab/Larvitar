@@ -1,8 +1,18 @@
-//TODO add descriptions and headers
+import {
+  MetaData,
+  RenderOptions,
+  Series,
+  SRHeader,
+  SRNode,
+  SRParseResult
+} from "./types";
 
-import { RenderOptions, SRHeader, SRNode, SRParseResult } from "./types";
-
-export function isSR(serie: Record<string, any>): boolean {
+/**
+ * Check if a DICOM series is a Structured Report (SR)
+ * @param {Series} serie - The DICOM series object
+ * @return {boolean} - True if the series is an SR
+ */
+export const isSR = function (serie: Series): boolean {
   if (!serie) return false;
   if (serie.metadata && serie.metadata.x00080060) {
     return serie.metadata.x00080060.toUpperCase() === "SR";
@@ -10,17 +20,15 @@ export function isSR(serie: Record<string, any>): boolean {
   const firstId = serie.imageIds && serie.imageIds[0];
   if (firstId && serie.instances && serie.instances[firstId]) {
     const m = serie.instances[firstId].metadata;
-    return m && m.x00080060 && m.x00080060.toUpperCase() === "SR";
+    return (m && m.x00080060 && m.x00080060.toUpperCase() === "SR") as boolean;
   }
   return false;
-}
+};
 
 /**
- * Extract a human-readable label from a Code Sequence item.
+ * Extract a human-readable label from a DICOM Code Sequence item
  */
-function _codeLabel(
-  codeSeq: Record<string, any> | Record<string, any>[]
-): string {
+const _codeLabel = function (codeSeq: MetaData | MetaData[]): string {
   const item = Array.isArray(codeSeq) ? codeSeq[0] : codeSeq;
   if (!item || typeof item !== "object") return String(codeSeq ?? "");
   const meaning: string = item.x00080104 || "";
@@ -28,17 +36,15 @@ function _codeLabel(
   const scheme: string = item.x00080102 || "";
   if (meaning) return code ? `${meaning} (${code}, ${scheme})` : meaning;
   return code || "";
-}
+};
 
 /**
- * Extract the numeric value from a content item.
- *
- * DICOM stores numeric values in the Measured Value Sequence (x0040a300):
- *   item.x0040a300[0].x0040a30a  → the actual number
- *   item.x0040a300[0].x0040a211 or item.x0040a168 → unit (Code Sequence)
+ * Extract the numeric value and unit from a DICOM content item
+ * @param {MetaData} item - The DICOM content item
+ * @return {Object|null} - Object with numericValue and unit, or null
  */
-function _extractNumericValue(
-  item: Record<string, any>
+const _extractNumericValue = function (
+  item: MetaData
 ): { numericValue: string | number; unit: string } | null {
   // Primary path: Measured Value Sequence
   if (item.x0040a300) {
@@ -48,7 +54,7 @@ function _extractNumericValue(
     const mvs = seq[0];
     if (mvs) {
       const numericValue = mvs.x0040a30a ?? "";
-      const unitSeq = mvs.x0040a211 || mvs.x0040a168 || item.x0040a168;
+      const unitSeq = mvs.x0040a168 || item.x0040a168;
       const unit = unitSeq ? _codeLabel(unitSeq) : "";
       if (numericValue !== "") {
         return { numericValue, unit };
@@ -60,22 +66,17 @@ function _extractNumericValue(
     return { numericValue: item.x0040a30a, unit };
   }
   return null;
-}
+};
 
 /**
- * Recursively parse a DICOM SR content item into a plain JS tree node.
- *
- * Each node:
- * {
- *   label        : string   – human-readable concept name
- *   relationshipType : string
- *   valueType    : string   – CONTAINER | NUM | TEXT | CODE | …
- *   value        : string   – rendered value (if leaf)
- *   children     : node[]   – child nodes
- * }
+ * Recursively parse a DICOM SR content item into a tree node structure
+ * @param {MetaData|MetaData[]} item - The DICOM content item(s)
+ * @param {string} inheritedRelType - Inherited relationship type from parent
+ * @param {string} inheritedValType - Inherited value type from parent
+ * @return {SRNode|SRNode[]|null} - Parsed tree node(s)
  */
-function _parseItem(
-  item: Record<string, any> | Record<string, any>[],
+const _parseItem = function (
+  item: MetaData | MetaData[],
   inheritedRelType?: string,
   inheritedValType?: string
 ): SRNode | SRNode[] | null {
@@ -117,7 +118,7 @@ function _parseItem(
 
   // Referenced images
   if (item.x00081140) {
-    const refs: Record<string, any>[] = Array.isArray(item.x00081140)
+    const refs: MetaData[] = Array.isArray(item.x00081140)
       ? item.x00081140
       : [item.x00081140];
     refs.forEach(ref => {
@@ -138,9 +139,14 @@ function _parseItem(
     value,
     children
   };
-}
+};
 
-export function parseSR(metadata: Record<string, any>): SRParseResult {
+/**
+ * Parse DICOM SR metadata into a structured header and tree representation
+ * @param {MetaData} metadata - The DICOM SR metadata object
+ * @return {SRParseResult} - Object containing header fields and content tree
+ */
+export const parseSR = function (metadata: MetaData): SRParseResult {
   if (!metadata)
     return {
       header: {
@@ -190,7 +196,7 @@ export function parseSR(metadata: Record<string, any>): SRParseResult {
   }
 
   return { header, tree: roots };
-}
+};
 
 const _REL_BADGE: Record<string, { cls: string; short: string }> = {
   CONTAINS: { cls: "sr-rel-contains", short: "CONTAINS" },
@@ -202,16 +208,6 @@ const _REL_BADGE: Record<string, { cls: string; short: string }> = {
   REFERENCED: { cls: "sr-rel-ref", short: "REF" }
 };
 
-/*const _VAL_ICON: Record<string, string> = {
-  CONTAINER: "▸",
-  NUM: "#",
-  TEXT: "T",
-  CODE: "C",
-  REF: "↗",
-  IMAGE: "I",
-  COMPOSITE: "□"
-};*/
-
 const _REL_DESCRIPTOR: Record<string, string> = {
   "HAS PROPERTIES": "Properties:",
   "HAS ACQ CONTEXT": "Acquisition Context:",
@@ -222,7 +218,10 @@ const _REL_DESCRIPTOR: Record<string, string> = {
   REFERENCED: "Referenced:"
 };
 
-function _buildNodeEl(
+/**
+ * Build a DOM element for a single SR tree node with expand/collapse functionality
+ */
+const _buildNodeEl = function (
   node: SRNode,
   opts: RenderOptions & { depth?: number }
 ): HTMLElement {
@@ -235,7 +234,7 @@ function _buildNodeEl(
   const isContainer = node.valueType === "CONTAINER";
   const startExpanded = depth < expandDepth;
 
-  //  toggle button
+  // Toggle button
   const toggle = document.createElement("span");
   if (!isLeaf) {
     toggle.className = "sr-toggle" + (startExpanded ? " sr-open" : "");
@@ -253,7 +252,7 @@ function _buildNodeEl(
 
   const icon = document.createElement("span");
   icon.className = "sr-icon";
-  icon.textContent = " "; //_VAL_ICON[node.valueType] ||;
+  icon.textContent = " ";
   header.appendChild(icon);
 
   if (node.relationshipType && _REL_DESCRIPTOR[node.relationshipType]) {
@@ -282,16 +281,6 @@ function _buildNodeEl(
     valEl.textContent = node.value;
     header.appendChild(sep);
     header.appendChild(valEl);
-  }
-
-  // Relationship badge
-  //TODO maybe remove it?
-  if (node.relationshipType && _REL_BADGE[node.relationshipType]) {
-    const badge = document.createElement("span");
-    const info = _REL_BADGE[node.relationshipType];
-    badge.className = "sr-badge " + info.cls;
-    badge.textContent = info.short;
-    header.appendChild(badge);
   }
 
   li.appendChild(header);
@@ -324,9 +313,15 @@ function _buildNodeEl(
   }
 
   return li;
-}
+};
 
-export function renderSRTree(
+/**
+ * Render a complete SR tree as an interactive DOM structure
+ * @param {SRNode[]} tree - Array of root SR nodes
+ * @param {RenderOptions} opts - Rendering options (expandDepth, etc.)
+ * @return {HTMLElement} - The rendered tree as a DOM element
+ */
+export const renderSRTree = function (
   tree: SRNode[],
   opts: RenderOptions = {}
 ): HTMLElement {
@@ -338,10 +333,16 @@ export function renderSRTree(
     );
   });
   return ul;
-}
+};
 
-export function mountSRViewer(
-  metadata: Record<string, any>,
+/**
+ * Mount a complete SR viewer UI into a container element
+ * @param {MetaData} metadata - The DICOM SR metadata
+ * @param {HTMLElement} containerEl - The DOM element to mount into
+ * @param {RenderOptions} opts - Rendering options
+ */
+export const mountSRViewer = function (
+  metadata: MetaData,
   containerEl: HTMLElement,
   opts: RenderOptions = {}
 ): void {
@@ -349,7 +350,7 @@ export function mountSRViewer(
 
   const { header, tree } = parseSR(metadata);
 
-  //  Header card
+  // Header card
   const headerDiv = document.createElement("div");
   headerDiv.className = "sr-header-card";
 
@@ -387,7 +388,7 @@ export function mountSRViewer(
   headerDiv.appendChild(grid);
   containerEl.appendChild(headerDiv);
 
-  //  Toolbar
+  // Toolbar
   const toolbar = document.createElement("div");
   toolbar.className = "sr-toolbar";
 
@@ -409,11 +410,11 @@ export function mountSRViewer(
   toolbar.appendChild(searchInput);
   containerEl.appendChild(toolbar);
 
-  //  Tree
+  // Tree
   const treeEl = renderSRTree(tree, opts);
   containerEl.appendChild(treeEl);
 
-  //  Empty state
+  // Empty state
   if (!tree || tree.length === 0) {
     const empty = document.createElement("p");
     empty.className = "sr-empty";
@@ -421,7 +422,7 @@ export function mountSRViewer(
     containerEl.appendChild(empty);
   }
 
-  //  Toolbar actions
+  // Toolbar actions
   expandAll.addEventListener("click", () => {
     treeEl.querySelectorAll(".sr-toggle").forEach(t => {
       t.classList.add("sr-open");
@@ -442,7 +443,7 @@ export function mountSRViewer(
     });
   });
 
-  //  Search / filter
+  // Search / filter
   searchInput.addEventListener("input", () => {
     const q = (searchInput as HTMLInputElement).value.trim().toLowerCase();
     treeEl.querySelectorAll(".sr-node").forEach(node => {
@@ -469,14 +470,18 @@ export function mountSRViewer(
       }
     });
   });
-}
+};
 
-//TODO make it customizable
-export function injectSRStyles(): void {
+/**
+ * Inject CSS styles for the SR viewer into the document head
+ * @param {string} customStyles - Optional custom CSS to append or override default styles
+ */
+export const injectSRStyles = function (customStyles?: string): void {
   if (document.getElementById("sr-utils-styles")) return;
   const style = document.createElement("style");
   style.id = "sr-utils-styles";
-  style.textContent = `
+
+  const defaultStyles = `
 .sr-viewer {
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   font-size: 14px;
@@ -557,19 +562,14 @@ export function injectSRStyles(): void {
 .sr-sep   { color: #475569; }
 .sr-value { color: #86efac; font-weight: 500; }
 
-.sr-badge {
-  font-size: 0.62rem; padding: 1px 5px; border-radius: 4px;
-  font-weight: 600; letter-spacing: 0.04em; flex-shrink: 0;
-  vertical-align: middle;
-  background: #1e293b; color: #64748b; border: 1px solid #334155;
-}
-.sr-rel-contains, .sr-rel-mod, .sr-rel-obs,
-.sr-rel-inferred, .sr-rel-prop, .sr-rel-acq,
-.sr-rel-ref { background: #1e293b; color: #64748b; border: 1px solid #334155; }
-
 .sr-empty { color: #64748b; font-style: italic; padding: 1rem; }
 
 .sr-highlight { background: #854d0e; color: #fef3c7; border-radius: 2px; padding: 0 2px; }
 `;
+
+  style.textContent = customStyles
+    ? defaultStyles + "\n\n/* Custom Styles */\n" + customStyles
+    : defaultStyles;
+
   document.head.appendChild(style);
-}
+};
