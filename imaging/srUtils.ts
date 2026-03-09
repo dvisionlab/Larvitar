@@ -4,7 +4,9 @@ import {
   Series,
   SRHeader,
   SRNode,
-  SRParseResult
+  SRParseResult,
+  SRStyleConfig,
+  SRViewerData
 } from "./types";
 
 /**
@@ -91,10 +93,8 @@ const _parseItem = function (
   const relType: string = item.x0040a010 || inheritedRelType || "";
   const valType: string = item.x0040a040 || inheritedValType || "";
 
-  // Concept name
   const label: string = item.x0040a043 ? _codeLabel(item.x0040a043) : "";
 
-  // Value
   let value = "";
   if (valType === "NUM") {
     const numeric = _extractNumericValue(item);
@@ -103,12 +103,11 @@ const _parseItem = function (
       value = unit ? `${numericValue} ${unit}` : String(numericValue);
     }
   } else if (item.x0040a160) {
-    value = item.x0040a160; // TEXT
+    value = item.x0040a160;
   } else if (valType !== "NUM" && item.x0040a168) {
     value = _codeLabel(item.x0040a168);
   }
 
-  // Children from ContentSequence
   const children: SRNode[] = [];
   if (item.x0040a730) {
     const sub = _parseItem(item.x0040a730, relType, valType);
@@ -116,7 +115,6 @@ const _parseItem = function (
     else if (sub) children.push(sub);
   }
 
-  // Referenced images
   if (item.x00081140) {
     const refs: MetaData[] = Array.isArray(item.x00081140)
       ? item.x00081140
@@ -161,7 +159,6 @@ export const parseSR = function (metadata: MetaData): SRParseResult {
       tree: []
     };
 
-  // Header fields
   const header: SRHeader = {
     patientName: metadata.x00100010 || "",
     studyDescription: metadata.x00081030 || "",
@@ -174,10 +171,8 @@ export const parseSR = function (metadata: MetaData): SRParseResult {
       : ""
   };
 
-  // Main content tree
   const roots: SRNode[] = [];
 
-  // x0040a043 – Concept Name (sometimes top-level, treated as a root)
   if (metadata.x0040a043) {
     const topLabel = _codeLabel(metadata.x0040a043);
     const contentSeq = metadata.x0040a730 || [];
@@ -198,14 +193,49 @@ export const parseSR = function (metadata: MetaData): SRParseResult {
   return { header, tree: roots };
 };
 
-const _REL_BADGE: Record<string, { cls: string; short: string }> = {
-  CONTAINS: { cls: "sr-rel-contains", short: "CONTAINS" },
-  "HAS CONCEPT MOD": { cls: "sr-rel-mod", short: "MOD" },
-  "HAS OBS CONTEXT": { cls: "sr-rel-obs", short: "OBS" },
-  "INFERRED FROM": { cls: "sr-rel-inferred", short: "INF" },
-  "HAS PROPERTIES": { cls: "sr-rel-prop", short: "PROP" },
-  "HAS ACQ CONTEXT": { cls: "sr-rel-acq", short: "ACQ" },
-  REFERENCED: { cls: "sr-rel-ref", short: "REF" }
+/**
+ * Calculate metadata about the SR tree
+ */
+const _calculateTreeMetadata = function (tree: SRNode[]): {
+  nodeCount: number;
+  maxDepth: number;
+} {
+  let nodeCount = 0;
+  let maxDepth = 0;
+
+  const traverse = (nodes: SRNode[], depth: number) => {
+    nodeCount += nodes.length;
+    maxDepth = Math.max(maxDepth, depth);
+    nodes.forEach(node => {
+      if (node.children && node.children.length > 0) {
+        traverse(node.children, depth + 1);
+      }
+    });
+  };
+
+  traverse(tree, 1);
+  return { nodeCount, maxDepth };
+};
+
+/**
+ * This function returns pure data without creating DOM elements
+ *
+ * @param {MetaData} metadata - The DICOM SR metadata
+ * @return {SRViewerData} - Structured data for custom rendering
+ */
+export const getSRData = function (metadata: MetaData): SRViewerData {
+  const { header, tree } = parseSR(metadata);
+  const { nodeCount, maxDepth } = _calculateTreeMetadata(tree);
+
+  return {
+    header,
+    tree,
+    metadata: {
+      isEmpty: tree.length === 0,
+      nodeCount,
+      maxDepth
+    }
+  };
 };
 
 const _REL_DESCRIPTOR: Record<string, string> = {
@@ -234,7 +264,6 @@ const _buildNodeEl = function (
   const isContainer = node.valueType === "CONTAINER";
   const startExpanded = depth < expandDepth;
 
-  // Toggle button
   const toggle = document.createElement("span");
   if (!isLeaf) {
     toggle.className = "sr-toggle" + (startExpanded ? " sr-open" : "");
@@ -336,17 +365,16 @@ export const renderSRTree = function (
 };
 
 /**
- * Mount a complete SR viewer UI into a container element
  * @param {MetaData} metadata - The DICOM SR metadata
- * @param {HTMLElement} containerEl - The DOM element to mount into
  * @param {RenderOptions} opts - Rendering options
+ * @return {HTMLElement} - The complete SR viewer DOM element
  */
-export const mountSRViewer = function (
+export const createSRViewer = function (
   metadata: MetaData,
-  containerEl: HTMLElement,
   opts: RenderOptions = {}
-): void {
-  containerEl.innerHTML = "";
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "sr-viewer";
 
   const { header, tree } = parseSR(metadata);
 
@@ -386,7 +414,7 @@ export const mountSRViewer = function (
     grid.appendChild(row);
   });
   headerDiv.appendChild(grid);
-  containerEl.appendChild(headerDiv);
+  container.appendChild(headerDiv);
 
   // Toolbar
   const toolbar = document.createElement("div");
@@ -408,18 +436,18 @@ export const mountSRViewer = function (
   toolbar.appendChild(expandAll);
   toolbar.appendChild(collapseAll);
   toolbar.appendChild(searchInput);
-  containerEl.appendChild(toolbar);
+  container.appendChild(toolbar);
 
   // Tree
   const treeEl = renderSRTree(tree, opts);
-  containerEl.appendChild(treeEl);
+  container.appendChild(treeEl);
 
   // Empty state
   if (!tree || tree.length === 0) {
     const empty = document.createElement("p");
     empty.className = "sr-empty";
     empty.textContent = "No structured report content found.";
-    containerEl.appendChild(empty);
+    container.appendChild(empty);
   }
 
   // Toolbar actions
@@ -457,7 +485,6 @@ export const mountSRViewer = function (
         node.querySelector(".sr-value")?.textContent?.toLowerCase() || "";
       const match = text.includes(q) || val.includes(q);
       (node as HTMLElement).style.display = match ? "" : "none";
-      // Always show ancestor chain when a descendant matches
       if (match) {
         let p = node.parentElement;
         while (p && !p.classList.contains("sr-tree")) {
@@ -470,106 +497,469 @@ export const mountSRViewer = function (
       }
     });
   });
+
+  return container;
+};
+
+/**
+ * Mount a complete SR viewer UI into a container element
+ * @param {MetaData} metadata - The DICOM SR metadata
+ * @param {string} containerElementId - The DOM element to mount into
+ * @param {RenderOptions} opts - Rendering options
+ */
+export const mountSRViewer = function (
+  metadata: MetaData,
+  containerElementId: string,
+  opts: RenderOptions = {}
+): void {
+  const containerEl = document.getElementById(containerElementId);
+  if (!containerEl) {
+    console.error(
+      `Container element with ID '${containerElementId}' not found.`
+    );
+    return;
+  }
+  containerEl.innerHTML = "";
+  const viewer = createSRViewer(metadata, opts);
+  containerEl.appendChild(viewer);
+};
+
+/**
+ * Default style configuration
+ */
+const getDefaultStyles = (): SRStyleConfig => ({
+  container: {
+    fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
+    fontSize: "14px",
+    color: "#e2e8f0",
+    background: "#0f172a",
+    borderRadius: "12px",
+    padding: "1.5rem",
+    minHeight: "200px"
+  },
+  headerCard: {
+    background: "linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%)",
+    border: "1px solid #334155",
+    borderRadius: "10px",
+    padding: "1rem 1.25rem",
+    marginBottom: "1rem"
+  },
+  title: {
+    color: "#38bdf8",
+    fontSize: "1.15rem",
+    fontWeight: "700",
+    margin: "0 0 0.75rem",
+    letterSpacing: "0.02em"
+  },
+  headerGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+    gap: "0.35rem 1.5rem"
+  },
+  headerKey: {
+    color: "#94a3b8",
+    fontSize: "0.78rem",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em"
+  },
+  headerValue: {
+    color: "#f1f5f9",
+    fontWeight: "500"
+  },
+  toolbar: {
+    display: "flex",
+    gap: "0.5rem",
+    alignItems: "center",
+    marginBottom: "0.75rem"
+  },
+  button: {
+    background: "#1e293b",
+    border: "1px solid #334155",
+    color: "#94a3b8",
+    borderRadius: "6px",
+    padding: "0.3rem 0.75rem",
+    fontSize: "0.8rem",
+    cursor: "pointer",
+    hoverBackground: "#334155",
+    hoverColor: "#e2e8f0"
+  },
+  searchInput: {
+    background: "#1e293b",
+    border: "1px solid #334155",
+    color: "#e2e8f0",
+    borderRadius: "6px",
+    padding: "0.3rem 0.75rem",
+    fontSize: "0.82rem",
+    focusBorderColor: "#38bdf8"
+  },
+  tree: {
+    listStyle: "none",
+    margin: "0",
+    padding: "0",
+    paddingLeft: "0"
+  },
+  node: {
+    padding: "2px 0",
+    borderTop: "1px solid #1e293b"
+  },
+  nodeHeader: {
+    display: "inline-flex",
+    gap: "0.35rem",
+    padding: "0.25rem 0.5rem",
+    borderRadius: "6px",
+    hoverBackground: "#1e293b"
+  },
+  containerLabel: {
+    fontWeight: "700",
+    color: "#7dd3fc",
+    fontSize: "0.95rem"
+  },
+  toggle: {
+    width: "1.1rem",
+    height: "1.1rem",
+    color: "#38bdf8",
+    fontSize: "0.7rem",
+    cursor: "pointer",
+    borderRadius: "3px",
+    hoverBackground: "#1e3a5f"
+  },
+  bullet: {
+    width: "1.1rem",
+    height: "1.1rem",
+    color: "#64748b",
+    fontSize: "0.7rem"
+  },
+  icon: {
+    fontSize: "0.85rem"
+  },
+  descriptor: {
+    color: "#94a3b8",
+    fontWeight: "600",
+    fontSize: "0.82rem",
+    fontStyle: "italic"
+  },
+  label: {
+    color: "#cbd5e1"
+  },
+  separator: {
+    color: "#475569"
+  },
+  value: {
+    color: "#86efac",
+    fontWeight: "500"
+  },
+  empty: {
+    color: "#64748b",
+    fontStyle: "italic",
+    padding: "1rem"
+  }
+});
+
+/**
+ * Generate CSS from style configuration
+ */
+const _generateCSS = (config: SRStyleConfig): string => {
+  const defaults = getDefaultStyles();
+  const merged = { ...defaults, ...config };
+
+  const css: string[] = [];
+
+  if (merged.container) {
+    const c = merged.container;
+    css.push(`.sr-viewer {
+  ${c.fontFamily ? `font-family: ${c.fontFamily};` : ""}
+  ${c.fontSize ? `font-size: ${c.fontSize};` : ""}
+  ${c.color ? `color: ${c.color};` : ""}
+  ${c.background ? `background: ${c.background};` : ""}
+  ${c.borderRadius ? `border-radius: ${c.borderRadius};` : ""}
+  ${c.padding ? `padding: ${c.padding};` : ""}
+  ${c.minHeight ? `min-height: ${c.minHeight};` : ""}
+  overflow: auto;
+}`);
+  }
+
+  // Header Card
+  if (merged.headerCard) {
+    const h = merged.headerCard;
+    css.push(`.sr-header-card {
+  ${h.background ? `background: ${h.background};` : ""}
+  ${h.border ? `border: ${h.border};` : ""}
+  ${h.borderRadius ? `border-radius: ${h.borderRadius};` : ""}
+  ${h.padding ? `padding: ${h.padding};` : ""}
+  ${h.marginBottom ? `margin-bottom: ${h.marginBottom};` : ""}
+}`);
+  }
+
+  // Title
+  if (merged.title) {
+    const t = merged.title;
+    css.push(`.sr-title {
+  ${t.color ? `color: ${t.color};` : ""}
+  ${t.fontSize ? `font-size: ${t.fontSize};` : ""}
+  ${t.fontWeight ? `font-weight: ${t.fontWeight};` : ""}
+  ${t.margin ? `margin: ${t.margin};` : ""}
+  ${t.letterSpacing ? `letter-spacing: ${t.letterSpacing};` : ""}
+}`);
+  }
+
+  // Header Grid
+  if (merged.headerGrid) {
+    const g = merged.headerGrid;
+    css.push(`.sr-header-grid {
+  ${g.display ? `display: ${g.display};` : ""}
+  ${g.gridTemplateColumns ? `grid-template-columns: ${g.gridTemplateColumns};` : ""}
+  ${g.gap ? `gap: ${g.gap};` : ""}
+}`);
+  }
+
+  css.push(
+    `.sr-header-row { display: flex; gap: 0.5rem; align-items: baseline; }`
+  );
+
+  // Header Key
+  if (merged.headerKey) {
+    const k = merged.headerKey;
+    css.push(`.sr-header-key {
+  ${k.color ? `color: ${k.color};` : ""}
+  ${k.fontSize ? `font-size: ${k.fontSize};` : ""}
+  ${k.textTransform ? `text-transform: ${k.textTransform};` : ""}
+  ${k.letterSpacing ? `letter-spacing: ${k.letterSpacing};` : ""}
+  white-space: nowrap;
+}`);
+  }
+
+  // Header Value
+  if (merged.headerValue) {
+    const v = merged.headerValue;
+    css.push(`.sr-header-val {
+  ${v.color ? `color: ${v.color};` : ""}
+  ${v.fontWeight ? `font-weight: ${v.fontWeight};` : ""}
+}`);
+  }
+
+  // Toolbar
+  if (merged.toolbar) {
+    const t = merged.toolbar;
+    css.push(`.sr-toolbar {
+  ${t.display ? `display: ${t.display};` : ""}
+  ${t.gap ? `gap: ${t.gap};` : ""}
+  ${t.alignItems ? `align-items: ${t.alignItems};` : ""}
+  ${t.marginBottom ? `margin-bottom: ${t.marginBottom};` : ""}
+  flex-wrap: wrap;
+}`);
+  }
+
+  // Button
+  if (merged.button) {
+    const b = merged.button;
+    css.push(`.sr-btn {
+  ${b.background ? `background: ${b.background};` : ""}
+  ${b.border ? `border: ${b.border};` : ""}
+  ${b.color ? `color: ${b.color};` : ""}
+  ${b.borderRadius ? `border-radius: ${b.borderRadius};` : ""}
+  ${b.padding ? `padding: ${b.padding};` : ""}
+  ${b.fontSize ? `font-size: ${b.fontSize};` : ""}
+  ${b.cursor ? `cursor: ${b.cursor};` : ""}
+  transition: background 0.15s, color 0.15s;
+}`);
+    if (b.hoverBackground || b.hoverColor) {
+      css.push(`.sr-btn:hover {
+  ${b.hoverBackground ? `background: ${b.hoverBackground};` : ""}
+  ${b.hoverColor ? `color: ${b.hoverColor};` : ""}
+}`);
+    }
+  }
+
+  // Search Input
+  if (merged.searchInput) {
+    const s = merged.searchInput;
+    css.push(`.sr-search {
+  ${s.background ? `background: ${s.background};` : ""}
+  ${s.border ? `border: ${s.border};` : ""}
+  ${s.color ? `color: ${s.color};` : ""}
+  ${s.borderRadius ? `border-radius: ${s.borderRadius};` : ""}
+  ${s.padding ? `padding: ${s.padding};` : ""}
+  ${s.fontSize ? `font-size: ${s.fontSize};` : ""}
+  outline: none;
+  flex: 1;
+  min-width: 160px;
+  transition: border-color 0.15s;
+}`);
+    if (s.focusBorderColor) {
+      css.push(`.sr-search:focus { border-color: ${s.focusBorderColor}; }`);
+    }
+  }
+
+  // Tree
+  if (merged.tree) {
+    const t = merged.tree;
+    css.push(`.sr-tree, .sr-children {
+  ${t.listStyle ? `list-style: ${t.listStyle};` : ""}
+  ${t.margin ? `margin: ${t.margin};` : ""}
+  padding: 0 0 0 1.4rem;
+}`);
+    css.push(
+      `.sr-tree { ${t.paddingLeft ? `padding-left: ${t.paddingLeft};` : "padding-left: 0;"} }`
+    );
+  }
+
+  css.push(`.sr-hidden { display: none; }`);
+
+  // Node
+  if (merged.node) {
+    const n = merged.node;
+    css.push(`.sr-node {
+  ${n.padding ? `padding: ${n.padding};` : ""}
+  position: relative;
+}`);
+    if (n.borderTop) {
+      css.push(`.sr-node + .sr-node { border-top: ${n.borderTop}; }`);
+    }
+  }
+
+  // Node Header
+  if (merged.nodeHeader) {
+    const h = merged.nodeHeader;
+    css.push(`.sr-node-header {
+  ${h.display ? `display: ${h.display};` : ""}
+  align-items: center;
+  ${h.gap ? `gap: ${h.gap};` : ""}
+  ${h.padding ? `padding: ${h.padding};` : ""}
+  ${h.borderRadius ? `border-radius: ${h.borderRadius};` : ""}
+  transition: background 0.12s;
+  max-width: calc(100% - 1.6rem);
+  flex-wrap: wrap;
+}`);
+    if (h.hoverBackground) {
+      css.push(`.sr-node-header:hover { background: ${h.hoverBackground}; }`);
+    }
+  }
+
+  // Container Label
+  if (merged.containerLabel) {
+    const c = merged.containerLabel;
+    css.push(`.sr-container > .sr-label {
+  ${c.fontWeight ? `font-weight: ${c.fontWeight};` : ""}
+  ${c.color ? `color: ${c.color};` : ""}
+  ${c.fontSize ? `font-size: ${c.fontSize};` : ""}
+}`);
+  }
+
+  // Toggle & Bullet
+  const toggleBullet = `display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: color 0.12s;`;
+
+  if (merged.toggle) {
+    const t = merged.toggle;
+    css.push(`.sr-toggle {
+  ${toggleBullet}
+  ${t.width ? `width: ${t.width};` : ""}
+  ${t.height ? `height: ${t.height};` : ""}
+  ${t.color ? `color: ${t.color};` : ""}
+  ${t.fontSize ? `font-size: ${t.fontSize};` : ""}
+  ${t.cursor ? `cursor: ${t.cursor};` : ""}
+  ${t.borderRadius ? `border-radius: ${t.borderRadius};` : ""}
+}`);
+    if (t.hoverBackground) {
+      css.push(`.sr-toggle:hover { background: ${t.hoverBackground}; }`);
+    }
+  }
+
+  if (merged.bullet) {
+    const b = merged.bullet;
+    css.push(`.sr-bullet {
+  ${toggleBullet}
+  ${b.width ? `width: ${b.width};` : ""}
+  ${b.height ? `height: ${b.height};` : ""}
+  ${b.color ? `color: ${b.color};` : ""}
+  ${b.fontSize ? `font-size: ${b.fontSize};` : ""}
+  cursor: default;
+}`);
+  }
+
+  // Icon
+  if (merged.icon) {
+    css.push(`.sr-icon {
+  ${merged.icon.fontSize ? `font-size: ${merged.icon.fontSize};` : ""}
+  flex-shrink: 0;
+}`);
+  }
+
+  // Descriptor
+  if (merged.descriptor) {
+    const d = merged.descriptor;
+    css.push(`.sr-descriptor {
+  ${d.color ? `color: ${d.color};` : ""}
+  ${d.fontWeight ? `font-weight: ${d.fontWeight};` : ""}
+  ${d.fontSize ? `font-size: ${d.fontSize};` : ""}
+  ${d.fontStyle ? `font-style: ${d.fontStyle};` : ""}
+}`);
+  }
+
+  // Label
+  if (merged.label) {
+    css.push(
+      `.sr-label { ${merged.label.color ? `color: ${merged.label.color};` : ""} }`
+    );
+  }
+
+  // Separator
+  if (merged.separator) {
+    css.push(
+      `.sr-sep { ${merged.separator.color ? `color: ${merged.separator.color};` : ""} }`
+    );
+  }
+
+  // Value
+  if (merged.value) {
+    const v = merged.value;
+    css.push(`.sr-value {
+  ${v.color ? `color: ${v.color};` : ""}
+  ${v.fontWeight ? `font-weight: ${v.fontWeight};` : ""}
+}`);
+  }
+
+  // Empty
+  if (merged.empty) {
+    const e = merged.empty;
+    css.push(`.sr-empty {
+  ${e.color ? `color: ${e.color};` : ""}
+  ${e.fontStyle ? `font-style: ${e.fontStyle};` : ""}
+  ${e.padding ? `padding: ${e.padding};` : ""}
+}`);
+  }
+
+  return css.join("\n\n");
 };
 
 /**
  * Inject CSS styles for the SR viewer into the document head
- * @param {string} customStyles - Optional custom CSS to append or override default styles
+ * @param {SRStyleConfig} styleConfig - Optional style configuration object
  */
-export const injectSRStyles = function (customStyles?: string): void {
-  if (document.getElementById("sr-utils-styles")) return;
+export const injectSRStyles = function (styleConfig?: SRStyleConfig): void {
+  if (document.getElementById("sr-utils-styles")) {
+    // Update existing styles
+    const existingStyle = document.getElementById("sr-utils-styles");
+    if (existingStyle && styleConfig) {
+      existingStyle.textContent = _generateCSS(styleConfig);
+    }
+    return;
+  }
+
   const style = document.createElement("style");
   style.id = "sr-utils-styles";
-
-  const defaultStyles = `
-.sr-viewer {
-  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-  font-size: 14px;
-  color: #e2e8f0;
-  background: #0f172a;
-  border-radius: 12px;
-  padding: 1.5rem;
-  min-height: 200px;
-  overflow: auto;
-}
-
-.sr-header-card {
-  background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
-  border: 1px solid #334155;
-  border-radius: 10px;
-  padding: 4rem 1.25rem;
-  margin-bottom: 1rem;
-}
-.sr-title {
-  color: #38bdf8;
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin: 0 0 0.75rem;
-  letter-spacing: 0.02em;
-}
-.sr-header-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.35rem 1.5rem; }
-.sr-header-row  { display: flex; gap: 0.5rem; align-items: baseline; }
-.sr-header-key  { color: #94a3b8; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
-.sr-header-val  { color: #f1f5f9; font-weight: 500; }
-
-.sr-toolbar { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; }
-.sr-btn {
-  background: #1e293b; border: 1px solid #334155; color: #94a3b8;
-  border-radius: 6px; padding: 0.3rem 0.75rem; font-size: 0.8rem;
-  cursor: pointer; transition: background 0.15s, color 0.15s;
-}
-.sr-btn:hover { background: #334155; color: #e2e8f0; }
-.sr-search {
-  background: #1e293b; border: 1px solid #334155; color: #e2e8f0;
-  border-radius: 6px; padding: 0.3rem 0.75rem; font-size: 0.82rem;
-  outline: none; flex: 1; min-width: 160px; transition: border-color 0.15s;
-}
-.sr-search:focus { border-color: #38bdf8; }
-
-.sr-tree, .sr-children { list-style: none; margin: 0; padding: 0 0 0 1.4rem; }
-.sr-tree { padding-left: 0; }
-.sr-hidden { display: none; }
-.sr-node { padding: 2px 0; position: relative; }
-.sr-node + .sr-node { border-top: 1px solid #1e293b; }
-
-.sr-node-header {
-  display: inline-flex; align-items: center; gap: 0.35rem;
-  padding: 0.25rem 0.5rem; border-radius: 6px;
-  transition: background 0.12s;
-  max-width: calc(100% - 1.6rem);
-  flex-wrap: wrap;
-}
-.sr-node-header:hover { background: #1e293b; }
-.sr-container > .sr-label { font-weight: 700; color: #7dd3fc; font-size: 0.95rem; }
-
-.sr-toggle, .sr-bullet {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 1.1rem; height: 1.1rem; color: #64748b;
-  font-size: 0.7rem; cursor: default; flex-shrink: 0; border-radius: 3px;
-  transition: color 0.12s;
-}
-.sr-toggle { cursor: pointer; color: #38bdf8; }
-.sr-toggle:hover { background: #1e3a5f; }
-
-.sr-icon { font-size: 0.85rem; flex-shrink: 0; }
-.sr-descriptor { 
-  color: #94a3b8; 
-  font-weight: 600; 
-  font-size: 0.82rem;
-  font-style: italic;
-}
-.sr-label { color: #cbd5e1; }
-.sr-sep   { color: #475569; }
-.sr-value { color: #86efac; font-weight: 500; }
-
-.sr-empty { color: #64748b; font-style: italic; padding: 1rem; }
-
-.sr-highlight { background: #854d0e; color: #fef3c7; border-radius: 2px; padding: 0 2px; }
-`;
-
-  style.textContent = customStyles
-    ? defaultStyles + "\n\n/* Custom Styles */\n" + customStyles
-    : defaultStyles;
-
+  style.textContent = _generateCSS(styleConfig || {});
   document.head.appendChild(style);
+};
+
+/**
+ * Update existing SR styles without full re-injection
+ * @param {SRStyleConfig} styleConfig - Style configuration to apply
+ */
+export const updateSRStyles = function (styleConfig: SRStyleConfig): void {
+  const existingStyle = document.getElementById("sr-utils-styles");
+  if (existingStyle) {
+    existingStyle.textContent = _generateCSS(styleConfig);
+  } else {
+    injectSRStyles(styleConfig);
+  }
 };

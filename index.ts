@@ -77,7 +77,9 @@ import {
   parseSR,
   renderSRTree,
   mountSRViewer,
-  injectSRStyles
+  injectSRStyles,
+  createSRViewer,
+  getSRData
 } from "./imaging/srUtils";
 
 import {
@@ -346,6 +348,8 @@ export {
   renderSRTree,
   mountSRViewer,
   injectSRStyles,
+  createSRViewer,
+  getSRData,
   // imagePresets
   getImagePresets,
   setImagePreset,

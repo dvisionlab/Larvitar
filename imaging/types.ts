@@ -434,3 +434,141 @@ export interface SRParseResult {
 export interface RenderOptions {
   expandDepth?: number;
 }
+
+export interface SRStyleConfig {
+  container?: {
+    fontFamily?: string;
+    fontSize?: string;
+    color?: string;
+    background?: string;
+    borderRadius?: string;
+    padding?: string;
+    minHeight?: string;
+  };
+  headerCard?: {
+    background?: string;
+    border?: string;
+    borderRadius?: string;
+    padding?: string;
+    marginBottom?: string;
+  };
+  title?: {
+    color?: string;
+    fontSize?: string;
+    fontWeight?: string;
+    margin?: string;
+    letterSpacing?: string;
+  };
+  headerGrid?: {
+    display?: string;
+    gridTemplateColumns?: string;
+    gap?: string;
+  };
+  headerKey?: {
+    color?: string;
+    fontSize?: string;
+    textTransform?: string;
+    letterSpacing?: string;
+  };
+  headerValue?: {
+    color?: string;
+    fontWeight?: string;
+  };
+  toolbar?: {
+    display?: string;
+    gap?: string;
+    alignItems?: string;
+    marginBottom?: string;
+  };
+  button?: {
+    background?: string;
+    border?: string;
+    color?: string;
+    borderRadius?: string;
+    padding?: string;
+    fontSize?: string;
+    cursor?: string;
+    hoverBackground?: string;
+    hoverColor?: string;
+  };
+  searchInput?: {
+    background?: string;
+    border?: string;
+    color?: string;
+    borderRadius?: string;
+    padding?: string;
+    fontSize?: string;
+    focusBorderColor?: string;
+  };
+  tree?: {
+    listStyle?: string;
+    margin?: string;
+    padding?: string;
+    paddingLeft?: string;
+  };
+  node?: {
+    padding?: string;
+    borderTop?: string;
+  };
+  nodeHeader?: {
+    display?: string;
+    gap?: string;
+    padding?: string;
+    borderRadius?: string;
+    hoverBackground?: string;
+  };
+  containerLabel?: {
+    fontWeight?: string;
+    color?: string;
+    fontSize?: string;
+  };
+  toggle?: {
+    width?: string;
+    height?: string;
+    color?: string;
+    fontSize?: string;
+    cursor?: string;
+    borderRadius?: string;
+    hoverBackground?: string;
+  };
+  bullet?: {
+    width?: string;
+    height?: string;
+    color?: string;
+    fontSize?: string;
+  };
+  icon?: {
+    fontSize?: string;
+  };
+  descriptor?: {
+    color?: string;
+    fontWeight?: string;
+    fontSize?: string;
+    fontStyle?: string;
+  };
+  label?: {
+    color?: string;
+  };
+  separator?: {
+    color?: string;
+  };
+  value?: {
+    color?: string;
+    fontWeight?: string;
+  };
+  empty?: {
+    color?: string;
+    fontStyle?: string;
+    padding?: string;
+  };
+}
+
+export interface SRViewerData {
+  header: SRHeader;
+  tree: SRNode[];
+  metadata: {
+    isEmpty: boolean;
+    nodeCount: number;
+    maxDepth: number;
+  };
+}

@@ -191,7 +191,7 @@ if (larvitar.isSR(serie)) {
             ? serie.instances[firstId].metadata
             : serie.metadata || {};
 
-        larvitar.mountSRViewer(meta, srPanel, { expandDepth: 2 });
+        larvitar.mountSRViewer(meta, "sr-panel", { expandDepth: 2 });
         dropHint.style.display = "none";
       }
 
