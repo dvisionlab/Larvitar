@@ -278,7 +278,7 @@ mountSRViewer (
 
 #### Returns
 
-`void` – Mounts a complete SR viewer with header card, toolbar (Expand All, Collapse All, Search), and interactive tree
+`void` – Mounts a complete SR viewer with header card, toolbar (Expand All, Collapse All, Search, Print), and interactive tree
 
 ---
 
