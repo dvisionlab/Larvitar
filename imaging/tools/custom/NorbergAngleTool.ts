@@ -22,6 +22,7 @@ const drawLinkedTextBox = cornerstoneTools.importInternal(
 
 //internal imports
 import { logger } from "../../../logger";
+import { Coords, EventData, MeasurementData } from "../types";
 
 /**
  * @public
@@ -32,7 +33,9 @@ import { logger } from "../../../logger";
  * @extends Tools.Base.BaseAnnotationTool
  */
 export default class NorbergAngleTool extends BaseAnnotationTool {
-  constructor(props = {}) {
+  configuration: any;
+
+  constructor(props: any = {}) {
     const defaultProps = {
       name: "NorbergAngle",
       supportedInteractionTypes: ["Mouse", "Touch"],
@@ -57,7 +60,7 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110);
   }
 
-  createNewMeasurement(eventData) {
+  createNewMeasurement(eventData: EventData): MeasurementData | undefined {
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
@@ -69,7 +72,7 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
       return;
     }
 
-    const { x, y } = eventData.currentPoints.image;
+    const { x, y } = eventData.currentPoints!.image!;
 
     return {
       visible: true,
@@ -108,12 +111,12 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
           movesIndependently: false,
           drawnIndependently: true,
           allowedOutsideImage: true,
-          hasBoundingBox: true
+          hasBoundingBox: true,
+          x,
+          y
         }
       },
       // Store angle data
-      startAngle: 0,
-      endAngle: 0,
       startSegmentAngle: this.configuration.defaultAngle,
       endSegmentAngle: this.configuration.defaultAngle,
       startAngleCustomized: false,
@@ -125,9 +128,13 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
     };
   }
 
-  pointNearTool(element, data, coords) {
+  pointNearTool(
+    element: HTMLElement,
+    data: MeasurementData,
+    coords: Coords
+  ): boolean {
     const hasStartAndEndHandles =
-      data && data.handles && data.handles.start && data.handles.end;
+      data && data.handles && data.handles.start! && data.handles.end!;
     const validParameters = hasStartAndEndHandles;
 
     if (!validParameters) {
@@ -143,91 +150,95 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
     }
 
     const nearMainLine =
-      lineSegDistance(element, data.handles.start, data.handles.end, coords) <
-      40;
+      lineSegDistance(element, data.handles.start!, data.handles.end!, coords) <
+      10;
 
     const nearStartSegment =
       lineSegDistance(
         element,
-        data.handles.start,
-        data.handles.startAngleHandle,
+        data.handles.start!,
+        data.handles.startAngleHandle!,
         coords
-      ) < 40;
+      ) < 10;
 
     const nearEndSegment =
       lineSegDistance(
         element,
-        data.handles.end,
-        data.handles.endAngleHandle,
+        data.handles.end!,
+        data.handles.endAngleHandle!,
         coords
-      ) < 40;
+      ) < 10;
 
     return nearMainLine || nearStartSegment || nearEndSegment;
   }
 
-  updateCachedStats(image, element, data) {
+  updateCachedStats(
+    image: any,
+    element: HTMLElement,
+    data: MeasurementData
+  ): void {
     const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
     const { segmentLength } = this.configuration;
 
     const dx =
-      (data.handles.end.x - data.handles.start.x) * (colPixelSpacing || 1);
+      (data.handles.end!.x - data.handles.start!.x) * (colPixelSpacing || 1);
     const dy =
-      (data.handles.end.y - data.handles.start.y) * (rowPixelSpacing || 1);
+      (data.handles.end!.y - data.handles.start!.y) * (rowPixelSpacing || 1);
 
     const length = Math.sqrt(dx * dx + dy * dy);
 
     const mainAngleRadians = Math.atan2(
-      data.handles.end.y - data.handles.start.y,
-      data.handles.end.x - data.handles.start.x
+      data.handles.end!.y - data.handles.start!.y,
+      data.handles.end!.x - data.handles.start!.x
     );
 
     const targetAngleDeg = 80;
     const targetAngleRad = (targetAngleDeg * Math.PI) / 180;
 
-    if (data.handles.startAngleHandle.active === true) {
+    if (data.handles.startAngleHandle!.active === true) {
       data.startAngleCustomized = true;
       data.startSegmentCustomized = true;
 
-      const dx = data.handles.startAngleHandle.x - data.handles.start.x;
-      const dy = data.handles.startAngleHandle.y - data.handles.start.y;
+      const dx = data.handles.startAngleHandle!.x - data.handles.start!.x;
+      const dy = data.handles.startAngleHandle!.y - data.handles.start!.y;
       data.startSegmentLength = Math.sqrt(dx * dx + dy * dy);
 
       const currentRad = Math.atan2(
-        data.handles.startAngleHandle.y - data.handles.start.y,
-        data.handles.startAngleHandle.x - data.handles.start.x
+        data.handles.startAngleHandle!.y - data.handles.start!.y,
+        data.handles.startAngleHandle!.x - data.handles.start!.x
       );
       data.startSegmentAngle =
         ((currentRad - mainAngleRadians) * 180) / Math.PI;
     } else if (!data.startAngleCustomized && !data.startSegmentCustomized) {
       const useSegmentLength = segmentLength;
       const startSegmentRad = mainAngleRadians - targetAngleRad;
-      data.handles.startAngleHandle.x =
-        data.handles.start.x + useSegmentLength * Math.cos(startSegmentRad);
-      data.handles.startAngleHandle.y =
-        data.handles.start.y + useSegmentLength * Math.sin(startSegmentRad);
+      data.handles.startAngleHandle!.x =
+        data.handles.start!.x + useSegmentLength * Math.cos(startSegmentRad);
+      data.handles.startAngleHandle!.y =
+        data.handles.start!.y + useSegmentLength * Math.sin(startSegmentRad);
       data.startSegmentAngle = targetAngleDeg;
       data.startSegmentLength = useSegmentLength;
     } else {
       const useSegmentLength = data.startSegmentLength || segmentLength;
-      const storedAngleRad = (data.startSegmentAngle * Math.PI) / 180;
+      const storedAngleRad = (data.startSegmentAngle! * Math.PI) / 180;
       const startSegmentRad = mainAngleRadians + storedAngleRad;
-      data.handles.startAngleHandle.x =
-        data.handles.start.x + useSegmentLength * Math.cos(startSegmentRad);
-      data.handles.startAngleHandle.y =
-        data.handles.start.y + useSegmentLength * Math.sin(startSegmentRad);
+      data.handles.startAngleHandle!.x =
+        data.handles.start!.x + useSegmentLength * Math.cos(startSegmentRad);
+      data.handles.startAngleHandle!.y =
+        data.handles.start!.y + useSegmentLength * Math.sin(startSegmentRad);
     }
 
-    if (data.handles.endAngleHandle.active === true) {
+    if (data.handles.endAngleHandle!.active === true) {
       data.endAngleCustomized = true;
       data.endSegmentCustomized = true;
 
-      const dx = data.handles.endAngleHandle.x - data.handles.end.x;
-      const dy = data.handles.endAngleHandle.y - data.handles.end.y;
+      const dx = data.handles.endAngleHandle!.x - data.handles.end!.x;
+      const dy = data.handles.endAngleHandle!.y - data.handles.end!.y;
       data.endSegmentLength = Math.sqrt(dx * dx + dy * dy);
 
       const currentRad = Math.atan2(
-        data.handles.endAngleHandle.y - data.handles.end.y,
-        data.handles.endAngleHandle.x - data.handles.end.x
+        data.handles.endAngleHandle!.y - data.handles.end!.y,
+        data.handles.endAngleHandle!.x - data.handles.end!.x
       );
       const oppositeAngleRad = mainAngleRadians + Math.PI;
       data.endSegmentAngle = ((oppositeAngleRad - currentRad) * 180) / Math.PI;
@@ -235,21 +246,21 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
       const useSegmentLength = segmentLength;
       const oppositeAngleRad = mainAngleRadians - Math.PI;
       const endSegmentRad = oppositeAngleRad + targetAngleRad;
-      data.handles.endAngleHandle.x =
-        data.handles.end.x + useSegmentLength * Math.cos(endSegmentRad);
-      data.handles.endAngleHandle.y =
-        data.handles.end.y + useSegmentLength * Math.sin(endSegmentRad);
+      data.handles.endAngleHandle!.x =
+        data.handles.end!.x + useSegmentLength * Math.cos(endSegmentRad);
+      data.handles.endAngleHandle!.y =
+        data.handles.end!.y + useSegmentLength * Math.sin(endSegmentRad);
       data.endSegmentAngle = targetAngleDeg;
       data.endSegmentLength = useSegmentLength;
     } else {
       const useSegmentLength = data.endSegmentLength || segmentLength;
       const oppositeAngleRad = mainAngleRadians + Math.PI;
-      const storedAngleRad = (data.endSegmentAngle * Math.PI) / 180;
+      const storedAngleRad = (data.endSegmentAngle! * Math.PI) / 180;
       const endSegmentRad = oppositeAngleRad - storedAngleRad;
-      data.handles.endAngleHandle.x =
-        data.handles.end.x + useSegmentLength * Math.cos(endSegmentRad);
-      data.handles.endAngleHandle.y =
-        data.handles.end.y + useSegmentLength * Math.sin(endSegmentRad);
+      data.handles.endAngleHandle!.x =
+        data.handles.end!.x + useSegmentLength * Math.cos(endSegmentRad);
+      data.handles.endAngleHandle!.y =
+        data.handles.end!.y + useSegmentLength * Math.sin(endSegmentRad);
     }
 
     data.length = length;
@@ -257,12 +268,13 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
   }
 
   drawAngleArc(
-    context,
-    centerPoint,
-    startAngleDegrees,
-    endAngleDegrees,
-    radius,
-    color
+    context: CanvasRenderingContext2D,
+    centerPoint: Coords,
+    startAngleDegrees: number,
+    endAngleDegrees: number,
+    radius: number,
+    color: string,
+    counterClockwise = false
   ) {
     context.save();
     context.strokeStyle = color;
@@ -272,12 +284,6 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
     const endRad = (endAngleDegrees * Math.PI) / 180;
 
     context.beginPath();
-
-    let angleDiff = endAngleDegrees - startAngleDegrees;
-    if (angleDiff < 0) angleDiff += 360;
-
-    const counterClockwise = angleDiff > 180;
-
     context.arc(
       centerPoint.x,
       centerPoint.y,
@@ -287,17 +293,25 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
       counterClockwise
     );
     context.stroke();
-
     context.restore();
   }
 
-  drawAngleLabel(context, point, angle, labelAngle, distance, color) {
+  drawAngleLabel(
+    context: CanvasRenderingContext2D,
+    point: Coords,
+    angle: number,
+    labelAngle: number,
+    distance: number,
+    color: string
+  ): void {
     context.save();
     context.font = "14px Arial";
     context.fillStyle = color;
 
     let displayAngle = Math.abs(angle);
-    const angleText = `${displayAngle.toFixed(1)}°`;
+    let complementaryAngle = 360 - displayAngle;
+
+    const angleText = `${displayAngle.toFixed(1)}° / ${complementaryAngle.toFixed(1)}°`;
     const textMetrics = context.measureText(angleText);
 
     const labelAngleRad = (labelAngle * Math.PI) / 180;
@@ -320,7 +334,7 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
     context.restore();
   }
 
-  renderToolData(evt) {
+  renderToolData(evt: any): void {
     const eventData = evt.detail;
     const {
       handleRadius,
@@ -347,17 +361,17 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
     const lineDash = getModule("globalConfiguration").configuration.lineDash;
 
     for (let i = 0; i < toolData.data.length; i++) {
-      const data = toolData.data[i];
+      const data: MeasurementData = toolData.data[i];
 
       if (data.visible === false) {
         continue;
       }
 
-      draw(context, context => {
+      draw(context, (context: CanvasRenderingContext2D) => {
         setShadow(context, this.configuration);
 
         const color = toolColors.getColorIfActive(data);
-        const lineOptions = { color };
+        const lineOptions: any = { color };
 
         if (renderDashed) {
           lineOptions.lineDash = lineDash;
@@ -370,24 +384,24 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
         drawLine(
           context,
           element,
-          data.handles.start,
-          data.handles.end,
+          data.handles.start!,
+          data.handles.end!,
           lineOptions
         );
 
         drawLine(
           context,
           element,
-          data.handles.start,
-          data.handles.startAngleHandle,
+          data.handles.start!,
+          data.handles.startAngleHandle!,
           { color, lineWidth: 2 }
         );
 
         drawLine(
           context,
           element,
-          data.handles.end,
-          data.handles.endAngleHandle,
+          data.handles.end!,
+          data.handles.endAngleHandle!,
           { color, lineWidth: 2 }
         );
 
@@ -398,19 +412,19 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
         ) {
           const startCanvas = cornerstone.pixelToCanvas(
             element,
-            data.handles.start
+            data.handles.start!
           );
           const endCanvas = cornerstone.pixelToCanvas(
             element,
-            data.handles.end
+            data.handles.end!
           );
           const startAngleHandleCanvas = cornerstone.pixelToCanvas(
             element,
-            data.handles.startAngleHandle
+            data.handles.startAngleHandle!
           );
           const endAngleHandleCanvas = cornerstone.pixelToCanvas(
             element,
-            data.handles.endAngleHandle
+            data.handles.endAngleHandle!
           );
 
           const mainLineAngleStart =
@@ -445,7 +459,18 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
             mainLineAngleStart,
             segmentAngleStart,
             angleArcRadius,
-            color
+            color,
+            false // counterClockwise
+          );
+
+          this.drawAngleArc(
+            context,
+            startCanvas,
+            mainLineAngleStart,
+            segmentAngleStart,
+            angleArcRadius,
+            color,
+            true // counterClockwise
           );
 
           this.drawAngleArc(
@@ -454,7 +479,18 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
             mainLineAngleEnd,
             segmentAngleEnd,
             angleArcRadius,
-            color
+            color,
+            false // counterClockwise
+          );
+
+          this.drawAngleArc(
+            context,
+            endCanvas,
+            mainLineAngleEnd,
+            segmentAngleEnd,
+            angleArcRadius,
+            color,
+            true // counterClockwise
           );
 
           const startLabelAngle = (mainLineAngleStart + segmentAngleStart) / 2;
@@ -490,19 +526,20 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
           drawHandles(context, eventData, data.handles, handleOptions);
         }
 
-        if (!data.handles.textBox.hasMoved) {
+        if (!data.handles.textBox!.hasMoved) {
           const coords = {
-            x: Math.max(data.handles.start.x, data.handles.end.x)
+            x: Math.max(data.handles.start!.x, data.handles.end!.x),
+            y: 0
           };
 
-          if (coords.x === data.handles.start.x) {
-            coords.y = data.handles.start.y;
+          if (coords.x === data.handles.start!.x) {
+            coords.y = data.handles.start!.y;
           } else {
-            coords.y = data.handles.end.y;
+            coords.y = data.handles.end!.y;
           }
 
-          data.handles.textBox.x = coords.x;
-          data.handles.textBox.y = coords.y;
+          data.handles.textBox!.x = coords.x;
+          data.handles.textBox!.y = coords.y;
         }
 
         const xOffset = 10;
@@ -529,7 +566,12 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
       });
     }
 
-    function textBoxText(annotation, rowPixelSpacing, colPixelSpacing, digits) {
+    function textBoxText(
+      annotation: MeasurementData,
+      rowPixelSpacing: number,
+      colPixelSpacing: number,
+      digits: number
+    ): string {
       const measuredValue = _sanitizeMeasuredValue(annotation.length);
 
       if (!measuredValue) {
@@ -547,18 +589,21 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
       return `${measuredValue.toFixed(digits)} ${suffix}`;
     }
 
-    function textBoxAnchorPoints(handles) {
+    function textBoxAnchorPoints(
+      handles: MeasurementData["handles"]
+    ): Coords[] {
       const midpoint = {
-        x: (handles.start.x + handles.end.x) / 2,
-        y: (handles.start.y + handles.end.y) / 2
+        x: (handles.start!.x + handles.end!.x) / 2,
+        y: (handles.start!.y + handles.end!.y) / 2
       };
 
-      return [handles.start, midpoint, handles.end];
+      return [handles.start!, midpoint, handles.end!];
     }
   }
 }
 
-function _sanitizeMeasuredValue(value) {
+function _sanitizeMeasuredValue(value: number | undefined): number | undefined {
+  if (value === undefined) return undefined;
   const parsedValue = Number(value);
   const isNumber = !isNaN(parsedValue);
 

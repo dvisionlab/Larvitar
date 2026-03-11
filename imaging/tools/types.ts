@@ -390,6 +390,14 @@ export type PixelSpacing = {
   colPixelSpacing: number;
 };
 export interface MeasurementData {
+  startSegmentAngle?: number;
+  startSegmentLength?: number;
+  endSegmentAngle?: number;
+  endSegmentLength?: number;
+  endAngleCustomized?: boolean;
+  endSegmentCustomized?: boolean;
+  startAngleCustomized?: boolean;
+  startSegmentCustomized?: boolean;
   computeMeasurements?: boolean;
   polyBoundingBox?: Rectangle;
   meanStdDev?: { mean: number; stdDev: number };
@@ -470,6 +478,8 @@ export interface Handles {
   initialRotation?: number;
   points?: HandlePosition[];
   invalidHandlePlacement?: boolean;
+  endAngleHandle?: HandlePosition;
+  startAngleHandle?: HandlePosition;
 }
 
 export interface MeasurementMouseEvent {
