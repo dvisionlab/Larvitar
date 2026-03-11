@@ -424,6 +424,7 @@ export interface SRHeader {
   verificationFlag: string;
   contentDate: string;
   contentTime: string;
+  seriesDescription: string;
 }
 
 export interface SRParseResult {

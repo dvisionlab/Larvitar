@@ -154,7 +154,8 @@ export const parseSR = function (metadata: MetaData): SRParseResult {
         completionFlag: "",
         verificationFlag: "",
         contentDate: "",
-        contentTime: ""
+        contentTime: "",
+        seriesDescription: ""
       },
       tree: []
     };
@@ -168,7 +169,8 @@ export const parseSR = function (metadata: MetaData): SRParseResult {
     contentDate: metadata.x00080023 || "",
     contentTime: metadata.x00080033
       ? String(metadata.x00080033).split(".")[0]
-      : ""
+      : "",
+    seriesDescription: metadata.x0008103e || ""
   };
 
   const roots: SRNode[] = [];
@@ -255,7 +257,7 @@ const _buildNodeEl = function (
   node: SRNode,
   opts: RenderOptions & { depth?: number }
 ): HTMLElement {
-  const { expandDepth = 2, depth = 0 } = opts;
+  const { expandDepth = 99, depth = 0 } = opts;
 
   const li = document.createElement("li");
   li.className = "sr-node";
@@ -358,7 +360,7 @@ export const renderSRTree = function (
   ul.className = "sr-tree";
   (tree || []).forEach(node => {
     ul.appendChild(
-      _buildNodeEl(node, { expandDepth: opts.expandDepth ?? 2, depth: 0 })
+      _buildNodeEl(node, { expandDepth: opts.expandDepth ?? 99, depth: 0 })
     );
   });
   return ul;
@@ -394,7 +396,8 @@ export const createSRViewer = function (
     ["completionFlag", "Completion Flag"],
     ["verificationFlag", "Verification Flag"],
     ["contentDate", "Content Date"],
-    ["contentTime", "Content Time"]
+    ["contentTime", "Content Time"],
+    ["seriesDescription", "Series Description"]
   ];
 
   const grid = document.createElement("div");
@@ -428,6 +431,10 @@ export const createSRViewer = function (
   collapseAll.className = "sr-btn";
   collapseAll.textContent = "Collapse All";
 
+  const printBtn = document.createElement("button");
+  printBtn.className = "sr-btn";
+  printBtn.textContent = "Print";
+
   const searchInput = document.createElement("input");
   searchInput.type = "search";
   searchInput.className = "sr-search";
@@ -435,6 +442,7 @@ export const createSRViewer = function (
 
   toolbar.appendChild(expandAll);
   toolbar.appendChild(collapseAll);
+  toolbar.appendChild(printBtn);
   toolbar.appendChild(searchInput);
   container.appendChild(toolbar);
 
@@ -469,6 +477,30 @@ export const createSRViewer = function (
     treeEl.querySelectorAll(".sr-children").forEach(ul => {
       ul.classList.add("sr-hidden");
     });
+  });
+
+  printBtn.addEventListener("click", () => {
+    const printClone = container.cloneNode(true) as HTMLElement;
+    printClone.id = "sr-print-container";
+    printClone.classList.add("sr-viewer", "sr-print-view");
+
+    printClone.querySelectorAll(".sr-children").forEach(ul => {
+      ul.classList.remove("sr-hidden");
+      (ul as HTMLElement).style.display = "block";
+    });
+    printClone.querySelectorAll(".sr-toggle").forEach(t => {
+      t.textContent = "▾";
+    });
+
+    document.body.appendChild(printClone);
+    document.body.classList.add("sr-is-printing");
+
+    setTimeout(() => {
+      window.print();
+
+      document.body.removeChild(printClone);
+      document.body.classList.remove("sr-is-printing");
+    }, 150);
   });
 
   // Search / filter
@@ -927,6 +959,81 @@ const _generateCSS = (config: SRStyleConfig): string => {
   ${e.padding ? `padding: ${e.padding};` : ""}
 }`);
   }
+
+  css.push(`
+/* Hide the print clone while browsing */
+@media screen {
+  .sr-print-view {
+    display: none !important;
+  }
+}
+
+/* Print logic */
+@media print {
+  /* HIDE the original application/viewer entirely */
+  body.sr-is-printing > *:not(#sr-print-container) {
+    display: none !important;
+  }
+
+  /* SHOW only our prepared container */
+  #sr-print-container {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white !important;
+    color: black !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* Hide toolbar completely when printing */
+  .sr-toolbar {
+    display: none !important;
+  }
+  
+  /* Remove padding/margins from viewer container for full width */
+  .sr-viewer {
+    padding: 1rem !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Remove left padding from tree to use full width */
+  .sr-tree {
+    padding-left: 0 !important;
+  }
+  
+  .sr-children {
+    padding-left: 1rem !important;
+  }
+ 
+  /* Ensure all nested items are forced visible */
+  .sr-children {
+    display: block !important;
+    visibility: visible !important;
+    height: auto !important;
+  }
+  
+  /* REMOVE page breaks - allow natural flow like text */
+  .sr-node {
+    page-break-inside: auto !important;
+    page-break-after: auto !important;
+    page-break-before: auto !important;
+  }
+  
+  /* Compress spacing for compact print layout */
+  .sr-node {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+  
+  .sr-node-header {
+    padding: 0.1rem 0.25rem !important;
+  }
+}`);
 
   return css.join("\n\n");
 };
