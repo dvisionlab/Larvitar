@@ -528,15 +528,9 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
 
         if (!data.handles.textBox!.hasMoved) {
           const coords = {
-            x: Math.max(data.handles.start!.x, data.handles.end!.x),
-            y: 0
+            x: (data.handles.start!.x + data.handles.end!.x) / 2,
+            y: (data.handles.start!.y + data.handles.end!.y) / 2
           };
-
-          if (coords.x === data.handles.start!.x) {
-            coords.y = data.handles.start!.y;
-          } else {
-            coords.y = data.handles.end!.y;
-          }
 
           data.handles.textBox!.x = coords.x;
           data.handles.textBox!.y = coords.y;
