@@ -563,8 +563,6 @@ larvitar
               larvitar.logger.debug("Image has been rendered");
               hideSpinner(); // Hide the spinner when all files are processed
               larvitar.addDefaultTools("viewer");
-              larvitar.setToolActive("NorbergAngle", { mouseButtonMask: 1 });
-              console.log("activate norberg");
             });
 
             series = serie;
@@ -612,7 +610,7 @@ larvitar
           const serie = stack[newUniqueUID];
           larvitar.renderImage(serie, "viewer").then(() => {
             larvitar.logger.debug("Image has been rendered");
-
+            larvitar.addDefaultTools("viewer");
             hideSpinner(); // Hide the spinner when all files are processed
           });
         }
