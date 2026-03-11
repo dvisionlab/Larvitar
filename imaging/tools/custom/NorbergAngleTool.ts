@@ -22,7 +22,14 @@ const drawLinkedTextBox = cornerstoneTools.importInternal(
 
 //internal imports
 import { logger } from "../../../logger";
-import { Coords, EventData, MeasurementData } from "../types";
+import {
+  Coords,
+  EventData,
+  HandlePosition,
+  Handles,
+  MeasurementData
+} from "../types";
+import { rotateCoords } from "./gspsUtils/genericMathUtils";
 
 /**
  * @public
@@ -46,6 +53,7 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
         hideHandlesIfMoving: false,
         renderDashed: false,
         digits: 2,
+        clickProximity: 30,
         // Angle display configuration
         showAngles: true,
         angleArcRadius: 30,
@@ -151,7 +159,7 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
 
     const nearMainLine =
       lineSegDistance(element, data.handles.start!, data.handles.end!, coords) <
-      10;
+      30;
 
     const nearStartSegment =
       lineSegDistance(
@@ -159,7 +167,7 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
         data.handles.start!,
         data.handles.startAngleHandle!,
         coords
-      ) < 10;
+      ) < 30;
 
     const nearEndSegment =
       lineSegDistance(
@@ -167,9 +175,59 @@ export default class NorbergAngleTool extends BaseAnnotationTool {
         data.handles.end!,
         data.handles.endAngleHandle!,
         coords
-      ) < 10;
+      ) < 30;
+
+    this.activateHandleNearCursor(
+      element,
+      data.handles,
+      coords,
+      this.configuration.clickProximity
+    );
 
     return nearMainLine || nearStartSegment || nearEndSegment;
+  }
+
+  activateHandleNearCursor(
+    element: HTMLElement,
+    handles: Handles,
+    coords: Coords,
+    distanceThreshold: number
+  ) {
+    const cornerstone = cornerstoneTools.external.cornerstone;
+
+    const handleKeys = [
+      "start",
+      "end",
+      "startAngleHandle",
+      "endAngleHandle"
+    ] as (keyof Handles)[];
+
+    for (const handleKey of handleKeys) {
+      const handle = handles[handleKey] as HandlePosition;
+
+      if (!handle) {
+        continue;
+      }
+
+      const handleCanvas = cornerstone.pixelToCanvas(element, handle);
+
+      const dx = handleCanvas.x - coords.x;
+      const dy = handleCanvas.y - coords.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance <= distanceThreshold) {
+        // Deactivate all other handles first
+        for (const key of handleKeys) {
+          const handle = handles[key] as HandlePosition;
+          if (handle) {
+            handle.active = false;
+          }
+        }
+
+        // Set this handle as active
+        handle.active = true;
+      }
+    }
   }
 
   updateCachedStats(
