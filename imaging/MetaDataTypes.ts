@@ -2690,7 +2690,7 @@ export type MetaDataTypes = {
   x0040a136?: number;
   x0040a138?: number;
   x0040a13a?: string;
-  x0040a160?: number;
+  x0040a160?: string;
   x0040a167?: MetaDataTypes[];
   x0040a168?: MetaDataTypes[];
   x0040a16a?: string;
@@ -2712,7 +2712,7 @@ export type MetaDataTypes = {
   x0040a300?: MetaDataTypes[];
   x0040a301?: MetaDataTypes[];
   x0040a307?: string;
-  x0040a30a?: number;
+  x0040a30a?: string;
   x0040a313?: MetaDataTypes[];
   x0040a33a?: string;
   x0040a340?: MetaDataTypes[];
