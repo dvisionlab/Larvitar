@@ -36,6 +36,7 @@ import EllipticalRoiOverlayTool from "./custom/ellipticalRoiOverlayTool";
 import BorderMagnifyTool from "./custom/BorderMagnifyTool";
 import CustomMouseWheelScrollTool from "./custom/customMouseWheelScrollTool";
 import WSToggleTool from "./custom/watershedSegmentationTool";
+import NorbergAngleTool from "./custom/NorbergAngleTool";
 import LengthPlotTool from "./custom/LengthPlotTool";
 import LengthTool from "./custom/LengthUSTool";
 import RectangleRoiTool from "./custom/RectangleRoiUSTool";
@@ -548,6 +549,14 @@ const DEFAULT_TOOLS: {
     shortcut: "ctrl-t",
     type: "segmentation"
   },
+  NorbergAngle: {
+    name: "NorbergAngle",
+    viewports: "all",
+    configuration: {},
+    options: {},
+    cleanable: true,
+    class: "NorbergAngleTool"
+  },
   Overlay: {
     name: "Overlay",
     viewports: "all",
@@ -579,6 +588,7 @@ const dvTools: {
   PolylineScissorsTool: PolylineScissorsTool,
   WwwcRemoveRegionTool: WwwcRemoveRegionTool,
   WSToggleTool: WSToggleTool,
+  NorbergAngleTool: NorbergAngleTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
   BorderMagnifyTool: BorderMagnifyTool,
