@@ -1,0 +1,412 @@
+//external imports
+import {
+  getEnabledElement,
+  PixelCoordinate,
+  pixelToCanvas,
+  Image,
+  canvasToPixel,
+  CanvasCoordinate
+} from "cornerstone-core";
+import { Coords } from "../../../types";
+
+const maxValues = {
+  maxVal8bit: 2 ** 8, // Max value for 8-bit images
+  maxVal16bit: 2 ** 16 // Max value for 16-bit images
+};
+
+export type GridData = {
+  from: Coords;
+  to: Coords;
+  color: string;
+};
+let lightColorCode = 1;
+let darkColorCode = 0;
+
+//retrieves cornerstone active enabled element
+export function handleElement(element: HTMLElement): Promise<any> {
+  try {
+    const activeElement = getEnabledElement(element);
+
+    return new Promise((resolve, reject) => {
+      // Polling
+      const checkImageAvailability = setInterval(() => {
+        if (activeElement.image !== undefined) {
+          clearInterval(checkImageAvailability);
+          console.debug("Image is now available", activeElement.image);
+          resolve(activeElement); // Resolve the promise with the activeElement
+        } else {
+          console.debug("Image not yet available, continuing to poll...");
+        }
+      }, 100);
+
+      // Reject the promise if needed after a timeout
+      setTimeout(() => {
+        clearInterval(checkImageAvailability);
+        reject(new Error("Image did not become available in time"));
+      }, 5000);
+    });
+  } catch (error) {
+    console.error("Error processing element:", error);
+    throw error;
+  }
+}
+
+//checks if pixel spacing is valid
+export function validatePixelSpacing(
+  spacingX: number,
+  spacingY: number,
+  minPixelSpacing: number
+) {
+  if (spacingX < minPixelSpacing || spacingY < minPixelSpacing) {
+    throw new Error("Pixel size is too small or invalid.");
+  }
+}
+
+//converts units from mm to pixel
+export function mmToPixels(mm: number, pixelSpacing: any) {
+  return Math.floor(mm / pixelSpacing);
+}
+// Set canvas size to match the image dimensions
+export function findImageCoords(element: HTMLElement, image: Image) {
+  const start = pixelToCanvas(element, {
+    x: 0,
+    y: 0
+  } as PixelCoordinate);
+  const end = pixelToCanvas(element, {
+    x: image.width,
+    y: image.height
+  } as PixelCoordinate);
+
+  return { start, end };
+}
+
+//converts dimensions from image system to canvas system
+export function convertDimensionsToCanvas(
+  element: HTMLElement,
+  width: number,
+  height: number
+) {
+  const startPattern = pixelToCanvas(element, {
+    x: 0,
+    y: 0
+  } as PixelCoordinate);
+  const endPatternx = pixelToCanvas(element, {
+    x: width,
+    y: 0
+  } as PixelCoordinate);
+  const endPatterny = pixelToCanvas(element, {
+    x: 0,
+    y: height
+  } as PixelCoordinate);
+  width = Math.sqrt(
+    Math.pow(endPatternx.x - startPattern.x, 2) +
+      Math.pow(endPatternx.y - startPattern.y, 2)
+  );
+  height = Math.sqrt(
+    Math.pow(endPatterny.x - startPattern.x, 2) +
+      Math.pow(endPatterny.y - startPattern.y, 2)
+  );
+  return { width, height };
+}
+
+//retrieves dash colors based on image bitDepth
+export function getColors(
+  bitDepth: number,
+  colorFractionLight: number,
+  colorFractionDark: number
+) {
+  const maxVal = bitDepth === 8 ? maxValues.maxVal8bit : maxValues.maxVal16bit;
+  lightColorCode = maxVal * colorFractionLight;
+  darkColorCode = maxVal * colorFractionDark;
+  const lightGrayVal = Math.ceil(255 * colorFractionLight);
+  const darkGrayVal = Math.ceil(255 * colorFractionDark);
+  const lightGray = `rgb(${lightGrayVal}, ${lightGrayVal}, ${lightGrayVal})`;
+  const darkGray = `rgb(${darkGrayVal}, ${darkGrayVal}, ${darkGrayVal})`;
+  return { lightGray, darkGray };
+}
+
+//draws the dashed line
+export function drawDashedLine(
+  context: CanvasRenderingContext2D,
+  from: Coords,
+  to: Coords,
+  color: string
+) {
+  context.strokeStyle = color;
+  context.beginPath();
+  context.moveTo(from.x, from.y);
+  context.lineTo(to.x, to.y);
+  context.stroke();
+  context.closePath();
+}
+
+//draws the vertical lines
+export function drawVerticalLines(
+  context: CanvasRenderingContext2D,
+  xCenter: number,
+  start: Coords,
+  end: Coords,
+  patternWidth: number,
+  dashWidth: number,
+  dashHeight: number,
+  imageDashHeight: number,
+  imageDashWidth: number,
+  lightGray: string,
+  darkGray: string,
+  gridPixelArray: number[],
+  image: Image,
+  element: HTMLElement
+) {
+  context.lineWidth = dashHeight;
+  context.setLineDash([dashWidth, dashWidth]);
+
+  // Draw lines to the right of the center
+  for (let x = xCenter; x < end.x; x += patternWidth) {
+    let from = { x: x, y: start.y };
+    let to = { x: x, y: end.y };
+    drawDashedLine(context, from, to, lightGray);
+
+    updatePixelArrayWithVerticalDashedLine(
+      canvasToPixel(element, from as CanvasCoordinate),
+      canvasToPixel(element, to as CanvasCoordinate),
+      image.width,
+      image.height,
+      imageDashWidth,
+      imageDashHeight,
+      gridPixelArray,
+      lightColorCode
+    );
+
+    from = { x: x + dashHeight, y: start.y };
+    to = { x: x + dashHeight, y: end.y };
+    drawDashedLine(context, from, to, darkGray);
+
+    updatePixelArrayWithVerticalDashedLine(
+      canvasToPixel(element, from as CanvasCoordinate),
+      canvasToPixel(element, to as CanvasCoordinate),
+      image.width,
+      image.height,
+      imageDashWidth,
+      imageDashHeight,
+      gridPixelArray,
+      darkColorCode
+    );
+  }
+
+  // Draw lines to the left of the center
+  for (let x = xCenter; x > start.x; x -= patternWidth) {
+    let from = { x: x, y: start.y };
+    let to = { x: x, y: end.y };
+    drawDashedLine(
+      context,
+      { x: x, y: start.y },
+      { x: x, y: end.y },
+      lightGray
+    );
+
+    updatePixelArrayWithVerticalDashedLine(
+      canvasToPixel(element, from as CanvasCoordinate),
+      canvasToPixel(element, to as CanvasCoordinate),
+      image.width,
+      image.height,
+      imageDashWidth,
+      imageDashHeight,
+      gridPixelArray,
+      lightColorCode
+    );
+
+    from = { x: x + dashHeight, y: start.y };
+    to = { x: x + dashHeight, y: end.y };
+    drawDashedLine(
+      context,
+      { x: x + dashHeight, y: start.y },
+      { x: x + dashHeight, y: end.y },
+      darkGray
+    );
+
+    updatePixelArrayWithVerticalDashedLine(
+      canvasToPixel(element, from as CanvasCoordinate),
+      canvasToPixel(element, to as CanvasCoordinate),
+      image.width,
+      image.height,
+      imageDashWidth,
+      imageDashHeight,
+      gridPixelArray,
+      darkColorCode
+    );
+  }
+}
+
+//updates grid's pixel array with vertical dashed lines
+function updatePixelArrayWithVerticalDashedLine(
+  from: Coords,
+  to: Coords,
+  imageWidth: number,
+  imageHeight: number,
+  dashWidth: number,
+  dashHeight: number,
+  pixelArray: number[],
+  value: number // 1 for light gray, 2 for dark gray
+) {
+  const dashPattern = [dashWidth, dashWidth];
+  let currentLength = 0;
+  const lineLength = to.y - from.y;
+
+  let dashIndex = 0;
+  while (currentLength < lineLength) {
+    const dashLength = dashPattern[dashIndex % dashPattern.length];
+    const y0 = from.y + currentLength;
+    let y1 = from.y + (currentLength + dashLength);
+
+    if (currentLength + dashLength > lineLength) {
+      y1 = lineLength;
+    }
+
+    for (
+      let y = Math.max(0, Math.floor(y0));
+      y < Math.min(Math.round(y1), imageHeight);
+      y++
+    ) {
+      for (let x = 0; x < dashHeight; x++) {
+        let xOffset = Math.round(from.x) + x - Math.floor(dashHeight / 2);
+        const index = y * imageWidth + xOffset;
+        pixelArray[index] = value;
+      }
+    }
+
+    currentLength += dashLength * 2;
+    dashIndex++;
+  }
+}
+
+//draws horizontal lines
+export function drawHorizontalLines(
+  context: CanvasRenderingContext2D,
+  yCenter: number,
+  start: Coords,
+  end: Coords,
+  patternHeight: number,
+  dashWidth: number,
+  dashHeight: number,
+  imageDashHeight: number,
+  imageDashWidth: number,
+  lightGray: string,
+  darkGray: string,
+  gridPixelArray: number[],
+  image: Image,
+  element: HTMLElement
+) {
+  context.lineWidth = dashHeight;
+  context.setLineDash([dashWidth, dashWidth]);
+
+  // Draw lines below the center
+  for (let y = yCenter; y < end.y; y += patternHeight) {
+    let from = { x: start.x, y: y };
+    let to = { x: end.x, y: y };
+    drawDashedLine(
+      context,
+      { x: start.x, y: y },
+      { x: end.x, y: y },
+      lightGray
+    );
+    updatePixelArrayWithHorizontalDashedLine(
+      canvasToPixel(element, from as CanvasCoordinate),
+      canvasToPixel(element, to as CanvasCoordinate),
+      imageDashWidth,
+      imageDashHeight,
+      image.width,
+      image.height,
+      gridPixelArray,
+      lightColorCode
+    );
+    from = { x: start.x, y: y + dashHeight };
+    to = { x: end.x, y: y + dashHeight };
+    drawDashedLine(context, from, to, darkGray);
+    updatePixelArrayWithHorizontalDashedLine(
+      canvasToPixel(element, from as CanvasCoordinate),
+      canvasToPixel(element, to as CanvasCoordinate),
+      imageDashWidth,
+      imageDashHeight,
+      image.width,
+      image.height,
+      gridPixelArray,
+      darkColorCode
+    );
+  }
+
+  // Draw lines above the center
+  for (let y = yCenter; y > start.y; y -= patternHeight) {
+    let from = { x: start.x, y: y };
+    let to = { x: end.x, y: y };
+    drawDashedLine(
+      context,
+      { x: start.x, y: y },
+      { x: end.x, y: y },
+      lightGray
+    );
+    updatePixelArrayWithHorizontalDashedLine(
+      canvasToPixel(element, from as CanvasCoordinate),
+      canvasToPixel(element, to as CanvasCoordinate),
+      imageDashWidth,
+      imageDashHeight,
+      image.width,
+      image.height,
+      gridPixelArray,
+      lightColorCode
+    );
+    from = { x: start.x, y: y + dashHeight };
+    to = { x: end.x, y: y + dashHeight };
+    drawDashedLine(context, from, to, darkGray);
+    updatePixelArrayWithHorizontalDashedLine(
+      canvasToPixel(element, from as CanvasCoordinate),
+      canvasToPixel(element, to as CanvasCoordinate),
+      imageDashWidth,
+      imageDashHeight,
+      image.width,
+      image.height,
+      gridPixelArray,
+      darkColorCode
+    );
+  }
+}
+
+//updates grid's pixel array with horizontal dashed lines
+function updatePixelArrayWithHorizontalDashedLine(
+  from: Coords,
+  to: Coords,
+  dashWidth: number,
+  dashHeight: number,
+  imageWidth: number,
+  imageHeight: number,
+  pixelArray: number[],
+  value: number // 1 for light gray, 2 for dark gray
+) {
+  const dashPattern = [dashWidth, dashWidth];
+  let currentLength = 0;
+  const lineLength = to.x - from.x;
+
+  let dashIndex = 0;
+  while (currentLength < lineLength) {
+    const dashLength = dashPattern[dashIndex % dashPattern.length];
+    const x0 = from.x + currentLength;
+    let x1 = from.x + (currentLength + dashLength);
+
+    if (currentLength + dashLength > lineLength) {
+      x1 = lineLength;
+    }
+    for (
+      let x = Math.max(0, Math.floor(x0));
+      x < Math.min(Math.round(x1), imageWidth);
+      x++
+    ) {
+      for (let y = 0; y < dashHeight; y++) {
+        let yOffset = Math.round(from.y) + y - Math.floor(dashHeight / 2);
+        const index = yOffset * imageWidth + x;
+        pixelArray[index] = value;
+      }
+    }
+
+    currentLength += dashLength * 2;
+    dashIndex++;
+  }
+}
