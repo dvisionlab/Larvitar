@@ -471,6 +471,12 @@ export type Rectangle = {
   height: number;
 };
 export interface Handles {
+  vertebralStart?: HandlePosition;
+  vertebralEnd?: HandlePosition;
+  longAxisEnd?: HandlePosition;
+  longAxisStart?: HandlePosition;
+  shortAxisStart?: HandlePosition;
+  shortAxisEnd?: HandlePosition;
   start?: HandlePosition;
   end?: HandlePosition;
   offset?: number;
