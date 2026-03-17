@@ -46,6 +46,7 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
         drawHandles: true,
         drawHandlesOnHover: false,
         hideHandlesIfMoving: false,
+        clickProximity: 30,
         renderDashed: false
       },
       svgCursor: lengthCursor
