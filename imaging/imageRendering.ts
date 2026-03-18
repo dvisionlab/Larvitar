@@ -14,7 +14,7 @@ import { getDataFromFileManager, getFileManager } from "./imageManagers";
 import { toggleMouseToolsListeners } from "./tools/interaction";
 import store, { set as setStore } from "./imageStore";
 import { applyColorMap } from "./imageColormaps";
-import { isElement } from "./imageUtils";
+import { getVOIFromMetadata, isElement } from "./imageUtils";
 import {
   DisplayedArea,
   Image,
@@ -1081,7 +1081,12 @@ export const updateImage = async function (
 export const resetViewports = function (
   elementIds: string[],
   keys?: Array<
-    "contrast" | "scaleAndTranslation" | "rotation" | "flip" | "zoom"
+    | "contrast"
+    | "scaleAndTranslation"
+    | "rotation"
+    | "flip"
+    | "zoom"
+    | "scaleAndTranslationOriginalSize"
   >
 ) {
   each(elementIds, function (elementId: string) {
@@ -1108,6 +1113,19 @@ export const resetViewports = function (
         elementId,
         viewport.voi.windowWidth,
         viewport.voi.windowCenter
+      ]);
+    }
+
+    if (!keys || keys!.find(v => v === "scaleAndTranslationOriginalSize")) {
+      viewport.scale = 1.0;
+      setStore(["scale", elementId, 1.0]);
+      viewport.translation.x = defaultViewport.translation.x;
+      viewport.translation.y = defaultViewport.translation.y;
+      setStore([
+        "translation",
+        elementId,
+        viewport.translation.x,
+        viewport.translation.y
       ]);
     }
 
@@ -1610,15 +1628,11 @@ const getSeriesData = function (
     data.spacing_x = spacing ? spacing[0] : 1;
     data.spacing_y = spacing ? spacing[1] : 1;
 
-    // voi contrast value from metadata or renderOptions
-    const windowCenter =
-      renderOptions.voi !== undefined
-        ? renderOptions.voi.windowCenter
-        : (instance.metadata.x00281050 as number);
-    const windowWidth =
-      renderOptions.voi !== undefined
-        ? renderOptions.voi.windowWidth
-        : (instance.metadata.x00281051 as number);
+    const { windowWidth, windowCenter } = getVOIFromMetadata(
+      instance.metadata,
+      data.imageIndex,
+      renderOptions.voi
+    );
 
     // window center and window width
     data.viewport = {
@@ -1629,10 +1643,7 @@ const getSeriesData = function (
     };
     // store default values for the viewport voi from the series metadata
     data.default = {};
-    data.default!.voi = {
-      windowCenter: instance.metadata.x00281050 as number,
-      windowWidth: instance.metadata.x00281051 as number
-    };
+    data.default.voi = getVOIFromMetadata(instance.metadata, data.imageIndex);
     data.default.rotation = 0;
     data.default.translation = { x: 0, y: 0 };
 
@@ -1723,8 +1734,8 @@ const getSeriesDataFromStore = function (
     if (!data.default.voi) {
       data.default.voi = { windowCenter: 0, windowWidth: 0 };
     }
-    data.default.voi.windowCenter = instance.metadata.x00281050 as number;
-    data.default.voi.windowWidth = instance.metadata.x00281051 as number;
+
+    data.default.voi = getVOIFromMetadata(instance.metadata, data.imageIndex);
   }
   if (renderOptions.voi !== undefined) {
     if (!data.viewport) {

@@ -262,6 +262,22 @@ Key features covered in this example include:
 
 [View Example ➔](https://larvitar.dvisionlab.com/examples/filters.html)
 
+### 18. Visualize SR
+
+Learn how to display a DICOM Structured Report (SR) using Larvitar’s SR viewer utilities. This example shows how to detect SR series, extract metadata, and render an interactive report viewer inside a container element.
+
+In this example you can also:
+
+- automatically detect if the loaded series is a Structured Report
+- mount the interactive SR viewer from the DICOM metadata
+- expand, collapse, print and search in the hierarchical SR structure
+- drag and drop a DICOM SR file to visualize it in the viewer
+
+[View Example ➔](https://larvitar.dvisionlab.com/examples/sr.html)
+
+---
+
+
 <br></br>
 
 <div style="text-align: center;">
