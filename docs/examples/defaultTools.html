@@ -127,7 +127,7 @@ larvitar
       <button
         id="showCodeBtn"
         class="open-button"
-        style="position: absolute; top: 90px"
+        style="position: absolute; top: 180px"
       >
         Show Code
       </button>
@@ -303,6 +303,10 @@ larvitar
             info.style.display = "block";
             info.innerHTML =
               "<b>shift+mouse wheel to change lines offset</b><br />";
+          } else if (tool === "TPAAnnotation") {
+            info.style.display = "block";
+            info.innerHTML =
+              "Step 1 — Draw Functional Tibial Axis (FTA)</br>Step 2 — Draw Medial Tibial Plateau Line (MTP)<br/>Reference Line (REF) automatically calculated (normal to FTA) </br> <b>Tibial Plateau Angle displayed</b>";
           } else {
             info.style.display = "none";
           }
