@@ -4,7 +4,9 @@ import {
   Coords,
   EventData,
   HandlePosition,
-  MeasurementMouseEvent
+  MeasurementMouseEvent,
+  TPAAnnotation,
+  TPAMeasurementState
 } from "../types";
 
 const toolColors = cornerstoneTools.toolColors;
@@ -47,18 +49,12 @@ const BaseAnnotationTool = cornerstoneTools.importInternal(
  *   The arc spans from the Reference Line direction to the MTP direction.
  *   Clinically, normal TPA is ~5° in cats and ~23° in dogs.
  */
-enum TPAState {
-  IDLE = 0,
-  FUNCTIONAL_AXIS_START = 1, // Dragging FTA line
-  FUNCTIONAL_AXIS_END = 2, // FTA complete, waiting for MTP start click
-  MEDIAL_PLATEAU_START = 3, // Dragging MTP line
-  MEDIAL_PLATEAU_END = 4, // MTP complete → compute REF + angle
-  COMPLETE = 5
-}
 
+const REF_HALF_LENGTH = 70;
+const PROXIMITY_DISTANCE = 30;
 export default class TPAAnnotationTool extends BaseAnnotationTool {
-  private currentState: TPAState;
-  private currentAnnotation: any | null;
+  private currentState: TPAMeasurementState;
+  private currentAnnotation: TPAAnnotation | null;
   private isDragging: boolean;
 
   constructor(props: any = {}) {
@@ -77,7 +73,7 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
 
     super(props, defaultProps);
 
-    this.currentState = TPAState.IDLE;
+    this.currentState = TPAMeasurementState.IDLE;
     this.currentAnnotation = null;
     this.isDragging = false;
   }
@@ -154,11 +150,11 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
         }
       },
       cachedStats: {
-        tpaAngle: "0",
-        ftaLength: "0",
-        mtpLength: "0"
+        tpaAngle: 0,
+        ftaLength: 0,
+        mtpLength: 0
       },
-      measurementState: TPAState.IDLE
+      measurementState: TPAMeasurementState.IDLE
     };
   }
 
@@ -167,11 +163,11 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
     const { element } = eventData;
 
     switch (this.currentState) {
-      case TPAState.IDLE:
+      case TPAMeasurementState.IDLE:
         this.currentAnnotation = this.createNewMeasurement(eventData);
         if (!this.currentAnnotation) return null;
 
-        this.currentState = TPAState.FUNCTIONAL_AXIS_START;
+        this.currentState = TPAMeasurementState.FUNCTIONAL_AXIS_START;
         this.currentAnnotation.measurementState = this.currentState;
 
         cornerstoneTools.addToolState(
@@ -180,13 +176,9 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
           this.currentAnnotation
         );
 
-        console.log(
-          "Step 1/3 — Functional Tibial Axis: click and drag from the center " +
-            "of the tibial plateau to the center of the tibial plafond (ankle)."
-        );
         return this.currentAnnotation;
 
-      case TPAState.FUNCTIONAL_AXIS_END:
+      case TPAMeasurementState.FUNCTIONAL_AXIS_END:
         if (this.currentAnnotation) {
           const { x, y } = eventData.currentPoints.image;
           this.currentAnnotation.handles.mtpStart.x = x;
@@ -195,13 +187,9 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
           this.currentAnnotation.handles.mtpEnd.y = y;
           this.currentAnnotation.handles.mtpEnd.active = true;
 
-          this.currentState = TPAState.MEDIAL_PLATEAU_START;
+          this.currentState = TPAMeasurementState.MEDIAL_PLATEAU_START;
           this.currentAnnotation.measurementState = this.currentState;
 
-          console.log(
-            "Step 2/3 — Medial Tibial Plateau Line: drag from the most cranial " +
-              "point to the most caudal point of the medial tibial plateau."
-          );
           cornerstone.updateImage(element);
         }
         break;
@@ -212,55 +200,7 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
 
     return null;
   }
-  preMouseDownCallback(evt: MeasurementMouseEvent): void {
-    const eventData = evt.detail;
-    const { element } = eventData;
 
-    switch (this.currentState) {
-      case TPAState.FUNCTIONAL_AXIS_START:
-        this.currentState = TPAState.FUNCTIONAL_AXIS_END;
-        if (this.currentAnnotation) {
-          this.currentAnnotation.measurementState = this.currentState;
-          this.currentAnnotation.handles.ftaEnd.active = false;
-          this.updateCachedStats(
-            eventData.image,
-            element,
-            this.currentAnnotation
-          );
-        }
-        console.log(
-          "Step 1/3 Complete — FTA drawn. Now click on the most cranial point " +
-            "of the medial tibial plateau to begin the plateau line."
-        );
-        break;
-
-      case TPAState.MEDIAL_PLATEAU_START:
-        this.currentState = TPAState.COMPLETE;
-        if (this.currentAnnotation) {
-          this.currentAnnotation.measurementState = this.currentState;
-          this.currentAnnotation.handles.mtpEnd.active = false;
-          this.currentAnnotation.active = false;
-
-          this.computeReferenceLineAndAngle(this.currentAnnotation);
-          this.updateCachedStats(
-            eventData.image,
-            element,
-            this.currentAnnotation
-          );
-
-          const tpa = parseFloat(this.currentAnnotation.cachedStats.tpaAngle);
-          console.log(`TPA Measurement Complete: ${tpa.toFixed(1)}°`);
-        }
-        this.currentAnnotation = null;
-        this.currentState = TPAState.IDLE;
-        break;
-
-      default:
-        break;
-    }
-
-    cornerstone.updateImage(element);
-  }
   mouseMoveCallback(evt: MeasurementMouseEvent): void {
     const eventData = evt.detail;
     const { element } = eventData;
@@ -270,14 +210,14 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
     const { x, y } = eventData.currentPoints.image;
 
     switch (this.currentState) {
-      case TPAState.FUNCTIONAL_AXIS_START:
+      case TPAMeasurementState.FUNCTIONAL_AXIS_START:
         this.currentAnnotation.handles.ftaEnd.x = x;
         this.currentAnnotation.handles.ftaEnd.y = y;
         this.currentAnnotation.invalidated = true;
         cornerstone.updateImage(element);
         break;
 
-      case TPAState.MEDIAL_PLATEAU_START:
+      case TPAMeasurementState.MEDIAL_PLATEAU_START:
         this.currentAnnotation.handles.mtpEnd.x = x;
         this.currentAnnotation.handles.mtpEnd.y = y;
         this.currentAnnotation.invalidated = true;
@@ -299,12 +239,12 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
     const { x, y } = eventData.currentPoints.image;
 
     switch (this.currentState) {
-      case TPAState.FUNCTIONAL_AXIS_START:
+      case TPAMeasurementState.FUNCTIONAL_AXIS_START:
         this.currentAnnotation.handles.ftaEnd.x = x;
         this.currentAnnotation.handles.ftaEnd.y = y;
         break;
 
-      case TPAState.MEDIAL_PLATEAU_START:
+      case TPAMeasurementState.MEDIAL_PLATEAU_START:
         this.currentAnnotation.handles.mtpEnd.x = x;
         this.currentAnnotation.handles.mtpEnd.y = y;
         break;
@@ -317,50 +257,71 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
     cornerstone.updateImage(element);
   }
 
+  /**
+   * Extracted logic to finalize the Functional Tibial Axis (Step 1)
+   */
+  private _finishFTA(element: HTMLElement, image: any): void {
+    this.currentState = TPAMeasurementState.FUNCTIONAL_AXIS_END;
+    if (this.currentAnnotation) {
+      this.currentAnnotation.measurementState = this.currentState;
+      this.currentAnnotation.handles.ftaEnd.active = false;
+      this.updateCachedStats(image, element, this.currentAnnotation);
+    }
+  }
+
+  /**
+   * Extracted logic to finalize the Medial Tibial Plateau (Step 2)
+   */
+  private _finishMTP(element: HTMLElement, image: any): void {
+    this.currentState = TPAMeasurementState.COMPLETE;
+    if (this.currentAnnotation) {
+      this.currentAnnotation.measurementState = this.currentState;
+      this.currentAnnotation.handles.mtpEnd.active = false;
+      this.currentAnnotation.active = false;
+
+      this.computeReferenceLineAndAngle(this.currentAnnotation);
+      this.updateCachedStats(image, element, this.currentAnnotation);
+
+      const tpa = this.currentAnnotation.cachedStats.tpaAngle;
+    }
+    this.currentAnnotation = null;
+    this.currentState = TPAMeasurementState.IDLE;
+  }
+
+  preMouseDownCallback(evt: MeasurementMouseEvent): void {
+    const eventData = evt.detail;
+    const { element, image } = eventData;
+
+    switch (this.currentState) {
+      case TPAMeasurementState.FUNCTIONAL_AXIS_START:
+        this._finishFTA(element, image);
+        break;
+
+      case TPAMeasurementState.MEDIAL_PLATEAU_START:
+        this._finishMTP(element, image);
+        break;
+
+      default:
+        break;
+    }
+
+    cornerstone.updateImage(element);
+  }
+
   mouseUpCallback(evt: MeasurementMouseEvent): void {
     const eventData = evt.detail;
-    const { element } = eventData;
+    const { element, image } = eventData;
 
     if (!this.isDragging) return;
     this.isDragging = false;
 
     switch (this.currentState) {
-      case TPAState.FUNCTIONAL_AXIS_START:
-        this.currentState = TPAState.FUNCTIONAL_AXIS_END;
-        if (this.currentAnnotation) {
-          this.currentAnnotation.measurementState = this.currentState;
-          this.currentAnnotation.handles.ftaEnd.active = false;
-          this.updateCachedStats(
-            eventData.image,
-            element,
-            this.currentAnnotation
-          );
-        }
-        console.log(
-          "Step 1/3 Complete — FTA drawn. Now click on the most cranial point " +
-            "of the medial tibial plateau to begin the plateau line."
-        );
+      case TPAMeasurementState.FUNCTIONAL_AXIS_START:
+        this._finishFTA(element, image);
         break;
 
-      case TPAState.MEDIAL_PLATEAU_START:
-        this.currentState = TPAState.COMPLETE;
-        if (this.currentAnnotation) {
-          this.currentAnnotation.measurementState = this.currentState;
-          this.currentAnnotation.handles.mtpEnd.active = false;
-          this.currentAnnotation.active = false;
-
-          this.computeReferenceLineAndAngle(this.currentAnnotation);
-          this.updateCachedStats(
-            eventData.image,
-            element,
-            this.currentAnnotation
-          );
-
-          const tpa = parseFloat(this.currentAnnotation.cachedStats.tpaAngle);
-          console.log(`TPA Measurement Complete: ${tpa.toFixed(1)}°`);
-        }
-        this.currentAnnotation = null;
-        this.currentState = TPAState.IDLE;
+      case TPAMeasurementState.MEDIAL_PLATEAU_START:
+        this._finishMTP(element, image);
         break;
 
       default:
@@ -431,11 +392,10 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
     handles.intersectionPoint = anchor;
 
     // Reference line: perpendicular to FTA
-    const refHalfLen = 70;
-    handles.refStart.x = anchor.x - perpNx * refHalfLen;
-    handles.refStart.y = anchor.y - perpNy * refHalfLen;
-    handles.refEnd.x = anchor.x + perpNx * refHalfLen;
-    handles.refEnd.y = anchor.y + perpNy * refHalfLen;
+    handles.refStart.x = anchor.x - perpNx * REF_HALF_LENGTH;
+    handles.refStart.y = anchor.y - perpNy * REF_HALF_LENGTH;
+    handles.refEnd.x = anchor.x + perpNx * REF_HALF_LENGTH;
+    handles.refEnd.y = anchor.y + perpNy * REF_HALF_LENGTH;
 
     //  TPA = angle between MTP direction and Reference Line direction
     const dot = (mtpDx / mtpMag) * perpNx + (mtpDy / mtpMag) * perpNy;
@@ -443,13 +403,13 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
     const angleRad = Math.acos(Math.abs(clampedDot));
     const angleDeg = angleRad * (180 / Math.PI);
 
-    data.cachedStats.tpaAngle = angleDeg.toFixed(1);
+    data.cachedStats.tpaAngle = angleDeg;
 
     // Store direction signs for arc drawing (which quadrant the MTP goes toward)
-    data.cachedStats.mtpNx = (mtpDx / mtpMag).toFixed(6);
-    data.cachedStats.mtpNy = (mtpDy / mtpMag).toFixed(6);
-    data.cachedStats.perpNx = perpNx.toFixed(6);
-    data.cachedStats.perpNy = perpNy.toFixed(6);
+    data.cachedStats.mtpNx = mtpDx / mtpMag;
+    data.cachedStats.mtpNy = mtpDy / mtpMag;
+    data.cachedStats.perpNx = perpNx;
+    data.cachedStats.perpNy = perpNy;
   }
 
   updateCachedStats(image: any, element: HTMLElement, data: any) {
@@ -466,7 +426,7 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
     data.cachedStats.ftaLength = ftaLength.toFixed(2);
     data.cachedStats.mtpLength = mtpLength.toFixed(2);
 
-    if (data.measurementState === TPAState.COMPLETE) {
+    if (data.measurementState === TPAMeasurementState.COMPLETE) {
       this.computeReferenceLineAndAngle(data);
     }
 
@@ -490,7 +450,7 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
         const color = toolColors.getColorIfActive(data);
 
         // Functional Tibial Axis
-        if (measurementState >= TPAState.FUNCTIONAL_AXIS_START) {
+        if (measurementState >= TPAMeasurementState.FUNCTIONAL_AXIS_START) {
           const ftaColor = "rgb(80, 200, 255)";
 
           drawLine(ctx, element, handles.ftaStart, handles.ftaEnd, {
@@ -511,7 +471,7 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
             handles.ftaTextBox.y = rightmost.y;
           }
 
-          if (measurementState >= TPAState.FUNCTIONAL_AXIS_END) {
+          if (measurementState >= TPAMeasurementState.FUNCTIONAL_AXIS_END) {
             const mid = {
               x: (handles.ftaStart.x + handles.ftaEnd.x) / 2,
               y: (handles.ftaStart.y + handles.ftaEnd.y) / 2
@@ -532,7 +492,7 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
         }
 
         // Medial Tibial Plateau Line
-        if (measurementState >= TPAState.MEDIAL_PLATEAU_START) {
+        if (measurementState >= TPAMeasurementState.MEDIAL_PLATEAU_START) {
           const mtpColor = "rgb(255, 160, 60)";
 
           drawLine(ctx, element, handles.mtpStart, handles.mtpEnd, {
@@ -553,7 +513,7 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
             handles.mtpTextBox.y = rightmost.y;
           }
 
-          if (measurementState >= TPAState.COMPLETE) {
+          if (measurementState >= TPAMeasurementState.COMPLETE) {
             const mid = {
               x: (handles.mtpStart.x + handles.mtpEnd.x) / 2,
               y: (handles.mtpStart.y + handles.mtpEnd.y) / 2
@@ -574,7 +534,7 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
         }
 
         // Reference Line
-        if (measurementState >= TPAState.COMPLETE) {
+        if (measurementState >= TPAMeasurementState.COMPLETE) {
           drawLine(ctx, element, handles.refStart, handles.refEnd, {
             color: color,
             lineWidth: 2,
@@ -651,10 +611,10 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
 
     const arcPoint = cornerstone.pixelToCanvas(element, intersectionPixel);
 
-    const perpNx = parseFloat(cachedStats.perpNx ?? "0");
-    const perpNy = parseFloat(cachedStats.perpNy ?? "0");
-    const mtpNx = parseFloat(cachedStats.mtpNx ?? "0");
-    const mtpNy = parseFloat(cachedStats.mtpNy ?? "0");
+    const perpNx = cachedStats.perpNx ?? 0;
+    const perpNy = cachedStats.perpNy ?? 0;
+    const mtpNx = cachedStats.mtpNx ?? 0;
+    const mtpNy = cachedStats.mtpNy ?? 0;
 
     if (perpNx === 0 && perpNy === 0) return;
 
@@ -693,7 +653,7 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
       counterClockwise
     );
     context.strokeStyle = color;
-    context.lineWidth = 1.5;
+    context.lineWidth = this.configuration.arcLineWidth || 1.5;
     context.stroke();
   }
 
@@ -705,7 +665,6 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
   ): boolean {
     if (!data?.handles) return false;
 
-    const distance = 30;
     const { handles } = data;
 
     const testHandles = [
@@ -716,7 +675,8 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
     ];
 
     for (const h of testHandles) {
-      if (this.isPointNearHandle(element, h, coords, distance)) return true;
+      if (this.isPointNearHandle(element, h, coords, PROXIMITY_DISTANCE))
+        return true;
     }
 
     if (
@@ -725,20 +685,20 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
         handles.ftaStart,
         handles.ftaEnd,
         coords,
-        distance
+        PROXIMITY_DISTANCE
       )
     ) {
       return true;
     }
 
-    if (data.measurementState >= TPAState.MEDIAL_PLATEAU_START) {
+    if (data.measurementState >= TPAMeasurementState.MEDIAL_PLATEAU_START) {
       if (
         this.isPointNearLine(
           element,
           handles.mtpStart,
           handles.mtpEnd,
           coords,
-          distance
+          PROXIMITY_DISTANCE
         )
       ) {
         return true;
@@ -752,14 +712,14 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
     element: HTMLElement,
     handle: HandlePosition,
     coords: Coords,
-    distance: number
+    PROXIMITY_DISTANCE: number
   ): boolean {
     if (!handle || handle.x === undefined || handle.y === undefined)
       return false;
     const hc = cornerstone.pixelToCanvas(element, handle as any);
     const dx = hc.x - coords.x;
     const dy = hc.y - coords.y;
-    return dx * dx + dy * dy <= distance * distance;
+    return dx * dx + dy * dy <= PROXIMITY_DISTANCE * PROXIMITY_DISTANCE;
   }
 
   isPointNearLine(
@@ -767,15 +727,17 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
     startHandle: HandlePosition,
     endHandle: HandlePosition,
     coords: Coords,
-    distance: number
+    PROXIMITY_DISTANCE: number
   ): boolean {
     if (!startHandle || !endHandle) return false;
     const sc = cornerstone.pixelToCanvas(element, startHandle as any);
     const ec = cornerstone.pixelToCanvas(element, endHandle as any);
-    return this.distanceToLineSegment(coords, sc, ec) <= distance;
+    return (
+      this.PROXIMITY_DISTANCEToLineSegment(coords, sc, ec) <= PROXIMITY_DISTANCE
+    );
   }
 
-  distanceToLineSegment(
+  PROXIMITY_DISTANCEToLineSegment(
     point: Coords,
     lineStart: Coords,
     lineEnd: Coords
@@ -810,7 +772,7 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
     coords: Coords,
     interactionType: string
   ) {
-    const distance = interactionType === "mouse" ? 15 : 25;
+    const PROXIMITY_DISTANCE = interactionType === "mouse" ? 15 : 25;
     const { handles } = data;
 
     const handlesList = [
@@ -821,7 +783,7 @@ export default class TPAAnnotationTool extends BaseAnnotationTool {
     ];
 
     for (const handle of handlesList) {
-      if (this.isPointNearHandle(element, handle, coords, distance)) {
+      if (this.isPointNearHandle(element, handle, coords, PROXIMITY_DISTANCE)) {
         return handle;
       }
     }
