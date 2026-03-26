@@ -101,7 +101,7 @@ export class GridTool extends BaseTool {
       return;
     }
 
-    defaultConfig.setup.gridDimensionMM = value;
+    defaultConfig.setup.gridDimensionMM = parseFloat(value);
     updateImage(this.enabledElement.element);
   }
 
@@ -115,7 +115,7 @@ export class GridTool extends BaseTool {
    */
   disabledCallback(element: HTMLElement) {
     element.removeEventListener(EVENTS.MOUSE_CLICK, this.handleMouseClick);
-    const buttonGridDimension = document.getElementById("gridDimension");
+    const buttonGridDimension = document.getElementById("patternDimension");
     buttonGridDimension?.removeEventListener(
       "input",
       this.triggerInputGridDimensionChange
@@ -188,7 +188,12 @@ export class GridTool extends BaseTool {
       }
     }
 
-    const pixelSpacing = imageMetadata!.pixelSpacing!;
+    if (!imageMetadata?.pixelSpacing) {
+      console.error("GridTool: Could not find pixel spacing for the image.");
+      return;
+    }
+    const pixelSpacing = imageMetadata.pixelSpacing;
+
     try {
       validatePixelSpacing(
         pixelSpacing[0],
@@ -214,11 +219,7 @@ export class GridTool extends BaseTool {
     );
 
     // Validate grid dimension
-    if (
-      !this.configuration.setup.gridDimensionMM ||
-      this.configuration.setup.gridDimensionMM === undefined ||
-      this.configuration.setup.gridDimensionMM === null
-    ) {
+    if (!this.configuration.setup.gridDimensionMM) {
       console.error("GridTool: Grid dimension is undefined, null or empty");
       return;
     }

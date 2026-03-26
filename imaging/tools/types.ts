@@ -568,12 +568,11 @@ export type ThresholdsBrushProp = {
 };
 
 export type GridConfig = {
-  setup: gridSettings;
-  patternDimension: number | null;
+  setup: GridSettings;
   gridPixelArray: number[];
 };
 
-export type gridSettings = {
+export type GridSettings = {
   minRows: number;
   minColumns: number;
   dashHeightMM: number;

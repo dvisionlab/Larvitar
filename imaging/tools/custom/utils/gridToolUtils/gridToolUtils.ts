@@ -116,13 +116,13 @@ export function getColors(
   colorFractionDark: number
 ) {
   const maxVal = bitDepth === 8 ? maxValues.maxVal8bit : maxValues.maxVal16bit;
-  lightColorCode = maxVal * colorFractionLight;
-  darkColorCode = maxVal * colorFractionDark;
+  const lightColorCode = maxVal * colorFractionLight;
+  const darkColorCode = maxVal * colorFractionDark;
   const lightGrayVal = Math.ceil(255 * colorFractionLight);
   const darkGrayVal = Math.ceil(255 * colorFractionDark);
   const lightGray = `rgb(${lightGrayVal}, ${lightGrayVal}, ${lightGrayVal})`;
   const darkGray = `rgb(${darkGrayVal}, ${darkGrayVal}, ${darkGrayVal})`;
-  return { lightGray, darkGray };
+  return { lightGray, darkGray, lightColorCode, darkColorCode };
 }
 
 //draws the dashed line
@@ -160,80 +160,37 @@ export function drawVerticalLines(
   context.lineWidth = dashHeight;
   context.setLineDash([dashWidth, dashWidth]);
 
-  // Draw lines to the right of the center
+  const drawVerticalLinePair = (x: number) => {
+    const lines = [
+      { offset: 0, color: lightGray, code: lightColorCode },
+      { offset: dashHeight, color: darkGray, code: darkColorCode }
+    ];
+
+    lines.forEach(({ offset, color, code }) => {
+      const from = { x: x + offset, y: start.y };
+      const to = { x: x + offset, y: end.y };
+
+      drawDashedLine(context, from, to, color);
+
+      updatePixelArrayWithVerticalDashedLine(
+        canvasToPixel(element, from as CanvasCoordinate),
+        canvasToPixel(element, to as CanvasCoordinate),
+        image.width,
+        image.height,
+        imageDashWidth,
+        imageDashHeight,
+        gridPixelArray,
+        code
+      );
+    });
+  };
+
   for (let x = xCenter; x < end.x; x += patternWidth) {
-    let from = { x: x, y: start.y };
-    let to = { x: x, y: end.y };
-    drawDashedLine(context, from, to, lightGray);
-
-    updatePixelArrayWithVerticalDashedLine(
-      canvasToPixel(element, from as CanvasCoordinate),
-      canvasToPixel(element, to as CanvasCoordinate),
-      image.width,
-      image.height,
-      imageDashWidth,
-      imageDashHeight,
-      gridPixelArray,
-      lightColorCode
-    );
-
-    from = { x: x + dashHeight, y: start.y };
-    to = { x: x + dashHeight, y: end.y };
-    drawDashedLine(context, from, to, darkGray);
-
-    updatePixelArrayWithVerticalDashedLine(
-      canvasToPixel(element, from as CanvasCoordinate),
-      canvasToPixel(element, to as CanvasCoordinate),
-      image.width,
-      image.height,
-      imageDashWidth,
-      imageDashHeight,
-      gridPixelArray,
-      darkColorCode
-    );
+    drawVerticalLinePair(x);
   }
 
-  // Draw lines to the left of the center
-  for (let x = xCenter; x > start.x; x -= patternWidth) {
-    let from = { x: x, y: start.y };
-    let to = { x: x, y: end.y };
-    drawDashedLine(
-      context,
-      { x: x, y: start.y },
-      { x: x, y: end.y },
-      lightGray
-    );
-
-    updatePixelArrayWithVerticalDashedLine(
-      canvasToPixel(element, from as CanvasCoordinate),
-      canvasToPixel(element, to as CanvasCoordinate),
-      image.width,
-      image.height,
-      imageDashWidth,
-      imageDashHeight,
-      gridPixelArray,
-      lightColorCode
-    );
-
-    from = { x: x + dashHeight, y: start.y };
-    to = { x: x + dashHeight, y: end.y };
-    drawDashedLine(
-      context,
-      { x: x + dashHeight, y: start.y },
-      { x: x + dashHeight, y: end.y },
-      darkGray
-    );
-
-    updatePixelArrayWithVerticalDashedLine(
-      canvasToPixel(element, from as CanvasCoordinate),
-      canvasToPixel(element, to as CanvasCoordinate),
-      image.width,
-      image.height,
-      imageDashWidth,
-      imageDashHeight,
-      gridPixelArray,
-      darkColorCode
-    );
+  for (let x = xCenter - patternWidth; x > start.x; x -= patternWidth) {
+    drawVerticalLinePair(x);
   }
 }
 
@@ -259,7 +216,7 @@ function updatePixelArrayWithVerticalDashedLine(
     let y1 = from.y + (currentLength + dashLength);
 
     if (currentLength + dashLength > lineLength) {
-      y1 = lineLength;
+      y1 = to.y;
     }
 
     for (
