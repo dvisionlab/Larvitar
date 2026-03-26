@@ -6,8 +6,12 @@ import {
   HandlePosition,
   Handles,
   HandleTextBox,
-  MeasurementMouseEvent
+  MeasurementMouseEvent,
+  VHSAnnotationData,
+  VHSCachedStats,
+  VHSMeasurementState
 } from "../types";
+
 const toolColors = cornerstoneTools.toolColors;
 const draw = cornerstoneTools.importInternal("drawing/draw");
 const drawLine = cornerstoneTools.importInternal("drawing/drawLine");
@@ -16,29 +20,22 @@ const drawHandles = cornerstoneTools.importInternal("drawing/drawHandles");
 const drawLinkedTextBox = cornerstoneTools.importInternal(
   "drawing/drawLinkedTextBox"
 );
+const { throttle } = cornerstoneTools.importInternal("util/throttle");
 
 const { lengthCursor } = cornerstoneTools.importInternal("tools/cursors");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
   "base/BaseAnnotationTool"
 );
 
-enum MeasurementState {
-  IDLE = 0,
-  VERTEBRAL_START = 1,
-  VERTEBRAL_END = 2,
-  LONG_AXIS_START = 3,
-  LONG_AXIS_END = 4,
-  SHORT_AXIS_START = 5,
-  SHORT_AXIS_END = 6,
-  COMPLETE = 7
-}
-
 export default class VHSAnnotationTool extends BaseAnnotationTool {
-  private currentState: MeasurementState;
-  private currentAnnotation: any | null;
+  private currentState: VHSMeasurementState;
+  private currentAnnotation: VHSAnnotationData | null;
   private isDragging: boolean;
 
-  constructor(props: any = {}) {
+  private _throttledMouseMove: (evt: MeasurementMouseEvent) => void;
+  private _throttledMouseDrag: (evt: MeasurementMouseEvent) => void;
+
+  constructor(props: Record<string, unknown> = {}) {
     const defaultProps = {
       name: "VHSAnnotation",
       supportedInteractionTypes: ["Mouse", "Touch"],
@@ -54,12 +51,19 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
 
     super(props, defaultProps);
 
-    this.currentState = MeasurementState.IDLE;
+    this.currentState = VHSMeasurementState.IDLE;
     this.currentAnnotation = null;
     this.isDragging = false;
+
+    this._throttledMouseMove = throttle(this._mouseMoveImpl.bind(this), 16) as (
+      evt: MeasurementMouseEvent
+    ) => void;
+    this._throttledMouseDrag = throttle(this._mouseDragImpl.bind(this), 16) as (
+      evt: MeasurementMouseEvent
+    ) => void;
   }
 
-  createNewMeasurement(eventData: EventData) {
+  createNewMeasurement(eventData: EventData): VHSAnnotationData | null {
     const goodEventData =
       eventData && eventData.currentPoints && eventData.currentPoints.image;
 
@@ -67,49 +71,21 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
       console.error("VHSAnnotationTool: No event data");
       return null;
     }
+
     const { x, y } = eventData.currentPoints!.image!;
+
     return {
       visible: true,
       active: true,
       color: undefined,
       invalidated: true,
       handles: {
-        vertebralStart: {
-          x,
-          y,
-          highlight: true,
-          active: false
-        },
-        vertebralEnd: {
-          x,
-          y,
-          highlight: true,
-          active: true
-        },
-        longAxisStart: {
-          x: 0,
-          y: 0,
-          highlight: true,
-          active: false
-        },
-        longAxisEnd: {
-          x: 0,
-          y: 0,
-          highlight: true,
-          active: false
-        },
-        shortAxisStart: {
-          x: 0,
-          y: 0,
-          highlight: true,
-          active: false
-        },
-        shortAxisEnd: {
-          x: 0,
-          y: 0,
-          highlight: true,
-          active: false
-        },
+        vertebralStart: { x, y, highlight: true, active: false },
+        vertebralEnd: { x, y, highlight: true, active: true },
+        longAxisStart: { x: 0, y: 0, highlight: true, active: false },
+        longAxisEnd: { x: 0, y: 0, highlight: true, active: false },
+        shortAxisStart: { x: 0, y: 0, highlight: true, active: false },
+        shortAxisEnd: { x: 0, y: 0, highlight: true, active: false },
         vertebralTextBox: {
           active: false,
           hasMoved: false,
@@ -152,14 +128,18 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
         }
       },
       cachedStats: {
-        vertebralLength: "0",
-        longAxisLength: "0",
-        shortAxisLength: "0",
-        longAxisVHS: "0",
-        shortAxisVHS: "0",
-        totalVHS: "0"
+        vertebralLength: 0,
+        longAxisLength: 0,
+        shortAxisLength: 0,
+        longAxisProjection: 0,
+        shortAxisProjection: 0,
+        longAxisAngle: 0,
+        shortAxisAngle: 0,
+        longAxisVHS: 0,
+        shortAxisVHS: 0,
+        totalVHS: 0
       },
-      measurementState: MeasurementState.IDLE
+      measurementState: VHSMeasurementState.IDLE
     };
   }
 
@@ -169,16 +149,16 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  addNewMeasurement(evt: MeasurementMouseEvent) {
+  addNewMeasurement(evt: MeasurementMouseEvent): VHSAnnotationData | null {
     const eventData = evt.detail;
     const { element } = eventData;
 
     switch (this.currentState) {
-      case MeasurementState.IDLE:
+      case VHSMeasurementState.IDLE: {
         this.currentAnnotation = this.createNewMeasurement(eventData);
         if (!this.currentAnnotation) return null;
 
-        this.currentState = MeasurementState.VERTEBRAL_START;
+        this.currentState = VHSMeasurementState.VERTEBRAL_START;
         this.currentAnnotation.measurementState = this.currentState;
 
         cornerstoneTools.addToolState(
@@ -186,55 +166,40 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
           this.name,
           this.currentAnnotation
         );
-
-        console.log(
-          "Passo 1/6: Clicca sul centro di T4 - ora trascina fino a T9"
-        );
         return this.currentAnnotation;
+      }
 
-      case MeasurementState.VERTEBRAL_END:
+      case VHSMeasurementState.VERTEBRAL_END: {
         if (this.currentAnnotation) {
-          this.currentAnnotation.handles.longAxisStart.x =
-            eventData.currentPoints.image.x;
-          this.currentAnnotation.handles.longAxisStart.y =
-            eventData.currentPoints.image.y;
-          this.currentAnnotation.handles.longAxisEnd.x =
-            eventData.currentPoints.image.x;
-          this.currentAnnotation.handles.longAxisEnd.y =
-            eventData.currentPoints.image.y;
+          const { x, y } = eventData.currentPoints.image;
+          this.currentAnnotation.handles.longAxisStart.x = x;
+          this.currentAnnotation.handles.longAxisStart.y = y;
+          this.currentAnnotation.handles.longAxisEnd.x = x;
+          this.currentAnnotation.handles.longAxisEnd.y = y;
           this.currentAnnotation.handles.longAxisEnd.active = true;
 
-          this.currentState = MeasurementState.LONG_AXIS_START;
+          this.currentState = VHSMeasurementState.LONG_AXIS_START;
           this.currentAnnotation.measurementState = this.currentState;
-
-          console.log(
-            "Passo 3/6: Clicca sul punto cardiaco superiore - ora trascina fino all'apice"
-          );
           cornerstone.updateImage(element);
         }
         break;
+      }
 
-      case MeasurementState.LONG_AXIS_END:
+      case VHSMeasurementState.LONG_AXIS_END: {
         if (this.currentAnnotation) {
-          this.currentAnnotation.handles.shortAxisStart.x =
-            eventData.currentPoints.image.x;
-          this.currentAnnotation.handles.shortAxisStart.y =
-            eventData.currentPoints.image.y;
-          this.currentAnnotation.handles.shortAxisEnd.x =
-            eventData.currentPoints.image.x;
-          this.currentAnnotation.handles.shortAxisEnd.y =
-            eventData.currentPoints.image.y;
+          const { x, y } = eventData.currentPoints.image;
+          this.currentAnnotation.handles.shortAxisStart.x = x;
+          this.currentAnnotation.handles.shortAxisStart.y = y;
+          this.currentAnnotation.handles.shortAxisEnd.x = x;
+          this.currentAnnotation.handles.shortAxisEnd.y = y;
           this.currentAnnotation.handles.shortAxisEnd.active = true;
 
-          this.currentState = MeasurementState.SHORT_AXIS_START;
+          this.currentState = VHSMeasurementState.SHORT_AXIS_START;
           this.currentAnnotation.measurementState = this.currentState;
-
-          console.log(
-            "Passo 5/6: Clicca sul punto cardiaco sinistro - ora trascina a destra"
-          );
           cornerstone.updateImage(element);
         }
         break;
+      }
 
       default:
         break;
@@ -244,49 +209,50 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
   }
 
   mouseMoveCallback(evt: MeasurementMouseEvent): void {
+    this._throttledMouseMove(evt);
+  }
+
+  private _mouseMoveImpl(evt: MeasurementMouseEvent): void {
     const eventData = evt.detail;
     const { element } = eventData;
 
-    if (!this.currentAnnotation) return;
+    if (!this.currentAnnotation || this.isDragging) return;
 
-    // Only update on mouse move if we're NOT dragging (rubber-band mode)
-    if (this.isDragging) return;
-
-    // Update the end point position while mouse is moving (rubber-band effect)
     switch (this.currentState) {
-      case MeasurementState.VERTEBRAL_START:
+      case VHSMeasurementState.VERTEBRAL_START:
         this.currentAnnotation.handles.vertebralEnd.x =
           eventData.currentPoints.image.x;
         this.currentAnnotation.handles.vertebralEnd.y =
           eventData.currentPoints.image.y;
-        this.currentAnnotation.invalidated = true;
-        cornerstone.updateImage(element);
         break;
 
-      case MeasurementState.LONG_AXIS_START:
+      case VHSMeasurementState.LONG_AXIS_START:
         this.currentAnnotation.handles.longAxisEnd.x =
           eventData.currentPoints.image.x;
         this.currentAnnotation.handles.longAxisEnd.y =
           eventData.currentPoints.image.y;
-        this.currentAnnotation.invalidated = true;
-        cornerstone.updateImage(element);
         break;
 
-      case MeasurementState.SHORT_AXIS_START:
+      case VHSMeasurementState.SHORT_AXIS_START:
         this.currentAnnotation.handles.shortAxisEnd.x =
           eventData.currentPoints.image.x;
         this.currentAnnotation.handles.shortAxisEnd.y =
           eventData.currentPoints.image.y;
-        this.currentAnnotation.invalidated = true;
-        cornerstone.updateImage(element);
         break;
 
       default:
-        break;
+        return;
     }
+
+    this.currentAnnotation.invalidated = true;
+    cornerstone.updateImage(element);
   }
 
   mouseDragCallback(evt: MeasurementMouseEvent): void {
+    this._throttledMouseDrag(evt);
+  }
+
+  private _mouseDragImpl(evt: MeasurementMouseEvent): void {
     const eventData = evt.detail;
     const { element } = eventData;
 
@@ -294,23 +260,22 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
 
     this.isDragging = true;
 
-    // Update end point during drag
     switch (this.currentState) {
-      case MeasurementState.VERTEBRAL_START:
+      case VHSMeasurementState.VERTEBRAL_START:
         this.currentAnnotation.handles.vertebralEnd.x =
           eventData.currentPoints.image.x;
         this.currentAnnotation.handles.vertebralEnd.y =
           eventData.currentPoints.image.y;
         break;
 
-      case MeasurementState.LONG_AXIS_START:
+      case VHSMeasurementState.LONG_AXIS_START:
         this.currentAnnotation.handles.longAxisEnd.x =
           eventData.currentPoints.image.x;
         this.currentAnnotation.handles.longAxisEnd.y =
           eventData.currentPoints.image.y;
         break;
 
-      case MeasurementState.SHORT_AXIS_START:
+      case VHSMeasurementState.SHORT_AXIS_START:
         this.currentAnnotation.handles.shortAxisEnd.x =
           eventData.currentPoints.image.x;
         this.currentAnnotation.handles.shortAxisEnd.y =
@@ -325,145 +290,95 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
     cornerstone.updateImage(element);
   }
 
+  private _completeSegment(
+    state: VHSMeasurementState,
+    eventData: EventData,
+    element: HTMLElement
+  ): void {
+    switch (state) {
+      case VHSMeasurementState.VERTEBRAL_START:
+        this.currentState = VHSMeasurementState.VERTEBRAL_END;
+        if (this.currentAnnotation) {
+          this.currentAnnotation.measurementState = this.currentState;
+          this.currentAnnotation.handles.vertebralEnd.active = false;
+          this.updateCachedStats(
+            eventData.image,
+            element,
+            this.currentAnnotation
+          );
+        }
+        cornerstone.updateImage(element);
+        break;
+
+      case VHSMeasurementState.LONG_AXIS_START:
+        this.currentState = VHSMeasurementState.LONG_AXIS_END;
+        if (this.currentAnnotation) {
+          this.currentAnnotation.measurementState = this.currentState;
+          this.currentAnnotation.handles.longAxisEnd.active = false;
+          this.updateCachedStats(
+            eventData.image,
+            element,
+            this.currentAnnotation
+          );
+        }
+        cornerstone.updateImage(element);
+        break;
+
+      case VHSMeasurementState.SHORT_AXIS_START:
+        this.currentState = VHSMeasurementState.COMPLETE;
+        if (this.currentAnnotation) {
+          this.currentAnnotation.measurementState = this.currentState;
+          this.currentAnnotation.handles.shortAxisEnd.active = false;
+          this.currentAnnotation.active = false;
+          this.updateCachedStats(
+            eventData.image,
+            element,
+            this.currentAnnotation
+          );
+        }
+        this.currentAnnotation = null;
+        this.currentState = VHSMeasurementState.IDLE;
+        cornerstone.updateImage(element);
+        break;
+
+      default:
+        break;
+    }
+  }
+
   mouseUpCallback(evt: MeasurementMouseEvent): void {
     const eventData = evt.detail;
     const { element } = eventData;
 
-    // If we were dragging, complete the current segment
-    if (this.isDragging) {
-      this.isDragging = false;
+    if (!this.isDragging) return;
 
-      switch (this.currentState) {
-        case MeasurementState.VERTEBRAL_START:
-          this.currentState = MeasurementState.VERTEBRAL_END;
-          if (this.currentAnnotation) {
-            this.currentAnnotation.measurementState = this.currentState;
-            this.currentAnnotation.handles.vertebralEnd.active = false;
-          }
-          console.log(
-            "Passo 2/6 Completato - Ora clicca sul punto cardiaco superiore"
-          );
-          break;
-
-        case MeasurementState.LONG_AXIS_START:
-          this.currentState = MeasurementState.LONG_AXIS_END;
-          if (this.currentAnnotation) {
-            this.currentAnnotation.measurementState = this.currentState;
-            this.currentAnnotation.handles.longAxisEnd.active = false;
-          }
-          console.log(
-            "Passo 4/6 Completato - Ora clicca sul punto cardiaco sinistro"
-          );
-          break;
-
-        case MeasurementState.SHORT_AXIS_START:
-          this.currentState = MeasurementState.COMPLETE;
-          if (this.currentAnnotation) {
-            this.currentAnnotation.measurementState = this.currentState;
-            this.currentAnnotation.handles.shortAxisEnd.active = false;
-            this.currentAnnotation.active = false;
-            this.updateCachedStats(
-              eventData.image,
-              element,
-              this.currentAnnotation
-            );
-
-            const vhs = parseFloat(this.currentAnnotation.cachedStats.totalVHS);
-            console.log(
-              `Misurazione VHS Completata: ${vhs.toFixed(2)} unità vertebrali`
-            );
-          }
-
-          this.currentAnnotation = null;
-          this.currentState = MeasurementState.IDLE;
-          break;
-
-        default:
-          break;
-      }
-
-      if (this.currentAnnotation) {
-        this.updateCachedStats(
-          eventData.image,
-          element,
-          this.currentAnnotation
-        );
-      }
-
-      cornerstone.updateImage(element);
-    }
+    this.isDragging = false;
+    this._completeSegment(this.currentState, eventData, element);
   }
 
   preMouseDownCallback(evt: MeasurementMouseEvent): void {
     const eventData = evt.detail;
     const { element } = eventData;
 
-    if (!this.isDragging) {
-      switch (this.currentState) {
-        case MeasurementState.VERTEBRAL_START:
-          this.currentState = MeasurementState.VERTEBRAL_END;
-          if (this.currentAnnotation) {
-            this.currentAnnotation.measurementState = this.currentState;
-            this.currentAnnotation.handles.vertebralEnd.active = false;
-          }
-          console.log(
-            "Passo 2/6 Completato - Ora clicca sul punto cardiaco superiore"
-          );
-          if (this.currentAnnotation) {
-            this.updateCachedStats(
-              eventData.image,
-              element,
-              this.currentAnnotation
-            );
-          }
-          cornerstone.updateImage(element);
-          break;
+    if (this.isDragging) return;
 
-        case MeasurementState.LONG_AXIS_START:
-          this.currentState = MeasurementState.LONG_AXIS_END;
-          if (this.currentAnnotation) {
-            this.currentAnnotation.measurementState = this.currentState;
-            this.currentAnnotation.handles.longAxisEnd.active = false;
-          }
-          console.log(
-            "Passo 4/6 Completato - Ora clicca sul punto cardiaco sinistro"
-          );
-          if (this.currentAnnotation) {
-            this.updateCachedStats(
-              eventData.image,
-              element,
-              this.currentAnnotation
-            );
-          }
-          cornerstone.updateImage(element);
-          break;
+    this._completeSegment(this.currentState, eventData, element);
+  }
 
-        case MeasurementState.SHORT_AXIS_START:
-          this.currentState = MeasurementState.COMPLETE;
-          if (this.currentAnnotation) {
-            this.currentAnnotation.measurementState = this.currentState;
-            this.currentAnnotation.handles.shortAxisEnd.active = false;
-            this.currentAnnotation.active = false;
-            this.updateCachedStats(
-              eventData.image,
-              element,
-              this.currentAnnotation
-            );
+  private _autoPositionTextBox(
+    textBox: HandleTextBox,
+    startHandle: HandlePosition,
+    endHandle: HandlePosition,
+    xOffset: number = 0
+  ): void {
+    if (textBox.hasMoved) return;
 
-            const vhs = parseFloat(this.currentAnnotation.cachedStats.totalVHS);
-            console.log(
-              `Misurazione VHS Completata: ${vhs.toFixed(2)} unità vertebrali`
-            );
-          }
-
-          this.currentAnnotation = null;
-          this.currentState = MeasurementState.IDLE;
-          cornerstone.updateImage(element);
-          break;
-
-        default:
-          break;
-      }
+    if (startHandle.x >= endHandle.x) {
+      textBox.x = startHandle.x + xOffset;
+      textBox.y = startHandle.y;
+    } else {
+      textBox.x = endHandle.x + xOffset;
+      textBox.y = endHandle.y;
     }
   }
 
@@ -476,22 +391,20 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
 
     const context = getNewContext(canvasContext!.canvas);
 
-    toolData.data.forEach((data: any) => {
+    toolData.data.forEach((data: VHSAnnotationData) => {
       if (!data.visible) return;
 
       draw(context, (ctx: CanvasRenderingContext2D) => {
         const { handles, cachedStats, measurementState } = data;
         const color = toolColors.getColorIfActive(data);
 
-        // LINEA DI RIFERIMENTO VERTEBRALE (T4-T9)
-        if (measurementState >= MeasurementState.VERTEBRAL_START) {
+        if (measurementState >= VHSMeasurementState.VERTEBRAL_START) {
           const vertebralColor = "rgb(0, 150, 255)";
 
           drawLine(ctx, element, handles.vertebralStart, handles.vertebralEnd, {
             color: vertebralColor,
             lineWidth: 2
           });
-
           drawHandles(
             ctx,
             eventData,
@@ -501,24 +414,13 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
             }
           );
 
-          if (!data.handles.vertebralTextBox!.hasMoved) {
-            const coords: { x: number; y?: number } = {
-              x: Math.max(
-                data.handles.vertebralStart!.x,
-                data.handles.vertebralEnd!.x
-              )
-            };
+          this._autoPositionTextBox(
+            handles.vertebralTextBox,
+            handles.vertebralStart,
+            handles.vertebralEnd
+          );
 
-            if (coords.x === data.handles.vertebralStart!.x) {
-              coords.y = data.handles.vertebralStart!.y;
-            } else {
-              coords.y = data.handles.vertebralEnd!.y;
-            }
-
-            data.handles.vertebralTextBox!.x = coords.x;
-            data.handles.vertebralTextBox!.y = coords.y;
-          }
-          if (measurementState >= MeasurementState.VERTEBRAL_END) {
+          if (measurementState >= VHSMeasurementState.VERTEBRAL_END) {
             const midPoint = {
               x: (handles.vertebralStart.x + handles.vertebralEnd.x) / 2,
               y: (handles.vertebralStart.y + handles.vertebralEnd.y) / 2
@@ -537,32 +439,20 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
             );
           }
         }
-        if (!data.handles.longAxisTextBox!.hasMoved) {
-          const coords: { x: number; y?: number } = {
-            x: Math.max(
-              data.handles.longAxisStart!.x,
-              data.handles.longAxisEnd!.x
-            )
-          };
 
-          if (coords.x === data.handles.longAxisStart!.x) {
-            coords.y = data.handles.longAxisStart!.y;
-          } else {
-            coords.y = data.handles.longAxisEnd!.y;
-          }
+        this._autoPositionTextBox(
+          handles.longAxisTextBox,
+          handles.longAxisStart,
+          handles.longAxisEnd
+        );
 
-          data.handles.longAxisTextBox!.x = coords.x;
-          data.handles.longAxisTextBox!.y = coords.y;
-        }
-        // ASSE LUNGO (L)
-        if (measurementState >= MeasurementState.LONG_AXIS_START) {
+        if (measurementState >= VHSMeasurementState.LONG_AXIS_START) {
           const longAxisColor = "rgb(255, 80, 80)";
 
           drawLine(ctx, element, handles.longAxisStart, handles.longAxisEnd, {
             color: longAxisColor,
             lineWidth: 2
           });
-
           drawHandles(
             ctx,
             eventData,
@@ -572,7 +462,7 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
             }
           );
 
-          if (measurementState >= MeasurementState.LONG_AXIS_END) {
+          if (measurementState >= VHSMeasurementState.LONG_AXIS_END) {
             const longAxisMid = {
               x: (handles.longAxisStart.x + handles.longAxisEnd.x) / 2,
               y: (handles.longAxisStart.y + handles.longAxisEnd.y) / 2
@@ -589,7 +479,6 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
               10,
               true
             );
-
             this.drawProjectionVisualization(
               ctx,
               element,
@@ -601,32 +490,20 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
             );
           }
         }
-        if (!data.handles.shortAxisTextBox!.hasMoved) {
-          const coords: { x: number; y?: number } = {
-            x: Math.max(
-              data.handles.shortAxisStart!.x,
-              data.handles.shortAxisEnd!.x
-            )
-          };
 
-          if (coords.x === data.handles.shortAxisStart!.x) {
-            coords.y = data.handles.shortAxisStart!.y;
-          } else {
-            coords.y = data.handles.shortAxisEnd!.y;
-          }
+        this._autoPositionTextBox(
+          handles.shortAxisTextBox,
+          handles.shortAxisStart,
+          handles.shortAxisEnd
+        );
 
-          data.handles.shortAxisTextBox!.x = coords.x;
-          data.handles.shortAxisTextBox!.y = coords.y;
-        }
-        // ASSE CORTO (S)
-        if (measurementState >= MeasurementState.SHORT_AXIS_START) {
+        if (measurementState >= VHSMeasurementState.SHORT_AXIS_START) {
           const shortAxisColor = "rgb(80, 255, 255)";
 
           drawLine(ctx, element, handles.shortAxisStart, handles.shortAxisEnd, {
             color: shortAxisColor,
             lineWidth: 2
           });
-
           drawHandles(
             ctx,
             eventData,
@@ -636,7 +513,7 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
             }
           );
 
-          if (measurementState >= MeasurementState.COMPLETE) {
+          if (measurementState >= VHSMeasurementState.COMPLETE) {
             const shortAxisMid = {
               x: (handles.shortAxisStart.x + handles.shortAxisEnd.x) / 2,
               y: (handles.shortAxisStart.y + handles.shortAxisEnd.y) / 2
@@ -657,7 +534,6 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
               10,
               true
             );
-
             this.drawProjectionVisualization(
               ctx,
               element,
@@ -669,29 +545,20 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
             );
           }
         }
-        if (!data.handles.vhsTextBox!.hasMoved) {
-          const coords: { x: number; y?: number } = {
-            x:
-              Math.max(
-                data.handles.vertebralStart!.x,
-                data.handles.vertebralEnd!.x
-              ) + 30
-          };
 
-          if (coords.x === data.handles.vertebralStart!.x) {
-            coords.y = data.handles.vertebralStart!.y;
-          } else {
-            coords.y = data.handles.vertebralEnd!.y;
-          }
+        this._autoPositionTextBox(
+          handles.vhsTextBox,
+          handles.vertebralStart,
+          handles.vertebralEnd,
+          30
+        );
 
-          data.handles.vhsTextBox!.x = coords.x;
-          data.handles.vhsTextBox!.y = coords.y;
-        }
-        // TEXTBOX VHS FINALE
-        if (measurementState === MeasurementState.COMPLETE) {
-          const p1 = parseFloat(cachedStats.longAxisVHS);
-          const p2 = parseFloat(cachedStats.shortAxisVHS);
-          const total = parseFloat(cachedStats.totalVHS);
+        if (measurementState === VHSMeasurementState.COMPLETE) {
+          const {
+            longAxisVHS: p1,
+            shortAxisVHS: p2,
+            totalVHS: total
+          } = cachedStats;
 
           const textLines = [
             `VHS = P1 + P2`,
@@ -726,7 +593,7 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
     label: string,
     color: string,
     offset: number,
-    cachedStats: any
+    cachedStats: VHSCachedStats
   ): void {
     const vx = handles.vertebralEnd!.x - handles.vertebralStart!.x;
     const vy = handles.vertebralEnd!.y - handles.vertebralStart!.y;
@@ -737,22 +604,17 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
     const vNormX = vx / vMag;
     const vNormY = vy / vMag;
 
-    let cx, cy, startHandle, endHandle;
+    let cx: number, cy: number;
 
     if (label === "P1") {
       cx = handles.longAxisEnd!.x - handles.longAxisStart!.x;
       cy = handles.longAxisEnd!.y - handles.longAxisStart!.y;
-      startHandle = handles.longAxisStart;
-      endHandle = handles.longAxisEnd;
     } else {
       cx = handles.shortAxisEnd!.x - handles.shortAxisStart!.x;
       cy = handles.shortAxisEnd!.y - handles.shortAxisStart!.y;
-      startHandle = handles.shortAxisStart;
-      endHandle = handles.shortAxisEnd;
     }
 
     const projectionLength = cx * vNormX + cy * vNormY;
-
     const projEndX = handles.vertebralStart!.x + vNormX * projectionLength;
     const projEndY = handles.vertebralStart!.y + vNormY * projectionLength;
 
@@ -795,15 +657,19 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
     drawLine(context, element, start, end, { color, lineWidth: 2 });
   }
 
-  updateCachedStats(image: any, element: HTMLElement, data: any) {
+  updateCachedStats(
+    image: unknown,
+    element: HTMLElement,
+    data: VHSAnnotationData
+  ): VHSCachedStats {
     const { handles } = data;
 
     const vx = handles.vertebralEnd.x - handles.vertebralStart.x;
     const vy = handles.vertebralEnd.y - handles.vertebralStart.y;
     const vertebralLength = Math.sqrt(vx * vx + vy * vy);
 
-    const vNormX = vx / vertebralLength;
-    const vNormY = vy / vertebralLength;
+    const vNormX = vertebralLength > 0 ? vx / vertebralLength : 0;
+    const vNormY = vertebralLength > 0 ? vy / vertebralLength : 0;
 
     const lx = handles.longAxisEnd.x - handles.longAxisStart.x;
     const ly = handles.longAxisEnd.y - handles.longAxisStart.y;
@@ -823,24 +689,26 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
       vertebralUnit > 0 ? shortAxisProjection / vertebralUnit : 0;
     const totalVHS = longAxisVHS + shortAxisVHS;
 
-    const longAxisAngle =
-      Math.abs(Math.acos((lx * vNormX + ly * vNormY) / longAxisLength)) *
-      (180 / Math.PI);
-    const shortAxisAngle =
-      Math.abs(Math.acos((sx * vNormX + sy * vNormY) / shortAxisLength)) *
-      (180 / Math.PI);
+    const getAngle = (dotProduct: number, length: number): number => {
+      if (length === 0) return 0;
+      const cosTheta = Math.max(-1, Math.min(1, dotProduct / length));
+      return Math.abs(Math.acos(cosTheta)) * (180 / Math.PI);
+    };
+
+    const longAxisAngle = getAngle(lx * vNormX + ly * vNormY, longAxisLength);
+    const shortAxisAngle = getAngle(sx * vNormX + sy * vNormY, shortAxisLength);
 
     data.cachedStats = {
-      vertebralLength: vertebralLength.toFixed(2),
-      longAxisLength: longAxisLength.toFixed(2),
-      shortAxisLength: shortAxisLength.toFixed(2),
-      longAxisProjection: longAxisProjection.toFixed(2),
-      shortAxisProjection: shortAxisProjection.toFixed(2),
-      longAxisAngle: longAxisAngle.toFixed(1),
-      shortAxisAngle: shortAxisAngle.toFixed(1),
-      longAxisVHS: longAxisVHS.toFixed(1),
-      shortAxisVHS: shortAxisVHS.toFixed(1),
-      totalVHS: totalVHS.toFixed(2)
+      vertebralLength,
+      longAxisLength,
+      shortAxisLength,
+      longAxisProjection,
+      shortAxisProjection,
+      longAxisAngle,
+      shortAxisAngle,
+      longAxisVHS,
+      shortAxisVHS,
+      totalVHS
     };
 
     return data.cachedStats;
@@ -848,17 +716,16 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
 
   pointNearTool(
     element: HTMLElement,
-    data: any,
+    data: VHSAnnotationData,
     coords: Coords,
     interactionType: string
   ): boolean {
-    const validParameters = data && data.handles;
-    if (!validParameters) return false;
+    if (!data?.handles) return false;
 
     const distance = interactionType === "mouse" ? 15 : 25;
-    const handles = data.handles;
+    const { handles } = data;
 
-    const handlesList = [
+    const handlesList: HandlePosition[] = [
       handles.vertebralStart,
       handles.vertebralEnd,
       handles.longAxisStart,
@@ -867,10 +734,9 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
       handles.shortAxisEnd
     ];
 
-    for (let handle of handlesList) {
-      if (this.isPointNearHandle(element, handle, coords, distance)) {
+    for (const handle of handlesList) {
+      if (this.isPointNearHandle(element, handle, coords, distance))
         return true;
-      }
     }
 
     if (
@@ -885,7 +751,7 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
       return true;
     }
 
-    if (data.measurementState >= MeasurementState.LONG_AXIS_START) {
+    if (data.measurementState >= VHSMeasurementState.LONG_AXIS_START) {
       if (
         this.isPointNearLine(
           element,
@@ -899,7 +765,7 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
       }
     }
 
-    if (data.measurementState >= MeasurementState.SHORT_AXIS_START) {
+    if (data.measurementState >= VHSMeasurementState.SHORT_AXIS_START) {
       if (
         this.isPointNearLine(
           element,
@@ -922,16 +788,14 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
     coords: Coords,
     distance: number
   ): boolean {
-    if (!handle || handle.x === undefined || handle.y === undefined) {
+    if (!handle || handle.x === undefined || handle.y === undefined)
       return false;
-    }
 
-    const handleCanvas = cornerstone.pixelToCanvas(element, handle as any);
+    const handleCanvas = cornerstone.pixelToCanvas(element, handle as never);
     const dx = handleCanvas.x - coords.x;
     const dy = handleCanvas.y - coords.y;
-    const distanceSquared = dx * dx + dy * dy;
 
-    return distanceSquared <= distance * distance;
+    return dx * dx + dy * dy <= distance * distance;
   }
 
   isPointNearLine(
@@ -943,16 +807,15 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
   ): boolean {
     if (!startHandle || !endHandle) return false;
 
-    const startCanvas = cornerstone.pixelToCanvas(element, startHandle as any);
-    const endCanvas = cornerstone.pixelToCanvas(element, endHandle as any);
-
-    const distToLine = this.distanceToLineSegment(
-      coords,
-      startCanvas,
-      endCanvas
+    const startCanvas = cornerstone.pixelToCanvas(
+      element,
+      startHandle as never
     );
+    const endCanvas = cornerstone.pixelToCanvas(element, endHandle as never);
 
-    return distToLine <= distance;
+    return (
+      this.distanceToLineSegment(coords, startCanvas, endCanvas) <= distance
+    );
   }
 
   distanceToLineSegment(
@@ -980,7 +843,6 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
 
     const projectionX = lineStart.x + t * dx;
     const projectionY = lineStart.y + t * dy;
-
     const dpx = point.x - projectionX;
     const dpy = point.y - projectionY;
 
@@ -989,26 +851,25 @@ export default class VHSAnnotationTool extends BaseAnnotationTool {
 
   getHandleNearImagePoint(
     element: HTMLElement,
-    data: any,
+    data: VHSAnnotationData,
     coords: Coords,
     interactionType: string
-  ) {
+  ): HandlePosition | null {
     const distance = interactionType === "mouse" ? 15 : 25;
-    const handles = data.handles;
+    const { handles } = data;
 
-    const handlesList = [
-      { handle: handles.vertebralStart, name: "vertebralStart" },
-      { handle: handles.vertebralEnd, name: "vertebralEnd" },
-      { handle: handles.longAxisStart, name: "longAxisStart" },
-      { handle: handles.longAxisEnd, name: "longAxisEnd" },
-      { handle: handles.shortAxisStart, name: "shortAxisStart" },
-      { handle: handles.shortAxisEnd, name: "shortAxisEnd" }
+    const handlesList: HandlePosition[] = [
+      handles.vertebralStart,
+      handles.vertebralEnd,
+      handles.longAxisStart,
+      handles.longAxisEnd,
+      handles.shortAxisStart,
+      handles.shortAxisEnd
     ];
 
-    for (let { handle, name } of handlesList) {
-      if (this.isPointNearHandle(element, handle, coords, distance)) {
+    for (const handle of handlesList) {
+      if (this.isPointNearHandle(element, handle, coords, distance))
         return handle;
-      }
     }
 
     return null;
