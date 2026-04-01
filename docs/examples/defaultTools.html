@@ -114,6 +114,41 @@ larvitar
         class="col-4"
         style="background-color: rgb(0, 0, 0)"
       ></div>
+      <div
+        id="grid-config-panel"
+        class="col-4"
+        style="
+          position: absolute;
+          top: 120px;
+          right: 10px;
+          color: white;
+          background: rgba(0, 0, 0, 0.8);
+          padding: 15px;
+          display: none;
+          border-radius: 8px;
+          border: 1px solid #444;
+          z-index: 1000;
+        "
+      >
+        <div style="margin-bottom: 0px">
+          <label
+            style="
+              display: block;
+              font-size: 11px;
+              color: #bbb;
+              margin-bottom: 5px;
+            "
+            >Grid Dimension (mm):</label
+          >
+          <input
+            type="number"
+            id="patternDimension"
+            class="form-control form-control-sm bg-dark text-white border-secondary"
+            value="50"
+            step="1"
+          />
+        </div>
+      </div>
       <p style="position: absolute; color: white">
         <b>Left Mouse Button:</b> Press "t" to cycle through tools
       </p>
@@ -222,6 +257,10 @@ larvitar
         larvitar
           .readFiles(demoFiles)
           .then(seriesStack => {
+            //populate the image manager with the series
+            for (const [uniqueId, data] of Object.entries(seriesStack)) {
+              larvitar.populateImageManager(uniqueId, data);
+            }
             let seriesId = Object.keys(seriesStack)[0];
             let serie = seriesStack[seriesId];
             larvitar.renderImage(serie, "viewer").then(() => {
@@ -294,6 +333,33 @@ larvitar
             tool_counter == tools.length - 1 ? 0 : tool_counter + increment;
           tool_counter = tool_counter < 0 ? 0 : tool_counter;
           let tool = tools[tool_counter];
+          let prevTool =
+            tool_counter === 0
+              ? tools[tools.length - 1]
+              : tools[tool_counter - 1];
+
+          larvitar.setToolDisabled(prevTool, { mouseButtonMask: 1 });
+
+          const gridPanel = document.getElementById("grid-config-panel");
+
+          if (tool === "Grid") {
+            gridPanel.style.display = "block";
+
+            if (!larvitar.DEFAULT_TOOLS["Grid"].configuration.setup) {
+              larvitar.DEFAULT_TOOLS["Grid"].configuration.setup = {
+                gridDimensionMM: 50,
+                dashHeightMM: 2,
+                dashWidthMM: 10,
+                minRows: 500,
+                minColumns: 500,
+                colorFractionLight: 0.66,
+                colorFractionDark: 0.33,
+                minPixelSpacing: 0.1
+              };
+            }
+          } else {
+            gridPanel.style.display = "none";
+          }
           larvitar.setToolActive(tool, { mouseButtonMask: 1 });
           document.getElementById("active-tool").innerText =
             "Active Tool: " + tool;
@@ -303,10 +369,17 @@ larvitar
             info.style.display = "block";
             info.innerHTML =
               "<b>shift+mouse wheel to change lines offset</b><br />";
+<<<<<<< feat-TPA-tool
           } else if (tool === "TPAAnnotation") {
             info.style.display = "block";
             info.innerHTML =
               "Step 1 — Draw Functional Tibial Axis (FTA)</br>Step 2 — Draw Medial Tibial Plateau Line (MTP)<br/>Reference Line (REF) automatically calculated (normal to FTA) </br> <b>Tibial Plateau Angle displayed</b>";
+=======
+          } else if (tool === "Grid") {
+            info.style.display = "block";
+            info.innerHTML =
+              "<b>click to change grid center and use the input to change grid's squares dimension</b><br />";
+>>>>>>> master
           } else {
             info.style.display = "none";
           }
