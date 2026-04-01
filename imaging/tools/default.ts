@@ -45,6 +45,7 @@ import EllipticalRoiTool from "./custom/EllipticalRoiUSTool";
 import FreehandRoiTool from "./custom/FreehandRoiUSTool";
 import ManualLengthPlotTool from "./custom/ManualLengthPlotTool";
 import OverlayTool from "./custom/OverlayTool";
+import { GridTool } from "./custom/gridTool";
 import type {
   ToolConfig,
   ToolMouseKeys,
@@ -584,6 +585,27 @@ const DEFAULT_TOOLS: {
     defaultActive: true,
     //description: "Watershed Segmentation Algorithm based on selected area",
     class: "GspsTool"
+  },
+  Grid: {
+    name: "Grid",
+    viewports: "all",
+    configuration: {
+      setup: {
+        minRows: 500,
+        minColumns: 500,
+        dashHeightMM: 1, // Dash default height in mm
+        dashWidthMM: 5, // Dash default width in mm
+        colorFractionLight: 2 / 3, // Fraction of lightGray color
+        colorFractionDark: 1 / 3, // Fraction of darkGray color
+        minPixelSpacing: 0.1,
+        gridDimensionMM: 42 // Pattern squares default size (5cm)
+      },
+      gridPixelArray: []
+    },
+    options: {},
+    cleanable: true,
+    defaultActive: false,
+    class: "GridTool"
   }
 };
 
@@ -611,7 +633,8 @@ const dvTools: {
   ManualLengthPlotTool: ManualLengthPlotTool,
   OverlayTool: OverlayTool,
   RotateTool: RotateTool,
-  GspsTool: GspsTool
+  GspsTool: GspsTool,
+  GridTool: GridTool
 };
 
 /**
