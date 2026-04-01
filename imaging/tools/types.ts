@@ -566,3 +566,19 @@ export type ThresholdsBrushProp = {
   };
   mixins: string[];
 };
+
+export type GridConfig = {
+  setup: GridSettings;
+  gridPixelArray: number[];
+};
+
+export type GridSettings = {
+  minRows: number;
+  minColumns: number;
+  dashHeightMM: number;
+  dashWidthMM: number;
+  colorFractionLight: number;
+  colorFractionDark: number;
+  minPixelSpacing: number;
+  gridDimensionMM: number;
+};
