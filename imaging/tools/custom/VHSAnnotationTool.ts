@@ -20,7 +20,7 @@ const drawHandles = cornerstoneTools.importInternal("drawing/drawHandles");
 const drawLinkedTextBox = cornerstoneTools.importInternal(
   "drawing/drawLinkedTextBox"
 );
-const { throttle } = cornerstoneTools.importInternal("util/throttle");
+const throttle = cornerstoneTools.importInternal("util/throttle");
 
 const { lengthCursor } = cornerstoneTools.importInternal("tools/cursors");
 const BaseAnnotationTool = cornerstoneTools.importInternal(
