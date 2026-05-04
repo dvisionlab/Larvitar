@@ -616,6 +616,7 @@ export enum VHSMeasurementState {
   SHORT_AXIS_START = 5,
   SHORT_AXIS_END = 6,
   COMPLETE = 7
+}
 export enum TPAMeasurementState {
   IDLE = 0,
   FUNCTIONAL_AXIS_START = 1, // Dragging FTA line
