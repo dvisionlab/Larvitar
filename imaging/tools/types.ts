@@ -616,6 +616,50 @@ export enum VHSMeasurementState {
   SHORT_AXIS_START = 5,
   SHORT_AXIS_END = 6,
   COMPLETE = 7
+export enum TPAMeasurementState {
+  IDLE = 0,
+  FUNCTIONAL_AXIS_START = 1, // Dragging FTA line
+  FUNCTIONAL_AXIS_END = 2, // FTA complete, waiting for MTP start click
+  MEDIAL_PLATEAU_START = 3, // Dragging MTP line
+  MEDIAL_PLATEAU_END = 4, // MTP complete → compute REF + angle
+  COMPLETE = 5
+}
+
+export interface TPACachedStats {
+  tpaAngle: number;
+  ftaLength: number;
+  mtpLength: number;
+
+  mtpNx?: number;
+  mtpNy?: number;
+  perpNx?: number;
+  perpNy?: number;
+}
+export interface TPAAnnotation {
+  visible: boolean;
+  active: boolean;
+  color?: string;
+  invalidated: boolean;
+  measurementState: TPAMeasurementState;
+  handles: {
+    // Step 1: Functional Tibial Axis
+    ftaStart: HandlePosition;
+    ftaEnd: HandlePosition;
+    ftaTextBox: HandleTextBox;
+
+    // Step 2: Medial Tibial Plateau
+    mtpStart: HandlePosition;
+    mtpEnd: HandlePosition;
+    mtpTextBox: HandleTextBox;
+
+    // Step 3: Reference & Intersection
+    refStart: HandlePosition;
+    refEnd: HandlePosition;
+    intersectionPoint: Coords;
+    refTextBox: HandleTextBox;
+    tpaTextBox: HandleTextBox;
+  };
+  cachedStats: TPACachedStats;
 }
 export type GridConfig = {
   setup: GridSettings;
