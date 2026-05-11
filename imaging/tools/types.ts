@@ -471,6 +471,12 @@ export type Rectangle = {
   height: number;
 };
 export interface Handles {
+  vertebralStart?: HandlePosition;
+  vertebralEnd?: HandlePosition;
+  longAxisEnd?: HandlePosition;
+  longAxisStart?: HandlePosition;
+  shortAxisStart?: HandlePosition;
+  shortAxisEnd?: HandlePosition;
   start?: HandlePosition;
   end?: HandlePosition;
   offset?: number;
@@ -567,6 +573,50 @@ export type ThresholdsBrushProp = {
   mixins: string[];
 };
 
+export interface VHSCachedStats {
+  vertebralLength: number;
+  longAxisLength: number;
+  shortAxisLength: number;
+  longAxisProjection: number;
+  shortAxisProjection: number;
+  longAxisAngle: number;
+  shortAxisAngle: number;
+  longAxisVHS: number;
+  shortAxisVHS: number;
+  totalVHS: number;
+}
+
+export interface VHSAnnotationData {
+  visible: boolean;
+  active: boolean;
+  color: string | undefined;
+  invalidated: boolean;
+  handles: {
+    vertebralStart: HandlePosition;
+    vertebralEnd: HandlePosition;
+    longAxisStart: HandlePosition;
+    longAxisEnd: HandlePosition;
+    shortAxisStart: HandlePosition;
+    shortAxisEnd: HandlePosition;
+    vertebralTextBox: HandleTextBox;
+    longAxisTextBox: HandleTextBox;
+    shortAxisTextBox: HandleTextBox;
+    vhsTextBox: HandleTextBox;
+  };
+  cachedStats: VHSCachedStats;
+  measurementState: VHSMeasurementState;
+}
+
+export enum VHSMeasurementState {
+  IDLE = 0,
+  VERTEBRAL_START = 1,
+  VERTEBRAL_END = 2,
+  LONG_AXIS_START = 3,
+  LONG_AXIS_END = 4,
+  SHORT_AXIS_START = 5,
+  SHORT_AXIS_END = 6,
+  COMPLETE = 7
+}
 export enum TPAMeasurementState {
   IDLE = 0,
   FUNCTIONAL_AXIS_START = 1, // Dragging FTA line

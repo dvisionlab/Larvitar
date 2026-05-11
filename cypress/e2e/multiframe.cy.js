@@ -1,34 +1,13 @@
 describe("Larvitar Multiframe Rendering", () => {
   beforeEach(() => {
-    cy.visit("../../docs/examples/multiframe.html"); // Change this URL to where your HTML file is served
-    // Wait for the viewer to be visible
+    cy.visit("../../docs/examples/multiframe.html");
     cy.get("#viewer").should("be.visible");
 
-    // Set up a global window property to track when files are loaded
-    cy.window().then(win => {
-      win.allFilesLoaded = false;
-
-      // Ensure larvitar exists before modifying it
-      if (win.larvitar && win.larvitar.renderImage) {
-        // Override renderImage using Object.defineProperty
-        const originalRenderImage = win.larvitar.renderImage;
-
-        Object.defineProperty(win.larvitar, "renderImage", {
-          configurable: true,
-          enumerable: true,
-          writable: false, // Keep writable as false to avoid errors
-          value: function (...args) {
-            return originalRenderImage.apply(this, args).then(result => {
-              win.allFilesLoaded = true;
-              return result;
-            });
-          }
-        });
-      }
+    cy.window().should(win => {
+      const manager = win.larvitar?.getLarvitarManager?.();
+      expect(manager && Object.keys(manager).length).to.be.greaterThan(0);
     });
 
-    // Wait for files to be loaded
-    cy.window().its("allFilesLoaded").should("eq", true, { timeout: 10000 });
     cy.get("#spinner").should("not.be.visible");
   });
 

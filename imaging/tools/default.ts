@@ -37,7 +37,9 @@ import BorderMagnifyTool from "./custom/BorderMagnifyTool";
 import CustomMouseWheelScrollTool from "./custom/customMouseWheelScrollTool";
 import WSToggleTool from "./custom/watershedSegmentationTool";
 import NorbergAngleTool from "./custom/NorbergAngleTool";
+import VHSAnnotationTool from "./custom/VHSAnnotationTool";
 import TPAAnnotationTool from "./custom/TPAAnnotationTool";
+
 import LengthPlotTool from "./custom/LengthPlotTool";
 import LengthTool from "./custom/LengthUSTool";
 import RectangleRoiTool from "./custom/RectangleRoiUSTool";
@@ -559,6 +561,14 @@ const DEFAULT_TOOLS: {
     cleanable: true,
     class: "NorbergAngleTool"
   },
+  VHSAnnotation: {
+    name: "VHSAnnotation",
+    viewports: "all",
+    configuration: {},
+    options: {},
+    cleanable: true,
+    class: "VHSAnnotationTool"
+  },
   TPAAnnotation: {
     name: "TPAAnnotation",
     viewports: "all",
@@ -620,6 +630,7 @@ const dvTools: {
   WwwcRemoveRegionTool: WwwcRemoveRegionTool,
   WSToggleTool: WSToggleTool,
   NorbergAngleTool: NorbergAngleTool,
+  VHSAnnotationTool: VHSAnnotationTool,
   TPAAnnotationTool: TPAAnnotationTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
