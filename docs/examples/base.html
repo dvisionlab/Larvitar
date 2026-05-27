@@ -563,6 +563,7 @@ larvitar
               larvitar.logger.debug("Image has been rendered");
               hideSpinner(); // Hide the spinner when all files are processed
               larvitar.addDefaultTools("viewer");
+              larvitar.setToolActive("CobbAngle", { mouseButtonMask: 1 });
             });
 
             series = serie;
@@ -611,6 +612,7 @@ larvitar
           larvitar.renderImage(serie, "viewer").then(() => {
             larvitar.logger.debug("Image has been rendered");
             larvitar.addDefaultTools("viewer");
+            larvitar.setToolActive("CobbAngle", { mouseButtonMask: 1 });
             hideSpinner(); // Hide the spinner when all files are processed
           });
         }
@@ -632,6 +634,7 @@ larvitar
           larvitar.renderImage(serie, "viewer").then(() => {
             larvitar.logger.debug("Image has been rendered");
             larvitar.addDefaultTools("viewer");
+            larvitar.setToolActive("CobbAngle", { mouseButtonMask: 1 });
             hideSpinner(); // Hide the spinner when all files are processed
           });
         }

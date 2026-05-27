@@ -39,6 +39,7 @@ import WSToggleTool from "./custom/watershedSegmentationTool";
 import NorbergAngleTool from "./custom/NorbergAngleTool";
 import VHSAnnotationTool from "./custom/VHSAnnotationTool";
 import TPAAnnotationTool from "./custom/TPAAnnotationTool";
+import CobbAngleTool from "./custom/CobbAngleTool";
 
 import LengthPlotTool from "./custom/LengthPlotTool";
 import LengthTool from "./custom/LengthUSTool";
@@ -553,6 +554,27 @@ const DEFAULT_TOOLS: {
     shortcut: "ctrl-t",
     type: "segmentation"
   },
+  CobbAngle: {
+    name: "CobbAngle",
+    viewports: "all",
+    configuration: {
+      shadow: true,
+      drawHandles: true,
+      drawHandlesOnHover: false,
+      hideHandlesIfMoving: false,
+      renderDashed: false,
+      showArcLines: true
+    },
+    options: {
+      mouseButtonMask: 1,
+      supportedInteractionTypes: ["Mouse", "Touch"]
+    },
+    cleanable: true,
+    defaultActive: true,
+    class: "CobbAngleTool",
+    description: "Measure Cobb angle",
+    type: "annotation"
+  },
   NorbergAngle: {
     name: "NorbergAngle",
     viewports: "all",
@@ -632,6 +654,7 @@ const dvTools: {
   NorbergAngleTool: NorbergAngleTool,
   VHSAnnotationTool: VHSAnnotationTool,
   TPAAnnotationTool: TPAAnnotationTool,
+  CobbAngleTool: CobbAngleTool,
   RectangleRoiOverlayTool: RectangleRoiOverlayTool,
   EllipticalRoiOverlayTool: EllipticalRoiOverlayTool,
   BorderMagnifyTool: BorderMagnifyTool,
