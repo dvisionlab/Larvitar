@@ -570,7 +570,6 @@ const DEFAULT_TOOLS: {
       supportedInteractionTypes: ["Mouse", "Touch"]
     },
     cleanable: true,
-    defaultActive: true,
     class: "CobbAngleTool",
     description: "Measure Cobb angle",
     type: "annotation"
