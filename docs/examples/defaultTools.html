@@ -373,6 +373,10 @@ larvitar
             info.style.display = "block";
             info.innerHTML =
               "Step 1 — Draw Functional Tibial Axis (FTA)</br>Step 2 — Draw Medial Tibial Plateau Line (MTP)<br/>Reference Line (REF) automatically calculated (normal to FTA) </br> <b>Tibial Plateau Angle displayed</b>";
+          } else if (tool === "CobbAngle") {
+            info.style.display = "block";
+            info.innerHTML =
+              "Draw two lines along the endplates of the vertebrae or anatomical landmarks.</br> The tool calculates the intersecting angle between them and displays the Cobb angle measurement. <b>Use it to quantify spinal curvature.</b>";
           } else if (tool === "Grid") {
             info.style.display = "block";
             info.innerHTML =
