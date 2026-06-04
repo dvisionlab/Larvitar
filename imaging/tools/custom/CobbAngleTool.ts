@@ -28,9 +28,7 @@ const getToolState = cornerstoneTools.getToolState;
 const addToolState = cornerstoneTools.addToolState;
 const EVENTS = cornerstoneTools.EVENTS;
 const toolColors = cornerstoneTools.toolColors;
-// triggerEvent non è esposto direttamente su cornerstoneTools v4:
-// si usa cornerstone.triggerEvent (da cornerstone-core) oppure
-// l'utility interna. cornerstone-core lo espone come named export.
+
 const triggerEvent = (cornerstone as any).triggerEvent as (
   el: HTMLElement,
   eventName: string,
@@ -48,23 +46,11 @@ interface CobbAngleHandles {
 type CobbAngleMeasurementData = MeasurementData & {
   complete: boolean;
   value?: number;
-  arc1Angle?: number;
-  arc2Angle?: number;
-  arcPoints?: {
-    arc1Start: Coords;
-    arc1End: Coords;
-    arc2Start: Coords;
-    arc2End: Coords;
-  };
   handles: CobbAngleHandles;
 };
 
 /**
  * Compute the Euclidean distance between two points.
- * @function
- * @param {Coords} a - First point.
- * @param {Coords} b - Second point.
- * @returns {number} Distance between the points.
  */
 function dist2(a: Coords, b: Coords): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
@@ -72,99 +58,13 @@ function dist2(a: Coords, b: Coords): number {
 
 /**
  * Compute the midpoint between two coordinates.
- * @function
- * @param {Coords} a - First endpoint.
- * @param {Coords} b - Second endpoint.
- * @returns {Coords} Midpoint of the two coordinates.
  */
 function midpoint2(a: Coords, b: Coords): Coords {
   return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 }
 
-function _drawCobbAngleIntersection(
-  ctx: CanvasRenderingContext2D,
-  element: HTMLElement,
-  p0: Coords,
-  p1: Coords,
-  p2: Coords,
-  p3: Coords,
-  color: string
-): void {
-  const c0 = cornerstone.pixelToCanvas(element, p0 as any);
-  const c1 = cornerstone.pixelToCanvas(element, p1 as any);
-  const c2 = cornerstone.pixelToCanvas(element, p2 as any);
-  const c3 = cornerstone.pixelToCanvas(element, p3 as any);
-
-  const mid1 = { x: (c0.x + c1.x) / 2, y: (c0.y + c1.y) / 2 };
-  const mid2 = { x: (c2.x + c3.x) / 2, y: (c2.y + c3.y) / 2 };
-
-  const dir1 = { x: c1.x - c0.x, y: c1.y - c0.y };
-  const dir2 = { x: c3.x - c2.x, y: c3.y - c2.y };
-
-  const n1 = { x: -dir1.y, y: dir1.x };
-  const n2 = { x: -dir2.y, y: dir2.x };
-
-  const det = n1.x * n2.y - n1.y * n2.x;
-
-  if (Math.abs(det) > 1e-6) {
-    const dx = mid2.x - mid1.x;
-    const dy = mid2.y - mid1.y;
-
-    const t = (dx * n2.y - dy * n2.x) / det;
-    const intersect = {
-      x: mid1.x + t * n1.x,
-      y: mid1.y + t * n1.y
-    };
-
-    ctx.save();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1;
-
-    ctx.setLineDash([4, 4]);
-
-    ctx.beginPath();
-    ctx.moveTo(mid1.x, mid1.y);
-    ctx.lineTo(intersect.x, intersect.y);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(mid2.x, mid2.y);
-    ctx.lineTo(intersect.x, intersect.y);
-    ctx.stroke();
-
-    ctx.setLineDash([]);
-
-    const v1 = { x: mid1.x - intersect.x, y: mid1.y - intersect.y };
-    const v2 = { x: mid2.x - intersect.x, y: mid2.y - intersect.y };
-
-    const a1 = Math.atan2(v1.y, v1.x);
-    const a2 = Math.atan2(v2.y, v2.x);
-
-    let diff = a2 - a1;
-    while (diff <= -Math.PI) diff += 2 * Math.PI;
-    while (diff > Math.PI) diff -= 2 * Math.PI;
-
-    const dist1 = Math.hypot(v1.x, v1.y);
-    const dist2 = Math.hypot(v2.x, v2.y);
-    const radius = Math.min(30, dist1 * 0.8, dist2 * 0.8);
-
-    ctx.beginPath();
-    if (diff > 0) {
-      ctx.arc(intersect.x, intersect.y, radius, a1, a2);
-    } else {
-      ctx.arc(intersect.x, intersect.y, radius, a2, a1);
-    }
-    ctx.stroke();
-
-    ctx.restore();
-  }
-}
 /**
- * Compute the angle between two lines in degrees.
- * @function
- * @param {[Coords, Coords]} l1 - First line endpoints.
- * @param {[Coords, Coords]} l2 - Second line endpoints.
- * @returns {number} Angle between the lines in degrees.
+ * Compute the angle between two lines in degrees, strictly returning the acute angle.
  */
 function angleBetweenLines(l1: [Coords, Coords], l2: [Coords, Coords]): number {
   const v1 = { x: l1[1].x - l1[0].x, y: l1[1].y - l1[0].y };
@@ -172,18 +72,17 @@ function angleBetweenLines(l1: [Coords, Coords], l2: [Coords, Coords]): number {
   const m1 = Math.hypot(v1.x, v1.y);
   const m2 = Math.hypot(v2.x, v2.y);
   if (m1 === 0 || m2 === 0) return 0;
-  const cos = (v1.x * v2.x + v1.y * v2.y) / (m1 * m2);
-  return (Math.acos(Math.max(-1, Math.min(1, cos))) * 180) / Math.PI;
+
+  let dot = (v1.x * v2.x + v1.y * v2.y) / (m1 * m2);
+  dot = Math.max(-1, Math.min(1, dot));
+  let angle = (Math.acos(dot) * 180) / Math.PI;
+
+  // Force acute angle to strictly match standard Cobb Angle measurements
+  return angle > 90 ? 180 - angle : angle;
 }
 
 /**
  * Order segment endpoints for consistent Cobb angle computation.
- * @function
- * @param {Coords} p0 - First endpoint of segment one.
- * @param {Coords} p1 - Second endpoint of segment one.
- * @param {Coords} p2 - First endpoint of segment two.
- * @param {Coords} p3 - Second endpoint of segment two.
- * @returns {{ s1a: Coords, s1b: Coords, s2a: Coords, s2b: Coords }} Ordered endpoints.
  */
 function orderEndpoints(
   p0: Coords,
@@ -201,77 +100,161 @@ function orderEndpoints(
   return candidates[0];
 }
 
-/**
- * Compute a point along a vector at a fixed length.
- * @function
- * @param {Coords} from - Origin point.
- * @param {Coords} toward - Direction point.
- * @param {number} len - Distance from the origin.
- * @returns {Coords} Derived point along the vector.
- */
-function arcPointFrom(from: Coords, toward: Coords, len: number): Coords {
-  const dx = toward.x - from.x;
-  const dy = toward.y - from.y;
-  const mag = Math.hypot(dx, dy);
-  if (mag === 0) return { ...from };
-  return { x: from.x + (dx / mag) * len, y: from.y + (dy / mag) * len };
+function _drawCobbAngleIntersection(
+  ctx: CanvasRenderingContext2D,
+  element: HTMLElement,
+  p0: Coords,
+  p1: Coords,
+  p2: Coords,
+  p3: Coords,
+  color: string,
+  angleText: string // NEW PARAMETER
+): void {
+  const c0 = cornerstone.pixelToCanvas(element, p0 as any);
+  const c1 = cornerstone.pixelToCanvas(element, p1 as any);
+  const c2 = cornerstone.pixelToCanvas(element, p2 as any);
+  const c3 = cornerstone.pixelToCanvas(element, p3 as any);
+
+  const mid1 = { x: (c0.x + c1.x) / 2, y: (c0.y + c1.y) / 2 };
+  const mid2 = { x: (c2.x + c3.x) / 2, y: (c2.y + c3.y) / 2 };
+
+  const dir1 = { x: c1.x - c0.x, y: c1.y - c0.y };
+  const dir2 = { x: c3.x - c2.x, y: c3.y - c2.y };
+
+  const mag1 = Math.hypot(dir1.x, dir1.y);
+  const mag2 = Math.hypot(dir2.x, dir2.y);
+  if (mag1 === 0 || mag2 === 0) return;
+
+  const toOther1 = { x: mid2.x - mid1.x, y: mid2.y - mid1.y };
+  const toOther2 = { x: mid1.x - mid2.x, y: mid1.y - mid2.y };
+
+  let n1 = { x: -dir1.y / mag1, y: dir1.x / mag1 };
+  if (n1.x * toOther1.x + n1.y * toOther1.y < 0) {
+    n1 = { x: dir1.y / mag1, y: -dir1.x / mag1 };
+  }
+
+  let n2 = { x: -dir2.y / mag2, y: dir2.x / mag2 };
+  if (n2.x * toOther2.x + n2.y * toOther2.y < 0) {
+    n2 = { x: dir2.y / mag2, y: -dir2.x / mag2 };
+  }
+
+  const D = n1.y * n2.x - n1.x * n2.y;
+
+  if (Math.abs(D) < 1e-6) {
+    const perpLen = Math.hypot(toOther1.x, toOther1.y) * 0.45;
+    const pEnd1 = { x: mid1.x + n1.x * perpLen, y: mid1.y + n1.y * perpLen };
+    const pEnd2 = { x: mid2.x + n2.x * perpLen, y: mid2.y + n2.y * perpLen };
+
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(mid1.x, mid1.y);
+    ctx.lineTo(pEnd1.x, pEnd1.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(mid2.x, mid2.y);
+    ctx.lineTo(pEnd2.x, pEnd2.y);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
+
+  const dx = mid2.x - mid1.x;
+  const dy = mid2.y - mid1.y;
+  const t1 = (-dx * n2.y + dy * n2.x) / D;
+
+  const I = { x: mid1.x + t1 * n1.x, y: mid1.y + t1 * n1.y };
+
+  const V1 = { x: I.x - mid1.x, y: I.y - mid1.y };
+  const V2 = { x: I.x - mid2.x, y: I.y - mid2.y };
+  const len1 = Math.hypot(V1.x, V1.y);
+  const len2 = Math.hypot(V2.x, V2.y);
+
+  const u1 = len1 > 1e-3 ? { x: V1.x / len1, y: V1.y / len1 } : n1;
+  const u2 = len2 > 1e-3 ? { x: V2.x / len2, y: V2.y / len2 } : n2;
+
+  const extLen = 20;
+  const pEnd1 = { x: I.x + u1.x * extLen, y: I.y + u1.y * extLen };
+  const pEnd2 = { x: I.x + u2.x * extLen, y: I.y + u2.y * extLen };
+
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+
+  ctx.beginPath();
+  ctx.moveTo(mid1.x, mid1.y);
+  ctx.lineTo(pEnd1.x, pEnd1.y);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(mid2.x, mid2.y);
+  ctx.lineTo(pEnd2.x, pEnd2.y);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+  // GUARANTEED ACUTE ANGLE LOGIC
+  const dot = u1.x * u2.x + u1.y * u2.y;
+  const draw_u1 = u1;
+  const draw_u2 = dot >= 0 ? u2 : { x: -u2.x, y: -u2.y };
+
+  const a1 = Math.atan2(draw_u1.y, draw_u1.x);
+  const a2 = Math.atan2(draw_u2.y, draw_u2.x);
+
+  const radius = 15;
+  let sweep = a2 - a1;
+  while (sweep <= -Math.PI) sweep += 2 * Math.PI;
+  while (sweep > Math.PI) sweep -= 2 * Math.PI;
+
+  let startAngle = a1;
+  let endAngle = a2;
+  if (sweep < 0) {
+    startAngle = a2;
+    endAngle = a1;
+    sweep = -sweep;
+  }
+
+  // Trova la bisettrice dell'angolo acuto
+  const midAngle = startAngle + sweep / 2;
+
+  // Disegno Archetto
+  ctx.beginPath();
+  ctx.arc(I.x, I.y, radius, startAngle, endAngle);
+  ctx.stroke();
+
+  // DRAW TEXT NEAR THE ARC
+  if (angleText) {
+    const textRadius = radius + 14; // Distanza del testo dall'intersezione
+    const textX = I.x + textRadius * Math.cos(midAngle);
+    const textY = I.y + textRadius * Math.sin(midAngle);
+
+    ctx.save();
+    ctx.font = "bold 14px sans-serif";
+    ctx.fillStyle = color;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(angleText, textX, textY);
+    ctx.restore();
+  }
+
+  ctx.restore();
 }
 
-/**
- * Compute Cobb angle statistics from two line segments.
- * @function
- * @param {Coords} p0 - First point of the first segment.
- * @param {Coords} p1 - Second point of the first segment.
- * @param {Coords} p2 - First point of the second segment.
- * @param {Coords} p3 - Second point of the second segment.
- * @returns {{ cobbAngle: number, arc1Angle: number, arc2Angle: number, arcPoints: { arc1Start: Coords, arc1End: Coords, arc2Start: Coords, arc2End: Coords } }}
- */
 function computeCobbStats(p0: Coords, p1: Coords, p2: Coords, p3: Coords) {
   const { s1a, s1b, s2a, s2b } = orderEndpoints(p0, p1, p2, p3);
-  const cobbAngle = angleBetweenLines([s1b, s1a], [s2a, s2b]);
+  const cobbAngle = angleBetweenLines([s1a, s1b], [s2a, s2b]);
 
-  const mid1 = midpoint2(s1a, s1b);
-  const mid2 = midpoint2(s2a, s2b);
-  const linkLen = dist2(mid1, mid2);
-  const ratio = 0.1;
-  const midLink = midpoint2(mid1, mid2);
-
-  const rawA1 = angleBetweenLines([s1a, s1b], [mid1, mid2]);
-  const rawA2 = angleBetweenLines([s2a, s2b], [mid1, mid2]);
-
-  const arc1Side = rawA1 > 90 ? 1 : 0;
-  const arc2Side = rawA2 > 90 ? 0 : 1;
-
-  const firstLine: [Coords, Coords] = [s1a, s1b];
-  const secondLine: [Coords, Coords] = [s2a, s2b];
-
-  return {
-    cobbAngle,
-    arc1Angle: rawA1 > 90 ? 180 - rawA1 : rawA1,
-    arc2Angle: rawA2 > 90 ? 180 - rawA2 : rawA2,
-    arcPoints: {
-      arc1Start: arcPointFrom(mid1, firstLine[arc1Side], linkLen * ratio),
-      arc1End: arcPointFrom(mid1, midLink, linkLen * ratio),
-      arc2Start: arcPointFrom(mid2, secondLine[arc2Side], linkLen * ratio),
-      arc2End: arcPointFrom(mid2, midLink, linkLen * ratio)
-    }
-  };
+  return { cobbAngle };
 }
 
 type DrawPhase = "idle" | "seg1Move" | "seg2Wait" | "seg2Move";
 
-/**
- * Cobb angle annotation tool for measuring spinal curvature.
- * @class
- */
 export default class CobbAngleTool extends BaseAnnotationTool {
   _phase: DrawPhase = "idle";
 
-  /**
-   * Create a new CobbAngleTool instance.
-   * @instance
-   * @param {object} [props={}] - Tool configuration properties.
-   */
   constructor(props: any = {}) {
     super(props, {
       name: "CobbAngle",
@@ -282,19 +265,11 @@ export default class CobbAngleTool extends BaseAnnotationTool {
         drawHandles: true,
         drawHandlesOnHover: false,
         hideHandlesIfMoving: false,
-        renderDashed: false,
-        showArcLines: false
+        renderDashed: false
       }
     });
   }
 
-  /**
-   * Create a new measurement object while a segment is being drawn.
-   * @instance
-   * @function
-   * @param {EventData} eventData - Current event data from the interaction.
-   * @returns {CobbAngleMeasurementData|undefined} New measurement data or undefined.
-   */
   createNewMeasurement(
     eventData: EventData
   ): CobbAngleMeasurementData | undefined {
@@ -317,20 +292,14 @@ export default class CobbAngleTool extends BaseAnnotationTool {
           movesIndependently: false,
           drawnIndependently: true,
           allowedOutsideImage: true,
-          hasBoundingBox: true
+          hasBoundingBox: true,
+          x: x,
+          y: y
         }
       }
     };
   }
 
-  /**
-   * Add a new measurement and begin the drawing interaction.
-   * @instance
-   * @function
-   * @param {{detail: EventData}} evt - Event wrapper containing the interaction detail.
-   * @param {string} [_interactionType="mouse"] - Interaction type used to add the measurement.
-   * @returns {void}
-   */
   addNewMeasurement(
     evt: { detail: EventData },
     _interactionType = "mouse"
@@ -354,16 +323,6 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     (evt as any).stopImmediatePropagation?.();
   }
 
-  /**
-   * Determine whether a point is near one of the tool segments.
-   * @instance
-   * @function
-   * @param {HTMLElement} element - DOM element containing the image.
-   * @param {CobbAngleMeasurementData} data - Measurement data for the tool.
-   * @param {Coords} coords - Image coordinates to test.
-   * @param {string} [interactionType="mouse"] - Interaction type reference.
-   * @returns {boolean} True when the point is near the tool.
-   */
   pointNearTool(
     element: HTMLElement,
     data: CobbAngleMeasurementData,
@@ -384,15 +343,6 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     return false;
   }
 
-  /**
-   * Compute the minimum distance from a point to either tool segment.
-   * @instance
-   * @function
-   * @param {HTMLElement} element - DOM element containing the image.
-   * @param {CobbAngleMeasurementData} data - Measurement data to evaluate.
-   * @param {Coords} coords - Image coordinates for the distance check.
-   * @returns {number} Minimum distance in pixels.
-   */
   distanceFromPoint(
     element: HTMLElement,
     data: CobbAngleMeasurementData,
@@ -407,13 +357,6 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     return Math.min(d1, d2);
   }
 
-  /**
-   * Render the tool graphics onto the canvas.
-   * @instance
-   * @function
-   * @param {{detail: EventData}} evt - Event wrapper containing the render context.
-   * @returns {void}
-   */
   renderToolData(evt: { detail: EventData }): void {
     const eventData = evt.detail;
     const { element, canvasContext } = eventData;
@@ -424,7 +367,7 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     if (!toolData?.data?.length) return;
 
     const context = getNewContext(canvasContext.canvas);
-    const { shadow, showArcLines } = this.configuration;
+    const { shadow } = this.configuration;
 
     draw(context, (ctx: CanvasRenderingContext2D) => {
       for (const data of toolData.data) {
@@ -440,7 +383,20 @@ export default class CobbAngleTool extends BaseAnnotationTool {
 
         drawLine(ctx, element, h.point0, h.point1, { color }, "pixel");
 
+        // Calcola dinamicamente il testo durante lo spostamento
+        let angleText = "";
         if (h.point2 != null && h.point3 != null) {
+          let currentAngle = data.value;
+          if (currentAngle === undefined) {
+            currentAngle = computeCobbStats(
+              h.point0,
+              h.point1,
+              h.point2,
+              h.point3
+            ).cobbAngle;
+          }
+          angleText = `${currentAngle.toFixed(1)}\xB0`;
+
           drawLine(ctx, element, h.point2, h.point3, { color }, "pixel");
 
           _drawCobbAngleIntersection(
@@ -450,7 +406,8 @@ export default class CobbAngleTool extends BaseAnnotationTool {
             h.point1,
             h.point2,
             h.point3,
-            color
+            color,
+            angleText
           );
         }
 
@@ -464,63 +421,43 @@ export default class CobbAngleTool extends BaseAnnotationTool {
           drawHandles(ctx, eventData, pts, { color });
         }
 
-        if (!data.complete || data.value == null) continue;
+        if (!data.complete || data.value === undefined) continue;
 
-        const text = `${data.value.toFixed(2)}\u00B0`;
+        // Render del classico Textbox spostabile (Mantenuto ma puoi nasconderlo se preferisci)
+        const canvasPts: Coords[] = [];
+        if (h.point0)
+          canvasPts.push(cornerstone.pixelToCanvas(element, h.point0 as any));
+        if (h.point1)
+          canvasPts.push(cornerstone.pixelToCanvas(element, h.point1 as any));
+        if (h.point2)
+          canvasPts.push(cornerstone.pixelToCanvas(element, h.point2 as any));
+        if (h.point3)
+          canvasPts.push(cornerstone.pixelToCanvas(element, h.point3 as any));
 
-        const canvasPts = [h.point0, h.point1, h.point2!, h.point3!].map(p =>
-          cornerstone.pixelToCanvas(element, p as any)
-        );
-
-        if (!h.textBox.hasMoved) {
-          h.textBox.x = canvasPts.reduce((s, p) => s + p.x, 0) / 4;
-          h.textBox.y = canvasPts.reduce((s, p) => s + p.y, 0) / 4;
+        if (!h.textBox.hasMoved && canvasPts.length > 0) {
+          h.textBox.x =
+            canvasPts.reduce((s, p) => s + p.x, 0) / canvasPts.length;
+          h.textBox.y =
+            canvasPts.reduce((s, p) => s + p.y, 0) / canvasPts.length;
         }
 
         const boundingBox = drawLinkedTextBox(
           ctx,
           element,
           h.textBox,
-          text,
+          angleText,
           canvasPts,
           (anchors: Coords[]) => _nearestPoint(anchors, canvasPts),
           color,
-          0,
+          1,
           0,
           0
         );
         if (boundingBox) h.textBox.boundingBox = boundingBox;
-
-        if (showArcLines && data.arcPoints) {
-          const { arc1Start, arc1End, arc2Start, arc2End } = data.arcPoints;
-          _drawArcLabel(
-            ctx,
-            element,
-            arc1Start,
-            arc1End,
-            `${data.arc1Angle?.toFixed(2) ?? ""}°`,
-            color
-          );
-          _drawArcLabel(
-            ctx,
-            element,
-            arc2Start,
-            arc2End,
-            `${data.arc2Angle?.toFixed(2) ?? ""}°`,
-            color
-          );
-        }
       }
     });
   }
 
-  /**
-   * Attach drawing event listeners to the element.
-   * @instance
-   * @function
-   * @param {HTMLElement} element - DOM element to attach draw listeners to.
-   * @returns {void}
-   */
   _activateDraw(element: HTMLElement): void {
     element.addEventListener(
       EVENTS.MOUSE_MOVE,
@@ -540,13 +477,6 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     );
   }
 
-  /**
-   * Remove drawing event listeners from the element.
-   * @instance
-   * @function
-   * @param {HTMLElement} element - DOM element to detach draw listeners from.
-   * @returns {void}
-   */
   _deactivateDraw(element: HTMLElement): void {
     element.removeEventListener(
       EVENTS.MOUSE_MOVE,
@@ -566,13 +496,6 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     );
   }
 
-  /**
-   * Handle mouse or touch drag events while drawing a segment.
-   * @instance
-   * @function
-   * @param {{detail: EventData}} evt - Event wrapper containing interaction details.
-   * @returns {void}
-   */
   _onMouseMove = (evt: { detail: EventData }): void => {
     if (this._phase === "idle" || this._phase === "seg2Wait") return;
 
@@ -599,13 +522,6 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     cornerstone.updateImage(element);
   };
 
-  /**
-   * Handle click or tap events during drawing phases.
-   * @instance
-   * @function
-   * @param {{detail: EventData}} evt - Event wrapper containing interaction detail.
-   * @returns {void}
-   */
   _onMouseClick = (evt: { detail: EventData }): void => {
     if (this._phase === "idle") return;
 
@@ -622,9 +538,7 @@ export default class CobbAngleTool extends BaseAnnotationTool {
 
     if (this._phase === "seg1Move") {
       const dist = Math.hypot(h.point0.x - x, h.point0.y - y);
-      if (dist < 2) {
-        return;
-      }
+      if (dist < 2) return;
 
       h.point1.x = x;
       h.point1.y = y;
@@ -666,16 +580,6 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     }
   };
 
-  /**
-   * Callback invoked when a handle is selected for dragging.
-   * @instance
-   * @function
-   * @param {{detail: EventData}} evt - Event wrapper containing interaction detail.
-   * @param {CobbAngleMeasurementData} data - Measurement data for the selected tool.
-   * @param {HandlePosition} handle - Handle being dragged.
-   * @param {string} [interactionType="mouse"] - Interaction type used for dragging.
-   * @returns {void}
-   */
   handleSelectedCallback(
     evt: { detail: EventData },
     data: CobbAngleMeasurementData,
@@ -690,15 +594,6 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     });
   }
 
-  /**
-   * Callback invoked when the tool annotation itself is selected.
-   * @instance
-   * @function
-   * @param {{detail: EventData}} evt - Event wrapper containing interaction detail.
-   * @param {CobbAngleMeasurementData} annotation - Selected annotation data.
-   * @param {string} [interactionType="mouse"] - Interaction type used for selection.
-   * @returns {void}
-   */
   toolSelectedCallback(
     evt: { detail: EventData },
     annotation: CobbAngleMeasurementData,
@@ -760,15 +655,6 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     element.addEventListener(EVENTS.TOUCH_END, onUp);
   }
 
-  /**
-   * Update cached statistics for an annotation after image or layout changes.
-   * @instance
-   * @function
-   * @param {cornerstone.Image} image - Current image object.
-   * @param {HTMLElement} element - DOM element containing the image.
-   * @param {CobbAngleMeasurementData} data - Measurement data to update.
-   * @returns {void}
-   */
   updateCachedStats(
     image: cornerstone.Image,
     element: HTMLElement,
@@ -777,15 +663,6 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     this._updateStats(image, element, data);
   }
 
-  /**
-   * Recalculate measurement statistics and cache results.
-   * @instance
-   * @function
-   * @param {cornerstone.Image|undefined} _image - Current image object.
-   * @param {HTMLElement} _element - DOM element containing the image.
-   * @param {CobbAngleMeasurementData} data - Measurement data to recalculate.
-   * @returns {void}
-   */
   _updateStats(
     _image: cornerstone.Image | undefined,
     _element: HTMLElement,
@@ -795,7 +672,7 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     const h = data.handles;
     if (!h.point2 || !h.point3) return;
 
-    const { cobbAngle, arc1Angle, arc2Angle, arcPoints } = computeCobbStats(
+    const { cobbAngle } = computeCobbStats(
       h.point0,
       h.point1,
       h.point2,
@@ -803,22 +680,9 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     );
 
     data.value = cobbAngle;
-    data.arc1Angle = arc1Angle;
-    data.arc2Angle = arc2Angle;
-    data.arcPoints = arcPoints;
     data.invalidated = false;
   }
 
-  /**
-   * Compute distance from a canvas point to a segment defined in pixel coordinates.
-   * @instance
-   * @function
-   * @param {HTMLElement} element - DOM element containing the image.
-   * @param {Coords} p1 - First endpoint of the segment.
-   * @param {Coords} p2 - Second endpoint of the segment.
-   * @param {Coords} canvasCoords - Canvas coordinates to measure from.
-   * @returns {number} Distance from the point to the segment in canvas space.
-   */
   _segDistCanvas(
     element: HTMLElement,
     p1: Coords,
@@ -830,16 +694,6 @@ export default class CobbAngleTool extends BaseAnnotationTool {
     return lineSegDistance(element, c1, c2, canvasCoords);
   }
 
-  /**
-   * Compute distance from an image pixel point to a segment.
-   * @instance
-   * @function
-   * @param {HTMLElement} element - DOM element containing the image.
-   * @param {Coords} p1 - First endpoint of the segment.
-   * @param {Coords} p2 - Second endpoint of the segment.
-   * @param {Coords} pixelCoords - Image pixel coordinates to measure from.
-   * @returns {number} Distance from the point to the segment.
-   */
   _segDistPixel(
     element: HTMLElement,
     p1: Coords,
@@ -854,36 +708,11 @@ export default class CobbAngleTool extends BaseAnnotationTool {
   }
 }
 
-function _drawArcLabel(
-  ctx: CanvasRenderingContext2D,
-  element: HTMLElement,
-  p1: Coords,
-  p2: Coords,
-  text: string,
-  color: string
-): void {
-  const c1 = cornerstone.pixelToCanvas(element, p1 as any);
-  const c2 = cornerstone.pixelToCanvas(element, p2 as any);
-  ctx.save();
-  ctx.font = "12px sans-serif";
-  ctx.fillStyle = color;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(text, (c1.x + c2.x) / 2, (c1.y + c2.y) / 2);
-  ctx.restore();
-}
-
-/**
- * Find the nearest anchor point from a set of line anchors.
- * @function
- * @param {Coords[]} textBoxAnchors - Candidate anchor points from the textbox.
- * @param {Coords[]} lineAnchors - Candidate anchor points from the line geometry.
- * @returns {Coords} Nearest point on the line.
- */
 function _nearestPoint(
   textBoxAnchors: Coords[],
   lineAnchors: Coords[]
 ): Coords {
+  if (!lineAnchors || lineAnchors.length === 0) return { x: 0, y: 0 };
   let best = lineAnchors[0];
   let bestDist = Infinity;
   for (const tba of textBoxAnchors) {
