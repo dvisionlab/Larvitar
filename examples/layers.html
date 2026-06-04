@@ -1,0 +1,326 @@
+<!doctype html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Include the Larvitar script -->
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- custom styles for the example -->
+    <style></style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        // TODO Code snippet to be displayed and updated for the example
+        const code = `
+larvitar.initializeImageLoader();
+larvitar.initializeCSTools();
+larvitar.store.initialize();
+larvitar.store.addViewport("viewer");
+larvitar
+  .readFiles(demoFiles)
+  .then(seriesStack => {
+    let seriesId = Object.keys(seriesStack)[0];
+
+    let serie_1 = { ...seriesStack[seriesId] };
+    let serie_2 = { ...seriesStack[seriesId] };
+    larvitar.populateLarvitarManager(seriesId, serie_1);
+    larvitar.populateLarvitarManager(seriesId, serie_2);
+    let manager = larvitar.getImageManager();
+    layer_1 = larvitar.buildLayer(serie_1, "main");
+    layer_2 = larvitar.buildLayer(serie_2, "colored", {
+      opacity: 0.25,
+      colormap: "hotIron"
+    });
+
+    // define a layer into the series object to be rendered
+    serie_1.layer = layer_1;
+    serie_2.layer = layer_2;
+
+    larvitar.renderImage(serie_1, "viewer").then(() => {
+      larvitar.cacheImages(serie_1, function (resp) {
+        if (resp.loading == 100) {
+          let cache = larvitar.cornerstone.imageCache;
+          console.log(
+            "Cache size: ",
+            cache.getCacheInfo().cacheSizeInBytes / 1e6,
+            "Mb"
+          );
+        }
+      });
+      larvitar.renderImage(serie_2, "viewer").then(() => {
+        larvitar.cacheImages(serie_2, function (resp) {
+          if (resp.loading == 100) {
+            let cache = larvitar.cornerstone.imageCache;
+            console.log(
+              "Cache size: ",
+              cache.getCacheInfo().cacheSizeInBytes / 1e6,
+              "Mb"
+            );
+          }
+        });
+        larvitar.addDefaultTools("viewer");
+      });
+    });
+  })
+`;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
+    <title>Larvitar - Layers rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; color: white">
+        Press "a" to change the active layer
+      </p>
+      <p style="position: absolute; top: 20px; color: white">
+        Press "o" to change the opacity of the active layer
+      </p>
+      <p
+        id="active-layer"
+        style="position: absolute; top: 40px; color: white"
+      ></p>
+      <p id="opacity" style="position: absolute; top: 60px; color: white"></p>
+      <button
+        id="showCodeBtn"
+        class="open-button"
+        style="position: absolute; top: 80px"
+      >
+        Show Code
+      </button>
+
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
+    </div>
+
+    <script>
+      const spinner = document.getElementById("spinner");
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+      let demoFiles = [];
+      let counter = 0;
+
+      const getDemoFileNames = function () {
+        let demoFileList = [];
+        for (let i = 1; i < 25; i++) {
+          let filename = "anon" + i;
+          demoFileList.push(filename);
+        }
+        return demoFileList;
+      };
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
+      showSpinner();
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        counter++;
+        if (counter == 24) {
+          cb();
+        }
+      }
+
+      let layer_1, layer_2;
+
+      function renderSerie() {
+        larvitar
+          .readFiles(demoFiles)
+          .then(seriesStack => {
+            let seriesId = Object.keys(seriesStack)[0];
+
+            let serie_1 = { ...seriesStack[seriesId] };
+            let serie_2 = { ...seriesStack[seriesId] };
+            larvitar.populateImageManager(seriesId, serie_1);
+            larvitar.populateImageManager(seriesId, serie_2);
+            let manager = larvitar.getImageManager();
+            layer_1 = larvitar.buildLayer(serie_1, "main");
+            layer_2 = larvitar.buildLayer(serie_2, "colored", {
+              opacity: 0.25,
+              colormap: "hotIron"
+            });
+
+            // define a layer into the series object to be rendered
+            serie_1.layer = layer_1;
+            serie_2.layer = layer_2;
+
+            larvitar.renderImage(serie_1, "viewer").then(() => {
+              hideSpinner();
+              larvitar.logger.debug("Image 1 has been rendered");
+              larvitar.cacheImages(serie_1, function (resp) {
+                if (resp.loading == 100) {
+                  let cache = larvitar.cornerstone.imageCache;
+                  larvitar.logger.debug(
+                    "Cache size: ",
+                    cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                    "Mb"
+                  );
+                }
+              });
+              larvitar.renderImage(serie_2, "viewer").then(() => {
+                larvitar.logger.debug("Image 2 has been rendered");
+                larvitar.cacheImages(serie_2, function (resp) {
+                  if (resp.loading == 100) {
+                    let cache = larvitar.cornerstone.imageCache;
+                    larvitar.logger.debug(
+                      "Cache size: ",
+                      cache.getCacheInfo().cacheSizeInBytes / 1e6,
+                      "Mb"
+                    );
+                  }
+                });
+                larvitar.addDefaultTools("viewer");
+              });
+            });
+
+            document.getElementById("active-layer").innerText =
+              "Active Layer: main";
+            document.getElementById("opacity").innerText = "Opacity: 1.0";
+          })
+          .catch(err => larvitar.logger.error(err));
+      }
+      let demoFileList = getDemoFileNames();
+      demoFileList.forEach(demoFile => {
+        createFile(demoFile, renderSerie);
+      });
+
+      document.onkeypress = function (e) {
+        e = e || window.event;
+        if (e.keyCode == 97) {
+          let activeLayer = larvitar.getActiveLayer("viewer");
+          let newActiveLayer =
+            activeLayer.layerId == layer_1.id ? layer_2 : layer_1;
+
+          larvitar.setActiveLayer("viewer", newActiveLayer.id);
+          document.getElementById("active-layer").innerText =
+            "Active Layer: " + newActiveLayer.options.name;
+          document.getElementById("opacity").innerText =
+            "Opacity: " + newActiveLayer.options.opacity;
+        }
+        if (e.keyCode == 111) {
+          let activeLayer = larvitar.getActiveLayer("viewer");
+          let opacity =
+            activeLayer.options.opacity == 1.0
+              ? 0.0
+              : activeLayer.options.opacity + 0.25;
+          larvitar.updateLayer("viewer", activeLayer.layerId, {
+            opacity: opacity
+          });
+          document.getElementById("opacity").innerText = "Opacity: " + opacity;
+        }
+      };
+    </script>
+  </body>
+</html>
