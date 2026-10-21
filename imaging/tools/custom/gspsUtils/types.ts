@@ -119,7 +119,7 @@ export type GraphicDetails = {
     patternOnOpacity?: number;
     patternOffOpacity?: number;
     lineThickness?: number;
-    lineDashingStyle?: number;
+    lineDashingStyle?: string;
     linePattern?: number;
     shadowStyle?: string;
     shadowOffsetX?: number;
@@ -152,7 +152,7 @@ export type CompoundDetails = {
     patternOnOpacity?: number;
     patternOffOpacity?: number;
     lineThickness?: number;
-    lineDashingStyle?: number;
+    lineDashingStyle?: string;
     linePattern?: number;
     shadowStyle?: string;
     shadowOffsetX?: number;
