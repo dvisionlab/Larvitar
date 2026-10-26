@@ -1,4 +1,10 @@
-import { convertCIELabToRGBWithRefs } from "./genericDrawingUtils";
+import {
+  convertCIELabToRGBWithRefs,
+  measureText,
+  GSPS_DEFAULT_COLOR
+} from "./genericDrawingUtils";
+
+const TEXT_PADDING = 4;
 import type {
   AnnotationOverlay,
   CompoundDetails,
@@ -57,7 +63,7 @@ function applyStyleToContext(
   sequence: any,
   fallbackColor: string
 ): string {
-  let finalColor = fallbackColor || "#00ff3c";
+  let finalColor = fallbackColor || GSPS_DEFAULT_COLOR;
 
   if (sequence?.patternOnColorCIELabValue) {
     const rgb = convertCIELabToRGBWithRefs(sequence.patternOnColorCIELabValue);
@@ -280,11 +286,30 @@ export function renderTextAnnotation(
     : 1;
   const yScope = viewport.displayedArea?.tlhc?.y ?? 0;
 
+  if (!textObject.unformattedTextValue) {
+    return;
+  }
+
+  const hasBoundingBox =
+    textObject.boundingBox?.tlhc?.x != null &&
+    textObject.boundingBox?.tlhc?.y != null &&
+    textObject.boundingBox?.brhc?.x != null &&
+    textObject.boundingBox?.brhc?.y != null;
+  const hasAnchor =
+    textObject.anchorPoint?.x != null && textObject.anchorPoint?.y != null;
+  if (!hasBoundingBox && !hasAnchor) {
+    return;
+  }
+
   const [tlhc, brhc, anchorPoint] = applyPixelToCanvas(
     [
-      textObject.boundingBox?.tlhc as Coords,
-      textObject.boundingBox?.brhc as Coords,
-      textObject.anchorPoint as Coords
+      (hasBoundingBox
+        ? textObject.boundingBox!.tlhc
+        : { x: 0, y: 0 }) as Coords,
+      (hasBoundingBox
+        ? textObject.boundingBox!.brhc
+        : { x: 0, y: 0 }) as Coords,
+      (hasAnchor ? textObject.anchorPoint : { x: 0, y: 0 }) as Coords
     ],
     element,
     xMultiplier,
@@ -296,20 +321,27 @@ export function renderTextAnnotation(
     textObject.boundingBoxUnits === "DISPLAY"
   );
 
-  const isCenteredOnAnchorPoints: boolean =
-    (brhc.x === null || tlhc.x === null) && anchorPoint.x !== null;
-
-  const xCenter = isCenteredOnAnchorPoints
-    ? anchorPoint.x!
-    : (brhc.x! + tlhc.x!) / 2;
-  const yCenter = isCenteredOnAnchorPoints
-    ? anchorPoint.y!
-    : (brhc.y! + tlhc.y!) / 2;
-
-  const boundingBoxWidth = brhc.x! - tlhc.x!;
-  const boundingBoxHeight = brhc.y! - tlhc.y!;
-  const top = yCenter! - boundingBoxHeight! / 2;
-  const left = xCenter! - boundingBoxWidth! / 2;
+  let xCenter: number;
+  let yCenter: number;
+  let boundingBoxWidth: number;
+  let boundingBoxHeight: number;
+  // text without bounding box: size it on the text itself and center it on the anchor point
+  let drawnTextObject = textObject;
+  if (hasBoundingBox) {
+    xCenter = (brhc.x! + tlhc.x!) / 2;
+    yCenter = (brhc.y! + tlhc.y!) / 2;
+    boundingBoxWidth = brhc.x! - tlhc.x!;
+    boundingBoxHeight = brhc.y! - tlhc.y!;
+  } else {
+    const size = measureText(context, textObject);
+    boundingBoxWidth = size.width + 2 * TEXT_PADDING;
+    boundingBoxHeight = size.height + 2 * TEXT_PADDING;
+    xCenter = anchorPoint.x!;
+    yCenter = anchorPoint.y! + boundingBoxHeight / 2;
+    drawnTextObject = { ...textObject, textFormat: "CENTER" };
+  }
+  const top = yCenter - boundingBoxHeight / 2;
+  const left = xCenter - boundingBoxWidth / 2;
 
   let finalColor = color;
   if (textObject.textStyleSequence?.textColorCIELabValue) {
@@ -319,17 +351,16 @@ export function renderTextAnnotation(
     finalColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 1)`;
   }
 
-  const fontSize = parseInt(context.font.match(/\d+/)![0], 10) || 14;
-  const lines = textObject.unformattedTextValue!.split("\n");
-  const textY = top + boundingBoxHeight / 2 - (fontSize * lines.length) / 2;
+  const textHeight = measureText(context, textObject).height;
+  const textY = yCenter - textHeight / 2;
   let textX = xCenter;
 
-  switch (textObject.textFormat) {
+  switch (drawnTextObject.textFormat) {
     case "LEFT":
-      textX = left;
+      textX = left + TEXT_PADDING;
       break;
     case "RIGHT":
-      textX = xCenter + boundingBoxWidth / 2;
+      textX = left + boundingBoxWidth - TEXT_PADDING;
       break;
     case "CENTER":
       textX = xCenter;
@@ -341,7 +372,7 @@ export function renderTextAnnotation(
   context.fillRect(left, top, boundingBoxWidth, boundingBoxHeight);
   context.restore();
 
-  drawText(context, textObject, textX, textY, finalColor);
+  drawText(context, drawnTextObject, textX, textY, finalColor);
 
   if (anchorPoint.x && anchorPoint.y && textObject.anchorpointVisibility) {
     drawLink(
@@ -396,7 +427,7 @@ export function renderCompoundAnnotation(
 
   context.save();
 
-  let finalColor = color || "#00ff3c";
+  let finalColor = color || GSPS_DEFAULT_COLOR;
   if (compoundObject.lineStyleSequence?.patternOnColorCIELabValue) {
     const rgb = convertCIELabToRGBWithRefs(
       compoundObject.lineStyleSequence.patternOnColorCIELabValue

@@ -1,3 +1,4 @@
+import { GSPS_DEFAULT_COLOR } from "./gspsUtils/genericDrawingUtils";
 import { retrieveDisplayShutter, applyMask } from "./gspsUtils/maskUtils";
 import {
   applyModalityLUT,
@@ -35,7 +36,6 @@ import { default as cornerstoneDICOMImageLoader } from "cornerstone-wado-image-l
 import { MeasurementMouseEvent, ViewportComplete } from "../types";
 import { ToolAnnotations } from "./gspsUtils/types";
 import { logger } from "../../../logger";
-const toolColors = csTools.toolColors;
 const setShadow = csTools.importInternal("drawing/setShadow");
 const getNewContext = csTools.importInternal("drawing/getNewContext");
 const draw = csTools.importInternal("drawing/draw");
@@ -186,7 +186,7 @@ export default class GspsTool extends BaseTool {
         for (let i = 0; i < toolData.length; i++) {
           const data = toolData[i];
 
-          const color = toolColors.getColorIfActive(data);
+          const color = GSPS_DEFAULT_COLOR;
           // isValidImageUIDToApplyGSPS (for annotations)
           //1. if data.imageUIDsToApply contains the image
           //2. if data.imageUIDsToApply is undefined it means that it is applied to the images defined by gspsDict,

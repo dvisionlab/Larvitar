@@ -175,6 +175,37 @@ export function applyPolygonalShutter(
  *
  * @returns {void}
  */
+/** Default color for GSPS annotations without an explicit style (matches Milvue's cyan) */
+export const GSPS_DEFAULT_COLOR = "#6fd6d2";
+/** Default font size (px) and line height factor for GSPS text */
+export const GSPS_TEXT_FONT_SIZE = 14;
+const GSPS_TEXT_LINE_HEIGHT = 1.25;
+
+/** Returns the font string used to draw a text annotation (size is always explicit) */
+export function getTextFont(textObject: TextDetails): string {
+  const style = textObject.textStyleSequence;
+  const family = style?.fontName || style?.cssFontName || "Arial";
+  return `${style?.italic === "Y" ? "italic " : ""}${
+    style?.bold === "Y" ? "bold " : ""
+  }${GSPS_TEXT_FONT_SIZE}px ${family}`;
+}
+
+/** Measures the size of a (multiline) text annotation with its own font */
+export function measureText(
+  context: CanvasRenderingContext2D,
+  textObject: TextDetails
+): { width: number; height: number } {
+  context.save();
+  context.font = getTextFont(textObject);
+  const lines = (textObject.unformattedTextValue ?? "").split("\n");
+  const width = Math.max(...lines.map(l => context.measureText(l).width));
+  context.restore();
+  return {
+    width,
+    height: lines.length * GSPS_TEXT_FONT_SIZE * GSPS_TEXT_LINE_HEIGHT
+  };
+}
+
 export function drawText(
   context: CanvasRenderingContext2D,
   textObject: TextDetails,
@@ -184,14 +215,10 @@ export function drawText(
 ) {
   context.save();
 
-  let fontName = "Arial";
   let textColor = color;
 
   if (textObject.textStyleSequence) {
     const style = textObject.textStyleSequence;
-    fontName = style.fontName! ?? style.cssFontName!;
-    if (style.bold === "Y") fontName = "bold " + fontName;
-    if (style.italic === "Y") fontName = "italic " + fontName;
     if (style.shadowStyle) {
       const shadowRgb = convertCIELabToRGBWithRefs(
         style.shadowColorCIELabValue!
@@ -205,16 +232,20 @@ export function drawText(
     textColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 1)`;
   }
 
-  context.font = fontName;
+  context.font = getTextFont(textObject);
   context.fillStyle = textColor;
-  context.textAlign = textObject.textFormat as CanvasTextAlign;
+  context.textAlign = (textObject.textFormat?.toLowerCase() ||
+    "left") as CanvasTextAlign;
   context.textBaseline = "top";
 
-  const fontSize = parseInt(context.font.match(/\d+/)![0], 10);
   const lines = textObject.unformattedTextValue!.split("\n");
 
   lines.forEach((line, index) => {
-    context.fillText(line, textX, textY + index * fontSize);
+    context.fillText(
+      line,
+      textX,
+      textY + index * GSPS_TEXT_FONT_SIZE * GSPS_TEXT_LINE_HEIGHT
+    );
   });
 
   context.restore();
