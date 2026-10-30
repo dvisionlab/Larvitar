@@ -1,0 +1,404 @@
+<!doctype html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Include the Larvitar script -->
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- custom styles for the example -->
+    <style></style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const showCodeBtn = document.getElementById("showCodeBtn");
+        const codeSnippet = document.getElementById("codeSnippet");
+        const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+        // TODO Code snippet to be displayed and updated for the example
+        const code = `
+  larvitar.initializeImageLoader();
+  larvitar.registerMultiFrameImageLoader();
+  larvitar.initializeCSTools();
+  larvitar.store.initialize();
+  larvitar.store.addViewport("viewer");
+  const seriesStack = await larvitar.readFiles(demoFiles);
+
+  // Render the first series of the study
+  let seriesId = Object.keys(seriesStack)[0];
+  let serie = seriesStack[seriesId];
+  larvitar.populateImageManager(seriesId, serie);
+  let manager = larvitar.getImageManager();
+  let multiFrameSerie = manager[seriesId];
+
+  let frameId = 0;
+  await larvitar.renderImage(multiFrameSerie, "viewer", {
+            imageIndex: frameId, 
+            scale: viewport.scale,
+            translation: viewport.translation
+          });
+  const t1 = performance.now();
+  larvitar.addDefaultTools("viewer");
+  larvitar.setToolActive("StackScroll");
+
+  // Optionally cache images
+  // await larvitar.loadAndCacheImageStack(multiFrameSerie);
+  // clearInterval(statId);
+
+  let animation = true;
+  let animationId = null;
+  let numberOfFrames = multiFrameSerie.numberOfFrames;
+  let frameRate = multiFrameSerie.frameTime;
+
+  animationId = setInterval(function () {
+    let series = larvitar.getDataFromImageManager(seriesId);
+    frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+    larvitar.renderImage(series, "viewer", {
+            cached: true, 
+            imageIndex: frameId,
+            scale: viewport.scale,
+            translation: viewport.translation 
+          });
+  }, frameRate);
+`;
+
+        // Show the modal and populate code snippet
+        showCodeBtn.addEventListener("click", () => {
+          codeSnippet.textContent = code;
+          Prism.highlightElement(codeSnippet); // Highlight the code
+          const codeModal = new bootstrap.Modal(
+            document.getElementById("codeModal")
+          );
+          codeModal.show();
+        });
+
+        // Copy the code to clipboard
+        copyCodeBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code);
+        });
+      });
+    </script>
+
+    <title>Larvitar - Multiframe rendering example</title>
+  </head>
+
+  <body class="h-100" style="background-color: #000000">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+      <p style="position: absolute; color: white">
+        Press "p" to play/pause frame animation
+      </p>
+      <p
+        id="frame-rate"
+        style="position: absolute; top: 20px; color: white"
+      ></p>
+      <p
+        id="image-time"
+        style="position: absolute; top: 40px; color: white"
+      ></p>
+
+      <span style="position: absolute; top: 60px; color: white"
+        >Max Web Workers: </span
+      ><span
+        style="position: absolute; top: 80px; color: white"
+        id="maxWebWorkers"
+      ></span
+      ><br />
+      <span style="position: absolute; top: 100px; color: white"
+        >Num Web Workers: </span
+      ><span
+        style="position: absolute; top: 120px; color: white"
+        id="numWebWorkers"
+      ></span
+      ><br />
+      <span style="position: absolute; top: 140px; color: white"
+        >Num Queued Tasks: </span
+      ><span
+        style="position: absolute; top: 160px; color: white"
+        id="numQueuedTasks"
+      ></span
+      ><br />
+      <span
+        style="position: absolute; top: 180px; color: white"
+        style="color: white"
+        >Num Tasks Executing: </span
+      ><span
+        style="position: absolute; top: 200px; color: white"
+        id="numTasksExecuting"
+      ></span
+      ><br />
+      <span style="position: absolute; top: 220px; color: white"
+        >Total Tasks Executed: </span
+      ><span
+        style="position: absolute; top: 240px; color: white"
+        id="totalTasksExecuted"
+      ></span
+      ><br />
+      <span style="position: absolute; top: 260px; color: white"
+        >Total Task Execution Time: </span
+      ><span
+        style="position: absolute; top: 280px; color: white"
+        id="totalTaskExecutionTime"
+      ></span
+      ><br />
+      <span style="position: absolute; top: 300px; color: white"
+        >Total Task Delay Time: </span
+      ><span
+        style="position: absolute; top: 320px; color: white"
+        id="totalTaskDelayTime"
+      ></span
+      ><br />
+      <button
+        id="showCodeBtn"
+        class="open-button"
+        style="position: absolute; top: 350px; width: 8%; left: 8px"
+      >
+        Show Code
+      </button>
+
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="codeModalLabel">JavaScript Code</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
+              <pre><code id="codeSnippet" class="language-javascript"></code></pre>
+            </div>
+            <div class="modal-footer">
+              <button id="copyCodeBtn" class="btn btn-success">
+                Copy Code
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spinner icon -->
+      <div id="spinner"></div>
+    </div>
+
+    <script>
+      const spinner = document.getElementById("spinner");
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+      let demoFiles = [];
+
+      // init all
+      larvitar.initializeImageLoader();
+      larvitar.registerMultiFrameImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+
+      // set log level to debug
+      larvitar.setLogLevel("debug");
+
+      showSpinner();
+      async function renderSerie() {
+        const t0 = performance.now();
+        const seriesStack = await larvitar.readFiles(demoFiles);
+        // render the first series of the study
+        let seriesId = Object.keys(seriesStack)[0];
+        let serie = seriesStack[seriesId];
+        larvitar.populateImageManager(seriesId, serie);
+        let manager = larvitar.getImageManager();
+        let multiFrameSerie = manager[seriesId];
+
+        let frameId = 0;
+        await larvitar.renderImage(multiFrameSerie, "viewer", {
+          cached: true,
+          imageIndex: frameId
+        });
+        hideSpinner();
+        const t1 = performance.now();
+        larvitar.logger.debug(
+          "Time to render First frame: " + (t1 - t0) + "ms"
+        );
+        larvitar.addDefaultTools("viewer");
+        larvitar.setToolActive("StackScroll");
+
+        // optionally cache images
+        //await larvitar.loadAndCacheImageStack(multiFrameSerie);
+        // larvitar.logger.debug(
+        //   "Stack has been loaded and cached",
+        //   multiFrameSerie.bytes / 1048576
+        // );
+        // clearInterval(statId);
+
+        let animation = true;
+        let animationId = null;
+        let numberOfFrames = multiFrameSerie.numberOfFrames;
+        let frameRate = multiFrameSerie.frameTime;
+        document.getElementById("frame-rate").innerText =
+          "Frame Rate: " + parseInt(frameRate) + "ms";
+        document.getElementById("image-time").innerText =
+          "Current Frame: 1 of " + numberOfFrames;
+
+        animationId = setInterval(function () {
+          let series = larvitar.getDataFromImageManager(seriesId);
+          frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+          const element = document.getElementById("viewer");
+          const viewport = larvitar.cornerstone.getViewport(element);
+          const viewportCopy = JSON.parse(JSON.stringify(viewport));
+          larvitar.renderImage(multiFrameSerie, "viewer", {
+            cached: true,
+            imageIndex: frameId,
+            scale: viewport.scale,
+            translation: viewport.translation
+          });
+
+          document.getElementById("image-time").innerText =
+            "Current Frame: " + parseInt(frameId + 1) + " of " + numberOfFrames;
+        }, frameRate);
+
+        const t2 = performance.now();
+        larvitar.logger.debug("Time to start cine loop: " + (t2 - t0) + "ms");
+
+        // add event listener to the wheel to update the UI
+        document
+          .getElementById("viewer")
+          .addEventListener("wheel", function (event) {
+            frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
+            document.getElementById("image-time").innerText =
+              "Current Frame: " +
+              parseInt(frameId + 1) +
+              " of " +
+              numberOfFrames;
+          });
+
+        document.onkeypress = function (e) {
+          e = e || window.event;
+          if (e.keyCode == 109) {
+            let performanceMonitor = larvitar.getPerformanceMonitor();
+            if (performanceMonitor) {
+              larvitar.deactivatePerformanceMonitor();
+            } else {
+              larvitar.activatePerformanceMonitor();
+            }
+          }
+          if (e.keyCode == 112) {
+            animation = !animation;
+            if (animation) {
+              frameId = larvitar.store.get(["viewports", "viewer", "sliceId"]);
+              animationId = setInterval(function () {
+                let series = larvitar.getDataFromImageManager(seriesId);
+                frameId = frameId == numberOfFrames - 1 ? 0 : frameId + 1;
+                larvitar.renderImage(multiFrameSerie, "viewer", {
+                  cached: true,
+                  imageIndex: frameId,
+                  scale: viewport.scale,
+                  translation: viewport.translation
+                });
+
+                document.getElementById("image-time").innerText =
+                  "Current Frame: " +
+                  parseInt(frameId + 1) +
+                  " of " +
+                  numberOfFrames;
+              }, frameRate);
+            } else {
+              clearInterval(animationId);
+              document.getElementById("image-time").innerText = ""; // Clear the text when animation stops
+            }
+          }
+        };
+      }
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        cb();
+      }
+      createFile("xa_integris.dcm", renderSerie);
+
+      function updateStatistics() {
+        var stats =
+          larvitar.cornerstoneDICOMImageLoader.webWorkerManager.getStatistics();
+        document.getElementById("maxWebWorkers").textContent =
+          stats.maxWebWorkers;
+        document.getElementById("numWebWorkers").textContent =
+          stats.numWebWorkers;
+        document.getElementById("numQueuedTasks").textContent =
+          stats.numTasksQueued;
+        document.getElementById("numTasksExecuting").textContent =
+          stats.numTasksExecuting;
+        document.getElementById("totalTasksExecuted").textContent =
+          stats.numTasksCompleted;
+        document.getElementById("totalTaskExecutionTime").textContent =
+          stats.totalTaskTimeInMS;
+        document.getElementById("totalTaskDelayTime").textContent =
+          stats.totalTimeDelayedInMS;
+      }
+
+      let statId = setInterval(function () {
+        updateStatistics();
+      }, 100);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,369 @@
+<!doctype html>
+<html class="h-100 overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Include the Larvitar script -->
+    <script>
+      // Check the host and set the script source dynamically
+      const script = document.createElement("script");
+      if (window.location.host === "larvitar.dvisionlab.com") {
+        document.write(
+          '<script src="https://larvitar.dvisionlab.com/assets/larvitar.js"><\/script>'
+        );
+      } else {
+        document.write('<script src="../../dist/larvitar.js"><\/script>');
+      }
+      // Append the script to the document
+      document.head.appendChild(script);
+    </script>
+
+    <!-- Add the Bootstrap CSS and Prism CSS for code modal -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <!-- Include the CSS file -->
+    <link rel="stylesheet" href="resources/styles.css" />
+
+    <!-- custom styles for the example -->
+    <style></style>
+
+    <!-- Add the Bootstrap JS and Prism JS for code modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+    <!-- Code to be displayed as source example code -->
+    <!-- <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const showCodeBtn = document.getElementById("showCodeBtn");
+      const codeSnippet = document.getElementById("codeSnippet");
+      const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+      // TODO Code snippet to be displayed and updated for the example
+      const code = ``;
+      // Show the modal and populate code snippet
+      showCodeBtn.addEventListener("click", () => {
+        codeSnippet.textContent = code;
+        Prism.highlightElement(codeSnippet); // Highlight the code
+        const codeModal = new bootstrap.Modal(
+          document.getElementById("codeModal")
+        );
+        codeModal.show();
+      });
+
+      // Copy the code to clipboard
+      copyCodeBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(code);
+      });
+    });
+  </script> -->
+
+    <title>Larvitar - Filters</title>
+    <style>
+      body {
+        background-color: #000;
+        color: white;
+      }
+      #filter-controls {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: rgba(40, 40, 40, 0.9);
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #444;
+        width: 280px; /* Increased width for new input */
+      }
+      .form-label {
+        margin-bottom: 0.25rem;
+      }
+      .form-control,
+      .form-select,
+      .form-control:focus {
+        background-color: #333;
+        color: white;
+        border-color: #555;
+      }
+      .form-control:focus,
+      .form-select:focus {
+        background-color: #444;
+        color: white;
+        border-color: #888;
+        box-shadow: none;
+      }
+      #spinner {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 2s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -30px;
+        margin-left: -30px;
+        display: none; /* Initially hidden */
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+
+  <body class="h-100">
+    <div class="row h-100">
+      <div
+        id="viewer"
+        class="col-12 h-100"
+        style="background-color: black"
+      ></div>
+
+      <div id="filter-controls">
+        <h5>Image Filters</h5>
+        <p style="font-size: 12px; margin-top: -5px; color: #ccc">
+          Press "1" to remove filter
+        </p>
+        <div class="mb-3">
+          <label for="kernelSize" class="form-label">Kernel Size</label>
+          <select id="kernelSize" class="form-select">
+            <option>3</option>
+            <option>5</option>
+            <option>7</option>
+            <option>9</option>
+            <option>11</option>
+            <option>13</option>
+            <option>15</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="strength" class="form-label">Strength / Sigma</label>
+          <input
+            type="number"
+            id="strength"
+            class="form-control"
+            value="1.0"
+            step="0.1"
+            min="0.1"
+          />
+        </div>
+        <div class="d-grid gap-2 mb-3">
+          <button id="applyGaussian" class="btn btn-primary">
+            Apply Gaussian Blur
+          </button>
+          <button id="applySharpen" class="btn btn-success">
+            Apply Sharpen
+          </button>
+        </div>
+
+        <hr style="border-color: #555" />
+
+        <div class="mb-3">
+          <label for="jsonKernel" class="form-label">Custom JSON Kernel</label>
+          <textarea id="jsonKernel" class="form-control" rows="4">
+[[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]]</textarea
+          >
+        </div>
+        <div class="d-grid gap-2">
+          <button id="applyJsonKernel" class="btn btn-secondary">
+            Apply JSON Kernel
+          </button>
+        </div>
+      </div>
+
+      <div id="spinner"></div>
+    </div>
+
+    <script>
+      const spinner = document.getElementById("spinner");
+      let demoFiles = [];
+      let multiFrameSerie;
+      let frameId = 0;
+
+      // Show spinner
+      function showSpinner() {
+        spinner.style.display = "block";
+      }
+
+      // Hide spinner
+      function hideSpinner() {
+        spinner.style.display = "none";
+      }
+
+      larvitar.initializeImageLoader();
+      larvitar.registerMultiFrameImageLoader();
+      larvitar.initializeCSTools();
+      larvitar.store.initialize();
+      larvitar.store.addViewport("viewer");
+      larvitar.setLogLevel("debug");
+
+      async function resetFilter() {
+        if (!multiFrameSerie) return;
+        const imageIds = Object.keys(multiFrameSerie.instances);
+        const imageIdAtSlice = imageIds[frameId];
+        const imageInstance = multiFrameSerie.instances[imageIdAtSlice];
+        await larvitar.renderImage(multiFrameSerie, "viewer", {
+          imageIndex: frameId,
+          voi: {
+            windowWidth: imageInstance.metadata.windowWidth,
+            windowCenter: imageInstance.metadata.windowCenter
+          }
+        });
+      }
+
+      async function handleApplyFilter(applyKernelFunction) {
+        await resetFilter();
+        const element = document.getElementById("viewer");
+        const image = larvitar.cornerstone.getEnabledElement(element)?.image;
+        if (!image) {
+          larvitar.logger.error("No image found in the viewer element.");
+          return;
+        }
+
+        const kernelSize = parseInt(
+          document.getElementById("kernelSize").value,
+          10
+        );
+        const strength = parseFloat(document.getElementById("strength").value);
+
+        if (isNaN(kernelSize) || isNaN(strength)) {
+          alert("Please enter valid numbers for Kernel Size and Strength.");
+          return;
+        }
+
+        try {
+          const filteredImage = applyKernelFunction(
+            image,
+            kernelSize,
+            strength
+          );
+          larvitar.cornerstone.displayImage(element, filteredImage);
+          larvitar.setImageCustomPreset(["viewer"], {
+            ww: filteredImage.windowWidth,
+            wl: filteredImage.windowCenter
+          });
+        } catch (error) {
+          alert(error.message);
+          console.error(error);
+        }
+      }
+
+      async function handleApplyJsonKernel() {
+        await resetFilter();
+        const element = document.getElementById("viewer");
+        const image = larvitar.cornerstone.getEnabledElement(element)?.image;
+        if (!image) {
+          larvitar.logger.error("No image found in the viewer element.");
+          return;
+        }
+
+        const jsonString = document.getElementById("jsonKernel").value;
+        const kernelName = "custom.user.filter";
+
+        try {
+          const kernel = JSON.parse(jsonString);
+          if (
+            !Array.isArray(kernel) ||
+            kernel.length === 0 ||
+            !kernel.every(
+              row => Array.isArray(row) && row.length === kernel.length
+            )
+          ) {
+            throw new Error(
+              "Invalid kernel. Must be a square array of arrays (e.g., 3x3, 5x5)."
+            );
+          }
+
+          larvitar.addCustomKernel(kernelName, {
+            label: "User Defined",
+            size: kernel.length,
+            kernel: kernel,
+            type: "custom"
+          });
+
+          const filteredImage = larvitar.applyConvolutionFilter(
+            image,
+            kernelName,
+            true
+          );
+          larvitar.cornerstone.displayImage(element, filteredImage);
+          larvitar.setImageCustomPreset(["viewer"], {
+            ww: filteredImage.windowWidth,
+            wl: filteredImage.windowCenter
+          });
+        } catch (error) {
+          alert("Error applying custom kernel: " + error.message);
+          console.error(error);
+        }
+      }
+
+      async function renderSerie() {
+        showSpinner();
+        const seriesStack = await larvitar.readFiles(demoFiles);
+        let seriesId = Object.keys(seriesStack)[0];
+        let serie = seriesStack[seriesId];
+        larvitar.populateImageManager(seriesId, serie);
+        let manager = larvitar.getImageManager();
+        multiFrameSerie = manager[seriesId];
+
+        await larvitar.renderImage(multiFrameSerie, "viewer", {
+          imageIndex: frameId
+        });
+        hideSpinner();
+        larvitar.logger.debug("Image has been rendered");
+
+        larvitar.addDefaultTools("viewer");
+        larvitar.setToolActive("Wwwc");
+
+        await larvitar.loadAndCacheImageStack(multiFrameSerie);
+
+        // Add event listeners
+        document
+          .getElementById("applyGaussian")
+          .addEventListener("click", () =>
+            handleApplyFilter(larvitar.applyGaussianBlur)
+          );
+
+        document
+          .getElementById("applySharpen")
+          .addEventListener("click", () =>
+            handleApplyFilter(larvitar.applySharpening)
+          );
+
+        document
+          .getElementById("applyJsonKernel")
+          .addEventListener("click", handleApplyJsonKernel);
+
+        document.onkeypress = function (e) {
+          e = e || window.event;
+          if (e.keyCode === 49) {
+            // "1" key
+            resetFilter();
+          }
+        };
+      }
+
+      async function createFile(fileName, cb) {
+        let response = await fetch("./demo/" + fileName);
+        let data = await response.blob();
+        let file = new File([data], fileName);
+        demoFiles.push(file);
+        cb();
+      }
+
+      createFile("anon1", renderSerie);
+    </script>
+  </body>
+</html>
